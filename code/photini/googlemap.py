@@ -56,6 +56,7 @@ class GoogleMap(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.location = dict()
+        self.search_string = None
         layout = QtGui.QGridLayout()
         layout.setMargin(0)
         layout.setRowStretch(6, 1)
@@ -80,6 +81,7 @@ class GoogleMap(QtGui.QWidget):
         self.edit_box.setEditable(True)
         self.edit_box.lineEdit().returnPressed.connect(self.search)
         self.edit_box.activated.connect(self.go_to)
+        self.clear_search()
         layout.addWidget(self.edit_box, 1, 0)
         # latitude
         layout.addWidget(QtGui.QLabel('Latitude:'), 2, 0)
@@ -132,20 +134,39 @@ class GoogleMap(QtGui.QWidget):
         self.config_store.set(
             'map', 'last_position', str((latitude, longitude)))
 
-    def search(self):
-        search_string = self.edit_box.lineEdit().text()
-        self.edit_box.clear()
+    def search(self, search_string=None):
+        if not search_string:
+            search_string = self.edit_box.lineEdit().text()
+        if not search_string:
+            return
+        self.search_string = search_string
+        self.clear_search()
         self.location = dict()
         self.map.page().mainFrame().evaluateJavaScript(
             'search("%s")' % (search_string))
+
+    def clear_search(self):
+        self.edit_box.clear()
+        self.edit_box.addItem('<new search>')
+        if self.search_string:
+            self.edit_box.addItem('<repeat search>')
 
     @QtCore.pyqtSlot(float, float, unicode)
     def search_result(self, lat, lng, name):
         self.edit_box.addItem(name)
         self.location[unicode(name)] = lat, lng
+        self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
     def go_to(self, idx):
+        if idx == 0:
+            # new search
+            self.edit_box.clearEditText()
+            return
+        if self.search_string and idx == 1:
+            # repeat search
+            self.search(self.search_string)
+            return
         name = unicode(self.edit_box.itemText(idx))
         if name in self.location:
             location = self.location[name]
