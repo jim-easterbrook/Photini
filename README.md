@@ -20,7 +20,7 @@ This software is currently at a very early stage of development. It's not actual
 Legalese
 --------
 
-Photini - a simple photo metedata editor.  
+Photini - a simple photo metadata editor.  
 <http://github.com/jim-easterbrook/Photini>  
 Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
