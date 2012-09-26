@@ -32,6 +32,7 @@ class Image(QtGui.QFrame):
         self.selected = False
         self.pixmap = None
         self.metadata = None
+        self.metadata_changed = False
         self.thumb_size = thumb_size
         layout = QtGui.QVBoxLayout()
         layout.setSpacing(0)
@@ -94,6 +95,33 @@ class Image(QtGui.QFrame):
             if key in self.metadata.exif_keys:
                 return [unicode(self.metadata[key].value, 'iso8859_1')]
         return None
+
+    def set_metadata(self, keys, value):
+        for key in keys:
+            standard = key.split('.')[0]
+            if standard == 'Xmp':
+                new_tag = pyexiv2.XmpTag(key)
+                if new_tag.type.split()[0] in ('bag', 'seq'):
+                    if isinstance(value, list):
+                        new_tag = pyexiv2.XmpTag(key, value)
+                    else:
+                        new_tag = pyexiv2.XmpTag(key, [value])
+                elif new_tag.type == 'Lang Alt':
+                    if isinstance(value, list):
+                        new_tag = pyexiv2.XmpTag(key, {'': value[0]})
+                    else:
+                        new_tag = pyexiv2.XmpTag(key, {'': value})
+                else:
+                    raise KeyError("Unknown type %s" % new_tag.type)
+                self.metadata[key] = new_tag
+            elif standard == 'Iptc':
+                if isinstance(value, list):
+                    self.metadata[key] = pyexiv2.IptcTag(key, value)
+                else:
+                    self.metadata[key] = pyexiv2.IptcTag(key, [value])
+            elif standard == 'Exif':
+                self.metadata[key] = pyexiv2.ExifTag(key, value)
+            self.metadata_changed = True
 
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size

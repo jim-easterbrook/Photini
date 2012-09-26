@@ -19,6 +19,11 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
+class MultiLineEdit(QtGui.QPlainTextEdit):
+    editingFinished = QtCore.pyqtSignal()
+    def focusOutEvent(self, event):
+        self.editingFinished.emit()
+
 class TextMetadata(QtGui.QWidget):
     def __init__(self, config_store, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -26,15 +31,25 @@ class TextMetadata(QtGui.QWidget):
         self.selection = list()
         self.form = QtGui.QFormLayout()
         self.setLayout(self.form)
+        # title
         self.title = QtGui.QLineEdit()
+        self.title.editingFinished.connect(self.new_title)
         self.form.addRow('Title / Object Name', self.title)
-        self.description = QtGui.QPlainTextEdit()
+        # description
+        self.description = MultiLineEdit()
+        self.description.editingFinished.connect(self.new_description)
         self.form.addRow('Description / Caption', self.description)
+        # keywords
         self.keywords = QtGui.QLineEdit()
+        self.keywords.editingFinished.connect(self.new_keywords)
         self.form.addRow('Keywords', self.keywords)
+        # copyright
         self.copyright = QtGui.QLineEdit()
+        self.copyright.editingFinished.connect(self.new_copyright)
         self.form.addRow('Copyright', self.copyright)
+        # creator
         self.creator = QtGui.QLineEdit()
+        self.creator.editingFinished.connect(self.new_creator)
         self.form.addRow('Creator / Artist', self.creator)
 
     title_keys = ('Xmp.dc.title', 'Iptc.Application2.ObjectName',
@@ -45,6 +60,31 @@ class TextMetadata(QtGui.QWidget):
     keywords_keys = ('Xmp.dc.subject', 'Iptc.Application2.Keywords')
     copyright_keys = ('Xmp.dc.rights', 'Xmp.tiff.Copyright',
                       'Iptc.Application2.Copyright', 'Exif.Image.Copyright')
+
+    def new_title(self):
+        value = unicode(self.title.text())
+        for image in self.selection:
+            image.set_metadata(self.title_keys, value)
+
+    def new_description(self):
+        value = unicode(self.description.toPlainText())
+        for image in self.selection:
+            image.set_metadata(self.description_keys, value)
+
+    def new_keywords(self):
+        value = unicode(self.keywords.text())
+        for image in self.selection:
+            image.set_metadata(self.keywords_keys, value)
+
+    def new_copyright(self):
+        value = unicode(self.copyright.text()).split(';')
+        for image in self.selection:
+            image.set_metadata(self.copyright_keys, value)
+
+    def new_creator(self):
+        value = unicode(self.creator.text())
+        for image in self.selection:
+            image.set_metadata(self.creator_keys, value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
