@@ -8,14 +8,14 @@ Dependencies
 
 *   Python: <http://python.org/>
 *   PyQt: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   pyexiv2: <https://launchpad.net/pyexiv2>
+*   pyexiv2: <https://launchpad.net/pyexiv2>. You may need to build pyexiv2, in which case you'll need scons <http://www.scons.org/> and libexiv2-dev <http://www.exiv2.org/> as well.
 
 These should all be available from the repository of any modern Linux distribution. I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
 Warning
 -------
 
-This software is currently at a very early stage of development. It's not actually useful yet - in particular it doesn't save any metadata, so it's not really an editor. I've put it on github as a backup, and so anyone interested can have a look and give me some early feedback.
+This software is currently at a very early stage of development. I've put it on github as a backup, and so anyone interested can have a look and give me some early feedback. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 Legalese
 --------
