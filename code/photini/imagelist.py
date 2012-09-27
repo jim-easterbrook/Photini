@@ -31,36 +31,51 @@ class Image(QtGui.QFrame):
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False
         self.pixmap = None
-        self.metadata = None
-        self.metadata_changed = False
         self.thumb_size = thumb_size
-        layout = QtGui.QVBoxLayout()
+        # read metadata
+        self.metadata = pyexiv2.ImageMetadata(self.path)
+        self.metadata.read()
+        self.metadata_changed = False
+        layout = QtGui.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
         # label to display image
         self.image = QtGui.QLabel()
         self.image.setFixedSize(self.thumb_size, self.thumb_size)
-        self.image.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
-        layout.addWidget(self.image)
+        self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
         self.label = QtGui.QLabel(self.name)
-        self.label.setAlignment(Qt.AlignHCenter)
-        layout.addWidget(self.label)
+        self.label.setAlignment(Qt.AlignRight)
+        layout.addWidget(self.label, 1, 1)
+        # label to display status
+        self.status = QtGui.QLabel()
+        self.status.setAlignment(Qt.AlignLeft)
+        layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
         self.setObjectName("thumbnail")
         self.set_selected(False)
+        self.show_status()
 
     mouse_press = QtCore.pyqtSignal(str, QtGui.QMouseEvent)
     def mousePressEvent(self, event):
         self.mouse_press.emit(self.path, event)
 
+    def show_status(self):
+        status = u''
+        # set 'geotagged' status
+        if (('Xmp.exif.GPSLatitude' in self.metadata.xmp_keys) or
+            ('Exif.GPSInfo.GPSLatitude' in self.metadata.exif_keys)):
+            status += unichr(0x2690)
+        # set 'unsaved' status
+        if self.metadata_changed:
+            status += unichr(0x26A1)
+        self.status.setText(status)
+
     def get_metadata(self, keys):
         # Turn every type of text data into a list of unicode strings.
         # Let caller decide what it means.
-        if not self.metadata:
-            self.metadata = pyexiv2.ImageMetadata(self.path)
-            self.metadata.read()
 ##            print '### exif'
 ##            for key in self.metadata.exif_keys:
 ##                try:
@@ -122,6 +137,7 @@ class Image(QtGui.QFrame):
             elif standard == 'Exif':
                 self.metadata[key] = pyexiv2.ExifTag(key, value)
             self.metadata_changed = True
+            self.show_status()
 
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
