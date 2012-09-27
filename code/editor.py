@@ -27,9 +27,11 @@ options are:
 import getopt
 import os
 import sys
+import urllib2
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+from PyQt4.QtNetwork import QNetworkProxy
 
 from photini.configstore import ConfigStore
 from photini.googlemap import GoogleMap
@@ -43,6 +45,12 @@ class MainWindow(QtGui.QMainWindow):
         self.selection = list()
         # config store
         self.config_store = ConfigStore()
+        # set network proxy
+        proxies = urllib2.getproxies()
+        if 'http' in proxies:
+            scheme, host, port = proxies['http'].split(':')
+            QNetworkProxy.setApplicationProxy(
+                QNetworkProxy(QNetworkProxy.HttpProxy, host, int(port)))
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
