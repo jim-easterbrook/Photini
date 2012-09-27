@@ -62,6 +62,13 @@ class Image(QtGui.QFrame):
     def mousePressEvent(self, event):
         self.mouse_press.emit(self.path, event)
 
+    def save_metadata(self):
+        if not self.metadata_changed:
+            return
+        self.metadata.write()
+        self.metadata_changed = False
+        self.show_status()
+
     def show_status(self):
         status = u''
         # set 'geotagged' status
@@ -111,33 +118,28 @@ class Image(QtGui.QFrame):
                 return [unicode(self.metadata[key].value, 'iso8859_1')]
         return None
 
+    new_metadata = QtCore.pyqtSignal(str)
     def set_metadata(self, keys, value):
+        if value == self.get_metadata(keys):
+            return
         for key in keys:
             standard = key.split('.')[0]
             if standard == 'Xmp':
                 new_tag = pyexiv2.XmpTag(key)
                 if new_tag.type.split()[0] in ('bag', 'seq'):
-                    if isinstance(value, list):
-                        new_tag = pyexiv2.XmpTag(key, value)
-                    else:
-                        new_tag = pyexiv2.XmpTag(key, [value])
+                    new_tag = pyexiv2.XmpTag(key, value)
                 elif new_tag.type == 'Lang Alt':
-                    if isinstance(value, list):
-                        new_tag = pyexiv2.XmpTag(key, {'': value[0]})
-                    else:
-                        new_tag = pyexiv2.XmpTag(key, {'': value})
+                    new_tag = pyexiv2.XmpTag(key, {'': value[0]})
                 else:
                     raise KeyError("Unknown type %s" % new_tag.type)
                 self.metadata[key] = new_tag
             elif standard == 'Iptc':
-                if isinstance(value, list):
-                    self.metadata[key] = pyexiv2.IptcTag(key, value)
-                else:
-                    self.metadata[key] = pyexiv2.IptcTag(key, [value])
+                self.metadata[key] = pyexiv2.IptcTag(key, value)
             elif standard == 'Exif':
-                self.metadata[key] = pyexiv2.ExifTag(key, value)
-            self.metadata_changed = True
-            self.show_status()
+                self.metadata[key] = pyexiv2.ExifTag(key, value[0])
+        self.metadata_changed = True
+        self.show_status()
+        self.new_metadata.emit(self.path)
 
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
@@ -234,6 +236,7 @@ class ImageList(QtGui.QWidget):
             image = Image(path, thumb_size=self.thumb_size)
             self.image[path] = image
             image.mouse_press.connect(self.thumb_mouse_press)
+            image.new_metadata.connect(self.emit_new_metadata)
         self.path_list.sort()
         for path in self.path_list:
             image = self.image[path]
@@ -264,6 +267,12 @@ class ImageList(QtGui.QWidget):
                 image.setParent(None)
         self.emit_selection()
 
+    @QtCore.pyqtSlot()
+    def save_files(self):
+        for path in list(self.path_list):
+            image = self.image[path].save_metadata()
+        self.new_metadata.emit(False)
+
     selection_changed = QtCore.pyqtSignal(list)
     def emit_selection(self):
         selection = list()
@@ -272,6 +281,11 @@ class ImageList(QtGui.QWidget):
             if image.get_selected():
                 selection.append(image)
         self.selection_changed.emit(selection)
+
+    new_metadata = QtCore.pyqtSignal(bool)
+    @QtCore.pyqtSlot(str)
+    def emit_new_metadata(self, path):
+        self.new_metadata.emit(True)
 
     @QtCore.pyqtSlot(str, QtGui.QMouseEvent)
     def thumb_mouse_press(self, path, event):

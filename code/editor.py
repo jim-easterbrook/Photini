@@ -58,6 +58,7 @@ class MainWindow(QtGui.QMainWindow):
         # image selector
         self.image_list = ImageList(self.config_store)
         self.image_list.selection_changed.connect(self.new_selection)
+        self.image_list.new_metadata.connect(self.new_metadata)
         # textual metadata editor
         self.text_edit = TextMetadata(self.config_store)
         # map metadata editor(s)
@@ -83,6 +84,10 @@ class MainWindow(QtGui.QMainWindow):
         open_action.setShortcuts(['Ctrl+O'])
         open_action.triggered.connect(self.image_list.open_files)
         file_menu.addAction(open_action)
+        self.save_action = QtGui.QAction('Save images with new data', self)
+        self.save_action.setEnabled(False)
+        self.save_action.triggered.connect(self.image_list.save_files)
+        file_menu.addAction(self.save_action)
         self.close_action = QtGui.QAction('Close selected images', self)
         self.close_action.setEnabled(False)
         self.close_action.triggered.connect(self.image_list.close_files)
@@ -104,11 +109,15 @@ class MainWindow(QtGui.QMainWindow):
     @QtCore.pyqtSlot(int)
     def new_tab(self, index):
         self.image_list.emit_selection()
-    
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.close_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
+
+    @QtCore.pyqtSlot(bool)
+    def new_metadata(self, unsaved_data):
+        self.save_action.setEnabled(unsaved_data)
 
     def resizeEvent(self, event):
         size = self.width(), self.height()

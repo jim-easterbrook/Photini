@@ -62,27 +62,28 @@ class TextMetadata(QtGui.QWidget):
                       'Iptc.Application2.Copyright', 'Exif.Image.Copyright')
 
     def new_title(self):
-        value = unicode(self.title.text())
+        value = [unicode(self.title.text()).strip()]
         for image in self.selection:
             image.set_metadata(self.title_keys, value)
 
     def new_description(self):
-        value = unicode(self.description.toPlainText())
+        value = [unicode(self.description.toPlainText()).strip()]
         for image in self.selection:
             image.set_metadata(self.description_keys, value)
 
     def new_keywords(self):
-        value = unicode(self.keywords.text())
+        value = map(lambda x: unicode(x).strip(),
+                    self.keywords.text().split(';'))
         for image in self.selection:
             image.set_metadata(self.keywords_keys, value)
 
     def new_copyright(self):
-        value = unicode(self.copyright.text()).split(';')
+        value = [unicode(self.copyright.text()).strip()]
         for image in self.selection:
             image.set_metadata(self.copyright_keys, value)
 
     def new_creator(self):
-        value = unicode(self.creator.text())
+        value = [unicode(self.creator.text()).strip()]
         for image in self.selection:
             image.set_metadata(self.creator_keys, value)
 
