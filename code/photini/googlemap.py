@@ -50,7 +50,7 @@ show_map = """<!DOCTYPE html>
 """
 
 class GoogleMap(QtGui.QWidget):
-    api_key = 'AIzaSyAaUmWd88y4_eGq1D8gelpnewE6RTh6U2Q'
+    api_key = 'AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y'
     def __init__(self, config_store, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
