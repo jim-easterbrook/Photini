@@ -20,15 +20,15 @@ var geocoder;
 var map;
 var markers = [];
 
-function initialize()
+function initialize(lat, lng, zoom)
 {
   var mapOptions =
   {
-    center: new google.maps.LatLng(%f, %f),
+    center: new google.maps.LatLng(lat, lng),
     panControl: true,
     streetViewControl: false,
     scrollwheel: false,
-    zoom: %d,
+    zoom: zoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);

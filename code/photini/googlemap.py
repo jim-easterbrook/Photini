@@ -40,11 +40,10 @@ show_map = """<!DOCTYPE html>
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false&region=GB">
     </script>
-    <script type="text/javascript">
-    %s
+    <script type="text/javascript" src="googlemap.js">
     </script>
   </head>
-  <body onload="initialize()">
+  <body onload="initialize(%f, %f, %d)">
     <div id="map_canvas" style="width:100%%; height:100%%"></div>
   </body>
 </html>
@@ -57,40 +56,56 @@ class GoogleMap(QtGui.QWidget):
         self.config_store = config_store
         self.location = dict()
         self.search_string = None
-        layout = QtGui.QGridLayout()
-        layout.setMargin(0)
-        layout.setRowStretch(6, 1)
-        layout.setColumnStretch(1, 1)
-        self.setLayout(layout)
+        self.selection = list()
+        self.map_loaded = False
+        self.layout = QtGui.QGridLayout()
+        self.layout.setMargin(0)
+        self.layout.setRowStretch(6, 1)
+        self.layout.setColumnStretch(1, 1)
+        self.setLayout(self.layout)
         # map
         self.map = QtWebKit.QWebView()
         self.map.setPage(ChromePage())
-        last_position = 51.0, 0.0
-        latitude, longitude = eval(
-            self.config_store.get('map', 'last_position', str(last_position)))
-        script = open(
-            os.path.join(os.path.dirname(__file__), 'googlemap.js')).read()
-        script = script % (latitude, longitude, 11)
-        self.map.setHtml(show_map % (self.api_key, script), QtCore.QUrl(''))
+        self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
-        layout.addWidget(self.map, 0, 1, 7, 1)
+        self.layout.addWidget(self.map, 0, 1, 8, 1)
         # search
-        layout.addWidget(QtGui.QLabel('Search:'), 0, 0)
+        self.layout.addWidget(QtGui.QLabel('Search:'), 0, 0)
         self.edit_box = QtGui.QComboBox()
         self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
         self.edit_box.lineEdit().returnPressed.connect(self.search)
-        self.edit_box.activated.connect(self.go_to)
+        self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
-        layout.addWidget(self.edit_box, 1, 0)
+        self.edit_box.setEnabled(False)
+        self.layout.addWidget(self.edit_box, 1, 0)
         # latitude
-        layout.addWidget(QtGui.QLabel('Latitude:'), 2, 0)
+        self.layout.addWidget(QtGui.QLabel('Latitude:'), 2, 0)
         self.latitude = QtGui.QLineEdit()
-        layout.addWidget(self.latitude, 3, 0)
+        self.layout.addWidget(self.latitude, 3, 0)
         # longitude
-        layout.addWidget(QtGui.QLabel('Longitude:'), 4, 0)
+        self.layout.addWidget(QtGui.QLabel('Longitude:'), 4, 0)
         self.longitude = QtGui.QLineEdit()
-        layout.addWidget(self.longitude, 5, 0)
+        self.layout.addWidget(self.longitude, 5, 0)
+        # load map button
+        self.load_map = QtGui.QPushButton('Load map\n\nConnect to Google')
+        self.load_map.clicked.connect(self.initialise)
+        self.layout.addWidget(self.load_map, 7, 0)
+
+    def initialise(self):
+        last_position = 51.0, 0.0
+        latitude, longitude = eval(
+            self.config_store.get('map', 'last_position', str(last_position)))
+        self.map.setHtml(show_map % (self.api_key, latitude, longitude, 11),
+                         QtCore.QUrl('file://%s/' % os.path.dirname(__file__)))
+
+    @QtCore.pyqtSlot(bool)
+    def load_finished(self, success):
+        if success:
+            self.map_loaded = True
+            self.layout.removeWidget(self.load_map)
+            self.load_map.setParent(None)
+            self.edit_box.setEnabled(True)
 
     lat_keys = ('Xmp.exif.GPSLatitude', 'Exif.GPSInfo.GPSLatitude')
     long_keys = ('Xmp.exif.GPSLongitude', 'Exif.GPSInfo.GPSLongitude')
@@ -98,7 +113,7 @@ class GoogleMap(QtGui.QWidget):
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.selection = selection
-        self.map.page().mainFrame().evaluateJavaScript('removeMarkers()')
+        self.JavaScript('removeMarkers()')
         if not self.selection:
             self.latitude.clear()
             self.longitude.clear()
@@ -127,12 +142,12 @@ class GoogleMap(QtGui.QWidget):
             self.longitude.setText(str(longitude))
 
     def add_marker(self, latitude, longitude, name):
+        if not self.map_loaded:
+            return
         if latitude is None or longitude is None:
             return
-        self.map.page().mainFrame().evaluateJavaScript(
-            'addMarker(%f, %f, "%s")' % (latitude, longitude, name))
-        self.config_store.set(
-            'map', 'last_position', str((latitude, longitude)))
+        self.JavaScript('addMarker(%f, %f, "%s")' % (latitude, longitude, name))
+        self.config_store.set('map', 'last_position', str((latitude, longitude)))
 
     def search(self, search_string=None):
         if not search_string:
@@ -142,8 +157,7 @@ class GoogleMap(QtGui.QWidget):
         self.search_string = search_string
         self.clear_search()
         self.location = dict()
-        self.map.page().mainFrame().evaluateJavaScript(
-            'search("%s")' % (search_string))
+        self.JavaScript('search("%s")' % (search_string))
 
     def clear_search(self):
         self.edit_box.clear()
@@ -158,7 +172,7 @@ class GoogleMap(QtGui.QWidget):
         self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
-    def go_to(self, idx):
+    def goto_search_result(self, idx):
         if idx == 0:
             # new search
             self.edit_box.clearEditText()
@@ -170,11 +184,13 @@ class GoogleMap(QtGui.QWidget):
         name = unicode(self.edit_box.itemText(idx))
         if name in self.location:
             location = self.location[name]
-            self.map.page().mainFrame().evaluateJavaScript(
-                'goTo(%f, %f, 11)' % location)
+            self.JavaScript('goTo(%f, %f, 11)' % location)
             self.config_store.set('map', 'last_position', str(location))
 
     @QtCore.pyqtSlot(float, float, str)
     def done(self, lat, lng, name):
         print 'done', lat, lng, name
 
+    def JavaScript(self, command):
+        if self.map_loaded:
+            self.map.page().mainFrame().evaluateJavaScript(command)
