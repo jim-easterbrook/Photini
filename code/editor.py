@@ -50,7 +50,7 @@ class MainWindow(QtGui.QMainWindow):
         if 'http' in proxies:
             scheme, host, port = proxies['http'].split(':')
             QNetworkProxy.setApplicationProxy(
-                QNetworkProxy(QNetworkProxy.HttpProxy, host, int(port)))
+                QNetworkProxy(QNetworkProxy.HttpProxy, host[2:], int(port)))
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
