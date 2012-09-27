@@ -25,9 +25,10 @@ from PyQt4.QtCore import Qt
 from flowlayout import FlowLayout
 
 class Image(QtGui.QFrame):
-    def __init__(self, path, thumb_size=80, parent=None):
+    def __init__(self, path, image_list, thumb_size=80, parent=None):
         QtGui.QFrame.__init__(self, parent)
         self.path = path
+        self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False
         self.pixmap = None
@@ -58,9 +59,8 @@ class Image(QtGui.QFrame):
         self.set_selected(False)
         self.show_status()
 
-    mouse_press = QtCore.pyqtSignal(str, QtGui.QMouseEvent)
     def mousePressEvent(self, event):
-        self.mouse_press.emit(self.path, event)
+        self.image_list.thumb_mouse_press(self.path, event)
 
     def save_metadata(self):
         if not self.metadata_changed:
@@ -118,7 +118,6 @@ class Image(QtGui.QFrame):
                 return [unicode(self.metadata[key].value, 'iso8859_1')]
         return None
 
-    new_metadata = QtCore.pyqtSignal(str)
     def set_metadata(self, keys, value):
         if value == self.get_metadata(keys):
             return
@@ -139,7 +138,7 @@ class Image(QtGui.QFrame):
                 self.metadata[key] = pyexiv2.ExifTag(key, value[0])
         self.metadata_changed = True
         self.show_status()
-        self.new_metadata.emit(self.path)
+        self.image_list.new_metadata.emit(True)
 
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
@@ -233,10 +232,8 @@ class ImageList(QtGui.QWidget):
             if path in self.path_list:
                 continue
             self.path_list.append(path)
-            image = Image(path, thumb_size=self.thumb_size)
+            image = Image(path, self, thumb_size=self.thumb_size)
             self.image[path] = image
-            image.mouse_press.connect(self.thumb_mouse_press)
-            image.new_metadata.connect(self.emit_new_metadata)
         self.path_list.sort()
         for path in self.path_list:
             image = self.image[path]
@@ -267,6 +264,7 @@ class ImageList(QtGui.QWidget):
                 image.setParent(None)
         self.emit_selection()
 
+    new_metadata = QtCore.pyqtSignal(bool)
     @QtCore.pyqtSlot()
     def save_files(self):
         for path in list(self.path_list):
@@ -282,12 +280,6 @@ class ImageList(QtGui.QWidget):
                 selection.append(image)
         self.selection_changed.emit(selection)
 
-    new_metadata = QtCore.pyqtSignal(bool)
-    @QtCore.pyqtSlot(str)
-    def emit_new_metadata(self, path):
-        self.new_metadata.emit(True)
-
-    @QtCore.pyqtSlot(str, QtGui.QMouseEvent)
     def thumb_mouse_press(self, path, event):
         path = str(path)
         if event.modifiers() == Qt.ControlModifier:
