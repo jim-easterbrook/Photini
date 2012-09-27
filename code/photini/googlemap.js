@@ -16,7 +16,7 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-var geocoder = new google.maps.Geocoder();
+var geocoder;
 var map;
 var markers = [];
 
@@ -32,6 +32,7 @@ function initialize()
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+  geocoder = new google.maps.Geocoder();
 }
 
 function goTo(lat, lng, zoom)
