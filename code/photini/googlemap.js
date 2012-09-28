@@ -18,7 +18,7 @@
 
 var geocoder;
 var map;
-var markers = [];
+var markers = {};
 
 function initialize(lat, lng, zoom)
 {
@@ -27,12 +27,44 @@ function initialize(lat, lng, zoom)
     center: new google.maps.LatLng(lat, lng),
     panControl: true,
     streetViewControl: false,
-    scrollwheel: false,
     zoom: zoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
   geocoder = new google.maps.Geocoder();
+  google.maps.event.addListener(map, 'bounds_changed', newBounds);
+}
+
+function newBounds()
+{
+  span = map.getBounds().toSpan();
+  centre = map.getCenter();
+  zoom = map.getZoom();
+  python.new_bounds(span.lat(), span.lng(), centre.lat(), centre.lng(), zoom);
+}
+
+function panTo(lat, lng)
+{
+  map.panTo(new google.maps.LatLng(lat, lng));
+}
+
+function seeAllMarkers()
+{
+  var bounds;
+  for (var path in markers)
+  {
+    position = markers[path].getPosition();
+    if (bounds)
+      bounds.extend(position);
+    else
+      bounds = new google.maps.LatLngBounds(position, position);
+  }
+  if (bounds)
+  {
+    map.fitBounds(bounds);
+    if (map.getZoom() > 15)
+      map.setZoom(15);
+  }
 }
 
 function goTo(lat, lng, zoom)
@@ -44,63 +76,58 @@ function goTo(lat, lng, zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function addMarker(lat, lng, label)
+function enableMarker(path, active)
+{
+  marker = markers[path];
+  marker.setDraggable(active != 0);
+  if (active)
+  {
+    marker.setDraggable(true);
+    marker.setIcon('') 
+  }
+  else
+  {
+    marker.setDraggable(false);
+    iconFile = 'http://maps.google.com/mapfiles/ms/icons/grey.png';
+    marker.setIcon(iconFile)
+  }
+}
+
+function addMarker(path, lat, lng, label, active)
 {
   position = new google.maps.LatLng(lat, lng);
-  bounds = new google.maps.LatLngBounds(position, position);
-  if (markers)
-  {
-    for (i in markers)
-    {
-      bounds.extend(markers[i].getPosition());
-    }
-  }
-  mapSize = map.getBounds().toSpan();
-  zoom = map.getZoom();
-  boundsSize = bounds.toSpan();
-  while (zoom < 16 && mapSize.lat() > boundsSize.lat() * 3 &&
-                      mapSize.lng() > boundsSize.lng() * 3)
-  {
-    zoom = zoom + 1;
-    map.setZoom(zoom);
-    mapSize = map.getBounds().toSpan();
-  }
-  while (zoom > 0 && (mapSize.lat() < boundsSize.lat() * 1.2 ||
-                      mapSize.lng() < boundsSize.lng() * 1.2))
-  {
-    zoom = zoom - 1;
-    map.setZoom(zoom);
-    mapSize = map.getBounds().toSpan();
-  }
-  map.panTo(bounds.getCenter());
   marker = new google.maps.Marker(
     {
       position: position,
       map: map,
-      draggable: true,
       title: label,
     });
-  markers.push(marker);
-  google.maps.event.addListener(marker, 'dragend', markerDragEnd);
-  return true;
+  markers[path] = marker;
+  marker._path = path;
+  google.maps.event.addListener(marker, 'dragstart', function(event)
+  {
+    python.marker_drag_start(this._path, event)
+  });
+  google.maps.event.addListener(marker, 'drag', function(event)
+  {
+    loc = event.latLng;
+    python.marker_drag(loc.lat(), loc.lng(), this._path);
+  });
+  google.maps.event.addListener(marker, 'dragend', function(event)
+  {
+    loc = event.latLng;
+    python.marker_drag_end(loc.lat(), loc.lng(), this._path);
+  });
+  enableMarker(path, active)
 }
 
 function removeMarkers()
 {
-  if (markers)
+  for (var path in markers)
   {
-    for (i in markers)
-    {
-      markers[i].setMap(null);
-    }
-    markers.length = 0;
+    markers[path].setMap(null);
   }
-}
-
-function markerDragEnd(event)
-{
-  loc = event.latLng;
-  python.done(loc.lat(), loc.lng(), marker.title);
+  markers = {};
 }
 
 function search(search_string)
@@ -122,9 +149,7 @@ function search(search_string)
 	  }
 	}
 	else
-	{
-	  python.search_result(0, 0, "");
-	}
+	  alert("Search fail, code:" + status);
     }
   );
 }

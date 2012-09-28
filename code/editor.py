@@ -62,7 +62,7 @@ class MainWindow(QtGui.QMainWindow):
         # textual metadata editor
         self.text_edit = TextMetadata(self.config_store)
         # map metadata editor(s)
-        self.google_maps = GoogleMap(self.config_store)
+        self.google_maps = GoogleMap(self.config_store, self.image_list)
         # main application area
         self.central_widget = QtGui.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)

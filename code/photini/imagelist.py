@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import fractions
 import os
 
 import pyexiv2
@@ -23,6 +24,51 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from flowlayout import FlowLayout
+
+class LatLng(object):
+    def __init__(self, degrees=0.0, latitude=True):
+        self.degrees = degrees
+        self.latitude = latitude
+
+    def fromGPSCoordinate(self, value):
+        self.degrees = (float(value.degrees) +
+                       (float(value.minutes) / 60.0) +
+                       (float(value.seconds) / 3600.0))
+        if value.direction in ('S', 'W'):
+            self.degrees = -self.degrees
+        self.latitude = value.direction in ('S', 'N')
+        return self
+
+    def toGPSCoordinate(self):
+        if self.degrees >= 0.0:
+            direction = ('E', 'N')[self.latitude]
+            value = self.degrees
+        else:
+            direction = ('W', 'S')[self.latitude]
+            value = -self.degrees
+        degrees = int(value)
+        value = (value - degrees) * 60.0
+        minutes = int(value)
+        seconds = (value - minutes) * 60.0
+        return pyexiv2.utils.GPSCoordinate(degrees, minutes, seconds, direction)
+
+    def fromRational(self, value, ref):
+        self.degrees = (float(value[0]) +
+                       (float(value[1]) / 60.0) +
+                       (float(value[2]) / 3600.0))
+        if ref in ('S', 'W'):
+            self.degrees = -self.degrees
+        self.latitude = ref in ('S', 'N')
+        return self
+
+    def toRational(self):
+        if self.degrees >= 0.0:
+            ref = ('E', 'N')[self.latitude]
+            value = self.degrees
+        else:
+            ref = ('W', 'S')[self.latitude]
+            value = -self.degrees
+        return fractions.Fraction(value).limit_denominator(1000000), ref
 
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
@@ -37,6 +83,20 @@ class Image(QtGui.QFrame):
         self.metadata = pyexiv2.ImageMetadata(self.path)
         self.metadata.read()
         self.metadata_changed = False
+
+##        print '### exif'
+##        for key in self.metadata.exif_keys:
+##            try:
+##                print key, self.metadata[key].value
+##            except:
+##                pass
+##        print '### iptc'
+##        for key in self.metadata.iptc_keys:
+##            print key, self.metadata[key].value
+##        print '### xmp'
+##        for key in self.metadata.xmp_keys:
+##            print key, self.metadata[key].value
+
         layout = QtGui.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
@@ -49,6 +109,7 @@ class Image(QtGui.QFrame):
         # label to display file name
         self.label = QtGui.QLabel(self.name)
         self.label.setAlignment(Qt.AlignRight)
+        self.label.setMaximumWidth(self.thumb_size - 20)
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtGui.QLabel()
@@ -61,6 +122,18 @@ class Image(QtGui.QFrame):
 
     def mousePressEvent(self, event):
         self.image_list.thumb_mouse_press(self.path, event)
+        if event.button() == Qt.LeftButton:
+            self.drag_start_pos = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if ((event.pos() - self.drag_start_pos).manhattanLength() <
+                                    QtGui.QApplication.startDragDistance()):
+            return
+        drag = QtGui.QDrag(self)
+        mimeData = QtCore.QMimeData()
+        mimeData.setText(self.path)
+        drag.setMimeData(mimeData)
+        dropAction = drag.exec_(Qt.LinkAction)
 
     def save_metadata(self):
         if not self.metadata_changed:
@@ -83,19 +156,8 @@ class Image(QtGui.QFrame):
     def get_metadata(self, keys):
         # Turn every type of text data into a list of unicode strings.
         # Let caller decide what it means.
-##            print '### exif'
-##            for key in self.metadata.exif_keys:
-##                try:
-##                    print key, self.metadata[key].value
-##                except:
-##                    pass
-##            print '### iptc'
-##            for key in self.metadata.iptc_keys:
-##                print key, self.metadata[key].value
-##            print '### xmp'
-##            for key in self.metadata.xmp_keys:
-##                print key, self.metadata[key].value
         for key in keys:
+            family, group, tag = key.split('.')
             if key in self.metadata.xmp_keys:
                 item = self.metadata[key]
                 if item.type.split()[0] in ('bag', 'seq'):
@@ -103,39 +165,46 @@ class Image(QtGui.QFrame):
                 if item.type == 'Lang Alt':
                     return item.value.values()
                 if item.type == 'GPSCoordinate':
-                    degrees = (float(item.value.degrees) +
-                              (float(item.value.minutes) / 60.0) +
-                              (float(item.value.seconds) / 3600.0))
-                    if item.value.direction in ('S', 'W'):
-                        degrees = -degrees
-                    return degrees
+                    return LatLng().fromGPSCoordinate(item.value)
                 print key, item.type, item.value
                 return item.value
             if key in self.metadata.iptc_keys:
                 return map(lambda x: unicode(x, 'iso8859_1'),
                            self.metadata[key].value)
             if key in self.metadata.exif_keys:
-                return [unicode(self.metadata[key].value, 'iso8859_1')]
+                if group == 'GPSInfo':
+                    return LatLng().fromRational(
+                        self.metadata[key].value,
+                        self.metadata['%sRef' % key].value)
+                else:
+                    return [unicode(self.metadata[key].value, 'iso8859_1')]
         return None
 
     def set_metadata(self, keys, value):
         if value == self.get_metadata(keys):
             return
         for key in keys:
-            standard = key.split('.')[0]
-            if standard == 'Xmp':
+            family, group, tag = key.split('.')
+            if family == 'Xmp':
                 new_tag = pyexiv2.XmpTag(key)
                 if new_tag.type.split()[0] in ('bag', 'seq'):
                     new_tag = pyexiv2.XmpTag(key, value)
                 elif new_tag.type == 'Lang Alt':
                     new_tag = pyexiv2.XmpTag(key, {'': value[0]})
+                elif new_tag.type == 'GPSCoordinate':
+                    new_tag = pyexiv2.XmpTag(key, value.toGPSCoordinate())
                 else:
                     raise KeyError("Unknown type %s" % new_tag.type)
-                self.metadata[key] = new_tag
-            elif standard == 'Iptc':
-                self.metadata[key] = pyexiv2.IptcTag(key, value)
-            elif standard == 'Exif':
-                self.metadata[key] = pyexiv2.ExifTag(key, value[0])
+            elif family == 'Iptc':
+                new_tag = pyexiv2.IptcTag(key, value)
+            elif family == 'Exif':
+                if group == 'GPSInfo':
+                    numbers, ref = value.toRational()
+                    self.metadata['%sRef' % key] = ref
+                    new_tag = pyexiv2.ExifTag(key, numbers)
+                else:
+                    new_tag = pyexiv2.ExifTag(key, value[0])
+            self.metadata[key] = new_tag
         self.metadata_changed = True
         self.show_status()
         self.image_list.new_metadata.emit(True)
@@ -143,6 +212,8 @@ class Image(QtGui.QFrame):
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
         self.image.setFixedSize(self.thumb_size, self.thumb_size)
+        self.label.setMaximumWidth(self.thumb_size - 20)
+        self.load_thumbnail()
 
     def load_thumbnail(self):
         if not self.pixmap:
@@ -209,6 +280,23 @@ class ImageList(QtGui.QWidget):
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 2)
 
+    def get_image(self, path):
+        if path not in self.path_list:
+            return None
+        return self.image[path]
+
+    def get_images(self):
+        for path in self.path_list:
+            yield self.image[path]
+
+    def get_selected_images(self):
+        selection = list()
+        for path in self.path_list:
+            image = self.image[path]
+            if image.get_selected():
+                selection.append(image)
+        return selection
+
     def mousePressEvent(self, event):
         if self.scroll_area.underMouse():
             self._clear_selection()
@@ -216,6 +304,7 @@ class ImageList(QtGui.QWidget):
             self.selection_anchor = None
             self.emit_selection()
 
+    image_list_changed = QtCore.pyqtSignal()
     @QtCore.pyqtSlot()
     def open_files(self):
         path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
@@ -244,6 +333,7 @@ class ImageList(QtGui.QWidget):
             QtGui.qApp.processEvents()
         if self.last_selected:
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
+        self.image_list_changed.emit()
 
     @QtCore.pyqtSlot()
     def close_files(self):
@@ -263,6 +353,7 @@ class ImageList(QtGui.QWidget):
                 layout.removeWidget(image)
                 image.setParent(None)
         self.emit_selection()
+        self.image_list_changed.emit()
 
     new_metadata = QtCore.pyqtSignal(bool)
     @QtCore.pyqtSlot()
@@ -271,23 +362,26 @@ class ImageList(QtGui.QWidget):
             image = self.image[path].save_metadata()
         self.new_metadata.emit(False)
 
-    selection_changed = QtCore.pyqtSignal(list)
-    def emit_selection(self):
+    def get_selected_images(self):
         selection = list()
         for path in self.path_list:
             image = self.image[path]
             if image.get_selected():
                 selection.append(image)
-        self.selection_changed.emit(selection)
+        return selection
+
+    selection_changed = QtCore.pyqtSignal(list)
+    def emit_selection(self):
+        self.selection_changed.emit(self.get_selected_images())
 
     def thumb_mouse_press(self, path, event):
         path = str(path)
         if event.modifiers() == Qt.ControlModifier:
-            self._select_thumb(path, multiple_selection=True)
+            self.select_image(path, multiple_selection=True)
         elif event.modifiers() == Qt.ShiftModifier:
-            self._select_thumb(path, extend_selection=True)
+            self.select_image(path, extend_selection=True)
         else:
-            self._select_thumb(path)
+            self.select_image(path)
 
     def move_to_prev_thumb(self):
         self._inc_selection(-1)
@@ -308,18 +402,16 @@ class ImageList(QtGui.QWidget):
         else:
             idx = 0
         path = self.path_list[idx]
-        self._select_thumb(path, extend_selection=extend_selection)
+        self.select_image(path, extend_selection=extend_selection)
 
     @QtCore.pyqtSlot()
     def _new_thumb_size(self):
         self.thumb_size = self.size_slider.value() * 20
         self.config_store.set('controls', 'thumb_size', str(self.thumb_size))
         for path in self.path_list:
-            image = self.image[path]
-            image.set_thumb_size(self.thumb_size)
-            image.load_thumbnail()
+            self.image[path].set_thumb_size(self.thumb_size)
 
-    def _select_thumb(
+    def select_image(
             self, path, extend_selection=False, multiple_selection=False):
         image = self.image[path]
         self.scroll_area.ensureWidgetVisible(image)
