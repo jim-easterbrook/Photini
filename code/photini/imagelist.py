@@ -25,7 +25,7 @@ from PyQt4.QtCore import Qt
 
 from flowlayout import FlowLayout
 
-class LatLng(object):
+class GPSvalue(object):
     def __init__(self, degrees=0.0, latitude=True):
         self.degrees = degrees
         self.latitude = latitude
@@ -168,7 +168,7 @@ class Image(QtGui.QFrame):
                 if item.type == 'Lang Alt':
                     return item.value.values()
                 if item.type == 'GPSCoordinate':
-                    return LatLng().fromGPSCoordinate(item.value)
+                    return GPSvalue().fromGPSCoordinate(item.value)
                 print key, item.type, item.value
                 return item.value
             if key in self.metadata.iptc_keys:
@@ -176,7 +176,7 @@ class Image(QtGui.QFrame):
                            self.metadata[key].value)
             if key in self.metadata.exif_keys:
                 if group == 'GPSInfo':
-                    return LatLng().fromRational(
+                    return GPSvalue().fromRational(
                         self.metadata[key].value,
                         self.metadata['%sRef' % key].value)
                 else:

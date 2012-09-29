@@ -21,7 +21,7 @@ import os
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
-from imagelist import LatLng
+from imagelist import GPSvalue
 
 class ChromePage(QtWebKit.QWebPage):
     # Cludge to stop Google maps thinking we're a smart-phone and
@@ -97,14 +97,11 @@ class GoogleMap(QtGui.QWidget):
         self.clear_search()
         self.edit_box.setEnabled(False)
         self.layout.addWidget(self.edit_box, 1, 0)
-        # latitude
+        # latitude & longitude
         self.layout.addWidget(QtGui.QLabel('Latitude:'), 2, 0)
-        self.latitude = QtGui.QLineEdit()
-        self.layout.addWidget(self.latitude, 3, 0)
-        # longitude
-        self.layout.addWidget(QtGui.QLabel('Longitude:'), 4, 0)
-        self.longitude = QtGui.QLineEdit()
-        self.layout.addWidget(self.longitude, 5, 0)
+        self.coords = QtGui.QLineEdit()
+        self.coords.editingFinished.connect(self.new_coords)
+        self.layout.addWidget(self.coords, 3, 0)
         # load map button
         self.load_map = QtGui.QPushButton('Load map\n\nConnect to Google')
         self.load_map.clicked.connect(self.initialise)
@@ -147,30 +144,36 @@ class GoogleMap(QtGui.QWidget):
         lng = self.map_centre[1] + (self.map_span[1] * (x - 0.5))
         image = self.image_list.get_image(str(path))
         self._add_marker(image, lat, lng)
-        image.set_metadata(self.lat_keys, LatLng(lat, True))
-        image.set_metadata(self.lng_keys, LatLng(lng, False))
+        image.set_metadata(self.lat_keys, GPSvalue(lat, True))
+        image.set_metadata(self.lng_keys, GPSvalue(lng, False))
         self.display_coords()
 
+    def new_coords(self):
+        lat, lng = map(float, self.coords.text().split(','))
+        for image in self.image_list.get_selected_images():
+            image.set_metadata(self.lat_keys, GPSvalue(lat, True))
+            image.set_metadata(self.lng_keys, GPSvalue(lng, False))
+            if self.map_loaded:
+                self.JavaScript('moveMarker("%s", %s, %s)' % (
+                    image.path, repr(lat), repr(lng)))
+        self.JavaScript('seeAllMarkers()')
+
     def display_coords(self):
-        self.latitude.clear()
-        self.longitude.clear()
+        self.coords.clear()
         old_latitude = None
         old_longitude = None
         for image in self.image_list.get_selected_images():
             latitude = image.get_metadata(self.lat_keys)
             longitude = image.get_metadata(self.lng_keys)
-            if latitude is None:
+            if latitude is None or longitude is None:
                 latitude = 'x'
             else:
-                self.latitude.setText('%.8f' % (latitude.degrees))
+                self.coords.setText('%.6f, %.6f' % (latitude.degrees, longitude.degrees))
             if longitude is None:
                 longitude = 'x'
-            else:
-                self.longitude.setText('%.8f' % (longitude.degrees))
-            if old_latitude is not None and latitude != old_latitude:
-                self.latitude.setText("<multiple values>")
-            if old_longitude is not None and longitude != old_longitude:
-                self.longitude.setText("<multiple values>")
+            if ((old_latitude is not None and latitude != old_latitude) or
+                (old_longitude is not None and longitude != old_longitude)):
+                self.coords.setText("<multiple values>")
             old_latitude = latitude
             old_longitude = longitude
 
@@ -248,15 +251,15 @@ class GoogleMap(QtGui.QWidget):
     @QtCore.pyqtSlot(float, float, str)
     def marker_drag(self, lat, lng, path):
         image = self.image_list.get_image(str(path))
-        image.set_metadata(self.lat_keys, LatLng(lat, True))
-        image.set_metadata(self.lng_keys, LatLng(lng, False))
+        image.set_metadata(self.lat_keys, GPSvalue(lat, True))
+        image.set_metadata(self.lng_keys, GPSvalue(lng, False))
         self.display_coords()
 
     @QtCore.pyqtSlot(float, float, str)
     def marker_drag_end(self, lat, lng, path):
         image = self.image_list.get_image(str(path))
-        image.set_metadata(self.lat_keys, LatLng(lat, True))
-        image.set_metadata(self.lng_keys, LatLng(lng, False))
+        image.set_metadata(self.lat_keys, GPSvalue(lat, True))
+        image.set_metadata(self.lng_keys, GPSvalue(lng, False))
         self.display_coords()
 
     def JavaScript(self, command):

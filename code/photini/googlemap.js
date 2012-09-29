@@ -61,9 +61,10 @@ function seeAllMarkers()
   }
   if (bounds)
   {
+    zoom = map.getZoom();
     map.fitBounds(bounds);
-    if (map.getZoom() > 15)
-      map.setZoom(15);
+    if (map.getZoom() > zoom)
+      map.setZoom(zoom);
   }
 }
 
@@ -95,6 +96,8 @@ function enableMarker(path, active)
 
 function addMarker(path, lat, lng, label, active)
 {
+  if (markers[path])
+    return moveMarker(path, lat, lng);
   position = new google.maps.LatLng(lat, lng);
   marker = new google.maps.Marker(
     {
@@ -119,6 +122,13 @@ function addMarker(path, lat, lng, label, active)
     python.marker_drag_end(loc.lat(), loc.lng(), this._path);
   });
   enableMarker(path, active)
+}
+
+function moveMarker(path, lat, lng)
+{
+  position = new google.maps.LatLng(lat, lng);
+  marker = markers[path];
+  marker.setPosition(position);
 }
 
 function removeMarkers()
