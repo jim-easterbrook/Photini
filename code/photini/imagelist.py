@@ -53,9 +53,12 @@ class LatLng(object):
         return pyexiv2.utils.GPSCoordinate(degrees, minutes, seconds, direction)
 
     def fromRational(self, value, ref):
-        self.degrees = (float(value[0]) +
-                       (float(value[1]) / 60.0) +
-                       (float(value[2]) / 3600.0))
+        if isinstance(value, list):
+            self.degrees = (float(value[0]) +
+                           (float(value[1]) / 60.0) +
+                           (float(value[2]) / 3600.0))
+        else:
+            self.degrees = float(value)
         if ref in ('S', 'W'):
             self.degrees = -self.degrees
         self.latitude = ref in ('S', 'N')
