@@ -110,10 +110,10 @@ class GoogleMap(QtGui.QWidget):
         self.image_list.image_list_changed.connect(self.new_images)
 
     def initialise(self):
-        latitude, longitude = eval(
+        lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        self.map.setHtml(show_map % (self.api_key, latitude, longitude, zoom),
+        self.map.setHtml(show_map % (self.api_key, lat, lng, zoom),
                          QtCore.QUrl('file://%s/' % os.path.dirname(__file__)))
 
     @QtCore.pyqtSlot(bool)
@@ -153,36 +153,33 @@ class GoogleMap(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             image.set_metadata(self.lat_keys, GPSvalue(lat, True))
             image.set_metadata(self.lng_keys, GPSvalue(lng, False))
-            if self.map_loaded:
-                self.JavaScript('moveMarker("%s", %s, %s)' % (
-                    image.path, repr(lat), repr(lng)))
+            self._add_marker(image, lat, lng)
         self.JavaScript('seeAllMarkers()')
 
     def display_coords(self):
-        self.coords.clear()
-        old_latitude = None
-        old_longitude = None
+        coords = None
         for image in self.image_list.get_selected_images():
-            latitude = image.get_metadata(self.lat_keys)
-            longitude = image.get_metadata(self.lng_keys)
-            if latitude is None or longitude is None:
-                latitude = 'x'
+            lat = image.get_metadata(self.lat_keys)
+            lng = image.get_metadata(self.lng_keys)
+            if lat and lng:
+                new_coords = lat.degrees, lng.degrees
             else:
-                self.coords.setText('%.6f, %.6f' % (latitude.degrees, longitude.degrees))
-            if longitude is None:
-                longitude = 'x'
-            if ((old_latitude is not None and latitude != old_latitude) or
-                (old_longitude is not None and longitude != old_longitude)):
+                new_coords = None
+            if coords and new_coords != coords:
                 self.coords.setText("<multiple values>")
-            old_latitude = latitude
-            old_longitude = longitude
+                return
+            coords = new_coords
+        if coords:
+            self.coords.setText('%.6f, %.6f' % coords)
+        else:
+            self.coords.clear()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         for image in self.image_list.get_images():
-            latitude = image.get_metadata(self.lat_keys)
-            longitude = image.get_metadata(self.lng_keys)
-            if latitude is not None and longitude is not None:
+            lat = image.get_metadata(self.lat_keys)
+            lng = image.get_metadata(self.lng_keys)
+            if lat is not None and lng is not None:
                 self.JavaScript(
                     'enableMarker("%s", %d)' % (image.path, image.selected))
         self.display_coords()
@@ -191,19 +188,19 @@ class GoogleMap(QtGui.QWidget):
     def new_images(self):
         self.JavaScript('removeMarkers()')
         for image in self.image_list.get_images():
-            latitude = image.get_metadata(self.lat_keys)
-            longitude = image.get_metadata(self.lng_keys)
-            if latitude is not None and longitude is not None:
-                self._add_marker(image, latitude.degrees, longitude.degrees)
+            lat = image.get_metadata(self.lat_keys)
+            lng = image.get_metadata(self.lng_keys)
+            if lat is not None and lng is not None:
+                self._add_marker(image, lat.degrees, lng.degrees)
         self.JavaScript('seeAllMarkers()')
 
-    def _add_marker(self, image, latitude, longitude):
+    def _add_marker(self, image, lat, lng):
         if not self.map_loaded:
             return
-        if latitude is None or longitude is None:
+        if lat is None or lng is None:
             return
         self.JavaScript('addMarker("%s", %s, %s, "%s", %d)' % (
-            image.path, repr(latitude), repr(longitude),
+            image.path, repr(lat), repr(lng),
             image.name, image.selected))
 
     def search(self, search_string=None):
