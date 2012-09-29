@@ -85,6 +85,7 @@ class MainWindow(QtGui.QMainWindow):
         open_action.triggered.connect(self.image_list.open_files)
         file_menu.addAction(open_action)
         self.save_action = QtGui.QAction('Save images with new data', self)
+        self.save_action.setShortcuts(['Ctrl+S'])
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
         file_menu.addAction(self.save_action)
@@ -100,6 +101,21 @@ class MainWindow(QtGui.QMainWindow):
         quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
         quit_action.triggered.connect(QtGui.qApp.closeAllWindows)
         file_menu.addAction(quit_action)
+        # help menu
+        help_menu = self.menuBar().addMenu('Help')
+        about_action = QtGui.QAction('About Photini', self)
+        about_action.triggered.connect(self.about)
+        help_menu.addAction(about_action)
+
+    @QtCore.pyqtSlot()
+    def about(self):
+        root = os.path.dirname(__file__)
+        message = QtGui.QMessageBox()
+        message.setText(
+            open(os.path.join(root, 'about.html')).read())
+        message.setDetailedText(
+            open(os.path.join(root, '../LICENSE.txt')).read())
+        message.exec_()
 
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):
