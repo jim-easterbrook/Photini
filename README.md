@@ -10,7 +10,9 @@ Dependencies
 *   PyQt: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
 *   pyexiv2: <https://launchpad.net/pyexiv2>. You may need to build pyexiv2, in which case you'll need scons <http://www.scons.org/> and libexiv2-dev <http://www.exiv2.org/> as well.
 
-These should all be available from the repository of any modern Linux distribution. I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
+Python and PyQt should be available from the repository of any modern Linux distribution. However you may need to build pyexiv2, in which case you'll need to install boost.Python, libexiv2 and SCons. See <http://tilloy.net/dev/pyexiv2/developers.html#dependencies> for details and build instructions.
+
+I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
 Warning
 -------
