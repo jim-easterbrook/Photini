@@ -225,6 +225,19 @@ class Image(QtGui.QFrame):
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            orientation = self.metadata['Exif.Image.Orientation'].value
+            if orientation != 1:
+                # need to rotate and or reflect image
+                transform = QtGui.QTransform()
+                if orientation in (3, 4):
+                    transform = transform.rotate(180.0)
+                elif orientation in (5, 6):
+                    transform = transform.rotate(90.0)
+                elif orientation in (7, 8):
+                    transform = transform.rotate(-90.0)
+                if orientation in (2, 4, 5, 7):
+                    transform = transform.scale(-1.0, 1.0)
+                self.pixmap = self.pixmap.transformed(transform)
         self.image.setPixmap(self.pixmap.scaled(
             self.thumb_size, self.thumb_size,
             Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -318,8 +331,6 @@ class ImageList(QtGui.QWidget):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
         layout = self.thumbnails.layout()
-        for path in reversed(self.path_list):
-            layout.removeWidget(self.image[path])
         for path in path_list:
             if path in self.path_list:
                 continue
