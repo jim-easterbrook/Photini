@@ -215,6 +215,20 @@ class Image(QtGui.QFrame):
         self.show_status()
         self.image_list.new_metadata.emit(True)
 
+    def del_metadata(self, keys):
+        changed = False
+        for key in keys:
+            family, group, tag = key.split('.')
+            if (key in self.metadata.xmp_keys or
+                key in self.metadata.iptc_keys or
+                key in self.metadata.exif_keys):
+                del self.metadata[key]
+                changed = True
+        if changed:
+            self.metadata_changed = True
+            self.show_status()
+            self.image_list.new_metadata.emit(True)
+
     def set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
         self.image.setFixedSize(self.thumb_size, self.thumb_size)

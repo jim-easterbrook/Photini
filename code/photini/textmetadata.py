@@ -21,6 +21,11 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 class MultiLineEdit(QtGui.QPlainTextEdit):
+    def __init__(self, parent=None):
+        QtGui.QPlainTextEdit.__init__(self, parent)
+        self.setText = self.setPlainText
+        self.text = self.toPlainText
+
     editingFinished = QtCore.pyqtSignal()
     def focusOutEvent(self, event):
         self.editingFinished.emit()
@@ -45,66 +50,69 @@ class LineEditWithAuto(QtGui.QWidget):
         self.autoComplete = self.auto.clicked
 
 class TextMetadata(QtGui.QWidget):
+    keys = {
+        'date'        : ('Exif.Photo.DateTimeOriginal',
+                         'Exif.Photo.DateTimeDigitized', 'Exif.Image.DateTime'),
+        'title'       : ('Xmp.dc.title', 'Iptc.Application2.ObjectName',
+                         'Exif.Image.ImageDescription'),
+        'creator'     : ('Xmp.dc.creator', 'Iptc.Application2.Byline',
+                         'Exif.Image.Artist'),
+        'description' : ('Xmp.dc.description', 'Iptc.Application2.Caption'),
+        'keywords'    : ('Xmp.dc.subject', 'Iptc.Application2.Keywords'),
+        'copyright'   : ('Xmp.dc.rights', 'Xmp.tiff.Copyright',
+                         'Iptc.Application2.Copyright', 'Exif.Image.Copyright'),
+        }
+    list_item = {
+        'title'       : False,
+        'creator'     : False,
+        'description' : False,
+        'keywords'    : True,
+        'copyright'   : False,
+        }
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.selection = list()
         self.form = QtGui.QFormLayout()
         self.setLayout(self.form)
+        # construct widgets
+        self.widgets = dict()
         # title
-        self.title = QtGui.QLineEdit()
-        self.title.editingFinished.connect(self.new_title)
-        self.form.addRow('Title / Object Name', self.title)
+        self.widgets['title'] = QtGui.QLineEdit()
+        self.widgets['title'].editingFinished.connect(self.new_title)
+        self.form.addRow('Title / Object Name', self.widgets['title'])
         # description
-        self.description = MultiLineEdit()
-        self.description.editingFinished.connect(self.new_description)
-        self.form.addRow('Description / Caption', self.description)
+        self.widgets['description'] = MultiLineEdit()
+        self.widgets['description'].editingFinished.connect(self.new_description)
+        self.form.addRow('Description / Caption', self.widgets['description'])
         # keywords
-        self.keywords = QtGui.QLineEdit()
-        self.keywords.editingFinished.connect(self.new_keywords)
-        self.form.addRow('Keywords', self.keywords)
+        self.widgets['keywords'] = QtGui.QLineEdit()
+        self.widgets['keywords'].editingFinished.connect(self.new_keywords)
+        self.form.addRow('Keywords', self.widgets['keywords'])
         # copyright
-        self.copyright = LineEditWithAuto()
-        self.copyright.editingFinished.connect(self.new_copyright)
-        self.copyright.autoComplete.connect(self.auto_copyright)
-        self.form.addRow('Copyright', self.copyright)
+        self.widgets['copyright'] = LineEditWithAuto()
+        self.widgets['copyright'].editingFinished.connect(self.new_copyright)
+        self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
+        self.form.addRow('Copyright', self.widgets['copyright'])
         # creator
-        self.creator = QtGui.QLineEdit()
-        self.creator.editingFinished.connect(self.new_creator)
-        self.form.addRow('Creator / Artist', self.creator)
-
-    date_keys = ('Exif.Photo.DateTimeOriginal', 'Exif.Photo.DateTimeDigitized',
-                 'Exif.Image.DateTime')
-    title_keys = ('Xmp.dc.title', 'Iptc.Application2.ObjectName',
-                  'Exif.Image.ImageDescription')
-    creator_keys = ('Xmp.dc.creator', 'Iptc.Application2.Byline',
-                    'Exif.Image.Artist')
-    description_keys = ('Xmp.dc.description', 'Iptc.Application2.Caption')
-    keywords_keys = ('Xmp.dc.subject', 'Iptc.Application2.Keywords')
-    copyright_keys = ('Xmp.dc.rights', 'Xmp.tiff.Copyright',
-                      'Iptc.Application2.Copyright', 'Exif.Image.Copyright')
+        self.widgets['creator'] = QtGui.QLineEdit()
+        self.widgets['creator'].editingFinished.connect(self.new_creator)
+        self.form.addRow('Creator / Artist', self.widgets['creator'])
 
     def new_title(self):
-        value = [unicode(self.title.text()).strip()]
-        for image in self.selection:
-            image.set_metadata(self.title_keys, value)
+        self._new_value('title')
 
     def new_description(self):
-        value = [unicode(self.description.toPlainText()).strip()]
-        for image in self.selection:
-            image.set_metadata(self.description_keys, value)
+        self._new_value('description')
 
     def new_keywords(self):
-        value = map(lambda x: unicode(x).strip(),
-                    self.keywords.text().split(';'))
-        for image in self.selection:
-            image.set_metadata(self.keywords_keys, value)
+        self._new_value('keywords')
 
     def new_copyright(self):
-        value = [unicode(self.copyright.text()).strip()]
-        for image in self.selection:
-            image.set_metadata(self.copyright_keys, value)
+        self._new_value('copyright')
+
+    def new_creator(self):
+        self._new_value('creator')
 
     def auto_copyright(self):
         name = self.config_store.get('user', 'copyright_name')
@@ -116,74 +124,44 @@ class TextMetadata(QtGui.QWidget):
                 self.config_store.set('user', 'copyright_name', name)
             else:
                 name = ''
-        for image in self.selection:
-            date = image.get_metadata(self.date_keys)
+        for image in self.image_list.get_selected_images():
+            date = image.get_metadata(self.keys['date'])
             value = u'Copyright ©%d %s. All rights reserved.' % (date.year, name)
-            image.set_metadata(self.copyright_keys, [value])
-        self.new_selection(self.selection)
+            image.set_metadata(self.keys['copyright'], [value])
+        self._update_widget('copyright')
 
-    def new_creator(self):
-        value = [unicode(self.creator.text()).strip()]
-        for image in self.selection:
-            image.set_metadata(self.creator_keys, value)
+    def _new_value(self, key):
+        value = self.widgets[key].text()
+        if self.list_item[key]:
+            value = value.split(';')
+        else:
+            value = [value]
+        value = map(lambda x: unicode(x).strip(), value)
+        for image in self.image_list.get_selected_images():
+            if value == [u'']:
+                image.del_metadata(self.keys[key])
+            else:
+                image.set_metadata(self.keys[key], value)
+        self._update_widget(key)
+
+    def _update_widget(self, key):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.get_metadata(self.keys[key])
+            if value and new_value != value:
+                self.widgets[key].setText('<multiple values>')
+                return
+            value = new_value
+        if value:
+            self.widgets[key].setText(';'.join(value))
+        else:
+            self.widgets[key].clear()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
-        self.selection = selection
-        if not self.selection:
-            self.title.clear()
-            self.description.clear()
-            self.keywords.clear()
-            self.copyright.clear()
-            self.creator.clear()
+        if not selection:
+            for key in self.widgets:
+                self.widgets[key].clear()
             return
-        # get info from first image
-        image = self.selection[0]
-        new_title = image.get_metadata(self.title_keys)
-        new_description = image.get_metadata(self.description_keys)
-        new_keywords = image.get_metadata(self.keywords_keys)
-        new_copyright = image.get_metadata(self.copyright_keys)
-        new_creator = image.get_metadata(self.creator_keys)
-        # check remaining images
-        for image in self.selection[1:]:
-            if new_title != image.get_metadata(self.title_keys):
-                new_title = [u'<multiple values>']
-                break
-        for image in self.selection[1:]:
-            if new_description != image.get_metadata(self.description_keys):
-                new_description = [u'<multiple values>']
-                break
-        for image in self.selection[1:]:
-            if new_keywords != image.get_metadata(self.keywords_keys):
-                new_keywords = [u'<multiple values>']
-                break
-        for image in self.selection[1:]:
-            if new_copyright != image.get_metadata(self.copyright_keys):
-                new_copyright = [u'<multiple values>']
-                break
-        for image in self.selection[1:]:
-            if new_creator != image.get_metadata(self.creator_keys):
-                new_creator = [u'<multiple values>']
-                break
-        # update GUI
-        if new_title:
-            self.title.setText(new_title[0])
-        else:
-            self.title.clear()
-        if new_description:
-            self.description.setPlainText(new_description[0])
-        else:
-            self.description.clear()
-        if new_keywords:
-            self.keywords.setText('; '.join(new_keywords))
-        else:
-            self.keywords.clear()
-        if new_copyright:
-            self.copyright.setText(new_copyright[0])
-        else:
-            self.copyright.clear()
-        if new_creator:
-            self.creator.setText(new_creator[0])
-        else:
-            self.creator.clear()
-
+        for key in self.widgets:
+            self._update_widget(key)
