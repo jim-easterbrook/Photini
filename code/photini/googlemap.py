@@ -136,8 +136,8 @@ class GoogleMap(QtGui.QWidget):
         self.config_store.set('map', 'centre', str(self.map_centre))
         self.config_store.set('map', 'zoom', str(zoom))
 
-    lat_keys = ('Xmp.exif.GPSLatitude', 'Exif.GPSInfo.GPSLatitude')
-    lng_keys = ('Xmp.exif.GPSLongitude', 'Exif.GPSInfo.GPSLongitude')
+    lat_keys = ('Exif.GPSInfo.GPSLatitude', 'Xmp.exif.GPSLatitude')
+    lng_keys = ('Exif.GPSInfo.GPSLongitude', 'Xmp.exif.GPSLongitude')
 
     @QtCore.pyqtSlot(int, int, unicode)
     def drop_text(self, x, y, path):
@@ -199,8 +199,9 @@ class GoogleMap(QtGui.QWidget):
             return
         if latitude is None or longitude is None:
             return
-        self.JavaScript('addMarker("%s", %f, %f, "%s", %d)' % (
-            image.path, latitude, longitude, image.name, image.selected))
+        self.JavaScript('addMarker("%s", %s, %s, "%s", %d)' % (
+            image.path, repr(latitude), repr(longitude),
+            image.name, image.selected))
 
     def search(self, search_string=None):
         if not search_string:
@@ -237,7 +238,8 @@ class GoogleMap(QtGui.QWidget):
         name = unicode(self.edit_box.itemText(idx))
         if name in self.location:
             location = self.location[name]
-            self.JavaScript('goTo(%f, %f, 11)' % location)
+            self.JavaScript(
+                'goTo(%s, %s, 11)' % (repr(location[0]), repr(location[1])))
 
     @QtCore.pyqtSlot(str)
     def marker_drag_start(self, path):
