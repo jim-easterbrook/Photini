@@ -60,7 +60,7 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
         # textual metadata editor
-        self.text_edit = TextMetadata(self.config_store)
+        self.text_edit = TextMetadata(self.config_store, self.image_list)
         # map metadata editor(s)
         self.google_maps = GoogleMap(self.config_store, self.image_list)
         # main application area

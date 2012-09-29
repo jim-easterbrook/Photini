@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import datetime
 import fractions
 import os
 
@@ -175,12 +176,14 @@ class Image(QtGui.QFrame):
                 return map(lambda x: unicode(x, 'iso8859_1'),
                            self.metadata[key].value)
             if key in self.metadata.exif_keys:
-                if group == 'GPSInfo':
+                value = self.metadata[key].value
+                if isinstance(value, datetime.datetime):
+                    return value
+                elif group == 'GPSInfo':
                     return GPSvalue().fromRational(
-                        self.metadata[key].value,
-                        self.metadata['%sRef' % key].value)
+                        value, self.metadata['%sRef' % key].value)
                 else:
-                    return [unicode(self.metadata[key].value, 'iso8859_1')]
+                    return [unicode(value, 'iso8859_1')]
         return None
 
     def set_metadata(self, keys, value):

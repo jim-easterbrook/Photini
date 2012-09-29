@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -24,10 +25,30 @@ class MultiLineEdit(QtGui.QPlainTextEdit):
     def focusOutEvent(self, event):
         self.editingFinished.emit()
 
+class LineEditWithAuto(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        layout = QtGui.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        # line edit box
+        self.edit = QtGui.QLineEdit()
+        layout.addWidget(self.edit)
+        # auto complete button
+        self.auto = QtGui.QPushButton('Auto')
+        layout.addWidget(self.auto)
+        # adopt child widget methods and signals
+        self.editingFinished = self.edit.editingFinished
+        self.setText = self.edit.setText
+        self.clear = self.edit.clear
+        self.text = self.edit.text
+        self.autoComplete = self.auto.clicked
+
 class TextMetadata(QtGui.QWidget):
-    def __init__(self, config_store, parent=None):
+    def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
+        self.image_list = image_list
         self.selection = list()
         self.form = QtGui.QFormLayout()
         self.setLayout(self.form)
@@ -44,14 +65,17 @@ class TextMetadata(QtGui.QWidget):
         self.keywords.editingFinished.connect(self.new_keywords)
         self.form.addRow('Keywords', self.keywords)
         # copyright
-        self.copyright = QtGui.QLineEdit()
+        self.copyright = LineEditWithAuto()
         self.copyright.editingFinished.connect(self.new_copyright)
+        self.copyright.autoComplete.connect(self.auto_copyright)
         self.form.addRow('Copyright', self.copyright)
         # creator
         self.creator = QtGui.QLineEdit()
         self.creator.editingFinished.connect(self.new_creator)
         self.form.addRow('Creator / Artist', self.creator)
 
+    date_keys = ('Exif.Photo.DateTimeOriginal', 'Exif.Photo.DateTimeDigitized',
+                 'Exif.Image.DateTime')
     title_keys = ('Xmp.dc.title', 'Iptc.Application2.ObjectName',
                   'Exif.Image.ImageDescription')
     creator_keys = ('Xmp.dc.creator', 'Iptc.Application2.Byline',
@@ -81,6 +105,22 @@ class TextMetadata(QtGui.QWidget):
         value = [unicode(self.copyright.text()).strip()]
         for image in self.selection:
             image.set_metadata(self.copyright_keys, value)
+
+    def auto_copyright(self):
+        name = self.config_store.get('user', 'copyright_name')
+        if not name:
+            name, OK = QtGui.QInputDialog.getText(
+                self, 'Input name', "Please type in the copyright holder's name")
+            if OK and name:
+                name = unicode(name)
+                self.config_store.set('user', 'copyright_name', name)
+            else:
+                name = ''
+        for image in self.selection:
+            date = image.get_metadata(self.date_keys)
+            value = u'Copyright ©%d %s. All rights reserved.' % (date.year, name)
+            image.set_metadata(self.copyright_keys, [value])
+        self.new_selection(self.selection)
 
     def new_creator(self):
         value = [unicode(self.creator.text()).strip()]
