@@ -95,8 +95,9 @@ class TextMetadata(QtGui.QWidget):
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
         self.form.addRow('Copyright', self.widgets['copyright'])
         # creator
-        self.widgets['creator'] = QtGui.QLineEdit()
+        self.widgets['creator'] = LineEditWithAuto()
         self.widgets['creator'].editingFinished.connect(self.new_creator)
+        self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow('Creator / Artist', self.widgets['creator'])
         # disable until an image is selected
         for key in self.widgets:
@@ -121,7 +122,8 @@ class TextMetadata(QtGui.QWidget):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtGui.QInputDialog.getText(
-                self, 'Input name', "Please type in the copyright holder's name")
+                self, 'Photini: input name',
+                "Please type in the copyright holder's name")
             if OK and name:
                 name = unicode(name)
                 self.config_store.set('user', 'copyright_name', name)
@@ -129,9 +131,24 @@ class TextMetadata(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.get_metadata(self.keys['date'])
-            value = u'Copyright ©%d %s. All rights reserved.' % (date.year, name)
+            value = u'Copyright ©%d %s. All rights reserved.' % (
+                date.year, name)
             image.set_metadata(self.keys['copyright'], [value])
         self._update_widget('copyright')
+
+    def auto_creator(self):
+        name = self.config_store.get('user', 'creator_name')
+        if not name:
+            name, OK = QtGui.QInputDialog.getText(
+                self, 'Photini: input name',
+                "Please type in the creator's name")
+            if OK and name:
+                name = unicode(name)
+                self.config_store.set('user', 'creator_name', name)
+            else:
+                name = u''
+        self.widgets['creator'].setText(name)
+        self._new_value('creator')
 
     def _new_value(self, key):
         value = self.widgets[key].text()
