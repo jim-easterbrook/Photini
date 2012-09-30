@@ -107,15 +107,30 @@ class MainWindow(QtGui.QMainWindow):
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
 
+    def closeEvent(self, event):
+        if self.save_action.isEnabled():
+            dialog = QtGui.QMessageBox()
+            dialog.setWindowTitle('Photini: unsaved data')
+            dialog.setText('<h3>Some images have unsaved metadata.</h3>')
+            dialog.setInformativeText('Do you want to save your changes?')
+            dialog.setIcon(QtGui.QMessageBox.Warning)
+            dialog.setStandardButtons(
+                QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard)
+            dialog.setDefaultButton(QtGui.QMessageBox.Save)
+            if dialog.exec_() == QtGui.QMessageBox.Save:
+                self.image_list.save_files()
+        QtGui.QMainWindow.closeEvent(self, event)
+
     @QtCore.pyqtSlot()
     def about(self):
         root = os.path.dirname(__file__)
-        message = QtGui.QMessageBox()
-        message.setText(
+        dialog = QtGui.QMessageBox()
+        dialog.setWindowTitle('Photini: about')
+        dialog.setText(
             open(os.path.join(root, 'about.html')).read())
-        message.setDetailedText(
+        dialog.setDetailedText(
             open(os.path.join(root, '../LICENSE.txt')).read())
-        message.exec_()
+        dialog.exec_()
 
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):
