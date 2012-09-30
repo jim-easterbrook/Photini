@@ -98,6 +98,9 @@ class TextMetadata(QtGui.QWidget):
         self.widgets['creator'] = QtGui.QLineEdit()
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.form.addRow('Creator / Artist', self.widgets['creator'])
+        # disable until an image is selected
+        for key in self.widgets:
+            self.widgets[key].setEnabled(False)
 
     def new_title(self):
         self._new_value('title')
@@ -162,6 +165,8 @@ class TextMetadata(QtGui.QWidget):
         if not selection:
             for key in self.widgets:
                 self.widgets[key].clear()
+                self.widgets[key].setEnabled(False)
             return
         for key in self.widgets:
+            self.widgets[key].setEnabled(True)
             self._update_widget(key)

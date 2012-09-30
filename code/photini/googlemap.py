@@ -101,6 +101,7 @@ class GoogleMap(QtGui.QWidget):
         self.layout.addWidget(QtGui.QLabel('Latitude:'), 2, 0)
         self.coords = QtGui.QLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
+        self.coords.setEnabled(False)
         self.layout.addWidget(self.coords, 3, 0)
         # load map button
         self.load_map = QtGui.QPushButton('Load map\n\nConnect to Google')
@@ -176,6 +177,10 @@ class GoogleMap(QtGui.QWidget):
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
+        if selection:
+            self.coords.setEnabled(True)
+        else:
+            self.coords.setEnabled(False)
         for image in self.image_list.get_images():
             lat = image.get_metadata(self.lat_keys)
             lng = image.get_metadata(self.lng_keys)
