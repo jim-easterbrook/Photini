@@ -91,10 +91,10 @@ class MainWindow(QtGui.QMainWindow):
         file_menu.addAction(self.save_action)
         self.close_action = QtGui.QAction('Close selected images', self)
         self.close_action.setEnabled(False)
-        self.close_action.triggered.connect(self.image_list.close_files)
+        self.close_action.triggered.connect(self.close_files)
         file_menu.addAction(self.close_action)
         close_all_action = QtGui.QAction('Close all images', self)
-        close_all_action.triggered.connect(self.image_list.close_all_files)
+        close_all_action.triggered.connect(self.close_all_files)
         file_menu.addAction(close_all_action)
         file_menu.addSeparator()
         quit_action = QtGui.QAction('Quit', self)
@@ -107,18 +107,39 @@ class MainWindow(QtGui.QMainWindow):
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
 
+    def close_files(self):
+        self._close_files(False)
+
+    def close_all_files(self):
+        self._close_files(True)
+
+    def _close_files(self, all_files):
+        for image in self.image_list.get_images():
+            if image.metadata_changed and (all_files or image.selected):
+                if self.unsaved_images_dialog(True) == QtGui.QMessageBox.Cancel:
+                    return
+                break
+        self.image_list.close_files(all_files)
+
+    def unsaved_images_dialog(self, with_cancel):
+        dialog = QtGui.QMessageBox()
+        dialog.setWindowTitle('Photini: unsaved data')
+        dialog.setText('<h3>Some images have unsaved metadata.</h3>')
+        dialog.setInformativeText('Do you want to save your changes?')
+        dialog.setIcon(QtGui.QMessageBox.Warning)
+        buttons = QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard
+        if with_cancel:
+            buttons |= QtGui.QMessageBox.Cancel
+        dialog.setStandardButtons(buttons)
+        dialog.setDefaultButton(QtGui.QMessageBox.Save)
+        result = dialog.exec_()
+        if result == QtGui.QMessageBox.Save:
+            self.image_list.save_files()
+        return result
+
     def closeEvent(self, event):
         if self.save_action.isEnabled():
-            dialog = QtGui.QMessageBox()
-            dialog.setWindowTitle('Photini: unsaved data')
-            dialog.setText('<h3>Some images have unsaved metadata.</h3>')
-            dialog.setInformativeText('Do you want to save your changes?')
-            dialog.setIcon(QtGui.QMessageBox.Warning)
-            dialog.setStandardButtons(
-                QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard)
-            dialog.setDefaultButton(QtGui.QMessageBox.Save)
-            if dialog.exec_() == QtGui.QMessageBox.Save:
-                self.image_list.save_files()
+            self.unsaved_images_dialog(False)
         QtGui.QMainWindow.closeEvent(self, event)
 
     @QtCore.pyqtSlot()

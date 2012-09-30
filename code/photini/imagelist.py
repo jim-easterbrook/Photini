@@ -371,15 +371,7 @@ class ImageList(QtGui.QWidget):
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
         self.image_list_changed.emit()
 
-    @QtCore.pyqtSlot()
-    def close_files(self):
-        self._remove(False)
-
-    @QtCore.pyqtSlot()
-    def close_all_files(self):
-        self._remove(True)
-
-    def _remove(self, all_files):
+    def close_files(self, all_files):
         layout = self.thumbnails.layout()
         for path in list(self.path_list):
             image = self.image[path]
@@ -388,6 +380,8 @@ class ImageList(QtGui.QWidget):
                 del self.image[path]
                 layout.removeWidget(image)
                 image.setParent(None)
+        self.last_selected = None
+        self.selection_anchor = None
         self.emit_selection()
         self.image_list_changed.emit()
 
@@ -395,7 +389,7 @@ class ImageList(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def save_files(self):
         for path in list(self.path_list):
-            image = self.image[path].save_metadata()
+            self.image[path].save_metadata()
         self.new_metadata.emit(False)
 
     def get_selected_images(self):
