@@ -125,17 +125,22 @@ class Image(QtGui.QFrame):
         self.show_status()
 
     def mousePressEvent(self, event):
-        self.image_list.thumb_mouse_press(self.path, event)
         if event.button() == Qt.LeftButton:
             self.drag_start_pos = event.pos()
 
+    def mouseReleaseEvent(self, event):
+        self.image_list.thumb_mouse_press(self.path, event)
+        
     def mouseMoveEvent(self, event):
         if ((event.pos() - self.drag_start_pos).manhattanLength() <
                                     QtGui.QApplication.startDragDistance()):
             return
         drag = QtGui.QDrag(self)
         mimeData = QtCore.QMimeData()
-        mimeData.setText(self.path)
+        paths = list()
+        for image in self.image_list.get_selected_images():
+            paths.append(image.path)
+        mimeData.setText(str(paths))
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(Qt.LinkAction)
 

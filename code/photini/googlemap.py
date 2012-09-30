@@ -59,7 +59,7 @@ class WebView(QtWebKit.QWebView):
         if event.mimeData().hasText():
             event.acceptProposedAction()
 
-    drop_text = QtCore.pyqtSignal(int, int, unicode)
+    drop_text = QtCore.pyqtSignal(int, int, str)
     def dropEvent(self, event):
         event.acceptProposedAction()
         self.drop_text.emit(
@@ -137,16 +137,17 @@ class GoogleMap(QtGui.QWidget):
     lat_keys = ('Exif.GPSInfo.GPSLatitude', 'Xmp.exif.GPSLatitude')
     lng_keys = ('Exif.GPSInfo.GPSLongitude', 'Xmp.exif.GPSLongitude')
 
-    @QtCore.pyqtSlot(int, int, unicode)
-    def drop_text(self, x, y, path):
+    @QtCore.pyqtSlot(int, int, str)
+    def drop_text(self, x, y, text):
         x = float(x) / float(self.map.width())
         y = float(y) / float(self.map.height())
         lat = self.map_centre[0] + (self.map_span[0] * (0.5 - y))
         lng = self.map_centre[1] + (self.map_span[1] * (x - 0.5))
-        image = self.image_list.get_image(str(path))
-        self._add_marker(image, lat, lng)
-        image.set_metadata(self.lat_keys, GPSvalue(lat, True))
-        image.set_metadata(self.lng_keys, GPSvalue(lng, False))
+        for path in eval(str(text)):
+            image = self.image_list.get_image(path)
+            self._add_marker(image, lat, lng)
+            image.set_metadata(self.lat_keys, GPSvalue(lat, True))
+            image.set_metadata(self.lng_keys, GPSvalue(lng, False))
         self.display_coords()
 
     def new_coords(self):
