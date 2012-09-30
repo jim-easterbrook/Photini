@@ -244,7 +244,7 @@ class GoogleMap(QtGui.QWidget):
         if name in self.location:
             location = self.location[name]
             self.JavaScript(
-                'goTo(%s, %s, 11)' % (repr(location[0]), repr(location[1])))
+                'goTo(%s, %s)' % (repr(location[0]), repr(location[1])))
 
     @QtCore.pyqtSlot(str)
     def marker_drag_start(self, path):

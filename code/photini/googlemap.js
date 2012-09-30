@@ -68,12 +68,13 @@ function seeAllMarkers()
   }
 }
 
-function goTo(lat, lng, zoom)
+function goTo(lat, lng)
 {
-  if (map.getZoom() < zoom)
-  {
-    map.setZoom(zoom);
-  }
+  zoom = map.getZoom();
+  if (zoom < 11)
+    map.setZoom(11);
+  if (zoom > 16)
+    map.setZoom(16)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
