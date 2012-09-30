@@ -132,6 +132,8 @@ class Image(QtGui.QFrame):
         self.image_list.thumb_mouse_press(self.path, event)
         
     def mouseMoveEvent(self, event):
+        if not self.selected:
+            return
         if ((event.pos() - self.drag_start_pos).manhattanLength() <
                                     QtGui.QApplication.startDragDistance()):
             return
