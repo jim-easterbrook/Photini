@@ -3,12 +3,31 @@ Photini
 
 Easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
+Features
+--------
+
+![Text editing screenshot](doc/source/images/screenshot_text.png)
+
+*   Easy to use graphical interface.
+*   Set photo title, description, keywords, copyright and creator fields.
+*   Can set metadata for multiple images simultaneously.
+
+![Geolocation screenshot](doc/source/images/screenshot_map.png)
+
+*   Search map to find places of interest.
+*   Drag and drop images onto map to set GPS location.
+*   Edit coordinates if required, or clear to unset GPS data.
+
+*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
+*   Planned tabs to adjust time & date and to use other map services.
+*   Suggestions for further development welcome.
+
 Dependencies
 ------------
 
 *   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   pyexiv2, version 0.3.2: <https://launchpad.net/pyexiv2>.
+*   pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
 
 Python and PyQt should be available from the repository of any modern Linux distribution. pyexiv2 is available from some Linux repositories, or from <http://tilloy.net/dev/pyexiv2/download.html>. If you need to build pyexiv2 you'll need to install boost.Python, libexiv2 and SCons. See <http://tilloy.net/dev/pyexiv2/developers.html#dependencies> for details and build instructions.
 
