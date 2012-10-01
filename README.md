@@ -6,11 +6,13 @@ Easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 Dependencies
 ------------
 
-*   Python: <http://python.org/>
-*   PyQt: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   pyexiv2: <https://launchpad.net/pyexiv2>. You may need to build pyexiv2, in which case you'll need scons <http://www.scons.org/> and libexiv2-dev <http://www.exiv2.org/> as well.
+*   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
+*   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
+*   pyexiv2, version 0.3.2: <https://launchpad.net/pyexiv2>.
 
-Python and PyQt should be available from the repository of any modern Linux distribution. However you may need to build pyexiv2, in which case you'll need to install boost.Python, libexiv2 and SCons. See <http://tilloy.net/dev/pyexiv2/developers.html#dependencies> for details and build instructions.
+Python and PyQt should be available from the repository of any modern Linux distribution. pyexiv2 is available from some Linux repositories, or from <http://tilloy.net/dev/pyexiv2/download.html>. If you need to build pyexiv2 you'll need to install boost.Python, libexiv2 and SCons. See <http://tilloy.net/dev/pyexiv2/developers.html#dependencies> for details and build instructions.
+
+Python for Windows can be downloaded from <http://www.python.org/getit/windows/>. PyQt for Windows can be downloaded from <http://www.riverbankcomputing.co.uk/software/pyqt/download> and pyexiv2 for Windows can be downloaded from <http://tilloy.net/dev/pyexiv2/download.html>. Make sure you choose the Windows installers that match your Python version and system bit width.
 
 I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
