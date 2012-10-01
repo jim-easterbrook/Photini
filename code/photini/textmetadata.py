@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
@@ -131,6 +133,8 @@ class TextMetadata(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.get_metadata(self.keys['date'])
+            if not date:
+                date = datetime.now()
             value = u'Copyright ©%d %s. All rights reserved.' % (
                 date.year, name)
             image.set_metadata(self.keys['copyright'], [value])

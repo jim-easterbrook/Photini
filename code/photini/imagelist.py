@@ -249,7 +249,10 @@ class Image(QtGui.QFrame):
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            orientation = self.metadata['Exif.Image.Orientation'].value
+            if 'Exif.Image.Orientation' in self.metadata.exif_keys:
+                orientation = self.metadata['Exif.Image.Orientation'].value
+            else:
+                orientation = 1
             if orientation != 1:
                 # need to rotate and or reflect image
                 transform = QtGui.QTransform()
