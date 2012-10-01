@@ -33,10 +33,10 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
 
-from photini.configstore import ConfigStore
-from photini.googlemap import GoogleMap
-from photini.imagelist import ImageList
-from photini.textmetadata import TextMetadata
+from configstore import ConfigStore
+from googlemap import GoogleMap
+from imagelist import ImageList
+from textmetadata import TextMetadata
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):

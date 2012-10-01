@@ -114,9 +114,10 @@ class GoogleMap(QtGui.QWidget):
     def initialise(self):
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
+        root = os.path.abspath(os.path.dirname(__file__))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.map.setHtml(show_map % (self.api_key, lat, lng, zoom),
-                         QtCore.QUrl('file://%s/' % os.path.dirname(__file__)))
+                         QtCore.QUrl('file://%s/' % root))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):

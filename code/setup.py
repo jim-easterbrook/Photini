@@ -31,5 +31,5 @@ other software.
           ],
       packages=['photini'],
       package_data={'photini' : ['googlemap.js'],},
-      scripts=['editor.py'],
+      scripts=['scripts/photini'],
       )
