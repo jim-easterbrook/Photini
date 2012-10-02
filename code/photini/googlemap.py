@@ -55,7 +55,7 @@ show_map = """<!DOCTYPE html>
 """
 
 class WebView(QtWebKit.QWebView):
-    def dragEnterEvent(self, event):
+    def dragMoveEvent(self, event):
         if event.mimeData().hasText():
             event.acceptProposedAction()
 
