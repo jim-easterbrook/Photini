@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    introduction/introduction
+   manual/manual
 
 Indices and tables
 ==================
