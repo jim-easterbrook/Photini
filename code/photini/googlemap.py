@@ -43,7 +43,7 @@ show_map = """<!DOCTYPE html>
       #map_canvas { height: 100%% }
     </style>
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false&region=GB">
+      src="http://maps.googleapis.com/maps/api/js?v=3.1&key=%s&sensor=false&region=GB">
     </script>
     <script type="text/javascript" src="googlemap.js">
     </script>
@@ -114,10 +114,10 @@ class GoogleMap(QtGui.QWidget):
     def initialise(self):
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        root = os.path.abspath(os.path.dirname(__file__))
+        root = os.path.dirname(__file__) + os.sep
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.map.setHtml(show_map % (self.api_key, lat, lng, zoom),
-                         QtCore.QUrl('file://%s/' % root))
+                         QtCore.QUrl.fromLocalFile(root))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
