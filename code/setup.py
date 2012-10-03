@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+import platform
 
 # This installs the Photini editor as 'editor.py'. This is probably a
 # bad idea for two reasons: the name isn't obviously related to
 # Photini and the name ends in .py. Probably ought to write shell
 # scripts (with platform dependent names) to run the python editor and
 # install them instead.
+
+if platform.system() == 'Windows':
+    script = 'scripts/photini.bat'
+else:
+    script = 'scripts/photini'
 
 setup(name='Photini',
       version='0.1',
@@ -31,5 +37,5 @@ other software.
           ],
       packages=['photini'],
       package_data={'photini' : ['googlemap.js'],},
-      scripts=['scripts/photini'],
+      scripts=[script],
       )
