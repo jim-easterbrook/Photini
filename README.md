@@ -22,6 +22,11 @@ Features
 *   Planned tabs to adjust time & date and to use other map services.
 *   Suggestions for further development welcome.
 
+Documentation
+-------------
+
+Photini's documentation is a long way from complete, but you can read what's been written so far at <http://jim-easterbrook.github.com/Photini/>.
+
 Dependencies
 ------------
 

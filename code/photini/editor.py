@@ -28,6 +28,7 @@ import getopt
 import os
 import sys
 import urllib2
+import webbrowser
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -106,7 +107,14 @@ class MainWindow(QtGui.QMainWindow):
         about_action = QtGui.QAction('About Photini', self)
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
+        help_menu.addSeparator()
+        help_action = QtGui.QAction('Photini documentation', self)
+        help_action.triggered.connect(self.open_docs)
+        help_menu.addAction(help_action)
 
+    def open_docs(self):
+        webbrowser.open_new('http://jim-easterbrook.github.com/Photini/')
+    
     def close_files(self):
         self._close_files(False)
 
@@ -180,6 +188,8 @@ def main(argv=None):
         argv = sys.argv
     # let PyQt handle its options
     app = QtGui.QApplication(argv)
+    app.setApplicationName('Photini')
+    app.setApplicationVersion('0.1')
     # parse remaining arguments
     try:
         opts, args = getopt.getopt(argv[1:], "h", ["help"])
