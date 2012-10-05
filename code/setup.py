@@ -33,7 +33,7 @@ other software.
           ],
       packages=['photini'],
       package_data={'photini' : [
-          'googlemap.js', 'data/about.html', 'data/LICENSE.txt'
+          'data/googlemap.js', 'data/about.html', 'data/LICENSE.txt'
           ],},
       scripts=[script],
       )

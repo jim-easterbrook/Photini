@@ -22,6 +22,7 @@ from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
 from imagelist import GPSvalue
+from utils import data_dir
 
 class ChromePage(QtWebKit.QWebPage):
     # Cludge to stop Google maps thinking we're a smart-phone and
@@ -114,10 +115,9 @@ class GoogleMap(QtGui.QWidget):
     def initialise(self):
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        root = os.path.dirname(__file__) + os.sep
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.map.setHtml(show_map % (self.api_key, lat, lng, zoom),
-                         QtCore.QUrl.fromLocalFile(root))
+                         QtCore.QUrl.fromLocalFile(data_dir))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
