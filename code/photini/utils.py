@@ -16,4 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-__version__ = '1.0'
+import os
+
+data_dir = os.path.join(os.path.dirname(__file__), 'data', '')

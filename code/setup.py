@@ -3,11 +3,7 @@
 from distutils.core import setup
 import platform
 
-# This installs the Photini editor as 'editor.py'. This is probably a
-# bad idea for two reasons: the name isn't obviously related to
-# Photini and the name ends in .py. Probably ought to write shell
-# scripts (with platform dependent names) to run the python editor and
-# install them instead.
+from photini import __version__
 
 if platform.system() == 'Windows':
     script = 'scripts/photini.bat'
@@ -15,7 +11,7 @@ else:
     script = 'scripts/photini'
 
 setup(name='Photini',
-      version='0.1',
+      version=__version__,
       author='Jim Easterbrook',
       author_email='jim@jim-easterbrook.me.uk',
       url='https://github.com/jim-easterbrook/Photini',

@@ -34,10 +34,12 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
 
+from __init__ import __version__
 from configstore import ConfigStore
 from googlemap import GoogleMap
 from imagelist import ImageList
 from textmetadata import TextMetadata
+from utils import data_dir
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -152,13 +154,12 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def about(self):
-        root = os.path.dirname(__file__)
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle('Photini: about')
         dialog.setText(
-            open(os.path.join(root, 'about.html')).read())
+            open(os.path.join(data_dir, 'about.html')).read() % (__version__))
         dialog.setDetailedText(
-            open(os.path.join(root, '../LICENSE.txt')).read())
+            open(os.path.join(data_dir, 'LICENSE.txt')).read())
         dialog.exec_()
 
     @QtCore.pyqtSlot(int, int)
