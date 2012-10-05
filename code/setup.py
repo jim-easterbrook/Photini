@@ -32,6 +32,8 @@ other software.
           'Programming Language :: Python :: 2 :: Only',
           ],
       packages=['photini'],
-      package_data={'photini' : ['googlemap.js'],},
+      package_data={'photini' : [
+          'googlemap.js', 'data/about.html', 'data/LICENSE.txt'
+          ],},
       scripts=[script],
       )
