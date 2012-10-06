@@ -125,7 +125,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def _close_files(self, all_files):
         for image in self.image_list.get_images():
-            if image.metadata_changed and (all_files or image.selected):
+            if image.metadata.changed() and (all_files or image.selected):
                 if self.unsaved_images_dialog(True) == QtGui.QMessageBox.Cancel:
                     return
                 break

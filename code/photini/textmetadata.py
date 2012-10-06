@@ -52,18 +52,6 @@ class LineEditWithAuto(QtGui.QWidget):
         self.autoComplete = self.auto.clicked
 
 class TextMetadata(QtGui.QWidget):
-    keys = {
-        'date'        : ('Exif.Photo.DateTimeOriginal',
-                         'Exif.Photo.DateTimeDigitized', 'Exif.Image.DateTime'),
-        'title'       : ('Xmp.dc.title', 'Iptc.Application2.ObjectName',
-                         'Exif.Image.ImageDescription'),
-        'creator'     : ('Xmp.dc.creator', 'Iptc.Application2.Byline',
-                         'Exif.Image.Artist'),
-        'description' : ('Xmp.dc.description', 'Iptc.Application2.Caption'),
-        'keywords'    : ('Xmp.dc.subject', 'Iptc.Application2.Keywords'),
-        'copyright'   : ('Xmp.dc.rights', 'Xmp.tiff.Copyright',
-                         'Iptc.Application2.Copyright', 'Exif.Image.Copyright'),
-        }
     list_item = {
         'title'       : False,
         'creator'     : False,
@@ -132,12 +120,12 @@ class TextMetadata(QtGui.QWidget):
             else:
                 name = ''
         for image in self.image_list.get_selected_images():
-            date = image.get_metadata(self.keys['date'])
+            date = image.metadata.get_item('date')
             if not date:
                 date = datetime.now()
             value = u'Copyright ©%d %s. All rights reserved.' % (
                 date.year, name)
-            image.set_metadata(self.keys['copyright'], [value])
+            image.metadata.set_item('copyright', [value])
         self._update_widget('copyright')
 
     def auto_creator(self):
@@ -163,15 +151,15 @@ class TextMetadata(QtGui.QWidget):
         value = map(lambda x: unicode(x).strip(), value)
         for image in self.image_list.get_selected_images():
             if value == [u'']:
-                image.del_metadata(self.keys[key])
+                image.metadata.del_item(key)
             else:
-                image.set_metadata(self.keys[key], value)
+                image.metadata.set_item(key, value)
         self._update_widget(key)
 
     def _update_widget(self, key):
         value = None
         for image in self.image_list.get_selected_images():
-            new_value = image.get_metadata(self.keys[key])
+            new_value = image.metadata.get_item(key)
             if value and new_value != value:
                 self.widgets[key].setText('<multiple values>')
                 return

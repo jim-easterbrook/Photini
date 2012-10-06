@@ -20,59 +20,11 @@ import datetime
 import fractions
 import os
 
-import pyexiv2
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from flowlayout import FlowLayout
-
-class GPSvalue(object):
-    def __init__(self, degrees=0.0, latitude=True):
-        self.degrees = degrees
-        self.latitude = latitude
-
-    def fromGPSCoordinate(self, value):
-        self.degrees = (float(value.degrees) +
-                       (float(value.minutes) / 60.0) +
-                       (float(value.seconds) / 3600.0))
-        if value.direction in ('S', 'W'):
-            self.degrees = -self.degrees
-        self.latitude = value.direction in ('S', 'N')
-        return self
-
-    def toGPSCoordinate(self):
-        if self.degrees >= 0.0:
-            direction = ('E', 'N')[self.latitude]
-            value = self.degrees
-        else:
-            direction = ('W', 'S')[self.latitude]
-            value = -self.degrees
-        degrees = int(value)
-        value = (value - degrees) * 60.0
-        minutes = int(value)
-        seconds = (value - minutes) * 60.0
-        return pyexiv2.utils.GPSCoordinate(degrees, minutes, seconds, direction)
-
-    def fromRational(self, value, ref):
-        if isinstance(value, list):
-            self.degrees = (float(value[0]) +
-                           (float(value[1]) / 60.0) +
-                           (float(value[2]) / 3600.0))
-        else:
-            self.degrees = float(value)
-        if ref in ('S', 'W'):
-            self.degrees = -self.degrees
-        self.latitude = ref in ('S', 'N')
-        return self
-
-    def toRational(self):
-        if self.degrees >= 0.0:
-            ref = ('E', 'N')[self.latitude]
-            value = self.degrees
-        else:
-            ref = ('W', 'S')[self.latitude]
-            value = -self.degrees
-        return fractions.Fraction(value).limit_denominator(1000000), ref
+from metadata import Metadata
 
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
@@ -83,24 +35,8 @@ class Image(QtGui.QFrame):
         self.selected = False
         self.pixmap = None
         self.thumb_size = thumb_size
-        # read metadata
-        self.metadata = pyexiv2.ImageMetadata(self.path)
-        self.metadata.read()
-        self.metadata_changed = False
-
-##        print '### exif'
-##        for key in self.metadata.exif_keys:
-##            try:
-##                print key, self.metadata[key].value
-##            except:
-##                pass
-##        print '### iptc'
-##        for key in self.metadata.iptc_keys:
-##            print key, self.metadata[key].value
-##        print '### xmp'
-##        for key in self.metadata.xmp_keys:
-##            print key, self.metadata[key].value
-
+        self.metadata = Metadata(self.path)
+        self.metadata.new_status.connect(self.show_status)
         layout = QtGui.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
@@ -122,7 +58,7 @@ class Image(QtGui.QFrame):
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
         self.setObjectName("thumbnail")
         self.set_selected(False)
-        self.show_status()
+        self.show_status(False)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -146,94 +82,17 @@ class Image(QtGui.QFrame):
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(Qt.LinkAction)
 
-    def save_metadata(self):
-        if not self.metadata_changed:
-            return
-        self.metadata.write()
-        self.metadata_changed = False
-        self.show_status()
-
-    def show_status(self):
+    @QtCore.pyqtSlot(bool)
+    def show_status(self, changed):
         status = u''
         # set 'geotagged' status
-        if (('Xmp.exif.GPSLatitude' in self.metadata.xmp_keys) or
-            ('Exif.GPSInfo.GPSLatitude' in self.metadata.exif_keys)):
+        if self.metadata.has_GPS():
             status += unichr(0x2690)
         # set 'unsaved' status
-        if self.metadata_changed:
+        if changed:
             status += unichr(0x26A1)
         self.status.setText(status)
-
-    def get_metadata(self, keys):
-        # Turn every type of text data into a list of unicode strings.
-        # Let caller decide what it means.
-        for key in keys:
-            family, group, tag = key.split('.')
-            if key in self.metadata.xmp_keys:
-                item = self.metadata[key]
-                if item.type.split()[0] in ('bag', 'seq'):
-                    return item.value
-                if item.type == 'Lang Alt':
-                    return item.value.values()
-                if item.type == 'GPSCoordinate':
-                    return GPSvalue().fromGPSCoordinate(item.value)
-                print key, item.type, item.value
-                return item.value
-            if key in self.metadata.iptc_keys:
-                return map(lambda x: unicode(x, 'iso8859_1'),
-                           self.metadata[key].value)
-            if key in self.metadata.exif_keys:
-                value = self.metadata[key].value
-                if isinstance(value, datetime.datetime):
-                    return value
-                elif group == 'GPSInfo':
-                    return GPSvalue().fromRational(
-                        value, self.metadata['%sRef' % key].value)
-                else:
-                    return [unicode(value, 'iso8859_1')]
-        return None
-
-    def set_metadata(self, keys, value):
-        if value == self.get_metadata(keys):
-            return
-        for key in keys:
-            family, group, tag = key.split('.')
-            if family == 'Xmp':
-                new_tag = pyexiv2.XmpTag(key)
-                if new_tag.type.split()[0] in ('bag', 'seq'):
-                    new_tag = pyexiv2.XmpTag(key, value)
-                elif new_tag.type == 'Lang Alt':
-                    new_tag = pyexiv2.XmpTag(key, {'': value[0]})
-                elif new_tag.type == 'GPSCoordinate':
-                    new_tag = pyexiv2.XmpTag(key, value.toGPSCoordinate())
-                else:
-                    raise KeyError("Unknown type %s" % new_tag.type)
-            elif family == 'Iptc':
-                new_tag = pyexiv2.IptcTag(key, value)
-            elif family == 'Exif':
-                if group == 'GPSInfo':
-                    numbers, ref = value.toRational()
-                    self.metadata['%sRef' % key] = ref
-                    new_tag = pyexiv2.ExifTag(key, numbers)
-                else:
-                    new_tag = pyexiv2.ExifTag(key, value[0])
-            self.metadata[key] = new_tag
-        self.metadata_changed = True
-        self.show_status()
-        self.image_list.new_metadata.emit(True)
-
-    def del_metadata(self, keys):
-        changed = False
-        for key in keys:
-            family, group, tag = key.split('.')
-            if (key in self.metadata.xmp_keys or
-                key in self.metadata.iptc_keys or
-                key in self.metadata.exif_keys):
-                del self.metadata[key]
-                changed = True
         if changed:
-            self.metadata_changed = True
-            self.show_status()
             self.image_list.new_metadata.emit(True)
 
     def set_thumb_size(self, thumb_size):
@@ -249,11 +108,8 @@ class Image(QtGui.QFrame):
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            if 'Exif.Image.Orientation' in self.metadata.exif_keys:
-                orientation = self.metadata['Exif.Image.Orientation'].value
-            else:
-                orientation = 1
-            if orientation != 1:
+            orientation = self.metadata.get_item('orientation')
+            if orientation is not None and orientation != 1:
                 # need to rotate and or reflect image
                 transform = QtGui.QTransform()
                 if orientation in (3, 4):
@@ -394,7 +250,7 @@ class ImageList(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def save_files(self):
         for path in list(self.path_list):
-            self.image[path].save_metadata()
+            self.image[path].metadata.save()
         self.new_metadata.emit(False)
 
     def get_selected_images(self):
