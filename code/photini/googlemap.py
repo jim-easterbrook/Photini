@@ -145,16 +145,15 @@ class GoogleMap(QtGui.QWidget):
         for path in eval(str(text)):
             image = self.image_list.get_image(path)
             self._add_marker(image, lat, lng)
-            image.metadata.set_item('latitude', GPSvalue(lat, True))
-            image.metadata.set_item('longitude', GPSvalue(lng, False))
+            self._set_metadata(image, lat, lng)
         self.display_coords()
 
     def new_coords(self):
         lat, lng = map(float, self.coords.text().split(','))
         for image in self.image_list.get_selected_images():
-            image.metadata.set_item('latitude', GPSvalue(lat, True))
-            image.metadata.set_item('longitude', GPSvalue(lng, False))
+            self._set_metadata(image, lat, lng)
             self._add_marker(image, lat, lng)
+        self.display_coords()
         self.JavaScript('seeAllMarkers()')
 
     def display_coords(self):
@@ -188,6 +187,7 @@ class GoogleMap(QtGui.QWidget):
                 self.JavaScript(
                     'enableMarker("%s", %d)' % (image.path, image.selected))
         self.display_coords()
+        self.JavaScript('seeAllMarkers()')
 
     @QtCore.pyqtSlot()
     def new_images(self):
@@ -205,8 +205,7 @@ class GoogleMap(QtGui.QWidget):
         if lat is None or lng is None:
             return
         self.JavaScript('addMarker("%s", %s, %s, "%s", %d)' % (
-            image.path, repr(lat), repr(lng),
-            image.name, image.selected))
+            image.path, repr(lat), repr(lng), image.name, image.selected))
 
     def search(self, search_string=None):
         if not search_string:
@@ -242,27 +241,22 @@ class GoogleMap(QtGui.QWidget):
             return
         name = unicode(self.edit_box.itemText(idx))
         if name in self.location:
-            location = self.location[name]
-            self.JavaScript(
-                'goTo(%s, %s)' % (repr(location[0]), repr(location[1])))
+            lat, lng = self.location[name]
+            self.JavaScript('goTo(%s, %s)' % (repr(lat), repr(lng)))
 
     @QtCore.pyqtSlot(str)
     def marker_drag_start(self, path):
         self.image_list.select_image(str(path))
 
     @QtCore.pyqtSlot(float, float, str)
-    def marker_drag(self, lat, lng, path):
-        image = self.image_list.get_image(str(path))
-        image.metadata.set_item('latitude', GPSvalue(lat, True))
-        image.metadata.set_item('longitude', GPSvalue(lng, False))
-        self.display_coords()
-
-    @QtCore.pyqtSlot(float, float, str)
     def marker_drag_end(self, lat, lng, path):
         image = self.image_list.get_image(str(path))
+        self._set_metadata(image, lat, lng)
+        self.display_coords()
+
+    def _set_metadata(self, image, lat, lng):
         image.metadata.set_item('latitude', GPSvalue(lat, True))
         image.metadata.set_item('longitude', GPSvalue(lng, False))
-        self.display_coords()
 
     def JavaScript(self, command):
         if self.map_loaded:

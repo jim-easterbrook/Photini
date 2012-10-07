@@ -115,7 +115,7 @@ function addMarker(path, lat, lng, label, active)
   google.maps.event.addListener(marker, 'drag', function(event)
   {
     loc = event.latLng;
-    python.marker_drag(loc.lat(), loc.lng(), this._path);
+    python.marker_drag_end(loc.lat(), loc.lng(), this._path);
   });
   google.maps.event.addListener(marker, 'dragend', function(event)
   {
