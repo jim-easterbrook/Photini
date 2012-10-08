@@ -87,6 +87,7 @@ class Metadata(QtCore.QObject):
         'longitude'   : ('Exif.GPSInfo.GPSLongitude', 'Xmp.exif.GPSLongitude'),
         'orientation' : ('Exif.Image.Orientation',),
         }
+    list_items = ('keywords',)
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         self._md = pyexiv2.ImageMetadata(path)
@@ -116,23 +117,21 @@ class Metadata(QtCore.QObject):
                 ('Exif.GPSInfo.GPSLatitude' in self._md.exif_keys))
 
     def get_item(self, name):
-        # Turn every type of text data into a list of unicode strings.
-        # Let caller decide what it means.
         for key in self.keys[name]:
             family, group, tag = key.split('.')
             if key in self._md.xmp_keys:
                 item = self._md[key]
                 if item.type.split()[0] in ('bag', 'seq'):
-                    return item.value
+                    return '; '.join(item.value)
                 if item.type == 'Lang Alt':
-                    return item.value.values()
+                    return '; '.join(item.value.values())
                 if item.type == 'GPSCoordinate':
                     return GPSvalue().fromGPSCoordinate(item.value)
                 print key, item.type, item.value
                 return item.value
             if key in self._md.iptc_keys:
-                return map(lambda x: unicode(x, 'iso8859_1'),
-                           self._md[key].value)
+                return '; '.join(map(lambda x: unicode(x, 'iso8859_1'),
+                                     self._md[key].value))
             if key in self._md.exif_keys:
                 value = self._md[key].value
                 if isinstance(value, (datetime.datetime, int)):
@@ -141,12 +140,19 @@ class Metadata(QtCore.QObject):
                     return GPSvalue().fromRational(
                         value, self._md['%sRef' % key].value)
                 else:
-                    return [unicode(value, 'iso8859_1')]
+                    return unicode(value, 'iso8859_1')
         return None
 
     def set_item(self, name, value):
         if value == self.get_item(name):
             return
+        if name in self.list_items:
+            value = map(lambda x: x.strip(), value.split(';'))
+            for i in reversed(range(len(value))):
+                if not value[i]:
+                    del value[i]
+        elif isinstance(value, (str, unicode)):
+            value = [value.strip()]
         for key in self.keys[name]:
             family, group, tag = key.split('.')
             if family == 'Xmp':

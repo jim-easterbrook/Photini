@@ -125,7 +125,7 @@ class TextMetadata(QtGui.QWidget):
                 date = datetime.now()
             value = u'Copyright ©%d %s. All rights reserved.' % (
                 date.year, name)
-            image.metadata.set_item('copyright', [value])
+            image.metadata.set_item('copyright', value)
         self._update_widget('copyright')
 
     def auto_creator(self):
@@ -143,12 +143,7 @@ class TextMetadata(QtGui.QWidget):
         self._new_value('creator')
 
     def _new_value(self, key):
-        value = self.widgets[key].text()
-        if self.list_item[key]:
-            value = value.split(';')
-        else:
-            value = [value]
-        value = map(lambda x: unicode(x).strip(), value)
+        value = unicode(self.widgets[key].text())
         for image in self.image_list.get_selected_images():
             if value == [u'']:
                 image.metadata.del_item(key)
@@ -165,7 +160,7 @@ class TextMetadata(QtGui.QWidget):
                 return
             value = new_value
         if value:
-            self.widgets[key].setText(';'.join(value))
+            self.widgets[key].setText(value)
         else:
             self.widgets[key].clear()
 
