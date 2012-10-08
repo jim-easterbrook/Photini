@@ -18,6 +18,7 @@ Features
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
 
+
 *   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility
     with other software.
 *   Will have tabs to adjust time & date and to use other map services.
@@ -42,7 +43,7 @@ I hope that Photini will be a cross-platform application - do let me know if you
 Warning
 -------
 
-This program is currently at an early stage of development, but like all software it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
+This program is currently at an early stage of development, but it is already usable. However, like all other software, it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 Legalese
 --------
