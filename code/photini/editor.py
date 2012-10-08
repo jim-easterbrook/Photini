@@ -189,8 +189,6 @@ def main(argv=None):
         argv = sys.argv
     # let PyQt handle its options
     app = QtGui.QApplication(argv)
-    app.setApplicationName('Photini')
-    app.setApplicationVersion('0.1')
     # parse remaining arguments
     try:
         opts, args = getopt.getopt(argv[1:], "h", ["help"])

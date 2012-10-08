@@ -24,13 +24,7 @@ from PyQt4.QtCore import Qt
 from metadata import GPSvalue
 from utils import data_dir
 
-class ChromePage(QtWebKit.QWebPage):
-    # Cludge to stop Google maps thinking we're a smart-phone and
-    # expecting 'touch' API instead of mouse. See
-    # http://qt-project.org/forums/viewthread/1643/
-    def userAgentForUrl(self, url):
-        return 'Chrome/1.0'
-
+class WebPage(QtWebKit.QWebPage):
     def javaScriptConsoleMessage(self, msg, line, source):
         print '%s line %d: %s' % (source, line, msg)
 
@@ -44,7 +38,7 @@ show_map = """<!DOCTYPE html>
       #map_canvas { height: 100%% }
     </style>
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?v=3.0&key=%s&sensor=false&region=GB">
+      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false&region=GB">
     </script>
     <script type="text/javascript" src="googlemap.js">
     </script>
@@ -80,9 +74,14 @@ class GoogleMap(QtGui.QWidget):
         self.layout.setRowStretch(6, 1)
         self.layout.setColumnStretch(1, 1)
         self.setLayout(self.layout)
+        # setting the application name & version stops Google maps
+        # using the multitouch interface
+        app = QtGui.QApplication.instance()
+        app.setApplicationName('chrome')
+        app.setApplicationVersion('1.0')
         # map
         self.map = WebView()
-        self.map.setPage(ChromePage())
+        self.map.setPage(WebPage())
         self.map.setAcceptDrops(False)
         self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
