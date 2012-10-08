@@ -18,8 +18,9 @@ Features
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
 
-*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
-*   Planned tabs to adjust time & date and to use other map services.
+*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility
+    with other software.
+*   Will have tabs to adjust time & date and to use other map services.
 *   Suggestions for further development welcome.
 
 Documentation
@@ -34,16 +35,14 @@ Dependencies
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
 *   pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
 
-Python and PyQt should be available from the repository of any modern Linux distribution. pyexiv2 is available from some Linux repositories, or from <http://tilloy.net/dev/pyexiv2/download.html>. If you need to build pyexiv2 you'll need to install boost.Python, libexiv2 and SCons. See <http://tilloy.net/dev/pyexiv2/developers.html#dependencies> for details and build instructions.
-
-Python for Windows can be downloaded from <http://www.python.org/getit/windows/>. PyQt for Windows can be downloaded from <http://www.riverbankcomputing.co.uk/software/pyqt/download> and pyexiv2 for Windows can be downloaded from <http://tilloy.net/dev/pyexiv2/download.html>. Make sure you choose the Windows installers that match your Python version and system bit width. After installation of Python, make sure its directories (probably "C:\Python27" and "C:\Python27\Scripts") have been added to your PATH environment variable.
+For details of how to download and install these, please see the documentation.
 
 I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
 Warning
 -------
 
-This software is currently at a very early stage of development. I've put it on github as a backup, and so anyone interested can have a look and give me some early feedback. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
+This program is currently at an early stage of development, but like all software it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 Legalese
 --------
