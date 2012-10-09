@@ -19,6 +19,8 @@
 import datetime
 import fractions
 import os
+import subprocess
+import sys
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -81,6 +83,14 @@ class Image(QtGui.QFrame):
         mimeData.setText(str(paths))
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(Qt.LinkAction)
+
+    def mouseDoubleClickEvent(self, event):
+        if sys.platform.startswith('linux'):
+            subprocess.call(['xdg-open', self.path])
+        elif sys.platform.startswith('darwin'):
+            subprocess.call(['open', self.path])
+        elif sys.platform.startswith('win'):
+            subprocess.call(['start', self.path], shell=True)
 
     @QtCore.pyqtSlot(bool)
     def show_status(self, changed):
