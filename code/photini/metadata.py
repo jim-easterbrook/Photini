@@ -173,6 +173,9 @@ class Metadata(QtCore.QObject):
                     del value[i]
         elif isinstance(value, (str, unicode)):
             value = [value.strip()]
+        if not value:
+            self.del_item(name)
+            return
         for key, required in self._keys[name]:
             if required or key in (self._md.xmp_keys +
                                    self._md.iptc_keys +
