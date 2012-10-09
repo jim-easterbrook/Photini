@@ -177,6 +177,8 @@ class ImageList(QtGui.QWidget):
                         self.scroll_area, self.select_prev_thumb)
         QtGui.QShortcut(QtGui.QKeySequence.SelectNextChar,
                         self.scroll_area, self.select_next_thumb)
+        QtGui.QShortcut(QtGui.QKeySequence.SelectAll,
+                        self.scroll_area, self.select_all)
         # size selector
         layout.addWidget(QtGui.QLabel('thumbnail size: '), 1, 1)
         self.size_slider = QtGui.QSlider(Qt.Horizontal)
@@ -283,6 +285,14 @@ class ImageList(QtGui.QWidget):
             self.select_image(path, extend_selection=True)
         else:
             self.select_image(path)
+
+    def select_all(self):
+        for path in self.path_list:
+            image = self.image[path]
+            image.set_selected(True)
+        self.selection_anchor = None
+        self.last_selected = None
+        self.emit_selection()
 
     def move_to_prev_thumb(self):
         self._inc_selection(-1)
