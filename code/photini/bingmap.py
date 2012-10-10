@@ -28,23 +28,26 @@ class WebPage(QtWebKit.QWebPage):
     def javaScriptConsoleMessage(self, msg, line, source):
         print '%s line %d: %s' % (source, line, msg)
 
-show_map = """<!DOCTYPE html>
+show_map = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style type="text/css">
       html { height: 100%% }
       body { height: 100%%; margin: 0; padding: 0 }
-      #map_canvas { height: 100%% }
+      #mapDiv { height: 100%% }
     </style>
-    <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false&region=GB">
+    <script charset="UTF-8" type="text/javascript"
+      src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0">
     </script>
-    <script type="text/javascript" src="googlemap.js">
+    <script type="text/javascript">
+      var api_key = "%s";
+    </script>
+    <script type="text/javascript" src="bingmap.js">
     </script>
   </head>
   <body onload="initialize(%f, %f, %d)">
-    <div id="map_canvas" style="width:100%%; height:100%%"></div>
+    <div id="mapDiv" style="position:absolute; width:100%%; height:100%%"></div>
   </body>
 </html>
 """
@@ -60,8 +63,8 @@ class WebView(QtWebKit.QWebView):
         self.drop_text.emit(
             event.pos().x(), event.pos().y(), event.mimeData().text())
 
-class GoogleMap(QtGui.QWidget):
-    api_key = 'AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y'
+class BingMap(QtGui.QWidget):
+    api_key = 'Am_vgc9Dp3K4_oNG79lDkRjaiT0I5vudkGGjLeGM4_REVchob2LFoNoze7lyAL6T'
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
@@ -74,11 +77,6 @@ class GoogleMap(QtGui.QWidget):
         self.layout.setRowStretch(6, 1)
         self.layout.setColumnStretch(1, 1)
         self.setLayout(self.layout)
-        # setting the application name & version stops Google maps
-        # using the multitouch interface
-        app = QtGui.QApplication.instance()
-        app.setApplicationName('chrome')
-        app.setApplicationVersion('1.0')
         # map
         self.map = WebView()
         self.map.setPage(WebPage())
@@ -105,7 +103,7 @@ class GoogleMap(QtGui.QWidget):
         self.coords.setEnabled(False)
         self.layout.addWidget(self.coords, 3, 0)
         # load map button
-        self.load_map = QtGui.QPushButton('Load map\n\nConnect to Google')
+        self.load_map = QtGui.QPushButton('Load map\n\nConnect to Microsift Bing')
         self.load_map.clicked.connect(self.initialise)
         self.layout.addWidget(self.load_map, 7, 0)
         # other init
@@ -193,7 +191,7 @@ class GoogleMap(QtGui.QWidget):
                 self.JavaScript(
                     'enableMarker("%s", %d)' % (image.path, image.selected))
         self.display_coords()
-        self.JavaScript('seeAllMarkers()')
+##        self.JavaScript('seeAllMarkers()')
 
     @QtCore.pyqtSlot()
     def new_images(self):

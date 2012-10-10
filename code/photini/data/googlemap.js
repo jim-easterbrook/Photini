@@ -37,14 +37,15 @@ function initialize(lat, lng, zoom)
 
 function newBounds()
 {
-  span = map.getBounds().toSpan();
-  centre = map.getCenter();
-  zoom = map.getZoom();
+  var span = map.getBounds().toSpan();
+  var centre = map.getCenter();
+  var zoom = map.getZoom();
   python.new_bounds(span.lat(), span.lng(), centre.lat(), centre.lng(), zoom);
 }
 
-function panTo(lat, lng)
+function setView(lat, lng, zoom)
 {
+  map.setZoom(zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
@@ -53,7 +54,7 @@ function seeAllMarkers()
   var bounds;
   for (var path in markers)
   {
-    position = markers[path].getPosition();
+    var position = markers[path].getPosition();
     if (bounds)
       bounds.extend(position);
     else
@@ -61,7 +62,7 @@ function seeAllMarkers()
   }
   if (bounds)
   {
-    zoom = map.getZoom();
+    var zoom = map.getZoom();
     map.fitBounds(bounds);
     if (map.getZoom() > zoom)
       map.setZoom(zoom);
@@ -70,7 +71,7 @@ function seeAllMarkers()
 
 function goTo(lat, lng)
 {
-  zoom = map.getZoom();
+  var zoom = map.getZoom();
   if (zoom < 11)
     map.setZoom(11);
   if (zoom > 16)
@@ -80,7 +81,7 @@ function goTo(lat, lng)
 
 function enableMarker(path, active)
 {
-  marker = markers[path];
+  var marker = markers[path];
   marker.setDraggable(active != 0);
   if (active)
   {
@@ -90,7 +91,7 @@ function enableMarker(path, active)
   else
   {
     marker.setDraggable(false);
-    iconFile = 'http://maps.google.com/mapfiles/ms/icons/grey.png';
+    var iconFile = 'http://maps.google.com/mapfiles/ms/icons/grey.png';
     marker.setIcon(iconFile)
   }
 }
@@ -99,8 +100,8 @@ function addMarker(path, lat, lng, label, active)
 {
   if (markers[path])
     return moveMarker(path, lat, lng);
-  position = new google.maps.LatLng(lat, lng);
-  marker = new google.maps.Marker(
+  var position = new google.maps.LatLng(lat, lng);
+  var marker = new google.maps.Marker(
     {
       position: position,
       map: map,
@@ -114,12 +115,12 @@ function addMarker(path, lat, lng, label, active)
   });
   google.maps.event.addListener(marker, 'drag', function(event)
   {
-    loc = event.latLng;
+    var loc = event.latLng;
     python.marker_drag_end(loc.lat(), loc.lng(), this._path);
   });
   google.maps.event.addListener(marker, 'dragend', function(event)
   {
-    loc = event.latLng;
+    var loc = event.latLng;
     python.marker_drag_end(loc.lat(), loc.lng(), this._path);
   });
   enableMarker(path, active)
@@ -127,8 +128,8 @@ function addMarker(path, lat, lng, label, active)
 
 function moveMarker(path, lat, lng)
 {
-  position = new google.maps.LatLng(lat, lng);
-  marker = markers[path];
+  var position = new google.maps.LatLng(lat, lng);
+  var marker = markers[path];
   marker.setPosition(position);
 }
 

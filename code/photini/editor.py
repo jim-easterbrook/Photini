@@ -36,6 +36,7 @@ from PyQt4.QtNetwork import QNetworkProxy
 
 from __init__ import __version__
 from configstore import ConfigStore
+from bingmap import BingMap
 from googlemap import GoogleMap
 from imagelist import ImageList
 from textmetadata import TextMetadata
@@ -65,14 +66,16 @@ class MainWindow(QtGui.QMainWindow):
         # textual metadata editor
         self.text_edit = TextMetadata(self.config_store, self.image_list)
         # map metadata editor(s)
-        self.google_maps = GoogleMap(self.config_store, self.image_list)
+        self.google_map = GoogleMap(self.config_store, self.image_list)
+        self.bing_map = BingMap(self.config_store, self.image_list)
         # main application area
         self.central_widget = QtGui.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)
         self.central_widget.setChildrenCollapsible(False)
         self.tabs = QtGui.QTabWidget()
         self.tabs.addTab(self.text_edit, '&Text metadata')
-        self.tabs.addTab(self.google_maps, 'Map (&Google)')
+        self.tabs.addTab(self.google_map, 'Map (&Google)')
+        self.tabs.addTab(self.bing_map, 'Map (&Bing)')
         self.tabs.currentChanged.connect(self.new_tab)
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)
@@ -169,6 +172,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def new_tab(self, index):
+        self.tabs.currentWidget().refresh()
         self.image_list.emit_selection()
 
     @QtCore.pyqtSlot(list)

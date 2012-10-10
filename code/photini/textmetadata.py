@@ -93,6 +93,9 @@ class TextMetadata(QtGui.QWidget):
         for key in self.widgets:
             self.widgets[key].setEnabled(False)
 
+    def refresh(self):
+        pass
+
     def new_title(self):
         self._new_value('title')
 
