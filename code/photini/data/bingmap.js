@@ -18,6 +18,7 @@
 
 var map;
 var markers = {};
+var searchManager;
 
 function initialize(lat, lng, zoom)
 {
@@ -30,6 +31,13 @@ function initialize(lat, lng, zoom)
   };
   map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
+  Microsoft.Maps.loadModule(
+    'Microsoft.Maps.Search', {callback: searchModuleLoaded});
+}
+
+function searchModuleLoaded()
+{
+  searchManager = new Microsoft.Maps.Search.SearchManager(map);
 }
 
 function newBounds()
@@ -135,4 +143,26 @@ function removeMarkers()
 
 function search(search_string)
 {
+  var geocodeRequest = {
+    where: search_string,
+    count: 20,
+    callback: geocodeCallback,
+    errorCallback: errCallback
+  };
+  searchManager.geocode(geocodeRequest);
+}
+
+function geocodeCallback(geocodeResult, userData)
+{
+  for (var i = 0; i < geocodeResult.results.length; i++)
+  {
+    var loc = geocodeResult.results[i].location;
+    python.search_result(
+      loc.latitude, loc.longitude, geocodeResult.results[i].name);
+  }
+}
+
+function errCallback(geocodeRequest)
+{
+   alert("Search fail.");
 }
