@@ -103,7 +103,7 @@ class BingMap(QtGui.QWidget):
         self.coords.setEnabled(False)
         self.layout.addWidget(self.coords, 3, 0)
         # load map button
-        self.load_map = QtGui.QPushButton('Load map\n\nConnect to Microsift Bing')
+        self.load_map = QtGui.QPushButton('Load map\n\nConnect to Microsoft Bing')
         self.load_map.clicked.connect(self.initialise)
         self.layout.addWidget(self.load_map, 7, 0)
         # other init
