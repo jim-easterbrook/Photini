@@ -132,20 +132,18 @@ class BingMap(QtGui.QWidget):
         lat, lng = eval(self.config_store.get('map', 'centre'))
         zoom = eval(self.config_store.get('map', 'zoom'))
         self.JavaScript('setView(%s, %s, %d)' % (repr(lat), repr(lng), zoom))
+        self.new_images()
 
-    @QtCore.pyqtSlot(float, float, float, float, int)
-    def new_bounds(self, span_lat, span_lng, centre_lat, centre_lng, zoom):
-        self.map_span = span_lat, span_lng
+    @QtCore.pyqtSlot(float, float, int)
+    def new_bounds(self, centre_lat, centre_lng, zoom):
         self.map_centre = centre_lat, centre_lng
         self.config_store.set('map', 'centre', str(self.map_centre))
         self.config_store.set('map', 'zoom', str(zoom))
 
     @QtCore.pyqtSlot(int, int, str)
     def drop_text(self, x, y, text):
-        x = float(x) / float(self.map.width())
-        y = float(y) / float(self.map.height())
-        lat = self.map_centre[0] + (self.map_span[0] * (0.5 - y))
-        lng = self.map_centre[1] + (self.map_span[1] * (x - 0.5))
+        lat, lng = self.JavaScript(
+            'latLngFromPixel(%d, %d)' % (x, y)).toPyObject()
         for path in eval(str(text)):
             image = self.image_list.get_image(path)
             self._add_marker(image, lat, lng)
@@ -153,7 +151,14 @@ class BingMap(QtGui.QWidget):
         self.display_coords()
 
     def new_coords(self):
-        lat, lng = map(float, self.coords.text().split(','))
+        text = str(self.coords.text()).strip()
+        if not text:
+            for image in self.image_list.get_selected_images():
+                image.metadata.del_item('latitude')
+                image.metadata.del_item('longitude')
+            self.new_images()
+            return
+        lat, lng = map(float, text.split(','))
         for image in self.image_list.get_selected_images():
             self._set_metadata(image, lat, lng)
             self._add_marker(image, lat, lng)

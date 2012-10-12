@@ -42,11 +42,9 @@ function searchModuleLoaded()
 
 function newBounds()
 {
-  var bounds = map.getBounds();
   var centre = map.getCenter();
   var zoom = map.getZoom();
-  python.new_bounds(
-    bounds.height, bounds.width, centre.latitude, centre.longitude, zoom);
+  python.new_bounds(centre.latitude, centre.longitude, zoom);
 }
 
 function setView(lat, lng, zoom)
@@ -70,12 +68,10 @@ function seeAllMarkers()
 
 function goTo(lat, lng)
 {
-  var zoom = map.getZoom();
-  if (zoom < 11)
-    zoom = 11;
-  if (zoom > 16)
-    zoom = 16;
-  map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
+  map.setView({
+    center: new Microsoft.Maps.Location(lat, lng),
+    zoom: Math.min(Math.max(map.getZoom(), 11), 16)
+  });
 }
 
 function enableMarker(path, active)
@@ -97,15 +93,13 @@ function enableMarker(path, active)
 
 function addMarker(path, lat, lng, label, active)
 {
-  if (markers[path])
-    return moveMarker(path, lat, lng);
   var position = new Microsoft.Maps.Location(lat, lng);
+  if (markers[path])
+  {
+    markers[path].setLocation(position);
+    return;
+  }
   var marker = new Microsoft.Maps.Pushpin(position, {});
-//    {
-//      position: position,
-//      map: map,
-//      title: label,
-//    });
   map.entities.push(marker);
   markers[path] = marker;
   marker._path = path;
@@ -128,17 +122,17 @@ function markerDragEnd(event)
   python.marker_drag_end(loc.latitude, loc.longitude, marker._path);
 }
 
-function moveMarker(path, lat, lng)
-{
-  var position = Microsoft.Maps.Location(lat, lng);
-  var marker = markers[path];
-  marker.setLocation(position);
-}
-
 function removeMarkers()
 {
   map.entities.clear();
   markers = {};
+}
+
+function latLngFromPixel(x, y)
+{
+  var position = map.tryPixelToLocation(
+    new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
+  return [position.latitude, position.longitude];
 }
 
 function search(search_string)
