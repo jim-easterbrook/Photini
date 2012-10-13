@@ -38,6 +38,7 @@ from __init__ import __version__
 from configstore import ConfigStore
 from bingmap import BingMap
 from googlemap import GoogleMap
+from openstreetmap import OpenStreetMap
 from imagelist import ImageList
 from textmetadata import TextMetadata
 from utils import data_dir
@@ -68,6 +69,7 @@ class MainWindow(QtGui.QMainWindow):
         # map metadata editor(s)
         self.google_map = GoogleMap(self.config_store, self.image_list)
         self.bing_map = BingMap(self.config_store, self.image_list)
+        self.open_street_map = OpenStreetMap(self.config_store, self.image_list)
         # main application area
         self.central_widget = QtGui.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)
@@ -76,6 +78,7 @@ class MainWindow(QtGui.QMainWindow):
         self.tabs.addTab(self.text_edit, '&Text metadata')
         self.tabs.addTab(self.google_map, 'Map (&Google)')
         self.tabs.addTab(self.bing_map, 'Map (&Bing)')
+        self.tabs.addTab(self.open_street_map, 'Map (&OSM)')
         self.tabs.currentChanged.connect(self.new_tab)
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)

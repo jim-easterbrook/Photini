@@ -121,7 +121,7 @@ function addMarker(path, lat, lng, label, active)
   Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
   Microsoft.Maps.Events.addHandler(marker, 'drag', markerDragEnd);
   Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
-  enableMarker(path, active)
+  enableMarker(path, active);
 }
 
 function markerClick(event)

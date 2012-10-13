@@ -16,14 +16,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import os
+from PyQt4 import QtGui
 
-from PyQt4 import QtGui, QtCore, QtWebKit
-from PyQt4.QtCore import Qt
-
-from metadata import GPSvalue
 from photinimap import PhotiniMap
-from utils import data_dir
 
 class GoogleMap(PhotiniMap):
     show_map = """<!DOCTYPE html>
