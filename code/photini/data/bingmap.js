@@ -43,8 +43,7 @@ function searchModuleLoaded()
 function newBounds()
 {
   var centre = map.getCenter();
-  var zoom = map.getZoom();
-  python.new_bounds(centre.latitude, centre.longitude, zoom);
+  python.new_bounds(centre.latitude, centre.longitude, map.getZoom());
 }
 
 function setView(lat, lng, zoom)
@@ -52,18 +51,34 @@ function setView(lat, lng, zoom)
   map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function seeAllMarkers()
+function seeMarkers(paths)
 {
   var locations = [];
-  for (var path in markers)
-    locations.push(markers[path].getLocation());
+  for (var i = 0; i < paths.length; i++)
+  {
+    var marker = markers[paths[i]];
+    if (marker)
+      locations.push(marker.getLocation());
+  }
   if (locations.length == 0)
     return;
   var bounds = Microsoft.Maps.LocationRect.fromLocations(locations);
-  var zoom = map.getZoom();
-  map.setView({bounds: bounds});
-  if (map.getZoom() > zoom)
-    map.setView({zoom: zoom});
+  var map_bounds = map.getBounds();
+  if (bounds.width > map_bounds.width | bounds.height > map_bounds.height)
+  {
+    map.setView({bounds: bounds});
+    return;
+  }
+  var lat_shift = 0;
+  lat_shift = Math.max(lat_shift, bounds.getNorth() - map_bounds.getNorth());
+  lat_shift = Math.min(lat_shift, bounds.getSouth() - map_bounds.getSouth());
+  var lng_shift = 0;
+  lng_shift = Math.max(lng_shift, bounds.getEast() - map_bounds.getEast());
+  lng_shift = Math.min(lng_shift, bounds.getWest() - map_bounds.getWest());
+  map.setView({
+    center: map.getCenter(),
+    centerOffset: new Microsoft.Maps.Point(lng_shift, lat_shift)
+  });
 }
 
 function goTo(lat, lng)
@@ -103,16 +118,16 @@ function addMarker(path, lat, lng, label, active)
   map.entities.push(marker);
   markers[path] = marker;
   marker._path = path;
-  Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
+  Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
   Microsoft.Maps.Events.addHandler(marker, 'drag', markerDragEnd);
   Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
   enableMarker(path, active)
 }
 
-function markerDragStart(event)
+function markerClick(event)
 {
-  var marker = event.entity;
-  python.marker_drag_start(marker._path);
+  var marker = event.target;
+  python.marker_click(marker._path);
 }
 
 function markerDragEnd(event)
@@ -120,6 +135,15 @@ function markerDragEnd(event)
   var marker = event.entity;
   var loc = marker.getLocation();
   python.marker_drag_end(loc.latitude, loc.longitude, marker._path);
+}
+
+function delMarker(path)
+{
+  if (markers[path])
+  {
+    map.entities.remove(markers[path]);
+    delete markers[path];
+  }
 }
 
 function removeMarkers()

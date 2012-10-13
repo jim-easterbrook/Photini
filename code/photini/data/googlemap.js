@@ -37,10 +37,8 @@ function initialize(lat, lng, zoom)
 
 function newBounds()
 {
-  var span = map.getBounds().toSpan();
   var centre = map.getCenter();
-  var zoom = map.getZoom();
-  python.new_bounds(span.lat(), span.lng(), centre.lat(), centre.lng(), zoom);
+  python.new_bounds(centre.lat(), centre.lng(), map.getZoom());
 }
 
 function setView(lat, lng, zoom)
@@ -49,24 +47,35 @@ function setView(lat, lng, zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function seeAllMarkers()
+function seeMarkers(paths)
 {
   var bounds;
-  for (var path in markers)
+  for (var i = 0; i < paths.length; i++)
   {
-    var position = markers[path].getPosition();
-    if (bounds)
-      bounds.extend(position);
-    else
-      bounds = new google.maps.LatLngBounds(position, position);
+    var marker = markers[paths[i]];
+    if (marker)
+    {
+      var position = marker.getPosition();
+      if (bounds)
+        bounds.extend(position);
+      else
+        bounds = new google.maps.LatLngBounds(position, position);
+    }
   }
-  if (bounds)
+  if (!bounds)
+    return;
+  var span = bounds.toSpan();
+  var map_span = map.getBounds().toSpan();
+  var scale = Math.max(span.lat() / map_span.lat(),
+                       span.lng() / map_span.lng());
+  var zoom = map.getZoom();
+  while (scale > 0.95)
   {
-    var zoom = map.getZoom();
-    map.fitBounds(bounds);
-    if (map.getZoom() > zoom)
-      map.setZoom(zoom);
+    zoom -= 1;
+    scale = scale / 2.0;
   }
+  map.setZoom(zoom);
+  map.panToBounds(bounds);
 }
 
 function goTo(lat, lng)
@@ -82,25 +91,28 @@ function goTo(lat, lng)
 function enableMarker(path, active)
 {
   var marker = markers[path];
-  marker.setDraggable(active != 0);
   if (active)
-  {
-    marker.setDraggable(true);
-    marker.setIcon('') 
-  }
+    marker.setOptions({
+      draggable: true,
+      icon: '',
+      zIndex: 1
+    });
   else
-  {
-    marker.setDraggable(false);
-    var iconFile = 'http://maps.google.com/mapfiles/ms/icons/grey.png';
-    marker.setIcon(iconFile)
-  }
+    marker.setOptions({
+      draggable: false,
+      icon: 'http://maps.google.com/mapfiles/ms/icons/grey.png',
+      zIndex: 0
+    });
 }
 
 function addMarker(path, lat, lng, label, active)
 {
-  if (markers[path])
-    return moveMarker(path, lat, lng);
   var position = new google.maps.LatLng(lat, lng);
+  if (markers[path])
+  {
+    markers[path].setPosition(position);
+    return;
+  }
   var marker = new google.maps.Marker(
     {
       position: position,
@@ -109,9 +121,9 @@ function addMarker(path, lat, lng, label, active)
     });
   markers[path] = marker;
   marker._path = path;
-  google.maps.event.addListener(marker, 'dragstart', function(event)
+  google.maps.event.addListener(marker, 'click', function(event)
   {
-    python.marker_drag_start(this._path, event)
+    python.marker_click(this._path)
   });
   google.maps.event.addListener(marker, 'drag', function(event)
   {
@@ -126,20 +138,37 @@ function addMarker(path, lat, lng, label, active)
   enableMarker(path, active)
 }
 
-function moveMarker(path, lat, lng)
+function delMarker(path)
 {
-  var position = new google.maps.LatLng(lat, lng);
-  var marker = markers[path];
-  marker.setPosition(position);
+  if (markers[path])
+  {
+    markers[path].setMap(null);
+    delete markers[path];
+  }
 }
 
 function removeMarkers()
 {
   for (var path in markers)
-  {
     markers[path].setMap(null);
-  }
   markers = {};
+}
+
+function latLngFromPixel(x, y)
+{
+  // convert x, y to world coordinates
+  var scale = Math.pow(2, map.getZoom());
+  var nw = new google.maps.LatLng(
+    map.getBounds().getNorthEast().lat(),
+    map.getBounds().getSouthWest().lng()
+  );
+  var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
+  var worldX = worldCoordinateNW.x + (x / scale);
+  var worldY = worldCoordinateNW.y + (y / scale);
+  // convert world coordinates to lat & lng
+  var position = map.getProjection().fromPointToLatLng(
+    new google.maps.Point(worldX, worldY));
+  return [position.lat(), position.lng()];
 }
 
 function search(search_string)
