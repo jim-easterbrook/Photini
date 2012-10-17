@@ -56,6 +56,7 @@ class Image(QtGui.QFrame):
         # label to display status
         self.status = QtGui.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
+        self.status.setFont(QtGui.QFont("Dejavu Sans"))
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
         self.setObjectName("thumbnail")
