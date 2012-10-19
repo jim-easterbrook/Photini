@@ -17,10 +17,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import webbrowser
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 from photinimap import PhotiniMap
 
@@ -49,18 +48,25 @@ class BingMap(PhotiniMap):
 </html>
 """
     api_key = 'Am_vgc9Dp3K4_oNG79lDkRjaiT0I5vudkGGjLeGM4_REVchob2LFoNoze7lyAL6T'
+    def __init__(self, *arg, **kw):
+        self.copyright_widget = QtGui.QLabel()
+        self.copyright_widget.setWordWrap(True)
+        PhotiniMap.__init__(self, *arg, **kw)
+
     def show_terms(self):
         # return a widget to display map terms and conditions
         result = QtGui.QFrame()
         layout = QtGui.QVBoxLayout()
         result.setLayout(layout)
-        layout.addWidget(
-            QtGui.QLabel(u'©%d Microsoft Corporation' % datetime.now().year))
-        layout.addWidget(QtGui.QLabel(u'©%d Nokia' % datetime.now().year))
+        layout.addWidget(self.copyright_widget)
         load_tou = QtGui.QPushButton('Terms of Use')
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
         return result
+
+    @QtCore.pyqtSlot(unicode)
+    def new_copyright(self, text):
+        self.copyright_widget.setText(text)
 
     def load_tou(self):
         webbrowser.open_new(

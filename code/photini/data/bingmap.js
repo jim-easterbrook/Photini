@@ -34,8 +34,14 @@ function initialize(lat, lng, zoom)
   };
   map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
+  Microsoft.Maps.Events.addHandler(map, 'copyrightchanged', newCopyright);
   Microsoft.Maps.loadModule(
     'Microsoft.Maps.Search', {callback: searchModuleLoaded});
+}
+
+function newCopyright()
+{
+  map.getCopyrights(python.new_copyright);
 }
 
 function searchModuleLoaded()
