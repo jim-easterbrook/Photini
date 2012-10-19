@@ -32,7 +32,7 @@ Features
 Documentation
 -------------
 
-Photini's documentation is a long way from complete, but you can read what's been written so far at <http://jim-easterbrook.github.com/Photini/>.
+Photini's documentation is a long way from complete, but you can read what's been written so far at <http://jim-easterbrook.github.com/Photini/doc/html/>.
 
 Dependencies
 ------------
