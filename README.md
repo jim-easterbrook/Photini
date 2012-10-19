@@ -70,3 +70,10 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+### Map terms and conditions
+
+Use of the Google map tab is subject to the [Google Maps Terms of Use](http://www.google.com/help/terms_maps.html).
+
+Use of the Bing map tab is subject to the [Microsoft Bing Maps Terms of Use](http://www.microsoft.com/maps/assets/docs/terms.aspx).
+
+Use of the OpenStreetMap tab is subject to the [Nominatim usage policy](http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy) and the [CloudMade Terms and Conditions](http://cloudmade.com/terms_conditions).
