@@ -17,16 +17,24 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import os
+import webbrowser
 
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
+from __init__ import __version__
 from metadata import GPSvalue
 from utils import data_dir
 
 class WebPage(QtWebKit.QWebPage):
     def javaScriptConsoleMessage(self, msg, line, source):
         print '%s line %d: %s' % (source, line, msg)
+
+    def userAgentForUrl(self, url):
+        # Nominatim requires the user agent to identify the application
+        if url.host() == 'nominatim.openstreetmap.org':
+            return 'Photini/%s' % __version__
+        return QtWebKit.QWebPage.userAgentForUrl(self, url)
 
 class WebView(QtWebKit.QWebView):
     def dragMoveEvent(self, event):
@@ -56,6 +64,8 @@ class PhotiniMap(QtGui.QWidget):
         self.map = WebView()
         self.map.setPage(WebPage())
         self.map.setAcceptDrops(False)
+        self.map.page().setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
+        self.map.page().linkClicked.connect(self.link_clicked)
         self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
         self.map.drop_text.connect(self.drop_text)
@@ -84,6 +94,9 @@ class PhotiniMap(QtGui.QWidget):
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
 
+    def link_clicked(self, url):
+        webbrowser.open_new(url.toString())
+
     @QtCore.pyqtSlot()
     def image_list_changed(self):
         self.new_images()
@@ -102,6 +115,9 @@ class PhotiniMap(QtGui.QWidget):
             self.map_loaded = True
             self.layout.removeWidget(self.load_map)
             self.load_map.setParent(None)
+            show_terms = self.show_terms()
+            show_terms.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
+            self.layout.addWidget(show_terms, 7, 0)
             self.edit_box.setEnabled(True)
             self.map.setAcceptDrops(True)
             self.new_images()

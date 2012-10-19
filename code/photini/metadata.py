@@ -72,6 +72,13 @@ class GPSvalue(object):
             ref = ('W', 'S')[self.latitude]
             value = -self.degrees
         return fractions.Fraction(value).limit_denominator(1000000), ref
+##        degrees = int(value)
+##        value = (value - degrees) * 60.0
+##        minutes = int(value)
+##        seconds = (value - minutes) * 60.0
+##        return [fractions.Fraction(degrees),
+##                fractions.Fraction(minutes),
+##                fractions.Fraction(seconds)], ref
 
 class Metadata(QtCore.QObject):
     _keys = {

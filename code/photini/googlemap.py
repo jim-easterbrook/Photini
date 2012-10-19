@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -16,6 +17,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
+import webbrowser
+
 from PyQt4 import QtGui
 
 from photinimap import PhotiniMap
@@ -31,7 +35,7 @@ class GoogleMap(PhotiniMap):
       #map_canvas { height: 100%% }
     </style>
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false&region=GB">
+      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false">
     </script>
     <script type="text/javascript" src="googlemap.js">
     </script>
@@ -49,3 +53,19 @@ class GoogleMap(PhotiniMap):
         app.setApplicationName('chrome')
         app.setApplicationVersion('1.0')
         PhotiniMap.__init__(self, config_store, image_list, parent)
+
+    def show_terms(self):
+        # return a widget to display map terms and conditions
+        result = QtGui.QFrame()
+        layout = QtGui.QVBoxLayout()
+        result.setLayout(layout)
+        layout.addWidget(QtGui.QLabel('Search powered by Google'))
+        layout.addWidget(
+            QtGui.QLabel(u'Map data ©%d Google' % datetime.now().year))
+        load_tou = QtGui.QPushButton('Terms of Use')
+        load_tou.clicked.connect(self.load_tou)
+        layout.addWidget(load_tou)
+        return result
+
+    def load_tou(self):
+        webbrowser.open_new('http://www.google.com/help/terms_maps.html')

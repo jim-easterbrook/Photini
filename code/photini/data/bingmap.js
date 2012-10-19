@@ -27,7 +27,10 @@ function initialize(lat, lng, zoom)
     center: new Microsoft.Maps.Location(lat, lng),
     zoom: zoom,
     mapTypeId: Microsoft.Maps.MapTypeId.road,
+    disableBirdseye: true,
+    enableClickableLogo: false,
     enableSearchLogo: false,
+    showCopyright: false,
   };
   map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);

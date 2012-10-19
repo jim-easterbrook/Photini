@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -16,7 +17,10 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import os
+from datetime import datetime
+import webbrowser
+
+from PyQt4 import QtGui
 
 from photinimap import PhotiniMap
 
@@ -49,3 +53,34 @@ class OpenStreetMap(PhotiniMap):
 </html>
 """
     api_key = '973c5832aa334f1fba73d70f55ae6d77'
+    def show_terms(self):
+        # return a widget to display map terms and conditions
+        result = QtGui.QFrame()
+        layout = QtGui.QVBoxLayout()
+        result.setLayout(layout)
+        load_tou = QtGui.QPushButton('Search powered by Nominatim')
+        load_tou.clicked.connect(self.load_tou_nominatim)
+        layout.addWidget(load_tou)
+        load_tou = QtGui.QPushButton('Map powered by Leaflet')
+        load_tou.clicked.connect(self.load_tou_leaflet)
+        layout.addWidget(load_tou)
+        load_tou = QtGui.QPushButton(u'Map data\n©OpenStreetMap contributors')
+        load_tou.clicked.connect(self.load_tou_osm)
+        layout.addWidget(load_tou)
+        load_tou = QtGui.QPushButton(u'Imagery ©CloudMade')
+        load_tou.clicked.connect(self.load_tou_cloudmade)
+        layout.addWidget(load_tou)
+        return result
+
+    def load_tou_nominatim(self):
+        webbrowser.open_new(
+            'http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy')
+
+    def load_tou_leaflet(self):
+        webbrowser.open_new('http://leaflet.cloudmade.com/')
+
+    def load_tou_osm(self):
+        webbrowser.open_new('http://openstreetmap.org/')
+
+    def load_tou_cloudmade(self):
+        webbrowser.open_new('http://cloudmade.com/')
