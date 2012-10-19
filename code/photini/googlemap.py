@@ -17,7 +17,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import webbrowser
 
 from PyQt4 import QtGui
@@ -60,8 +59,6 @@ class GoogleMap(PhotiniMap):
         layout = QtGui.QVBoxLayout()
         result.setLayout(layout)
         layout.addWidget(QtGui.QLabel('Search powered by Google'))
-        layout.addWidget(
-            QtGui.QLabel(u'Map data ©%d Google' % datetime.now().year))
         load_tou = QtGui.QPushButton('Terms of Use')
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
