@@ -103,11 +103,34 @@ class PhotiniMap(QtGui.QWidget):
         self.see_all()
 
     def initialise(self):
+        page_start = """
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" http-equiv="Content-Type"
+      content="text/html; charset=utf-8; initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #mapDiv { height: 100% }
+    </style>
+"""
+        page_end = """
+    <script type="text/javascript" src="%s.js">
+    </script>
+  </head>
+  <body onload="initialize(%f, %f, %d)">
+    <div id="mapDiv" style="width:100%%; height:100%%"></div>
+  </body>
+</html>
+"""
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        self.map.setHtml(self.show_map % (self.api_key, lat, lng, zoom),
-                         QtCore.QUrl.fromLocalFile(data_dir))
+        self.map.setHtml(
+            page_start + self.load_api() +
+            page_end % (self.__class__.__name__.lower(), lat, lng, zoom),
+            QtCore.QUrl.fromLocalFile(data_dir))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):

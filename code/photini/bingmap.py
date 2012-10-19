@@ -24,34 +24,20 @@ from PyQt4 import QtGui, QtCore
 from photinimap import PhotiniMap
 
 class BingMap(PhotiniMap):
-    show_map = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <style type="text/css">
-      html { height: 100%% }
-      body { height: 100%%; margin: 0; padding: 0 }
-      #mapDiv { height: 100%% }
-    </style>
+    def __init__(self, *arg, **kw):
+        self.copyright_widget = QtGui.QLabel()
+        self.copyright_widget.setWordWrap(True)
+        PhotiniMap.__init__(self, *arg, **kw)
+
+    def load_api(self):
+        return """
     <script charset="UTF-8" type="text/javascript"
       src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0">
     </script>
     <script type="text/javascript">
       var api_key = "%s";
     </script>
-    <script type="text/javascript" src="bingmap.js">
-    </script>
-  </head>
-  <body onload="initialize(%f, %f, %d)">
-    <div id="mapDiv" style="position:absolute; width:100%%; height:100%%"></div>
-  </body>
-</html>
-"""
-    api_key = 'Am_vgc9Dp3K4_oNG79lDkRjaiT0I5vudkGGjLeGM4_REVchob2LFoNoze7lyAL6T'
-    def __init__(self, *arg, **kw):
-        self.copyright_widget = QtGui.QLabel()
-        self.copyright_widget.setWordWrap(True)
-        PhotiniMap.__init__(self, *arg, **kw)
+""" % 'Am_vgc9Dp3K4_oNG79lDkRjaiT0I5vudkGGjLeGM4_REVchob2LFoNoze7lyAL6T'
 
     def show_terms(self):
         # return a widget to display map terms and conditions

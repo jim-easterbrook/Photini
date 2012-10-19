@@ -30,7 +30,7 @@ function initialize(lat, lng, zoom)
     zoom: zoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
-  map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+  map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
   geocoder = new google.maps.Geocoder();
   google.maps.event.addListener(map, 'bounds_changed', newBounds);
 }

@@ -24,27 +24,6 @@ from PyQt4 import QtGui
 from photinimap import PhotiniMap
 
 class GoogleMap(PhotiniMap):
-    show_map = """<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <style type="text/css">
-      html { height: 100%% }
-      body { height: 100%%; margin: 0; padding: 0 }
-      #map_canvas { height: 100%% }
-    </style>
-    <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false">
-    </script>
-    <script type="text/javascript" src="googlemap.js">
-    </script>
-  </head>
-  <body onload="initialize(%f, %f, %d)">
-    <div id="map_canvas" style="width:100%%; height:100%%"></div>
-  </body>
-</html>
-"""
-    api_key = 'AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y'
     def __init__(self, config_store, image_list, parent=None):
         # setting the application name & version stops Google maps
         # using the multitouch interface
@@ -52,6 +31,13 @@ class GoogleMap(PhotiniMap):
         app.setApplicationName('chrome')
         app.setApplicationVersion('1.0')
         PhotiniMap.__init__(self, config_store, image_list, parent)
+
+    def load_api(self):
+        return """
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false">
+    </script>
+""" % 'AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y'
 
     def show_terms(self):
         # return a widget to display map terms and conditions

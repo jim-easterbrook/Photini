@@ -25,18 +25,10 @@ from PyQt4 import QtGui
 from photinimap import PhotiniMap
 
 class OpenStreetMap(PhotiniMap):
-    show_map = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    def load_api(self):
+        return """
     <link rel="stylesheet"
       href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
-    <style type="text/css">
-      html { height: 100%% }
-      body { height: 100%%; margin: 0; padding: 0 }
-      #mapDiv { height: 100%% }
-    </style>
     <script type="text/javascript">
       var api_key = "%s";
       var L_NO_TOUCH = true;
@@ -44,15 +36,8 @@ class OpenStreetMap(PhotiniMap):
     <script type="text/javascript"
       src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js">
     </script>
-    <script type="text/javascript" src="openstreetmap.js">
-    </script>
-  </head>
-  <body onload="initialize(%f, %f, %d)">
-    <div id="mapDiv" style="position:absolute; width:100%%; height:100%%"></div>
-  </body>
-</html>
-"""
-    api_key = '973c5832aa334f1fba73d70f55ae6d77'
+""" % '973c5832aa334f1fba73d70f55ae6d77'
+
     def show_terms(self):
         # return a widget to display map terms and conditions
         result = QtGui.QFrame()
