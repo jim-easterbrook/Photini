@@ -20,13 +20,14 @@ Features
 ![Geolocation screenshot](http://github.com/jim-easterbrook/Photini/raw/master/doc/source/images/screenshot_map.png)
 
 *   Search map to find places of interest.
+*   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
 
 
 *   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility
     with other software.
-*   Will have tabs to adjust time & date and to use other map services.
+*   Will have a tab to adjust time & date.
 *   Suggestions for further development welcome.
 
 Documentation
