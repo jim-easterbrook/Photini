@@ -73,6 +73,10 @@ function seeMarkers(paths)
     return;
   var bounds = Microsoft.Maps.LocationRect.fromLocations(locations);
   var map_bounds = map.getBounds();
+  // expand bounds to allow a margin
+  var bounds = new Microsoft.Maps.LocationRect(bounds.center,
+    bounds.width + (map_bounds.width * 0.4),
+    bounds.height + (map_bounds.height * 0.4))
   if (bounds.width > map_bounds.width | bounds.height > map_bounds.height)
   {
     map.setView({bounds: bounds});
@@ -84,9 +88,10 @@ function seeMarkers(paths)
   var lng_shift = 0;
   lng_shift = Math.max(lng_shift, bounds.getEast() - map_bounds.getEast());
   lng_shift = Math.min(lng_shift, bounds.getWest() - map_bounds.getWest());
+  var centre = map.getCenter();
   map.setView({
-    center: map.getCenter(),
-    centerOffset: new Microsoft.Maps.Point(lng_shift, lat_shift)
+    center: new Microsoft.Maps.Location(
+      centre.latitude + lat_shift, centre.longitude + lng_shift)
   });
 }
 
