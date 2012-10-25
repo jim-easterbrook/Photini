@@ -92,12 +92,16 @@ function enableMarker(path, active)
   if (active)
   {
     marker.setZIndexOffset(1000);
-    marker.setOpacity(1.0);
+    marker.setIcon(new L.Icon.Default());
   }
   else
   {
     marker.setZIndexOffset(0);
-    marker.setOpacity(0.25);
+    marker.setIcon(new L.Icon({
+      iconUrl: 'osm_grey_marker.png',
+      iconSize: [26, 40],
+      iconAnchor: [13, 40],
+    }));
   }
 }
 
@@ -115,7 +119,7 @@ function addMarker(path, lat, lng, label, active)
   marker.addTo(map);
   markers[path] = marker;
   marker._path = path;
-  marker.on('click dragstart', markerClick);
+  marker.on('click', markerClick);
   marker.on('drag dragend', markerDragEnd);
   enableMarker(path, active)
 }

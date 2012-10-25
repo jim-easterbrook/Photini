@@ -16,6 +16,7 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+var defaultPushpinIcon;
 var map;
 var markers = {};
 var searchManager;
@@ -109,13 +110,13 @@ function enableMarker(path, active)
   if (active)
     marker.setOptions({
       draggable: true,
-      text: 'X',
+      icon: defaultPushpinIcon,
       zIndex: 1
     });
   else
     marker.setOptions({
       draggable: false,
-      text: '',
+      icon: 'bing_grey_marker.png',
       zIndex: 0
     });
 }
@@ -129,6 +130,7 @@ function addMarker(path, lat, lng, label, active)
     return;
   }
   var marker = new Microsoft.Maps.Pushpin(position, {});
+  defaultPushpinIcon = marker.getIcon();
   map.entities.push(marker);
   markers[path] = marker;
   marker._path = path;
