@@ -99,7 +99,7 @@ function enableMarker(path, active)
     marker.setZIndexOffset(0);
     marker.setIcon(new L.Icon({
       iconUrl: 'osm_grey_marker.png',
-      iconSize: [26, 40],
+      iconSize: [25, 40],
       iconAnchor: [13, 40],
     }));
   }
