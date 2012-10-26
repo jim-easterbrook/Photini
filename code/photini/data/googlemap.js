@@ -93,13 +93,11 @@ function enableMarker(path, active)
   var marker = markers[path];
   if (active)
     marker.setOptions({
-      draggable: true,
       icon: '',
       zIndex: 1
     });
   else
     marker.setOptions({
-      draggable: false,
       icon: 'http://maps.google.com/mapfiles/ms/icons/grey.png',
       zIndex: 0
     });
@@ -118,10 +116,15 @@ function addMarker(path, lat, lng, label, active)
       position: position,
       map: map,
       title: label,
+      draggable: true,
     });
   markers[path] = marker;
   marker._path = path;
   google.maps.event.addListener(marker, 'click', function(event)
+  {
+    python.marker_click(this._path)
+  });
+  google.maps.event.addListener(marker, 'dragstart', function(event)
   {
     python.marker_click(this._path)
   });

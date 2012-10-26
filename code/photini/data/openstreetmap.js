@@ -120,7 +120,8 @@ function addMarker(path, lat, lng, label, active)
   markers[path] = marker;
   marker._path = path;
   marker.on('click', markerClick);
-  marker.on('drag dragend', markerDragEnd);
+  marker.on('drag', markerDrag);
+  marker.on('dragend', markerDragEnd);
   enableMarker(path, active)
 }
 
@@ -129,10 +130,18 @@ function markerClick(event)
   python.marker_click(this._path);
 }
 
+function markerDrag(event)
+{
+  var loc = this.getLatLng();
+  python.marker_drag_end(loc.lat, loc.lng, this._path);
+}
+
 function markerDragEnd(event)
 {
   var loc = this.getLatLng();
   python.marker_drag_end(loc.lat, loc.lng, this._path);
+  // Ought to do this on dragstart, but doing so prevents dragging
+  python.marker_click(this._path);
 }
 
 function delMarker(path)

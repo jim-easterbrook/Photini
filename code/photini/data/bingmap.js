@@ -109,13 +109,11 @@ function enableMarker(path, active)
   var marker = markers[path];
   if (active)
     marker.setOptions({
-      draggable: true,
       icon: defaultPushpinIcon,
       zIndex: 1
     });
   else
     marker.setOptions({
-      draggable: false,
       icon: 'bing_grey_marker.png',
       zIndex: 0
     });
@@ -129,12 +127,13 @@ function addMarker(path, lat, lng, label, active)
     markers[path].setLocation(position);
     return;
   }
-  var marker = new Microsoft.Maps.Pushpin(position, {});
+  var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
   defaultPushpinIcon = marker.getIcon();
   map.entities.push(marker);
   markers[path] = marker;
   marker._path = path;
   Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
+  Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
   Microsoft.Maps.Events.addHandler(marker, 'drag', markerDragEnd);
   Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
   enableMarker(path, active);
@@ -143,6 +142,12 @@ function addMarker(path, lat, lng, label, active)
 function markerClick(event)
 {
   var marker = event.target;
+  python.marker_click(marker._path);
+}
+
+function markerDragStart(event)
+{
+  var marker = event.entity;
   python.marker_click(marker._path);
 }
 
