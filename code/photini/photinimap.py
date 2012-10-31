@@ -55,11 +55,11 @@ class PhotiniMap(QtGui.QWidget):
         self.location = dict()
         self.search_string = None
         self.map_loaded = False
-        self.layout = QtGui.QGridLayout()
-        self.layout.setMargin(0)
-        self.layout.setRowStretch(6, 1)
-        self.layout.setColumnStretch(1, 1)
-        self.setLayout(self.layout)
+        layout = QtGui.QGridLayout()
+        layout.setMargin(0)
+        layout.setRowStretch(6, 1)
+        layout.setColumnStretch(1, 1)
+        self.setLayout(layout)
         # map
         self.map = WebView()
         self.map.setPage(WebPage())
@@ -69,28 +69,29 @@ class PhotiniMap(QtGui.QWidget):
         self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
         self.map.drop_text.connect(self.drop_text)
-        self.layout.addWidget(self.map, 0, 1, 8, 1)
+        self.layout().addWidget(self.map, 0, 1, 8, 1)
         # search
-        self.layout.addWidget(QtGui.QLabel('Search:'), 0, 0)
+        self.layout().addWidget(QtGui.QLabel('Search:'), 0, 0)
         self.edit_box = QtGui.QComboBox()
         self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtGui.QComboBox.NoInsert)
+        self.edit_box.lineEdit().setPlaceholderText('<new search>')
         self.edit_box.lineEdit().returnPressed.connect(self.search)
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.layout.addWidget(self.edit_box, 1, 0)
+        self.layout().addWidget(self.edit_box, 1, 0)
         # latitude & longitude
-        self.layout.addWidget(QtGui.QLabel('Latitude, longitude:'), 2, 0)
+        self.layout().addWidget(QtGui.QLabel('Latitude, longitude:'), 2, 0)
         self.coords = QtGui.QLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
-        self.layout.addWidget(self.coords, 3, 0)
+        self.layout().addWidget(self.coords, 3, 0)
         # load map button
         self.load_map = QtGui.QPushButton('\nLoad map\n')
         self.load_map.clicked.connect(self.initialise)
-        self.layout.addWidget(self.load_map, 7, 0)
+        self.layout().addWidget(self.load_map, 7, 0)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
 
@@ -136,11 +137,11 @@ class PhotiniMap(QtGui.QWidget):
     def load_finished(self, success):
         if success:
             self.map_loaded = True
-            self.layout.removeWidget(self.load_map)
+            self.layout().removeWidget(self.load_map)
             self.load_map.setParent(None)
             show_terms = self.show_terms()
             show_terms.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
-            self.layout.addWidget(show_terms, 7, 0)
+            self.layout().addWidget(show_terms, 7, 0)
             self.edit_box.setEnabled(True)
             self.map.setAcceptDrops(True)
             self.new_images()
@@ -251,6 +252,7 @@ class PhotiniMap(QtGui.QWidget):
     def search(self, search_string=None):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
+            self.edit_box.clearEditText()
         if not search_string:
             return
         self.search_string = search_string
@@ -260,7 +262,7 @@ class PhotiniMap(QtGui.QWidget):
 
     def clear_search(self):
         self.edit_box.clear()
-        self.edit_box.addItem('<new search>')
+        self.edit_box.addItem('')
         if self.search_string:
             self.edit_box.addItem('<repeat search>')
 
@@ -272,9 +274,9 @@ class PhotiniMap(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def goto_search_result(self, idx):
+        self.edit_box.setCurrentIndex(0)
+        self.edit_box.clearFocus()
         if idx == 0:
-            # new search
-            self.edit_box.clearEditText()
             return
         if self.search_string and idx == 1:
             # repeat search
