@@ -17,7 +17,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import webbrowser
 
 from PyQt4 import QtGui
