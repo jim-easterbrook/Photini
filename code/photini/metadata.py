@@ -82,34 +82,34 @@ class GPSvalue(object):
 
 class Metadata(QtCore.QObject):
     _keys = {
-        'date'        : (('Exif.Photo.DateTimeOriginal',      True),
-                         ('Exif.Image.DateTimeOriginal',      True),
-                         ('Xmp.exif.DateTimeOriginal',        True),
-                         ('Exif.Image.DateTime',              False),
-                         ('Exif.Photo.DateTimeDigitized',     False),),
-        'title'       : (('Xmp.dc.title',                     True),
-                         ('Iptc.Application2.ObjectName',     True),
-                         ('Exif.Image.ImageDescription',      True),),
-        'creator'     : (('Xmp.dc.creator',                   True),
-                         ('Xmp.tiff.Artist',                  False),
-                         ('Iptc.Application2.Byline',         True),
-                         ('Exif.Image.Artist',                True),),
-        'description' : (('Xmp.dc.description',               True),
-                         ('Iptc.Application2.Caption',        True),),
-        'keywords'    : (('Xmp.dc.subject',                   True),
-                         ('Iptc.Application2.Keywords',       True),),
-        'copyright'   : (('Xmp.dc.rights',                    True),
-                         ('Xmp.tiff.Copyright',               False),
-                         ('Iptc.Application2.Copyright',      True),
-                         ('Exif.Image.Copyright',             True),),
-        'latitude'    : (('Exif.GPSInfo.GPSLatitude',         True),
-                         ('Xmp.exif.GPSLatitude',             True),),
-        'longitude'   : (('Exif.GPSInfo.GPSLongitude',        True),
-                         ('Xmp.exif.GPSLongitude',            True),),
-        'orientation' : (('Exif.Image.Orientation',           True),),
-        'soft_full'   : (('Exif.Image.ProcessingSoftware',    True),),
-        'soft_name'   : (('Iptc.Application2.Program',        True),),
-        'soft_vsn'    : (('Iptc.Application2.ProgramVersion', True),),
+        'date_digitised' : (('Exif.Photo.DateTimeDigitized',     True),),
+        'date_modified'  : (('Exif.Image.DateTime',              True),),
+        'date_taken'     : (('Exif.Photo.DateTimeOriginal',      True),
+                            ('Exif.Image.DateTimeOriginal',      True),
+                            ('Xmp.exif.DateTimeOriginal',        True),),
+        'title'          : (('Xmp.dc.title',                     True),
+                            ('Iptc.Application2.ObjectName',     True),
+                            ('Exif.Image.ImageDescription',      True),),
+        'creator'        : (('Xmp.dc.creator',                   True),
+                            ('Xmp.tiff.Artist',                  False),
+                            ('Iptc.Application2.Byline',         True),
+                            ('Exif.Image.Artist',                True),),
+        'description'    : (('Xmp.dc.description',               True),
+                            ('Iptc.Application2.Caption',        True),),
+        'keywords'       : (('Xmp.dc.subject',                   True),
+                            ('Iptc.Application2.Keywords',       True),),
+        'copyright'      : (('Xmp.dc.rights',                    True),
+                            ('Xmp.tiff.Copyright',               False),
+                            ('Iptc.Application2.Copyright',      True),
+                            ('Exif.Image.Copyright',             True),),
+        'latitude'       : (('Exif.GPSInfo.GPSLatitude',         True),
+                            ('Xmp.exif.GPSLatitude',             True),),
+        'longitude'      : (('Exif.GPSInfo.GPSLongitude',        True),
+                            ('Xmp.exif.GPSLongitude',            True),),
+        'orientation'    : (('Exif.Image.Orientation',           True),),
+        'soft_full'      : (('Exif.Image.ProcessingSoftware',    True),),
+        'soft_name'      : (('Iptc.Application2.Program',        True),),
+        'soft_vsn'       : (('Iptc.Application2.ProgramVersion', True),),
         }
     _list_items = ('keywords',)
     def __init__(self, path, parent=None):
@@ -117,18 +117,6 @@ class Metadata(QtCore.QObject):
         self._md = pyexiv2.ImageMetadata(path)
         self._md.read()
         self._new = False
-##        print '### exif'
-##        for key in self._md.exif_keys:
-##            try:
-##                print key, self._md[key].value
-##            except:
-##                pass
-##        print '### iptc'
-##        for key in self._md.iptc_keys:
-##            print key, self._md[key].value
-##        print '### xmp'
-##        for key in self._md.xmp_keys:
-##            print key, self._md[key].value
 
     def save(self):
         if not self._new:

@@ -117,7 +117,7 @@ class TextMetadata(QtGui.QWidget):
             else:
                 name = ''
         for image in self.image_list.get_selected_images():
-            date = image.metadata.get_item('date')
+            date = image.metadata.get_item('date_taken')
             if not date:
                 date = datetime.now()
             value = u'Copyright ©%d %s. All rights reserved.' % (
