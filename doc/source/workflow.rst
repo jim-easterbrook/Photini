@@ -30,10 +30,10 @@ Double click on any thumbnail to view the full size image in your default pictur
 Set text metadata
 -----------------
 
-I usually start by setting the fields that are the saem for all the photos I've loaded - ``Creator / Artist``, ``Copyright`` and ``Title / Object Name``.
+I usually start by setting the fields that are the same for all the photos I've loaded - ``Creator / Artist``, ``Copyright`` and ``Title / Object Name``.
 First you need to select the images whose metadata you want to change.
 Images are selected by clicking on their thumbnails.
-Shift+click and ctrl+click can be used to select multiple images in the usual way.
+Shift+click and Ctrl+click can be used to select multiple images in the usual way.
 The quickest way to select all the images is the keyboard shortcut ``Ctrl+A``.
 
 The ``Creator / Artist`` and ``Copyright`` fields have ``Auto`` buttons to help fill them in.
@@ -61,11 +61,11 @@ Amongst the commonly used image metadata items are the latitude and longitude of
 Photini makes it easy to set the latitude and longitude of any photograph by dragging and dropping it onto a map.
 
 There are currently three map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing and Open Street Map.
-(Each of thes providers has terms and conditions you should read and accept before using their maps.)
+(Each of these providers has terms and conditions you should read and accept before using their maps.)
 The maps differ in appearance, and show different levels of detail for different parts of the world.
 You should use the one that you like best, but it's very easy to switch to another at any time.
 
-Start by clicking the ``Load map`` button to connect ot the map server and load an initial map.
+Start by clicking the ``Load map`` button to connect to the map server and load an initial map.
 You may be able use the map's navigation and zoom controls to find the area you want, but usually you will need to use the search box.
 Click the drop down box arrow and select ``<new search>``.
 This clears the text allowing you to type in a search term such as the name of a town.
