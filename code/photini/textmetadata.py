@@ -52,13 +52,6 @@ class LineEditWithAuto(QtGui.QWidget):
         self.autoComplete = self.auto.clicked
 
 class TextMetadata(QtGui.QWidget):
-    list_item = {
-        'title'       : False,
-        'creator'     : False,
-        'description' : False,
-        'keywords'    : True,
-        'copyright'   : False,
-        }
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
@@ -116,7 +109,8 @@ class TextMetadata(QtGui.QWidget):
         if not name:
             name, OK = QtGui.QInputDialog.getText(
                 self, 'Photini: input name',
-                "Please type in the copyright holder's name")
+                "Please type in the copyright holder's name",
+                text=self.config_store.get('user', 'creator_name'))
             if OK and name:
                 name = unicode(name)
                 self.config_store.set('user', 'copyright_name', name)
@@ -136,7 +130,8 @@ class TextMetadata(QtGui.QWidget):
         if not name:
             name, OK = QtGui.QInputDialog.getText(
                 self, 'Photini: input name',
-                "Please type in the creator's name")
+                "Please type in the creator's name",
+                text=self.config_store.get('user', 'copyright_name'))
             if OK and name:
                 name = unicode(name)
                 self.config_store.set('user', 'creator_name', name)
