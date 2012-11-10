@@ -37,6 +37,7 @@ from PyQt4.QtNetwork import QNetworkProxy
 from __init__ import __version__
 from configstore import ConfigStore
 from bingmap import BingMap
+from dateandtime import DateAndTime
 from googlemap import GoogleMap
 from openstreetmap import OpenStreetMap
 from imagelist import ImageList
@@ -64,8 +65,9 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list = ImageList(self.config_store)
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
-        # textual metadata editor
+        # textual metadata editors
         self.text_edit = TextMetadata(self.config_store, self.image_list)
+        self.date_time = DateAndTime(self.config_store, self.image_list)
         # map metadata editor(s)
         self.google_map = GoogleMap(self.config_store, self.image_list)
         self.bing_map = BingMap(self.config_store, self.image_list)
@@ -76,6 +78,7 @@ class MainWindow(QtGui.QMainWindow):
         self.central_widget.setChildrenCollapsible(False)
         self.tabs = QtGui.QTabWidget()
         self.tabs.addTab(self.text_edit, '&Text metadata')
+        self.tabs.addTab(self.date_time, '&Date && time')
         self.tabs.addTab(self.google_map, 'Map (&Google)')
         self.tabs.addTab(self.bing_map, 'Map (&Bing)')
         self.tabs.addTab(self.open_street_map, 'Map (&OSM)')

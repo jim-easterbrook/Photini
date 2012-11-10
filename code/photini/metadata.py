@@ -85,8 +85,7 @@ class Metadata(QtCore.QObject):
         'date_digitised' : (('Exif.Photo.DateTimeDigitized',     True),),
         'date_modified'  : (('Exif.Image.DateTime',              True),),
         'date_taken'     : (('Exif.Photo.DateTimeOriginal',      True),
-                            ('Exif.Image.DateTimeOriginal',      True),
-                            ('Xmp.exif.DateTimeOriginal',        True),),
+                            ('Exif.Image.DateTimeOriginal',      True),),
         'title'          : (('Xmp.dc.title',                     True),
                             ('Iptc.Application2.ObjectName',     True),
                             ('Exif.Image.ImageDescription',      True),),
@@ -193,6 +192,8 @@ class Metadata(QtCore.QObject):
                         numbers, ref = value.toRational()
                         self._md['%sRef' % key] = ref
                         new_tag = pyexiv2.ExifTag(key, numbers)
+                    elif isinstance(value, datetime.datetime):
+                        new_tag = pyexiv2.ExifTag(key, value)
                     else:
                         new_tag = pyexiv2.ExifTag(key, value[0])
                 self._md[key] = new_tag

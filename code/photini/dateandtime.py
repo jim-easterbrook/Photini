@@ -1,0 +1,154 @@
+# -*- coding: utf-8 -*-
+##  Photini - a simple photo metadata editor.
+##  http://github.com/jim-easterbrook/Photini
+##  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##
+##  This program is free software: you can redistribute it and/or
+##  modify it under the terms of the GNU General Public License as
+##  published by the Free Software Foundation, either version 3 of the
+##  License, or (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+##  General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see
+##  <http://www.gnu.org/licenses/>.
+
+from datetime import datetime
+
+from PyQt4 import QtGui, QtCore
+
+class DateAndTimeWidget(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        layout = QtGui.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        # date
+        self.date = QtGui.QDateEdit(datetime.now().date())
+        self.date.setDisplayFormat(' yyyy-MM-dd')
+        self.date.setCalendarPopup(True)
+        self.date.setSpecialValueText(' ')
+        self.date.dateChanged.connect(self.new_date_time)
+        layout.addWidget(self.date)
+        # time
+        self.time = QtGui.QTimeEdit(datetime.now().time())
+        self.time.setDisplayFormat(' hh:mm:ss')
+        self.time.setSpecialValueText(' ')
+        self.time.timeChanged.connect(self.new_date_time)
+        layout.addWidget(self.time)
+        # clear button
+        clear_button = QtGui.QPushButton('clear')
+        clear_button.clicked.connect(self.clear)
+        layout.addWidget(clear_button)
+        # set button
+        set_button = QtGui.QPushButton('set')
+        set_button.clicked.connect(self.set_default)
+        layout.addWidget(set_button)
+
+    datetime_changed = QtCore.pyqtSignal(datetime)
+    def new_date_time(self, value):
+        date = self.date.date()
+        time = self.time.time()
+        if date != self.date.minimumDate() and time != self.time.minimumTime():
+            self.datetime_changed.emit(
+                QtCore.QDateTime(date, time).toPyDateTime())
+        if date == self.date.minimumDate() and time == self.time.minimumTime():
+            self.datetime_changed.emit(datetime.min)
+
+    def set_default(self):
+        self.setDateTime(datetime.now())
+
+    def clear(self):
+        self.date.setSpecialValueText(' ')
+        self.date.setDate(self.date.minimumDate())
+        self.date.setReadOnly(True)
+        self.time.setSpecialValueText(' ')
+        self.time.setTime(self.time.minimumTime())
+        self.time.setReadOnly(True)
+
+    def setMultipleValues(self):
+        self.date.setSpecialValueText('<multiple>')
+        self.date.setDate(self.date.minimumDate())
+        self.date.setReadOnly(True)
+        self.time.setSpecialValueText('<multiple>')
+        self.time.setTime(self.time.minimumTime())
+        self.time.setReadOnly(True)
+
+    def setDateTime(self, value):
+        self.date.setDate(value.date())
+        self.date.setReadOnly(False)
+        self.time.setTime(value.time())
+        self.time.setReadOnly(False)
+
+class DateAndTime(QtGui.QWidget):
+    def __init__(self, config_store, image_list, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.config_store = config_store
+        self.image_list = image_list
+        self.form = QtGui.QFormLayout()
+        self.setLayout(self.form)
+        # construct widgets
+        self.widgets = dict()
+        # taken
+        self.widgets['taken'] = DateAndTimeWidget()
+        self.widgets['taken'].datetime_changed.connect(self.new_taken)
+        self.form.addRow('Taken', self.widgets['taken'])
+        # digitised
+        self.widgets['digitised'] = DateAndTimeWidget()
+        self.widgets['digitised'].datetime_changed.connect(self.new_digitised)
+        self.form.addRow('Digitised', self.widgets['digitised'])
+        # modified
+        self.widgets['modified'] = DateAndTimeWidget()
+        self.widgets['modified'].datetime_changed.connect(self.new_modified)
+        self.form.addRow('Modified', self.widgets['modified'])
+        # disable until an image is selected
+        for key in self.widgets:
+            self.widgets[key].setEnabled(False)
+
+    def refresh(self):
+        pass
+
+    def new_taken(self, value):
+        self._new_value('taken', value)
+
+    def new_digitised(self, value):
+        self._new_value('digitised', value)
+
+    def new_modified(self, value):
+        self._new_value('modified', value)
+
+    def _new_value(self, key, value):
+        if value == datetime.min:
+            value = None
+        for image in self.image_list.get_selected_images():
+            image.metadata.set_item('date_%s' % key, value)
+        self._update_widget(key)
+
+    def _update_widget(self, key):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('date_%s' % key)
+            if value and new_value != value:
+                self.widgets[key].setMultipleValues()
+                return
+            value = new_value
+        if value:
+            self.widgets[key].setDateTime(value)
+        else:
+            self.widgets[key].clear()
+        pass
+
+    @QtCore.pyqtSlot(list)
+    def new_selection(self, selection):
+        if not selection:
+            for key in self.widgets:
+                self.widgets[key].clear()
+                self.widgets[key].setEnabled(False)
+            return
+        for key in self.widgets:
+            self.widgets[key].setEnabled(True)
+            self._update_widget(key)
