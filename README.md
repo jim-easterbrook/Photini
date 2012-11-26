@@ -25,9 +25,8 @@ Features
 *   Edit coordinates if required, or clear to unset GPS data.
 
 
-*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility
-    with other software.
-*   Will have a tab to adjust time & date.
+*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
+*   Now has tabs to adjust time & date and to upload to [Flickr](http://www.flickr.com/).
 *   Suggestions for further development welcome.
 
 Documentation
@@ -41,6 +40,7 @@ Dependencies
 *   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
 *   pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
+*   python-flickrapi: <http://stuvel.eu/flickrapi>
 
 For details of how to download and install these, please see the documentation.
 
