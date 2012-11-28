@@ -260,6 +260,33 @@ class ImageList(QtGui.QWidget):
             self.image[path].metadata.save()
         self.new_metadata.emit(False)
 
+    def unsaved_files_dialog(
+            self, all_files=False, with_cancel=True, with_discard=True):
+        """Return true if OK to continue with close or quit or whatever"""
+        for path in self.path_list:
+            image = self.image[path]
+            if image.metadata.changed() and (all_files or image.selected):
+                break
+        else:
+            return True
+        dialog = QtGui.QMessageBox()
+        dialog.setWindowTitle('Photini: unsaved data')
+        dialog.setText('<h3>Some images have unsaved metadata.</h3>')
+        dialog.setInformativeText('Do you want to save your changes?')
+        dialog.setIcon(QtGui.QMessageBox.Warning)
+        buttons = QtGui.QMessageBox.Save
+        if with_cancel:
+            buttons |= QtGui.QMessageBox.Cancel
+        if with_discard:
+            buttons |= QtGui.QMessageBox.Discard
+        dialog.setStandardButtons(buttons)
+        dialog.setDefaultButton(QtGui.QMessageBox.Save)
+        result = dialog.exec_()
+        if result == QtGui.QMessageBox.Save:
+            self.save_files()
+            return True
+        return result == QtGui.QMessageBox.Discard
+
     def get_selected_images(self):
         selection = list()
         for path in self.path_list:

@@ -137,32 +137,11 @@ class MainWindow(QtGui.QMainWindow):
         self._close_files(True)
 
     def _close_files(self, all_files):
-        for image in self.image_list.get_images():
-            if image.metadata.changed() and (all_files or image.selected):
-                if self.unsaved_images_dialog(True) == QtGui.QMessageBox.Cancel:
-                    return
-                break
-        self.image_list.close_files(all_files)
-
-    def unsaved_images_dialog(self, with_cancel):
-        dialog = QtGui.QMessageBox()
-        dialog.setWindowTitle('Photini: unsaved data')
-        dialog.setText('<h3>Some images have unsaved metadata.</h3>')
-        dialog.setInformativeText('Do you want to save your changes?')
-        dialog.setIcon(QtGui.QMessageBox.Warning)
-        buttons = QtGui.QMessageBox.Save | QtGui.QMessageBox.Discard
-        if with_cancel:
-            buttons |= QtGui.QMessageBox.Cancel
-        dialog.setStandardButtons(buttons)
-        dialog.setDefaultButton(QtGui.QMessageBox.Save)
-        result = dialog.exec_()
-        if result == QtGui.QMessageBox.Save:
-            self.image_list.save_files()
-        return result
+        if self.image_list.unsaved_files_dialog(all_files=all_files):
+            self.image_list.close_files(all_files)
 
     def closeEvent(self, event):
-        if self.save_action.isEnabled():
-            self.unsaved_images_dialog(False)
+        self.image_list.unsaved_files_dialog(with_cancel=False)
         QtGui.QMainWindow.closeEvent(self, event)
 
     @QtCore.pyqtSlot()

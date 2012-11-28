@@ -111,6 +111,8 @@ class FlickrUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def upload(self):
+        if not self.image_list.unsaved_files_dialog(with_discard=False):
+            return
         is_public = ('0', '1')[self.privacy['public'].isChecked()]
         is_family = ('0', '1')[self.privacy['private'].isChecked() and
                                self.privacy['family'].isChecked()]
