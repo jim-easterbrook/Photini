@@ -28,14 +28,14 @@ class DateAndTimeWidget(QtGui.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # date
-        self.date = QtGui.QDateEdit(datetime.now().date())
+        self.date = QtGui.QDateEdit()
         self.date.setDisplayFormat(' yyyy-MM-dd')
         self.date.setCalendarPopup(True)
         self.date.setSpecialValueText(' ')
         self.date.dateChanged.connect(self.new_date_time)
         layout.addWidget(self.date)
         # time
-        self.time = QtGui.QTimeEdit(datetime.now().time())
+        self.time = QtGui.QTimeEdit()
         self.time.setDisplayFormat(' hh:mm:ss')
         self.time.setSpecialValueText(' ')
         self.time.timeChanged.connect(self.new_date_time)
