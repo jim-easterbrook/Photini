@@ -192,7 +192,7 @@ class Metadata(QtCore.QObject):
                         numbers, ref = value.toRational()
                         self._md['%sRef' % key] = ref
                         new_tag = pyexiv2.ExifTag(key, numbers)
-                    elif isinstance(value, datetime.datetime):
+                    elif isinstance(value, (datetime.datetime, int)):
                         new_tag = pyexiv2.ExifTag(key, value)
                     else:
                         new_tag = pyexiv2.ExifTag(key, value[0])

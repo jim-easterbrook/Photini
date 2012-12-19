@@ -105,9 +105,23 @@ class DateAndTime(QtGui.QWidget):
         self.widgets['modified'] = DateAndTimeWidget()
         self.widgets['modified'].datetime_changed.connect(self.new_modified)
         self.form.addRow('Modified', self.widgets['modified'])
+        # orientation
+        self.orientation = QtGui.QComboBox()
+        self.orientation.addItem('normal', 1)
+        self.orientation.addItem('rotate -90', 6)
+        self.orientation.addItem('rotate +90', 8)
+        self.orientation.addItem('rotate 180', 3)
+        self.orientation.addItem('reflect left-right', 2)
+        self.orientation.addItem('reflect top-bottom', 4)
+        self.orientation.addItem('reflect tr-bl', 5)
+        self.orientation.addItem('reflect tl-br', 7)
+        self.orientation.addItem('multiple', -1)
+        self.orientation.currentIndexChanged.connect(self.new_orientation)
+        self.form.addRow('Orientation', self.orientation)
         # disable until an image is selected
         for key in self.widgets:
             self.widgets[key].setEnabled(False)
+        self.orientation.setEnabled(False)
 
     def refresh(self):
         pass
@@ -120,6 +134,16 @@ class DateAndTime(QtGui.QWidget):
 
     def new_modified(self, value):
         self._new_value('modified', value)
+
+    @QtCore.pyqtSlot(int)
+    def new_orientation(self, index):
+        value, OK = self.orientation.itemData(index).toInt()
+        if value < 1 or not OK:
+            return
+        for image in self.image_list.get_selected_images():
+            image.metadata.set_item('orientation', value)
+            image.pixmap = None
+            image.load_thumbnail()
 
     def _new_value(self, key, value):
         if value == datetime.min:
@@ -148,7 +172,20 @@ class DateAndTime(QtGui.QWidget):
             for key in self.widgets:
                 self.widgets[key].clear()
                 self.widgets[key].setEnabled(False)
+            self.orientation.setCurrentIndex(self.orientation.findData(1))
+            self.orientation.setEnabled(False)
             return
         for key in self.widgets:
             self.widgets[key].setEnabled(True)
             self._update_widget(key)
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('orientation')
+            if value and new_value != value:
+                value = -1
+                break
+            value = new_value
+        if not value:
+            value = 1
+        self.orientation.setCurrentIndex(self.orientation.findData(value))
+        self.orientation.setEnabled(True)
