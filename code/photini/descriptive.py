@@ -51,7 +51,7 @@ class LineEditWithAuto(QtGui.QWidget):
         self.text = self.edit.text
         self.autoComplete = self.auto.clicked
 
-class TextMetadata(QtGui.QWidget):
+class Descriptive(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store

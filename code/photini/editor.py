@@ -36,12 +36,12 @@ from PyQt4.QtNetwork import QNetworkProxy
 
 from configstore import ConfigStore
 from bingmap import BingMap
-from dateandtime import DateAndTime
+from descriptive import Descriptive
 from flickr import FlickrUploader
 from googlemap import GoogleMap
 from openstreetmap import OpenStreetMap
 from imagelist import ImageList
-from textmetadata import TextMetadata
+from technical import Technical
 from utils import data_dir
 from version import version, release
 
@@ -66,26 +66,23 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list = ImageList(self.config_store)
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
-        # textual metadata editors
-        self.text_edit = TextMetadata(self.config_store, self.image_list)
-        self.date_time = DateAndTime(self.config_store, self.image_list)
-        # map metadata editor(s)
-        self.google_map = GoogleMap(self.config_store, self.image_list)
-        self.bing_map = BingMap(self.config_store, self.image_list)
-        self.open_street_map = OpenStreetMap(self.config_store, self.image_list)
-        # Flickr uploader
-        self.flickr = FlickrUploader(self.config_store, self.image_list)
         # main application area
         self.central_widget = QtGui.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)
         self.central_widget.setChildrenCollapsible(False)
         self.tabs = QtGui.QTabWidget()
-        self.tabs.addTab(self.text_edit, '&Text metadata')
-        self.tabs.addTab(self.date_time, '&Date && time')
-        self.tabs.addTab(self.google_map, 'Map (&Google)')
-        self.tabs.addTab(self.bing_map, 'Map (&Bing)')
-        self.tabs.addTab(self.open_street_map, 'Map (&OSM)')
-        self.tabs.addTab(self.flickr, '&Flickr uploader')
+        self.tabs.addTab(Descriptive(self.config_store, self.image_list),
+                         '&Descriptive metadata')
+        self.tabs.addTab(Technical(self.config_store, self.image_list),
+                         '&Technical metadata')
+        self.tabs.addTab(GoogleMap(self.config_store, self.image_list),
+                         'Map (&Google)')
+        self.tabs.addTab(BingMap(self.config_store, self.image_list),
+                         'Map (&Bing)')
+        self.tabs.addTab(OpenStreetMap(self.config_store, self.image_list),
+                         'Map (&OSM)')
+        self.tabs.addTab(FlickrUploader(self.config_store, self.image_list),
+                         '&Flickr uploader')
         self.tabs.currentChanged.connect(self.new_tab)
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)

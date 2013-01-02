@@ -84,27 +84,32 @@ class DateAndTimeWidget(QtGui.QWidget):
         self.time.setTime(value.time())
         self.time.setReadOnly(False)
 
-class DateAndTime(QtGui.QWidget):
+class Technical(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.form = QtGui.QFormLayout()
-        self.setLayout(self.form)
-        # construct widgets
+        self.setLayout(QtGui.QGridLayout())
         self.widgets = dict()
+        # date and time
+        date_group = QtGui.QGroupBox('Date and time')
+        date_group.setLayout(QtGui.QFormLayout())
         # taken
         self.widgets['taken'] = DateAndTimeWidget()
         self.widgets['taken'].datetime_changed.connect(self.new_taken)
-        self.form.addRow('Taken', self.widgets['taken'])
+        date_group.layout().addRow('Taken', self.widgets['taken'])
         # digitised
         self.widgets['digitised'] = DateAndTimeWidget()
         self.widgets['digitised'].datetime_changed.connect(self.new_digitised)
-        self.form.addRow('Digitised', self.widgets['digitised'])
+        date_group.layout().addRow('Digitised', self.widgets['digitised'])
         # modified
         self.widgets['modified'] = DateAndTimeWidget()
         self.widgets['modified'].datetime_changed.connect(self.new_modified)
-        self.form.addRow('Modified', self.widgets['modified'])
+        date_group.layout().addRow('Modified', self.widgets['modified'])
+        self.layout().addWidget(date_group, 0, 0)
+        # other
+        other_group = QtGui.QGroupBox('Other')
+        other_group.setLayout(QtGui.QFormLayout())
         # orientation
         self.orientation = QtGui.QComboBox()
         self.orientation.addItem('normal', 1)
@@ -116,8 +121,8 @@ class DateAndTime(QtGui.QWidget):
         self.orientation.addItem('reflect tr-bl', 5)
         self.orientation.addItem('reflect tl-br', 7)
         self.orientation.addItem('multiple', -1)
-        self.orientation.currentIndexChanged.connect(self.new_orientation)
-        self.form.addRow('Orientation', self.orientation)
+        other_group.layout().addRow('Orientation', self.orientation)
+        self.layout().addWidget(other_group, 0, 1)
         # disable until an image is selected
         for key in self.widgets:
             self.widgets[key].setEnabled(False)
