@@ -120,8 +120,7 @@ class FlickrUploader(QtGui.QWidget):
         self.total_progress = QtGui.QProgressBar()
         self.layout().addWidget(self.total_progress, 6, 0, 1, 4)
         # adjust spacing
-        self.layout().setRowStretch(0, 1)
-        self.layout().setRowStretch(7, 10)
+        self.layout().setRowStretch(1, 1)
 
     def refresh(self):
         if self.flickr:
