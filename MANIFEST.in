@@ -1,0 +1,6 @@
+recursive-include code/photini *
+recursive-include code/scripts *
+recursive-include doc/html *
+global-exclude *~
+global-exclude *.pyc
+exclude doc/html/.buildinfo
