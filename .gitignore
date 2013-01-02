@@ -32,3 +32,4 @@ pip-log.txt
 # Extras
 doc
 MANIFEST
+code/photini/version.py

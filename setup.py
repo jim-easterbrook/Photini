@@ -6,7 +6,7 @@ import platform
 import sys
 
 sys.path.insert(0, os.path.abspath('code'))
-from photini import __version__
+from photini import version
 
 if platform.system() == 'Windows':
     script = 'code/scripts/photini.bat'
@@ -14,7 +14,7 @@ else:
     script = 'code/scripts/photini'
 
 setup(name = 'Photini',
-      version = __version__,
+      version = '%s_%s' % (version.version, version.release),
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
       url = 'https://github.com/jim-easterbrook/Photini',

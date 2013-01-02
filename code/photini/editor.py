@@ -34,7 +34,6 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
 
-from __init__ import __version__
 from configstore import ConfigStore
 from bingmap import BingMap
 from dateandtime import DateAndTime
@@ -44,6 +43,7 @@ from openstreetmap import OpenStreetMap
 from imagelist import ImageList
 from textmetadata import TextMetadata
 from utils import data_dir
+from version import version, release
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -149,7 +149,8 @@ class MainWindow(QtGui.QMainWindow):
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle('Photini: about')
         dialog.setText(
-            open(os.path.join(data_dir, 'about.html')).read() % (__version__))
+            open(os.path.join(data_dir, 'about.html')).read() % (
+                version, release))
         dialog.setDetailedText(
             open(os.path.join(data_dir, 'LICENSE.txt')).read())
         dialog.exec_()

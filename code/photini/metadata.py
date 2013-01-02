@@ -23,7 +23,7 @@ import os
 import pyexiv2
 from PyQt4 import QtCore
 
-from __init__ import __version__
+from version import version, release
 
 class GPSvalue(object):
     def __init__(self, degrees=0.0, latitude=True):
@@ -120,9 +120,9 @@ class Metadata(QtCore.QObject):
     def save(self):
         if not self._new:
             return
-        self.set_item('soft_full', 'Photini editor v%s' % __version__)
+        self.set_item('soft_full', 'Photini editor v%s_%s' % (version, release))
         self.set_item('soft_name', 'Photini editor')
-        self.set_item('soft_vsn', __version__)
+        self.set_item('soft_vsn', '%s_%s' % (version, release))
         self._md.write()
         self._set_status(False)
 
