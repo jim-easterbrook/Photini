@@ -8,7 +8,11 @@ Contents:
 
    introduction/introduction
    workflow
-   manual/manual
+   manual/image_selector
+   manual/descriptive_metadata
+   manual/technical_metadata
+   manual/map
+   manual/flickr
    reading
 
 Indices and tables
