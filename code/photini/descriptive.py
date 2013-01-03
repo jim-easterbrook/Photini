@@ -110,7 +110,7 @@ class Descriptive(QtGui.QWidget):
             name, OK = QtGui.QInputDialog.getText(
                 self, 'Photini: input name',
                 "Please type in the copyright holder's name",
-                text=self.config_store.get('user', 'creator_name'))
+                text=self.config_store.get('user', 'creator_name', ''))
             if OK and name:
                 name = unicode(name)
                 self.config_store.set('user', 'copyright_name', name)
@@ -131,7 +131,7 @@ class Descriptive(QtGui.QWidget):
             name, OK = QtGui.QInputDialog.getText(
                 self, 'Photini: input name',
                 "Please type in the creator's name",
-                text=self.config_store.get('user', 'copyright_name'))
+                text=self.config_store.get('user', 'copyright_name', ''))
             if OK and name:
                 name = unicode(name)
                 self.config_store.set('user', 'creator_name', name)
