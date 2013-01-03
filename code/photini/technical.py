@@ -121,6 +121,7 @@ class Technical(QtGui.QWidget):
         self.orientation.addItem('reflect tr-bl', 5)
         self.orientation.addItem('reflect tl-br', 7)
         self.orientation.addItem('multiple', -1)
+        self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow('Orientation', self.orientation)
         self.layout().addWidget(other_group, 0, 1)
         # disable until an image is selected
@@ -144,6 +145,7 @@ class Technical(QtGui.QWidget):
     def new_orientation(self, index):
         value, OK = self.orientation.itemData(index).toInt()
         if value < 1 or not OK:
+            self._update_orientation()
             return
         for image in self.image_list.get_selected_images():
             image.metadata.set_item('orientation', value)
@@ -169,7 +171,18 @@ class Technical(QtGui.QWidget):
             self.widgets[key].setDateTime(value)
         else:
             self.widgets[key].clear()
-        pass
+
+    def _update_orientation(self):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('orientation')
+            if value and new_value != value:
+                value = -1
+                break
+            value = new_value
+        if not value:
+            value = 1
+        self.orientation.setCurrentIndex(self.orientation.findData(value))
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -183,14 +196,5 @@ class Technical(QtGui.QWidget):
         for key in self.widgets:
             self.widgets[key].setEnabled(True)
             self._update_widget(key)
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.get_item('orientation')
-            if value and new_value != value:
-                value = -1
-                break
-            value = new_value
-        if not value:
-            value = 1
-        self.orientation.setCurrentIndex(self.orientation.findData(value))
         self.orientation.setEnabled(True)
+        self._update_orientation()
