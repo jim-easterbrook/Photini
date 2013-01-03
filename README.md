@@ -11,19 +11,18 @@ There is currently a bug in pyexiv2 that prevents Photini from saving latitude a
 Features
 --------
 
-![Text editing screenshot](http://github.com/jim-easterbrook/Photini/raw/master/code/doc_src/source/images/screenshot_text.png)
+![Text editing screenshot](http://github.com/jim-easterbrook/Photini/raw/master/code/doc_src/source/images/screenshot_11.png)
 
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
 *   Can set metadata for multiple images simultaneously.
 
-![Geolocation screenshot](http://github.com/jim-easterbrook/Photini/raw/master/code/doc_src/source/images/screenshot_map.png)
+![Geolocation screenshot](http://github.com/jim-easterbrook/Photini/raw/master/code/doc_src/source/images/screenshot_19.png)
 
 *   Search map to find places of interest.
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
-
 
 *   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
 *   Now has tabs to adjust time & date and to upload to [Flickr](http://www.flickr.com/).
