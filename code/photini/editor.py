@@ -37,7 +37,10 @@ from PyQt4.QtNetwork import QNetworkProxy
 from configstore import ConfigStore
 from bingmap import BingMap
 from descriptive import Descriptive
-from flickr import FlickrUploader
+try:
+    from flickr import FlickrUploader
+except ImportError:
+    FlickrUploader = None
 from googlemap import GoogleMap
 from openstreetmap import OpenStreetMap
 from imagelist import ImageList
@@ -81,8 +84,9 @@ class MainWindow(QtGui.QMainWindow):
                          'Map (&Bing)')
         self.tabs.addTab(OpenStreetMap(self.config_store, self.image_list),
                          'Map (&OSM)')
-        self.tabs.addTab(FlickrUploader(self.config_store, self.image_list),
-                         '&Flickr uploader')
+        if FlickrUploader:
+            self.tabs.addTab(FlickrUploader(self.config_store, self.image_list),
+                             '&Flickr uploader')
         self.tabs.currentChanged.connect(self.new_tab)
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)

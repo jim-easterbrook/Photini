@@ -27,6 +27,10 @@ This should also be the case for `PyQt <http://www.riverbankcomputing.co.uk/soft
 If not, you should be able to download it from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 As a last resort, you may need to compile and install it yourself, following `these instructions <http://tilloy.net/dev/pyexiv2/developers.html#building-and-installing>`_.
 
+If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
+This is available from some Linux distributions' repositories, or via ``easy_install``.
+See the python-flickrapi website for details.
+
 Dependencies (Windows)
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -35,6 +39,10 @@ Installers are available from the `Python download page <http://www.python.org/d
 Make sure you get Python version 2.7 and the corresponding PyQt installer.
 Windows installers for `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_ are available from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 Again, make sure you get the installer for Python 2.7 and the latest version of pyexiv2.
+
+If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
+This appears to be a pure Python package, so ``easy_install`` is probably the best way to install it on Windows.
+See the python-flickrapi website for details.
 
 Installing Photini
 ------------------
