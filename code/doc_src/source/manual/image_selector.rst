@@ -22,6 +22,7 @@ Note that the thumbnail size can be changed with the slider control just beneath
 
 Clicking on any thumbnail selects that image.
 The selected image is highlighted by a red border.
+Double clicking on a thumbnail should display the full size image, using your default image viewing application.
 
 .. image:: ../images/screenshot_04.png
 

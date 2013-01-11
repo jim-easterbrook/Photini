@@ -13,7 +13,7 @@ You can download the latest version of Photini from `Github <https://github.com/
 If you have git installed on your computer, and are familiar with its use, then the best way to download it will be to clone the repository.
 This will make it easier to update your copy when new features are added or bugs are fixed.
 
-If you prefer to download a single archive file, go to the `Github download page <https://github.com/jim-easterbrook/Photini/downloads>`_ and click on "Download as zip" or "Download as tar.gz".
+If you prefer to download a single archive file, go to the `Python Package Index (PyPI) <http://pypi.python.org/pypi/Photini>`_ and download the zip or tar.gz file.
 Save the file on your computer, then extract all the files in it in the usual way.
 
 The next task is to install the various dependencies.
@@ -23,7 +23,12 @@ Dependencies (Linux)
 
 Many Linux installations will already have `Python <http://python.org/>`_ installed, but if not you should be able to get it easily from the standard repository.
 This should also be the case for `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_.
-`pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_ may be in the repository.
+`GExiv2 <http://redmine.yorba.org/projects/gexiv2/wiki>`_ may be in the repository.
+If not, you should be able to build and install it yourself.
+See the `"Building and installing" <http://redmine.yorba.org/projects/gexiv2/wiki>`_ instructions for details.
+Only if you can't install GExiv2 should you use `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_.
+It has some bugs which prevent Photini from saving location data correctly.
+pyexiv2 may be in the repository.
 If not, you should be able to download it from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 As a last resort, you may need to compile and install it yourself, following `these instructions <http://tilloy.net/dev/pyexiv2/developers.html#building-and-installing>`_.
 
