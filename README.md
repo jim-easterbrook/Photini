@@ -8,7 +8,7 @@ Easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 Warning!
 --------
 
-There is currently a bug in pyexiv2 that prevents Photini from saving latitude and longitude in the correct EXIF format. Until that bug is fixed I recommend that Photini is not used to set photograph location data. (It can display it OK, and other data can be set without a problem.)
+There is currently a bug in pyexiv2 that prevents Photini from saving latitude and longitude in the correct EXIF format. Until that bug is fixed I recommend that you use GExiv2 or that Photini is not used to set photograph location data. (It can display it OK, and other data can be set without a problem.)
 
 Features
 --------
@@ -40,7 +40,7 @@ Dependencies
 
 *   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
+*   GExiv2, version 0.5+: <http://redmine.yorba.org/projects/gexiv2/wiki> *or* pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
 *   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
 
 For details of how to download and install these, please see the documentation.
