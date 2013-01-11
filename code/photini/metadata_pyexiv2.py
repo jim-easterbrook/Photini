@@ -180,7 +180,7 @@ class Metadata(QtCore.QObject):
                     if new_tag.type.split()[0] in ('bag', 'seq'):
                         new_tag = pyexiv2.XmpTag(key, value)
                     elif new_tag.type == 'Lang Alt':
-                        new_tag = pyexiv2.XmpTag(key, {'': value[0]})
+                        new_tag = pyexiv2.XmpTag(key, {'x-default': value[0]})
                     elif new_tag.type == 'GPSCoordinate':
                         new_tag = pyexiv2.XmpTag(key, value.toGPSCoordinate())
                     else:
