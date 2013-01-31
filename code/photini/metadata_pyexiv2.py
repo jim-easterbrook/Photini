@@ -30,55 +30,57 @@ class GPSvalue(object):
         self.degrees = degrees
         self.latitude = latitude
 
-    def fromGPSCoordinate(self, value):
-        self.degrees = (float(value.degrees) +
-                       (float(value.minutes) / 60.0) +
-                       (float(value.seconds) / 3600.0))
-        if value.direction in ('S', 'W'):
+    def from_xmp_string(self, value):
+        degrees, residue = value.split(',')
+        minutes = residue[:-1]
+        direction = residue[-1]
+        self.degrees = float(degrees) + (float(minutes) / 60.0)
+        if direction in ('S', 'W'):
             self.degrees = -self.degrees
-        self.latitude = value.direction in ('S', 'N')
+        self.latitude = direction in ('S', 'N')
         return self
 
-    def toGPSCoordinate(self):
-        if self.degrees >= 0.0:
-            direction = ('E', 'N')[self.latitude]
-            value = self.degrees
-        else:
-            direction = ('W', 'S')[self.latitude]
-            value = -self.degrees
-        degrees = int(value)
-        value = (value - degrees) * 60.0
-        minutes = int(value)
-        seconds = (value - minutes) * 60.0
-        return pyexiv2.utils.GPSCoordinate(degrees, minutes, seconds, direction)
-
-    def fromRational(self, value, ref):
-        if isinstance(value, list):
-            self.degrees = (float(value[0]) +
-                           (float(value[1]) / 60.0) +
-                           (float(value[2]) / 3600.0))
-        else:
-            self.degrees = float(value)
-        if ref in ('S', 'W'):
-            self.degrees = -self.degrees
-        self.latitude = ref in ('S', 'N')
-        return self
-
-    def toRational(self):
+    def to_xmp_string(self):
         if self.degrees >= 0.0:
             ref = ('E', 'N')[self.latitude]
             value = self.degrees
         else:
             ref = ('W', 'S')[self.latitude]
             value = -self.degrees
-        return fractions.Fraction(value).limit_denominator(1000000), ref
-##        degrees = int(value)
-##        value = (value - degrees) * 60.0
-##        minutes = int(value)
-##        seconds = (value - minutes) * 60.0
-##        return [fractions.Fraction(degrees),
-##                fractions.Fraction(minutes),
-##                fractions.Fraction(seconds)], ref
+        degrees = int(value)
+        minutes = (value - degrees) * 60.0
+        return '%d,%.13f%s' % (degrees, minutes, ref)
+
+    def from_exif_string(self, value, direction):
+        parts = map(fractions.Fraction, value.split())
+        self.degrees = float(parts[0])
+        if len(parts) > 1:
+            self.degrees += float(parts[1]) / 60.0
+        if len(parts) > 2:
+            self.degrees += float(parts[2]) / 3600.0
+        if direction in ('S', 'W'):
+            self.degrees = -self.degrees
+        self.latitude = direction in ('S', 'N')
+        return self
+
+    def to_exif_string(self):
+        if self.degrees >= 0.0:
+            ref = ('E', 'N')[self.latitude]
+            value = self.degrees
+        else:
+            ref = ('W', 'S')[self.latitude]
+            value = -self.degrees
+        degrees = int(value)
+        value = (value - degrees) * 60.0
+        minutes = int(value)
+        seconds = (value - minutes) * 60.0
+        degrees = fractions.Fraction(degrees).limit_denominator(1000000)
+        minutes = fractions.Fraction(minutes).limit_denominator(1000000)
+        seconds = fractions.Fraction(seconds).limit_denominator(1000000)
+        return '%d/%d %d/%d %d/%d' % (
+            degrees.numerator, degrees.denominator,
+            minutes.numerator, minutes.denominator,
+            seconds.numerator, seconds.denominator), ref
 
 class Metadata(QtCore.QObject):
     _keys = {
@@ -140,7 +142,7 @@ class Metadata(QtCore.QObject):
                 if item.type == 'Lang Alt':
                     return '; '.join(item.value.values())
                 if item.type == 'GPSCoordinate':
-                    return GPSvalue().fromGPSCoordinate(item.value)
+                    return GPSvalue().from_xmp_string(item.raw_value)
                 print key, item.type, item.value
                 return item.value
             if key in self._md.iptc_keys:
@@ -151,8 +153,8 @@ class Metadata(QtCore.QObject):
                 if isinstance(value, (datetime.datetime, (int, long))):
                     return value
                 elif group == 'GPSInfo':
-                    return GPSvalue().fromRational(
-                        value, self._md['%sRef' % key].value)
+                    return GPSvalue().from_exif_string(
+                        self._md[key].raw_value, self._md['%sRef' % key].value)
                 else:
                     return unicode(value, 'iso8859_1')
         return None
@@ -182,16 +184,16 @@ class Metadata(QtCore.QObject):
                     elif new_tag.type == 'Lang Alt':
                         new_tag = pyexiv2.XmpTag(key, {'x-default': value[0]})
                     elif new_tag.type == 'GPSCoordinate':
-                        new_tag = pyexiv2.XmpTag(key, value.toGPSCoordinate())
+                        new_tag.raw_value = value.to_xmp_string()
                     else:
                         raise KeyError("Unknown type %s" % new_tag.type)
                 elif family == 'Iptc':
                     new_tag = pyexiv2.IptcTag(key, value)
                 elif family == 'Exif':
+                    new_tag = pyexiv2.ExifTag(key)
                     if group == 'GPSInfo':
-                        numbers, ref = value.toRational()
+                        new_tag.raw_value, ref = value.to_exif_string()
                         self._md['%sRef' % key] = ref
-                        new_tag = pyexiv2.ExifTag(key, numbers)
                     elif isinstance(value, (datetime.datetime, int, long)):
                         new_tag = pyexiv2.ExifTag(key, value)
                     else:

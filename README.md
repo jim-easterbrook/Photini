@@ -5,11 +5,6 @@ Easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
 "It doesn't try to be an all-singing, all-dancing image management powerhouse &mdash; it just lets you add information to photos, quickly and easily." &mdash; [Linux Format](http://www.linuxformat.com/) magazine, January 2013 
 
-Warning!
---------
-
-There is currently a bug in pyexiv2 that prevents Photini from saving latitude and longitude in the correct EXIF format. Until that bug is fixed I recommend that you use GExiv2 or that Photini is not used to set photograph location data. (It can display it OK, and other data can be set without a problem.)
-
 Features
 --------
 
