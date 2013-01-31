@@ -54,7 +54,6 @@ class GPSvalue(object):
         return '%d,%.13f%s' % (degrees, minutes, ref)
 
     def from_exif_string(self, value, direction):
-        degrees, minutes, seconds = value.split()
         parts = map(fractions.Fraction, value.split())
         self.degrees = float(parts[0])
         if len(parts) > 1:
