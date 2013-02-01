@@ -17,9 +17,21 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
+from datetime import datetime as pyDateTime, date as pyDate, time as pyTime
 
 from PyQt4 import QtGui, QtCore
+
+class DateEdit(QtGui.QDateEdit):
+    def focusInEvent(self, event):
+        if self.date() == self.minimumDate():
+            self.setDate(QtCore.QDate.currentDate())
+        return QtGui.QDateEdit.focusInEvent(self, event)
+
+class TimeEdit(QtGui.QTimeEdit):
+    def focusInEvent(self, event):
+        if self.time() == self.minimumTime():
+            self.setSpecialValueText('')
+        return QtGui.QTimeEdit.focusInEvent(self, event)
 
 class DateAndTimeWidget(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -28,61 +40,61 @@ class DateAndTimeWidget(QtGui.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # date
-        self.date = QtGui.QDateEdit()
+        self.date = DateEdit()
         self.date.setDisplayFormat(' yyyy-MM-dd')
         self.date.setCalendarPopup(True)
         self.date.setSpecialValueText(' ')
-        self.date.dateChanged.connect(self.new_date_time)
+        self.date.editingFinished.connect(self._new_date)
         layout.addWidget(self.date)
         # time
-        self.time = QtGui.QTimeEdit()
+        self.time = TimeEdit()
         self.time.setDisplayFormat(' hh:mm:ss')
         self.time.setSpecialValueText(' ')
-        self.time.timeChanged.connect(self.new_date_time)
+        self.time.editingFinished.connect(self._new_time)
         layout.addWidget(self.time)
         # clear button
         clear_button = QtGui.QPushButton('clear')
-        clear_button.clicked.connect(self.clear)
+        clear_button.clicked.connect(self._clear)
         layout.addWidget(clear_button)
-        # set button
-        set_button = QtGui.QPushButton('set')
-        set_button.clicked.connect(self.set_default)
-        layout.addWidget(set_button)
 
-    datetime_changed = QtCore.pyqtSignal(datetime)
-    def new_date_time(self, value):
+    date_changed = QtCore.pyqtSignal(pyDate)
+    def _new_date(self):
         date = self.date.date()
+        self.date_changed.emit(date.toPyDate())
+
+    time_changed = QtCore.pyqtSignal(pyTime)
+    def _new_time(self):
         time = self.time.time()
-        if date != self.date.minimumDate() and time != self.time.minimumTime():
-            self.datetime_changed.emit(
-                QtCore.QDateTime(date, time).toPyDateTime())
-        if date == self.date.minimumDate() and time == self.time.minimumTime():
-            self.datetime_changed.emit(datetime.min)
+        self.time_changed.emit(time.toPyTime())
 
-    def set_default(self):
-        self.setDateTime(datetime.now())
+    def _clear(self):
+        self.clearDate()
+        self.clearTime()
+        self.time_changed.emit(pyTime.min)
+        self.date_changed.emit(pyDate.min)
 
-    def clear(self):
+    def clearDate(self):
         self.date.setSpecialValueText(' ')
         self.date.setDate(self.date.minimumDate())
-        self.date.setReadOnly(True)
+
+    def clearTime(self):
         self.time.setSpecialValueText(' ')
         self.time.setTime(self.time.minimumTime())
-        self.time.setReadOnly(True)
 
-    def setMultipleValues(self):
+    def setMultipleDate(self):
         self.date.setSpecialValueText('<multiple>')
         self.date.setDate(self.date.minimumDate())
-        self.date.setReadOnly(True)
+
+    def setMultipleTime(self):
         self.time.setSpecialValueText('<multiple>')
         self.time.setTime(self.time.minimumTime())
-        self.time.setReadOnly(True)
 
-    def setDateTime(self, value):
-        self.date.setDate(value.date())
-        self.date.setReadOnly(False)
-        self.time.setTime(value.time())
-        self.time.setReadOnly(False)
+    def setDate(self, value):
+        self.date.setDate(value)
+
+    def setTime(self, value):
+        self.time.setSpecialValueText('')
+        self.time.setTime(value)
 
 class Technical(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
@@ -96,15 +108,18 @@ class Technical(QtGui.QWidget):
         date_group.setLayout(QtGui.QFormLayout())
         # taken
         self.widgets['taken'] = DateAndTimeWidget()
-        self.widgets['taken'].datetime_changed.connect(self.new_taken)
+        self.widgets['taken'].date_changed.connect(self.new_taken)
+        self.widgets['taken'].time_changed.connect(self.new_taken)
         date_group.layout().addRow('Taken', self.widgets['taken'])
         # digitised
         self.widgets['digitised'] = DateAndTimeWidget()
-        self.widgets['digitised'].datetime_changed.connect(self.new_digitised)
+        self.widgets['digitised'].date_changed.connect(self.new_digitised)
+        self.widgets['digitised'].time_changed.connect(self.new_digitised)
         date_group.layout().addRow('Digitised', self.widgets['digitised'])
         # modified
         self.widgets['modified'] = DateAndTimeWidget()
-        self.widgets['modified'].datetime_changed.connect(self.new_modified)
+        self.widgets['modified'].date_changed.connect(self.new_modified)
+        self.widgets['modified'].time_changed.connect(self.new_modified)
         date_group.layout().addRow('Modified', self.widgets['modified'])
         self.layout().addWidget(date_group, 0, 0)
         # other
@@ -153,24 +168,59 @@ class Technical(QtGui.QWidget):
             image.load_thumbnail()
 
     def _new_value(self, key, value):
-        if value == datetime.min:
-            value = None
-        for image in self.image_list.get_selected_images():
-            image.metadata.set_item('date_%s' % key, value)
-        self._update_widget(key)
-
-    def _update_widget(self, key):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.get_item('date_%s' % key)
-            if value and new_value != value:
-                self.widgets[key].setMultipleValues()
-                return
-            value = new_value
-        if value:
-            self.widgets[key].setDateTime(value)
+        if isinstance(value, pyTime):
+            # update times, leaving date unchanged
+            for image in self.image_list.get_selected_images():
+                current = image.metadata.get_item('date_%s' % key)
+                if not current:
+                    current = pyDateTime.today()
+                image.metadata.set_item(
+                    'date_%s' % key, pyDateTime.combine(current.date(), value))
+        elif value == pyDate.min:
+            # clear date & time
+            for image in self.image_list.get_selected_images():
+                image.metadata.del_item('date_%s' % key)
         else:
-            self.widgets[key].clear()
+            # update dates, leaving times unchanged
+            for image in self.image_list.get_selected_images():
+                current = image.metadata.get_item('date_%s' % key)
+                if not current:
+                    current = pyDateTime.min
+                image.metadata.set_item(
+                    'date_%s' % key, pyDateTime.combine(value, current.time()))
+        self._update_datetime(key)
+
+    def _update_datetime(self, key):
+        dates = []
+        times = []
+        for image in self.image_list.get_selected_images():
+            value = image.metadata.get_item('date_%s' % key)
+            if value:
+                dates.append(value.date())
+                times.append(value.time())
+            else:
+                dates.append(None)
+                times.append(None)
+        value = dates[0]
+        for new_value in dates[1:]:
+            if new_value != value:
+                self.widgets[key].setMultipleDate()
+                break
+        else:
+            if value is None:
+                self.widgets[key].clearDate()
+            else:
+                self.widgets[key].setDate(value)
+        value = times[0]
+        for new_value in times[1:]:
+            if new_value != value:
+                self.widgets[key].setMultipleTime()
+                break
+        else:
+            if value is None:
+                self.widgets[key].clearTime()
+            else:
+                self.widgets[key].setTime(value)
 
     def _update_orientation(self):
         value = None
@@ -188,13 +238,14 @@ class Technical(QtGui.QWidget):
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:
-                self.widgets[key].clear()
+                self.widgets[key].clearDate()
+                self.widgets[key].clearTime()
                 self.widgets[key].setEnabled(False)
             self.orientation.setCurrentIndex(self.orientation.findData(1))
             self.orientation.setEnabled(False)
             return
         for key in self.widgets:
             self.widgets[key].setEnabled(True)
-            self._update_widget(key)
+            self._update_datetime(key)
         self.orientation.setEnabled(True)
         self._update_orientation()
