@@ -140,6 +140,27 @@ class Image(QtGui.QFrame):
     def get_selected(self):
         return self.selected
 
+class ScrollArea(QtGui.QScrollArea):
+    def __init__(self, parent=None, drop_callback=None):
+        QtGui.QScrollArea.__init__(self, parent)
+        self.drop_callback = drop_callback
+        self.setAcceptDrops(True)
+
+    def dropEvent(self, event):
+        if not self.drop_callback:
+            return
+        file_list = []
+        for uri in event.mimeData().urls():
+            file_list.append(str(uri.toLocalFile()))
+        if not file_list:
+            return
+        self.drop_callback(file_list)
+        event.acceptProposedAction()
+
+    def dragEnterEvent(self, event):
+        if self.drop_callback and event.mimeData().hasFormat('text/uri-list'):
+            event.acceptProposedAction()
+
 class ImageList(QtGui.QWidget):
     def __init__(self, config_store, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -157,7 +178,7 @@ class ImageList(QtGui.QWidget):
         self.setLayout(layout)
         layout.setMargin(0)
         # thumbnail display
-        self.scroll_area = QtGui.QScrollArea()
+        self.scroll_area = ScrollArea(drop_callback=self.open_file_list)
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_area.setWidgetResizable(True)
         layout.addWidget(self.scroll_area, 0, 0, 1, 3)
@@ -210,7 +231,6 @@ class ImageList(QtGui.QWidget):
             self.selection_anchor = None
             self.emit_selection()
 
-    image_list_changed = QtCore.pyqtSignal()
     @QtCore.pyqtSlot()
     def open_files(self):
         path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
@@ -218,6 +238,10 @@ class ImageList(QtGui.QWidget):
             "Images (*.png *.jpg)"))
         if not path_list:
             return
+        self.open_file_list(path_list)
+
+    image_list_changed = QtCore.pyqtSignal()
+    def open_file_list(self, path_list):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
         layout = self.thumbnails.layout()
