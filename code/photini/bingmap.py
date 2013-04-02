@@ -37,7 +37,7 @@ class BingMap(PhotiniMap):
     <script type="text/javascript">
       var api_key = "%s";
     </script>
-""" % 'Am_vgc9Dp3K4_oNG79lDkRjaiT0I5vudkGGjLeGM4_REVchob2LFoNoze7lyAL6T'
+""" % 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ'
 
     def show_terms(self):
         # return a widget to display map terms and conditions
