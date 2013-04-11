@@ -55,7 +55,7 @@ class MetadataHandler(object):
 
     def set_exif_tag_string(self, tag, value):
         new_tag = pyexiv2.ExifTag(tag)
-        new_tag.raw_value = value
+        new_tag.raw_value = value.encode('utf-8')
         self._md[tag] = new_tag
 
     def set_exif_tag_long(self, tag, value):
