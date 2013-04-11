@@ -26,9 +26,8 @@ This should also be the case for `PyQt <http://www.riverbankcomputing.co.uk/soft
 `GExiv2 <http://redmine.yorba.org/projects/gexiv2/wiki>`_ may be in the repository.
 If not, you should be able to build and install it yourself.
 See the `"Building and installing" <http://redmine.yorba.org/projects/gexiv2/wiki>`_ instructions for details.
-Only if you can't install GExiv2 should you use `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_.
-It has some bugs which prevent Photini from saving location data correctly.
-pyexiv2 may be in the repository.
+If you can't install GExiv2 you can use `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_.
+It is no longer maintained, so GExiv2 is preferable, but pyexiv2 may be in the repository.
 If not, you should be able to download it from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 As a last resort, you may need to compile and install it yourself, following `these instructions <http://tilloy.net/dev/pyexiv2/developers.html#building-and-installing>`_.
 
