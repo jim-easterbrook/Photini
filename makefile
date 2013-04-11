@@ -8,9 +8,9 @@ dist : all
 	python setup.py sdist
 
 clean :
-	rm -Rf doc build dist
+	rm -Rf doc build dist code/photini/version.py
 
-doc :
+doc : code/photini/version.py
 	$(MAKE) -C code/doc_src html
 
 .PHONY : doc dist code/photini/version.py
