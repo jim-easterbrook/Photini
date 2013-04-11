@@ -22,11 +22,12 @@ GExiv2.initialize()
 
 class MetadataHandler(object):
     def __init__(self, path):
+        self._path = path
         self._md = GExiv2.Metadata()
         self._md.open_path(path)
 
     def save(self):
-        return self._md.save_file()
+        return self._md.save_file(self._path)
 
     def get_tags(self):
         return self._md.get_tags()
