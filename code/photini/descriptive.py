@@ -31,6 +31,7 @@ class MultiLineEdit(QtGui.QPlainTextEdit):
     editingFinished = QtCore.pyqtSignal()
     def focusOutEvent(self, event):
         self.editingFinished.emit()
+        QtGui.QPlainTextEdit.focusOutEvent(self, event)
 
 class LineEditWithAuto(QtGui.QWidget):
     def __init__(self, parent=None):
