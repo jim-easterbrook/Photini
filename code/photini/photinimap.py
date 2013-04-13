@@ -109,7 +109,7 @@ class PhotiniMap(QtGui.QWidget):
 <html>
   <head>
     <meta name="viewport" http-equiv="Content-Type"
-      content="text/html; charset=utf-8; initial-scale=1.0, user-scalable=no" />
+      content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
