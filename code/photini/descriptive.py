@@ -143,8 +143,9 @@ class Descriptive(QtGui.QWidget):
 
     def _new_value(self, key):
         value = unicode(self.widgets[key].text())
-        for image in self.image_list.get_selected_images():
-            image.metadata.set_item(key, value)
+        if value != '<multiple values>':
+            for image in self.image_list.get_selected_images():
+                image.metadata.set_item(key, value)
         self._update_widget(key)
 
     def _update_widget(self, key):
