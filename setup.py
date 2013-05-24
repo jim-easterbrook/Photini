@@ -1,14 +1,35 @@
 #!/usr/bin/env python
 
+from datetime import date
 from distutils.core import setup
 import os
 import platform
+import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('code'))
 from photini import version
 
 command_options = {}
+
+# regenerate version file, if required
+try:
+    p = subprocess.Popen(
+        ['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
+    commit = p.communicate()[0].strip().decode('ASCII')
+    if p.returncode:
+        commit = version.commit
+except OSError:
+    commit = version.commit
+if commit != version.commit:
+    version.version = date.today().strftime('%y.%m')
+    version.release = str(int(version.release) + 1)
+    version.commit = commit
+    vf = open('code/photini/version.py', 'w')
+    vf.write("version = '%s'\n" % version.version)
+    vf.write("release = '%s'\n" % version.release)
+    vf.write("commit = '%s'\n" % version.commit)
+    vf.close()
 
 # set options for building distributions
 command_options['sdist'] = {

@@ -1,4 +1,4 @@
-all : code/photini/version.py code/photini/data/LICENSE.txt doc
+all : code/photini/data/LICENSE.txt doc
 	python setup.py build
 
 install : all
@@ -8,17 +8,12 @@ dist : all
 	python setup.py sdist
 
 clean :
-	rm -Rf doc build dist code/photini/version.py
+	rm -Rf doc build dist
 
-doc : code/photini/version.py
+doc :
 	$(MAKE) -C code/doc_src html
 
-.PHONY : doc dist code/photini/version.py
-
-COMMIT	:= $(shell git rev-parse --short master)
-code/photini/version.py :
-	date +"version = '%y.%m'" >$@
-	echo "release = '$(COMMIT)'" >>$@
+.PHONY : doc dist
 
 code/photini/data/LICENSE.txt : LICENSE.txt
 	cp -p $< $@
