@@ -66,13 +66,13 @@ other software.
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 2 :: Only',
           ],
+      license = 'GNU GPL',
+      platforms = ['POSIX', 'MacOS', 'Windows'],
       packages = ['photini'],
       package_dir = {'': 'code'},
       package_data = {
           'photini' : [
-              'code/data/googlemap.js', 'code/data/about.html',
-              'code/data/LICENSE.txt'
-              ],
+              'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
           },
       scripts = scripts,
       command_options = command_options,
