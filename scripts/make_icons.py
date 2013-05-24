@@ -23,7 +23,6 @@ import ImageChops
 import ImageDraw
 import ImageOps
 
-
 def draw_marker(width, height, offset, filename):
     im = Image.new('L', (128, 256), 255)
     draw = ImageDraw.Draw(im)
@@ -50,5 +49,5 @@ def draw_marker(width, height, offset, filename):
     im = im.crop(im.getbbox())
     im.save(filename, transparency=0)
 
-draw_marker(25, 37, 8.5, '../photini/data/bing_grey_marker.png')
-draw_marker(25, 40, 12, '../photini/data/osm_grey_marker.png')
+draw_marker(25, 37, 8.5, '../code/photini/data/bing_grey_marker.png')
+draw_marker(25, 40, 12, '../code/photini/data/osm_grey_marker.png')
