@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.abspath('code'))
-from photini import version
+import photini.version
 
 command_options = {}
 
@@ -18,17 +18,17 @@ try:
         ['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
     commit = p.communicate()[0].strip().decode('ASCII')
     if p.returncode:
-        commit = version.commit
+        commit = photini.version.commit
 except OSError:
-    commit = version.commit
-if commit != version.commit:
-    version.version = date.today().strftime('%y.%m')
-    version.release = str(int(version.release) + 1)
-    version.commit = commit
+    commit = photini.version.commit
+if commit != photini.version.commit:
+    photini.version.version = date.today().strftime('%y.%m')
+    photini.version.release = str(int(photini.version.release) + 1)
+    photini.version.commit = commit
     vf = open('code/photini/version.py', 'w')
-    vf.write("version = '%s'\n" % version.version)
-    vf.write("release = '%s'\n" % version.release)
-    vf.write("commit = '%s'\n" % version.commit)
+    vf.write("version = '%s'\n" % photini.version.version)
+    vf.write("release = '%s'\n" % photini.version.release)
+    vf.write("commit = '%s'\n" % photini.version.commit)
     vf.close()
 
 # set options for building distributions
@@ -42,11 +42,14 @@ if platform.system() == 'Windows':
 else:
     script = 'code/scripts/photini'
 
+version = '%s_r%s' % (photini.version.version, photini.version.release)
+
 setup(name = 'Photini',
-      version = '%s_%s' % (version.version, version.release),
+      version = version,
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
-      url = 'https://github.com/jim-easterbrook/Photini',
+      url = 'https://github.com/jim-easterbrook/Photini/',
+      download_url = 'https://pypi.python.org/pypi/Photini/%s' % version,
       description = 'Simple photo metadata editor',
       long_description = """
 Photini is a GUI program to create and edit metadata for digital
