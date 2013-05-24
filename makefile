@@ -11,7 +11,7 @@ clean :
 	rm -Rf doc build dist
 
 doc :
-	$(MAKE) -C code/doc_src html
+	$(MAKE) -C doc_src html
 
 .PHONY : doc dist
 

@@ -52,8 +52,6 @@ copyright = u'2012-13, Jim Easterbrook'
 #version = 
 # The full version, including alpha/beta/rc tags.
 #release = 
-sys.path.append(os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', '..', 'code')))
 from photini.version import version, release
 release = '%s_r%s' % (version, release)
 
