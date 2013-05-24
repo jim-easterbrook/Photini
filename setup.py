@@ -7,7 +7,6 @@ import platform
 import subprocess
 import sys
 
-sys.path.insert(0, os.path.abspath('code'))
 import photini.version
 
 command_options = {}
@@ -25,7 +24,7 @@ if commit != photini.version.commit:
     photini.version.version = date.today().strftime('%y.%m')
     photini.version.release = str(int(photini.version.release) + 1)
     photini.version.commit = commit
-    vf = open('code/photini/version.py', 'w')
+    vf = open('photini/version.py', 'w')
     vf.write("version = '%s'\n" % photini.version.version)
     vf.write("release = '%s'\n" % photini.version.release)
     vf.write("commit = '%s'\n" % photini.version.commit)
@@ -69,7 +68,6 @@ other software.
       license = 'GNU GPL',
       platforms = ['POSIX', 'MacOS', 'Windows'],
       packages = ['photini'],
-      package_dir = {'': 'code'},
       package_data = {
           'photini' : [
               'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
