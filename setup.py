@@ -8,6 +8,14 @@ import sys
 sys.path.insert(0, os.path.abspath('code'))
 from photini import version
 
+command_options = {}
+
+# set options for building distributions
+command_options['sdist'] = {
+    'formats'        : ('setup.py', 'gztar zip'),
+    'force_manifest' : ('setup.py', '1'),
+    }
+
 if platform.system() == 'Windows':
     script = 'code/scripts/photini.bat'
 else:
@@ -43,4 +51,5 @@ other software.
               ],
           },
       scripts = [script],
+      command_options = command_options,
       )
