@@ -38,9 +38,9 @@ command_options['sdist'] = {
     }
 
 if platform.system() == 'Windows':
-    script = 'code/scripts/photini.bat'
+    scripts = ['scripts/photini.bat']
 else:
-    script = 'code/scripts/photini'
+    scripts = ['scripts/photini']
 
 version = '%s_r%s' % (photini.version.version, photini.version.release)
 
@@ -74,6 +74,6 @@ other software.
               'code/data/LICENSE.txt'
               ],
           },
-      scripts = [script],
+      scripts = scripts,
       command_options = command_options,
       )
