@@ -34,19 +34,19 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
 
-from configstore import ConfigStore
-from bingmap import BingMap
-from descriptive import Descriptive
+from photini.configstore import ConfigStore
+from photini.bingmap import BingMap
+from photini.descriptive import Descriptive
 try:
-    from flickr import FlickrUploader
+    from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
-from googlemap import GoogleMap
-from openstreetmap import OpenStreetMap
-from imagelist import ImageList
-from technical import Technical
-from utils import data_dir
-from version import version, release
+from photini.googlemap import GoogleMap
+from photini.openstreetmap import OpenStreetMap
+from photini.imagelist import ImageList
+from photini.technical import Technical
+from photini.utils import data_dir
+from photini.version import version, release
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -182,8 +182,12 @@ class MainWindow(QtGui.QMainWindow):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-    # let PyQt handle its options
+    # let PyQt handle its options (need at least one argument after options)
+    argv.append('xxx')
     app = QtGui.QApplication(argv)
+    del argv[-1]
+    # cludge to prevent segmentation fault on exit
+    QtGui.qApp = app
     # parse remaining arguments
     try:
         opts, args = getopt.getopt(argv[1:], "h", ["help"])
