@@ -9,6 +9,7 @@ import sys
 
 import photini.version
 
+cmdclass = {}
 command_options = {}
 
 # regenerate version file, if required
@@ -29,6 +30,19 @@ if commit != photini.version.commit:
     vf.write("release = '%s'\n" % photini.version.release)
     vf.write("commit = '%s'\n" % photini.version.commit)
     vf.close()
+
+# if sphinx is installed, add command to build documentation
+try:
+    from sphinx.setup_command import BuildDoc
+    cmdclass['build_sphinx'] = BuildDoc
+    command_options['build_sphinx'] = {
+        'all_files'  : ('setup.py', '1'),
+        'source_dir' : ('setup.py', 'doc_src'),
+        'build_dir'  : ('setup.py', 'doc'),
+        'builder'    : ('setup.py', 'html'),
+        }
+except ImportError:
+    pass
 
 # set options for building distributions
 command_options['sdist'] = {
@@ -73,5 +87,6 @@ other software.
               'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
           },
       scripts = scripts,
+      cmdclass = cmdclass,
       command_options = command_options,
       )
