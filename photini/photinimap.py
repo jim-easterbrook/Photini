@@ -130,7 +130,9 @@ class PhotiniMap(QtGui.QWidget):
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.map.setHtml(
             page_start + self.load_api() +
-            page_end % (self.__class__.__name__.lower(), lat, lng, zoom),
+            page_end % (
+                os.path.join(data_dir, self.__class__.__name__.lower()),
+                lat, lng, zoom),
             QtCore.QUrl.fromLocalFile(data_dir))
 
     @QtCore.pyqtSlot(bool)
