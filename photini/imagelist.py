@@ -43,23 +43,26 @@ class Image(QtGui.QFrame):
         self.setLayout(layout)
         # label to display image
         self.image = QtGui.QLabel()
-        self.image.setFixedSize(self.thumb_size, self.thumb_size)
         self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
         self.label = QtGui.QLabel(self.name)
         self.label.setAlignment(Qt.AlignRight)
-        self.label.setMaximumWidth(self.thumb_size - 20)
+        self.label.setStyleSheet("QLabel { font-size: 12px }")
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtGui.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
+        self.status.setSizePolicy(
+            QtGui.QSizePolicy.Fixed, self.status.sizePolicy().verticalPolicy())
+        self.status.setStyleSheet("QLabel { font-size: 12px }")
         self.status.setFont(QtGui.QFont("Dejavu Sans"))
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
         self.setObjectName("thumbnail")
         self.set_selected(False)
         self.show_status(False)
+        self._set_thumb_size(self.thumb_size)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -100,10 +103,15 @@ class Image(QtGui.QFrame):
         if changed:
             self.image_list.new_metadata.emit(True)
 
-    def set_thumb_size(self, thumb_size):
+    def _set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
         self.image.setFixedSize(self.thumb_size, self.thumb_size)
-        self.label.setMaximumWidth(self.thumb_size - 20)
+        margins = self.layout().contentsMargins()
+        self.setFixedWidth(self.thumb_size + margins.left() + margins.right() +
+                           (self.frameWidth() * 2))
+
+    def set_thumb_size(self, thumb_size):
+        self._set_thumb_size(thumb_size)
         self.load_thumbnail()
 
     def load_thumbnail(self):
