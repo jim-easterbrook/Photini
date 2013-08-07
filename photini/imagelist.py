@@ -115,7 +115,9 @@ class Image(QtGui.QFrame):
         self.load_thumbnail()
 
     def load_thumbnail(self):
+        result = False
         if not self.pixmap:
+            result = True
             self.pixmap = QtGui.QPixmap(self.path)
             if max(self.pixmap.width(), self.pixmap.height()) > 400:
                 # store a scaled down version of image to save memory
@@ -137,6 +139,7 @@ class Image(QtGui.QFrame):
         self.image.setPixmap(self.pixmap.scaled(
             self.thumb_size, self.thumb_size,
             Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        return result
 
     def set_selected(self, value):
         self.selected = value
@@ -182,14 +185,14 @@ class ImageList(QtGui.QWidget):
         layout = QtGui.QGridLayout()
         layout.setSpacing(0)
         layout.setRowStretch(0, 1)
-        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(3, 1)
         self.setLayout(layout)
         layout.setMargin(0)
         # thumbnail display
         self.scroll_area = ScrollArea(drop_callback=self.open_file_list)
         self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll_area.setWidgetResizable(True)
-        layout.addWidget(self.scroll_area, 0, 0, 1, 3)
+        layout.addWidget(self.scroll_area, 0, 0, 1, 6)
         self.thumbnails = QtGui.QWidget()
         self.thumbnails.setLayout(FlowLayout(hSpacing=0, vSpacing=0))
         self.scroll_area.setWidget(self.thumbnails)
@@ -203,8 +206,17 @@ class ImageList(QtGui.QWidget):
                         self.scroll_area, self.select_next_thumb)
         QtGui.QShortcut(QtGui.QKeySequence.SelectAll,
                         self.scroll_area, self.select_all)
+        # sort key selector
+        layout.addWidget(QtGui.QLabel('sort by: '), 1, 0)
+        self.sort_name = QtGui.QRadioButton('file name')
+        self.sort_name.setChecked(True)
+        self.sort_name.clicked.connect(self._show_thumbnails)
+        layout.addWidget(self.sort_name, 1, 1)
+        self.sort_date = QtGui.QRadioButton('date taken')
+        layout.addWidget(self.sort_date, 1, 2)
+        self.sort_date.clicked.connect(self._show_thumbnails)
         # size selector
-        layout.addWidget(QtGui.QLabel('thumbnail size: '), 1, 1)
+        layout.addWidget(QtGui.QLabel('thumbnail size: '), 1, 4)
         self.size_slider = QtGui.QSlider(Qt.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
@@ -213,7 +225,7 @@ class ImageList(QtGui.QWidget):
         self.size_slider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.size_slider.setMinimumWidth(140)
         self.size_slider.valueChanged.connect(self._new_thumb_size)
-        layout.addWidget(self.size_slider, 1, 2)
+        layout.addWidget(self.size_slider, 1, 5)
 
     def get_image(self, path):
         if path not in self.path_list:
@@ -252,22 +264,30 @@ class ImageList(QtGui.QWidget):
     def open_file_list(self, path_list):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
-        layout = self.thumbnails.layout()
         for path in path_list:
             if path in self.path_list:
                 continue
             self.path_list.append(path)
             image = Image(path, self, thumb_size=self.thumb_size)
             self.image[path] = image
-        self.path_list.sort()
+        self._show_thumbnails()
+
+    def _show_thumbnails(self):
+        if self.sort_date.isChecked():
+            self.path_list.sort(
+                key=lambda x: self.image[x].metadata.get_item('date_taken'))
+        else:
+            self.path_list.sort()
+        layout = self.thumbnails.layout()
         for path in self.path_list:
             image = self.image[path]
             layout.addWidget(image)
-            image.load_thumbnail()
-            QtGui.qApp.processEvents()
-            self.scroll_area.ensureWidgetVisible(image)
-            QtGui.qApp.processEvents()
+            if image.load_thumbnail():
+                QtGui.qApp.processEvents()
+                self.scroll_area.ensureWidgetVisible(image)
+                QtGui.qApp.processEvents()
         if self.last_selected:
+            QtGui.qApp.processEvents()
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
         self.image_list_changed.emit()
 
@@ -375,6 +395,10 @@ class ImageList(QtGui.QWidget):
         self.config_store.set('controls', 'thumb_size', str(self.thumb_size))
         for path in self.path_list:
             self.image[path].set_thumb_size(self.thumb_size)
+        if self.last_selected:
+            QtGui.qApp.processEvents()
+            QtGui.qApp.processEvents()
+            self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
 
     def select_image(
             self, path, extend_selection=False, multiple_selection=False):
