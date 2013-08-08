@@ -69,32 +69,22 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list = ImageList(self.config_store)
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
-        # main application area
-        self.central_widget = QtGui.QSplitter()
-        self.central_widget.setOrientation(Qt.Vertical)
-        self.central_widget.setChildrenCollapsible(False)
-        self.tabs = QtGui.QTabWidget()
-        self.tabs.addTab(Descriptive(self.config_store, self.image_list),
-                         '&Descriptive metadata')
-        self.tabs.addTab(Technical(self.config_store, self.image_list),
-                         '&Technical metadata')
-        self.tabs.addTab(GoogleMap(self.config_store, self.image_list),
-                         'Map (&Google)')
-        self.tabs.addTab(BingMap(self.config_store, self.image_list),
-                         'Map (&Bing)')
-        self.tabs.addTab(OpenStreetMap(self.config_store, self.image_list),
-                         'Map (&OSM)')
-        if FlickrUploader:
-            self.tabs.addTab(FlickrUploader(self.config_store, self.image_list),
-                             '&Flickr uploader')
-        self.tabs.currentChanged.connect(self.new_tab)
-        self.central_widget.addWidget(self.tabs)
-        self.central_widget.addWidget(self.image_list)
-        size = self.central_widget.sizes()
-        self.central_widget.setSizes(eval(
-            self.config_store.get('main_window', 'split', str(size))))
-        self.central_widget.splitterMoved.connect(self.new_split)
-        self.setCentralWidget(self.central_widget)
+        # prepare list of tabs and associated stuff
+        self.tab_list = (
+            {'name' : '&Descriptive metadata',  'class' : Descriptive},
+            {'name' : '&Technical metadata',    'class' : Technical},
+            {'name' : 'Map (&Google)',          'class' : GoogleMap},
+            {'name' : 'Map (&Bing)',            'class' : BingMap},
+            {'name' : 'Map (&OSM)',             'class' : OpenStreetMap},
+            {'name' : '&Flickr uploader',       'class' : FlickrUploader},
+            )
+        for tab in self.tab_list:
+            tab['key'] = tab['name'].replace('&', '').replace(' ', '_')
+            tab['key'] = tab['key'].replace('(', '').replace(')', '').lower()
+            if tab['class']:
+                tab['object'] = tab['class'](self.config_store, self.image_list)
+            else:
+                tab['object'] = None
         # file menu
         file_menu = self.menuBar().addMenu('File')
         open_action = QtGui.QAction('Open images', self)
@@ -118,6 +108,18 @@ class MainWindow(QtGui.QMainWindow):
         quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
         quit_action.triggered.connect(QtGui.qApp.closeAllWindows)
         file_menu.addAction(quit_action)
+        # options menu
+        options_menu = self.menuBar().addMenu('Options')
+        for tab in self.tab_list:
+            tab['action'] = QtGui.QAction(tab['name'].replace('&', ''), self)
+            tab['action'].setCheckable(True)
+            if tab['class']:
+                tab['action'].setChecked(
+                    eval(self.config_store.get('tabs', tab['key'], 'True')))
+            else:
+                tab['action'].setEnabled(False)
+            tab['action'].triggered.connect(self.add_tabs)
+            options_menu.addAction(tab['action'])
         # help menu
         help_menu = self.menuBar().addMenu('Help')
         about_action = QtGui.QAction('About Photini', self)
@@ -127,6 +129,31 @@ class MainWindow(QtGui.QMainWindow):
         help_action = QtGui.QAction('Photini documentation', self)
         help_action.triggered.connect(self.open_docs)
         help_menu.addAction(help_action)
+        # main application area
+        self.central_widget = QtGui.QSplitter()
+        self.central_widget.setOrientation(Qt.Vertical)
+        self.central_widget.setChildrenCollapsible(False)
+        self.tabs = QtGui.QTabWidget()
+        self.add_tabs()
+        self.tabs.currentChanged.connect(self.new_tab)
+        self.central_widget.addWidget(self.tabs)
+        self.central_widget.addWidget(self.image_list)
+        size = self.central_widget.sizes()
+        self.central_widget.setSizes(eval(
+            self.config_store.get('main_window', 'split', str(size))))
+        self.central_widget.splitterMoved.connect(self.new_split)
+        self.setCentralWidget(self.central_widget)
+
+    def add_tabs(self):
+        current = self.tabs.currentWidget()
+        self.tabs.clear()
+        for tab in self.tab_list:
+            use_tab = tab['action'].isChecked()
+            self.config_store.set('tabs', tab['key'], str(use_tab))
+            if tab['object'] and use_tab:
+                self.tabs.addTab(tab['object'], tab['name'])
+        if current:
+            self.tabs.setCurrentWidget(current)
 
     def open_docs(self):
         webbrowser.open_new('http://jim-easterbrook.github.com/Photini/')
@@ -163,8 +190,10 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot(int)
     def new_tab(self, index):
-        self.tabs.currentWidget().refresh()
-        self.image_list.emit_selection()
+        current = self.tabs.currentWidget()
+        if current:
+            current.refresh()
+            self.image_list.emit_selection()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
