@@ -127,6 +127,7 @@ class FlickrUploader(QtGui.QWidget):
             return
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
         if not self.authorise():
+            QtGui.QApplication.restoreOverrideCursor()
             return
         sets = self.flickr.photosets_getList()
         for item in sets.find('photosets').findall('photoset'):
