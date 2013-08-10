@@ -13,6 +13,8 @@ Features
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
 *   Can set metadata for multiple images simultaneously.
+*   Can adjust picture data & time.
+*   Upload to [Flickr](http://www.flickr.com/) and/or [Picasa](http://picasaweb.google.com/) with reuse of metadata.
 
 ![Geolocation screenshot](http://github.com/jim-easterbrook/Photini/raw/master/doc_src/images/screenshot_19.png)
 
@@ -20,9 +22,7 @@ Features
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
-
 *   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
-*   Now has tabs to adjust time & date and to upload to [Flickr](http://www.flickr.com/).
 *   Suggestions for further development welcome.
 
 Documentation
@@ -37,6 +37,7 @@ Dependencies
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
 *   GExiv2, version 0.5+: <http://redmine.yorba.org/projects/gexiv2/wiki> *or* pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
 *   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
+*   gdata-python-client (optional): <http://code.google.com/p/gdata-python-client/>
 
 For details of how to download and install these, please see the documentation.
 
