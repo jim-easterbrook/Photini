@@ -307,7 +307,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 unicode(self.current_album.summary.text, 'UTF-8'))
         else:
             self.widgets['description'].clear()
-        if self.current_album.location.text:
+        if self.current_album.location and self.current_album.location.text:
             self.widgets['location'].setText(
                 unicode(self.current_album.location.text, 'UTF-8'))
         else:
