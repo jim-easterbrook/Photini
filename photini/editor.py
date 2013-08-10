@@ -44,6 +44,10 @@ except ImportError:
 from photini.googlemap import GoogleMap
 from photini.openstreetmap import OpenStreetMap
 from photini.imagelist import ImageList
+try:
+    from photini.picasa import PicasaUploader
+except ImportError:
+    PicasaUploader = None
 from photini.technical import Technical
 from photini.utils import data_dir
 from photini.version import version, release
@@ -77,6 +81,7 @@ class MainWindow(QtGui.QMainWindow):
             {'name' : 'Map (&Bing)',            'class' : BingMap},
             {'name' : 'Map (&OSM)',             'class' : OpenStreetMap},
             {'name' : '&Flickr uploader',       'class' : FlickrUploader},
+            {'name' : '&Picasa uploader',       'class' : PicasaUploader},
             )
         for tab in self.tab_list:
             tab['key'] = tab['name'].replace('&', '').replace(' ', '_')
