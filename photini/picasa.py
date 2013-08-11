@@ -139,49 +139,57 @@ class PicasaUploader(QtGui.QWidget):
         self.widgets = {}
         self.current_album = None
         self.uploader = None
-        ## album settings
+        ### album group
         album_group = QtGui.QGroupBox('Album')
-        album_group.setLayout(QtGui.QFormLayout())
+        album_group.setLayout(QtGui.QHBoxLayout())
+        self.layout().addWidget(album_group, 0, 0, 3, 1)
+        ## album details
+        album_form = QtGui.QWidget()
+        album_form.setLayout(QtGui.QFormLayout())
+        album_group.layout().addWidget(album_form)
         # album title / selector
         self.albums = QtGui.QComboBox()
         self.albums.setEditable(True)
         self.albums.setInsertPolicy(QtGui.QComboBox.NoInsert)
         self.albums.currentIndexChanged.connect(self.changed_album)
         self.albums.lineEdit().editingFinished.connect(self.new_title)
-        album_group.layout().addRow('Title', self.albums)
+        album_form.layout().addRow('Title', self.albums)
         # album date
         self.widgets['timestamp'] = QtGui.QDateEdit()
         self.widgets['timestamp'].editingFinished.connect(self.new_timestamp)
-        album_group.layout().addRow('Date', self.widgets['timestamp'])
+        album_form.layout().addRow('Date', self.widgets['timestamp'])
         # album description
         self.widgets['description'] = MultiLineEdit()
         self.widgets['description'].editingFinished.connect(self.new_description)
-        album_group.layout().addRow('Description', self.widgets['description'])
+        album_form.layout().addRow('Description', self.widgets['description'])
         # album location
         self.widgets['location'] = QtGui.QLineEdit()
         self.widgets['location'].editingFinished.connect(self.new_location)
-        album_group.layout().addRow('Place taken', self.widgets['location'])
+        album_form.layout().addRow('Place taken', self.widgets['location'])
         # album visibility
         self.widgets['access'] = QtGui.QComboBox()
         self.widgets['access'].addItem('Public on the web', 'public')
         self.widgets['access'].addItem('Limited, anyone with the link', 'private')
         self.widgets['access'].addItem('Only you', 'protected')
         self.widgets['access'].currentIndexChanged.connect(self.new_access)
-        album_group.layout().addRow('Visibility', self.widgets['access'])
+        album_form.layout().addRow('Visibility', self.widgets['access'])
         # album buttons
         self.buttons = AlbumButtons()
         self.buttons.new.clicked.connect(self.new_album)
         self.buttons.delete.clicked.connect(self.delete_album)
         self.buttons.save.clicked.connect(self.save_changes)
         self.buttons.discard.clicked.connect(self.discard_changes)
-        album_group.layout().addRow(self.buttons)
-        self.layout().addWidget(album_group, 0, 0, 3, 1)
-        # upload button
+        album_form.layout().addRow(self.buttons)
+        ## album thumbnail
+        self.album_thumb = QtGui.QLabel()
+        self.album_thumb.setAlignment(Qt.AlignTop)
+        album_group.layout().addWidget(self.album_thumb)
+        ### upload button
         self.upload_button = QtGui.QPushButton('Upload now')
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 2, 3)
-        # progress bars
+        ### progress bars
         self.layout().addWidget(QtGui.QLabel('File progress'), 3, 0, 1, 4)
         self.file_progress = QtGui.QProgressBar()
         self.layout().addWidget(self.file_progress, 4, 0, 1, 4)
@@ -300,6 +308,13 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 break
         else:
             return
+        if self.current_album.media.thumbnail:
+            media = self.pws.GetMedia(self.current_album.media.thumbnail[0].url)
+            image = QtGui.QPixmap()
+            image.loadFromData(media.file_handle.read())
+            self.album_thumb.setPixmap(image)
+        else:
+            self.album_thumb.clear()
         self.widgets['timestamp'].setDate(datetime.date.fromtimestamp(
             float(self.current_album.timestamp.text) * 1.0e-3))
         if self.current_album.summary.text:
