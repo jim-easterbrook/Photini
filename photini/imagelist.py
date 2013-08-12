@@ -209,12 +209,15 @@ class ImageList(QtGui.QWidget):
         # sort key selector
         layout.addWidget(QtGui.QLabel('sort by: '), 1, 0)
         self.sort_name = QtGui.QRadioButton('file name')
-        self.sort_name.setChecked(True)
         self.sort_name.clicked.connect(self._show_thumbnails)
         layout.addWidget(self.sort_name, 1, 1)
         self.sort_date = QtGui.QRadioButton('date taken')
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._show_thumbnails)
+        if eval(self.config_store.get('controls', 'sort_date', 'False')):
+            self.sort_date.setChecked(True)
+        else:
+            self.sort_name.setChecked(True)
         # size selector
         layout.addWidget(QtGui.QLabel('thumbnail size: '), 1, 4)
         self.size_slider = QtGui.QSlider(Qt.Horizontal)
@@ -273,7 +276,9 @@ class ImageList(QtGui.QWidget):
         self._show_thumbnails()
 
     def _show_thumbnails(self):
-        if self.sort_date.isChecked():
+        sort_date = self.sort_date.isChecked()
+        self.config_store.set('controls', 'sort_date', str(sort_date))
+        if sort_date:
             self.path_list.sort(
                 key=lambda x: self.image[x].metadata.get_item('date_taken'))
         else:
