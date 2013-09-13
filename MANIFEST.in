@@ -1,6 +1,6 @@
-recursive-include code/photini *
-recursive-include code/scripts *
+include *.txt MANIFEST.in README.md
+recursive-include doc_src *
 recursive-include doc/html *
+recursive-include scripts *
 global-exclude *~
-global-exclude *.pyc
 exclude doc/html/.buildinfo
