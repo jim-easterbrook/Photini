@@ -11,7 +11,7 @@ clean :
 	rm -Rf doc build dist
 
 doc :
-	$(MAKE) -C doc_src html
+	python setup.py build_sphinx
 
 .PHONY : doc dist
 
