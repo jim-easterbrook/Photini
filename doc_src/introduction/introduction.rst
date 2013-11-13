@@ -31,9 +31,14 @@ It is no longer maintained, so GExiv2 is preferable, but pyexiv2 may be in the r
 If not, you should be able to download it from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 As a last resort, you may need to compile and install it yourself, following `these instructions <http://tilloy.net/dev/pyexiv2/developers.html#building-and-installing>`_.
 
+The last essential dependency is a small Python utility called `appdirs <http://pypi.python.org/pypi/appdirs/>`_.
+The best way to install this is with `pip <http://pypi.python.org/pypi/pip>`_, an easy to use installer for packages from PyPI.
+
 If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
-This is available from some Linux distributions' repositories, or via ``easy_install``.
+This is available from some Linux distributions' repositories, or via ``pip``.
 See the python-flickrapi website for details.
+
+Similarly, to upload to Google Picasa requires `gdata-python-client <http://code.google.com/p/gdata-python-client/>`_.
 
 Dependencies (Windows)
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -44,9 +49,14 @@ Make sure you get Python version 2.7 and the corresponding PyQt installer.
 Windows installers for `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_ are available from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.
 Again, make sure you get the installer for Python 2.7 and the latest version of pyexiv2.
 
+The last essential dependency is a small Python utility called `appdirs <http://pypi.python.org/pypi/appdirs/>`_.
+The best way to install this is with `pip <http://pypi.python.org/pypi/pip>`_, an easy to use installer for packages from PyPI.
+
 If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
-This appears to be a pure Python package, so ``easy_install`` is probably the best way to install it on Windows.
+This appears to be a pure Python package, so ``pip`` is probably the best way to install it on Windows.
 See the python-flickrapi website for details.
+
+Similarly, to upload to Google Picasa requires `gdata-python-client <http://code.google.com/p/gdata-python-client/>`_.
 
 Installing Photini
 ------------------
@@ -57,11 +67,11 @@ You should then be able to run the Photini editor with one of the following comm
 
 Linux::
 
-  python photini/editor.py
+  python -m photini.editor
 
 Windows::
 
-  c:\python27\python.exe photini\editor.py
+  c:\python27\python.exe -m photini.editor
 
 This should launch the GUI and you should then be able to switch to the "map" tab and load a Google map.
 
