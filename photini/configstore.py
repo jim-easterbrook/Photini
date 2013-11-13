@@ -24,7 +24,7 @@ from PyQt4 import QtCore
 class ConfigStore(object):
     def __init__(self):
         self.config = SafeConfigParser()
-        self.file_name = os.path.expanduser('~/photini.ini')
+        self.file_name = os.path.expanduser('~/.config/photini/photini.ini')
         self.config.read(self.file_name)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
