@@ -22,6 +22,7 @@
 usage: editor.py [options]
 options are:
   -h       | --help        display this help
+  -V       | --version     display version information and exit
 """
 
 import getopt
@@ -224,7 +225,7 @@ def main(argv=None):
     QtGui.qApp = app
     # parse remaining arguments
     try:
-        opts, args = getopt.getopt(argv[1:], "h", ["help"])
+        opts, args = getopt.getopt(argv[1:], "hV", ["help", "version"])
     except getopt.error, msg:
         print >>sys.stderr, 'Error: %s\n' % msg
         print >>sys.stderr, __doc__.strip()
@@ -233,6 +234,9 @@ def main(argv=None):
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__.strip()
+            return 0
+        elif o in ("-V", "--version"):
+            print "Photini %s_r%s" % (version, release)
             return 0
     # create GUI and run application event loop
     main = MainWindow()
