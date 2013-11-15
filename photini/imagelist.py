@@ -24,8 +24,8 @@ import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
-from flowlayout import FlowLayout
-from metadata import Metadata
+from photini.flowlayout import FlowLayout
+from photini.metadata import Metadata
 
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
@@ -257,9 +257,12 @@ class ImageList(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
+        types = []
+        for ext in QtGui.QImageReader.supportedImageFormats():
+            types.append('*.%s' % str(ext))
         path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            "Images (*.png *.jpg);;All files (*)"))
+            "Images (%s);;All files (*)" % ' '.join(types)))
         if not path_list:
             return
         self.open_file_list(path_list)
