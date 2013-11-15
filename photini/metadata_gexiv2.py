@@ -29,9 +29,6 @@ class MetadataHandler(object):
     def save(self):
         return self._md.save_file(self._path)
 
-    def get_tags(self):
-        return self._md.get_exif_tags() + self._md.get_iptc_tags() + self._md.get_xmp_tags()
-
     def get_exif_tags(self):
         return self._md.get_exif_tags()
 

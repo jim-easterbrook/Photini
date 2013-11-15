@@ -23,10 +23,14 @@ import os
 from PyQt4 import QtCore
 
 try:
-    from metadata_gexiv2 import MetadataHandler
-except ImportError:
-    from metadata_pyexiv2 import MetadataHandler
-from version import version, release
+    from photini.metadata_gexiv2 import MetadataHandler
+except ImportError as e:
+    try:
+        from photini.metadata_pyexiv2 import MetadataHandler
+    except ImportError:
+        # raise exception on the one we really wanted
+        raise e
+from photini.version import version, release
 
 class GPSvalue(object):
     def __init__(self, degrees=0.0, latitude=True):
@@ -118,7 +122,14 @@ class Metadata(QtCore.QObject):
     _list_items = ('keywords',)
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
-        self._mh = MetadataHandler(path)
+        # create metadata handlers for image file and sidecar (if present)
+        self._if = MetadataHandler(path)
+        self._sc = None
+        for base in (os.path.splitext(path)[0], path):
+            for ext in ('.xmp', '.XMP'):
+                sc_path = base + ext
+                if os.path.exists(sc_path):
+                    self._sc = MetadataHandler(sc_path)
         self._new = False
 
     def save(self):
@@ -127,34 +138,116 @@ class Metadata(QtCore.QObject):
         self.set_item('soft_full', 'Photini editor v%s_%s' % (version, release))
         self.set_item('soft_name', 'Photini editor')
         self.set_item('soft_vsn', '%s_%s' % (version, release))
-        self._mh.save()
+        if self._sc:
+            self._sc.save()
+        else:
+            self._if.save()
         self._set_status(False)
 
+    def get_exif_tags(self):
+        result = self._if.get_exif_tags()
+        if self._sc:
+            result = self._sc.get_exif_tags() + result
+        return result
+
+    def get_iptc_tags(self):
+        result = self._if.get_iptc_tags()
+        if self._sc:
+            result = self._sc.get_iptc_tags() + result
+        return result
+
+    def get_xmp_tags(self):
+        result = self._if.get_xmp_tags()
+        if self._sc:
+            result = self._sc.get_xmp_tags() + result
+        return result
+
+    def get_exif_tag_string(self, tag):
+        result = ''
+        if self._sc:
+            result = self._sc.get_exif_tag_string(tag)
+        if not result:
+            result = self._if.get_exif_tag_string(tag)
+        return result
+
+    def get_iptc_tag_multiple(self, tag):
+        result = self._if.get_iptc_tag_multiple(tag)
+        if self._sc:
+            result = self._sc.get_iptc_tag_multiple(tag) + result
+        return result
+
+    def get_xmp_tag_string(self, tag):
+        result = ''
+        if self._sc:
+            result = self._sc.get_xmp_tag_string(tag)
+        if not result:
+            result = self._if.get_xmp_tag_string(tag)
+        return result
+
+    def get_xmp_tag_multiple(self, tag):
+        result = self._if.get_xmp_tag_multiple(tag)
+        if self._sc:
+            result = self._sc.get_xmp_tag_multiple(tag) + result
+        return result
+
+    def set_exif_tag_string(self, tag, value):
+        if self._sc:
+            self._sc.set_exif_tag_string(tag, value)
+        self._if.set_exif_tag_string(tag, value)
+
+    def set_exif_tag_long(self, tag, value):
+        if self._sc:
+            self._sc.set_exif_tag_long(tag, value)
+        self._if.set_exif_tag_long(tag, value)
+
+    def set_iptc_tag_multiple(self, tag, value):
+        if self._sc:
+            self._sc.set_iptc_tag_multiple(tag, value)
+        self._if.set_iptc_tag_multiple(tag, value)
+
+    def set_xmp_tag_string(self, tag, value):
+        if self._sc:
+            self._sc.set_xmp_tag_string(tag, value)
+        self._if.set_xmp_tag_string(tag, value)
+
+    def set_xmp_tag_multiple(self, tag, value):
+        if self._sc:
+            self._sc.set_xmp_tag_multiple(tag, value)
+        self._if.set_xmp_tag_multiple(tag, value)
+
+    def clear_tag(self, tag):
+        if self._sc:
+            self._sc.clear_tag(tag)
+        self._if.clear_tag(tag)
+
+    def get_tags(self):
+        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+
     def has_GPS(self):
-        return (('Xmp.exif.GPSLatitude' in self._mh.get_xmp_tags()) or
-                ('Exif.GPSInfo.GPSLatitude' in self._mh.get_exif_tags()))
+        return (('Xmp.exif.GPSLatitude' in self.get_xmp_tags()) or
+                ('Exif.GPSInfo.GPSLatitude' in self.get_exif_tags()))
 
     def get_item(self, name):
         for key, required in self._keys[name]:
             family, group, tag = key.split('.')
-            if key in self._mh.get_xmp_tags():
+            if key in self.get_xmp_tags():
                 if tag.startswith('GPS'):
                     return GPSvalue().from_xmp_string(
-                        self._mh.get_xmp_tag_string(key))
-                return u'; '.join(self._mh.get_xmp_tag_multiple(key))
-            if key in self._mh.get_iptc_tags():
-                return u'; '.join(self._mh.get_iptc_tag_multiple(key))
-            if key in self._mh.get_exif_tags():
+                        self.get_xmp_tag_string(key))
+                return u'; '.join(self.get_xmp_tag_multiple(key))
+            if key in self.get_iptc_tags():
+                return u'; '.join(self.get_iptc_tag_multiple(key))
+            if key in self.get_exif_tags():
                 if tag.startswith('DateTime'):
                     return datetime.datetime.strptime(
-                        self._mh.get_exif_tag_string(key), '%Y:%m:%d %H:%M:%S')
+                        self.get_exif_tag_string(key), '%Y:%m:%d %H:%M:%S')
                 if tag == 'Orientation':
-                    return int(self._mh.get_exif_tag_string(key))
+                    return int(self.get_exif_tag_string(key))
                 if group == 'GPSInfo':
                     return GPSvalue().from_exif_string(
-                        self._mh.get_exif_tag_string(key),
-                        self._mh.get_exif_tag_string('%sRef' % key))
-                return unicode(self._mh.get_exif_tag_string(key), 'iso8859_1')
+                        self.get_exif_tag_string(key),
+                        self.get_exif_tag_string('%sRef' % key))
+                return unicode(self.get_exif_tag_string(key), 'iso8859_1')
         return None
 
     def set_item(self, name, value):
@@ -171,34 +264,34 @@ class Metadata(QtCore.QObject):
             self.del_item(name)
             return
         for key, required in self._keys[name]:
-            if required or key in self._mh.get_tags():
+            if required or key in self.get_tags():
                 family, group, tag = key.split('.')
                 if family == 'Xmp':
                     if isinstance(value, GPSvalue):
-                        self._mh.set_xmp_tag_string(key, value.to_xmp_string())
+                        self.set_xmp_tag_string(key, value.to_xmp_string())
                     else:
-                        self._mh.set_xmp_tag_multiple(key, value)
+                        self.set_xmp_tag_multiple(key, value)
                 elif family == 'Iptc':
-                    self._mh.set_iptc_tag_multiple(key, value)
+                    self.set_iptc_tag_multiple(key, value)
                 elif family == 'Exif':
                     if isinstance(value, GPSvalue):
                         string, ref = value.to_exif_string()
-                        self._mh.set_exif_tag_string(key, string)
-                        self._mh.set_exif_tag_string('%sRef' % key, ref)
+                        self.set_exif_tag_string(key, string)
+                        self.set_exif_tag_string('%sRef' % key, ref)
                     elif isinstance(value, datetime.datetime):
-                        self._mh.set_exif_tag_string(
+                        self.set_exif_tag_string(
                             key, value.strftime('%Y:%m:%d %H:%M:%S'))
                     elif isinstance(value, int):
-                        self._mh.set_exif_tag_long(key, value)
+                        self.set_exif_tag_long(key, value)
                     else:
-                        self._mh.set_exif_tag_string(key, value[0])
+                        self.set_exif_tag_string(key, value[0])
         self._set_status(True)
 
     def del_item(self, name):
         changed = False
         for key, required in self._keys[name]:
-            if key in self._mh.get_tags():
-                self._mh.clear_tag(key)
+            if key in self.get_tags():
+                self.clear_tag(key)
                 changed = True
         if changed:
             self._set_status(True)
