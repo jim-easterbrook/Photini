@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from datetime import datetime
 import os
 import subprocess
 import sys
@@ -258,7 +259,7 @@ class ImageList(QtGui.QWidget):
     def open_files(self):
         path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            "Images (*.png *.jpg)"))
+            "Images (*.png *.jpg);;All files (*)"))
         if not path_list:
             return
         self.open_file_list(path_list)
@@ -275,12 +276,23 @@ class ImageList(QtGui.QWidget):
             self.image[path] = image
         self._show_thumbnails()
 
+    def _date_key(self, idx):
+        result = self.image[idx].metadata.get_item('date_taken')
+        if not result:
+            result = self.image[idx].metadata.get_item('date_digitised')
+        if not result:
+            result = self.image[idx].metadata.get_item('date_modified')
+        if not result:
+            # use file date as last resort
+            result = datetime.fromtimestamp(
+                os.path.getmtime(self.image[idx].path))
+        return result
+
     def _show_thumbnails(self):
         sort_date = self.sort_date.isChecked()
         self.config_store.set('controls', 'sort_date', str(sort_date))
         if sort_date:
-            self.path_list.sort(
-                key=lambda x: self.image[x].metadata.get_item('date_taken'))
+            self.path_list.sort(key=self._date_key)
         else:
             self.path_list.sort()
         layout = self.thumbnails.layout()
