@@ -24,7 +24,16 @@ class MetadataHandler(object):
         self._md.read()
 
     def save(self):
-        return self._md.write()
+        try:
+            self._md.write()
+        except IOError as ex:
+            print str(ex)
+            return False
+        return True
+
+    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
+        # copy from other to self (pyexiv2 copies from self to other)
+        other._md.copy(self._md, exif=exif, iptc=iptc, xmp=xmp, comment=comment)
 
     def get_exif_tags(self):
         return self._md.exif_keys

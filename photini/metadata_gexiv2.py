@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from gi.repository import GExiv2
+from gi.repository import GObject, GExiv2
 
 GExiv2.initialize()
 
@@ -27,7 +27,28 @@ class MetadataHandler(object):
         self._md.open_path(path)
 
     def save(self):
-        return self._md.save_file(self._path)
+        try:
+            return self._md.save_file(self._path)
+        except GObject.GError as ex:
+            print str(ex)
+            return False
+
+    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
+        # copy from other to self
+        if exif:
+            for tag in other._md.get_exif_tags():
+                self._md.set_exif_tag_string(
+                    tag, other._md.get_exif_tag_string(tag))
+        if iptc:
+            for tag in other._md.get_iptc_tags():
+                self._md.set_iptc_tag_multiple(
+                    tag, other._md.get_iptc_tag_multiple(tag))
+        if xmp:
+            for tag in other._md.get_xmp_tags():
+                self._md.set_xmp_tag_multiple(
+                    tag, other._md.get_xmp_tag_multiple(tag))
+        if comment:
+            self._md.set_comment(other._md.get_comment())
 
     def get_exif_tags(self):
         return self._md.get_exif_tags()

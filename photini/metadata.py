@@ -123,6 +123,7 @@ class Metadata(QtCore.QObject):
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         # create metadata handlers for image file and sidecar (if present)
+        self._path = path
         self._if = MetadataHandler(path)
         self._sc = None
         for base in (os.path.splitext(path)[0], path):
@@ -130,65 +131,73 @@ class Metadata(QtCore.QObject):
                 sc_path = base + ext
                 if os.path.exists(sc_path):
                     self._sc = MetadataHandler(sc_path)
-        self._new = False
+        self._unsaved = False
 
     def save(self):
-        if not self._new:
+        if not self._unsaved:
             return
         self.set_item('soft_full', 'Photini editor v%s_%s' % (version, release))
         self.set_item('soft_name', 'Photini editor')
         self.set_item('soft_vsn', '%s_%s' % (version, release))
         if self._sc:
-            self._sc.save()
+            OK = self._sc.save()
         else:
-            self._if.save()
-        self._set_status(False)
+            OK = self._if.save()
+            if not OK:
+                # create sidecar file
+                sc_path = self._path + '.xmp'
+                with open(sc_path, 'w') as of:
+                    of.write('<x:xmpmeta x:xmptk="XMP Core 4.4.0-Exiv2" ')
+                    of.write('xmlns:x="adobe:ns:meta/">\n')
+                    of.write('</x:xmpmeta>')
+                self._sc = MetadataHandler(sc_path)
+                self._sc.copy(self._if, comment=False)
+                OK = self._sc.save()
+        self._set_unsaved(not OK)
 
     def get_exif_tags(self):
         result = self._if.get_exif_tags()
         if self._sc:
-            result = self._sc.get_exif_tags() + result
+            for tag in self._sc.get_exif_tags():
+                if tag not in result:
+                    result.append(tag)
         return result
 
     def get_iptc_tags(self):
         result = self._if.get_iptc_tags()
         if self._sc:
-            result = self._sc.get_iptc_tags() + result
+            for tag in self._sc.get_iptc_tags():
+                if tag not in result:
+                    result.append(tag)
         return result
 
     def get_xmp_tags(self):
         result = self._if.get_xmp_tags()
         if self._sc:
-            result = self._sc.get_xmp_tags() + result
+            for tag in self._sc.get_xmp_tags():
+                if tag not in result:
+                    result.append(tag)
         return result
 
     def get_exif_tag_string(self, tag):
-        result = ''
-        if self._sc:
-            result = self._sc.get_exif_tag_string(tag)
-        if not result:
-            result = self._if.get_exif_tag_string(tag)
-        return result
+        if self._sc and tag in self._sc.get_exif_tags():
+            return self._sc.get_exif_tag_string(tag)
+        return self._if.get_exif_tag_string(tag)
 
     def get_iptc_tag_multiple(self, tag):
-        result = self._if.get_iptc_tag_multiple(tag)
-        if self._sc:
-            result = self._sc.get_iptc_tag_multiple(tag) + result
-        return result
+        if self._sc and tag in self._sc.get_iptc_tags():
+            return self._sc.get_iptc_tag_multiple(tag)
+        return self._if.get_iptc_tag_multiple(tag)
 
     def get_xmp_tag_string(self, tag):
-        result = ''
-        if self._sc:
-            result = self._sc.get_xmp_tag_string(tag)
-        if not result:
-            result = self._if.get_xmp_tag_string(tag)
-        return result
+        if self._sc and tag in self._sc.get_xmp_tags():
+            return self._sc.get_xmp_tag_string(tag)
+        return self._if.get_xmp_tag_string(tag)
 
     def get_xmp_tag_multiple(self, tag):
-        result = self._if.get_xmp_tag_multiple(tag)
-        if self._sc:
-            result = self._sc.get_xmp_tag_multiple(tag) + result
-        return result
+        if self._sc and tag in self._sc.get_xmp_tags():
+            return self._sc.get_xmp_tag_multiple(tag)
+        return self._if.get_xmp_tag_multiple(tag)
 
     def set_exif_tag_string(self, tag, value):
         if self._sc:
@@ -285,7 +294,7 @@ class Metadata(QtCore.QObject):
                         self.set_exif_tag_long(key, value)
                     else:
                         self.set_exif_tag_string(key, value[0])
-        self._set_status(True)
+        self._set_unsaved(True)
 
     def del_item(self, name):
         changed = False
@@ -294,12 +303,12 @@ class Metadata(QtCore.QObject):
                 self.clear_tag(key)
                 changed = True
         if changed:
-            self._set_status(True)
+            self._set_unsaved(True)
 
     new_status = QtCore.pyqtSignal(bool)
-    def _set_status(self, status):
-        self._new = status
-        self.new_status.emit(self._new)
+    def _set_unsaved(self, status):
+        self._unsaved = status
+        self.new_status.emit(self._unsaved)
 
     def changed(self):
-        return self._new
+        return self._unsaved
