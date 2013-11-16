@@ -128,33 +128,44 @@ class Metadata(QtCore.QObject):
         self._sc = None
         for base in (os.path.splitext(path)[0], path):
             for ext in ('.xmp', '.XMP'):
-                sc_path = base + ext
-                if os.path.exists(sc_path):
-                    self._sc = MetadataHandler(sc_path)
+                if not self._sc:
+                    self.sc_path = base + ext
+                    if os.path.exists(self.sc_path):
+                        self._sc = MetadataHandler(self.sc_path)
         self._unsaved = False
 
-    def save(self):
+    def create_side_car(self):
+        self.sc_path = self._path + '.xmp'
+        with open(self.sc_path, 'w') as of:
+            of.write('<x:xmpmeta x:xmptk="XMP Core 4.4.0-Exiv2" ')
+            of.write('xmlns:x="adobe:ns:meta/">\n')
+            of.write('</x:xmpmeta>')
+        self._sc = MetadataHandler(self.sc_path)
+        self._sc.copy(self._if, comment=False)
+
+    def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
         self.set_item('soft_full', 'Photini editor v%s_%s' % (version, release))
         self.set_item('soft_name', 'Photini editor')
         self.set_item('soft_vsn', '%s_%s' % (version, release))
+        if sc_mode == 'delete' and self._sc:
+            self._if.copy(self._sc, comment=False)
+        OK = False
+        if if_mode:
+            OK = self._if.save()
+        if sc_mode == 'delete' and self._sc and OK:
+            os.unlink(self.sc_path)
+            self._sc = None
+        if sc_mode == 'auto' and not self._sc and not OK:
+            self.create_side_car()
+        if sc_mode == 'always' and not self._sc:
+            self.create_side_car()
         if self._sc:
             OK = self._sc.save()
-        else:
-            OK = self._if.save()
-            if not OK:
-                # create sidecar file
-                sc_path = self._path + '.xmp'
-                with open(sc_path, 'w') as of:
-                    of.write('<x:xmpmeta x:xmptk="XMP Core 4.4.0-Exiv2" ')
-                    of.write('xmlns:x="adobe:ns:meta/">\n')
-                    of.write('</x:xmpmeta>')
-                self._sc = MetadataHandler(sc_path)
-                self._sc.copy(self._if, comment=False)
-                OK = self._sc.save()
         self._set_unsaved(not OK)
 
+    # tag lists: merge tags from sidecar and image file
     def get_exif_tags(self):
         result = self._if.get_exif_tags()
         if self._sc:
@@ -179,6 +190,7 @@ class Metadata(QtCore.QObject):
                     result.append(tag)
         return result
 
+    # getters: use sidecar if tag is present, otherwise use image file
     def get_exif_tag_string(self, tag):
         if self._sc and tag in self._sc.get_exif_tags():
             return self._sc.get_exif_tag_string(tag)
@@ -199,6 +211,7 @@ class Metadata(QtCore.QObject):
             return self._sc.get_xmp_tag_multiple(tag)
         return self._if.get_xmp_tag_multiple(tag)
 
+    # setters: set in both sidecar and image file
     def set_exif_tag_string(self, tag, value):
         if self._sc:
             self._sc.set_exif_tag_string(tag, value)

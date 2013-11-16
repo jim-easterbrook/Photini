@@ -328,8 +328,10 @@ class ImageList(QtGui.QWidget):
     new_metadata = QtCore.pyqtSignal(bool)
     @QtCore.pyqtSlot()
     def save_files(self):
+        if_mode = eval(self.config_store.get('files', 'image', 'True'))
+        sc_mode = self.config_store.get('files', 'sidecar', 'auto')
         for path in list(self.path_list):
-            self.image[path].metadata.save()
+            self.image[path].metadata.save(if_mode, sc_mode)
         self.new_metadata.emit(False)
 
     def unsaved_files_dialog(
