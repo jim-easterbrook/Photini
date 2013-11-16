@@ -42,6 +42,7 @@ try:
     from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
+from photini.editsettings import EditSettings
 from photini.googlemap import GoogleMap
 from photini.openstreetmap import OpenStreetMap
 from photini.imagelist import ImageList
@@ -116,6 +117,10 @@ class MainWindow(QtGui.QMainWindow):
         file_menu.addAction(quit_action)
         # options menu
         options_menu = self.menuBar().addMenu('Options')
+        settings_action = QtGui.QAction('Settings', self)
+        settings_action.triggered.connect(self.edit_settings)
+        options_menu.addAction(settings_action)
+        options_menu.addSeparator()
         for tab in self.tab_list:
             tab['action'] = QtGui.QAction(tab['name'].replace('&', ''), self)
             tab['action'].setCheckable(True)
@@ -177,6 +182,10 @@ class MainWindow(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.image_list.unsaved_files_dialog(with_cancel=False)
         QtGui.QMainWindow.closeEvent(self, event)
+
+    def edit_settings(self):
+        dialog = EditSettings(self, self.config_store)
+        dialog.exec_()
 
     @QtCore.pyqtSlot()
     def about(self):

@@ -39,6 +39,7 @@ class ConfigStore(object):
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self.save)
+        self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
         if self.config.has_option(section, option):
@@ -54,6 +55,14 @@ class ConfigStore(object):
                 self.config.get(section, option) == value):
             return
         self.config.set(section, option, value)
+        self.timer.start()
+
+    def remove_section(self, section):
+        if not self.config.has_section(section):
+            return
+        for option in self.config.options(section):
+            self.config.remove_option(section, option)
+        self.config.remove_section(section)
         self.timer.start()
 
     def save(self):
