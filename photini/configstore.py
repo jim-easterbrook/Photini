@@ -19,13 +19,16 @@
 from ConfigParser import SafeConfigParser
 import os
 
-from appdirs import user_data_dir
+import appdirs
 from PyQt4 import QtCore
 
 class ConfigStore(object):
     def __init__(self):
         self.config = SafeConfigParser()
-        data_dir = user_data_dir('Photini')
+        if hasattr(appdirs, 'user_config_dir'):
+            data_dir = appdirs.user_config_dir('Photini')
+        else:
+            data_dir = appdirs.user_data_dir('Photini')
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir, mode=0700)
         self.file_name = os.path.join(data_dir, 'photini.ini')
