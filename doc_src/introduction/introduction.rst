@@ -23,9 +23,9 @@ Dependencies (Linux)
 
 Many Linux installations will already have `Python <http://python.org/>`_ installed, but if not you should be able to get it easily from the standard repository.
 This should also be the case for `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_.
-`GExiv2 <http://redmine.yorba.org/projects/gexiv2/wiki>`_ may be in the repository.
+`GExiv2 <https://wiki.gnome.org/gexiv2>`_ may be in the repository.
 If not, you should be able to build and install it yourself.
-See the `"Building and installing" <http://redmine.yorba.org/projects/gexiv2/wiki>`_ instructions for details.
+See the `"Building and installing" <https://wiki.gnome.org/gexiv2>`_ instructions for details.
 If you can't install GExiv2 you can use `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_.
 It is no longer maintained, so GExiv2 is preferable, but pyexiv2 may be in the repository.
 If not, you should be able to download it from the `pyexiv2 download page <http://tilloy.net/dev/pyexiv2/download.html>`_.

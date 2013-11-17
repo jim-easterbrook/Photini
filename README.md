@@ -35,7 +35,7 @@ Dependencies
 
 *   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   GExiv2, version 0.5+: <http://redmine.yorba.org/projects/gexiv2/wiki> *or* pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
+*   GExiv2, version 0.4+: <https://wiki.gnome.org/gexiv2> *or* pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
 *   appdirs: <http://pypi.python.org/pypi/appdirs/>
 *   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
 *   gdata-python-client (optional): <http://code.google.com/p/gdata-python-client/>
