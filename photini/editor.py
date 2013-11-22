@@ -55,7 +55,7 @@ except ImportError:
     PicasaUploader = None
 from photini.technical import Technical
 from photini.utils import data_dir
-from photini.version import version, release
+from photini.version import version
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, verbose):
@@ -198,8 +198,7 @@ class MainWindow(QtGui.QMainWindow):
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle('Photini: about')
         dialog.setText(
-            open(os.path.join(data_dir, 'about.html')).read() % (
-                version, release))
+            open(os.path.join(data_dir, 'about.html')).read() % (version))
         dialog.setDetailedText(
             open(os.path.join(data_dir, 'LICENSE.txt')).read())
         dialog.exec_()
@@ -255,7 +254,7 @@ def main(argv=None):
         elif o in ("-v", "--verbose"):
             verbose += 1
         elif o in ("-V", "--version"):
-            print "Photini %s_r%s" % (version, release)
+            print "Photini %s" % (version)
             return 0
     # create GUI and run application event loop
     main = MainWindow(verbose)

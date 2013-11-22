@@ -35,23 +35,24 @@ cmdclass = {}
 command_options = {}
 
 # regenerate version file, if required
+regenerate = False
 try:
-    p = subprocess.Popen(
-        ['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE)
+    p = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'],
+                         stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     commit = p.communicate()[0].strip().decode('ASCII')
-    if p.returncode:
-        commit = photini.version.commit
+    regenerate = (not p.returncode) and commit != photini.version.commit
 except OSError:
-    commit = photini.version.commit
-if commit != photini.version.commit:
-    photini.version.version = date.today().strftime('%y.%m')
-    photini.version.release = str(int(photini.version.release) + 1)
-    photini.version.commit = commit
+    pass
+if regenerate:
+    release = str(int(photini.version.release) + 1)
+    version = date.today().strftime('%y.%m') + '.dev%s' % release
     vf = open('photini/version.py', 'w')
-    vf.write("version = '%s'\n" % photini.version.version)
-    vf.write("release = '%s'\n" % photini.version.release)
-    vf.write("commit = '%s'\n" % photini.version.commit)
+    vf.write("version = '%s'\n" % version)
+    vf.write("release = '%s'\n" % release)
+    vf.write("commit = '%s'\n" % commit)
     vf.close()
+else:
+    version = photini.version.version
 
 # if sphinx is installed, add command to build documentation
 try:
@@ -82,8 +83,6 @@ if platform.system() == 'Windows':
     scripts = ['scripts/photini.bat']
 else:
     scripts = ['scripts/photini']
-
-version = '%s_r%s' % (photini.version.version, photini.version.release)
 
 setup(name = 'Photini',
       version = version,
