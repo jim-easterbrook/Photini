@@ -16,10 +16,13 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import logging
+
 import pyexiv2
 
 class MetadataHandler(object):
     def __init__(self, path):
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._md = pyexiv2.ImageMetadata(path)
         self._md.read()
 
@@ -27,7 +30,7 @@ class MetadataHandler(object):
         try:
             self._md.write()
         except IOError as ex:
-            print str(ex)
+            self.logger.exception(ex)
             return False
         return True
 

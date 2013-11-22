@@ -22,10 +22,12 @@
 usage: editor.py [options]
 options are:
   -h       | --help        display this help
+  -v       | --verbose     increase number of logging messages
   -V       | --version     display version information and exit
 """
 
 import getopt
+import logging
 import os
 import sys
 import urllib2
@@ -46,6 +48,7 @@ from photini.editsettings import EditSettings
 from photini.googlemap import GoogleMap
 from photini.openstreetmap import OpenStreetMap
 from photini.imagelist import ImageList
+from photini.loggerwindow import LoggerWindow
 try:
     from photini.picasa import PicasaUploader
 except ImportError:
@@ -55,10 +58,13 @@ from photini.utils import data_dir
 from photini.version import version, release
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self):
+    def __init__(self, verbose):
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle("Photini photo metadata editor")
         self.selection = list()
+        # logger window
+        self.loggerwindow = LoggerWindow(verbose)
+        self.logger = logging.getLogger(self.__class__.__name__)
         # config store
         self.config_store = ConfigStore()
         # set network proxy
@@ -234,21 +240,25 @@ def main(argv=None):
     QtGui.qApp = app
     # parse remaining arguments
     try:
-        opts, args = getopt.getopt(argv[1:], "hV", ["help", "version"])
+        opts, args = getopt.getopt(
+            argv[1:], "hvV", ["help", "verbose", "version"])
     except getopt.error, msg:
         print >>sys.stderr, 'Error: %s\n' % msg
         print >>sys.stderr, __doc__.strip()
         return 1
     # process options
+    verbose = 0
     for o, a in opts:
         if o in ("-h", "--help"):
             print __doc__.strip()
             return 0
+        elif o in ("-v", "--verbose"):
+            verbose += 1
         elif o in ("-V", "--version"):
             print "Photini %s_r%s" % (version, release)
             return 0
     # create GUI and run application event loop
-    main = MainWindow()
+    main = MainWindow(verbose)
     main.show()
     return app.exec_()
 

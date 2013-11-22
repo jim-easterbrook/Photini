@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import webbrowser
 
@@ -27,8 +28,12 @@ from utils import data_dir
 from version import version
 
 class WebPage(QtWebKit.QWebPage):
+    def __init__(self, parent=None):
+        QtWebKit.QWebPage.__init__(self, parent)
+        self.logger = logging.getLogger(self.__class__.__name__)
+
     def javaScriptConsoleMessage(self, msg, line, source):
-        print '%s line %d: %s' % (source, line, msg)
+        self.logger.error('%s line %d: %s', source, line, msg)
 
     def userAgentForUrl(self, url):
         # Nominatim requires the user agent to identify the application

@@ -16,22 +16,26 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import logging
+
 from gi.repository import GObject, GExiv2
 
 GExiv2.initialize()
 
 class MetadataHandler(object):
     def __init__(self, path):
+        self.logger = logging.getLogger(self.__class__.__name__)
         self._path = path
         self._md = GExiv2.Metadata()
         self._md.open_path(path)
 
     def save(self):
         try:
-            return self._md.save_file(self._path)
+            self._md.save_file(self._path)
         except GObject.GError as ex:
-            print str(ex)
+            self.logger.exception(ex)
             return False
+        return True
 
     def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
         # copy from other to self
@@ -90,7 +94,3 @@ class MetadataHandler(object):
 
     def clear_tag(self, tag):
         self._md.clear_tag(tag)
-
-
-
-
