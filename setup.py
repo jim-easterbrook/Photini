@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 from datetime import date
-from distutils.core import setup
+try:
+    from setuptools import setup
+    using_setuptools = True
+except ImportError:
+    from distutils.core import setup
+    using_setuptools = False
 import os
 import platform
 import subprocess
@@ -43,6 +48,12 @@ try:
         }
 except ImportError:
     pass
+
+# set options for uploading documentation to PyPI
+if using_setuptools:
+    command_options['upload_docs'] = {
+        'upload_dir' : ('setup.py', 'doc/html'),
+        }
 
 # set options for building distributions
 command_options['sdist'] = {
