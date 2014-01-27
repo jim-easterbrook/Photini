@@ -41,16 +41,16 @@ class MetadataHandler(object):
         # copy from other to self
         if exif:
             for tag in other._md.get_exif_tags():
-                self._md.set_exif_tag_string(
-                    tag, other._md.get_exif_tag_string(tag))
+                self._md.set_tag_string(
+                    tag, other._md.get_tag_string(tag))
         if iptc:
             for tag in other._md.get_iptc_tags():
-                self._md.set_iptc_tag_multiple(
-                    tag, other._md.get_iptc_tag_multiple(tag))
+                self._md.set_tag_multiple(
+                    tag, other._md.get_tag_multiple(tag))
         if xmp:
             for tag in other._md.get_xmp_tags():
-                self._md.set_xmp_tag_multiple(
-                    tag, other._md.get_xmp_tag_multiple(tag))
+                self._md.set_tag_multiple(
+                    tag, other._md.get_tag_multiple(tag))
         if comment:
             self._md.set_comment(other._md.get_comment())
 
@@ -64,33 +64,33 @@ class MetadataHandler(object):
         return self._md.get_xmp_tags()
 
     def get_exif_tag_string(self, tag):
-        return self._md.get_exif_tag_string(tag)
+        return self._md.get_tag_string(tag)
 
     def get_iptc_tag_multiple(self, tag):
         return map(lambda x: unicode(x, 'iso8859_1'),
-                   self._md.get_iptc_tag_multiple(tag))
+                   self._md.get_tag_multiple(tag))
 
     def get_xmp_tag_string(self, tag):
-        return self._md.get_xmp_tag_string(tag)
+        return self._md.get_tag_string(tag)
 
     def get_xmp_tag_multiple(self, tag):
         return map(lambda x: unicode(x, 'utf8'),
-                   self._md.get_xmp_tag_multiple(tag))
+                   self._md.get_tag_multiple(tag))
 
     def set_exif_tag_string(self, tag, value):
-        self._md.set_exif_tag_string(tag, value)
+        self._md.set_tag_string(tag, value)
 
     def set_exif_tag_long(self, tag, value):
-        self._md.set_exif_tag_long(tag, value)
+        self._md.set_tag_long(tag, value)
 
     def set_iptc_tag_multiple(self, tag, value):
-        self._md.set_iptc_tag_multiple(tag, value)
+        self._md.set_tag_multiple(tag, value)
 
     def set_xmp_tag_string(self, tag, value):
-        self._md.set_xmp_tag_string(tag, value)
+        self._md.set_tag_string(tag, value)
 
     def set_xmp_tag_multiple(self, tag, value):
-        self._md.set_xmp_tag_multiple(tag, value)
+        self._md.set_tag_multiple(tag, value)
 
     def clear_tag(self, tag):
         self._md.clear_tag(tag)
