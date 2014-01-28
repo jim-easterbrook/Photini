@@ -40,7 +40,7 @@ Dependencies
 *   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
 *   gdata-python-client (optional): <http://code.google.com/p/gdata-python-client/>
 
-For details of how to download and install these, please see the documentation.
+For details of how to download and install these, please see the [documentation](http://jim-easterbrook.github.io/Photini/doc/html/introduction/introduction.html#dependencies-linux).
 
 I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
@@ -54,7 +54,7 @@ Legalese
 
 Photini - a simple photo metadata editor.  
 <http://github.com/jim-easterbrook/Photini>  
-Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
