@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -135,9 +135,7 @@ class PhotiniMap(QtGui.QWidget):
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.map.setHtml(
             page_start + self.load_api() +
-            page_end % (
-                os.path.join(data_dir, self.__class__.__name__.lower()),
-                lat, lng, zoom),
+            page_end % (self.__class__.__name__.lower(), lat, lng, zoom),
             QtCore.QUrl.fromLocalFile(data_dir))
 
     @QtCore.pyqtSlot(bool)

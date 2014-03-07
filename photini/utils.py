@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -18,4 +18,4 @@
 
 import os
 
-data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', ''))
+data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
