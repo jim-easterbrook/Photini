@@ -75,4 +75,4 @@ Use of the Google map tab is subject to the [Google Maps Terms of Use](http://ww
 
 Use of the Bing map tab is subject to the [Microsoft Bing Maps Terms of Use](http://www.microsoft.com/maps/assets/docs/terms.aspx).
 
-Use of the OpenStreetMap tab is subject to the [Nominatim usage policy](http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy) and the [CloudMade Terms and Conditions](http://cloudmade.com/terms_conditions).
+Use of the OpenStreetMap tab is subject to the [Nominatim usage policy](http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy) and the [MapQuest Terms and Conditions](http://developer.mapquest.com/web/info/terms-of-use).

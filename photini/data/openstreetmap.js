@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -27,10 +27,10 @@ function initialize(lat, lng, zoom)
     attributionControl: false
   });
   L.tileLayer(
-    'http://{s}.tile.cloudmade.com/' + api_key + '/997/256/{z}/{x}/{y}.png',
+    'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
     {
-      attribution: 'Map data &copy;<a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery &copy;<a href="http://cloudmade.com">CloudMade</a>',
-      maxZoom: 18
+      maxZoom: 18,
+      subdomains: '1234'
     }
     ).addTo(map);
   map.on('moveend zoomend', newBounds);

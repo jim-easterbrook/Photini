@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,15 +27,14 @@ class OpenStreetMap(PhotiniMap):
     def load_api(self):
         return """
     <link rel="stylesheet"
-      href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
+      href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
     <script type="text/javascript">
-      var api_key = "%s";
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js">
+      src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
     </script>
-""" % '973c5832aa334f1fba73d70f55ae6d77'
+"""
 
     def show_terms(self):
         # return a widget to display map terms and conditions
@@ -51,8 +50,8 @@ class OpenStreetMap(PhotiniMap):
         load_tou = QtGui.QPushButton(u'Map data\n©OpenStreetMap contributors')
         load_tou.clicked.connect(self.load_tou_osm)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(u'Imagery ©CloudMade')
-        load_tou.clicked.connect(self.load_tou_cloudmade)
+        load_tou = QtGui.QPushButton(u'Tiles courtesy of MapQuest')
+        load_tou.clicked.connect(self.load_tou_tiles)
         layout.addWidget(load_tou)
         return result
 
@@ -61,10 +60,10 @@ class OpenStreetMap(PhotiniMap):
             'http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy')
 
     def load_tou_leaflet(self):
-        webbrowser.open_new('http://leaflet.cloudmade.com/')
+        webbrowser.open_new('http://leafletjs.com/')
 
     def load_tou_osm(self):
-        webbrowser.open_new('http://openstreetmap.org/')
+        webbrowser.open_new('http://www.openstreetmap.org/copyright')
 
-    def load_tou_cloudmade(self):
-        webbrowser.open_new('http://cloudmade.com/')
+    def load_tou_tiles(self):
+        webbrowser.open_new('http://www.mapquest.com/')
