@@ -187,6 +187,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def closeEvent(self, event):
         self.image_list.unsaved_files_dialog(with_cancel=False)
+        self.loggerwindow.shutdown()
         QtGui.QMainWindow.closeEvent(self, event)
 
     def edit_settings(self):

@@ -19,19 +19,17 @@
 import logging
 import logging.handlers
 import sys
-from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui
 
 class OutputInterceptor(object):
-    def __init__(self, name):
+    def __init__(self, name, stream):
         self.logger = logging.getLogger(name)
-
-    def flush(self):
-        pass
-
-    def fileno(self):
-        return -1
+        self.stream = stream
+        self.flush = self.stream.flush
+        self.fileno = self.stream.fileno
 
     def write(self, msg):
+        self.stream.write(msg)
         msg = msg.strip()
         if 'WARNING' in msg:
             self.logger.warning(msg)
@@ -39,19 +37,19 @@ class OutputInterceptor(object):
             self.logger.info(msg)
 
 class LoggerWindow(QtGui.QWidget):
-    class Stream(object):
-        def __init__(self, parent):
-            self.parent = parent
-
+    class StreamProxy(QtCore.QObject):
+        # only the GUI thread is allowed to write messages in the
+        # LoggerWindow, so this class acts as a proxy, passing messages
+        # over Qt signal/slot for thread safety
+        write_text = QtCore.pyqtSignal(str)
         def write(self, msg):
             msg = msg.strip()
             if msg:
-                self.parent.text.append(msg)
+                self.write_text.emit(msg)
 
+        flush_text = QtCore.pyqtSignal()
         def flush(self):
-            if self.parent.isHidden():
-                self.parent.show()
-            self.parent.raise_()
+            self.flush_text.emit()
 
     def __init__(self, verbose, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -73,11 +71,29 @@ class LoggerWindow(QtGui.QWidget):
         for handler in logger.handlers:
             logger.removeHandler(handler)
         logger.setLevel(max(logging.ERROR - (verbose * 10), 1))
-        handler = logging.StreamHandler(self.Stream(self))
+        stream_proxy = self.StreamProxy(self)
+        stream_proxy.write_text.connect(self.write)
+        stream_proxy.flush_text.connect(self.flush)
+        handler = logging.StreamHandler(stream_proxy)
         handler.setFormatter(logging.Formatter(
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
         logger.addHandler(handler)
         # intercept stdout and stderr
-        sys.stderr = OutputInterceptor('stderr')
-        sys.stdout = OutputInterceptor('stdout')
+        sys.stderr = OutputInterceptor('stderr', sys.stderr)
+        sys.stdout = OutputInterceptor('stdout', sys.stdout)
+
+    def shutdown(self):
+        logger = logging.getLogger('')
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
+
+    @QtCore.pyqtSlot(str)
+    def write(self, msg):
+        self.text.append(msg)
+
+    @QtCore.pyqtSlot()
+    def flush(self):
+        if self.isHidden():
+            self.show()
+        self.raise_()
