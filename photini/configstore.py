@@ -51,12 +51,20 @@ class ConfigStore(object):
             self.set(section, option, default)
         return default
 
+    def getu(self, section, option, default=None):
+        result = self.get(section, option, default)
+        if result is None:
+            return result
+        return result.decode('utf-8')
+
     def set(self, section, option, value):
         if not self.config.has_section(section):
             self.config.add_section(section)
         if (self.config.has_option(section, option) and
                 self.config.get(section, option) == value):
             return
+        if isinstance(value, unicode):
+            value = value.encode('utf-8')
         self.config.set(section, option, value)
         self.timer.start()
 
