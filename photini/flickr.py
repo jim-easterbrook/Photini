@@ -19,10 +19,28 @@
 
 import os
 import time
+import webbrowser
 
 import flickrapi
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+
+api2 = flickrapi.__version__ >= '2.0'
+
+class FileWithCallback(object):
+    def __init__(self, path, callback):
+        self.file = open(path, 'rb')
+        self.callback = callback
+        # the following attributes and methods are used by
+        # requests_tools.MultipartEncoder
+        self.len = os.path.getsize(path)
+        self.fileno = self.file.fileno
+        self.tell = self.file.tell
+
+    def read(self, size):
+        if self.callback:
+            self.callback(self.tell() * 100 // self.len)
+        return self.file.read(size)
 
 class UploadThread(QtCore.QThread):
     def __init__(self, flickr, upload_list, photosets):
@@ -35,7 +53,10 @@ class UploadThread(QtCore.QThread):
     def run(self):
         self.file_count = 0
         for params in self.upload_list:
-            params['callback'] = self.callback
+            if api2:
+                params['fileobj'] = FileWithCallback(params['filename'], self.callback)
+            else:
+                params['callback'] = self.callback
             rsp = self.flickr.upload(**params)
             if rsp.attrib['stat'] == 'ok':
                 photo_id = rsp.find('photoid').text
@@ -57,7 +78,7 @@ class UploadThread(QtCore.QThread):
         self.finished.emit()
 
     progress_report = QtCore.pyqtSignal(float, float)
-    def callback(self, progress, done):
+    def callback(self, progress, done=None):
         total_progress = (
             (self.file_count * 100) + progress) / len(self.upload_list)
         self.progress_report.emit(progress, total_progress)
@@ -228,27 +249,64 @@ class FlickrUploader(QtGui.QWidget):
             return True
         api_key = 'b6263c4693e3406aadcfaebe005280a5'
         api_secret = '1e0d912f586d0ed1'
-        token = self.config_store.get('flickr', 'token', '')
+        if api2:
+            api_key = unicode(api_key)
+            api_secret = unicode(api_secret)
+            token        = self.config_store.getu('flickr', 'token', '')
+            token_secret = self.config_store.getu('flickr', 'token_secret', '')
+            token = flickrapi.auth.FlickrAccessToken(
+                token, token_secret, u'write')
+        else:
+            token = self.config_store.get('flickr', 'token', '')
         self.flickr = flickrapi.FlickrAPI(
             api_key, api_secret, token=token, store_token=False)
-        token, frob = self.flickr.get_token_part_one(perms='write')
-        if not token:
-            QtGui.QApplication.setOverrideCursor(Qt.BusyCursor)
-            dialog = QtGui.QMessageBox()
-            dialog.setWindowTitle('Photini: authorise Flickr')
-            dialog.setText('<h3>Flickr authorisation.</h3>')
-            dialog.setInformativeText(
-                'Please use your web browser to authorise Photini, then click OK')
-            dialog.setIcon(QtGui.QMessageBox.Question)
-            dialog.setStandardButtons(QtGui.QMessageBox.Ok)
-            result = dialog.exec_()
-            QtGui.QApplication.restoreOverrideCursor()
-        token = self.flickr.get_token_part_two((token, frob))
-        if token:
+        if api2:
+            if self.flickr.token_valid(perms='write'):
+                return True
+        else:
+            token, frob = self.flickr.get_token_part_one(perms='write')
+            if token:
+                token = self.flickr.get_token_part_two((token, frob))
+            if token:
+                return True
+        if api2:
+            self.flickr.get_request_token(oauth_callback='oob')
+            auth_url = self.flickr.auth_url(perms=u'write')
+            if webbrowser.open(auth_url, new=2, autoraise=0):
+                info_text = 'use your web browser'
+            else:
+                info_text = 'open "%s" in a web browser' % auth_url
+            auth_code, OK = QtGui.QInputDialog.getText(
+                self,
+                'Photini: authorise Flickr',
+                'Please %s to grant access to Photini,\n' % (info_text) +
+                'then enter the verification code:')
+            if not OK:
+                self.flickr = None
+                return False
+            try:
+                self.flickr.get_access_token(unicode(auth_code))
+            except Exception, ex:
+                self.flickr = None
+                return False
+        else:
+            button = QtGui.QMessageBox.question(
+                self,
+                'Photini: authorise Flickr',
+                'Please use your web browser to grant\n' +
+                'access to Photini, then click OK.')
+            try:
+                token = self.flickr.get_token_part_two((token, frob))
+            except flickrapi.exceptions.FlickrError:
+                self.flickr = None
+                return False
+        if api2:
+            token = self.flickr.token_cache.token
+            self.config_store.set('flickr', 'token',        token.token)
+            self.config_store.set('flickr', 'token_secret', token.token_secret)
+        else:
             self.config_store.set('flickr', 'token', token)
-            return True
-        self.flickr = None
-        return False
+        return True
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
