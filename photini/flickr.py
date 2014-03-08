@@ -231,6 +231,10 @@ class FlickrUploader(QtGui.QWidget):
             self.uploader.progress_report.connect(self.upload_progress)
             self.uploader.finished.connect(self.upload_done)
             self.uploader.start()
+            # we've passed the flickr API object to a new thread, so
+            # create a new one for safety
+            self.flickr = None
+            self.authorise()
 
     @QtCore.pyqtSlot(float, float)
     def upload_progress(self, progress, total_progress):
