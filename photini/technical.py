@@ -17,7 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime as pyDateTime, date as pyDate, time as pyTime
+from datetime import (
+    timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
 
 from PyQt4 import QtGui, QtCore
 
@@ -97,6 +98,33 @@ class DateAndTimeWidget(QtGui.QWidget):
         self.time.setTime(value)
         self.time.setSpecialValueText('')
 
+class OffsetWidget(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        layout = QtGui.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        # hours
+        self.hours = QtGui.QSpinBox()
+        self.hours.setRange(-12, 12)
+        self.hours.setSuffix(' hours')
+        layout.addWidget(self.hours)
+        # minutes
+        self.minutes = QtGui.QSpinBox()
+        self.minutes.setRange(-60, 60)
+        self.minutes.setSuffix(' minutes')
+        layout.addWidget(self.minutes)
+        # apply button
+        apply_button = QtGui.QPushButton('apply')
+        apply_button.clicked.connect(self._apply)
+        layout.addWidget(apply_button)
+
+    apply_offset = QtCore.pyqtSignal(timedelta)
+    def _apply(self):
+        offset = timedelta(hours=self.hours.value(),
+                           minutes=self.minutes.value())
+        self.apply_offset.emit(offset)
+
 class Technical(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -138,6 +166,10 @@ class Technical(QtGui.QWidget):
         self.date_widget['modified'].date_changed.connect(self.new_datetime)
         self.date_widget['modified'].time_changed.connect(self.new_datetime)
         date_group.layout().addRow('Modified', self.date_widget['modified'])
+        # offset
+        self.offset_widget = OffsetWidget()
+        self.offset_widget.apply_offset.connect(self.apply_offset)
+        date_group.layout().addRow('Offset', self.offset_widget)
         self.layout().addWidget(date_group, 0, 0)
         # other
         other_group = QtGui.QGroupBox('Other')
@@ -159,6 +191,7 @@ class Technical(QtGui.QWidget):
         # disable until an image is selected
         for key in self.date_widget:
             self.date_widget[key].setEnabled(False)
+        self.offset_widget.setEnabled(False)
         self.orientation.setEnabled(False)
 
     def refresh(self):
@@ -172,6 +205,16 @@ class Technical(QtGui.QWidget):
                 if self.link_widget[slave].isChecked():
                     self.new_datetime(slave, value)
                 break
+
+    def apply_offset(self, offset):
+        for image in self.image_list.get_selected_images():
+            for key in self.date_widget:
+                value = image.metadata.get_item('date_%s' % key)
+                if not value:
+                    continue
+                image.metadata.set_item('date_%s' % key, value + offset)
+        for key in self.date_widget:
+            self._update_datetime(key)
 
     def new_link(self):
         for key in self.link_widget:
@@ -274,6 +317,7 @@ class Technical(QtGui.QWidget):
                 self.date_widget[key].setEnabled(False)
             for key in self.link_widget:
                 self.link_widget[key].setEnabled(False)
+            self.offset_widget.setEnabled(False)
             self.orientation.setCurrentIndex(self.orientation.findData(1))
             self.orientation.setEnabled(False)
             return
@@ -292,5 +336,6 @@ class Technical(QtGui.QWidget):
             else:
                 self.link_widget[key].setChecked(False)
                 self.date_widget[key].setEnabled(True)
+        self.offset_widget.setEnabled(True)
         self.orientation.setEnabled(True)
         self._update_orientation()
