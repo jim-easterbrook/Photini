@@ -66,7 +66,7 @@ class MainWindow(QtGui.QMainWindow):
         self.loggerwindow = LoggerWindow(verbose)
         self.logger = logging.getLogger(self.__class__.__name__)
         # config store
-        self.config_store = ConfigStore()
+        self.config_store = ConfigStore('editor')
         # set network proxy
         proxies = urllib2.getproxies()
         if 'http' in proxies:

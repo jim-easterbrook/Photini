@@ -23,7 +23,7 @@ import appdirs
 from PyQt4 import QtCore
 
 class ConfigStore(object):
-    def __init__(self):
+    def __init__(self, name):
         self.config = SafeConfigParser()
         if hasattr(appdirs, 'user_config_dir'):
             data_dir = appdirs.user_config_dir('Photini')
@@ -31,12 +31,13 @@ class ConfigStore(object):
             data_dir = appdirs.user_data_dir('Photini')
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir, mode=0700)
-        self.file_name = os.path.join(data_dir, 'photini.ini')
-        old_file_name = os.path.expanduser('~/photini.ini')
-        if os.path.exists(old_file_name):
-            self.config.read(old_file_name)
-            self.save()
-            os.unlink(old_file_name)
+        self.file_name = os.path.join(data_dir, '%s.ini' % name)
+        for old_file_name in (os.path.expanduser('~/photini.ini'),
+                              os.path.join(data_dir, 'photini.ini')):
+            if os.path.exists(old_file_name):
+                self.config.read(old_file_name)
+                self.save()
+                os.unlink(old_file_name)
         self.config.read(self.file_name)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
