@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from ConfigParser import SafeConfigParser
+from ConfigParser import RawConfigParser
 import os
 
 import appdirs
@@ -24,7 +24,7 @@ from PyQt4 import QtCore
 
 class ConfigStore(object):
     def __init__(self, name):
-        self.config = SafeConfigParser()
+        self.config = RawConfigParser()
         if hasattr(appdirs, 'user_config_dir'):
             data_dir = appdirs.user_config_dir('Photini')
         else:
@@ -32,12 +32,13 @@ class ConfigStore(object):
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir, mode=0700)
         self.file_name = os.path.join(data_dir, '%s.ini' % name)
-        for old_file_name in (os.path.expanduser('~/photini.ini'),
-                              os.path.join(data_dir, 'photini.ini')):
-            if os.path.exists(old_file_name):
-                self.config.read(old_file_name)
-                self.save()
-                os.unlink(old_file_name)
+        if name == 'editor':
+            for old_file_name in (os.path.expanduser('~/photini.ini'),
+                                  os.path.join(data_dir, 'photini.ini')):
+                if os.path.exists(old_file_name):
+                    self.config.read(old_file_name)
+                    self.save()
+                    os.unlink(old_file_name)
         self.config.read(self.file_name)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
