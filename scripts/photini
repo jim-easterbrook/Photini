@@ -2,6 +2,6 @@
 
 python -c "
 from photini import editor
-editor.main()
+editor.main('$0 $*'.split())
 "
 

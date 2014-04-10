@@ -1,3 +1,3 @@
-version = '14.04.dev50'
-release = '50'
-commit = '9f535b6'
+version = '14.04.dev51'
+release = '51'
+commit = '37139b7'
