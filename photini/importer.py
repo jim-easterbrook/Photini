@@ -239,7 +239,7 @@ class MainWindow(QtGui.QMainWindow):
         # quit shortcut
         quit_action = QtGui.QAction('Quit', self)
         quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
-        quit_action.triggered.connect(QtGui.qApp.closeAllWindows)
+        quit_action.triggered.connect(self.app.closeAllWindows)
         self.addAction(quit_action)
         # main widget
         central_widget = QtGui.QWidget()

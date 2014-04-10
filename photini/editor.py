@@ -119,7 +119,8 @@ class MainWindow(QtGui.QMainWindow):
         file_menu.addSeparator()
         quit_action = QtGui.QAction('Quit', self)
         quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
-        quit_action.triggered.connect(QtGui.qApp.closeAllWindows)
+        quit_action.triggered.connect(
+            QtGui.QApplication.instance().closeAllWindows)
         file_menu.addAction(quit_action)
         # options menu
         options_menu = self.menuBar().addMenu('Options')
@@ -236,8 +237,6 @@ def main(argv=None):
     argv.append('xxx')
     app = QtGui.QApplication(argv)
     del argv[-1]
-    # cludge to prevent segmentation fault on exit
-    QtGui.qApp = app
     # parse remaining arguments
     try:
         opts, args = getopt.getopt(
