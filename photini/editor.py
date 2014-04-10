@@ -26,8 +26,8 @@ options are:
   -V       | --version     display version information and exit
 """
 
-import getopt
 import logging
+from optparse import OptionParser
 import os
 import sys
 import urllib2
@@ -231,33 +231,22 @@ class MainWindow(QtGui.QMainWindow):
         self.config_store.set('main_window', 'size', str(size))
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv
+    if argv:
+        sys.argv = argv
     # let PyQt handle its options (need at least one argument after options)
-    argv.append('xxx')
-    app = QtGui.QApplication(argv)
-    del argv[-1]
+    sys.argv.append('xxx')
+    app = QtGui.QApplication(sys.argv)
+    del sys.argv[-1]
     # parse remaining arguments
-    try:
-        opts, args = getopt.getopt(
-            argv[1:], "hvV", ["help", "verbose", "version"])
-    except getopt.error, msg:
-        print >>sys.stderr, 'Error: %s\n' % msg
-        print >>sys.stderr, __doc__.strip()
-        return 1
-    # process options
-    verbose = 0
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print __doc__.strip()
-            return 0
-        elif o in ("-v", "--verbose"):
-            verbose += 1
-        elif o in ("-V", "--version"):
-            print "Photini %s" % (version)
-            return 0
+    parser = OptionParser(version='Photini %s' % (version),
+                          description='Photini photo metadata editor')
+    parser.add_option('-v', '--verbose', action='count', default=0,
+                      help='increase number of logging messages')
+    options, args = parser.parse_args()
+    if len(args) != 0:
+        parser.error('incorrect number of arguments')
     # create GUI and run application event loop
-    main = MainWindow(verbose)
+    main = MainWindow(options.verbose)
     main.show()
     return app.exec_()
 
