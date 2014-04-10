@@ -177,6 +177,7 @@ class ImageList(QtGui.QWidget):
     def __init__(self, config_store, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
+        self.app = QtGui.QApplication.instance()
         self.path_list = list()
         self.image = dict()
         self.last_selected = None
@@ -303,11 +304,11 @@ class ImageList(QtGui.QWidget):
             image = self.image[path]
             layout.addWidget(image)
             if image.load_thumbnail():
-                QtGui.qApp.processEvents()
+                self.app.processEvents()
                 self.scroll_area.ensureWidgetVisible(image)
-                QtGui.qApp.processEvents()
+                self.app.processEvents()
         if self.last_selected:
-            QtGui.qApp.processEvents()
+            self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
         self.image_list_changed.emit()
 
@@ -421,8 +422,8 @@ class ImageList(QtGui.QWidget):
         for path in self.path_list:
             self.image[path].set_thumb_size(self.thumb_size)
         if self.last_selected:
-            QtGui.qApp.processEvents()
-            QtGui.qApp.processEvents()
+            self.app.processEvents()
+            self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
 
     def select_image(
