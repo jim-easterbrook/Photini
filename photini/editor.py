@@ -37,25 +37,25 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
 
-from photini.configstore import ConfigStore
-from photini.bingmap import BingMap
-from photini.descriptive import Descriptive
+from .configstore import ConfigStore
+from .bingmap import BingMap
+from .descriptive import Descriptive
 try:
-    from photini.flickr import FlickrUploader
+    from .flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
-from photini.editsettings import EditSettings
-from photini.googlemap import GoogleMap
-from photini.openstreetmap import OpenStreetMap
-from photini.imagelist import ImageList
-from photini.loggerwindow import LoggerWindow
+from .editsettings import EditSettings
+from .googlemap import GoogleMap
+from .openstreetmap import OpenStreetMap
+from .imagelist import ImageList
+from .loggerwindow import LoggerWindow
 try:
-    from photini.picasa import PicasaUploader
+    from .picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
-from photini.technical import Technical
-from photini.utils import data_dir
-from photini.version import version
+from .technical import Technical
+from .utils import data_dir
+from .version import version
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, verbose):

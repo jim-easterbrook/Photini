@@ -23,9 +23,9 @@ import webbrowser
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
-from metadata import GPSvalue
-from utils import data_dir
-from version import version
+from .metadata import GPSvalue
+from .utils import data_dir
+from .version import version
 
 class WebPage(QtWebKit.QWebPage):
     def __init__(self, parent=None):

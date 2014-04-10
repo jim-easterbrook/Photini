@@ -23,14 +23,14 @@ import os
 from PyQt4 import QtCore
 
 try:
-    from photini.metadata_gexiv2 import MetadataHandler
+    from .metadata_gexiv2 import MetadataHandler
 except ImportError as e:
     try:
-        from photini.metadata_pyexiv2 import MetadataHandler
+        from .metadata_pyexiv2 import MetadataHandler
     except ImportError:
         # raise exception on the one we really wanted
         raise e
-from photini.version import version
+from .version import version
 
 class GPSvalue(object):
     def __init__(self, degrees=0.0, latitude=True):

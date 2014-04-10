@@ -23,7 +23,7 @@ import webbrowser
 
 from PyQt4 import QtGui
 
-from photinimap import PhotiniMap
+from .photinimap import PhotiniMap
 
 class GoogleMap(PhotiniMap):
     def __init__(self, config_store, image_list, parent=None):

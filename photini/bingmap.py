@@ -21,7 +21,7 @@ import webbrowser
 
 from PyQt4 import QtGui, QtCore
 
-from photinimap import PhotiniMap
+from .photinimap import PhotiniMap
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):

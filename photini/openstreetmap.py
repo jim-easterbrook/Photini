@@ -21,7 +21,7 @@ import webbrowser
 
 from PyQt4 import QtGui
 
-from photinimap import PhotiniMap
+from .photinimap import PhotiniMap
 
 class OpenStreetMap(PhotiniMap):
     def load_api(self):

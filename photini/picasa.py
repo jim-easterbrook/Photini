@@ -28,7 +28,7 @@ import gdata.photos.service
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
-from photini.descriptive import MultiLineEdit
+from .descriptive import MultiLineEdit
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
@@ -399,7 +399,6 @@ Doing so will remove the album and its photos from all Google products.""" % (
             oauth_callback='oob')
         self.pws.SetOAuthToken(request_token)
         auth_url = self.pws.GenerateOAuthAuthorizationURL()
-        print auth_url
         if webbrowser.open(auth_url, new=2, autoraise=0):
             info_text = 'use your web browser'
         else:

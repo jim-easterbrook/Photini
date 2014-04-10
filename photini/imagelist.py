@@ -24,8 +24,8 @@ import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
-from photini.flowlayout import FlowLayout
-from photini.metadata import Metadata
+from .flowlayout import FlowLayout
+from .metadata import Metadata
 
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
@@ -330,9 +330,12 @@ class ImageList(QtGui.QWidget):
     def save_files(self):
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
+        unsaved = False
         for path in list(self.path_list):
-            self.image[path].metadata.save(if_mode, sc_mode)
-        self.new_metadata.emit(False)
+            image = self.image[path]
+            image.metadata.save(if_mode, sc_mode)
+            unsaved = unsaved or image.metadata.changed()
+        self.new_metadata.emit(unsaved)
 
     def unsaved_files_dialog(
             self, all_files=False, with_cancel=True, with_discard=True):
