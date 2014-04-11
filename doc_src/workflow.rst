@@ -18,7 +18,9 @@ Load images
 
 Select the ``File`` menu ``Open images`` item (keyboard shortcut ``Ctrl+O``).
 This opens a file selection dialog with which you can navigate to your image folder and select one or more image files to open.
-Photini doesn't set any limit to the number of files you can open simultaneously, but it's probably sensible not to open more than 30 or 40, depending on the memory capacity and processing power of your computer.
+If you prefer, you can "drag and drop" image files from a file manager window to the Photini editor's image selector.
+
+Photini doesn't set a limit to the number of files you can open simultaneously, but it's probably sensible not to open more than 30 or 40, depending on the memory capacity and processing power of your computer.
 I usually load all the photographs taken on one day, or in one place.
 
 Each image file is shown as a thumbnail image in the lower half of the Photini editor GUI.

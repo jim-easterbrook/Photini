@@ -14,7 +14,7 @@ The overall size of the window can also be changed by dragging its edges or corn
 
 .. image:: ../images/screenshot_02.png
 
-Now load some images using the ``File`` menu ``Open images`` item (or its keyboard shortcut ``Ctrl+O``).
+Now load some images using the ``File`` menu ``Open images`` item (or its keyboard shortcut ``Ctrl+O``) or by "drag and drop" from a file manager window.
 The loaded images are displayed as thumbnail images in the image selector part of the GUI.
 Note that the thumbnail size can be changed with the slider control just beneath the thumbnail display area.
 
