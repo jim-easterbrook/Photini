@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -98,37 +98,6 @@ class UploadThread(QtCore.QThread):
             (self.file_count * 100) + progress) / len(self.upload_list)
         self.progress_report.emit(progress, total_progress)
 
-class AlbumButtons(QtGui.QWidget):
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        layout = QtGui.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        # new album
-        self.new = QtGui.QPushButton('New album')
-        layout.addWidget(self.new)
-        # delete album
-        self.delete = QtGui.QPushButton('Delete album')
-        layout.addWidget(self.delete)
-        # a bit of space
-        layout.addSpacing(20)
-        # save changes
-        self.save = QtGui.QPushButton('Save changes')
-        layout.addWidget(self.save)
-        # discard changes
-        self.discard = QtGui.QPushButton('Discard changes')
-        layout.addWidget(self.discard)
-        # other init
-        self.changed = None
-        self.set_changed(False)
-
-    def set_changed(self, value):
-        if self.changed == value:
-            return
-        self.changed = value
-        self.save.setEnabled(self.changed)
-        self.discard.setEnabled(self.changed)
-
 class PicasaUploader(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -143,47 +112,70 @@ class PicasaUploader(QtGui.QWidget):
         album_group = QtGui.QGroupBox('Album')
         album_group.setLayout(QtGui.QHBoxLayout())
         self.layout().addWidget(album_group, 0, 0, 3, 1)
-        ## album details
-        album_form = QtGui.QWidget()
-        album_form.setLayout(QtGui.QFormLayout())
-        album_group.layout().addWidget(album_form)
+        ## album details, left hand side
+        album_form_left = QtGui.QFormLayout()
+        album_form_left.setFieldGrowthPolicy(
+            QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        album_group.layout().addLayout(album_form_left)
         # album title / selector
         self.albums = QtGui.QComboBox()
         self.albums.setEditable(True)
         self.albums.setInsertPolicy(QtGui.QComboBox.NoInsert)
         self.albums.currentIndexChanged.connect(self.changed_album)
         self.albums.lineEdit().editingFinished.connect(self.new_title)
-        album_form.layout().addRow('Title', self.albums)
-        # album date
-        self.widgets['timestamp'] = QtGui.QDateEdit()
-        self.widgets['timestamp'].editingFinished.connect(self.new_timestamp)
-        album_form.layout().addRow('Date', self.widgets['timestamp'])
+        album_form_left.addRow('Title', self.albums)
         # album description
         self.widgets['description'] = MultiLineEdit()
         self.widgets['description'].editingFinished.connect(self.new_description)
-        album_form.layout().addRow('Description', self.widgets['description'])
+        album_form_left.addRow('Description', self.widgets['description'])
         # album location
         self.widgets['location'] = QtGui.QLineEdit()
         self.widgets['location'].editingFinished.connect(self.new_location)
-        album_form.layout().addRow('Place taken', self.widgets['location'])
+        album_form_left.addRow('Place taken', self.widgets['location'])
         # album visibility
         self.widgets['access'] = QtGui.QComboBox()
         self.widgets['access'].addItem('Public on the web', 'public')
         self.widgets['access'].addItem('Limited, anyone with the link', 'private')
         self.widgets['access'].addItem('Only you', 'protected')
         self.widgets['access'].currentIndexChanged.connect(self.new_access)
-        album_form.layout().addRow('Visibility', self.widgets['access'])
-        # album buttons
-        self.buttons = AlbumButtons()
-        self.buttons.new.clicked.connect(self.new_album)
-        self.buttons.delete.clicked.connect(self.delete_album)
-        self.buttons.save.clicked.connect(self.save_changes)
-        self.buttons.discard.clicked.connect(self.discard_changes)
-        album_form.layout().addRow(self.buttons)
-        ## album thumbnail
+        album_form_left.addRow('Visibility', self.widgets['access'])
+        ## album buttons
+        buttons = QtGui.QHBoxLayout()
+        album_form_left.addRow(buttons)
+        # new album
+        new_album_button = QtGui.QPushButton('New album')
+        new_album_button.clicked.connect(self.new_album)
+        buttons.addWidget(new_album_button)
+        # delete album
+        delete_album_button = QtGui.QPushButton('Delete album')
+        delete_album_button.clicked.connect(self.delete_album)
+        buttons.addWidget(delete_album_button)
+        # a bit of space
+        buttons.addSpacing(20)
+        # save changes
+        self.save_changes_button = QtGui.QPushButton('Save changes')
+        self.save_changes_button.clicked.connect(self.save_changes)
+        buttons.addWidget(self.save_changes_button)
+        # discard changes
+        self.discard_changes_button = QtGui.QPushButton('Discard changes')
+        self.discard_changes_button.clicked.connect(self.discard_changes)
+        buttons.addWidget(self.discard_changes_button)
+        # other init
+        self.changed = None
+        self.set_changed(False)
+        ## album details, right hand side
+        album_form_right = QtGui.QFormLayout()
+        album_form_right.setFieldGrowthPolicy(
+            QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        album_group.layout().addLayout(album_form_right)
+        # album date
+        self.widgets['timestamp'] = QtGui.QDateEdit()
+        self.widgets['timestamp'].setCalendarPopup(True)
+        self.widgets['timestamp'].editingFinished.connect(self.new_timestamp)
+        album_form_right.addRow('Date', self.widgets['timestamp'])
+        # album thumbnail
         self.album_thumb = QtGui.QLabel()
-        self.album_thumb.setAlignment(Qt.AlignTop)
-        album_group.layout().addWidget(self.album_thumb)
+        album_form_right.addRow(self.album_thumb)
         ### upload button
         self.upload_button = QtGui.QPushButton('Upload now')
         self.upload_button.setEnabled(False)
@@ -200,6 +192,13 @@ class PicasaUploader(QtGui.QWidget):
         # adjust spacing
         self.layout().setRowStretch(1, 1)
 
+    def set_changed(self, value):
+        if self.changed == value:
+            return
+        self.changed = value
+        self.save_changes_button.setEnabled(self.changed)
+        self.discard_changes_button.setEnabled(self.changed)
+
     @QtCore.pyqtSlot()
     def new_title(self):
         value = unicode(self.albums.lineEdit().text())
@@ -207,7 +206,7 @@ class PicasaUploader(QtGui.QWidget):
             return
         self.albums.setItemText(self.albums.currentIndex(), value)
         self.current_album.title.text = value
-        self.buttons.set_changed(True)
+        self.set_changed(True)
 
     @QtCore.pyqtSlot()
     def new_description(self):
@@ -215,7 +214,7 @@ class PicasaUploader(QtGui.QWidget):
         if value == self.current_album.summary.text:
             return
         self.current_album.summary.text = value
-        self.buttons.set_changed(True)
+        self.set_changed(True)
 
     @QtCore.pyqtSlot()
     def new_timestamp(self):
@@ -225,7 +224,7 @@ class PicasaUploader(QtGui.QWidget):
         if value == self.current_album.timestamp.text:
             return
         self.current_album.timestamp.text = value
-        self.buttons.set_changed(True)
+        self.set_changed(True)
 
     @QtCore.pyqtSlot()
     def new_location(self):
@@ -233,7 +232,7 @@ class PicasaUploader(QtGui.QWidget):
         if value == self.current_album.location.text:
             return
         self.current_album.location.text = value
-        self.buttons.set_changed(True)
+        self.set_changed(True)
 
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
@@ -241,7 +240,7 @@ class PicasaUploader(QtGui.QWidget):
         if value == self.current_album.access.text:
             return
         self.current_album.access.text = value
-        self.buttons.set_changed(True)
+        self.set_changed(True)
 
     @QtCore.pyqtSlot()
     def new_album(self):
@@ -274,12 +273,12 @@ Doing so will remove the album and its photos from all Google products.""" % (
         self.current_album = self.pws.Put(
             self.current_album, self.current_album.GetEditLink().href,
             converter=gdata.photos.AlbumEntryFromString)
-        self.buttons.set_changed(False)
+        self.set_changed(False)
 
     @QtCore.pyqtSlot()
     def discard_changes(self):
         self.changed_album(self.albums.currentIndex())
-        self.buttons.set_changed(False)
+        self.set_changed(False)
 
     def refresh(self):
         if self.pws:
@@ -329,7 +328,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
             self.widgets['location'].clear()
         self.widgets['access'].setCurrentIndex(
             self.widgets['access'].findData(self.current_album.access.text))
-        self.buttons.set_changed(False)
+        self.set_changed(False)
 
     @QtCore.pyqtSlot()
     def upload(self):
