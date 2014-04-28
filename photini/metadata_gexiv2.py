@@ -18,6 +18,11 @@
 
 import logging
 
+try:
+    import pgi
+    pgi.install_as_gi()
+except ImportError:
+    pass
 from gi.repository import GObject, GExiv2
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
@@ -25,7 +30,8 @@ from gi.repository import GObject, GExiv2
 class MetadataHandler(object):
     def __init__(self, path):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self._md = GExiv2.Metadata(path)
+        self._md = GExiv2.Metadata()
+        self._md.open_path(path)
         # adopt (and rename) some GExiv2.Metadata methods
         self.get_exif_tags         = self._md.get_exif_tags
         self.get_iptc_tags         = self._md.get_iptc_tags

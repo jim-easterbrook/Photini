@@ -23,10 +23,10 @@ Dependencies (Linux)
 
 Many Linux installations will already have `Python <http://python.org/>`_ installed, but if not you should be able to get it easily from the standard repository.
 This should also be the case for `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_.
-`GExiv2 <https://wiki.gnome.org/action/show/Projects/gexiv2>`_ may be in the repository.
-If not, you should be able to build and install it yourself.
-See the `"Building and installing" <https://wiki.gnome.org/Projects/gexiv2/BuildingAndInstalling>`_ instructions for details.
-On my OpenSUSE Linux computer I needed to install the ``libexiv2-devel``, ``gobject-introspection-devel`` and ``typelib-1_0-GExiv2`` packages before building GExiv2.
+`GExiv2 <https://wiki.gnome.org/Projects/gexiv2>`_ may be in the repository, but might have a different name.
+For example, on my OpenSUSE computer it's called ``typelib-1_0-GExiv2``.
+`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ may also be in the repository under a different name, e.g. ``python-gobject``.
+`pgi <https://pypi.python.org/pypi/pgi/>`_ is an alternative to PyGObject.
 
 If you can't install GExiv2 you can use `pyexiv2 <http://tilloy.net/dev/pyexiv2/overview.html>`_ instead.
 It is no longer maintained, so GExiv2 is preferable, but pyexiv2 may be in the repository.

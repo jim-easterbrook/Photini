@@ -1,7 +1,7 @@
 Photini
 =======
 
-Easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
+An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
 "It doesn't try to be an all-singing, all-dancing image management powerhouse &mdash; it just lets you add information to photos, quickly and easily." &mdash; [Linux Format](http://www.linuxformat.com/) magazine, January 2013 
 
@@ -35,7 +35,11 @@ Dependencies
 
 *   Python, version 2.6+ (Python 3 is not yet supported): <http://python.org/>
 *   PyQt, version 4+: <http://www.riverbankcomputing.co.uk/software/pyqt/intro>
-*   GExiv2, version 0.5+: <https://wiki.gnome.org/gexiv2> *or* pyexiv2, version 0.3.2: <http://tilloy.net/dev/pyexiv2/overview.html>.
+*   Exiv2 library: <http://www.exiv2.org/>
+*   gexiv2 GObject Exiv2 wrapper, version 0.5+: <https://wiki.gnome.org/Projects/gexiv2>
+*   Python GObject bindings:
+    *   PyGObject: <https://wiki.gnome.org/Projects/PyGObject> *or*
+    *   pgi: <https://pypi.python.org/pypi/pgi/>
 *   appdirs: <http://pypi.python.org/pypi/appdirs/>
 *   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
 *   gdata-python-client (optional): <http://code.google.com/p/gdata-python-client/>
@@ -52,8 +56,8 @@ This program is currently at an early stage of development, but it is already us
 Legalese
 --------
 
-Photini - a simple photo metadata editor.  
-<http://github.com/jim-easterbrook/Photini>  
+Photini - a simple photo metadata editor.
+<http://github.com/jim-easterbrook/Photini>
 Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
