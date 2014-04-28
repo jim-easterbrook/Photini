@@ -41,8 +41,8 @@ Dependencies
     *   PyGObject: <https://wiki.gnome.org/Projects/PyGObject> *or*
     *   pgi: <https://pypi.python.org/pypi/pgi/>
 *   appdirs: <http://pypi.python.org/pypi/appdirs/>
-*   python-flickrapi (optional): <http://stuvel.eu/flickrapi>
-*   gdata-python-client (optional): <http://code.google.com/p/gdata-python-client/>
+*   python-flickrapi (optional): <https://pypi.python.org/pypi/flickrapi/>
+*   gdata-python-client (optional): <https://pypi.python.org/pypi/gdata/>
 
 For details of how to download and install these, please see the [documentation](http://jim-easterbrook.github.io/Photini/doc/html/introduction/introduction.html#dependencies-linux).
 

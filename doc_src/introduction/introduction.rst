@@ -36,11 +36,11 @@ As a last resort, you may need to compile and install it yourself, following `th
 The last essential dependency is a small Python utility called `appdirs <http://pypi.python.org/pypi/appdirs/>`_.
 The best way to install this is with `pip <http://pypi.python.org/pypi/pip>`_, an easy to use installer for packages from PyPI.
 
-If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
+If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_.
 This is available from some Linux distributions' repositories, or via ``pip``.
-See the python-flickrapi website for details.
+See the python-flickrapi `website <http://stuvel.eu/flickrapi#installation>`_ for details.
 
-Similarly, to upload to Google Picasa requires `gdata-python-client <http://code.google.com/p/gdata-python-client/>`_.
+Similarly, to upload to Google Picasa requires `gdata-python-client <https://pypi.python.org/pypi/gdata/>`_.
 This is called ``python-gdata`` in some Linux repositories.
 
 Dependencies (Windows)
@@ -55,11 +55,12 @@ Again, make sure you get the installer for Python 2.7 and the latest version of 
 The last essential dependency is a small Python utility called `appdirs <http://pypi.python.org/pypi/appdirs/>`_.
 The best way to install this is with `pip <http://pypi.python.org/pypi/pip>`_, an easy to use installer for packages from PyPI.
 
-If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <http://stuvel.eu/flickrapi#installation>`_.
-This appears to be a pure Python package, so ``pip`` is probably the best way to install it on Windows.
+If you would like to use Photini to upload photos to Flickr, you will also need to install `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_.
+This is a pure Python package, so ``pip`` is probably the best way to install it on Windows.
 See the python-flickrapi website for details.
 
-Similarly, to upload to Google Picasa requires `gdata-python-client <http://code.google.com/p/gdata-python-client/>`_.
+Similarly, to upload to Google Picasa requires `gdata-python-client <https://pypi.python.org/pypi/gdata/>`_.
+This can also be installed with ``pip``.
 
 Installing Photini
 ------------------
