@@ -2,7 +2,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -29,14 +29,14 @@ def draw_marker(width, height, offset, filename):
 
     cx = (im.size[0] / 2) + 1.5
     cy = (im.size[1] / 4) + 1.5
-    radius = width * 4 / 2
-    offset = int(offset * 4)
+    radius = width * 4.0 / 2.0
+    offset = int(offset * 4.0)
     for thickness, colour in ((0, 0x60), (4, 0xE0)):
         ol = im.copy()
         r = radius + 0.5 - thickness
         draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=colour)
-        x1 = offset + 0.5 - (thickness * 3 / 2)
-        y1 = (height * 4) + 0.5 - (width * 2) - (thickness * 2)
+        x1 = offset + 0.5 - (thickness * 1.5)
+        y1 = (height * 4.0) + 0.5 - (width * 2.0) - (thickness * 2.0)
         draw.polygon((cx + 0.5, cy + y1, cx - 0.5, cy + y1,
                       cx - x1, cy + 16.5, cx + x1, cy + 16.5),
                      fill=colour)
@@ -49,5 +49,6 @@ def draw_marker(width, height, offset, filename):
     im = im.crop(im.getbbox())
     im.save(filename, transparency=0)
 
-draw_marker(25, 37, 8.5, '../photini/data/bing_grey_marker.png')
-draw_marker(25, 40, 12, '../photini/data/osm_grey_marker.png')
+draw_marker(25, 37, 8.5, 'photini/data/bing_grey_marker.png')
+draw_marker(25, 40, 12, 'photini/data/osm_grey_marker.png')
+draw_marker(21.5, 40, 10.0, 'photini/data/google_grey_marker.png')
