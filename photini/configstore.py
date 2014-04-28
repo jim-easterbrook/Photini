@@ -26,9 +26,9 @@ class ConfigStore(object):
     def __init__(self, name):
         self.config = RawConfigParser()
         if hasattr(appdirs, 'user_config_dir'):
-            data_dir = appdirs.user_config_dir('Photini')
+            data_dir = appdirs.user_config_dir('photini')
         else:
-            data_dir = appdirs.user_data_dir('Photini')
+            data_dir = appdirs.user_data_dir('photini')
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir, mode=0700)
         self.file_name = os.path.join(data_dir, '%s.ini' % name)
