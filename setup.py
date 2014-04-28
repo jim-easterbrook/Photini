@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -73,6 +73,15 @@ if using_setuptools:
         'upload_dir' : ('setup.py', 'doc/html'),
         }
 
+# add package requirements (setuptools only)
+setuptools_options = {}
+if using_setuptools:
+    setuptools_options['install_requires'] = ['appdirs >= 1.3']
+    setuptools_options['extras_require'] = {
+        'flickr': ['flickrapi >= 1.4'],
+        'picasa': ['gdata >= 2.0.16']
+        }
+
 # set options for building distributions
 command_options['sdist'] = {
     'formats'        : ('setup.py', 'gztar zip'),
@@ -83,6 +92,7 @@ if platform.system() == 'Windows':
     scripts = ['scripts/photini.bat']
 else:
     scripts = ['scripts/photini']
+scripts.append('scripts/photini-importer.py')
 
 setup(name = 'Photini',
       version = version,
@@ -116,4 +126,5 @@ other software.
       scripts = scripts,
       cmdclass = cmdclass,
       command_options = command_options,
+      **setuptools_options
       )
