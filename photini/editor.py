@@ -30,7 +30,10 @@ import logging
 from optparse import OptionParser
 import os
 import sys
-import urllib2
+if sys.version_info[0] >= 3:
+    from urllib.request import getproxies
+else:
+    from urllib import getproxies
 import webbrowser
 
 from PyQt4 import QtGui, QtCore
@@ -68,7 +71,7 @@ class MainWindow(QtGui.QMainWindow):
         # config store
         self.config_store = ConfigStore('editor')
         # set network proxy
-        proxies = urllib2.getproxies()
+        proxies = getproxies()
         if 'http' in proxies:
             scheme, host, port = proxies['http'].split(':')
             QNetworkProxy.setApplicationProxy(

@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import logging
+import sys
 
 try:
     import pgi
@@ -30,8 +31,9 @@ from gi.repository import GObject, GExiv2
 class MetadataHandler(object):
     def __init__(self, path):
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.path = path
         self._md = GExiv2.Metadata()
-        self._md.open_path(path)
+        self._md.open_path(self.path)
         # adopt (and rename) some GExiv2.Metadata methods
         self.get_exif_tags         = self._md.get_exif_tags
         self.get_iptc_tags         = self._md.get_iptc_tags
@@ -47,7 +49,7 @@ class MetadataHandler(object):
 
     def save(self):
         try:
-            self._md.save_file()
+            self._md.save_file(self.path)
         except GObject.GError as ex:
             self.logger.exception(ex)
             return False
@@ -71,9 +73,14 @@ class MetadataHandler(object):
             self._md.set_comment(other._md.get_comment())
 
     def get_iptc_tag_multiple(self, tag):
+        if sys.version_info[0] >= 3:
+            return map(lambda x: x.encode('iso8859_1').decode('utf8'),
+                   self._md.get_tag_multiple(tag))
         return map(lambda x: unicode(x, 'iso8859_1'),
                    self._md.get_tag_multiple(tag))
 
     def get_xmp_tag_multiple(self, tag):
+        if sys.version_info[0] >= 3:
+            return self._md.get_tag_multiple(tag)
         return map(lambda x: unicode(x, 'utf8'),
                    self._md.get_tag_multiple(tag))

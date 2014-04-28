@@ -18,6 +18,7 @@
 
 from ConfigParser import RawConfigParser
 import os
+import sys
 
 import appdirs
 from PyQt4 import QtCore
@@ -65,7 +66,7 @@ class ConfigStore(object):
         if (self.config.has_option(section, option) and
                 self.config.get(section, option) == value):
             return
-        if isinstance(value, unicode):
+        if sys.version_info[0] < 3 and isinstance(value, unicode):
             value = value.encode('utf-8')
         self.config.set(section, option, value)
         self.timer.start()

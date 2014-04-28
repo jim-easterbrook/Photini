@@ -259,8 +259,12 @@ class ImageList(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def open_files(self):
         types = []
-        for ext in QtGui.QImageReader.supportedImageFormats():
-            types.append('*.%s' % str(ext))
+        if sys.version_info[0] >= 3:
+            for ext in QtGui.QImageReader.supportedImageFormats():
+                types.append('*.%s' % str(ext, encoding='utf8'))
+        else:
+            for ext in QtGui.QImageReader.supportedImageFormats():
+                types.append('*.%s' % str(ext))
         path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             "Images (%s);;All files (*)" % ' '.join(types)))

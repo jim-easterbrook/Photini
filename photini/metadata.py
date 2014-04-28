@@ -19,6 +19,7 @@
 import datetime
 import fractions
 import os
+import sys
 
 from PyQt4 import QtCore
 
@@ -269,6 +270,10 @@ class Metadata(QtCore.QObject):
                     return GPSvalue().from_exif_string(
                         self.get_exif_tag_string(key),
                         self.get_exif_tag_string('%sRef' % key))
+                t = self.get_exif_tag_string(key)
+                if sys.version_info[0] >= 3:
+                    return self.get_exif_tag_string(
+                        key).encode('iso8859_1').decode('utf8')
                 return unicode(self.get_exif_tag_string(key), 'iso8859_1')
         return None
 

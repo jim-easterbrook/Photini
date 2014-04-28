@@ -34,6 +34,13 @@ import photini.version
 cmdclass = {}
 command_options = {}
 
+# if using Python 3, translate during build
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+    cmdclass['build_py'] = build_py
+except ImportError:
+    pass
+
 # regenerate version file, if required
 regenerate = False
 try:
