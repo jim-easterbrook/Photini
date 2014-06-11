@@ -35,22 +35,20 @@ class CameraHandler(QtCore.QObject):
     new_camera = QtCore.pyqtSignal(str)
     def __init__(self):
         QtCore.QObject.__init__(self)
-        self.context = gp.gp_context_new()
+        self.context = gp.Context()
         self.camera = None
         self.cam_model = ''
         self.cam_port_name = None
 
     @QtCore.pyqtSlot()
     def get_camera_list(self):
-        cameras = gp.check_result(gp.gp_list_new())
-        cam_count = gp.check_result(
-            gp.gp_camera_autodetect(cameras, self.context))
-        camera_list = []
-        for n in range(cam_count):
-            name = gp.check_result(gp.gp_list_get_name(cameras, n))
-            addr = gp.check_result(gp.gp_list_get_value(cameras, n))
-            camera_list.append((name, addr))
-        gp.check_result(gp.gp_list_unref(cameras))
+        with gp.CameraList() as cameras:
+            cam_count = self.context.camera_autodetect(cameras.list)
+            camera_list = []
+            for n in range(cam_count):
+                name = cameras.get_name(n)
+                addr = cameras.get_value(n)
+                camera_list.append((name, addr))
         camera_list.sort(key=lambda x: x[0])
         self.new_camera_list.emit(camera_list)
 
@@ -58,36 +56,33 @@ class CameraHandler(QtCore.QObject):
     def select_camera(self, model, port_name):
         # free any existing camera
         if self.camera:
-            gp.check_result(gp.gp_camera_exit(self.camera, self.context))
-            gp.check_result(gp.gp_camera_unref(self.camera))
-        # search abilities for camera model
-        abilities_list = gp.check_result(gp.gp_abilities_list_new())
-        gp.check_result(gp.gp_abilities_list_load(abilities_list, self.context))
-        idx = gp.check_result(
-            gp.gp_abilities_list_lookup_model(abilities_list, str(model)))
-        abilities = gp.CameraAbilities()
-        gp.check_result(
-            gp.gp_abilities_list_get_abilities(abilities_list, idx, abilities))
-        gp.check_result(gp.gp_abilities_list_free(abilities_list))
-        # search ports for camera port name
-        port_info_list = gp.check_result(gp.gp_port_info_list_new())
-        gp.check_result(gp.gp_port_info_list_load(port_info_list))
-        idx = gp.check_result(
-            gp.gp_port_info_list_lookup_path(port_info_list, str(port_name)))
-        port_info = gp.check_result(
-            gp.gp_port_info_list_get_info(port_info_list, idx))
+            self.camera.exit()
+            self.camera.cleanup()
+            self.camera = None
         # initialise camera
-        self.camera = gp.check_result(gp.gp_camera_new())
-        gp.check_result(gp.gp_camera_set_abilities(self.camera, abilities))
-        gp.check_result(gp.gp_camera_set_port_info(self.camera, port_info))
+        self.camera = gp.Camera(self.context.context)
+        # search abilities for camera model
+        with gp.CameraAbilitiesList() as abilities_list:
+            abilities_list.load(self.context.context)
+            idx = abilities_list.lookup_model(str(model))
+            abilities = gp.CameraAbilities()
+            abilities_list.get_abilities(idx, abilities)
+            self.camera.set_abilities(abilities)
+        # search ports for camera port name
+        with gp.PortInfoList() as port_info_list:
+            port_info_list.load()
+            idx = port_info_list.lookup_path(str(port_name))
+            # port_info is a pointer to an entry in port_info_list, so
+            # don't free port_info_list until after port_info has been
+            # used
+            port_info = port_info_list.get_info(idx)
+            self.camera.set_port_info(port_info)
         self.cam_model = model
         self.cam_port_name = port_name
-        # port_info is a pointer to an entry in port_info_list, so
-        # don't free it until after port_info has been used
-        gp.check_result(gp.gp_port_info_list_free(port_info_list))
         try:
-            gp.check_result(gp.gp_camera_init(self.camera, self.context))
+            self.camera.init()
         except gp.GPhoto2Error:
+            self.camera.cleanup()
             self.camera = None
             self.cam_model = ''
             self.cam_port_name = None
@@ -96,21 +91,17 @@ class CameraHandler(QtCore.QObject):
 
     def list_files(self, path='/'):
         result = []
-        gp_list = gp.check_result(gp.gp_list_new())
-        # get files
-        gp.check_result(gp.gp_camera_folder_list_files(
-            self.camera, path, gp_list, self.context))
-        for n in range(gp.gp_list_count(gp_list)):
-            result.append(os.path.join(
-                path, gp.check_result(gp.gp_list_get_name(gp_list, n))))
-        # read folders
-        folders = []
-        gp.check_result(gp.gp_list_reset(gp_list))
-        gp.check_result(gp.gp_camera_folder_list_folders(
-            self.camera, path, gp_list, self.context))
-        for n in range(gp.gp_list_count(gp_list)):
-            folders.append(gp.check_result(gp.gp_list_get_name(gp_list, n)))
-        gp.gp_list_unref(gp_list)
+        with gp.CameraList() as gp_list:
+            # get files
+            self.camera.folder_list_files(path, gp_list.list)
+            for n in range(gp_list.count()):
+                result.append(os.path.join(path, gp_list.get_name(n)))
+            # read folders
+            folders = []
+            gp_list.reset()
+            self.camera.folder_list_folders(path, gp_list.list)
+            for n in range(gp_list.count()):
+                folders.append(gp_list.get_name(n))
         # recurse over subfolders
         for name in folders:
             result.extend(self.list_files(os.path.join(path, name)))
@@ -119,17 +110,14 @@ class CameraHandler(QtCore.QObject):
     def get_file_info(self, path):
         folder, name = os.path.split(path)
         info = gp.CameraFileInfo()
-        gp.check_result(gp.gp_camera_file_get_info(
-            self.camera, folder, name, info, self.context))
+        self.camera.file_get_info(folder, name, info)
         return info
 
     def copy_file(self, folder, name, dest):
-        camera_file = gp.check_result(gp.gp_file_new())
-        gp.check_result(gp.gp_camera_file_get(
-            self.camera, folder, name, gp.GP_FILE_TYPE_NORMAL,
-            camera_file, self.context))
-        gp.check_result(gp.gp_file_save(camera_file, dest))
-        gp.check_result(gp.gp_file_unref(camera_file))
+        with gp.CameraFile() as camera_file:
+            self.camera.file_get(
+                folder, name, gp.GP_FILE_TYPE_NORMAL, camera_file.file)
+            camera_file.save(dest)
 
 class CameraSelector(QtGui.QWidget):
     select_camera = QtCore.pyqtSignal(str, str)
@@ -347,6 +335,7 @@ class MainWindow(QtGui.QMainWindow):
         first_active = None
         names = self.file_data.keys()
         names.sort()
+        item = None
         for name in names:
             timestamp = self.file_data[name]['timestamp']
             dest_path = self.nm.transform(name, timestamp)
