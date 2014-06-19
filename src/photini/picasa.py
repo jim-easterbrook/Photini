@@ -111,7 +111,7 @@ class PicasaUploader(QtGui.QWidget):
         ### album group
         album_group = QtGui.QGroupBox('Album')
         album_group.setLayout(QtGui.QHBoxLayout())
-        self.layout().addWidget(album_group, 0, 0, 3, 1)
+        self.layout().addWidget(album_group, 0, 0, 3, 3)
         ## album details, left hand side
         album_form_left = QtGui.QFormLayout()
         album_form_left.setFieldGrowthPolicy(
@@ -177,7 +177,7 @@ class PicasaUploader(QtGui.QWidget):
         self.album_thumb = QtGui.QLabel()
         album_form_right.addRow(self.album_thumb)
         ### upload button
-        self.upload_button = QtGui.QPushButton('Upload now')
+        self.upload_button = QtGui.QPushButton('Upload\nnow')
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 2, 3)
@@ -190,6 +190,7 @@ class PicasaUploader(QtGui.QWidget):
         self.layout().addWidget(self.total_progress, 6, 0, 1, 4)
         self.setEnabled(False)
         # adjust spacing
+        self.layout().setColumnStretch(2, 1)
         self.layout().setRowStretch(1, 1)
 
     def set_changed(self, value):
