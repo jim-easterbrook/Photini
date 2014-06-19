@@ -33,8 +33,8 @@ from .configstore import ConfigStore
 class CameraHandler(QtCore.QObject):
     new_camera_list = QtCore.pyqtSignal(list)
     new_camera = QtCore.pyqtSignal(str)
-    def __init__(self):
-        QtCore.QObject.__init__(self)
+    def __init__(self, parent=None):
+        QtCore.QObject.__init__(self, parent)
         self.context = gp.Context()
         self.camera = None
         self.cam_model = ''
@@ -169,8 +169,17 @@ class CameraSelector(QtGui.QWidget):
         self.cam_list.setCurrentIndex(
             max(0, self.cam_list.findText(self.current_cam)))
 
-class NameMangler(object):
-    def __init__(self, format_string):
+class NameMangler(QtCore.QObject):
+    number_parser = re.compile('\D*(\d+)')
+    new_example = QtCore.pyqtSignal(str)
+    def __init__(self, parent=None):
+        QtCore.QObject.__init__(self, parent)
+        self.example = None
+        self.format_string = None
+
+    @QtCore.pyqtSlot(str)
+    def new_format(self, format_string):
+        format_string = str(format_string)
         self.format_string = format_string
         # extract bracket delimited words from string
         self.parts = []
@@ -183,7 +192,15 @@ class NameMangler(object):
                 break
             self.parts.append((parts[0], parts[1]))
             format_string = parts[2]
-        self.number_parser = re.compile('\D*(\d+)')
+        self.refresh_example()
+
+    def set_example(self, name, timestamp):
+        self.example = name, timestamp
+        self.refresh_example()
+
+    def refresh_example(self):
+        if self.format_string and self.example:
+            self.new_example.emit(self.transform(*self.example))
 
     def transform(self, name, timestamp):
         subst = {'name': name}
@@ -214,7 +231,7 @@ class Importer(QtGui.QWidget):
             QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.app = QtGui.QApplication.instance()
         self.ch = CameraHandler()
-        self.nm = NameMangler('')
+        self.nm = NameMangler()
         self.camera = ''
         self.file_data = {}
         self.config_section = 'importer'
@@ -227,11 +244,12 @@ class Importer(QtGui.QWidget):
         self.layout().addRow('Camera:', self.camera_selector)
         # path format
         self.path_format = QtGui.QLineEdit()
-        self.path_format.textChanged.connect(self.path_format_changed)
+        self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
         self.layout().addRow('Target format:', self.path_format)
         # path example
         self.path_example = QtGui.QLabel()
+        self.nm.new_example.connect(self.path_example.setText)
         self.layout().addRow('=>', self.path_example)
         # file list
         self.file_list = QtGui.QListWidget()
@@ -253,23 +271,7 @@ class Importer(QtGui.QWidget):
         self.layout().addRow(buttons)
         # final initialisation
         self.path_format.setText(os.path.join(
-                os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
-
-    @QtCore.pyqtSlot(str)
-    def path_format_changed(self, value):
-        self.nm = NameMangler(str(value))
-        self.refresh_example()
-
-    def refresh_example(self):
-        if self.file_data:
-            names = self.file_data.keys()
-            names.sort
-            name = names[-1]
-            timestamp = self.file_data[name]['timestamp']
-        else:
-            name = 'IMG_9999.JPG'
-            timestamp = datetime.now()
-        self.path_example.setText(self.nm.transform(name, timestamp))
+            os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
 
     @QtCore.pyqtSlot()
     def path_format_finished(self):
@@ -319,7 +321,15 @@ class Importer(QtGui.QWidget):
         self.app.restoreOverrideCursor()
 ##        self.statusBar().clearMessage()
         self.show_file_list()
-        self.refresh_example()
+        if self.file_data:
+            names = self.file_data.keys()
+            names.sort
+            name = names[-1]
+            timestamp = self.file_data[name]['timestamp']
+        else:
+            name = 'IMG_9999.JPG'
+            timestamp = datetime.now()
+        self.nm.set_example(name, timestamp)
 
     def show_file_list(self):
         self.file_list.clear()
