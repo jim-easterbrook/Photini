@@ -169,14 +169,6 @@ class CameraSelector(QtGui.QWidget):
         self.cam_list.setCurrentIndex(
             max(0, self.cam_list.findText(self.current_cam)))
 
-class ConfigPane(QtGui.QWidget):
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.setLayout(QtGui.QFormLayout())
-        self.layout().setFieldGrowthPolicy(
-            QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        self.add_row = self.layout().addRow
-
 class NameMangler(object):
     def __init__(self, format_string):
         self.format_string = format_string
@@ -212,49 +204,40 @@ class NameMangler(object):
         # then do timestamp
         return timestamp.strftime(result)
 
-class MainWindow(QtGui.QMainWindow):
-    def __init__(self):
+class Importer(QtGui.QWidget):
+    def __init__(self, config_store, image_list, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.config_store = config_store
+        self.image_list = image_list
+        self.setLayout(QtGui.QFormLayout())
+        self.layout().setFieldGrowthPolicy(
+            QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.app = QtGui.QApplication.instance()
-        self.config = ConfigStore('importer')
         self.ch = CameraHandler()
         self.nm = NameMangler('')
         self.camera = ''
         self.file_data = {}
-        QtGui.QMainWindow.__init__(self)
-        self.setWindowTitle("Photini image importer")
-        self.setMinimumWidth(600)
-        self.statusBar()
-        # quit shortcut
-        quit_action = QtGui.QAction('Quit', self)
-        quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
-        quit_action.triggered.connect(self.app.closeAllWindows)
-        self.addAction(quit_action)
-        # main widget
-        central_widget = QtGui.QWidget()
-        central_widget.setLayout(QtGui.QFormLayout())
-        central_widget.layout().setFieldGrowthPolicy(
-            QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        self.setCentralWidget(central_widget)
+        self.config_section = 'importer'
         # camera selector
         self.camera_selector = CameraSelector()
         self.camera_selector.scan_for_cameras.connect(self.ch.get_camera_list)
         self.camera_selector.select_camera.connect(self.ch.select_camera)
         self.ch.new_camera_list.connect(self.camera_selector.new_camera_list)
         self.ch.new_camera.connect(self.new_camera)
-        central_widget.layout().addRow('Camera:', self.camera_selector)
+        self.layout().addRow('Camera:', self.camera_selector)
         # path format
         self.path_format = QtGui.QLineEdit()
         self.path_format.textChanged.connect(self.path_format_changed)
         self.path_format.editingFinished.connect(self.path_format_finished)
-        central_widget.layout().addRow('Target format:', self.path_format)
+        self.layout().addRow('Target format:', self.path_format)
         # path example
         self.path_example = QtGui.QLabel()
-        central_widget.layout().addRow('=>', self.path_example)
+        self.layout().addRow('=>', self.path_example)
         # file list
         self.file_list = QtGui.QListWidget()
         self.file_list.setSelectionMode(
             QtGui.QAbstractItemView.ExtendedSelection)
-        central_widget.layout().addRow(self.file_list)
+        self.layout().addRow(self.file_list)
         # selection buttons
         buttons = QtGui.QWidget()
         buttons.setLayout(QtGui.QHBoxLayout())
@@ -267,11 +250,10 @@ class MainWindow(QtGui.QMainWindow):
         copy_selected = QtGui.QPushButton('copy photos')
         copy_selected.clicked.connect(self.copy_selected)
         buttons.layout().addWidget(copy_selected)
-        central_widget.layout().addRow(buttons)
+        self.layout().addRow(buttons)
         # final initialisation
         self.path_format.setText(os.path.join(
                 os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
-        self.ch.get_camera_list()
 
     @QtCore.pyqtSlot(str)
     def path_format_changed(self, value):
@@ -292,19 +274,28 @@ class MainWindow(QtGui.QMainWindow):
     @QtCore.pyqtSlot()
     def path_format_finished(self):
         if self.camera:
-            self.config.set(self.camera, 'path_format', self.nm.format_string)
+            self.config_store.set(
+                self.config_section, 'path_format', self.nm.format_string)
         self.show_file_list()
+
+    def refresh(self):
+        self.ch.get_camera_list()
+
+    @QtCore.pyqtSlot(list)
+    def new_selection(self, selection):
+        pass
 
     @QtCore.pyqtSlot(str)
     def new_camera(self, camera_model):
         self.camera = str(camera_model)
         if self.camera:
-            path_format = self.config.get(
-                self.camera, 'path_format', os.path.join(
+            self.config_section = 'importer %s' % self.camera
+            path_format = self.config_store.get(
+                self.config_section, 'path_format', os.path.join(
                     os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
             self.path_format.setText(path_format)
         self.camera_selector.camera_changed(camera_model)
-        self.statusBar().showMessage('Getting file list...')
+##        self.statusBar().showMessage('Getting file list...')
         self.app.setOverrideCursor(Qt.WaitCursor)
         self.file_list.clear()
         # allow 100ms for display to update before getting file list
@@ -326,7 +317,7 @@ class MainWindow(QtGui.QMainWindow):
                 'timestamp'  : timestamp,
                 }
         self.app.restoreOverrideCursor()
-        self.statusBar().clearMessage()
+##        self.statusBar().clearMessage()
         self.show_file_list()
         self.refresh_example()
 
@@ -362,8 +353,8 @@ class MainWindow(QtGui.QMainWindow):
         since = datetime.min
         if self.camera:
             since = datetime.strptime(
-                self.config.get(
-                    self.camera, 'last_transfer', since.isoformat(' ')),
+                self.config_store.get(
+                    self.config_section, 'last_transfer', since.isoformat(' ')),
                 '%Y-%m-%d %H:%M:%S')
         self.select_files(since)
 
@@ -403,8 +394,8 @@ class MainWindow(QtGui.QMainWindow):
             timestamp = self.file_data[name]['timestamp']
             dest_path = self.file_data[name]['dest_path']
             src_folder = self.file_data[name]['src_folder']
-            self.statusBar().showMessage(
-                'Copying %d/%d %s' % (count, len(indexes), dest_path))
+##            self.statusBar().showMessage(
+##                'Copying %d/%d %s' % (count, len(indexes), dest_path))
             self.app.processEvents()
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
@@ -412,19 +403,7 @@ class MainWindow(QtGui.QMainWindow):
             self.ch.copy_file(src_folder, name, dest_path)
             last_transfer = max(last_transfer, timestamp)
         self.app.restoreOverrideCursor()
-        self.statusBar().clearMessage()
+##        self.statusBar().clearMessage()
         self.show_file_list()
-        self.config.set(
-            self.camera, 'last_transfer', last_transfer.isoformat(' '))
-
-def main():
-    logging.basicConfig(
-        format='%(levelname)s: %(name)s: %(message)s', level=logging.WARNING)
-    gp.check_result(gp.use_python_logging())
-    app = QtGui.QApplication(sys.argv)
-    main = MainWindow()
-    main.show()
-    return app.exec_()
-
-if __name__ == "__main__":
-    sys.exit(main())
+        self.config_store.set(
+            self.config_section, 'last_transfer', last_transfer.isoformat(' '))

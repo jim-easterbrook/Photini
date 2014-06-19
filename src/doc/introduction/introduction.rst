@@ -90,4 +90,4 @@ Windows::
 
 This should launch the GUI and you should then be able to switch to the "map" tab and load a Google map.
 
-In normal use you should be able to start the Photini editor with the ``photini-editor`` command.
+In normal use you should be able to start the Photini editor with the ``photini`` command.

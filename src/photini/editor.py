@@ -49,6 +49,10 @@ except ImportError:
     FlickrUploader = None
 from .editsettings import EditSettings
 from .googlemap import GoogleMap
+try:
+    from .importer import Importer
+except ImportError:
+    Importer = None
 from .openstreetmap import OpenStreetMap
 from .imagelist import ImageList
 from .loggerwindow import LoggerWindow
@@ -86,13 +90,14 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list.new_metadata.connect(self.new_metadata)
         # prepare list of tabs and associated stuff
         self.tab_list = (
-            {'name' : '&Descriptive metadata',  'class' : Descriptive},
-            {'name' : '&Technical metadata',    'class' : Technical},
-            {'name' : 'Map (&Google)',          'class' : GoogleMap},
-            {'name' : 'Map (&Bing)',            'class' : BingMap},
-            {'name' : 'Map (&OSM)',             'class' : OpenStreetMap},
-            {'name' : '&Flickr uploader',       'class' : FlickrUploader},
-            {'name' : '&Picasa uploader',       'class' : PicasaUploader},
+            {'name' : '&Descriptive metadata', 'class' : Descriptive},
+            {'name' : '&Technical metadata',   'class' : Technical},
+            {'name' : 'Map (&Google)',         'class' : GoogleMap},
+            {'name' : 'Map (&Bing)',           'class' : BingMap},
+            {'name' : 'Map (&OSM)',            'class' : OpenStreetMap},
+            {'name' : '&Flickr upload',        'class' : FlickrUploader},
+            {'name' : '&Picasa upload',        'class' : PicasaUploader},
+            {'name' : '&Import from camera',   'class' : Importer},
             )
         for tab in self.tab_list:
             tab['key'] = tab['name'].replace('&', '').replace(' ', '_')

@@ -96,7 +96,7 @@ other software.
       license = 'GNU GPL',
       platforms = ['POSIX', 'MacOS', 'Windows'],
       packages = ['photini'],
-      package_dir = {'photini' : 'src/photini'},
+      package_dir = {'' : 'src'},
       package_data = {
           'photini' : [
               'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
@@ -105,8 +105,7 @@ other software.
       command_options = command_options,
       entry_points = {
           'gui_scripts' : [
-              'photini-editor   = photini.editor:main',
-              'photini-importer = photini.importer:main [importer]',
+              'photini = photini.editor:main',
               ],
           },
       install_requires = ['appdirs >= 1.3'],
