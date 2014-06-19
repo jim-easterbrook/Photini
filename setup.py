@@ -18,18 +18,15 @@
 #  <http://www.gnu.org/licenses/>.
 
 from datetime import date
-try:
-    from setuptools import setup
-    using_setuptools = True
-except ImportError:
-    from distutils.core import setup
-    using_setuptools = False
 import os
 import platform
+from setuptools import setup
 import subprocess
 import sys
 
-import photini.version
+# read current version info without importing package
+with open('photini/version.py') as f:
+    exec(f.read())
 
 cmdclass = {}
 command_options = {}
@@ -46,20 +43,18 @@ regenerate = False
 try:
     p = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'],
                          stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    commit = p.communicate()[0].strip().decode('ASCII')
-    regenerate = (not p.returncode) and commit != photini.version.commit
+    new_commit = p.communicate()[0].strip().decode('ASCII')
+    regenerate = (not p.returncode) and new_commit != commit
 except OSError:
     pass
 if regenerate:
-    release = str(int(photini.version.release) + 1)
+    commit = new_commit
+    release = str(int(release) + 1)
     version = date.today().strftime('%y.%m') + '.dev%s' % release
-    vf = open('photini/version.py', 'w')
-    vf.write("version = '%s'\n" % version)
-    vf.write("release = '%s'\n" % release)
-    vf.write("commit = '%s'\n" % commit)
-    vf.close()
-else:
-    version = photini.version.version
+    with open('photini/version.py', 'w') as vf:
+        vf.write("version = '%s'\n" % version)
+        vf.write("release = '%s'\n" % release)
+        vf.write("commit = '%s'\n" % commit)
 
 # if sphinx is installed, add command to build documentation
 try:
@@ -75,19 +70,9 @@ except ImportError:
     pass
 
 # set options for uploading documentation to PyPI
-if using_setuptools:
-    command_options['upload_docs'] = {
-        'upload_dir' : ('setup.py', 'doc/html'),
-        }
-
-# add package requirements (setuptools only)
-setuptools_options = {}
-if using_setuptools:
-    setuptools_options['install_requires'] = ['appdirs >= 1.3']
-    setuptools_options['extras_require'] = {
-        'flickr': ['flickrapi >= 1.4'],
-        'picasa': ['gdata >= 2.0.16']
-        }
+command_options['upload_docs'] = {
+    'upload_dir' : ('setup.py', 'doc/html'),
+    }
 
 # set options for building distributions
 command_options['sdist'] = {
@@ -133,5 +118,9 @@ other software.
       scripts = scripts,
       cmdclass = cmdclass,
       command_options = command_options,
-      **setuptools_options
+      install_requires = ['appdirs >= 1.3'],
+      extras_require = {
+          'flickr': ['flickrapi >= 1.4'],
+          'picasa': ['gdata >= 2.0.16']
+          }
       )
