@@ -411,6 +411,7 @@ class Importer(QtGui.QWidget):
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
             self.ch.copy_file(src_folder, name, dest_path)
+            self.image_list.open_file_list([dest_path])
             last_transfer = max(last_transfer, timestamp)
         self.app.restoreOverrideCursor()
 ##        self.statusBar().clearMessage()
