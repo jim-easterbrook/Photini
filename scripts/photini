@@ -1,7 +1,0 @@
-#!/bin/sh
-
-python -c "
-from photini import editor
-editor.main('$0 $*'.split())
-"
-

@@ -19,10 +19,8 @@
 
 from datetime import date
 import os
-import platform
 from setuptools import setup
 import subprocess
-import sys
 
 # read current version info without importing package
 with open('photini/version.py') as f:
@@ -30,13 +28,6 @@ with open('photini/version.py') as f:
 
 cmdclass = {}
 command_options = {}
-
-# if using Python 3, translate during build
-try:
-    from distutils.command.build_py import build_py_2to3 as build_py
-    cmdclass['build_py'] = build_py
-except ImportError:
-    pass
 
 # regenerate version file, if required
 regenerate = False
@@ -80,12 +71,6 @@ command_options['sdist'] = {
     'force_manifest' : ('setup.py', '1'),
     }
 
-if platform.system() == 'Windows':
-    scripts = ['scripts/photini.bat']
-else:
-    scripts = ['scripts/photini']
-scripts.append('scripts/photini-importer.py')
-
 setup(name = 'Photini',
       version = version,
       author = 'Jim Easterbrook',
@@ -115,12 +100,19 @@ other software.
           'photini' : [
               'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
           },
-      scripts = scripts,
       cmdclass = cmdclass,
       command_options = command_options,
+      entry_points = {
+          'gui_scripts' : [
+              'photini-editor   = photini.editor:main',
+              'photini-importer = photini.importer:main',
+              ],
+          },
       install_requires = ['appdirs >= 1.3'],
       extras_require = {
-          'flickr': ['flickrapi >= 1.4'],
-          'picasa': ['gdata >= 2.0.16']
-          }
+          'flickr'  : ['flickrapi >= 1.4'],
+          'importer': ['gphoto2'],
+          'picasa'  : ['gdata >= 2.0.16']
+          },
+      use_2to3 = True,
       )
