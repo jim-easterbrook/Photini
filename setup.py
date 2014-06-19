@@ -23,7 +23,7 @@ from setuptools import setup
 import subprocess
 
 # read current version info without importing package
-with open('photini/version.py') as f:
+with open('src/photini/version.py') as f:
     exec(f.read())
 
 cmdclass = {}
@@ -42,7 +42,7 @@ if regenerate:
     commit = new_commit
     release = str(int(release) + 1)
     version = date.today().strftime('%y.%m') + '.dev%s' % release
-    with open('photini/version.py', 'w') as vf:
+    with open('src/photini/version.py', 'w') as vf:
         vf.write("version = '%s'\n" % version)
         vf.write("release = '%s'\n" % release)
         vf.write("commit = '%s'\n" % commit)
@@ -96,6 +96,7 @@ other software.
       license = 'GNU GPL',
       platforms = ['POSIX', 'MacOS', 'Windows'],
       packages = ['photini'],
+      package_dir = {'photini' : 'src/photini'},
       package_data = {
           'photini' : [
               'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
@@ -105,7 +106,7 @@ other software.
       entry_points = {
           'gui_scripts' : [
               'photini-editor   = photini.editor:main',
-              'photini-importer = photini.importer:main',
+              'photini-importer = photini.importer:main [importer]',
               ],
           },
       install_requires = ['appdirs >= 1.3'],
