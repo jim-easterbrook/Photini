@@ -124,6 +124,7 @@ class CameraSelector(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.setLayout(QtGui.QHBoxLayout())
+        self.layout().setMargin(0)
         # camera selector
         self.cam_list = QtGui.QComboBox()
         self.cam_list.activated.connect(self._activated)
@@ -226,9 +227,9 @@ class Importer(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.setLayout(QtGui.QFormLayout())
-        self.layout().setFieldGrowthPolicy(
-            QtGui.QFormLayout.AllNonFixedFieldsGrow)
+        self.setLayout(QtGui.QGridLayout())
+        form = QtGui.QFormLayout()
+        form.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.app = QtGui.QApplication.instance()
         self.ch = CameraHandler()
         self.nm = NameMangler()
@@ -241,37 +242,39 @@ class Importer(QtGui.QWidget):
         self.camera_selector.select_camera.connect(self.ch.select_camera)
         self.ch.new_camera_list.connect(self.camera_selector.new_camera_list)
         self.ch.new_camera.connect(self.new_camera)
-        self.layout().addRow('Camera:', self.camera_selector)
+        form.addRow('Camera:', self.camera_selector)
         # path format
         self.path_format = QtGui.QLineEdit()
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
-        self.layout().addRow('Target format:', self.path_format)
+        form.addRow('Target format:', self.path_format)
         # path example
         self.path_example = QtGui.QLabel()
         self.nm.new_example.connect(self.path_example.setText)
-        self.layout().addRow('=>', self.path_example)
+        form.addRow('=>', self.path_example)
+        self.layout().addLayout(form, 0, 0)
         # file list
         self.file_list = QtGui.QListWidget()
         self.file_list.setSelectionMode(
             QtGui.QAbstractItemView.ExtendedSelection)
-        self.layout().addRow(self.file_list)
+        self.layout().addWidget(self.file_list, 1, 0)
         # selection buttons
-        buttons = QtGui.QWidget()
-        buttons.setLayout(QtGui.QHBoxLayout())
-        select_all = QtGui.QPushButton('select all')
+        buttons = QtGui.QVBoxLayout()
+        buttons.addStretch(1)
+        select_all = QtGui.QPushButton('Select\nall')
         select_all.clicked.connect(self.select_all)
-        buttons.layout().addWidget(select_all)
-        select_new = QtGui.QPushButton('select new')
+        buttons.addWidget(select_all)
+        select_new = QtGui.QPushButton('Select\nnew')
         select_new.clicked.connect(self.select_new)
-        buttons.layout().addWidget(select_new)
-        copy_selected = QtGui.QPushButton('copy photos')
+        buttons.addWidget(select_new)
+        copy_selected = QtGui.QPushButton('Copy\nphotos')
         copy_selected.clicked.connect(self.copy_selected)
-        buttons.layout().addWidget(copy_selected)
-        self.layout().addRow(buttons)
+        buttons.addWidget(copy_selected)
+        self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
         self.path_format.setText(os.path.join(
             os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
+        self.new_camera('')
 
     @QtCore.pyqtSlot()
     def path_format_finished(self):
@@ -292,9 +295,9 @@ class Importer(QtGui.QWidget):
         self.camera = str(camera_model)
         if self.camera:
             self.config_section = 'importer %s' % self.camera
+            path_format = str(self.path_format.text())
             path_format = self.config_store.get(
-                self.config_section, 'path_format', os.path.join(
-                    os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
+                self.config_section, 'path_format', path_format)
             self.path_format.setText(path_format)
         self.camera_selector.camera_changed(camera_model)
 ##        self.statusBar().showMessage('Getting file list...')
