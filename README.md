@@ -8,7 +8,7 @@ An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application
 Features
 --------
 
-![Text editing screenshot](http://github.com/jim-easterbrook/Photini/raw/master/doc_src/images/screenshot_11.png)
+![Text editing screenshot](http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_11.png)
 
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
@@ -16,7 +16,7 @@ Features
 *   Can adjust picture data & time.
 *   Upload to [Flickr](http://www.flickr.com/) and/or [Picasa](http://picasaweb.google.com/) with reuse of metadata.
 
-![Geolocation screenshot](http://github.com/jim-easterbrook/Photini/raw/master/doc_src/images/screenshot_19.png)
+![Geolocation screenshot](http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_19.png)
 
 *   Search map to find places of interest.
 *   Choice of map providers - instantly switch to compare details.
