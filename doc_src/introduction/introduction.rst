@@ -65,21 +65,7 @@ This can also be installed with ``pip``.
 Installing Photini
 ------------------
 
-Having installed all the dependencies it's a good idea to test Photini.
-Open a terminal command window and navigate to the directory you downloaded it to, then navigate to the ``code`` subdirectory.
-You should then be able to run the Photini editor with one of the following commands.
-
-Linux::
-
-  python -m photini.editor
-
-Windows::
-
-  c:\python27\python.exe -m photini.editor
-
-This should launch the GUI and you should then be able to switch to the "map" tab and load a Google map.
-
-Whilst it is perfectly possible to use Photini from its download directory, it is more convenient to install it in your Python's "site-packages" and "scripts" directories.
+After downloading Photini you need to install it before it can be used.
 This is fully automated by the setup.py script.
 
 Linux::
@@ -92,5 +78,16 @@ Windows::
   c:\python27\python.exe setup.py build
   c:\python27\python.exe setup.py install
 
-After doing this the Photini editor can be launched from any command window with a simple ``photini`` command.
-Windows users can also put a link to ``c:\python27\scripts\photini.bat`` on their desktop.
+You can test the installation with one of the following commands.
+
+Linux::
+
+  python -m photini.editor
+
+Windows::
+
+  c:\python27\python.exe -m photini.editor
+
+This should launch the GUI and you should then be able to switch to the "map" tab and load a Google map.
+
+In normal use you should be able to start the Photini editor with the ``photini-editor`` command.

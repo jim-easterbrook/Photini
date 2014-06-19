@@ -1,12 +1,12 @@
 User Manual - Image selector
 ============================
 
-When you start Photini it displays a GUI (graphical user interface) as shown below.
+When you start the Photini editor it displays a GUI (graphical user interface) as shown below.
 The exact appearance will depend on your operating system and window manager preferences, but the same functional elements should be present.
 
 .. image:: ../images/screenshot_01.png
 
-The Photini GUI has two main areas.
+The Photini editor GUI has two main areas.
 The upper part has a set of tabs to select different functions.
 The lower part is an image selector that is common to all the tabs.
 In between the two is a divider that can be dragged with the mouse to change the relative sizes of the two parts.

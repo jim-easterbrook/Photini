@@ -52,6 +52,7 @@ Save your work so far
 ---------------------
 
 .. |hazard| unicode:: U+026A1
+
 As you proceed it's a good idea to save the images that have new metadata with the ``File`` menu ``Save images with new data`` item (keyboard shortcut ``Ctrl+S``).
 Any images with unsaved metadata have thumbnails marked with a warning symbol (|hazard|).
 
@@ -77,6 +78,7 @@ A list of results should appear very soon, from which you can choose the one you
 Each map provider has its own search engine, so if you can't find the place you are looking for it might be worth trying a different provider.
 
 .. |flag| unicode:: U+02690
+
 Now zoom in and drag the map to home in on the place where your photographs were taken.
 Select one or more images that have a particular location and drag them onto the map.
 A marker should appear on the map and the latitude and longitude values will be displayed below the search box.
