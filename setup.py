@@ -53,7 +53,7 @@ try:
     cmdclass['build_sphinx'] = BuildDoc
     command_options['build_sphinx'] = {
         'all_files'  : ('setup.py', '1'),
-        'source_dir' : ('setup.py', 'doc_src'),
+        'source_dir' : ('setup.py', 'src/doc'),
         'build_dir'  : ('setup.py', 'doc'),
         'builder'    : ('setup.py', 'html'),
         }
