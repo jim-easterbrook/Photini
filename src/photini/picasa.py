@@ -29,6 +29,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .descriptive import MultiLineEdit
+from .utils import Busy
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
@@ -242,7 +243,8 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_album(self):
-        self.current_album = self.pws.InsertAlbum('New album', '')
+        with Busy():
+            self.current_album = self.pws.InsertAlbum('New album', '')
         self.albums.insertItem(
             0, unicode(self.current_album.title.text, 'UTF-8'),
             self.current_album.gphoto_id.text)
@@ -261,16 +263,18 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 QtGui.QMessageBox.Cancel
                 ) == QtGui.QMessageBox.Cancel:
                 return
-        self.pws.Delete(self.current_album)
+        with Busy():
+            self.pws.Delete(self.current_album)
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
 
     @QtCore.pyqtSlot()
     def save_changes(self):
-        self.current_album = self.pws.Put(
-            self.current_album, self.current_album.GetEditLink().href,
-            converter=gdata.photos.AlbumEntryFromString)
+        with Busy():
+            self.current_album = self.pws.Put(
+                self.current_album, self.current_album.GetEditLink().href,
+                converter=gdata.photos.AlbumEntryFromString)
         self.set_changed(False)
 
     @QtCore.pyqtSlot()
@@ -281,37 +285,36 @@ Doing so will remove the album and its photos from all Google products.""" % (
     def refresh(self):
         if self.pws:
             return
-        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
-        if not self.authorise():
-            QtGui.QApplication.restoreOverrideCursor()
-            return
-        albums = self.pws.GetUserFeed()
-        for album in albums.entry:
-            self.albums.addItem(
-                unicode(album.title.text, 'UTF-8'), album.gphoto_id.text)
-        if self.albums.count() == 0:
-            self.new_album()
-        QtGui.QApplication.restoreOverrideCursor()
+        with Busy():
+            if not self.authorise():
+                return
+            albums = self.pws.GetUserFeed()
+            for album in albums.entry:
+                self.albums.addItem(
+                    unicode(album.title.text, 'UTF-8'), album.gphoto_id.text)
+            if self.albums.count() == 0:
+                self.new_album()
         self.setEnabled(True)
 
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
         self.current_album = None
         album_id = unicode(self.albums.itemData(index).toString())
-        albums = self.pws.GetUserFeed()
-        for album in albums.entry:
-            if album.gphoto_id.text == album_id:
-                self.current_album = album
-                break
-        else:
-            return
-        if self.current_album.media.thumbnail:
-            media = self.pws.GetMedia(self.current_album.media.thumbnail[0].url)
-            image = QtGui.QPixmap()
-            image.loadFromData(media.file_handle.read())
-            self.album_thumb.setPixmap(image)
-        else:
-            self.album_thumb.clear()
+        with Busy():
+            albums = self.pws.GetUserFeed()
+            for album in albums.entry:
+                if album.gphoto_id.text == album_id:
+                    self.current_album = album
+                    break
+            else:
+                return
+            if self.current_album.media.thumbnail:
+                media = self.pws.GetMedia(self.current_album.media.thumbnail[0].url)
+                image = QtGui.QPixmap()
+                image.loadFromData(media.file_handle.read())
+                self.album_thumb.setPixmap(image)
+            else:
+                self.album_thumb.clear()
         self.widgets['timestamp'].setDate(datetime.date.fromtimestamp(
             float(self.current_album.timestamp.text) * 1.0e-3))
         if self.current_album.summary.text:

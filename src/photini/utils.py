@@ -18,4 +18,15 @@
 
 import os
 
+from PyQt4 import QtGui
+from PyQt4.QtCore import Qt
+
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
+
+class Busy(object):
+    def __enter__(self):
+        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        QtGui.QApplication.restoreOverrideCursor()

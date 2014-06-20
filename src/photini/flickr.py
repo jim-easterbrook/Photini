@@ -26,6 +26,8 @@ import flickrapi
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
+from .utils import Busy
+
 api2 = flickrapi.__version__ >= '2.0'
 
 class FileWithCallback(object):
@@ -170,9 +172,9 @@ class FlickrUploader(QtGui.QWidget):
     def get_photosets(self):
         if not self.authorise():
             return
-        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
-        self.photosets = []
-        sets = self.flickr.photosets_getList()
+        with Busy():
+            self.photosets = []
+            sets = self.flickr.photosets_getList()
         for item in sets.find('photosets').findall('photoset'):
             self.photosets.append({
                 'id'    : item.attrib['id'],
@@ -186,7 +188,6 @@ class FlickrUploader(QtGui.QWidget):
                 QtGui.QCheckBox(item['title'].replace('&', '&&')))
         self.scrollarea.setWidget(sets_widget)
         sets_widget.setAutoFillBackground(False)
-        QtGui.QApplication.restoreOverrideCursor()
 
     @QtCore.pyqtSlot(bool)
     def enable_ff(self, value):

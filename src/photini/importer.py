@@ -29,6 +29,7 @@ from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .configstore import ConfigStore
+from .utils import Busy
 
 class CameraHandler(QtCore.QObject):
     new_camera_list = QtCore.pyqtSignal(list)
@@ -242,12 +243,12 @@ class Importer(QtGui.QWidget):
         self.camera_selector.select_camera.connect(self.ch.select_camera)
         self.ch.new_camera_list.connect(self.camera_selector.new_camera_list)
         self.ch.new_camera.connect(self.new_camera)
-        form.addRow('Camera:', self.camera_selector)
+        form.addRow('Camera', self.camera_selector)
         # path format
         self.path_format = QtGui.QLineEdit()
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
-        form.addRow('Target format:', self.path_format)
+        form.addRow('Target format', self.path_format)
         # path example
         self.path_example = QtGui.QLabel()
         self.nm.new_example.connect(self.path_example.setText)
@@ -301,7 +302,6 @@ class Importer(QtGui.QWidget):
             self.path_format.setText(path_format)
         self.camera_selector.camera_changed(camera_model)
 ##        self.statusBar().showMessage('Getting file list...')
-        self.app.setOverrideCursor(Qt.WaitCursor)
         self.file_list.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
@@ -309,19 +309,19 @@ class Importer(QtGui.QWidget):
     def list_files(self):
         file_list = []
         self.file_data = {}
-        try:
-            file_list = self.ch.list_files()
-        except Exception:
-            pass
-        for path in file_list:
-            folder, name = os.path.split(path)
-            info = self.ch.get_file_info(path)
-            timestamp = datetime.fromtimestamp(info.file.mtime)
-            self.file_data[name] = {
-                'src_folder' : folder,
-                'timestamp'  : timestamp,
-                }
-        self.app.restoreOverrideCursor()
+        with Busy():
+            try:
+                file_list = self.ch.list_files()
+            except Exception:
+                pass
+            for path in file_list:
+                folder, name = os.path.split(path)
+                info = self.ch.get_file_info(path)
+                timestamp = datetime.fromtimestamp(info.file.mtime)
+                self.file_data[name] = {
+                    'src_folder' : folder,
+                    'timestamp'  : timestamp,
+                    }
 ##        self.statusBar().clearMessage()
         self.show_file_list()
         if self.file_data:
@@ -397,26 +397,25 @@ class Importer(QtGui.QWidget):
         indexes = self.file_list.selectedIndexes()
         if not indexes:
             return
-        self.app.setOverrideCursor(Qt.WaitCursor)
         last_transfer = datetime.min
         count = 0
-        for idx in indexes:
-            count += 1
-            item = self.file_list.itemFromIndex(idx)
-            name = str(item.text()).split()[0]
-            timestamp = self.file_data[name]['timestamp']
-            dest_path = self.file_data[name]['dest_path']
-            src_folder = self.file_data[name]['src_folder']
-##            self.statusBar().showMessage(
-##                'Copying %d/%d %s' % (count, len(indexes), dest_path))
-            self.app.processEvents()
-            dest_dir = os.path.dirname(dest_path)
-            if not os.path.isdir(dest_dir):
-                os.makedirs(dest_dir)
-            self.ch.copy_file(src_folder, name, dest_path)
-            self.image_list.open_file_list([dest_path])
-            last_transfer = max(last_transfer, timestamp)
-        self.app.restoreOverrideCursor()
+        with Busy():
+            for idx in indexes:
+                count += 1
+                item = self.file_list.itemFromIndex(idx)
+                name = str(item.text()).split()[0]
+                timestamp = self.file_data[name]['timestamp']
+                dest_path = self.file_data[name]['dest_path']
+                src_folder = self.file_data[name]['src_folder']
+##                self.statusBar().showMessage(
+##                    'Copying %d/%d %s' % (count, len(indexes), dest_path))
+                self.app.processEvents()
+                dest_dir = os.path.dirname(dest_path)
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir)
+                self.ch.copy_file(src_folder, name, dest_path)
+                self.image_list.open_file_list([dest_path])
+                last_transfer = max(last_transfer, timestamp)
 ##        self.statusBar().clearMessage()
         self.show_file_list()
         self.config_store.set(
