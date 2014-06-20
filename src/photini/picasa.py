@@ -181,13 +181,10 @@ class PicasaUploader(QtGui.QWidget):
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 2, 3)
-        ### progress bars
-        self.layout().addWidget(QtGui.QLabel('File progress'), 3, 0, 1, 4)
-        self.file_progress = QtGui.QProgressBar()
-        self.layout().addWidget(self.file_progress, 4, 0, 1, 4)
-        self.layout().addWidget(QtGui.QLabel('Overall progress'), 5, 0, 1, 4)
+        ### progress bar
+        self.layout().addWidget(QtGui.QLabel('Progress'), 3, 0)
         self.total_progress = QtGui.QProgressBar()
-        self.layout().addWidget(self.total_progress, 6, 0, 1, 4)
+        self.layout().addWidget(self.total_progress, 3, 1, 1, 3)
         self.setEnabled(False)
         # adjust spacing
         self.layout().setColumnStretch(2, 1)
@@ -366,13 +363,11 @@ Doing so will remove the album and its photos from all Google products.""" % (
 
     @QtCore.pyqtSlot(float, float)
     def upload_progress(self, progress, total_progress):
-        self.file_progress.setValue(progress)
         self.total_progress.setValue(total_progress)
 
     @QtCore.pyqtSlot()
     def upload_done(self):
         self.upload_button.setEnabled(True)
-        self.file_progress.setValue(0)
         self.total_progress.setValue(0)
         self.uploader = None
 

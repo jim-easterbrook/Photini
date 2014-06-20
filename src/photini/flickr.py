@@ -120,7 +120,7 @@ class FlickrUploader(QtGui.QWidget):
         self.hidden = QtGui.QCheckBox('Hidden from search')
         privacy_group.layout().addWidget(self.hidden)
         privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 0, 3, 1)
+        self.layout().addWidget(privacy_group, 0, 0, 3, 2)
         # content type
         self.content_type = dict()
         content_group = QtGui.QGroupBox('Content type')
@@ -133,32 +133,32 @@ class FlickrUploader(QtGui.QWidget):
         self.content_type['other'] = QtGui.QRadioButton('Art/Illustration')
         content_group.layout().addWidget(self.content_type['other'])
         content_group.layout().addStretch(1)
-        self.layout().addWidget(content_group, 0, 1, 2, 1)
+        self.layout().addWidget(content_group, 0, 2, 2, 1)
         # create new set
         new_set_button = QtGui.QPushButton('New set')
         new_set_button.clicked.connect(self.new_set)
-        self.layout().addWidget(new_set_button, 2, 1)
+        self.layout().addWidget(new_set_button, 2, 2)
         # list of sets widget
         sets_group = QtGui.QGroupBox('Add to sets')
         sets_group.setLayout(QtGui.QVBoxLayout())
         self.scrollarea = QtGui.QScrollArea()
         self.scrollarea.setFrameStyle(QtGui.QFrame.NoFrame)
         sets_group.layout().addWidget(self.scrollarea)
-        self.layout().addWidget(sets_group, 0, 2, 3, 1)
+        self.layout().addWidget(sets_group, 0, 3, 3, 1)
         # 'go' button
         self.upload_button = QtGui.QPushButton('Upload\nnow')
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
-        self.layout().addWidget(self.upload_button, 2, 3)
+        self.layout().addWidget(self.upload_button, 2, 4)
         # progress bars
-        self.layout().addWidget(QtGui.QLabel('File progress'), 3, 0, 1, 4)
-        self.file_progress = QtGui.QProgressBar()
-        self.layout().addWidget(self.file_progress, 4, 0, 1, 4)
-        self.layout().addWidget(QtGui.QLabel('Overall progress'), 5, 0, 1, 4)
+        self.layout().addWidget(QtGui.QLabel('Progress'), 3, 0)
         self.total_progress = QtGui.QProgressBar()
-        self.layout().addWidget(self.total_progress, 6, 0, 1, 4)
+        self.total_progress.sizePolicy().setHorizontalPolicy(
+            QtGui.QSizePolicy.Expanding)
+        self.layout().addWidget(self.total_progress, 3, 1, 1, 4)
         # adjust spacing
-        self.layout().setColumnStretch(2, 1)
+        self.layout().setColumnStretch(1, 1)
+        self.layout().setColumnStretch(3, 100)
         self.layout().setRowStretch(1, 1)
 
     def refresh(self):
@@ -293,13 +293,11 @@ class FlickrUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot(float, float)
     def upload_progress(self, progress, total_progress):
-        self.file_progress.setValue(progress)
         self.total_progress.setValue(total_progress)
 
     @QtCore.pyqtSlot()
     def upload_done(self):
         self.upload_button.setEnabled(True)
-        self.file_progress.setValue(0)
         self.total_progress.setValue(0)
         self.uploader = None
 
