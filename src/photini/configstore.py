@@ -39,8 +39,9 @@ class ConfigStore(object):
         else:
             data_dir = appdirs.user_data_dir('photini')
         if not os.path.isdir(data_dir):
-            # Octal syntax for python3 if incompatible with python 2
+            # Octal syntax for python3 is incompatible with python 2
             # This is an ugly hack but the only thing that works
+            # The number after mode= is DECIMAL 
             os.makedirs(data_dir, mode=511) # 777 in octal, 'rwxrwxrwx'
         self.file_name = os.path.join(data_dir, '%s.ini' % name)
         if name == 'editor':
@@ -88,6 +89,7 @@ class ConfigStore(object):
 
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
-        # Octal syntax for python3 if incompatible with python 2
+        # Octal syntax for python3 is incompatible with python 2
         # This is an ugly hack but the only thing that works
+        # The number here is DECIMAL 
         os.chmod(self.file_name, 384) # Octal 600 'rw-------'
