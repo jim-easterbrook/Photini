@@ -1,6 +1,3 @@
-include *.txt MANIFEST.in README.md
-recursive-include doc_src *
-recursive-include doc/html *
-recursive-include scripts *
-global-exclude *~
-exclude doc/html/.buildinfo
+include *.txt MANIFEST.in README.rst
+recursive-include src *
+global-exclude *~ *.pyc
