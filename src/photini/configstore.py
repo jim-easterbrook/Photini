@@ -41,8 +41,8 @@ class ConfigStore(object):
         if not os.path.isdir(data_dir):
             # Octal syntax for python3 is incompatible with python 2
             # This is an ugly hack but the only thing that works
-            # The number after mode= is DECIMAL 
-            os.makedirs(data_dir, mode=511) # 777 in octal, 'rwxrwxrwx'
+            # The number here is DECIMAL 
+            os.makedirs(data_dir, mode=511) # Octal 777, 'rwxrwxrwx'
         self.file_name = os.path.join(data_dir, '%s.ini' % name)
         if name == 'editor':
             for old_file_name in (os.path.expanduser('~/photini.ini'),
