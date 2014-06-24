@@ -161,9 +161,11 @@ class CameraSelector(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def _activated(self, idx):
-        if self.cam_list.itemData(idx).isValid():
+        port_name = self.cam_list.itemData(idx)
+        if sys.version_info[0] < 3:
+            port_name = port_name.toString()
+        if port_name:
             model = self.cam_list.itemText(idx)
-            port_name = self.cam_list.itemData(idx).toString()
             if model != self.current_cam:
                 self.select_camera.emit(model, port_name)
                 return
