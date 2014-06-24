@@ -20,10 +20,18 @@
 from __future__ import unicode_literals
 
 import webbrowser
+import sys
 
 from PyQt4 import QtGui, QtCore
 
 from .photinimap import PhotiniMap
+
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
@@ -52,7 +60,7 @@ class BingMap(PhotiniMap):
         layout.addWidget(load_tou)
         return result
 
-    @QtCore.pyqtSlot(unicode)
+    @QtCore.pyqtSlot(text_type)
     def new_copyright(self, text):
         self.copyright_widget.setText(text)
 

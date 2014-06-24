@@ -23,12 +23,20 @@ import logging
 import os
 import time
 import webbrowser
+import sys
 
 import flickrapi
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .utils import Busy
+
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 api2 = flickrapi.__version__ >= '2.0'
 
@@ -222,10 +230,10 @@ class FlickrUploader(QtGui.QWidget):
         dialog.layout().addRow(buttons)
         if dialog.exec_() != QtGui.QDialog.Accepted:
             return
-        title = unicode(title.text())
+        title = text_type(title.text())
         if not title:
             return
-        description = unicode(description.toPlainText())
+        description = text_type(description.toPlainText())
         self.new_sets.append((title, description))
         check_box = QtGui.QCheckBox(title.replace('&', '&&'))
         check_box.setChecked(True)
@@ -310,8 +318,8 @@ class FlickrUploader(QtGui.QWidget):
         api_key = 'b6263c4693e3406aadcfaebe005280a5'
         api_secret = '1e0d912f586d0ed1'
         if api2:
-            api_key = unicode(api_key)
-            api_secret = unicode(api_secret)
+            api_key = text_type(api_key)
+            api_secret = text_type(api_secret)
             token        = self.config_store.get('flickr', 'token', '')
             token_secret = self.config_store.get('flickr', 'token_secret', '')
             token = flickrapi.auth.FlickrAccessToken(
@@ -345,8 +353,8 @@ class FlickrUploader(QtGui.QWidget):
                 self.flickr = None
                 return False
             try:
-                self.flickr.get_access_token(unicode(auth_code))
-            except Exception, ex:
+                self.flickr.get_access_token(text_type(auth_code))
+            except Exception as ex:
                 self.flickr = None
                 return False
         else:

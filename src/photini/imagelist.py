@@ -267,9 +267,9 @@ class ImageList(QtGui.QWidget):
         else:
             for ext in QtGui.QImageReader.supportedImageFormats():
                 types.append('*.%s' % str(ext))
-        path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
+        path_list = list(map(str, QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            "Images (%s);;All files (*)" % ' '.join(types)))
+            "Images (%s);;All files (*)" % ' '.join(types))))
         if not path_list:
             return
         self.open_file_list(path_list)

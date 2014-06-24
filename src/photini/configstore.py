@@ -17,10 +17,13 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
-
-from ConfigParser import RawConfigParser
 import os
 import sys
+
+if sys.version_info[0] >= 3:
+    from configparser import RawConfigParser
+else:
+    from ConfigParser import RawConfigParser
 
 import appdirs
 from PyQt4 import QtCore
@@ -36,7 +39,9 @@ class ConfigStore(object):
         else:
             data_dir = appdirs.user_data_dir('photini')
         if not os.path.isdir(data_dir):
-            os.makedirs(data_dir, mode=0700)
+            # Octal syntax for python3 if incompatible with python 2
+            # This is an ugly hack but the only thing that works
+            os.makedirs(data_dir, mode=511) # 777 in octal, 'rwxrwxrwx'
         self.file_name = os.path.join(data_dir, '%s.ini' % name)
         if name == 'editor':
             for old_file_name in (os.path.expanduser('~/photini.ini'),
@@ -83,4 +88,6 @@ class ConfigStore(object):
 
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
-        os.chmod(self.file_name, 0600)
+        # Octal syntax for python3 if incompatible with python 2
+        # This is an ugly hack but the only thing that works
+        os.chmod(self.file_name, 384) # Octal 600 'rw-------'
