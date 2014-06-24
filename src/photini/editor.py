@@ -82,8 +82,8 @@ class MainWindow(QtGui.QMainWindow):
         proxies = getproxies()
         if 'http' in proxies:
             parsed = urlparse(proxies['http'])
-            QNetworkProxy.setApplicationProxy(
-                QNetworkProxy(QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
+            QNetworkProxy.setApplicationProxy(QNetworkProxy(
+                QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
