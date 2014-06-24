@@ -34,9 +34,10 @@ import os
 import sys
 if sys.version_info[0] >= 3:
     from urllib.request import getproxies
+    from urllib.parse import urlparse
 else:
     from urllib import getproxies
-from urlparse import urlparse 
+    from urlparse import urlparse 
 import webbrowser
 
 from PyQt4 import QtGui, QtCore
