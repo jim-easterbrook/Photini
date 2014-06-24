@@ -16,6 +16,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import datetime
 import fractions
 import os
@@ -257,9 +259,9 @@ class Metadata(QtCore.QObject):
                 if tag.startswith('GPS'):
                     return GPSvalue().from_xmp_string(
                         self.get_xmp_tag_string(key))
-                return u'; '.join(self.get_xmp_tag_multiple(key))
+                return '; '.join(self.get_xmp_tag_multiple(key))
             if key in self.get_iptc_tags():
-                return u'; '.join(self.get_iptc_tag_multiple(key))
+                return '; '.join(self.get_iptc_tag_multiple(key))
             if key in self.get_exif_tags():
                 if tag.startswith('DateTime'):
                     return datetime.datetime.strptime(

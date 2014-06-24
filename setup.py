@@ -43,6 +43,7 @@ if regenerate:
     release = str(int(release) + 1)
     version = date.today().strftime('%y.%m') + '.dev%s' % release
     with open('src/photini/version.py', 'w') as vf:
+        vf.write("from __future__ import unicode_literals\n\n")
         vf.write("version = '%s'\n" % version)
         vf.write("release = '%s'\n" % release)
         vf.write("commit = '%s'\n" % commit)

@@ -26,6 +26,8 @@ options are:
   -V       | --version     display version information and exit
 """
 
+from __future__ import unicode_literals
+
 import logging
 from optparse import OptionParser
 import os

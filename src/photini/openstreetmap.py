@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import webbrowser
 
 from PyQt4 import QtGui
@@ -47,10 +49,10 @@ class OpenStreetMap(PhotiniMap):
         load_tou = QtGui.QPushButton('Map powered by Leaflet')
         load_tou.clicked.connect(self.load_tou_leaflet)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(u'Map data\n©OpenStreetMap contributors')
+        load_tou = QtGui.QPushButton('Map data\n©OpenStreetMap contributors')
         load_tou.clicked.connect(self.load_tou_osm)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(u'Tiles courtesy of MapQuest')
+        load_tou = QtGui.QPushButton('Tiles courtesy of MapQuest')
         load_tou.clicked.connect(self.load_tou_tiles)
         layout.addWidget(load_tou)
         return result

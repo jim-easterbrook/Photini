@@ -1,3 +1,5 @@
-version = '14.06.dev82'
-release = '82'
-commit = '3fd8c1c'
+from __future__ import unicode_literals
+
+version = '14.06.dev83'
+release = '83'
+commit = 'afcee72'

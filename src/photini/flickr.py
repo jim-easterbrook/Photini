@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import logging
 import os
 import time
@@ -313,7 +315,7 @@ class FlickrUploader(QtGui.QWidget):
             token        = self.config_store.getu('flickr', 'token', '')
             token_secret = self.config_store.getu('flickr', 'token_secret', '')
             token = flickrapi.auth.FlickrAccessToken(
-                token, token_secret, u'write')
+                token, token_secret, 'write')
         else:
             token = self.config_store.get('flickr', 'token', '')
         self.flickr = flickrapi.FlickrAPI(
@@ -329,7 +331,7 @@ class FlickrUploader(QtGui.QWidget):
                 return True
         if api2:
             self.flickr.get_request_token(oauth_callback='oob')
-            auth_url = self.flickr.auth_url(perms=u'write')
+            auth_url = self.flickr.auth_url(perms='write')
             if webbrowser.open(auth_url, new=2, autoraise=0):
                 info_text = 'use your web browser'
             else:

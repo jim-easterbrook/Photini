@@ -16,6 +16,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from datetime import datetime
 import os
 import subprocess
@@ -93,7 +95,7 @@ class Image(QtGui.QFrame):
 
     @QtCore.pyqtSlot(bool)
     def show_status(self, changed):
-        status = u''
+        status = ''
         # set 'geotagged' status
         if self.metadata.has_GPS():
             status += unichr(0x2690)

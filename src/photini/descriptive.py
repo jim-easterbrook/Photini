@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from datetime import datetime
 
 from PyQt4 import QtGui, QtCore
@@ -121,7 +123,7 @@ class Descriptive(QtGui.QWidget):
             date = image.metadata.get_item('date_taken')
             if not date:
                 date = datetime.now()
-            value = u'Copyright ©%d %s. All rights reserved.' % (
+            value = 'Copyright ©%d %s. All rights reserved.' % (
                 date.year, name)
             image.metadata.set_item('copyright', value)
         self._update_widget('copyright')
@@ -137,7 +139,7 @@ class Descriptive(QtGui.QWidget):
                 name = unicode(name)
                 self.config_store.set('user', 'creator_name', name)
             else:
-                name = u''
+                name = ''
         self.widgets['creator'].setText(name)
         self._new_value('creator')
 

@@ -16,6 +16,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 import datetime
 import os
 import time
@@ -70,7 +72,7 @@ class UploadThread(QtCore.QThread):
                     photo.media = gdata.media.Group()
                 if not photo.media.keywords:
                     photo.media.keywords = gdata.media.Keywords()
-                photo.media.keywords.text = u', '.join(
+                photo.media.keywords.text = ', '.join(
                     params['keywords'].split(';'))
             if params['lat'] is not None and params['lng'] is not None:
                 if not photo.geo:
@@ -380,8 +382,8 @@ Doing so will remove the album and its photos from all Google products.""" % (
         self.pws = gdata.photos.service.PhotosService(email='default')
         self.pws.SetOAuthInputParameters(
             gdata.auth.OAuthSignatureMethod.HMAC_SHA1,
-            '991146392375.apps.googleusercontent.com',
-            consumer_secret='gSCBPBV0tpArWOK2IDcEA6eG')
+            b'991146392375.apps.googleusercontent.com',
+            consumer_secret=b'gSCBPBV0tpArWOK2IDcEA6eG')
         key = self.config_store.get('picasa', 'key', '')
         secret = self.config_store.get('picasa', 'secret', '')
         if key and secret:

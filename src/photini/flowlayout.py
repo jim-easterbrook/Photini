@@ -23,6 +23,8 @@ http://doc.qt.digia.com/4.7-snapshot/layouts-flowlayout.html
 
 """
 
+from __future__ import unicode_literals
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
