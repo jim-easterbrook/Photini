@@ -236,6 +236,7 @@ class Importer(QtGui.QWidget):
         self.nm = NameMangler()
         self.camera = ''
         self.file_data = {}
+        self.file_list = []
         self.config_section = 'importer'
         # camera selector
         self.camera_selector = CameraSelector()
@@ -255,10 +256,10 @@ class Importer(QtGui.QWidget):
         form.addRow('=>', self.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
-        self.file_list = QtGui.QListWidget()
-        self.file_list.setSelectionMode(
+        self.file_list_widget = QtGui.QListWidget()
+        self.file_list_widget.setSelectionMode(
             QtGui.QAbstractItemView.ExtendedSelection)
-        self.layout().addWidget(self.file_list, 1, 0)
+        self.layout().addWidget(self.file_list_widget, 1, 0)
         # selection buttons
         buttons = QtGui.QVBoxLayout()
         buttons.addStretch(1)
@@ -273,6 +274,7 @@ class Importer(QtGui.QWidget):
         buttons.addWidget(copy_selected)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
+        self.image_list.sort_order_changed.connect(self.sort_file_list)
         self.path_format.setText(os.path.join(
             os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
         self.new_camera('')
@@ -302,14 +304,14 @@ class Importer(QtGui.QWidget):
             self.path_format.setText(path_format)
         self.camera_selector.camera_changed(camera_model)
 ##        self.statusBar().showMessage('Getting file list...')
-        self.file_list.clear()
+        self.file_list_widget.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
 
     def list_files(self):
-        file_list = []
         self.file_data = {}
         with Busy():
+            file_list = []
             try:
                 file_list = self.ch.list_files()
             except Exception:
@@ -323,11 +325,17 @@ class Importer(QtGui.QWidget):
                     'timestamp'  : timestamp,
                     }
 ##        self.statusBar().clearMessage()
+        self.file_list = self.file_data.keys()
+        self.sort_file_list()
+
+    def sort_file_list(self):
+        if eval(self.config_store.get('controls', 'sort_date', 'False')):
+            self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
+        else:
+            self.file_list.sort()
         self.show_file_list()
-        if self.file_data:
-            names = self.file_data.keys()
-            names.sort
-            name = names[-1]
+        if self.file_list:
+            name = self.file_list[-1]
             timestamp = self.file_data[name]['timestamp']
         else:
             name = 'IMG_9999.JPG'
@@ -335,12 +343,10 @@ class Importer(QtGui.QWidget):
         self.nm.set_example(name, timestamp)
 
     def show_file_list(self):
-        self.file_list.clear()
+        self.file_list_widget.clear()
         first_active = None
-        names = self.file_data.keys()
-        names.sort()
         item = None
-        for name in names:
+        for name in self.file_list:
             timestamp = self.file_data[name]['timestamp']
             dest_path = self.nm.transform(name, timestamp)
             self.file_data[name]['dest_path'] = dest_path
@@ -351,10 +357,10 @@ class Importer(QtGui.QWidget):
                 if not first_active:
                     first_active = item
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-            self.file_list.addItem(item)
+            self.file_list_widget.addItem(item)
         if not first_active:
             first_active = item
-        self.file_list.scrollToItem(
+        self.file_list_widget.scrollToItem(
             first_active, QtGui.QAbstractItemView.PositionAtTop)
 
     @QtCore.pyqtSlot()
@@ -372,13 +378,13 @@ class Importer(QtGui.QWidget):
         self.select_files(since)
 
     def select_files(self, since):
-        count = self.file_list.count()
+        count = self.file_list_widget.count()
         if not count:
             return
-        self.file_list.clearSelection()
+        self.file_list_widget.clearSelection()
         first_active = None
         for row in range(count):
-            item = self.file_list.item(row)
+            item = self.file_list_widget.item(row)
             if not (item.flags() & Qt.ItemIsSelectable):
                 continue
             name = str(item.text()).split()[0]
@@ -386,15 +392,15 @@ class Importer(QtGui.QWidget):
             if timestamp > since:
                 if not first_active:
                     first_active = item
-                self.file_list.setItemSelected(item, True)
+                self.file_list_widget.setItemSelected(item, True)
         if not first_active:
             first_active = item
-        self.file_list.scrollToItem(
+        self.file_list_widget.scrollToItem(
             first_active, QtGui.QAbstractItemView.PositionAtTop)
 
     @QtCore.pyqtSlot()
     def copy_selected(self):
-        indexes = self.file_list.selectedIndexes()
+        indexes = self.file_list_widget.selectedIndexes()
         if not indexes:
             return
         last_transfer = datetime.min
@@ -402,7 +408,7 @@ class Importer(QtGui.QWidget):
         with Busy():
             for idx in indexes:
                 count += 1
-                item = self.file_list.itemFromIndex(idx)
+                item = self.file_list_widget.itemFromIndex(idx)
                 name = str(item.text()).split()[0]
                 timestamp = self.file_data[name]['timestamp']
                 dest_path = self.file_data[name]['dest_path']

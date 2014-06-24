@@ -211,11 +211,11 @@ class ImageList(QtGui.QWidget):
         # sort key selector
         layout.addWidget(QtGui.QLabel('sort by: '), 1, 0)
         self.sort_name = QtGui.QRadioButton('file name')
-        self.sort_name.clicked.connect(self._show_thumbnails)
+        self.sort_name.clicked.connect(self._new_sort_order)
         layout.addWidget(self.sort_name, 1, 1)
         self.sort_date = QtGui.QRadioButton('date taken')
         layout.addWidget(self.sort_date, 1, 2)
-        self.sort_date.clicked.connect(self._show_thumbnails)
+        self.sort_date.clicked.connect(self._new_sort_order)
         if eval(self.config_store.get('controls', 'sort_date', 'False')):
             self.sort_date.setChecked(True)
         else:
@@ -295,6 +295,11 @@ class ImageList(QtGui.QWidget):
             result = datetime.fromtimestamp(
                 os.path.getmtime(self.image[idx].path))
         return result
+
+    sort_order_changed = QtCore.pyqtSignal()
+    def _new_sort_order(self):
+        self._show_thumbnails()
+        self.sort_order_changed.emit()
 
     def _show_thumbnails(self):
         sort_date = self.sort_date.isChecked()
