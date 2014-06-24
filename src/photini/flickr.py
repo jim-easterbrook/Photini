@@ -312,8 +312,8 @@ class FlickrUploader(QtGui.QWidget):
         if api2:
             api_key = unicode(api_key)
             api_secret = unicode(api_secret)
-            token        = self.config_store.getu('flickr', 'token', '')
-            token_secret = self.config_store.getu('flickr', 'token_secret', '')
+            token        = self.config_store.get('flickr', 'token', '')
+            token_secret = self.config_store.get('flickr', 'token_secret', '')
             token = flickrapi.auth.FlickrAccessToken(
                 token, token_secret, 'write')
         else:

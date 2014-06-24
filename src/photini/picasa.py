@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 
 import datetime
 import os
+import sys
 import time
 import webbrowser
 
@@ -386,6 +387,9 @@ Doing so will remove the album and its photos from all Google products.""" % (
             consumer_secret=b'gSCBPBV0tpArWOK2IDcEA6eG')
         key = self.config_store.get('picasa', 'key', '')
         secret = self.config_store.get('picasa', 'secret', '')
+        if sys.version_info[0] < 3:
+            key = str(key)
+            secret = str(secret)
         if key and secret:
             token = gdata.auth.OAuthToken(
                 key=key, secret=secret,

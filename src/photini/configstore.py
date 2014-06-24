@@ -28,6 +28,9 @@ from PyQt4 import QtCore
 class ConfigStore(object):
     def __init__(self, name):
         self.config = RawConfigParser()
+        self.file_opts = {}
+        if sys.version_info[0] >= 3:
+            self.file_opts['encoding'] = 'utf-8'
         if hasattr(appdirs, 'user_config_dir'):
             data_dir = appdirs.user_config_dir('photini')
         else:
@@ -39,10 +42,10 @@ class ConfigStore(object):
             for old_file_name in (os.path.expanduser('~/photini.ini'),
                                   os.path.join(data_dir, 'photini.ini')):
                 if os.path.exists(old_file_name):
-                    self.config.read(old_file_name)
+                    self.config.read(old_file_name, **self.file_opts)
                     self.save()
                     os.unlink(old_file_name)
-        self.config.read(self.file_name)
+        self.config.read(self.file_name, **self.file_opts)
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
@@ -51,16 +54,13 @@ class ConfigStore(object):
 
     def get(self, section, option, default=None):
         if self.config.has_option(section, option):
-            return self.config.get(section, option)
+            result = self.config.get(section, option)
+            if sys.version_info[0] < 3:
+                return result.decode('utf-8')
+            return result
         if default is not None:
             self.set(section, option, default)
         return default
-
-    def getu(self, section, option, default=None):
-        result = self.get(section, option, default)
-        if result is None:
-            return result
-        return result.decode('utf-8')
 
     def set(self, section, option, value):
         if not self.config.has_section(section):
@@ -68,7 +68,7 @@ class ConfigStore(object):
         if (self.config.has_option(section, option) and
                 self.config.get(section, option) == value):
             return
-        if sys.version_info[0] < 3 and isinstance(value, unicode):
+        if sys.version_info[0] < 3:
             value = value.encode('utf-8')
         self.config.set(section, option, value)
         self.timer.start()
@@ -82,5 +82,5 @@ class ConfigStore(object):
         self.timer.start()
 
     def save(self):
-        self.config.write(open(self.file_name, 'w'))
+        self.config.write(open(self.file_name, 'w', **self.file_opts))
         os.chmod(self.file_name, 0600)
