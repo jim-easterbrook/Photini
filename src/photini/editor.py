@@ -34,8 +34,10 @@ import os
 import sys
 if sys.version_info[0] >= 3:
     from urllib.request import getproxies
+    from urllib.parse import urlparse
 else:
     from urllib import getproxies
+    from urlparse import urlparse 
 import webbrowser
 
 from PyQt4 import QtGui, QtCore
@@ -79,9 +81,9 @@ class MainWindow(QtGui.QMainWindow):
         # set network proxy
         proxies = getproxies()
         if 'http' in proxies:
-            scheme, host, port = proxies['http'].split(':')
+            parsed = urlparse(proxies['http'])
             QNetworkProxy.setApplicationProxy(
-                QNetworkProxy(QNetworkProxy.HttpProxy, host[2:], int(port)))
+                QNetworkProxy(QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
