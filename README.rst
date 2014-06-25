@@ -5,12 +5,15 @@ An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application
 
 "It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily." - `Linux Format <http://www.linuxformat.com/>`_ magazine, January 2013 
 
+.. contents::
+   :depth: 1
+   :backlinks: top
+
 Features
 --------
 
 .. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_11.png
    :alt: Text editing screenshot
-   :scale: 50 %
 
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
@@ -20,19 +23,14 @@ Features
 
 .. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_19.png
    :alt: Geolocation screenshot
-   :scale: 50 %
 
 *   Geolocation - search map to find named places.
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
 *   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
+*   Writes metadata to image files or XMP "sidecar" files.
 *   Suggestions for further development welcome.
-
-Documentation
--------------
-
-Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.com/Photini/doc/html/.
 
 Dependencies
 ------------
@@ -54,10 +52,15 @@ For details of how to download and install these, please see the `documentation 
 
 I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
+Documentation
+-------------
+
+Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.com/Photini/doc/html/.
+
 Warning
 -------
 
-This program is currently at an early stage of development, but it is already usable. However, like all other software, it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
+This program is still under development. It is already usable but, like all other software, it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 Legalese
 --------
