@@ -3,11 +3,13 @@ Photini
 
 An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
-"It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily." - `Linux Format <http://www.linuxformat.com/>`_ magazine, January 2013 
+"Metadata" is said to mean "data about data".
+In the context of digital photographs this means information that isn't essential in order to display the image, but tells you something about it.
+For example a title and description of the scene or the date & time and the GPS coordinates of the camera's position when the picture was taken.
 
-.. contents::
-   :depth: 1
-   :backlinks: top
+   "It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily."
+   
+   -- `Linux Format <http://www.linuxformat.com/>`_ magazine, January 2013 
 
 Features
 --------
@@ -22,9 +24,9 @@ Features
 *   Upload to `Flickr <http://www.flickr.com/>`_ and/or `Picasa <http://picasaweb.google.com/>`_ with reuse of metadata.
 
 .. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_19.png
-   :alt: Geolocation screenshot
+   :alt: Geotagging screenshot
 
-*   Geolocation - search map to find named places.
+*   Geotagging - search map to find named places.
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
