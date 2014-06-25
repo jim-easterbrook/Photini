@@ -18,7 +18,7 @@
 
 from __future__ import unicode_literals
 
-import datetime
+from datetime import datetime
 import os
 import sys
 import time
@@ -34,7 +34,7 @@ from PyQt4.QtCore import Qt
 from .descriptive import MultiLineEdit
 from .utils import Busy
 
-EPOCH = datetime.datetime.utcfromtimestamp(0)
+EPOCH = datetime.utcfromtimestamp(0)
 
 class MediaSourceWithCallback(object):
     def __init__(self, path, content_type, callback):
@@ -102,6 +102,11 @@ class UploadThread(QtCore.QThread):
             (self.file_count * 100) + progress) / len(self.upload_list)
         self.progress_report.emit(progress, total_progress)
 
+def decode_text(obj):
+    if not obj or obj.text is None:
+        return ''
+    return unicode(obj.text, 'utf-8')
+
 class PicasaUploader(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -145,7 +150,7 @@ class PicasaUploader(QtGui.QWidget):
         album_form_left.addRow('Visibility', self.widgets['access'])
         ## album buttons
         buttons = QtGui.QHBoxLayout()
-        album_form_left.addRow(buttons)
+        album_form_left.addRow('', buttons)
         # new album
         new_album_button = QtGui.QPushButton('New album')
         new_album_button.clicked.connect(self.new_album)
@@ -154,19 +159,8 @@ class PicasaUploader(QtGui.QWidget):
         delete_album_button = QtGui.QPushButton('Delete album')
         delete_album_button.clicked.connect(self.delete_album)
         buttons.addWidget(delete_album_button)
-        # a bit of space
-        buttons.addSpacing(20)
-        # save changes
-        self.save_changes_button = QtGui.QPushButton('Save changes')
-        self.save_changes_button.clicked.connect(self.save_changes)
-        buttons.addWidget(self.save_changes_button)
-        # discard changes
-        self.discard_changes_button = QtGui.QPushButton('Discard changes')
-        self.discard_changes_button.clicked.connect(self.discard_changes)
-        buttons.addWidget(self.discard_changes_button)
         # other init
-        self.changed = None
-        self.set_changed(False)
+        self.clear_changes()
         ## album details, right hand side
         album_form_right = QtGui.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
@@ -193,66 +187,76 @@ class PicasaUploader(QtGui.QWidget):
         # adjust spacing
         self.layout().setColumnStretch(2, 1)
         self.layout().setRowStretch(1, 1)
+        # timer to store album data after it's edited
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(5000)
+        self.timer.timeout.connect(self.save_changes)
 
-    def set_changed(self, value):
-        if self.changed == value:
-            return
-        self.changed = value
-        self.save_changes_button.setEnabled(self.changed)
-        self.discard_changes_button.setEnabled(self.changed)
+    def clear_changes(self):
+        self.changed_title = None
+        self.changed_description = None
+        self.changed_location = None
+        self.changed_access = None
+        self.changed_timestamp = None
 
     @QtCore.pyqtSlot()
     def new_title(self):
         value = unicode(self.albums.lineEdit().text())
-        if value == self.current_album.title.text:
-            return
         self.albums.setItemText(self.albums.currentIndex(), value)
-        self.current_album.title.text = value
-        self.set_changed(True)
+        if value != decode_text(self.current_album.title):
+            self.changed_title = value
+        else:
+            self.changed_title = None
+        self.timer.start()
 
     @QtCore.pyqtSlot()
     def new_description(self):
         value = unicode(self.widgets['description'].text())
-        if value == self.current_album.summary.text:
-            return
-        self.current_album.summary.text = value
-        self.set_changed(True)
+        if value != decode_text(self.current_album.summary):
+            self.changed_description = value
+        else:
+            self.changed_description = None
+        self.timer.start()
 
     @QtCore.pyqtSlot()
     def new_timestamp(self):
         value = '%d' % (
             (self.widgets['timestamp'].dateTime().toPyDateTime() - EPOCH
              ).total_seconds() * 1000)
-        if value == self.current_album.timestamp.text:
-            return
-        self.current_album.timestamp.text = value
-        self.set_changed(True)
+        if value != decode_text(self.current_album.timestamp):
+            self.changed_timestamp = value
+        else:
+            self.changed_timestamp = None
+        self.timer.start()
 
     @QtCore.pyqtSlot()
     def new_location(self):
         value = unicode(self.widgets['location'].text())
-        if value == self.current_album.location.text:
-            return
-        self.current_album.location.text = value
-        self.set_changed(True)
+        if value != decode_text(self.current_album.location):
+            self.changed_location = value
+        else:
+            self.changed_location = None
+        self.timer.start()
 
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
         value = unicode(self.widgets['access'].itemData(index).toString())
-        if value == self.current_album.access.text:
-            return
-        self.current_album.access.text = value
-        self.set_changed(True)
+        if value != decode_text(self.current_album.access):
+            self.changed_access = value
+        else:
+            self.changed_access = None
+        self.timer.start()
 
     @QtCore.pyqtSlot()
     def new_album(self):
+        self.save_changes()
         with Busy():
             self.current_album = self.pws.InsertAlbum('New album', '')
         self.albums.insertItem(
-            0, unicode(self.current_album.title.text, 'UTF-8'),
+            0, decode_text(self.current_album.title),
             self.current_album.gphoto_id.text)
         self.albums.setCurrentIndex(0)
-        self.albums.lineEdit().selectAll()
 
     @QtCore.pyqtSlot()
     def delete_album(self):
@@ -266,24 +270,47 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 QtGui.QMessageBox.Cancel
                 ) == QtGui.QMessageBox.Cancel:
                 return
+        self.clear_changes()
         with Busy():
             self.pws.Delete(self.current_album)
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
 
-    @QtCore.pyqtSlot()
     def save_changes(self):
+        no_change = True
+        # title
+        if self.changed_title:
+            self.current_album.title.text = self.changed_title.encode('utf-8')
+            no_change = False
+        # description
+        if self.changed_description:
+            if not self.current_album.summary:
+                self.current_album.summary.text = atom.summary()
+            self.current_album.summary.text = self.changed_description.encode('utf-8')
+            no_change = False
+        # location
+        if self.changed_location:
+            if not self.current_album.location:
+                self.current_album.location = gdata.photos.Location()
+            self.current_album.location.text = self.changed_location.encode('utf-8')
+            no_change = False
+        # access
+        if self.changed_access:
+            self.current_album.access.text = self.changed_access.encode('utf-8')
+            no_change = False
+        # timestamp
+        if self.changed_timestamp:
+            self.current_album.timestamp.text = self.changed_timestamp.encode('utf-8')
+            no_change = False
+        # upload changes
+        self.clear_changes()
+        if no_change:
+            return
         with Busy():
             self.current_album = self.pws.Put(
                 self.current_album, self.current_album.GetEditLink().href,
                 converter=gdata.photos.AlbumEntryFromString)
-        self.set_changed(False)
-
-    @QtCore.pyqtSlot()
-    def discard_changes(self):
-        self.changed_album(self.albums.currentIndex())
-        self.set_changed(False)
 
     def refresh(self):
         if self.pws:
@@ -293,6 +320,9 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 return
             albums = self.pws.GetUserFeed()
             for album in albums.entry:
+                if not album.GetEditLink():
+                    # ignore 'system' albums
+                    continue
                 self.albums.addItem(
                     unicode(album.title.text, 'UTF-8'), album.gphoto_id.text)
             if self.albums.count() == 0:
@@ -301,6 +331,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
 
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
+        self.save_changes()
         self.current_album = None
         album_id = unicode(self.albums.itemData(index).toString())
         with Busy():
@@ -318,21 +349,20 @@ Doing so will remove the album and its photos from all Google products.""" % (
                 self.album_thumb.setPixmap(image)
             else:
                 self.album_thumb.clear()
-        self.widgets['timestamp'].setDate(datetime.date.fromtimestamp(
+        self.widgets['timestamp'].setDateTime(datetime.utcfromtimestamp(
             float(self.current_album.timestamp.text) * 1.0e-3))
-        if self.current_album.summary.text:
-            self.widgets['description'].setText(
-                unicode(self.current_album.summary.text, 'UTF-8'))
+        value = decode_text(self.current_album.summary)
+        if value:
+            self.widgets['description'].setText(value)
         else:
             self.widgets['description'].clear()
-        if self.current_album.location and self.current_album.location.text:
-            self.widgets['location'].setText(
-                unicode(self.current_album.location.text, 'UTF-8'))
+        value = decode_text(self.current_album.location)
+        if value:
+            self.widgets['location'].setText(value)
         else:
             self.widgets['location'].clear()
         self.widgets['access'].setCurrentIndex(
             self.widgets['access'].findData(self.current_album.access.text))
-        self.set_changed(False)
 
     @QtCore.pyqtSlot()
     def upload(self):
