@@ -21,6 +21,9 @@ Features
 *   Set photo title, description, keywords, copyright and creator fields.
 *   Can set metadata for multiple images simultaneously.
 *   Can adjust picture data & time.
+*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
+*   Writes metadata to image files or XMP "sidecar" files.
+*   Can import photographs from a many digital cameras.
 *   Upload to `Flickr <http://www.flickr.com/>`_ and/or `Picasa <http://picasaweb.google.com/>`_ with reuse of metadata.
 
 .. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_19.png
@@ -30,8 +33,6 @@ Features
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images onto map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.
-*   Reads EXIF, IPTC or XMP metadata, writes all three to maximise compatibility with other software.
-*   Writes metadata to image files or XMP "sidecar" files.
 *   Suggestions for further development welcome.
 
 Dependencies
@@ -39,25 +40,24 @@ Dependencies
 
 *   Python, version 2.6+ (including Python 3): http://python.org/
 *   PyQt, version 4+: http://www.riverbankcomputing.co.uk/software/pyqt/intro
-*   Exiv2 library: http://www.exiv2.org/
+*   appdirs: http://pypi.python.org/pypi/appdirs/
 *   gexiv2 (GObject Exiv2 wrapper), version 0.5+: https://wiki.gnome.org/Projects/gexiv2
 *   Python GObject bindings:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject *or*
     *   pgi: https://pypi.python.org/pypi/pgi/
-*   appdirs: http://pypi.python.org/pypi/appdirs/
 *   python-flickrapi (optional): https://pypi.python.org/pypi/flickrapi/
 *   gdata-python-client (optional): https://pypi.python.org/pypi/gdata/
 *   python-gphoto2 (optional): https://pypi.python.org/pypi/gphoto2/
 
-For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/introduction/introduction.html#dependencies-linux>`_.
+For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/installation.html>`_.
 
 I hope that Photini will be a cross-platform application - do let me know if you try it on Windows or MacOS.
 
 Documentation
 -------------
 
-Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.com/Photini/doc/html/.
+Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.io/Photini/doc/html/.
 
 Warning
 -------
