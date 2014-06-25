@@ -1,5 +1,5 @@
-User Manual - Descriptive metadata
-==================================
+Descriptive metadata
+====================
 
 The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to edit basic information about your photographs, such as the title and description.
 

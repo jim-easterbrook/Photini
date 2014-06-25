@@ -1,5 +1,5 @@
-User Manual - Technical metadata
-================================
+Technical metadata
+==================
 
 The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to edit 'technical' information about your photographs, such as the date & time they were taken.
 Generally you should not need to edit any of this data, as it should have been correctly set by your camera.

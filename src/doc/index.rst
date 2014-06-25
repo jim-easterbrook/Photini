@@ -1,17 +1,11 @@
 Photini documentation
 =====================
 
-Contents:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    introduction
    installation
    workflow
-   manual/image_selector
-   manual/descriptive_metadata
-   manual/technical_metadata
-   manual/map
-   manual/flickr
+   manual/index
    reading

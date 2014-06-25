@@ -1,5 +1,5 @@
-User Manual - Flickr uploader
-=============================
+Flickr uploader
+===============
 
 The ``Flickr uploader`` tab (keyboard shortcut ``Alt+F``) allows you to upload your photographs to `Flickr <http://www.flickr.com/>`_.
 Flickr is a popular online photograph sharing service.

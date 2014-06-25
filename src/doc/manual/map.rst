@@ -1,5 +1,5 @@
-User Manual - Map
-=================
+Geotagging
+==========
 
 The ``Map (Google)`` (keyboard shortcut ``Alt+G``), ``Map (Bing)`` (keyboard shortcut ``Alt+B``) & ``Map (OSM)`` (keyboard shortcut ``Alt+O``) tabs allow you to set geolocation data (latitude & longitude) where a photograph was taken.
 (Some people argue that it should be the position of the subject of the photograph, but what about photographs of the Moon?)
