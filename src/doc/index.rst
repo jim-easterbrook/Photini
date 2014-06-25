@@ -6,7 +6,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   introduction/introduction
+   introduction
    installation
    workflow
    manual/image_selector
