@@ -19,10 +19,18 @@
 
 from __future__ import unicode_literals
 
+import sys
 from datetime import datetime
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 class MultiLineEdit(QtGui.QPlainTextEdit):
     def __init__(self, parent=None):
@@ -115,7 +123,7 @@ class Descriptive(QtGui.QWidget):
                 "Please type in the copyright holder's name",
                 text=self.config_store.get('user', 'creator_name', ''))
             if OK and name:
-                name = unicode(name)
+                name = text_type(name)
                 self.config_store.set('user', 'copyright_name', name)
             else:
                 name = ''
@@ -136,7 +144,7 @@ class Descriptive(QtGui.QWidget):
                 "Please type in the creator's name",
                 text=self.config_store.get('user', 'copyright_name', ''))
             if OK and name:
-                name = unicode(name)
+                name = text_type(name)
                 self.config_store.set('user', 'creator_name', name)
             else:
                 name = ''
@@ -144,7 +152,7 @@ class Descriptive(QtGui.QWidget):
         self._new_value('creator')
 
     def _new_value(self, key):
-        value = unicode(self.widgets[key].text())
+        value = text_type(self.widgets[key].text())
         if value != '<multiple values>':
             for image in self.image_list.get_selected_images():
                 image.metadata.set_item(key, value)

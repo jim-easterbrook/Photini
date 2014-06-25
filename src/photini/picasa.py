@@ -34,6 +34,13 @@ from PyQt4.QtCore import Qt
 from .descriptive import MultiLineEdit
 from .utils import Busy
 
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
+
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 
 class MediaSourceWithCallback(object):
@@ -88,7 +95,7 @@ class UploadThread(QtCore.QThread):
                 photo = self.pws.Post(
                     photo, uri=self.feed_uri, media_source=mediasource,
                     converter=gdata.photos.PhotoEntryFromString)
-            except gdata.service.RequestError, e:
+            except gdata.service.RequestError as e:
                 raise gdata.photos.service.GooglePhotosException(e.args[0])
             if params['description']:
                 comment = self.pws.InsertComment(
@@ -203,7 +210,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_title(self):
-        value = unicode(self.albums.lineEdit().text())
+        value = text_type(self.albums.lineEdit().text())
         if value == self.current_album.title.text:
             return
         self.albums.setItemText(self.albums.currentIndex(), value)
@@ -212,7 +219,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_description(self):
-        value = unicode(self.widgets['description'].text())
+        value = text_type(self.widgets['description'].text())
         if value == self.current_album.summary.text:
             return
         self.current_album.summary.text = value
@@ -230,7 +237,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_location(self):
-        value = unicode(self.widgets['location'].text())
+        value = text_type(self.widgets['location'].text())
         if value == self.current_album.location.text:
             return
         self.current_album.location.text = value
@@ -238,7 +245,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
-        value = unicode(self.widgets['access'].itemData(index).toString())
+        value = text_type(self.widgets['access'].itemData(index).toString())
         if value == self.current_album.access.text:
             return
         self.current_album.access.text = value
@@ -249,7 +256,7 @@ class PicasaUploader(QtGui.QWidget):
         with Busy():
             self.current_album = self.pws.InsertAlbum('New album', '')
         self.albums.insertItem(
-            0, unicode(self.current_album.title.text, 'UTF-8'),
+            0, text_type(self.current_album.title.text, 'UTF-8'),
             self.current_album.gphoto_id.text)
         self.albums.setCurrentIndex(0)
         self.albums.lineEdit().selectAll()
@@ -261,7 +268,7 @@ class PicasaUploader(QtGui.QWidget):
                 self, 'Delete album',
                 """Are you sure you want to delete the album "%s"?
 Doing so will remove the album and its photos from all Google products.""" % (
-    unicode(self.current_album.title.text, 'UTF-8')),
+    text_type(self.current_album.title.text, 'UTF-8')),
                 QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel,
                 QtGui.QMessageBox.Cancel
                 ) == QtGui.QMessageBox.Cancel:
@@ -294,7 +301,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
             albums = self.pws.GetUserFeed()
             for album in albums.entry:
                 self.albums.addItem(
-                    unicode(album.title.text, 'UTF-8'), album.gphoto_id.text)
+                    text_type(album.title.text, 'UTF-8'), album.gphoto_id.text)
             if self.albums.count() == 0:
                 self.new_album()
         self.setEnabled(True)
@@ -302,7 +309,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
         self.current_album = None
-        album_id = unicode(self.albums.itemData(index).toString())
+        album_id = text_type(self.albums.itemData(index).toString())
         with Busy():
             albums = self.pws.GetUserFeed()
             for album in albums.entry:
@@ -322,12 +329,12 @@ Doing so will remove the album and its photos from all Google products.""" % (
             float(self.current_album.timestamp.text) * 1.0e-3))
         if self.current_album.summary.text:
             self.widgets['description'].setText(
-                unicode(self.current_album.summary.text, 'UTF-8'))
+                text_type(self.current_album.summary.text, 'UTF-8'))
         else:
             self.widgets['description'].clear()
         if self.current_album.location and self.current_album.location.text:
             self.widgets['location'].setText(
-                unicode(self.current_album.location.text, 'UTF-8'))
+                text_type(self.current_album.location.text, 'UTF-8'))
         else:
             self.widgets['location'].clear()
         self.widgets['access'].setCurrentIndex(

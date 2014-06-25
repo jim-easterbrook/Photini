@@ -18,8 +18,17 @@
 
 from __future__ import unicode_literals
 
+import sys
+
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 class EditSettings(QtGui.QDialog):
     def __init__(self, parent, config_store):
@@ -90,11 +99,11 @@ class EditSettings(QtGui.QDialog):
         scroll_area.setWidget(panel)
 
     def new_copyright_name(self):
-        value = unicode(self.copyright_name.text())
+        value = text_type(self.copyright_name.text())
         self.config_store.set('user', 'copyright_name', value)
 
     def new_creator_name(self):
-        value = unicode(self.creator_name.text())
+        value = text_type(self.creator_name.text())
         self.config_store.set('user', 'creator_name', value)
 
     def do_reset_flickr(self):

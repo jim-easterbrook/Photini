@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import logging
 import os
 import webbrowser
+import sys
 
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
@@ -28,6 +29,13 @@ from PyQt4.QtCore import Qt
 from .metadata import GPSvalue
 from .utils import data_dir
 from .version import version
+
+if sys.version < '3':
+    text_type = unicode
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 
 class WebPage(QtWebKit.QWebPage):
     def __init__(self, parent=None):
@@ -273,10 +281,10 @@ class PhotiniMap(QtGui.QWidget):
         if self.search_string:
             self.edit_box.addItem('<repeat search>')
 
-    @QtCore.pyqtSlot(float, float, unicode)
+    @QtCore.pyqtSlot(float, float, text_type)
     def search_result(self, lat, lng, name):
         self.edit_box.addItem(name)
-        self.location[unicode(name)] = lat, lng
+        self.location[text_type(name)] = lat, lng
         self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
@@ -289,7 +297,7 @@ class PhotiniMap(QtGui.QWidget):
             # repeat search
             self.search(self.search_string)
             return
-        name = unicode(self.edit_box.itemText(idx))
+        name = text_type(self.edit_box.itemText(idx))
         if name in self.location:
             lat, lng = self.location[name]
             self.JavaScript('goTo(%s, %s)' % (repr(lat), repr(lng)))
