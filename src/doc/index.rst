@@ -7,6 +7,7 @@ Contents:
    :maxdepth: 2
 
    introduction/introduction
+   installation
    workflow
    manual/image_selector
    manual/descriptive_metadata
@@ -14,11 +15,3 @@ Contents:
    manual/map
    manual/flickr
    reading
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
