@@ -59,10 +59,14 @@ Documentation
 
 Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.io/Photini/doc/html/.
 
+.. _readme-warning:
+
 Warning
 -------
 
 This program is still under development. It is already usable but, like all other software, it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
+
+.. _readme-legalese:
 
 Legalese
 --------
