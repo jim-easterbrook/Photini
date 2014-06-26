@@ -29,12 +29,12 @@ class OpenStreetMap(PhotiniMap):
     def load_api(self):
         return """
     <link rel="stylesheet"
-      href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
+      href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
+      src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js">
     </script>
 """
 
