@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime
+import logging
 import os
 import sys
 import time
@@ -35,6 +36,22 @@ from .descriptive import MultiLineEdit
 from .utils import Busy
 
 EPOCH = datetime.utcfromtimestamp(0)
+
+logger = logging.getLogger(__name__)
+
+class LoggingPhotosService(object):
+    def __init__(self):
+        self._service = gdata.photos.service.PhotosService(email='default')
+
+    def __getattr__(self, name):
+        self._next_call = getattr(self._service, name)
+        return self._call
+
+    def _call(self, *arg, **kw):
+        try:
+            return (self._next_call)(*arg, **kw)
+        except Exception as ex:
+            logger.exception(ex)
 
 class MediaSourceWithCallback(object):
     def __init__(self, path, content_type, callback):
@@ -118,14 +135,14 @@ class PicasaUploader(QtGui.QWidget):
         self.current_album = None
         self.uploader = None
         ### album group
-        album_group = QtGui.QGroupBox('Album')
-        album_group.setLayout(QtGui.QHBoxLayout())
-        self.layout().addWidget(album_group, 0, 0, 3, 3)
+        self.album_group = QtGui.QGroupBox('Album')
+        self.album_group.setLayout(QtGui.QHBoxLayout())
+        self.layout().addWidget(self.album_group, 0, 0, 3, 3)
         ## album details, left hand side
         album_form_left = QtGui.QFormLayout()
         album_form_left.setFieldGrowthPolicy(
             QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        album_group.layout().addLayout(album_form_left)
+        self.album_group.layout().addLayout(album_form_left)
         # album title / selector
         self.albums = QtGui.QComboBox()
         self.albums.setEditable(True)
@@ -165,7 +182,7 @@ class PicasaUploader(QtGui.QWidget):
         album_form_right = QtGui.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
             QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        album_group.layout().addLayout(album_form_right)
+        self.album_group.layout().addLayout(album_form_right)
         # album date
         self.widgets['timestamp'] = QtGui.QDateEdit()
         self.widgets['timestamp'].setCalendarPopup(True)
@@ -387,6 +404,7 @@ Doing so will remove the album and its photos from all Google products.""" % (
         # pass the list to a separate thread, so GUI can continue
         if self.authorise():
             self.upload_button.setEnabled(False)
+            self.album_group.setEnabled(False)
             self.uploader = UploadThread(
                 self.pws, upload_list, self.current_album.GetFeedLink().href)
             self.uploader.progress_report.connect(self.upload_progress)
@@ -403,14 +421,17 @@ Doing so will remove the album and its photos from all Google products.""" % (
 
     @QtCore.pyqtSlot()
     def upload_done(self):
+        # reload current album
+        self.changed_album(self.albums.currentIndex())
         self.upload_button.setEnabled(True)
+        self.album_group.setEnabled(True)
         self.total_progress.setValue(0)
         self.uploader = None
 
     def authorise(self):
         if self.pws:
             return True
-        self.pws = gdata.photos.service.PhotosService(email='default')
+        self.pws = LoggingPhotosService()
         self.pws.SetOAuthInputParameters(
             gdata.auth.OAuthSignatureMethod.HMAC_SHA1,
             b'991146392375.apps.googleusercontent.com',
