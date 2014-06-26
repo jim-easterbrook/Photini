@@ -93,16 +93,18 @@ class CameraHandler(QtCore.QObject):
         self.new_camera.emit(self.cam_model)
 
     def list_files(self, path='/'):
+        if not self.camera:
+            return []
         result = []
         with gp.CameraList() as gp_list:
             # get files
-            self.camera.folder_list_files(path, gp_list.list)
+            self.camera.folder_list_files(str(path), gp_list.list)
             for n in range(gp_list.count()):
                 result.append(os.path.join(path, gp_list.get_name(n)))
             # read folders
             folders = []
             gp_list.reset()
-            self.camera.folder_list_folders(path, gp_list.list)
+            self.camera.folder_list_folders(str(path), gp_list.list)
             for n in range(gp_list.count()):
                 folders.append(gp_list.get_name(n))
         # recurse over subfolders
@@ -113,13 +115,13 @@ class CameraHandler(QtCore.QObject):
     def get_file_info(self, path):
         folder, name = os.path.split(path)
         info = gp.CameraFileInfo()
-        self.camera.file_get_info(folder, name, info)
+        self.camera.file_get_info(str(folder), str(name), info)
         return info
 
     def copy_file(self, folder, name, dest):
         with gp.CameraFile() as camera_file:
             self.camera.file_get(
-                folder, name, gp.GP_FILE_TYPE_NORMAL, camera_file.file)
+                str(folder), str(name), gp.GP_FILE_TYPE_NORMAL, camera_file.file)
             camera_file.save(dest)
 
 class CameraSelector(QtGui.QWidget):
@@ -299,10 +301,10 @@ class Importer(QtGui.QWidget):
 
     @QtCore.pyqtSlot(str)
     def new_camera(self, camera_model):
-        self.camera = str(camera_model)
+        self.camera = unicode(camera_model)
         if self.camera:
             self.config_section = 'importer %s' % self.camera
-            path_format = str(self.path_format.text())
+            path_format = unicode(self.path_format.text())
             path_format = self.config_store.get(
                 self.config_section, 'path_format', path_format)
             self.path_format.setText(path_format)
