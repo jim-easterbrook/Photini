@@ -35,6 +35,9 @@ class WebPage(QtWebKit.QWebPage):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def javaScriptConsoleMessage(self, msg, line, source):
+        if unicode(msg).startswith(
+                        "Consider using 'dppx' units instead of 'dpi'"):
+            return
         self.logger.error('%s line %d: %s', source, line, msg)
 
     def userAgentForUrl(self, url):
