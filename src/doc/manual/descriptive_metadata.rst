@@ -33,8 +33,8 @@ Select all the images that should have the same title, then type the title in th
 
 .. image:: ../images/screenshot_10.png
 
-Now type more detail in the ``Description / Caption`` box.
-There are probably only one or two photographs that share the same description.
+Now you can add more detail in the ``Description / Caption`` box.
+There are probably only one or two photographs that share the same description, so select those images first.
 
 .. image:: ../images/screenshot_11.png
 

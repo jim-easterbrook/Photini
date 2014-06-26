@@ -6,6 +6,6 @@ Photini documentation
 
    introduction
    installation
-   workflow
    manual/index
+   workflow
    reading

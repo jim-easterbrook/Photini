@@ -64,10 +64,12 @@ Optional dependencies
 
 Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
 
+.. _installation-flickr:
+
 python-flickrapi
 ^^^^^^^^^^^^^^^^
 
-Photin's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_.
+Photini's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_.
 This is easily installed with pip::
 
    sudo pip install flickrapi
@@ -81,6 +83,8 @@ You can download the source from https://bitbucket.org/sybren/flickrapi and then
    python setup.py build
    sudo python setup.py install
 
+.. _installation-picasa:
+
 gdata-python-client
 ^^^^^^^^^^^^^^^^^^^
 
@@ -90,6 +94,8 @@ This is also installed with pip::
    sudo pip install gdata
 
 Note that gdata-python-client is not compatible with Python 3.
+
+.. _installation-importer:
 
 python-gphoto2
 ^^^^^^^^^^^^^^

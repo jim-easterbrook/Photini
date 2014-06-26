@@ -9,3 +9,6 @@ User manual
    technical_metadata
    map
    flickr
+   picasa
+   importer
+   configuration

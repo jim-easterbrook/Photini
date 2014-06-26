@@ -15,7 +15,7 @@ This helps reduce the load on the map providers' servers by not having them cont
 Once the map is loaded, the ``Load map`` button is replaced by legal notices and a button (or buttons) to display the terms of use in your web browser.
 
 The map initially displays the previously used location.
-You can change the view by zooming in or out or by panning the map with the pan control or by dragging it with the mouse.
+You can change the view by zooming in or out, or by panning the map with the pan control, or by dragging it with the mouse.
 However, it's usually easier to find a specific location by using the search facility.
 
 .. image:: ../images/screenshot_15.png
@@ -43,7 +43,7 @@ To drag multiple images to the same location, select them all and then drag with
 Note that photographs that have location data are shown with a flag symbol (|flag|) in the image selector area.
 
 The location coordinates are shown in the ``Latitude, longitude:`` box.
-These values are editable, so you can set the location of a photograph directly, e.g. by copying and pasting from another one.
+These values are editable, so you can set the location of photographs directly, e.g. by copying and pasting from another one.
 
 .. image:: ../images/screenshot_19.png
 
