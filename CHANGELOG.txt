@@ -1,0 +1,57 @@
+Photini - a simple photo metadata editor.
+http://github.com/jim-easterbrook/Photini
+Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+
+This program is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see
+<http://www.gnu.org/licenses/>.
+
+Changes in v14.06.dev108:
+  1/ Now Python 3 compatible.
+  2/ Added ability to import pictures from a camera.
+  3/ Much improved documentation.
+  4/ Simplified Picasa uploader.
+  5/ Uploaders now have just one progress bar.
+  6/ Simplified installation process.
+
+Changes in v14.04.dev63:
+  1/ Changed version numbering scheme.
+  2/ Added ability to offset several photo timestamps by same amount.
+  3/ Added a logging window to display error messages.
+  4/ Can now create Flickr sets/albums.
+  5/ Can now use XMP sidecar files.
+  6/ Flickr uploader can now use v2 of flickrapi.
+  7/ Switched to a different map tile provider for Open Street Map.
+  8/ Simplified documentation build process.
+
+Changes in v13.09_r20:
+  1/ Added Google Picasa uploader.
+  2/ Added menu option to select which tabs to use.
+
+Changes in v13.05_r7:
+  1/ Changed version numbering scheme.
+  2/ Added ability to drag and drop files to image list area.
+  3/ Numerous bug fixes.
+
+Changes in v13.02_a515056:
+  1/ Fixed bug with GPS accuracy.
+
+Changes in v13.01_f2bbd24:
+  1/ Started writing a user manual.
+  2/ Started using GExiv2 instead of deprecated pyexiv2.
+
+Changes in v13.01_43a0943:
+  1/ Changed version numbering scheme.
+  2/ Added ability to change image orientation.
+  3/ Added a Flickr uploader.
+
