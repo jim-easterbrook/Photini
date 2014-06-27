@@ -40,12 +40,15 @@ except OSError:
     pass
 if regenerate:
     commit = new_commit
-    release = str(int(release) + 1)
-    version = date.today().strftime('%y.%m') + '.dev%s' % release
+    version = dev_version
+next_release = int(version.split('v')[1]) + 1
+next_version = date.today().strftime('%y.%m') + '.dev%d' % next_release
+if next_version != dev_version:
+    dev_version = next_version
     with open('src/photini/version.py', 'w') as vf:
         vf.write("from __future__ import unicode_literals\n\n")
         vf.write("version = '%s'\n" % version)
-        vf.write("release = '%s'\n" % release)
+        vf.write("dev_version = '%s'\n" % dev_version)
         vf.write("commit = '%s'\n" % commit)
 
 # if sphinx is installed, add command to build documentation
