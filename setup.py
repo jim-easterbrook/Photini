@@ -18,9 +18,9 @@
 #  <http://www.gnu.org/licenses/>.
 
 from datetime import date
+from distutils.command.upload import upload
 import os
 from setuptools import setup
-import subprocess
 
 # read current version info without importing package
 with open('src/photini/version.py') as f:
@@ -29,26 +29,46 @@ with open('src/photini/version.py') as f:
 cmdclass = {}
 command_options = {}
 
-# regenerate version file, if required
-regenerate = False
+# get GitHub repo information
+# requires GitPython - 'sudo pip install gitpython --pre'
+last_commit = commit
+last_release = None
 try:
-    p = subprocess.Popen(['git', 'rev-parse', '--short', 'HEAD'],
-                         stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-    new_commit = p.communicate()[0].strip().decode('ASCII')
-    regenerate = (not p.returncode) and new_commit != commit
-except OSError:
+    import git
+    try:
+        repo = git.Repo()
+        latest = 0
+        for tag in repo.tags:
+            if tag.commit.committed_date > latest:
+                latest = tag.commit.committed_date
+                last_release = str(tag)
+        last_commit = str(repo.head.commit)[:7]
+    except git.exc.InvalidGitRepositoryError:
+        pass
+except ImportError:
     pass
-if regenerate:
-    commit = new_commit
-    version = dev_version
-next_release = int(version.split('v')[1]) + 1
-next_version = date.today().strftime('%y.%m') + '.dev%d' % next_release
-if next_version != dev_version:
-    dev_version = next_version
+
+# regenerate version file, if required
+if last_commit != commit:
+    release = str(int(release) + 1)
+    commit = last_commit
+if last_release:
+    major, minor, patch = last_release.split('.')
+    today = date.today()
+    if today.strftime('%m') == minor:
+        patch = int(patch) + 1
+    else:
+        patch = 0
+    next_release = today.strftime('%y.%m') + '.%d' % patch
+    next_version = next_release + '.dev%s' % release
+else:
+    next_release = '.'.join(version.split('.')[:3])
+    next_version = next_release
+if next_version != version:
     with open('src/photini/version.py', 'w') as vf:
         vf.write("from __future__ import unicode_literals\n\n")
-        vf.write("version = '%s'\n" % version)
-        vf.write("dev_version = '%s'\n" % dev_version)
+        vf.write("version = '%s'\n" % next_version)
+        vf.write("release = '%s'\n" % release)
         vf.write("commit = '%s'\n" % commit)
 
 # if sphinx is installed, add command to build documentation
@@ -69,6 +89,27 @@ command_options['upload_docs'] = {
     'upload_dir' : ('setup.py', 'doc/html'),
     }
 
+# modify upload class to add appropriate tag
+# requires GitPython - 'sudo pip install gitpython --pre'
+class upload_and_tag(upload):
+    def run(self):
+        import git
+        message = ''
+        with open('CHANGELOG.txt') as cl:
+            while not cl.readline().startswith('Changes'):
+                pass
+            while True:
+                line = cl.readline().strip()
+                if not line:
+                    break
+                message += line + '\n'
+        repo = git.Repo()
+        tag = repo.create_tag('Photini-%s' % next_release, message=message)
+        remote = repo.remotes.origin
+        remote.push(tags=True)
+        return upload.run(self)
+cmdclass['upload'] = upload_and_tag
+
 # set options for building distributions
 command_options['sdist'] = {
     'formats'        : ('setup.py', 'gztar zip'),
@@ -80,11 +121,11 @@ with open('README.rst') as ldf:
 url = 'https://github.com/jim-easterbrook/Photini'
 
 setup(name = 'Photini',
-      version = version,
+      version = next_release,
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
       url = url,
-      download_url = url + '/archive/Photini-' + version + '.tar.gz',
+      download_url = url + '/archive/Photini-' + next_release + '.tar.gz',
       description = 'Simple photo metadata editor',
       long_description = long_description,
       classifiers = [
