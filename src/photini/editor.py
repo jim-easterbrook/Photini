@@ -66,7 +66,7 @@ except ImportError:
     PicasaUploader = None
 from .technical import Technical
 from .utils import data_dir
-from .version import version
+from . import __version__
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, verbose):
@@ -212,7 +212,7 @@ class MainWindow(QtGui.QMainWindow):
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle('Photini: about')
         dialog.setText(
-            open(os.path.join(data_dir, 'about.html')).read() % (version))
+            open(os.path.join(data_dir, 'about.html')).read() % (__version__))
         dialog.setDetailedText(
             open(os.path.join(data_dir, 'LICENSE.txt')).read())
         dialog.exec_()
@@ -250,7 +250,7 @@ def main(argv=None):
     app = QtGui.QApplication(sys.argv)
     del sys.argv[-1]
     # parse remaining arguments
-    parser = OptionParser(version='Photini %s' % (version),
+    parser = OptionParser(version='Photini %s' % (__version__),
                           description='Photini photo metadata editor')
     parser.add_option('-v', '--verbose', action='count', default=0,
                       help='increase number of logging messages')

@@ -23,7 +23,7 @@ import os
 from setuptools import setup
 
 # read current version info without importing package
-with open('src/photini/version.py') as f:
+with open('src/photini/__init__.py') as f:
     exec(f.read())
 
 cmdclass = {}
@@ -31,7 +31,7 @@ command_options = {}
 
 # get GitHub repo information
 # requires GitPython - 'sudo pip install gitpython --pre'
-last_commit = commit
+last_commit = _commit
 last_release = None
 try:
     import git
@@ -49,9 +49,9 @@ except ImportError:
     pass
 
 # regenerate version file, if required
-if last_commit != commit:
-    release = str(int(release) + 1)
-    commit = last_commit
+if last_commit != _commit:
+    _dev_no = str(int(_dev_no) + 1)
+    _commit = last_commit
 if last_release:
     major, minor, patch = last_release.split('.')
     today = date.today()
@@ -60,16 +60,16 @@ if last_release:
     else:
         patch = 0
     next_release = today.strftime('%y.%m') + '.%d' % patch
-    next_version = next_release + '.dev%s' % release
+    next_version = next_release + '.dev%s' % _dev_no
 else:
-    next_release = '.'.join(version.split('.')[:3])
+    next_release = '.'.join(__version__.split('.')[:3])
     next_version = next_release
-if next_version != version:
-    with open('src/photini/version.py', 'w') as vf:
+if next_version != __version__:
+    with open('src/photini/__init__.py', 'w') as vf:
         vf.write("from __future__ import unicode_literals\n\n")
-        vf.write("version = '%s'\n" % next_version)
-        vf.write("release = '%s'\n" % release)
-        vf.write("commit = '%s'\n" % commit)
+        vf.write("__version__ = '%s'\n" % next_version)
+        vf.write("_dev_no = '%s'\n" % _dev_no)
+        vf.write("_commit = '%s'\n" % _commit)
 
 # if sphinx is installed, add command to build documentation
 try:

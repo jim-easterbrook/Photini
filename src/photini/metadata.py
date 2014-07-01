@@ -33,7 +33,7 @@ except ImportError as e:
     except ImportError:
         # raise exception on the one we really wanted
         raise e
-from .version import version
+from . import __version__
 
 class GPSvalue(object):
     def __init__(self, degrees=0.0, latitude=True):
@@ -149,9 +149,9 @@ class Metadata(QtCore.QObject):
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
-        self.set_item('soft_full', 'Photini editor v%s' % (version))
+        self.set_item('soft_full', 'Photini editor v%s' % (__version__))
         self.set_item('soft_name', 'Photini editor')
-        self.set_item('soft_vsn', '%s' % (version))
+        self.set_item('soft_vsn', '%s' % (__version__))
         if sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False

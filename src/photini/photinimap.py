@@ -27,7 +27,7 @@ from PyQt4.QtCore import Qt
 
 from .metadata import GPSvalue
 from .utils import data_dir
-from .version import version
+from . import __version__
 
 class WebPage(QtWebKit.QWebPage):
     def __init__(self, parent=None):
@@ -43,7 +43,7 @@ class WebPage(QtWebKit.QWebPage):
     def userAgentForUrl(self, url):
         # Nominatim requires the user agent to identify the application
         if url.host() == 'nominatim.openstreetmap.org':
-            return 'Photini/%s' % version
+            return 'Photini/%s' % __version__
         return QtWebKit.QWebPage.userAgentForUrl(self, url)
 
 class WebView(QtWebKit.QWebView):
