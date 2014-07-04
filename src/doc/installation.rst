@@ -109,10 +109,7 @@ Installing Photini
 
 The easiest way to install the latest release of Photini is with the pip command::
 
-   sudo pip install Photini --allow-unverified Photini
-
-Note the ``--allow-unverified Photini`` option.
-This is required as pip downloads Photini from `GitHub <https://github.com/jim-easterbrook/Photini>`_ instead of `PyPI <https://pypi.python.org/pypi/Photini/>`_.
+   sudo pip install Photini
 
 If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
 Either way, you then need to build and install Photini::
@@ -133,3 +130,12 @@ This should launch the Photini graphical application.
 
 On many computers you can add Photini to the desktop "start menu" or similar.
 For example, right-clicking on the KDE start menu allows one to "edit applications" and then add Photini to the "Graphics/Photography" section.
+
+Photini documentation
+---------------------
+
+If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can use setup.py to "compile" the documentation::
+
+   python setup.py build_sphinx
+
+Open ``doc/html/index.html`` with a web browser to read the local documentation.
