@@ -379,7 +379,7 @@ class Importer(QtGui.QWidget):
         if self.camera:
             since = datetime.strptime(
                 self.config_store.get(
-                    self.config_section, 'last_transfer', since.isoformat(' ')),
+                    self.config_section, 'last_transfer', since.isoformat(b' ')),
                 '%Y-%m-%d %H:%M:%S')
         self.select_files(since)
 
@@ -431,4 +431,4 @@ class Importer(QtGui.QWidget):
 ##        self.statusBar().clearMessage()
         self.show_file_list()
         self.config_store.set(
-            self.config_section, 'last_transfer', last_transfer.isoformat(' '))
+            self.config_section, 'last_transfer', last_transfer.isoformat(b' '))
