@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v14.07.0:
+  1/ Changed version numbering scheme, again.
+  2/ Minor bug fix in camera image importer.
+
 Changes in v14.06.dev108:
   1/ Now Python 3 compatible.
   2/ Added ability to import pictures from a camera.
