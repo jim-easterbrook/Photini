@@ -32,7 +32,7 @@ function initialize(lat, lng, zoom)
   };
   map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
   geocoder = new google.maps.Geocoder();
-  google.maps.event.addListener(map, 'bounds_changed', newBounds);
+  google.maps.event.addListener(map, 'idle', newBounds);
 }
 
 function newBounds()
