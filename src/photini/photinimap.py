@@ -53,9 +53,13 @@ class WebView(QtWebKit.QWebView):
 
     drop_text = QtCore.pyqtSignal(int, int, str)
     def dropEvent(self, event):
+        if not event.mimeData().hasText():
+            return
+        text = event.mimeData().text()
+        if not str(text).strip():
+            return
         event.acceptProposedAction()
-        self.drop_text.emit(
-            event.pos().x(), event.pos().y(), event.mimeData().text())
+        self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
 class PhotiniMap(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
