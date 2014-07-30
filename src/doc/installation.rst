@@ -14,14 +14,30 @@ Python
 ^^^^^^
 
 Photini should work with all versions of `Python <https://www.python.org/>`_ from 2.6 onwards, but the Picasa uploader requires a library that has not yet been ported to Python 3.
-Linux users should use their package manager to install Python.
+
+Python may already be installed on your computer.
+To find out, open a terminal window (Windows users run ``cmd.exe``) and try running python by typing this command::
+
+   python -V
+
+If python is installed this should show you the version number.
+
+Linux users should use their system's package manager to install Python.
 Windows and MacOS users can download an installer from https://www.python.org/downloads/.
+As some libraries have not yet been ported to Python 3 you should probably install version 2.7.
 
 PyQt
 ^^^^
 
 The `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ application framework provides the graphical user interface elements used by Photini.
 Version 4 is required.
+
+You can check if PyQt4 is already installed with this command::
+
+   python -c "import PyQt4"
+
+If PyQt4 is installed this will run without generating any error message.
+
 Linux users should use their package manager to install ``python-qt4``.
 Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
 
@@ -37,6 +53,9 @@ All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.htm
 Once pip is installed, installing appdirs is easy::
 
    sudo pip install appdirs
+
+Note that ``sudo`` is not required on Windows, or if you have root privileges.
+In this case you just run ``pip install appdirs``.
 
 gexiv2 (Linux & MacOS)
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -127,6 +146,9 @@ If the installation has been successful you should be able to run Photini from t
    photini
 
 This should launch the Photini graphical application.
+If it fails, you may get more helpful error messages by running the Photini editor module directly::
+
+   python -m photini.editor
 
 On many computers you can add Photini to the desktop "start menu" or similar.
 For example, right-clicking on the KDE start menu allows one to "edit applications" and then add Photini to the "Graphics/Photography" section.
