@@ -137,12 +137,10 @@ class Metadata(QtCore.QObject):
             self._sc = None
         self._unsaved = False
         # possible character encodings of metadata strings
-        # put utf_8 before latin_1 as it's easier to detect invalid utf_8
-        self._encodings = ['utf_8', 'latin_1', locale.getdefaultlocale()[1]]
-        self._actual_encoding = {
-            'Exif' : self._encodings[0],
-            'Iptc' : self._encodings[0],
-            }
+        self._encodings = ['utf_8', 'latin_1']
+        char_set = locale.getdefaultlocale()[1]
+        if char_set:
+            self._encodings.append(char_set)
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -270,21 +268,12 @@ class Metadata(QtCore.QObject):
     def _decode(self, value, family):
         if sys.version_info[0] >= 3:
             return value
-        try:
-            return unicode(value, self._actual_encoding[family])
-        except UnicodeDecodeError:
-            pass
         for encoding in self._encodings:
-            if not encoding:
-                continue
             try:
-                result = unicode(value, encoding)
+                return unicode(value, encoding)
             except UnicodeDecodeError:
                 continue
-            self._actual_encoding[family] = encoding
-            self.logger.info('%s: detected %s encoding', family, encoding)
-            return result
-        return unicode(value, self._actual_encoding[family])
+        return unicode(value, 'utf_8')
 
     def get_item(self, name):
         for key, required in self._keys[name]:
@@ -314,7 +303,7 @@ class Metadata(QtCore.QObject):
     def _encode(self, value, family):
         if sys.version_info[0] >= 3:
             return value
-        return value.encode(self._actual_encoding[family])
+        return value.encode('utf_8')
 
     def set_item(self, name, value):
         if value == self.get_item(name):
