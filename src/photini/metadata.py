@@ -16,10 +16,10 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import datetime
 import fractions
+import locale
+import logging
 import os
 import sys
 
@@ -100,6 +100,7 @@ class Metadata(QtCore.QObject):
                             ('Exif.Image.DateTimeOriginal',      True),),
         'title'          : (('Xmp.dc.title',                     True),
                             ('Iptc.Application2.ObjectName',     True),
+                            ('Iptc.Application2.Headline',       False),
                             ('Exif.Image.ImageDescription',      True),),
         'creator'        : (('Xmp.dc.creator',                   True),
                             ('Xmp.tiff.Artist',                  False),
@@ -125,25 +126,39 @@ class Metadata(QtCore.QObject):
     _list_items = ('keywords',)
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
+        self.logger = logging.getLogger(self.__class__.__name__)
         # create metadata handlers for image file and sidecar (if present)
         self._path = path
         self._if = MetadataHandler(path)
-        self._sc = None
+        self._sc_path = self._find_side_car(path)
+        if self._sc_path:
+            self._sc = MetadataHandler(self._sc_path)
+        else:
+            self._sc = None
+        self._unsaved = False
+        # possible character encodings of metadata strings
+        # put utf_8 before latin_1 as it's easier to detect invalid utf_8
+        self._encodings = ['utf_8', 'latin_1', locale.getdefaultlocale()[1]]
+        self._actual_encoding = {
+            'Exif' : self._encodings[0],
+            'Iptc' : self._encodings[0],
+            }
+
+    def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
             for ext in ('.xmp', '.XMP'):
-                if not self._sc:
-                    self.sc_path = base + ext
-                    if os.path.exists(self.sc_path):
-                        self._sc = MetadataHandler(self.sc_path)
-        self._unsaved = False
+                result = base + ext
+                if os.path.exists(result):
+                    return result
+        return None
 
     def create_side_car(self):
-        self.sc_path = self._path + '.xmp'
-        with open(self.sc_path, 'w') as of:
+        self._sc_path = self._path + '.xmp'
+        with open(self._sc_path, 'w') as of:
             of.write('<x:xmpmeta x:xmptk="XMP Core 4.4.0-Exiv2" ')
             of.write('xmlns:x="adobe:ns:meta/">\n')
             of.write('</x:xmpmeta>')
-        self._sc = MetadataHandler(self.sc_path)
+        self._sc = MetadataHandler(self._sc_path)
         self._sc.copy(self._if, comment=False)
 
     def save(self, if_mode, sc_mode):
@@ -158,7 +173,7 @@ class Metadata(QtCore.QObject):
         if if_mode:
             OK = self._if.save()
         if sc_mode == 'delete' and self._sc and OK:
-            os.unlink(self.sc_path)
+            os.unlink(self._sc_path)
             self._sc = None
         if sc_mode == 'auto' and not self._sc and not OK:
             self.create_side_car()
@@ -252,6 +267,25 @@ class Metadata(QtCore.QObject):
         return (('Xmp.exif.GPSLatitude' in self.get_xmp_tags()) or
                 ('Exif.GPSInfo.GPSLatitude' in self.get_exif_tags()))
 
+    def _decode(self, value, family):
+        if sys.version_info[0] >= 3:
+            return value
+        try:
+            return unicode(value, self._actual_encoding[family])
+        except UnicodeDecodeError:
+            pass
+        for encoding in self._encodings:
+            if not encoding:
+                continue
+            try:
+                result = unicode(value, encoding)
+            except UnicodeDecodeError:
+                continue
+            self._actual_encoding[family] = encoding
+            self.logger.info('%s: detected %s encoding', family, encoding)
+            return result
+        return unicode(value, self._actual_encoding[family])
+
     def get_item(self, name):
         for key, required in self._keys[name]:
             family, group, tag = key.split('.')
@@ -259,25 +293,28 @@ class Metadata(QtCore.QObject):
                 if tag.startswith('GPS'):
                     return GPSvalue().from_xmp_string(
                         self.get_xmp_tag_string(key))
-                return '; '.join(self.get_xmp_tag_multiple(key))
+                value = self.get_xmp_tag_multiple(key)
+                return '; '.join(value)
             if key in self.get_iptc_tags():
-                return '; '.join(self.get_iptc_tag_multiple(key))
+                value = map(lambda x: self._decode(x, family),
+                            self.get_iptc_tag_multiple(key))
+                return '; '.join(value)
             if key in self.get_exif_tags():
+                value = self._decode(self.get_exif_tag_string(key), family)
                 if tag.startswith('DateTime'):
-                    return datetime.datetime.strptime(
-                        self.get_exif_tag_string(key), '%Y:%m:%d %H:%M:%S')
+                    return datetime.datetime.strptime(value, '%Y:%m:%d %H:%M:%S')
                 if tag == 'Orientation':
-                    return int(self.get_exif_tag_string(key))
+                    return int(value)
                 if group == 'GPSInfo':
                     return GPSvalue().from_exif_string(
-                        self.get_exif_tag_string(key),
-                        self.get_exif_tag_string('%sRef' % key))
-                t = self.get_exif_tag_string(key)
-                if sys.version_info[0] >= 3:
-                    return self.get_exif_tag_string(
-                        key).encode('iso8859_1').decode('utf8')
-                return unicode(self.get_exif_tag_string(key), 'iso8859_1')
+                        value, self.get_exif_tag_string('%sRef' % key))
+                return value
         return None
+
+    def _encode(self, value, family):
+        if sys.version_info[0] >= 3:
+            return value
+        return value.encode(self._actual_encoding[family])
 
     def set_item(self, name, value):
         if value == self.get_item(name):
@@ -301,6 +338,7 @@ class Metadata(QtCore.QObject):
                     else:
                         self.set_xmp_tag_multiple(key, value)
                 elif family == 'Iptc':
+                    value = map(lambda x: self._encode(x, family), value)
                     self.set_iptc_tag_multiple(key, value)
                 elif family == 'Exif':
                     if isinstance(value, GPSvalue):
@@ -313,7 +351,8 @@ class Metadata(QtCore.QObject):
                     elif isinstance(value, int):
                         self.set_exif_tag_long(key, value)
                     else:
-                        self.set_exif_tag_string(key, value[0])
+                        self.set_exif_tag_string(
+                            key, self._encode(value[0], family))
         self._set_unsaved(True)
 
     def del_item(self, name):

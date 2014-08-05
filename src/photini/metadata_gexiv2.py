@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 import sys
 
@@ -41,6 +39,7 @@ class MetadataHandler(object):
         self.get_iptc_tags         = self._md.get_iptc_tags
         self.get_xmp_tags          = self._md.get_xmp_tags
         self.get_exif_tag_string   = self._md.get_tag_string
+        self.get_iptc_tag_multiple = self._md.get_tag_multiple
         self.get_xmp_tag_string    = self._md.get_tag_string
         self.set_exif_tag_string   = self._md.set_tag_string
         self.set_exif_tag_long     = self._md.set_tag_long
@@ -74,15 +73,8 @@ class MetadataHandler(object):
         if comment:
             self._md.set_comment(other._md.get_comment())
 
-    def get_iptc_tag_multiple(self, tag):
-        if sys.version_info[0] >= 3:
-            return map(lambda x: x.encode('iso8859_1').decode('utf8'),
-                   self._md.get_tag_multiple(tag))
-        return map(lambda x: unicode(x, 'iso8859_1'),
-                   self._md.get_tag_multiple(tag))
-
     def get_xmp_tag_multiple(self, tag):
         if sys.version_info[0] >= 3:
             return self._md.get_tag_multiple(tag)
-        return map(lambda x: unicode(x, 'utf8'),
+        return map(lambda x: unicode(x, 'utf_8'),
                    self._md.get_tag_multiple(tag))

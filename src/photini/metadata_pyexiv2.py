@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 
 import pyexiv2
@@ -66,7 +64,7 @@ class MetadataHandler(object):
 
     def set_exif_tag_string(self, tag, value):
         new_tag = pyexiv2.ExifTag(tag)
-        new_tag.raw_value = value.encode('utf-8')
+        new_tag.raw_value = value
         self._md[tag] = new_tag
 
     def set_exif_tag_long(self, tag, value):
