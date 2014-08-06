@@ -94,34 +94,34 @@ class GPSvalue(object):
 
 class Metadata(QtCore.QObject):
     _keys = {
-        'date_digitised' : (('Exif.Photo.DateTimeDigitized',     True),),
-        'date_modified'  : (('Exif.Image.DateTime',              True),),
-        'date_taken'     : (('Exif.Photo.DateTimeOriginal',      True),
-                            ('Exif.Image.DateTimeOriginal',      True),),
-        'title'          : (('Xmp.dc.title',                     True),
-                            ('Iptc.Application2.ObjectName',     True),
-                            ('Iptc.Application2.Headline',       False),
-                            ('Exif.Image.ImageDescription',      True),),
-        'creator'        : (('Xmp.dc.creator',                   True),
-                            ('Xmp.tiff.Artist',                  False),
-                            ('Iptc.Application2.Byline',         True),
-                            ('Exif.Image.Artist',                True),),
-        'description'    : (('Xmp.dc.description',               True),
-                            ('Iptc.Application2.Caption',        True),),
-        'keywords'       : (('Xmp.dc.subject',                   True),
-                            ('Iptc.Application2.Keywords',       True),),
-        'copyright'      : (('Xmp.dc.rights',                    True),
-                            ('Xmp.tiff.Copyright',               False),
-                            ('Iptc.Application2.Copyright',      True),
-                            ('Exif.Image.Copyright',             True),),
-        'latitude'       : (('Exif.GPSInfo.GPSLatitude',         True),
-                            ('Xmp.exif.GPSLatitude',             True),),
-        'longitude'      : (('Exif.GPSInfo.GPSLongitude',        True),
-                            ('Xmp.exif.GPSLongitude',            True),),
-        'orientation'    : (('Exif.Image.Orientation',           True),),
-        'soft_full'      : (('Exif.Image.ProcessingSoftware',    True),),
-        'soft_name'      : (('Iptc.Application2.Program',        True),),
-        'soft_vsn'       : (('Iptc.Application2.ProgramVersion', True),),
+        'date_digitised' : (('Exif.Photo.DateTimeDigitized',     True,  0),),
+        'date_modified'  : (('Exif.Image.DateTime',              True,  0),),
+        'date_taken'     : (('Exif.Photo.DateTimeOriginal',      True,  0),
+                            ('Exif.Image.DateTimeOriginal',      True,  0),),
+        'title'          : (('Xmp.dc.title',                     True,  0),
+                            ('Iptc.Application2.ObjectName',     False, 64),
+                            ('Iptc.Application2.Headline',       False, 256),
+                            ('Exif.Image.ImageDescription',      True,  0),),
+        'creator'        : (('Xmp.dc.creator',                   True,  0),
+                            ('Xmp.tiff.Artist',                  False, 0),
+                            ('Iptc.Application2.Byline',         False, 32),
+                            ('Exif.Image.Artist',                True,  0),),
+        'description'    : (('Xmp.dc.description',               True,  0),
+                            ('Iptc.Application2.Caption',        False, 2000),),
+        'keywords'       : (('Xmp.dc.subject',                   True,  0),
+                            ('Iptc.Application2.Keywords',       False, 64),),
+        'copyright'      : (('Xmp.dc.rights',                    True,  0),
+                            ('Xmp.tiff.Copyright',               False, 0),
+                            ('Iptc.Application2.Copyright',      False, 128),
+                            ('Exif.Image.Copyright',             True,  0),),
+        'latitude'       : (('Exif.GPSInfo.GPSLatitude',         True,  0),
+                            ('Xmp.exif.GPSLatitude',             True,  0),),
+        'longitude'      : (('Exif.GPSInfo.GPSLongitude',        True,  0),
+                            ('Xmp.exif.GPSLongitude',            True,  0),),
+        'orientation'    : (('Exif.Image.Orientation',           True,  0),),
+        'soft_full'      : (('Exif.Image.ProcessingSoftware',    True,  0),),
+        'soft_name'      : (('Iptc.Application2.Program',        False, 32),),
+        'soft_vsn'       : (('Iptc.Application2.ProgramVersion', False, 10),),
         }
     _list_items = ('keywords',)
     def __init__(self, path, parent=None):
@@ -265,7 +265,7 @@ class Metadata(QtCore.QObject):
         return (('Xmp.exif.GPSLatitude' in self.get_xmp_tags()) or
                 ('Exif.GPSInfo.GPSLatitude' in self.get_exif_tags()))
 
-    def _decode(self, value, family):
+    def _decode(self, value):
         if sys.version_info[0] >= 3:
             return value
         for encoding in self._encodings:
@@ -276,7 +276,7 @@ class Metadata(QtCore.QObject):
         return unicode(value, 'utf_8')
 
     def get_item(self, name):
-        for key, required in self._keys[name]:
+        for key, required, max_bytes in self._keys[name]:
             family, group, tag = key.split('.')
             if key in self.get_xmp_tags():
                 if tag.startswith('GPS'):
@@ -285,11 +285,11 @@ class Metadata(QtCore.QObject):
                 value = self.get_xmp_tag_multiple(key)
                 return '; '.join(value)
             if key in self.get_iptc_tags():
-                value = map(lambda x: self._decode(x, family),
+                value = map(lambda x: self._decode(x),
                             self.get_iptc_tag_multiple(key))
                 return '; '.join(value)
             if key in self.get_exif_tags():
-                value = self._decode(self.get_exif_tag_string(key), family)
+                value = self._decode(self.get_exif_tag_string(key))
                 if tag.startswith('DateTime'):
                     return datetime.datetime.strptime(value, '%Y:%m:%d %H:%M:%S')
                 if tag == 'Orientation':
@@ -300,10 +300,13 @@ class Metadata(QtCore.QObject):
                 return value
         return None
 
-    def _encode(self, value, family):
+    def _encode(self, value, max_bytes):
+        result = value.encode('utf_8')
+        if max_bytes:
+            result = result[:max_bytes]
         if sys.version_info[0] >= 3:
-            return value
-        return value.encode('utf_8')
+            result = str(result, 'ascii')
+        return result
 
     def set_item(self, name, value):
         if value == self.get_item(name):
@@ -318,7 +321,7 @@ class Metadata(QtCore.QObject):
         if not value:
             self.del_item(name)
             return
-        for key, required in self._keys[name]:
+        for key, required, max_bytes in self._keys[name]:
             if required or key in self.get_tags():
                 family, group, tag = key.split('.')
                 if family == 'Xmp':
@@ -327,7 +330,7 @@ class Metadata(QtCore.QObject):
                     else:
                         self.set_xmp_tag_multiple(key, value)
                 elif family == 'Iptc':
-                    value = map(lambda x: self._encode(x, family), value)
+                    value = map(lambda x: self._encode(x, max_bytes), value)
                     self.set_iptc_tag_multiple(key, value)
                 elif family == 'Exif':
                     if isinstance(value, GPSvalue):
@@ -341,12 +344,12 @@ class Metadata(QtCore.QObject):
                         self.set_exif_tag_long(key, value)
                     else:
                         self.set_exif_tag_string(
-                            key, self._encode(value[0], family))
+                            key, self._encode(value[0], max_bytes))
         self._set_unsaved(True)
 
     def del_item(self, name):
         changed = False
-        for key, required in self._keys[name]:
+        for key, required, max_bytes in self._keys[name]:
             if key in self.get_tags():
                 self.clear_tag(key)
                 changed = True
