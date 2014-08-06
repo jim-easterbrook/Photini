@@ -263,13 +263,17 @@ class ImageList(QtGui.QWidget):
         types = []
         if sys.version_info[0] >= 3:
             for ext in QtGui.QImageReader.supportedImageFormats():
-                types.append('*.%s' % str(ext, encoding='utf8'))
+                types.append('*.%s' % str(ext, encoding='utf_8'))
         else:
             for ext in QtGui.QImageReader.supportedImageFormats():
                 types.append('*.%s' % str(ext))
-        path_list = map(str, QtGui.QFileDialog.getOpenFileNames(
+        path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            "Images (%s);;All files (*)" % ' '.join(types)))
+            "Images (%s);;All files (*)" % ' '.join(types))
+        # work around for Qt bug 33992
+        # https://bugreports.qt-project.org/browse/QTBUG-33992
+        path_list = map(lambda x: str(
+            QtCore.QUrl.fromPercentEncoding(x.toLocal8Bit())), path_list)
         if not path_list:
             return
         self.open_file_list(path_list)
