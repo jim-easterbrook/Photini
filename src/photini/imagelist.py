@@ -270,10 +270,12 @@ class ImageList(QtGui.QWidget):
         path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             "Images (%s);;All files (*)" % ' '.join(types))
+        if sys.version_info[0] < 3:
+            path_list = map(lambda x: x.toLocal8Bit(), path_list)
         # work around for Qt bug 33992
         # https://bugreports.qt-project.org/browse/QTBUG-33992
         path_list = map(lambda x: str(
-            QtCore.QUrl.fromPercentEncoding(x.toLocal8Bit())), path_list)
+            QtCore.QUrl.fromPercentEncoding(x)), path_list)
         if not path_list:
             return
         self.open_file_list(path_list)
