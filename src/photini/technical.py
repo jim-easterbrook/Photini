@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -212,9 +212,9 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             for key in self.date_widget:
                 value = image.metadata.get_item('date_%s' % key)
-                if not value:
+                if value.empty():
                     continue
-                image.metadata.set_item('date_%s' % key, value + offset)
+                image.metadata.set_item('date_%s' % key, value.value + offset)
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -246,8 +246,10 @@ class Technical(QtGui.QWidget):
             # update times, leaving date unchanged
             for image in self.image_list.get_selected_images():
                 current = image.metadata.get_item('date_%s' % key)
-                if not current:
+                if current.empty():
                     current = pyDateTime.today()
+                else:
+                    current = current.value
                 image.metadata.set_item(
                     'date_%s' % key,
                     pyDateTime.combine(current.date(), value.toPyTime()))
@@ -259,8 +261,10 @@ class Technical(QtGui.QWidget):
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
                 current = image.metadata.get_item('date_%s' % key)
-                if not current:
+                if current.empty():
                     current = pyDateTime.min
+                else:
+                    current = current.value
                 image.metadata.set_item(
                     'date_%s' % key,
                     pyDateTime.combine(value.toPyDate(), current.time()))
@@ -271,12 +275,12 @@ class Technical(QtGui.QWidget):
         times = []
         for image in self.image_list.get_selected_images():
             value = image.metadata.get_item('date_%s' % key)
-            if value:
-                dates.append(value.date())
-                times.append(value.time())
-            else:
+            if value.empty():
                 dates.append(None)
                 times.append(None)
+            else:
+                dates.append(value.value.date())
+                times.append(value.value.time())
         value = dates[0]
         for new_value in dates[1:]:
             if new_value != value:
@@ -302,6 +306,10 @@ class Technical(QtGui.QWidget):
         value = None
         for image in self.image_list.get_selected_images():
             new_value = image.metadata.get_item('orientation')
+            if new_value.empty():
+                new_value = None
+            else:
+                new_value = new_value.value
             if value and new_value != value:
                 value = -1
                 break

@@ -90,15 +90,13 @@ class UploadThread(QtCore.QThread):
                     photo.media = gdata.media.Group()
                 if not photo.media.keywords:
                     photo.media.keywords = gdata.media.Keywords()
-                photo.media.keywords.text = ', '.join(
-                    params['keywords'].split(';'))
-            if params['lat'] is not None and params['lng'] is not None:
+                photo.media.keywords.text = params['keywords']
+            if params['latlong']:
                 if not photo.geo:
                     photo.geo = gdata.geo.Where()
                 if not photo.geo.Point:
                     photo.geo.Point = gdata.geo.Point()
-                photo.geo.Point.pos = gdata.geo.Pos(text='%f %f' % (
-                    params['lat'].degrees, params['lng'].degrees))
+                photo.geo.Point.pos = gdata.geo.Pos(text=params['latlong'])
             mediasource = MediaSourceWithCallback(
                 params['path'], 'image/jpeg', self.callback)
             try:
@@ -388,18 +386,24 @@ Doing so will remove the album and its photos from all Google products.""" % (
         # make list of items to upload
         upload_list = []
         for image in self.image_list.get_selected_images():
-            title = image.metadata.get_item('title')
-            description = image.metadata.get_item('description')
+            title = image.metadata.get_item('title').as_str()
+            description = image.metadata.get_item('description').as_str()
             keywords = image.metadata.get_item('keywords')
-            lat = image.metadata.get_item('latitude')
-            lng = image.metadata.get_item('longitude')
+            if keywords.empty():
+                keywords = None
+            else:
+                keywords = ', '.join(keywords.value)
+            latlong = image.metadata.get_item('latlong')
+            if latlong.empty():
+                latlong = None
+            else:
+                latlong = '%f %f' % latlong.value
             upload_list.append({
                 'path'        : image.path,
                 'title'       : title,
                 'description' : description,
                 'keywords'    : keywords,
-                'lat'         : lat,
-                'lng'         : lng,
+                'latlong'     : latlong,
                 })
         # pass the list to a separate thread, so GUI can continue
         if self.authorise():

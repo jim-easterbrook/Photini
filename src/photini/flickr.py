@@ -257,18 +257,15 @@ class FlickrUploader(QtGui.QWidget):
         # make list of items to upload
         upload_list = list()
         for image in self.image_list.get_selected_images():
-            title = image.metadata.get_item('title')
+            title = image.metadata.get_item('title').as_str()
             if not title:
                 title = os.path.basename(image.path)
-            description = image.metadata.get_item('description')
-            if not description:
-                description = ''
+            description = image.metadata.get_item('description').as_str()
             tags = image.metadata.get_item('keywords')
-            if tags:
-                tags = ' '.join(
-                    map(lambda x: '"%s"' % x.strip(), tags.split(';')))
-            else:
+            if tags.empty():
                 tags = ''
+            else:
+                tags = ' '.join(map(lambda x: '"%s"' % x, tags.value))
             upload_list.append({
                 'filename'     : image.path,
                 'title'        : title,

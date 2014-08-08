@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -121,8 +121,10 @@ class Descriptive(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.metadata.get_item('date_taken')
-            if not date:
+            if date.empty():
                 date = datetime.now()
+            else:
+                date = date.value
             value = 'Copyright ©%d %s. All rights reserved.' % (
                 date.year, name)
             image.metadata.set_item('copyright', value)
@@ -153,7 +155,7 @@ class Descriptive(QtGui.QWidget):
     def _update_widget(self, key):
         value = None
         for image in self.image_list.get_selected_images():
-            new_value = image.metadata.get_item(key)
+            new_value = image.metadata.get_item(key).as_str()
             if value and new_value != value:
                 self.widgets[key].setText('<multiple values>')
                 return

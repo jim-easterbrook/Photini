@@ -34,19 +34,15 @@ class MetadataHandler(object):
         self.path = path
         self._md = GExiv2.Metadata()
         self._md.open_path(self.path)
-        # adopt (and rename) some GExiv2.Metadata methods
-        self.get_exif_tags         = self._md.get_exif_tags
-        self.get_iptc_tags         = self._md.get_iptc_tags
-        self.get_xmp_tags          = self._md.get_xmp_tags
-        self.get_exif_tag_string   = self._md.get_tag_string
-        self.get_iptc_tag_multiple = self._md.get_tag_multiple
-        self.get_xmp_tag_string    = self._md.get_tag_string
-        self.set_exif_tag_string   = self._md.set_tag_string
-        self.set_exif_tag_long     = self._md.set_tag_long
-        self.set_iptc_tag_multiple = self._md.set_tag_multiple
-        self.set_xmp_tag_string    = self._md.set_tag_string
-        self.set_xmp_tag_multiple  = self._md.set_tag_multiple
-        self.clear_tag             = self._md.clear_tag
+        # adopt some GExiv2.Metadata methods
+        self.get_exif_tags    = self._md.get_exif_tags
+        self.get_iptc_tags    = self._md.get_iptc_tags
+        self.get_xmp_tags     = self._md.get_xmp_tags
+        self.get_tag_string   = self._md.get_tag_string
+        self.get_tag_multiple = self._md.get_tag_multiple
+        self.set_tag_string   = self._md.set_tag_string
+        self.set_tag_multiple = self._md.set_tag_multiple
+        self.clear_tag        = self._md.clear_tag
 
     def save(self):
         try:
@@ -72,9 +68,3 @@ class MetadataHandler(object):
                     tag, other._md.get_tag_multiple(tag))
         if comment:
             self._md.set_comment(other._md.get_comment())
-
-    def get_xmp_tag_multiple(self, tag):
-        if sys.version_info[0] >= 3:
-            return self._md.get_tag_multiple(tag)
-        return map(lambda x: unicode(x, 'utf_8'),
-                   self._md.get_tag_multiple(tag))

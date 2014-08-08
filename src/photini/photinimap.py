@@ -25,7 +25,6 @@ import webbrowser
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
-from .metadata import GPSvalue
 from .utils import data_dir
 from . import __version__
 
@@ -189,8 +188,7 @@ class PhotiniMap(QtGui.QWidget):
         text = str(self.coords.text()).strip()
         if not text:
             for image in self.image_list.get_selected_images():
-                image.metadata.del_item('latitude')
-                image.metadata.del_item('longitude')
+                image.metadata.del_item('latlong')
             self.JavaScript('delMarker("%s")' % (image.path))
             return
         lat, lng = map(float, text.split(','))
@@ -217,12 +215,11 @@ class PhotiniMap(QtGui.QWidget):
     def display_coords(self):
         coords = None
         for image in self.image_list.get_selected_images():
-            lat = image.metadata.get_item('latitude')
-            lng = image.metadata.get_item('longitude')
-            if lat and lng:
-                new_coords = lat.degrees, lng.degrees
-            else:
+            latlong = image.metadata.get_item('latlong')
+            if latlong.empty():
                 new_coords = None
+            else:
+                new_coords = latlong.value
             if coords and new_coords != coords:
                 self.coords.setText("<multiple values>")
                 return
@@ -239,9 +236,8 @@ class PhotiniMap(QtGui.QWidget):
         else:
             self.coords.setEnabled(False)
         for image in self.image_list.get_images():
-            lat = image.metadata.get_item('latitude')
-            lng = image.metadata.get_item('longitude')
-            if lat is not None and lng is not None:
+            latlong = image.metadata.get_item('latlong')
+            if not latlong.empty():
                 self.JavaScript(
                     'enableMarker("%s", %d)' % (image.path, image.selected))
         self.display_coords()
@@ -250,10 +246,9 @@ class PhotiniMap(QtGui.QWidget):
     def new_images(self):
         self.JavaScript('removeMarkers()')
         for image in self.image_list.get_images():
-            lat = image.metadata.get_item('latitude')
-            lng = image.metadata.get_item('longitude')
-            if lat is not None and lng is not None:
-                self._add_marker(image, lat.degrees, lng.degrees)
+            latlong = image.metadata.get_item('latlong')
+            if not latlong.empty():
+                self._add_marker(image, *latlong.value)
 
     def _add_marker(self, image, lat, lng):
         if not self.map_loaded:
@@ -313,8 +308,7 @@ class PhotiniMap(QtGui.QWidget):
         self.see_selection()
 
     def _set_metadata(self, image, lat, lng):
-        image.metadata.set_item('latitude', GPSvalue(lat, True))
-        image.metadata.set_item('longitude', GPSvalue(lng, False))
+        image.metadata.set_item('latlong', (lat, lng))
 
     def JavaScript(self, command):
         if self.map_loaded:

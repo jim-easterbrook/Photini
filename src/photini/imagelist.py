@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -97,7 +97,7 @@ class Image(QtGui.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.has_GPS():
+        if not self.metadata.get_item('latlong').empty():
             status += unichr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -127,16 +127,16 @@ class Image(QtGui.QFrame):
                 self.pixmap = self.pixmap.scaled(
                     400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             orientation = self.metadata.get_item('orientation')
-            if orientation is not None and orientation != 1:
+            if not orientation.empty() and orientation.value != 1:
                 # need to rotate and or reflect image
                 transform = QtGui.QTransform()
-                if orientation in (3, 4):
+                if orientation.value in (3, 4):
                     transform = transform.rotate(180.0)
-                elif orientation in (5, 6):
+                elif orientation.value in (5, 6):
                     transform = transform.rotate(90.0)
-                elif orientation in (7, 8):
+                elif orientation.value in (7, 8):
                     transform = transform.rotate(-90.0)
-                if orientation in (2, 4, 5, 7):
+                if orientation.value in (2, 4, 5, 7):
                     transform = transform.scale(-1.0, 1.0)
                 self.pixmap = self.pixmap.transformed(transform)
         self.image.setPixmap(self.pixmap.scaled(
@@ -294,14 +294,16 @@ class ImageList(QtGui.QWidget):
 
     def _date_key(self, idx):
         result = self.image[idx].metadata.get_item('date_taken')
-        if not result:
+        if result.empty():
             result = self.image[idx].metadata.get_item('date_digitised')
-        if not result:
+        if result.empty():
             result = self.image[idx].metadata.get_item('date_modified')
-        if not result:
+        if result.empty():
             # use file date as last resort
             result = datetime.fromtimestamp(
                 os.path.getmtime(self.image[idx].path))
+        else:
+            result = result.value
         return result
 
     sort_order_changed = QtCore.pyqtSignal()

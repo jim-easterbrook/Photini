@@ -47,44 +47,36 @@ class MetadataHandler(object):
     def get_xmp_tags(self):
         return self._md.xmp_keys
 
-    def get_exif_tag_string(self, tag):
+    def get_tag_string(self, tag):
         return self._md[tag].raw_value
 
-    def get_iptc_tag_multiple(self, tag):
-        return self._md[tag].value
-
-    def get_xmp_tag_string(self, tag):
-        return self._md[tag].raw_value
-
-    def get_xmp_tag_multiple(self, tag):
+    def get_tag_multiple(self, tag):
         item = self._md[tag]
         if item.type == 'Lang Alt':
             return item.value.values()
+        elif item.type == 'Date':
+            return [item.raw_value]
         return item.value
 
-    def set_exif_tag_string(self, tag, value):
-        new_tag = pyexiv2.ExifTag(tag)
+    def set_tag_string(self, tag, value):
+        if tag.startswith('Exif'):
+            new_tag = pyexiv2.ExifTag(tag)
         new_tag.raw_value = value
         self._md[tag] = new_tag
 
-    def set_exif_tag_long(self, tag, value):
-        self._md[tag] = pyexiv2.ExifTag(tag, value)
-
-    def set_iptc_tag_multiple(self, tag, value):
-        self._md[tag] = pyexiv2.IptcTag(tag, value)
-
-    def set_xmp_tag_string(self, tag, value):
-        new_tag = pyexiv2.XmpTag(tag)
-        new_tag.raw_value = value
-        self._md[tag] = new_tag
-
-    def set_xmp_tag_multiple(self, tag, value):
-        new_tag = pyexiv2.XmpTag(tag)
-        if new_tag.type == 'Lang Alt':
-            new_tag = pyexiv2.XmpTag(tag, {'x-default': value[0]})
-        else:
-            new_tag = pyexiv2.XmpTag(tag, value)
+    def set_tag_multiple(self, tag, value):
+        if tag.startswith('Iptc'):
+            new_tag = pyexiv2.IptcTag(tag, value)
+        elif tag.startswith('Xmp'):
+            new_tag = pyexiv2.XmpTag(tag)
+            if new_tag.type == 'Lang Alt':
+                new_tag = pyexiv2.XmpTag(tag, {'x-default': value[0]})
+            elif new_tag.type == 'Date':
+                new_tag.raw_value = value[0]
+            else:
+                new_tag = pyexiv2.XmpTag(tag, value)
         self._md[tag] = new_tag
 
     def clear_tag(self, tag):
-        del self._md[tag]
+        if tag in self._md:
+            del self._md[tag]

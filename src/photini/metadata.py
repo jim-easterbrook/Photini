@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import datetime
+from datetime import datetime
 import fractions
 import locale
 import logging
@@ -35,95 +35,437 @@ except ImportError as e:
         raise e
 from . import __version__
 
-class GPSvalue(object):
-    def __init__(self, degrees=0.0, latitude=True):
-        self.degrees = degrees
-        self.latitude = latitude
+_encodings = None
+def _decode_string(value):
+    global _encodings
+    if sys.version_info[0] >= 3:
+        return value
+    if not _encodings:
+        _encodings = ['utf_8', 'latin_1']
+        char_set = locale.getdefaultlocale()[1]
+        if char_set:
+            _encodings.append(char_set)
+    for encoding in _encodings:
+        try:
+            return value.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return value.decode('utf_8')
 
-    def from_xmp_string(self, value):
-        degrees, residue = value.split(',')
-        minutes = residue[:-1]
-        direction = residue[-1]
-        self.degrees = float(degrees) + (float(minutes) / 60.0)
-        if direction in ('S', 'W'):
-            self.degrees = -self.degrees
-        self.latitude = direction in ('S', 'N')
+def _encode_string(value, max_bytes=None):
+    result = value.encode('utf_8')
+    if max_bytes:
+        result = result[:max_bytes]
+    if sys.version_info[0] >= 3:
+        result = result.decode('utf_8')
+    return result
+
+class NullValue(object):
+    def empty(self):
+        return True
+
+    def as_str(self):
+        return u''
+
+class BaseValue(object):
+    def __init__(self, tag=None):
+        self.tag = tag
+        self.value = None
+
+    def empty(self):
+        return self.value is None
+
+    def as_str(self):
+        return str(self.value)
+
+    def merge(self, other):
         return self
 
-    def to_xmp_string(self):
-        if self.degrees >= 0.0:
-            ref = ('E', 'N')[self.latitude]
-            value = self.degrees
-        else:
-            ref = ('W', 'S')[self.latitude]
-            value = -self.degrees
-        degrees = int(value)
-        minutes = (value - degrees) * 60.0
-        return '%d,%.13f%s' % (degrees, minutes, ref)
+    def set_value(self, value):
+        self.value = value
 
-    def from_exif_string(self, value, direction):
-        parts = map(fractions.Fraction, value.split())
-        self.degrees = float(parts[0])
-        if len(parts) > 1:
-            self.degrees += float(parts[1]) / 60.0
-        if len(parts) > 2:
-            self.degrees += float(parts[2]) / 3600.0
-        if direction in ('S', 'W'):
-            self.degrees = -self.degrees
-        self.latitude = direction in ('S', 'N')
-        return self
+    def iptc_pred(self, max_bytes):
+        return self.as_str()
 
-    def to_exif_string(self):
-        if self.degrees >= 0.0:
-            ref = ('E', 'N')[self.latitude]
-            value = self.degrees
+class IntValue(BaseValue):
+    # value is a single integer
+    def to_exif(self, md, tag):
+        if self.value is None:
+            md.clear_tag(tag)
+            return
+        md.set_tag_string(tag, self.as_str())
+
+    def from_exif(self, md):
+        if self.tag not in md.get_exif_tags():
+            return
+        self.value = int(md.get_tag_string(self.tag))
+
+class LatLongValue(BaseValue):
+    # value is a latitude + longitude pair, stored as floating point numbers
+    def as_str(self):
+        if self.value:
+            return '%.6f, %.6f' % self.value
+        return u''
+
+    def to_exif(self, md, tag):
+        lat_tag = tag
+        long_tag = lat_tag.replace('Latitude', 'Longitude')
+        if self.value is None:
+            md.clear_tag(lat_tag)
+            md.clear_tag(lat_tag + 'Ref')
+            md.clear_tag(long_tag)
+            md.clear_tag(long_tag + 'Ref')
+            return
+        for this_tag, value, sign_char in zip(
+                            (lat_tag, long_tag), self.value, ('NS', 'EW')):
+            if value >= 0.0:
+                ref_string = sign_char[0]
+            else:
+                ref_string = sign_char[1]
+                value = -value
+            degrees = int(value)
+            value = (value - degrees) * 60.0
+            minutes = int(value)
+            seconds = (value - minutes) * 60.0
+            seconds = fractions.Fraction(seconds).limit_denominator(1000000)
+            value_string = '%d/1 %d/1 %d/%d' % (
+                degrees, minutes, seconds.numerator, seconds.denominator)
+            md.set_tag_string(this_tag, value_string)
+            md.set_tag_string(this_tag + 'Ref', ref_string)
+
+    def from_exif(self, md):
+        lat_tag = self.tag
+        long_tag = lat_tag.replace('Latitude', 'Longitude')
+        result = []
+        for tag in (lat_tag, long_tag):
+            ref_tag = tag + 'Ref'
+            if not (tag in md.get_exif_tags() and ref_tag in md.get_exif_tags()):
+                return
+            value_string = md.get_tag_string(tag)
+            ref_string = md.get_tag_string(ref_tag)
+            parts = map(fractions.Fraction, value_string.split())
+            value = float(parts[0])
+            if len(parts) > 1:
+                value += float(parts[1]) / 60.0
+            if len(parts) > 2:
+                value += float(parts[2]) / 3600.0
+            if ref_string in ('S', 'W'):
+                value = -value
+            result.append(value)
+        self.value = (result[0], result[1])
+
+class StringValue(BaseValue):
+    # value is a single unicode string
+    def __init__(self, tag=None):
+        BaseValue.__init__(self, tag)
+        self.value = u''
+
+    def empty(self):
+        return len(self.value) == 0
+
+    def sanitise(self):
+        self.value = self.value.strip()
+
+    def iptc_pred(self, max_bytes):
+        return _decode_string(_encode_string(self.value, max_bytes))
+
+    def as_str(self):
+        return self.value
+
+    def merge(self, other):
+        if isinstance(other, ListValue):
+            return other.merge(self)
+        result = StringValue()
+        result.value = self.value
+        if other.value not in result.value:
+            result.value = '%s // %s' % (result.value, other.value)
+        return result
+
+    def set_value(self, value):
+        self.value = value
+        self.sanitise()
+
+    def to_exif(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_string(tag, _encode_string(self.value))
+
+    def from_exif(self, md):
+        if self.tag not in md.get_exif_tags():
+            return
+        self.value = _decode_string(md.get_tag_string(self.tag))
+        self.sanitise()
+
+    def to_iptc(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_multiple(tag, [_encode_string(self.value)])
+
+    def from_iptc(self, md):
+        if self.tag not in md.get_iptc_tags():
+            return
+        self.value = md.get_tag_multiple(self.tag)
+        if self.value:
+            self.value = _decode_string(self.value[0])
+            self.sanitise()
         else:
-            ref = ('W', 'S')[self.latitude]
-            value = -self.degrees
-        degrees = int(value)
-        value = (value - degrees) * 60.0
-        minutes = int(value)
-        seconds = (value - minutes) * 60.0
-        degrees = fractions.Fraction(degrees).limit_denominator(1000000)
-        minutes = fractions.Fraction(minutes).limit_denominator(1000000)
-        seconds = fractions.Fraction(seconds).limit_denominator(1000000)
-        return '%d/%d %d/%d %d/%d' % (
-            degrees.numerator, degrees.denominator,
-            minutes.numerator, minutes.denominator,
-            seconds.numerator, seconds.denominator), ref
+            self.value = u''
+
+    def to_xmp(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_multiple(tag, [self.value])
+
+    def from_xmp(self, md):
+        if self.tag not in md.get_xmp_tags():
+            return
+        self.value = md.get_tag_multiple(self.tag)
+        if self.value:
+            self.value = self.value[0]
+            if sys.version_info[0] < 3 and not isinstance(self.value, unicode):
+                self.value = self.value.decode('utf_8')
+            self.sanitise()
+        else:
+            self.value = u''
+
+class ListValue(BaseValue):
+    # value is an array of unicode strings
+    def __init__(self, tag=None):
+        BaseValue.__init__(self, tag)
+        self.value = []
+
+    def empty(self):
+        return len(self.value) == 0
+
+    def sanitise(self):
+        new_value = []
+        for item in self.value:
+            item = item.strip()
+            if item:
+                new_value.append(item)
+        self.value = new_value
+
+    def iptc_pred(self, max_bytes):
+        pred_value = map(
+            lambda x: _decode_string(_encode_string(x, max_bytes)),
+            self.value)
+        return u'; '.join(pred_value)
+
+    def as_str(self):
+        return u'; '.join(self.value)
+
+    def merge(self, other):
+        result = ListValue()
+        result.value = list(self.value)
+        if isinstance(other, StringValue):
+            items = [other.value]
+        else:
+            items = list(other.value)
+        for item in items:
+            if item not in result.value:
+                result.value.append(item)
+        return result
+
+    def set_value(self, value):
+        if value:
+            self.value = value.split(';')
+            self.sanitise()
+        else:
+            self.value = []
+
+    def to_exif(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_string(tag, _encode_string(self.as_str()))
+
+    def to_iptc(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_multiple(tag, map(_encode_string, self.value))
+
+    def from_iptc(self, md):
+        if self.tag not in md.get_exif_tags():
+            return
+        self.value = map(_decode_string, md.get_tag_multiple(self.tag))
+        self.sanitise()
+
+    def to_xmp(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        md.set_tag_multiple(tag, self.value)
+
+    def from_xmp(self, md):
+        if self.tag not in md.get_xmp_tags():
+            return
+        self.value = md.get_tag_multiple(self.tag)
+        if sys.version_info[0] < 3 and self.value and not isinstance(self.value[0], unicode):
+            self.value = map(lambda x: x.decode('utf_8'), self.value)
+        self.sanitise()
+
+class DateTimeValue(BaseValue):
+    # value is a Python datetime object
+    def as_str(self):
+        if self.value:
+            return self.value.isoformat()
+        return u''
+
+    def to_exif(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        string_value = self.value.strftime('%Y:%m:%d %H:%M:%S')
+        md.set_tag_string(tag, string_value)
+
+    def from_exif(self, md):
+        if self.tag not in md.get_exif_tags():
+            return
+        string_value = md.get_tag_string(self.tag)
+        self.value = datetime.strptime(string_value, '%Y:%m:%d %H:%M:%S')
+
+    def to_iptc(self, md, tag):
+        date_tag = tag
+        time_tag = date_tag.replace('Date', 'Time')
+        if not self.value:
+            md.clear_tag(date_tag)
+            md.clear_tag(time_tag)
+            return
+        date_string = self.value.strftime('%Y-%m-%d')
+        time_string = self.value.strftime('%H:%M:%S')
+        md.set_tag_multiple(date_tag, [date_string])
+        md.set_tag_multiple(time_tag, [time_string])
+
+    def from_iptc(self, md):
+        date_tag = self.tag
+        time_tag = date_tag.replace('Date', 'Time')
+        if date_tag in md.get_iptc_tags():
+            date_string = md.get_tag_multiple(date_tag)[0]
+            has_date = True
+        else:
+            date_string = '0001-01-01'
+            has_date = False
+        if time_tag in md.get_iptc_tags():
+            time_string = md.get_tag_multiple(time_tag)[0][:8]
+            has_time = True
+        else:
+            time_string = '00:00:00'
+            has_time = False
+        if has_date or has_time:
+            self.value = datetime.strptime(
+                date_string + time_string, '%Y-%m-%d%H:%M:%S')
+
+    def to_xmp(self, md, tag):
+        if not self.value:
+            md.clear_tag(tag)
+            return
+        string_value = self.value.strftime('%Y-%m-%dT%H:%M:%S')
+        md.set_tag_multiple(tag, [string_value])
+
+    def from_xmp(self, md):
+        if self.tag not in md.get_xmp_tags():
+            return
+        string_value = md.get_tag_multiple(self.tag)[0]
+        # remove any time zone info
+        if string_value.count(':') >= 2:
+            string_value = string_value[:19]
+        else:
+            string_value = string_value[:16]
+        # extend short strings to include all info
+        string_value += '0001-01-01T00:00:00'[len(string_value):]
+        # convert to datetime
+        self.value = datetime.strptime(string_value, '%Y-%m-%dT%H:%M:%S')
+
+# class to use for each tag's data
+_data_object = {
+    'Exif.GPSInfo.GPSLatitude'           : LatLongValue,
+    'Exif.Image.Artist'                  : StringValue,
+    'Exif.Image.Copyright'               : StringValue,
+    'Exif.Image.DateTime'                : DateTimeValue,
+    'Exif.Image.DateTimeOriginal'        : DateTimeValue,
+    'Exif.Image.ImageDescription'        : StringValue,
+    'Exif.Image.Orientation'             : IntValue,
+    'Exif.Image.ProcessingSoftware'      : StringValue,
+    'Exif.Photo.DateTimeDigitized'       : DateTimeValue,
+    'Exif.Photo.DateTimeOriginal'        : DateTimeValue,
+    'Iptc.Application2.Byline'           : ListValue,
+    'Iptc.Application2.Caption'          : StringValue,
+    'Iptc.Application2.Copyright'        : StringValue,
+    'Iptc.Application2.DateCreated'      : DateTimeValue,
+    'Iptc.Application2.DigitizationDate' : DateTimeValue,
+    'Iptc.Application2.Headline'         : StringValue,
+    'Iptc.Application2.Keywords'         : ListValue,
+    'Iptc.Application2.ObjectName'       : StringValue,
+    'Xmp.dc.creator'                     : ListValue,
+    'Xmp.dc.description'                 : StringValue,
+    'Xmp.dc.rights'                      : StringValue,
+    'Xmp.dc.subject'                     : ListValue,
+    'Xmp.dc.title'                       : StringValue,
+    'Xmp.photoshop.DateCreated'          : DateTimeValue,
+    'Xmp.exif.DateTimeDigitized'         : DateTimeValue,
+    'Xmp.exif.DateTimeOriginal'          : DateTimeValue,
+    'Xmp.xmp.CreateDate'                 : DateTimeValue,
+    'Xmp.xmp.ModifyDate'                 : DateTimeValue,
+    }
+
+# maximum length of Iptc data
+_max_bytes = {
+    'Iptc.Application2.Byline'           :   32,
+    'Iptc.Application2.Caption'          : 2000,
+    'Iptc.Application2.Copyright'        :  128,
+    'Iptc.Application2.DateCreated'      : None,
+    'Iptc.Application2.DigitizationDate' : None,
+    'Iptc.Application2.Headline'         :  256,
+    'Iptc.Application2.Keywords'         :   64,
+    'Iptc.Application2.ObjectName'       :   64,
+    }
 
 class Metadata(QtCore.QObject):
-    _keys = {
-        'date_digitised' : (('Exif.Photo.DateTimeDigitized',     True,  0),),
-        'date_modified'  : (('Exif.Image.DateTime',              True,  0),),
-        'date_taken'     : (('Exif.Photo.DateTimeOriginal',      True,  0),
-                            ('Exif.Image.DateTimeOriginal',      True,  0),),
-        'title'          : (('Xmp.dc.title',                     True,  0),
-                            ('Iptc.Application2.ObjectName',     False, 64),
-                            ('Iptc.Application2.Headline',       False, 256),
-                            ('Exif.Image.ImageDescription',      True,  0),),
-        'creator'        : (('Xmp.dc.creator',                   True,  0),
-                            ('Xmp.tiff.Artist',                  False, 0),
-                            ('Iptc.Application2.Byline',         False, 32),
-                            ('Exif.Image.Artist',                True,  0),),
-        'description'    : (('Xmp.dc.description',               True,  0),
-                            ('Iptc.Application2.Caption',        False, 2000),),
-        'keywords'       : (('Xmp.dc.subject',                   True,  0),
-                            ('Iptc.Application2.Keywords',       False, 64),),
-        'copyright'      : (('Xmp.dc.rights',                    True,  0),
-                            ('Xmp.tiff.Copyright',               False, 0),
-                            ('Iptc.Application2.Copyright',      False, 128),
-                            ('Exif.Image.Copyright',             True,  0),),
-        'latitude'       : (('Exif.GPSInfo.GPSLatitude',         True,  0),
-                            ('Xmp.exif.GPSLatitude',             True,  0),),
-        'longitude'      : (('Exif.GPSInfo.GPSLongitude',        True,  0),
-                            ('Xmp.exif.GPSLongitude',            True,  0),),
-        'orientation'    : (('Exif.Image.Orientation',           True,  0),),
-        'soft_full'      : (('Exif.Image.ProcessingSoftware',    True,  0),),
-        'soft_name'      : (('Iptc.Application2.Program',        False, 32),),
-        'soft_vsn'       : (('Iptc.Application2.ProgramVersion', False, 10),),
+    # mapping of tags to Photini data fields
+    _tags = {
+        'copyright'      : {'Exif' : ('Exif.Image.Copyright',),
+                            'Xmp'  : ('Xmp.dc.rights',),
+                            'Iptc' : ('Iptc.Application2.Copyright',)},
+        'creator'        : {'Exif' : ('Exif.Image.Artist',),
+                            'Xmp'  : ('Xmp.dc.creator',),
+                            'Iptc' : ('Iptc.Application2.Byline',)},
+        'date_digitised' : {'Exif' : ('Exif.Photo.DateTimeDigitized',),
+                            'Xmp'  : ('Xmp.xmp.CreateDate',
+                                      'Xmp.exif.DateTimeDigitized',),
+                            'Iptc' : ('Iptc.Application2.DigitizationDate',)},
+        'date_modified'  : {'Exif' : ('Exif.Image.DateTime',),
+                            'Xmp'  : ('Xmp.xmp.ModifyDate',)},
+        'date_taken'     : {'Exif' : ('Exif.Photo.DateTimeOriginal',
+                                      'Exif.Image.DateTimeOriginal',),
+                            'Xmp'  : ('Xmp.photoshop.DateCreated',
+                                      'Xmp.exif.DateTimeOriginal',),
+                            'Iptc' : ('Iptc.Application2.DateCreated',)},
+        'description'    : {'Exif' : ('Exif.Image.ImageDescription',),
+                            'Xmp'  : ('Xmp.dc.description',),
+                            'Iptc' : ('Iptc.Application2.Caption',)},
+        'keywords'       : {'Xmp'  : ('Xmp.dc.subject',),
+                            'Iptc' : ('Iptc.Application2.Keywords',)},
+        'latlong'        : {'Exif' : ('Exif.GPSInfo.GPSLatitude',)},
+        'orientation'    : {'Exif' : ('Exif.Image.Orientation',)},
+        'software'       : {'Exif' : ('Exif.Image.ProcessingSoftware',)},
+        'title'          : {'Xmp'  : ('Xmp.dc.title',),
+                            'Iptc' : ('Iptc.Application2.ObjectName',
+                                      'Iptc.Application2.Headline',)},
         }
-    _list_items = ('keywords',)
+    # tags that are created if they don't exist
+    _create = ('Exif.GPSInfo.GPSLatitude',
+               'Exif.Image.Artist',            'Exif.Image.Copyright',
+               'Exif.Image.DateTime',          'Exif.Image.ImageDescription',
+               'Exif.Image.Orientation',       'Exif.Image.ProcessingSoftware',
+               'Exif.Photo.DateTimeDigitized', 'Exif.Photo.DateTimeOriginal',
+               'Xmp.dc.creator',               'Xmp.dc.description',
+               'Xmp.dc.rights',                'Xmp.dc.subject',
+               'Xmp.dc.title',                 'Xmp.photoshop.DateCreated',
+               'Xmp.xmp.CreateDate',           'Xmp.xmp.ModifyDate')
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -136,11 +478,7 @@ class Metadata(QtCore.QObject):
         else:
             self._sc = None
         self._unsaved = False
-        # possible character encodings of metadata strings
-        self._encodings = ['utf_8', 'latin_1']
-        char_set = locale.getdefaultlocale()[1]
-        if char_set:
-            self._encodings.append(char_set)
+        self._value_cache = {}
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -162,9 +500,7 @@ class Metadata(QtCore.QObject):
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
-        self.set_item('soft_full', 'Photini editor v%s' % (__version__))
-        self.set_item('soft_name', 'Photini editor')
-        self.set_item('soft_vsn', '%s' % (__version__))
+        self.set_item('software', 'Photini editor v%s' % (__version__))
         if sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
@@ -207,51 +543,26 @@ class Metadata(QtCore.QObject):
         return result
 
     # getters: use sidecar if tag is present, otherwise use image file
-    def get_exif_tag_string(self, tag):
-        if self._sc and tag in self._sc.get_exif_tags():
-            return self._sc.get_exif_tag_string(tag)
-        return self._if.get_exif_tag_string(tag)
+    def get_tag_string(self, tag):
+        if self._sc and tag in self._sc.get_tags():
+            return self._sc.get_tag_string(tag)
+        return self._if.get_tag_string(tag)
 
-    def get_iptc_tag_multiple(self, tag):
-        if self._sc and tag in self._sc.get_iptc_tags():
-            return self._sc.get_iptc_tag_multiple(tag)
-        return self._if.get_iptc_tag_multiple(tag)
-
-    def get_xmp_tag_string(self, tag):
-        if self._sc and tag in self._sc.get_xmp_tags():
-            return self._sc.get_xmp_tag_string(tag)
-        return self._if.get_xmp_tag_string(tag)
-
-    def get_xmp_tag_multiple(self, tag):
-        if self._sc and tag in self._sc.get_xmp_tags():
-            return self._sc.get_xmp_tag_multiple(tag)
-        return self._if.get_xmp_tag_multiple(tag)
+    def get_tag_multiple(self, tag):
+        if self._sc and tag in self._sc.get_tags():
+            return self._sc.get_tag_multiple(tag)
+        return self._if.get_tag_multiple(tag)
 
     # setters: set in both sidecar and image file
-    def set_exif_tag_string(self, tag, value):
+    def set_tag_string(self, tag, value):
         if self._sc:
-            self._sc.set_exif_tag_string(tag, value)
-        self._if.set_exif_tag_string(tag, value)
+            self._sc.set_tag_string(tag, value)
+        self._if.set_tag_string(tag, value)
 
-    def set_exif_tag_long(self, tag, value):
+    def set_tag_multiple(self, tag, value):
         if self._sc:
-            self._sc.set_exif_tag_long(tag, value)
-        self._if.set_exif_tag_long(tag, value)
-
-    def set_iptc_tag_multiple(self, tag, value):
-        if self._sc:
-            self._sc.set_iptc_tag_multiple(tag, value)
-        self._if.set_iptc_tag_multiple(tag, value)
-
-    def set_xmp_tag_string(self, tag, value):
-        if self._sc:
-            self._sc.set_xmp_tag_string(tag, value)
-        self._if.set_xmp_tag_string(tag, value)
-
-    def set_xmp_tag_multiple(self, tag, value):
-        if self._sc:
-            self._sc.set_xmp_tag_multiple(tag, value)
-        self._if.set_xmp_tag_multiple(tag, value)
+            self._sc.set_tag_multiple(tag, value)
+        self._if.set_tag_multiple(tag, value)
 
     def clear_tag(self, tag):
         if self._sc:
@@ -261,100 +572,79 @@ class Metadata(QtCore.QObject):
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
-    def has_GPS(self):
-        return (('Xmp.exif.GPSLatitude' in self.get_xmp_tags()) or
-                ('Exif.GPSInfo.GPSLatitude' in self.get_exif_tags()))
-
-    def _decode(self, value):
-        if sys.version_info[0] >= 3:
-            return value
-        for encoding in self._encodings:
-            try:
-                return unicode(value, encoding)
-            except UnicodeDecodeError:
-                continue
-        return unicode(value, 'utf_8')
+    def _get_value(self, family, tag):
+        result = _data_object[tag](tag)
+        if family == 'Exif':
+            result.from_exif(self)
+        elif family == 'Iptc':
+            result.from_iptc(self)
+        else:
+            result.from_xmp(self)
+        return result
 
     def get_item(self, name):
-        for key, required, max_bytes in self._keys[name]:
-            family, group, tag = key.split('.')
-            if key in self.get_xmp_tags():
-                if tag.startswith('GPS'):
-                    return GPSvalue().from_xmp_string(
-                        self.get_xmp_tag_string(key))
-                value = self.get_xmp_tag_multiple(key)
-                return '; '.join(value)
-            if key in self.get_iptc_tags():
-                value = map(lambda x: self._decode(x),
-                            self.get_iptc_tag_multiple(key))
-                return '; '.join(value)
-            if key in self.get_exif_tags():
-                value = self._decode(self.get_exif_tag_string(key))
-                if tag.startswith('DateTime'):
-                    return datetime.datetime.strptime(value, '%Y:%m:%d %H:%M:%S')
-                if tag == 'Orientation':
-                    return int(value)
-                if group == 'GPSInfo':
-                    return GPSvalue().from_exif_string(
-                        value, self.get_exif_tag_string('%sRef' % key))
-                return value
-        return None
-
-    def _encode(self, value, max_bytes):
-        result = value.encode('utf_8')
-        if max_bytes:
-            result = result[:max_bytes]
-        if sys.version_info[0] >= 3:
-            result = str(result, 'ascii')
+        if name in self._value_cache:
+            return self._value_cache[name]
+        # get values from all 3 families, using first tag in list that has data
+        value = {'Exif': NullValue(), 'Iptc': NullValue(), 'Xmp': NullValue()}
+        for family in self._tags[name]:
+            for tag in self._tags[name][family]:
+                if value[family].empty():
+                    try:
+                        value[family] = self._get_value(family, tag)
+                    except Exception, ex:
+                        self.logger.error(ex)
+        # choose preferred family
+        if not value['Exif'].empty():
+            preference = 'Exif'
+        elif not value['Xmp'].empty():
+            preference = 'Xmp'
+        else:
+            preference = 'Iptc'
+        # check for IPTC being modified by non-compliant software
+        if preference != 'Iptc' and not value['Iptc'].empty():
+            iptc_tag = value['Iptc'].tag
+            pred_str = value[preference].iptc_pred(_max_bytes[iptc_tag])
+            if pred_str != value['Iptc'].as_str():
+                self.logger.warning(
+                    '%s mismatch with %s', iptc_tag, value[preference].tag)
+                preference = 'Iptc'
+        # merge in non-matching data so user can review it
+        result = value[preference]
+        for family in ('Exif', 'Xmp'):
+            if preference != family and not value[family].empty():
+                if value[preference].as_str() != value[family].as_str():
+                    self.logger.warning('merging %s with %s',
+                                        value[family].tag, value[preference].tag)
+                    result = result.merge(value[family])
+        self._value_cache[name] = result
         return result
 
     def set_item(self, name, value):
-        if value == self.get_item(name):
+        current_object = self.get_item(name)
+        for family in ('Exif', 'Xmp', 'Iptc'):
+            if family in self._tags[name]:
+                tag = self._tags[name][family][0]
+                new_object = _data_object[tag](tag)
+                break
+        new_object.set_value(value)
+        if new_object.as_str() == current_object.as_str():
             return
-        if name in self._list_items:
-            value = map(lambda x: x.strip(), value.split(';'))
-            for i in reversed(range(len(value))):
-                if not value[i]:
-                    del value[i]
-        elif isinstance(value, (str, unicode)):
-            value = [value.strip()]
-        if not value:
-            self.del_item(name)
-            return
-        for key, required, max_bytes in self._keys[name]:
-            if required or key in self.get_tags():
-                family, group, tag = key.split('.')
-                if family == 'Xmp':
-                    if isinstance(value, GPSvalue):
-                        self.set_xmp_tag_string(key, value.to_xmp_string())
+        self._value_cache[name] = new_object
+        for family in self._tags[name]:
+            for tag in self._tags[name][family]:
+                if tag in self._create or tag in self.get_tags():
+                    if family == 'Exif':
+                        new_object.to_exif(self, tag)
+                    elif family == 'Iptc':
+                        new_object.to_iptc(self, tag)
                     else:
-                        self.set_xmp_tag_multiple(key, value)
-                elif family == 'Iptc':
-                    value = map(lambda x: self._encode(x, max_bytes), value)
-                    self.set_iptc_tag_multiple(key, value)
-                elif family == 'Exif':
-                    if isinstance(value, GPSvalue):
-                        string, ref = value.to_exif_string()
-                        self.set_exif_tag_string(key, string)
-                        self.set_exif_tag_string('%sRef' % key, ref)
-                    elif isinstance(value, datetime.datetime):
-                        self.set_exif_tag_string(
-                            key, value.strftime('%Y:%m:%d %H:%M:%S'))
-                    elif isinstance(value, int):
-                        self.set_exif_tag_long(key, value)
-                    else:
-                        self.set_exif_tag_string(
-                            key, self._encode(value[0], max_bytes))
+                        new_object.to_xmp(self, tag)
+                    break
         self._set_unsaved(True)
 
     def del_item(self, name):
-        changed = False
-        for key, required, max_bytes in self._keys[name]:
-            if key in self.get_tags():
-                self.clear_tag(key)
-                changed = True
-        if changed:
-            self._set_unsaved(True)
+        self.set_item(name, None)
 
     new_status = QtCore.pyqtSignal(bool)
     def _set_unsaved(self, status):
