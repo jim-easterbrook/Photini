@@ -81,10 +81,10 @@ class UploadThread(QtCore.QThread):
             if not photo.title:
                 photo.title = atom.Title()
             photo.title.text = os.path.basename(params['path'])
-            if params['title']:
+            if params['summary']:
                 if not photo.summary:
                     photo.summary = atom.Summary()
-                photo.summary.text = params['title']
+                photo.summary.text = params['summary']
             if params['keywords']:
                 if not photo.media:
                     photo.media = gdata.media.Group()
@@ -105,9 +105,6 @@ class UploadThread(QtCore.QThread):
                     converter=gdata.photos.PhotoEntryFromString)
             except gdata.service.RequestError, e:
                 raise gdata.photos.service.GooglePhotosException(e.args[0])
-            if params['description']:
-                comment = self.pws.InsertComment(
-                    photo.GetPostLink().href, params['description'])
             self.file_count += 1
         self.finished.emit()
 
@@ -388,6 +385,12 @@ Doing so will remove the album and its photos from all Google products.""" % (
         for image in self.image_list.get_selected_images():
             title = image.metadata.get_item('title').as_str()
             description = image.metadata.get_item('description').as_str()
+            if title and description:
+                summary = '%s\n\n%s' % (title, description)
+            elif title:
+                summary = title
+            else:
+                summary = description
             keywords = image.metadata.get_item('keywords')
             if keywords.empty():
                 keywords = None
@@ -399,11 +402,10 @@ Doing so will remove the album and its photos from all Google products.""" % (
             else:
                 latlong = '%f %f' % latlong.value
             upload_list.append({
-                'path'        : image.path,
-                'title'       : title,
-                'description' : description,
-                'keywords'    : keywords,
-                'latlong'     : latlong,
+                'path'     : image.path,
+                'summary'  : summary,
+                'keywords' : keywords,
+                'latlong'  : latlong,
                 })
         # pass the list to a separate thread, so GUI can continue
         if self.authorise():
