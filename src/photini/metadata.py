@@ -100,6 +100,11 @@ class IntValue(BaseValue):
             return
         self.value = int(md.get_tag_string(self.tag))
 
+    def from_xmp(self, md):
+        if self.tag not in md.get_xmp_tags():
+            return
+        self.value = int(md.get_tag_multiple(self.tag)[0])
+
 class LatLongValue(BaseValue):
     # value is a latitude + longitude pair, stored as floating point numbers
     def as_str(self):
@@ -149,6 +154,23 @@ class LatLongValue(BaseValue):
                 value += float(parts[1]) / 60.0
             if len(parts) > 2:
                 value += float(parts[2]) / 3600.0
+            if ref_string in ('S', 'W'):
+                value = -value
+            result.append(value)
+        self.value = (result[0], result[1])
+
+    def from_xmp(self, md):
+        lat_tag = self.tag
+        long_tag = lat_tag.replace('Latitude', 'Longitude')
+        result = []
+        for tag in (lat_tag, long_tag):
+            if not tag in md.get_xmp_tags():
+                return
+            value_string = md.get_tag_multiple(tag)[0]
+            degrees, residue = value_string.split(',')
+            minutes = residue[:-1]
+            ref_string = residue[-1]
+            value = float(degrees) + (float(minutes) / 60.0)
             if ref_string in ('S', 'W'):
                 value = -value
             result.append(value)
@@ -207,11 +229,8 @@ class StringValue(BaseValue):
         if self.tag not in md.get_iptc_tags():
             return
         self.value = md.get_tag_multiple(self.tag)
-        if self.value:
-            self.value = _decode_string(self.value[0])
-            self.sanitise()
-        else:
-            self.value = u''
+        self.value = _decode_string(self.value[0])
+        self.sanitise()
 
     def to_xmp(self, md, tag):
         if not self.value:
@@ -222,14 +241,10 @@ class StringValue(BaseValue):
     def from_xmp(self, md):
         if self.tag not in md.get_xmp_tags():
             return
-        self.value = md.get_tag_multiple(self.tag)
-        if self.value:
-            self.value = self.value[0]
-            if sys.version_info[0] < 3 and not isinstance(self.value, unicode):
-                self.value = self.value.decode('utf_8')
-            self.sanitise()
-        else:
-            self.value = u''
+        self.value = md.get_tag_multiple(self.tag)[0]
+        if sys.version_info[0] < 3 and not isinstance(self.value, unicode):
+            self.value = self.value.decode('utf_8')
+        self.sanitise()
 
 class ListValue(BaseValue):
     # value is an array of unicode strings
@@ -408,10 +423,24 @@ _data_object = {
     'Xmp.photoshop.DateCreated'          : DateTimeValue,
     'Xmp.exif.DateTimeDigitized'         : DateTimeValue,
     'Xmp.exif.DateTimeOriginal'          : DateTimeValue,
+    'Xmp.exif.GPSLatitude'               : LatLongValue,
+    'Xmp.tiff.Artist'                    : StringValue,
+    'Xmp.tiff.Copyright'                 : StringValue,
+    'Xmp.tiff.DateTime'                  : DateTimeValue,
+    'Xmp.tiff.ImageDescription'          : StringValue,
+    'Xmp.tiff.Orientation'               : IntValue,
     'Xmp.xmp.CreateDate'                 : DateTimeValue,
     'Xmp.xmp.ModifyDate'                 : DateTimeValue,
     }
-
+# some data requires more than one tag
+_associated_tags = {
+    'Exif.GPSInfo.GPSLatitude'           : ('Exif.GPSInfo.GPSLatitudeRef',
+                                            'Exif.GPSInfo.GPSLongitude',
+                                            'Exif.GPSInfo.GPSLongitudeRef'),
+    'Iptc.Application2.DateCreated'      : ('Iptc.Application2.TimeCreated',),
+    'Iptc.Application2.DigitizationDate' : ('Iptc.Application2.DigitizationTime',),
+    'Xmp.exif.GPSLatitude'               : ('Xmp.exif.GPSLongitude',),
+    }
 # maximum length of Iptc data
 _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
@@ -425,47 +454,50 @@ _max_bytes = {
     }
 
 class Metadata(QtCore.QObject):
-    # mapping of tags to Photini data fields
-    _tags = {
-        'copyright'      : {'Exif' : ('Exif.Image.Copyright',),
-                            'Xmp'  : ('Xmp.dc.rights',),
-                            'Iptc' : ('Iptc.Application2.Copyright',)},
-        'creator'        : {'Exif' : ('Exif.Image.Artist',),
-                            'Xmp'  : ('Xmp.dc.creator',),
-                            'Iptc' : ('Iptc.Application2.Byline',)},
-        'date_digitised' : {'Exif' : ('Exif.Photo.DateTimeDigitized',),
-                            'Xmp'  : ('Xmp.xmp.CreateDate',
-                                      'Xmp.exif.DateTimeDigitized',),
-                            'Iptc' : ('Iptc.Application2.DigitizationDate',)},
-        'date_modified'  : {'Exif' : ('Exif.Image.DateTime',),
-                            'Xmp'  : ('Xmp.xmp.ModifyDate',)},
-        'date_taken'     : {'Exif' : ('Exif.Photo.DateTimeOriginal',
-                                      'Exif.Image.DateTimeOriginal',),
-                            'Xmp'  : ('Xmp.photoshop.DateCreated',
-                                      'Xmp.exif.DateTimeOriginal',),
-                            'Iptc' : ('Iptc.Application2.DateCreated',)},
-        'description'    : {'Exif' : ('Exif.Image.ImageDescription',),
-                            'Xmp'  : ('Xmp.dc.description',),
-                            'Iptc' : ('Iptc.Application2.Caption',)},
-        'keywords'       : {'Xmp'  : ('Xmp.dc.subject',),
-                            'Iptc' : ('Iptc.Application2.Keywords',)},
-        'latlong'        : {'Exif' : ('Exif.GPSInfo.GPSLatitude',)},
-        'orientation'    : {'Exif' : ('Exif.Image.Orientation',)},
-        'software'       : {'Exif' : ('Exif.Image.ProcessingSoftware',)},
-        'title'          : {'Xmp'  : ('Xmp.dc.title',),
-                            'Iptc' : ('Iptc.Application2.ObjectName',
-                                      'Iptc.Application2.Headline',)},
+    # mapping of preferred tags to Photini data fields
+    _primary_tags = {
+        'copyright'      : {'Exif' : 'Exif.Image.Copyright',
+                            'Xmp'  : 'Xmp.dc.rights',
+                            'Iptc' : 'Iptc.Application2.Copyright'},
+        'creator'        : {'Exif' : 'Exif.Image.Artist',
+                            'Xmp'  : 'Xmp.dc.creator',
+                            'Iptc' : 'Iptc.Application2.Byline'},
+        'date_digitised' : {'Exif' : 'Exif.Photo.DateTimeDigitized',
+                            'Xmp'  : 'Xmp.xmp.CreateDate',
+                            'Iptc' : 'Iptc.Application2.DigitizationDate'},
+        'date_modified'  : {'Exif' : 'Exif.Image.DateTime',
+                            'Xmp'  : 'Xmp.xmp.ModifyDate'},
+        'date_taken'     : {'Exif' : 'Exif.Photo.DateTimeOriginal',
+                            'Xmp'  : 'Xmp.photoshop.DateCreated',
+                            'Iptc' : 'Iptc.Application2.DateCreated'},
+        'description'    : {'Exif' : 'Exif.Image.ImageDescription',
+                            'Xmp'  : 'Xmp.dc.description',
+                            'Iptc' : 'Iptc.Application2.Caption'},
+        'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
+                            'Iptc' : 'Iptc.Application2.Keywords'},
+        'latlong'        : {'Exif' : 'Exif.GPSInfo.GPSLatitude'},
+        'orientation'    : {'Exif' : 'Exif.Image.Orientation'},
+        'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware'},
+        'title'          : {'Xmp'  : 'Xmp.dc.title',
+                            'Iptc' : 'Iptc.Application2.ObjectName'},
         }
-    # tags that are created if they don't exist
-    _create = ('Exif.GPSInfo.GPSLatitude',
-               'Exif.Image.Artist',            'Exif.Image.Copyright',
-               'Exif.Image.DateTime',          'Exif.Image.ImageDescription',
-               'Exif.Image.Orientation',       'Exif.Image.ProcessingSoftware',
-               'Exif.Photo.DateTimeDigitized', 'Exif.Photo.DateTimeOriginal',
-               'Xmp.dc.creator',               'Xmp.dc.description',
-               'Xmp.dc.rights',                'Xmp.dc.subject',
-               'Xmp.dc.title',                 'Xmp.photoshop.DateCreated',
-               'Xmp.xmp.CreateDate',           'Xmp.xmp.ModifyDate')
+    # mapping of duplicate tags to Photini data fields
+    # data in these is merged in when data is read
+    # they get deleted when data is written
+    _secondary_tags = {
+        'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
+        'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
+        'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
+        'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
+        'date_taken'     : {'Exif' : ('Exif.Image.DateTimeOriginal',),
+                            'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
+        'description'    : {'Xmp'  : ('Xmp.tiff.ImageDescription',)},
+        'keywords'       : {},
+        'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
+        'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
+        'software'       : {},
+        'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
+        }
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -587,13 +619,27 @@ class Metadata(QtCore.QObject):
             return self._value_cache[name]
         # get values from all 3 families, using first tag in list that has data
         value = {'Exif': NullValue(), 'Iptc': NullValue(), 'Xmp': NullValue()}
-        for family in self._tags[name]:
-            for tag in self._tags[name][family]:
-                if value[family].empty():
-                    try:
-                        value[family] = self._get_value(family, tag)
-                    except Exception, ex:
-                        self.logger.error(ex)
+        for family in self._primary_tags[name]:
+            try:
+                value[family] = self._get_value(
+                    family, self._primary_tags[name][family])
+            except Exception, ex:
+                self.logger.exception(ex)
+        for family in self._secondary_tags[name]:
+            for tag in self._secondary_tags[name][family]:
+                try:
+                    new_value = self._get_value(family, tag)
+                except Exception, ex:
+                    self.logger.exception(ex)
+                    continue
+                if new_value.empty():
+                    continue
+                elif value[family].empty():
+                    value[family] = new_value
+                elif new_value.as_str() not in value[family].as_str():
+                    self.logger.warning('merging %s with %s',
+                                        new_value.tag, value[family].tag)
+                    value[family] = value[family].merge(new_value)
         # choose preferred family
         if not value['Exif'].empty():
             preference = 'Exif'
@@ -613,7 +659,7 @@ class Metadata(QtCore.QObject):
         result = value[preference]
         for family in ('Exif', 'Xmp'):
             if preference != family and not value[family].empty():
-                if value[preference].as_str() != value[family].as_str():
+                if value[family].as_str() not in result.as_str():
                     self.logger.warning('merging %s with %s',
                                         value[family].tag, value[preference].tag)
                     result = result.merge(value[family])
@@ -623,24 +669,32 @@ class Metadata(QtCore.QObject):
     def set_item(self, name, value):
         current_object = self.get_item(name)
         for family in ('Exif', 'Xmp', 'Iptc'):
-            if family in self._tags[name]:
-                tag = self._tags[name][family][0]
+            if family in self._primary_tags[name]:
+                tag = self._primary_tags[name][family]
                 new_object = _data_object[tag](tag)
                 break
         new_object.set_value(value)
         if new_object.as_str() == current_object.as_str():
             return
         self._value_cache[name] = new_object
-        for family in self._tags[name]:
-            for tag in self._tags[name][family]:
-                if tag in self._create or tag in self.get_tags():
-                    if family == 'Exif':
-                        new_object.to_exif(self, tag)
-                    elif family == 'Iptc':
-                        new_object.to_iptc(self, tag)
-                    else:
-                        new_object.to_xmp(self, tag)
-                    break
+        # write data to primary tags (iptc only if it already exists)
+        for family in self._primary_tags[name]:
+            tag = self._primary_tags[name][family]
+            if family == 'Exif':
+                new_object.to_exif(self, tag)
+            elif family == 'Xmp':
+                new_object.to_xmp(self, tag)
+            elif tag in self.get_iptc_tags():
+                new_object.to_iptc(self, tag)
+        # delete secondary tags
+        for family in self._secondary_tags[name]:
+            for tag in self._secondary_tags[name][family]:
+                if tag in self.get_tags():
+                    self.clear_tag(tag)
+                if tag in _associated_tags:
+                    for sup_tag in _associated_tags[tag]:
+                        if sup_tag in self.get_tags():
+                            self.clear_tag(sup_tag)
         self._set_unsaved(True)
 
     def del_item(self, name):

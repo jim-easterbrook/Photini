@@ -38,6 +38,9 @@ class MetadataHandler(object):
         # copy from other to self (pyexiv2 copies from self to other)
         other._md.copy(self._md, exif=exif, iptc=iptc, xmp=xmp, comment=comment)
 
+    def get_tags(self):
+        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+
     def get_exif_tags(self):
         return self._md.exif_keys
 
