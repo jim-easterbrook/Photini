@@ -20,7 +20,7 @@ To find out, open a terminal window (Windows users run ``cmd.exe``) and try runn
 
    python -V
 
-If python is installed this should show you the version number.
+If Python is installed this should show you the version number.
 
 Linux users should use their system's package manager to install Python.
 Windows and MacOS users can download an installer from https://www.python.org/downloads/.
