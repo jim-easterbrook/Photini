@@ -12,3 +12,4 @@ User manual
    picasa
    importer
    configuration
+   tags
