@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v14.08.0:
+  1/ Major rewrite of metadata handling to be more compliant with MWG
+     guidelines.
+  2/ Improved handling of metadata in non utf-8 character sets.
+
 Changes in v14.07.0:
   1/ Changed version numbering scheme, again.
   2/ Minor bug fix in camera image importer.
