@@ -60,7 +60,6 @@ class CameraHandler(QtCore.QObject):
         # free any existing camera
         if self.camera:
             self.camera.exit()
-            self.camera.cleanup()
             self.camera = None
         # initialise camera
         self.camera = gp.Camera(self.context.context)
@@ -85,7 +84,6 @@ class CameraHandler(QtCore.QObject):
         try:
             self.camera.init()
         except gp.GPhoto2Error:
-            self.camera.cleanup()
             self.camera = None
             self.cam_model = ''
             self.cam_port_name = None
