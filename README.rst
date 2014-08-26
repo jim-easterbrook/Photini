@@ -1,7 +1,7 @@
 Photini
 =======
 
-An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
+A free, easy to use, digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
 "Metadata" is said to mean "data about data".
 In the context of digital photographs this means information that isn't essential in order to display the image, but tells you something about it.
@@ -10,6 +10,9 @@ For example a title and description of the scene or the date & time and the GPS 
    "It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily."
    
    -- `Linux Format <http://www.linuxformat.com/>`_ magazine, January 2013 
+
+Why is it called Photini?
+Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
 
 Features
 --------
@@ -57,19 +60,17 @@ Photini should be a cross-platform application - do let me know if you try it on
 Documentation
 -------------
 
+.. warning::
+   This program is still under development.
+   It is already usable but, like all other software, it has bugs.
+   Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
+
 Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.io/Photini/doc/html/.
-
-.. _readme-warning:
-
-Warning
--------
-
-This program is still under development. It is already usable but, like all other software, it has bugs. Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 .. _readme-legalese:
 
-Legalese
---------
+Licence
+-------
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini

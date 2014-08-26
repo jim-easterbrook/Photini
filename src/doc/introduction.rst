@@ -18,4 +18,4 @@ Introduction
    :end-before: Documentation
 
 .. include:: ../../README.rst
-   :start-after: readme-warning:
+   :start-after: readme-legalese:
