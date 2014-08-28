@@ -25,6 +25,8 @@ If Python is installed this should show you the version number.
 Linux users should use their system's package manager to install Python.
 Windows and MacOS users can download an installer from https://www.python.org/downloads/.
 As some libraries have not yet been ported to Python 3 you should probably install version 2.7.
+Windows users should install the 32 bit version of Python, even on a 64 bit machine.
+This is because some of the required libraries are not available in 64 bit builds.
 
 PyQt
 ^^^^
@@ -57,21 +59,25 @@ Once pip is installed, installing appdirs is easy::
 Note that ``sudo`` is not required on Windows, or if you have root privileges.
 In this case you just run ``pip install appdirs``.
 
-gexiv2 (Linux & MacOS)
-^^^^^^^^^^^^^^^^^^^^^^
+gexiv2 (preferred)
+^^^^^^^^^^^^^^^^^^
 
 The latest Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "introspection bindings" to `gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_, which is a GObject wrapper around Exiv2.
+
 Linux users should use their package manager to install these bindings, but note that the package name is not obvious.
 The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
 
-There is a choice of library to provide Python bindings to gexiv2.
+Windows users should download and run the latest "pygi-aio" (PyGI all-in-one) installer from http://sourceforge.net/projects/pygobjectwin32/files/.
+You should install the "Base packages" and "GExiv2" libraries, but nothing else is needed.
+
+Linux users have a choice of library to provide Python bindings to gexiv2.
 `PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ has been used in Photini development, but `pgi <https://pypi.python.org/pypi/pgi/>`_ is a pure Python alternative that should be compatible.
 Linux users can use their package manager to install ``python-gobject`` or pip can be used to install pgi::
 
    sudo pip install pgi
 
-pyexiv2 (Windows)
-^^^^^^^^^^^^^^^^^
+pyexiv2 (if gexiv2 cannot be installed)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 `pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ is an older Python binding to Exiv2.
 If you are unable to install gexiv2 then it can be used instead.
