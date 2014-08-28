@@ -14,6 +14,13 @@ For example a title and description of the scene or the date & time and the GPS 
 Why is it called Photini?
 Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
 
+New!
+----
+
+An all-in-one installer for Windows is available on `Google Drive <https://drive.google.com/folderview?id=0B3bmiDUXZwHKcmF3QW9aRHhWc28>`_.
+The installer creates a standalone installation of Python, Photini and all its dependencies.
+The penalty for this is that it's a 48MByte download.
+
 Features
 --------
 
