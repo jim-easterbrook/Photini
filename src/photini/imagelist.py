@@ -60,6 +60,9 @@ class Image(QtGui.QFrame):
             QtGui.QSizePolicy.Fixed, self.status.sizePolicy().verticalPolicy())
         self.status.setStyleSheet("QLabel { font-size: 12px }")
         self.status.setFont(QtGui.QFont("Dejavu Sans"))
+        if not self.status.fontInfo().exactMatch():
+            # probably on Windows, try a different font
+            self.status.setFont(QtGui.QFont("Segoe UI Symbol"))
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
         self.setObjectName("thumbnail")
