@@ -30,5 +30,7 @@ pip-log.txt
 *~
 
 # Extras
-/doc
 MANIFEST
+/doc
+/src/windows/installers
+/src/windows/WinPython
