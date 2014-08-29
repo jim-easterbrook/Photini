@@ -32,7 +32,7 @@ from .metadata import Metadata
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
         QtGui.QFrame.__init__(self, parent)
-        self.path = path
+        self.path = os.path.normpath(path)
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False

@@ -202,15 +202,19 @@ class PhotiniMap(QtGui.QWidget):
         marker_list = list()
         for image in self.image_list.get_images():
             marker_list.append(image.path)
-        if marker_list:
-            self.JavaScript('seeMarkers(%s)' % str(marker_list))
+        if not marker_list:
+            return
+        marker_list = '","'.join(marker_list)
+        self.JavaScript('seeMarkers(["%s"])' % (marker_list))
 
     def see_selection(self):
         marker_list = list()
         for image in self.image_list.get_selected_images():
             marker_list.append(image.path)
-        if marker_list:
-            self.JavaScript('seeMarkers(%s)' % str(marker_list))
+        if not marker_list:
+            return
+        marker_list = '","'.join(marker_list)
+        self.JavaScript('seeMarkers(["%s"])' % (marker_list))
 
     def display_coords(self):
         coords = None
