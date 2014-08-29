@@ -1,0 +1,3 @@
+This installer downloads some software from the Python Package Index (PyPI), ensuring you get the latest versions. Please ensure your computer has a working internet connection during the installation process.
+
+A console window will open while these components are downloaded and installed. This is nothing to worry about.
