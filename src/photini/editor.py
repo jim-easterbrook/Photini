@@ -175,6 +175,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(self.central_widget)
 
     def add_tabs(self):
+        was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
         for tab in self.tab_list:
@@ -182,8 +183,10 @@ class MainWindow(QtGui.QMainWindow):
             self.config_store.set('tabs', tab['key'], str(use_tab))
             if tab['object'] and use_tab:
                 self.tabs.addTab(tab['object'], tab['name'])
+        self.tabs.blockSignals(was_blocked)
         if current:
             self.tabs.setCurrentWidget(current)
+        self.new_tab(-1)
 
     def open_docs(self):
         webbrowser.open_new('http://jim-easterbrook.github.com/Photini/')
