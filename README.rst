@@ -14,13 +14,6 @@ For example a title and description of the scene or the date & time and the GPS 
 Why is it called Photini?
 Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
 
-New!
-----
-
-An all-in-one installer for Windows is available on `Google Drive <https://drive.google.com/folderview?id=0B3bmiDUXZwHKcmF3QW9aRHhWc28>`_.
-The installer creates a standalone installation of Python, Photini and all its dependencies.
-The penalty for this is that it's a 48MByte download.
-
 Features
 --------
 
@@ -62,7 +55,7 @@ Dependencies
 
 For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/installation.html>`_.
 
-Photini should be a cross-platform application - do let me know if you try it on Windows or MacOS.
+New! An "all in one" installer for Windows is available that installs Photini and all its dependencies.
 
 Documentation
 -------------

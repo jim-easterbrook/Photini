@@ -1,6 +1,26 @@
 Installation
 ============
 
+There are two ways to install Photini.
+The simpler is to use an all-in-one installer, currently only available for Windows.
+On other platforms you need to install several dependencies before installing Photini.
+
+All-in-one installer (Windows)
+------------------------------
+
+The Windows installer creates a standalone Python installation with all the dependencies needed to run Photini.
+The standalone Python interpreter is only used to run Photini, so does not conflict with any other Python version installed on your computer.
+
+You can download the latest Windows installer from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page.
+Don't worry if there are newer releases of Photini itself - the installer will download and install the latest release of Photini when it is run.
+The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
+
+The installer should finish by running the Photini program.
+If this works then you have successfully installed Photini and can ignore the rest of these instructions.
+
+Piecemeal installation
+----------------------
+
 Photini is not as simple to install as I would like, mainly because of the libraries required to access photographs' metadata.
 The installation process is different for Windows, Linux and MacOS, and there are variations with different versions of those operating systems.
 If you run into problems, please let me know (email jim@jim-easterbrook.me.uk) and once we've worked out what needs to be done I'll be able to improve these instructions.
