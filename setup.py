@@ -94,7 +94,8 @@ command_options['upload_docs'] = {
 class upload_and_tag(upload):
     def run(self):
         import git
-        message = ''
+        tag_path = 'Photini-%s' % next_release
+        message = '%s\n\n' % tag_path
         with open('CHANGELOG.txt') as cl:
             while not cl.readline().startswith('Changes'):
                 pass
@@ -104,7 +105,7 @@ class upload_and_tag(upload):
                     break
                 message += line + '\n'
         repo = git.Repo()
-        tag = repo.create_tag('Photini-%s' % next_release, message=message)
+        tag = repo.create_tag(tag_path, message=message)
         remote = repo.remotes.origin
         remote.push(tags=True)
         return upload.run(self)
