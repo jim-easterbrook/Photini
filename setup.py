@@ -39,9 +39,11 @@ try:
         repo = git.Repo()
         latest = 0
         for tag in repo.tags:
-            if tag.commit.committed_date > latest:
+            tag_name = str(tag)
+            if (tag_name.startswith('Photini') and
+                    tag.commit.committed_date > latest):
                 latest = tag.commit.committed_date
-                last_release = str(tag)
+                last_release = tag_name
         last_commit = str(repo.head.commit)[:7]
     except git.exc.InvalidGitRepositoryError:
         pass
