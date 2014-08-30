@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Photini
+GenericName=Photini metadata editor
+Exec=python -m photini.editor
+Terminal=false
+Categories=Graphics;Photography;

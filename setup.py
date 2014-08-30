@@ -21,6 +21,9 @@ from datetime import date
 from distutils.command.upload import upload
 import os
 from setuptools import setup
+from setuptools.command.install import install as _install
+import subprocess
+import sys
 
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
@@ -118,6 +121,24 @@ command_options['sdist'] = {
     'formats'        : ('setup.py', 'gztar zip'),
     'force_manifest' : ('setup.py', '1'),
     }
+
+# extend install command to add menu shortcut
+class install(_install):
+    def run(self):
+        _install.run(self)
+        if self.dry_run:
+            return
+        if sys.platform.startswith('linux'):
+            icon_path = os.path.join(
+                self.install_purelib, 'photini/data/icon_48.png')
+            temp_file = '/tmp/photini.desktop'
+            with open(temp_file, 'w') as of:
+                for line in open('src/linux/photini.desktop').readlines():
+                    of.write(line)
+                of.write('Icon=%s' % icon_path)
+            self.spawn(['desktop-file-install', '--delete-original', temp_file])
+
+cmdclass['install'] = install
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
