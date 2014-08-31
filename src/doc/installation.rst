@@ -18,6 +18,29 @@ The installer is suitable for 32 bit and 64 bit Windows, and should work on any 
 The installer should finish by running the Photini program.
 If this works then you have successfully installed Photini and can ignore the rest of these instructions.
 
+Upgrading all-in-one installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Future versions of the Windows installer will add an "upgrade Photini" command to the start menu.
+In the meantime you can upgrade Photini as follows (Windows 7 - other versions will vary):
+
+   #. Right-click on the Photini start menu entry and then click on "properties". Note the path in the "start in" box.
+   #. Find ``cmd.exe`` in the start menu, then right-click on it and click on "run as administrator". Allow it to make changes on your computer.
+   #. Use ``cd`` to navigate to the "start in" path shown in the Photini shortcut properties, then to its ``Scripts`` folder. For example::
+
+         Microsoft Windows [Version 6.1.7601]
+         Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+         C:\Windows\system32>cd "c:\Program Files (x86)\Photini\python-2.7.6"
+
+         c:\Program Files (x86)\Photini\python-2.7.6>cd Scripts
+
+         c:\Program Files (x86)\Photini\python-2.7.6\Scripts>
+
+   #. Use ``pip`` to upgrade Photini::
+
+         c:\Program Files (x86)\Photini\python-2.7.6\Scripts>pip install -U photini
+
 Piecemeal installation
 ----------------------
 
