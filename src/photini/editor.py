@@ -53,10 +53,7 @@ except ImportError:
     FlickrUploader = None
 from .editsettings import EditSettings
 from .googlemap import GoogleMap
-try:
-    from .importer import Importer
-except ImportError:
-    Importer = None
+from .importer import Importer
 from .openstreetmap import OpenStreetMap
 from .imagelist import ImageList
 from .loggerwindow import LoggerWindow
@@ -101,7 +98,7 @@ class MainWindow(QtGui.QMainWindow):
             {'name' : 'Map (&OSM)',            'class' : OpenStreetMap},
             {'name' : '&Flickr upload',        'class' : FlickrUploader},
             {'name' : '&Picasa upload',        'class' : PicasaUploader},
-            {'name' : '&Import from camera',   'class' : Importer},
+            {'name' : '&Import photos',        'class' : Importer},
             )
         for tab in self.tab_list:
             tab['key'] = tab['name'].replace('&', '').replace(' ', '_')
