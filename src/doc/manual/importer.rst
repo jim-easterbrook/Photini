@@ -37,7 +37,7 @@ Photini then fetches a list of all the files stored on the camera, which can tak
 
 The drop down list also includes the most recent source folders you have used.
 Click on "<add a folder>" to choose a new source folder.
-Photini lists all the image files in the source folder and all its sub-folders, so take care to navigate down to the folder containing the photos you want to avoid including too many other files.
+Photini lists all the image files in the source folder and all its sub-folders, so take care to navigate down to the folder containing the photos you want, to avoid including too many other files.
 
 The list is displayed in the central area, with the location where the file would be stored.
 It is sorted by name or date, as selected by the buttons below the image thumbnail area. 
