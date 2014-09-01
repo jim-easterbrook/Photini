@@ -69,6 +69,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, verbose):
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle("Photini photo metadata editor")
+        self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
         self.selection = list()
         # logger window
         self.loggerwindow = LoggerWindow(verbose)
