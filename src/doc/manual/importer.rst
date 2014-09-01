@@ -1,10 +1,10 @@
 Image importer
 ==============
 
-The ``Import from camera`` tab (keyboard shortcut ``Alt+I``) allows you to copy photographs from your digital camera.
+The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy photographs from your digital camera or anywhere else on your computer (for example, a camera memory card if your computer has a card reader).
 Whilst there are many other programs to do this, I've never found one that does things the way I want, so I added one to Photini.
 
-Note that the import from camera tab is only enabled if you have installed python-gphoto2.
+Note that you can only import directly from cameras if you have installed python-gphoto2.
 See :ref:`installation <installation-importer>` for more detail.
 
 The key part of the importer is the "target format" field.
@@ -26,14 +26,18 @@ keyword   meaning                             example
 
 Below the "target format" field is an example generated from the current format to help you edit it correctly.
 
-Note that Photini stores a different target format for each camera you use.
+Note that Photini stores a different target format for each camera or source folder that you use.
 This can be useful if you have two cameras that use the same file names.
 For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/IMGe(number)(ext)`` for my DSLR to rename files from ``IMG_9999.JPG`` to ``IMGe9999.JPG`` so they don't clash with files from my compact camera, which also uses names like ``IMG_9999.JPG``.
 
 .. image:: ../images/screenshot_31.png
 
-After connecting one or more cameras and pressing the "rescan" button, a camera can be chosen from the drop down list.
+After connecting one or more cameras and pressing the "refresh" button, a camera can be chosen from the "<select source>" drop down list.
 Photini then fetches a list of all the files stored on the camera, which can take some time.
+
+The drop down list also includes the most recent source folders you have used.
+Click on "<add a folder>" to choose a new source folder.
+Photini lists all the image files in the source folder and all its sub-folders, so take care to navigate down to the folder containing the photos you want to avoid including too many other files.
 
 The list is displayed in the central area, with the location where the file would be stored.
 It is sorted by name or date, as selected by the buttons below the image thumbnail area. 
@@ -48,6 +52,7 @@ The remaining images can be selected by clicking on them, or by using the "selec
 
 .. image:: ../images/screenshot_34.png
 
-Clicking the "copy photos" button transfers the selected images to the computer and loads them into Photini.
+Clicking the "copy photos" button copies the selected images to the computer and loads them into Photini.
+To avoid overloading Photini you should be careful not to select too many images before clicking on "copy photos".
 
 .. image:: ../images/screenshot_35.png
