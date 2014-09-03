@@ -88,25 +88,18 @@ class CameraSource(object):
         result = []
         with gp.CameraList() as gp_list:
             # get files
-            if gp.gp_camera_folder_list_files(
-                    self.camera, str(path), gp_list, self.context) != gp.GP_OK:
-                return None
+            self.camera.folder_list_files(str(path), gp_list)
             for n in range(gp_list.count()):
                 result.append(os.path.join(path, gp_list.get_name(n)))
             # get folders
             folders = []
             gp_list.reset()
-            if gp.gp_camera_folder_list_folders(
-                    self.camera, str(path), gp_list, self.context) != gp.GP_OK:
-                return None
+            self.camera.folder_list_folders(str(path), gp_list)
             for n in range(gp_list.count()):
                 folders.append(gp_list.get_name(n))
         # recurse over subfolders
         for name in folders:
-            sub_list = self.list_files(os.path.join(path, name))
-            if sub_list is None:
-                return None
-            result.extend(sub_list)
+            result.extend(self.list_files(os.path.join(path, name)))
         return result
 
     def get_file_info(self, path):
@@ -170,9 +163,7 @@ class CameraLister(QtCore.QObject):
             # used
             port_info = port_info_list.get_info(idx)
             self.camera.set_port_info(port_info)
-        if gp.gp_camera_init(self.camera, self.context) != gp.GP_OK:
-            self.camera = None
-            return None
+        self.camera.init()
         return CameraSource(self.camera)
 
 class NameMangler(QtCore.QObject):
@@ -246,7 +237,7 @@ class Importer(QtGui.QWidget):
         box = QtGui.QHBoxLayout()
         box.setMargin(0)
         self.source_selector = QtGui.QComboBox()
-        self.source_selector.activated.connect(self.new_source)
+        self.source_selector.currentIndexChanged.connect(self.new_source)
         box.addWidget(self.source_selector)
         refresh_button = QtGui.QPushButton('refresh')
         refresh_button.clicked.connect(self.refresh)
@@ -299,8 +290,9 @@ class Importer(QtGui.QWidget):
 
     def choose_camera(self, params):
         model, port_name = params
-        self.source = self.camera_lister.select_camera(model, port_name)
-        if not self.source:
+        try:
+            self.source = self.camera_lister.select_camera(model, port_name)
+        except gp.GPhoto2Error:
             # camera is no longer available
             self._fail()
             return
@@ -333,7 +325,7 @@ class Importer(QtGui.QWidget):
         self.refresh()
         idx = self.source_selector.findText('folder: %s' % root)
         self.source_selector.setCurrentIndex(idx)
-        self.choose_folder(root)
+##        self.choose_folder(root)
 
     def choose_folder(self, root):
         if os.path.isdir(root):
@@ -407,14 +399,16 @@ class Importer(QtGui.QWidget):
         file_data = {}
         if self.source:
             with Busy():
-                file_list = self.source.list_files()
-                if file_list is None:
+                try:
+                    file_list = self.source.list_files()
+                except gp.GPhoto2Error:
                     # camera is no longer visible
                     self._fail()
                     return
                 for path in file_list:
-                    info = self.source.get_file_info(path)
-                    if info is None:
+                    try:
+                        info = self.source.get_file_info(path)
+                    except gp.GPhoto2Error:
                         self._fail()
                         return
                     file_data[info['name']] = info
@@ -422,8 +416,6 @@ class Importer(QtGui.QWidget):
         self._new_file_list(file_data)
 
     def _fail(self):
-        self.source = None
-        self.config_section = None
         self.source_selector.setCurrentIndex(0)
         self.refresh()
 
@@ -523,10 +515,14 @@ class Importer(QtGui.QWidget):
                 dest_dir = os.path.dirname(dest_path)
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
-                self.source.copy_file(src_folder, name, dest_path)
+                try:
+                    self.source.copy_file(src_folder, name, dest_path)
+                except gp.GPhoto2Error:
+                    self._fail()
+                    return
                 self.image_list.open_file_list([dest_path])
                 last_transfer = max(last_transfer, timestamp)
+                self.config_store.set(self.config_section, 'last_transfer',
+                                      last_transfer.isoformat(' '))
 ##        self.statusBar().clearMessage()
         self.show_file_list()
-        self.config_store.set(
-            self.config_section, 'last_transfer', last_transfer.isoformat(' '))
