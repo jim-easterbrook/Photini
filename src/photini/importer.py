@@ -151,18 +151,14 @@ class CameraLister(QtCore.QObject):
         with gp.CameraAbilitiesList() as abilities_list:
             abilities_list.load(self.context)
             idx = abilities_list.lookup_model(str(model))
-            abilities = gp.CameraAbilities()
-            abilities_list.get_abilities(idx, abilities)
-            self.camera.set_abilities(abilities)
+            abilities = abilities_list.get_abilities(idx)
+        self.camera.set_abilities(abilities)
         # search ports for camera port name
         with gp.PortInfoList() as port_info_list:
             port_info_list.load()
             idx = port_info_list.lookup_path(str(port_name))
-            # port_info is a pointer to an entry in port_info_list, so
-            # don't free port_info_list until after port_info has been
-            # used
             port_info = port_info_list.get_info(idx)
-            self.camera.set_port_info(port_info)
+        self.camera.set_port_info(port_info)
         self.camera.init()
         return CameraSource(self.camera)
 

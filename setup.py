@@ -181,7 +181,7 @@ setup(name = 'Photini',
       install_requires = ['appdirs >= 1.3'],
       extras_require = {
           'flickr'  : ['flickrapi >= 1.4'],
-          'importer': ['gphoto2'],
+          'importer': ['gphoto2 >= 0.7'],
           'picasa'  : ['gdata >= 2.0.16']
           },
       use_2to3 = True,
