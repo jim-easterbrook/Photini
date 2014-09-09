@@ -86,17 +86,13 @@ class CameraSource(object):
 
     def list_files(self, path='/'):
         result = []
-        with gp.CameraList() as gp_list:
-            # get files
-            self.camera.folder_list_files(str(path), gp_list)
-            for n in range(gp_list.count()):
-                result.append(os.path.join(path, gp_list.get_name(n)))
-            # get folders
-            folders = []
-            gp_list.reset()
-            self.camera.folder_list_folders(str(path), gp_list)
-            for n in range(gp_list.count()):
-                folders.append(gp_list.get_name(n))
+        # get files
+        for name, value in self.camera.folder_list_files(str(path)):
+            result.append(os.path.join(path, name))
+        # get folders
+        folders = []
+        for name, value in self.camera.folder_list_folders(str(path)):
+            folders.append(name)
         # recurse over subfolders
         for name in folders:
             result.extend(self.list_files(os.path.join(path, name)))
@@ -104,8 +100,7 @@ class CameraSource(object):
 
     def get_file_info(self, path):
         folder, name = os.path.split(path)
-        info = gp.CameraFileInfo()
-        self.camera.file_get_info(folder, name, info)
+        info = self.camera.file_get_info(folder, name)
         timestamp = datetime.fromtimestamp(info.file.mtime)
         return {
             'path'      : path,
@@ -131,12 +126,8 @@ class CameraLister(QtCore.QObject):
         if not gp:
             return []
         camera_list = []
-        with gp.CameraList() as cameras:
-            cam_count = self.context.camera_autodetect(cameras)
-            for n in range(cam_count):
-                name = cameras.get_name(n)
-                addr = cameras.get_value(n)
-                camera_list.append((name, addr))
+        for name, addr in self.context.camera_autodetect():
+            camera_list.append((name, addr))
         camera_list.sort(key=lambda x: x[0])
         return camera_list
 
@@ -151,13 +142,13 @@ class CameraLister(QtCore.QObject):
         with gp.CameraAbilitiesList() as abilities_list:
             abilities_list.load(self.context)
             idx = abilities_list.lookup_model(str(model))
-            abilities = abilities_list.get_abilities(idx)
+            abilities = abilities_list[idx]
         self.camera.set_abilities(abilities)
         # search ports for camera port name
         with gp.PortInfoList() as port_info_list:
             port_info_list.load()
             idx = port_info_list.lookup_path(str(port_name))
-            port_info = port_info_list.get_info(idx)
+            port_info = port_info_list[idx]
         self.camera.set_port_info(port_info)
         self.camera.init()
         return CameraSource(self.camera)
