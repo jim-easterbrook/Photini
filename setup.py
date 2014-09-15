@@ -131,7 +131,8 @@ class install(_install):
         if sys.platform.startswith('linux'):
             icon_path = os.path.join(
                 self.install_purelib, 'photini/data/icon_48.png')
-            temp_file = '/tmp/photini.desktop'
+            temp_file = os.path.join(
+                self.install_purelib, 'photini/photini.desktop')
             with open(temp_file, 'w') as of:
                 for line in open('src/linux/photini.desktop').readlines():
                     of.write(line)
@@ -181,7 +182,7 @@ setup(name = 'Photini',
       install_requires = ['appdirs >= 1.3'],
       extras_require = {
           'flickr'  : ['flickrapi >= 1.4'],
-          'importer': ['gphoto2 >= 0.8'],
+          'importer': ['gphoto2 >= 0.9'],
           'picasa'  : ['gdata >= 2.0.16']
           },
       use_2to3 = True,

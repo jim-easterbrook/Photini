@@ -80,18 +80,20 @@ class FolderSource(object):
         shutil.copy2(os.path.join(folder, name), dest)
 
 class CameraSource(object):
-    def __init__(self, camera):
+    def __init__(self, camera, context):
         self.camera = camera
-        self.context = camera.context
+        self.context = context
 
     def list_files(self, path='/'):
         result = []
         # get files
-        for name, value in self.camera.folder_list_files(str(path)):
+        for name, value in self.camera.folder_list_files(
+                                                    str(path), self.context):
             result.append(os.path.join(path, name))
         # get folders
         folders = []
-        for name, value in self.camera.folder_list_folders(str(path)):
+        for name, value in self.camera.folder_list_folders(
+                                                    str(path), self.context):
             folders.append(name)
         # recurse over subfolders
         for name in folders:
@@ -100,7 +102,7 @@ class CameraSource(object):
 
     def get_file_info(self, path):
         folder, name = os.path.split(path)
-        info = self.camera.file_get_info(folder, name)
+        info = self.camera.file_get_info(folder, name, self.context)
         timestamp = datetime.fromtimestamp(info.file.mtime)
         return {
             'path'      : path,
@@ -110,10 +112,10 @@ class CameraSource(object):
             }
 
     def copy_file(self, folder, name, dest):
-        with gp.CameraFile() as camera_file:
-            self.camera.file_get(
-                folder, name, gp.GP_FILE_TYPE_NORMAL, camera_file)
-            camera_file.save(dest)
+        camera_file = gp.CameraFile()
+        self.camera.file_get(
+            folder, name, gp.GP_FILE_TYPE_NORMAL, camera_file, self.context)
+        camera_file.save(dest)
 
 class CameraLister(QtCore.QObject):
     def __init__(self, parent=None):
@@ -137,21 +139,19 @@ class CameraLister(QtCore.QObject):
             self.camera.exit()
             self.camera = None
         # initialise camera
-        self.camera = gp.Camera(self.context)
+        self.camera = gp.Camera()
         # search abilities for camera model
-        with gp.CameraAbilitiesList() as abilities_list:
-            abilities_list.load(self.context)
-            idx = abilities_list.lookup_model(str(model))
-            abilities = abilities_list[idx]
-        self.camera.set_abilities(abilities)
+        abilities_list = gp.CameraAbilitiesList()
+        abilities_list.load(self.context)
+        idx = abilities_list.lookup_model(str(model))
+        self.camera.set_abilities(abilities_list[idx])
         # search ports for camera port name
-        with gp.PortInfoList() as port_info_list:
-            port_info_list.load()
-            idx = port_info_list.lookup_path(str(port_name))
-            port_info = port_info_list[idx]
-        self.camera.set_port_info(port_info)
-        self.camera.init()
-        return CameraSource(self.camera)
+        port_info_list = gp.PortInfoList()
+        port_info_list.load()
+        idx = port_info_list.lookup_path(str(port_name))
+        self.camera.set_port_info(port_info_list[idx])
+        self.camera.init(self.context)
+        return CameraSource(self.camera, self.context)
 
 class NameMangler(QtCore.QObject):
     number_parser = re.compile('\D*(\d+)')
