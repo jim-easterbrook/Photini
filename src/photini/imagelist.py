@@ -34,7 +34,7 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
         QtGui.QFrame.__init__(self, parent)
-        self.path = os.path.normpath(path)
+        self.path = path
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False
@@ -302,6 +302,7 @@ class ImageList(QtGui.QWidget):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
         for path in path_list:
+            path = os.path.normpath(path)
             if path in self.path_list:
                 continue
             self.path_list.append(path)
