@@ -25,6 +25,7 @@ import webbrowser
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
 
+from .imagelist import DRAG_MIMETYPE
 from .utils import data_dir
 from . import __version__
 
@@ -46,25 +47,31 @@ class WebPage(QtWebKit.QWebPage):
         return QtWebKit.QWebPage.userAgentForUrl(self, url)
 
 class WebView(QtWebKit.QWebView):
-    def dragMoveEvent(self, event):
-        if event.mimeData().hasText():
-            event.acceptProposedAction()
-
     drop_text = QtCore.pyqtSignal(int, int, str)
-    def dropEvent(self, event):
-        if not event.mimeData().hasText():
-            return
-        text = event.mimeData().text()
-        if not str(text).strip():
+    def dragEnterEvent(self, event):
+        if event.format(0) != DRAG_MIMETYPE:
+            super(WebView, self).dragMoveEvent(event)
             return
         event.acceptProposedAction()
-        self.drop_text.emit(event.pos().x(), event.pos().y(), text)
+
+    def dragMoveEvent(self, event):
+        if event.format(0) != DRAG_MIMETYPE:
+            super(WebView, self).dragEnterEvent(event)
+
+    def dropEvent(self, event):
+        if event.format(0) != DRAG_MIMETYPE:
+            super(WebView, self).dropEvent(event)
+            return
+        text = event.mimeData().data(DRAG_MIMETYPE).data()
+        if text:
+            self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
 class PhotiniMap(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
+        self.drag_icon = self.get_drag_icon()
         self.location = dict()
         self.search_string = None
         self.map_loaded = False
@@ -158,6 +165,7 @@ class PhotiniMap(QtGui.QWidget):
             self.edit_box.setEnabled(True)
             self.map.setAcceptDrops(True)
             self.new_images()
+            self.image_list.set_drag_to_map(self.drag_icon)
 
     def refresh(self):
         if not self.map_loaded:
@@ -166,6 +174,7 @@ class PhotiniMap(QtGui.QWidget):
         zoom = eval(self.config_store.get('map', 'zoom'))
         self.JavaScript('setView(%s, %s, %d)' % (repr(lat), repr(lng), zoom))
         self.new_images()
+        self.image_list.set_drag_to_map(self.drag_icon)
 
     @QtCore.pyqtSlot(float, float, int)
     def new_bounds(self, centre_lat, centre_lng, zoom):

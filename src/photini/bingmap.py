@@ -19,11 +19,13 @@
 
 from __future__ import unicode_literals
 
+import os
 import webbrowser
 
 from PyQt4 import QtGui, QtCore
 
 from .photinimap import PhotiniMap
+from .utils import data_dir
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
@@ -40,6 +42,9 @@ class BingMap(PhotiniMap):
       var api_key = "%s";
     </script>
 """ % 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ'
+
+    def get_drag_icon(self):
+        return QtGui.QPixmap(os.path.join(data_dir, 'bing_grey_marker.png'))
 
     def show_terms(self):
         # return a widget to display map terms and conditions

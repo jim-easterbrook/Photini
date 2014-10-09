@@ -2,7 +2,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -227,6 +227,7 @@ class MainWindow(QtGui.QMainWindow):
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
+            self.image_list.set_drag_to_map(None)
             current.refresh()
             self.image_list.emit_selection()
 

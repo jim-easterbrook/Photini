@@ -20,12 +20,14 @@
 from __future__ import unicode_literals
 
 import locale
+import os
 import re
 import webbrowser
 
 from PyQt4 import QtGui
 
 from .photinimap import PhotiniMap
+from .utils import data_dir
 
 class GoogleMap(PhotiniMap):
     def __init__(self, config_store, image_list, parent=None):
@@ -50,6 +52,9 @@ class GoogleMap(PhotiniMap):
       src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false%s">
     </script>
 """ % ('AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y', region)
+
+    def get_drag_icon(self):
+        return QtGui.QPixmap(os.path.join(data_dir, 'google_grey_marker.png'))
 
     def show_terms(self):
         # return a widget to display map terms and conditions

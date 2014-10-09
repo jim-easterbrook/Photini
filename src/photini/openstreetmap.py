@@ -19,11 +19,13 @@
 
 from __future__ import unicode_literals
 
+import os
 import webbrowser
 
 from PyQt4 import QtGui
 
 from .photinimap import PhotiniMap
+from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):
     def load_api(self):
@@ -37,6 +39,9 @@ class OpenStreetMap(PhotiniMap):
       src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js">
     </script>
 """
+
+    def get_drag_icon(self):
+        return QtGui.QPixmap(os.path.join(data_dir, 'osm_grey_marker.png'))
 
     def show_terms(self):
         # return a widget to display map terms and conditions

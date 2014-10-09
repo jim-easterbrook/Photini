@@ -29,6 +29,8 @@ from PyQt4.QtCore import Qt
 from .flowlayout import FlowLayout
 from .metadata import Metadata
 
+DRAG_MIMETYPE = 'application/x-photini-image'
+
 class Image(QtGui.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
         QtGui.QFrame.__init__(self, parent)
@@ -76,17 +78,24 @@ class Image(QtGui.QFrame):
         self.image_list.thumb_mouse_press(self.path, event)
 
     def mouseMoveEvent(self, event):
+        if not self.image_list.drag_icon:
+            return
         if ((event.pos() - self.drag_start_pos).manhattanLength() <
                                     QtGui.QApplication.startDragDistance()):
             return
-        drag = QtGui.QDrag(self)
-        mimeData = QtCore.QMimeData()
-        paths = list()
+        paths = []
         for image in self.image_list.get_selected_images():
             paths.append(image.path)
-        mimeData.setText(str(paths))
+        if not paths:
+            return
+        drag = QtGui.QDrag(self)
+        drag.setPixmap(self.image_list.drag_icon)
+        drag.setHotSpot(QtCore.QPoint(
+            drag.pixmap().width() // 2, drag.pixmap().height()))
+        mimeData = QtCore.QMimeData()
+        mimeData.setData(DRAG_MIMETYPE, str(paths))
         drag.setMimeData(mimeData)
-        dropAction = drag.exec_(Qt.LinkAction)
+        dropAction = drag.exec_(Qt.CopyAction)
 
     def mouseDoubleClickEvent(self, event):
         if sys.platform.startswith('linux'):
@@ -158,31 +167,34 @@ class Image(QtGui.QFrame):
         return self.selected
 
 class ScrollArea(QtGui.QScrollArea):
-    def __init__(self, parent=None, drop_callback=None):
+    dropped_images = QtCore.pyqtSignal(list)
+    def __init__(self, parent=None):
         QtGui.QScrollArea.__init__(self, parent)
-        self.drop_callback = drop_callback
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setWidgetResizable(True)
         self.setAcceptDrops(True)
 
     def dropEvent(self, event):
-        if not self.drop_callback:
-            return
         file_list = []
         for uri in event.mimeData().urls():
             file_list.append(str(uri.toLocalFile()))
-        if not file_list:
-            return
-        self.drop_callback(file_list)
-        event.acceptProposedAction()
+        if file_list:
+            self.dropped_images.emit(file_list)
 
     def dragEnterEvent(self, event):
-        if self.drop_callback and event.mimeData().hasFormat('text/uri-list'):
+        if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
 
 class ImageList(QtGui.QWidget):
+    image_list_changed = QtCore.pyqtSignal()
+    new_metadata = QtCore.pyqtSignal(bool)
+    selection_changed = QtCore.pyqtSignal(list)
+    sort_order_changed = QtCore.pyqtSignal()
     def __init__(self, config_store, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.app = QtGui.QApplication.instance()
+        self.drag_icon = None
         self.path_list = list()
         self.image = dict()
         self.last_selected = None
@@ -196,9 +208,8 @@ class ImageList(QtGui.QWidget):
         self.setLayout(layout)
         layout.setMargin(0)
         # thumbnail display
-        self.scroll_area = ScrollArea(drop_callback=self.open_file_list)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area = ScrollArea()
+        self.scroll_area.dropped_images.connect(self.open_file_list)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
         self.thumbnails = QtGui.QWidget()
         self.thumbnails.setLayout(FlowLayout(hSpacing=0, vSpacing=0))
@@ -236,6 +247,9 @@ class ImageList(QtGui.QWidget):
         self.size_slider.setMinimumWidth(140)
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 5)
+
+    def set_drag_to_map(self, icon):
+        self.drag_icon = icon
 
     def get_image(self, path):
         if path not in self.path_list:
@@ -283,7 +297,7 @@ class ImageList(QtGui.QWidget):
             return
         self.open_file_list(path_list)
 
-    image_list_changed = QtCore.pyqtSignal()
+    @QtCore.pyqtSlot(list)
     def open_file_list(self, path_list):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
@@ -309,7 +323,6 @@ class ImageList(QtGui.QWidget):
             result = result.value
         return result
 
-    sort_order_changed = QtCore.pyqtSignal()
     def _new_sort_order(self):
         self._show_thumbnails()
         self.sort_order_changed.emit()
@@ -348,7 +361,6 @@ class ImageList(QtGui.QWidget):
         self.emit_selection()
         self.image_list_changed.emit()
 
-    new_metadata = QtCore.pyqtSignal(bool)
     @QtCore.pyqtSlot()
     def save_files(self):
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
@@ -395,7 +407,6 @@ class ImageList(QtGui.QWidget):
                 selection.append(image)
         return selection
 
-    selection_changed = QtCore.pyqtSignal(list)
     def emit_selection(self):
         self.selection_changed.emit(self.get_selected_images())
 
