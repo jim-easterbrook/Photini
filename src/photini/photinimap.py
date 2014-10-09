@@ -148,6 +148,7 @@ class PhotiniMap(QtGui.QWidget):
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
+        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
             page_start + self.load_api() +
             page_end % (self.__class__.__name__.lower(), lat, lng, zoom),
@@ -155,6 +156,7 @@ class PhotiniMap(QtGui.QWidget):
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
+        QtGui.QApplication.restoreOverrideCursor()
         if success:
             self.map_loaded = True
             self.layout().removeWidget(self.load_map)
@@ -325,5 +327,6 @@ class PhotiniMap(QtGui.QWidget):
 
     def JavaScript(self, command):
         if self.map_loaded:
+            command = command.replace('\\', '\\\\')
             return self.map.page().mainFrame().evaluateJavaScript(command)
         return None
