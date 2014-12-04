@@ -169,7 +169,7 @@ python-gphoto2
 ^^^^^^^^^^^^^^
 
 Photini can import pictures from many types of digital camera using `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_.
-This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.9 or greater::
+This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
 
    sudo pip install gphoto2
 
