@@ -112,9 +112,8 @@ class CameraSource(object):
             }
 
     def copy_file(self, folder, name, dest):
-        camera_file = gp.CameraFile()
-        self.camera.file_get(
-            folder, name, gp.GP_FILE_TYPE_NORMAL, camera_file, self.context)
+        camera_file = self.camera.file_get(
+            folder, name, gp.GP_FILE_TYPE_NORMAL, self.context)
         camera_file.save(dest)
 
 class CameraLister(QtCore.QObject):
