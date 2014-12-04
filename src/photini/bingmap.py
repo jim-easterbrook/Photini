@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals
 
+import locale
 import os
 import webbrowser
 
@@ -34,14 +35,20 @@ class BingMap(PhotiniMap):
         PhotiniMap.__init__(self, *arg, **kw)
 
     def load_api(self):
+        src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            src += '&mkt=%s,ngt' % lang.replace('_', '-')
+        else:
+            src += '&mkt=ngt'
         return """
     <script charset="UTF-8" type="text/javascript"
-      src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0">
+      src="%s">
     </script>
     <script type="text/javascript">
       var api_key = "%s";
     </script>
-""" % 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ'
+""" % (src, 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ')
 
     def get_drag_icon(self):
         return QtGui.QPixmap(os.path.join(data_dir, 'bing_grey_marker.png'))
