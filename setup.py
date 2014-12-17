@@ -18,7 +18,9 @@
 #  <http://www.gnu.org/licenses/>.
 
 from datetime import date
+from distutils.cmd import Command
 from distutils.command.upload import upload
+from distutils.errors import DistutilsOptionError
 import os
 from setuptools import setup
 from setuptools.command.install import install as _install
@@ -140,6 +142,42 @@ class install(_install):
             self.spawn(['desktop-file-install', '--delete-original', temp_file])
 
 cmdclass['install'] = install
+
+# add command to extract strings for translation
+class extract_messages(Command):
+    description = 'extract localizable strings from the project code'
+    user_options = [
+        ('output-file=', 'o',
+         'name of the output file'),
+        ('input-dir=', 'i',
+         'directory that should be scanned for Python files'),
+    ]
+
+    def initialize_options(self):
+        self.output_file = None
+        self.input_dir = None
+
+    def finalize_options(self):
+        if not self.output_file:
+            raise DistutilsOptionError('no output file specified')
+        if not self.input_dir:
+            raise DistutilsOptionError('no input directory specified')
+
+    def run(self):
+        inputs = []
+        for name in os.listdir(self.input_dir):
+            base, ext = os.path.splitext(name)
+            if ext == '.py':
+                inputs.append(os.path.join(self.input_dir, name))
+        self.mkpath(os.path.dirname(self.output_file))
+        subprocess.check_call(
+            ['pylupdate4', '-verbose'] + inputs + ['-ts', self.output_file])
+
+cmdclass['extract_messages'] = extract_messages
+command_options['extract_messages'] = {
+    'output_file' : ('setup.py', 'build/messages/photini.ts'),
+    'input_dir'   : ('setup.py', 'src/photini'),
+    }
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
