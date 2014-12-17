@@ -68,7 +68,7 @@ from . import __version__
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, verbose):
         QtGui.QMainWindow.__init__(self)
-        self.setWindowTitle("Photini photo metadata editor")
+        self.setWindowTitle(self.tr("Photini photo metadata editor"))
         self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
         self.selection = list()
         # logger window
@@ -92,54 +92,72 @@ class MainWindow(QtGui.QMainWindow):
         self.image_list.new_metadata.connect(self.new_metadata)
         # prepare list of tabs and associated stuff
         self.tab_list = (
-            {'name' : '&Descriptive metadata', 'class' : Descriptive},
-            {'name' : '&Technical metadata',   'class' : Technical},
-            {'name' : 'Map (&Google)',         'class' : GoogleMap},
-            {'name' : 'Map (&Bing)',           'class' : BingMap},
-            {'name' : 'Map (&OSM)',            'class' : OpenStreetMap},
-            {'name' : '&Flickr upload',        'class' : FlickrUploader},
-            {'name' : '&Picasa upload',        'class' : PicasaUploader},
-            {'name' : '&Import photos',        'class' : Importer},
+            {'name'  : self.tr('&Descriptive metadata'),
+             'key'   : 'descriptive_metadata',
+             'class' : Descriptive},
+            {'name'  : self.tr('&Technical metadata'),
+             'key'   : 'technical_metadata',
+             'class' : Technical},
+            {'name'  : self.tr('Map (&Google)'),
+             'key'   : 'map_google',
+             'class' : GoogleMap},
+            {'name'  : self.tr('Map (&Bing)'),
+             'key'   : 'map_bing',
+             'class' : BingMap},
+            {'name'  : self.tr('Map (&OSM)'),
+             'key'   : 'map_osm',
+             'class' : OpenStreetMap},
+            {'name'  : self.tr('&Flickr upload'),
+             'key'   : 'flickr_upload',
+             'class' : FlickrUploader},
+            {'name'  : self.tr('&Picasa upload'),
+             'key'   : 'picasa_upload',
+             'class' : PicasaUploader},
+            {'name'  : self.tr('&Import photos'),
+             'key'   : 'import_photos',
+             'class' : Importer},
             )
         for tab in self.tab_list:
-            tab['key'] = tab['name'].replace('&', '').replace(' ', '_')
-            tab['key'] = tab['key'].replace('(', '').replace(')', '').lower()
             if tab['class']:
                 tab['object'] = tab['class'](self.config_store, self.image_list)
             else:
                 tab['object'] = None
         # file menu
-        file_menu = self.menuBar().addMenu('File')
-        open_action = QtGui.QAction('Open images', self)
-        open_action.setShortcuts(['Ctrl+O'])
+        file_menu = self.menuBar().addMenu(self.tr('File'))
+        open_action = QtGui.QAction(self.tr('Open images'), self)
+        open_action.setShortcuts(QtGui.QKeySequence.Open)
         open_action.triggered.connect(self.image_list.open_files)
         file_menu.addAction(open_action)
-        self.save_action = QtGui.QAction('Save images with new data', self)
-        self.save_action.setShortcuts(['Ctrl+S'])
+        self.save_action = QtGui.QAction(
+            self.tr('Save images with new data'), self)
+        self.save_action.setShortcuts(QtGui.QKeySequence.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
         file_menu.addAction(self.save_action)
-        self.close_action = QtGui.QAction('Close selected images', self)
+        self.close_action = QtGui.QAction(
+            self.tr('Close selected images'), self)
         self.close_action.setEnabled(False)
         self.close_action.triggered.connect(self.close_files)
         file_menu.addAction(self.close_action)
-        close_all_action = QtGui.QAction('Close all images', self)
+        close_all_action = QtGui.QAction(self.tr('Close all images'), self)
         close_all_action.triggered.connect(self.close_all_files)
         file_menu.addAction(close_all_action)
         file_menu.addSeparator()
-        quit_action = QtGui.QAction('Quit', self)
-        quit_action.setShortcuts(['Ctrl+Q', 'Ctrl+W'])
+        quit_action = QtGui.QAction(self.tr('Quit'), self)
+        quit_action.setShortcuts(
+            [QtGui.QKeySequence.Quit, QtGui.QKeySequence.Close])
         quit_action.triggered.connect(
             QtGui.QApplication.instance().closeAllWindows)
         file_menu.addAction(quit_action)
         # options menu
-        options_menu = self.menuBar().addMenu('Options')
-        settings_action = QtGui.QAction('Settings', self)
+        options_menu = self.menuBar().addMenu(self.tr('Options'))
+        settings_action = QtGui.QAction(self.tr('Settings'), self)
         settings_action.triggered.connect(self.edit_settings)
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
-            tab['action'] = QtGui.QAction(tab['name'].replace('&', ''), self)
+            name = QtCore.QString(tab['name']).remove('&')
+            tab['action'] = QtGui.QAction(name, self)
             tab['action'].setCheckable(True)
             if tab['class']:
                 tab['action'].setChecked(
@@ -149,12 +167,12 @@ class MainWindow(QtGui.QMainWindow):
             tab['action'].triggered.connect(self.add_tabs)
             options_menu.addAction(tab['action'])
         # help menu
-        help_menu = self.menuBar().addMenu('Help')
-        about_action = QtGui.QAction('About Photini', self)
+        help_menu = self.menuBar().addMenu(self.tr('Help'))
+        about_action = QtGui.QAction(self.tr('About Photini'), self)
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
         help_menu.addSeparator()
-        help_action = QtGui.QAction('Photini documentation', self)
+        help_action = QtGui.QAction(self.tr('Photini documentation'), self)
         help_action.triggered.connect(self.open_docs)
         help_menu.addAction(help_action)
         # main application area
@@ -211,7 +229,7 @@ class MainWindow(QtGui.QMainWindow):
     @QtCore.pyqtSlot()
     def about(self):
         dialog = QtGui.QMessageBox()
-        dialog.setWindowTitle('Photini: about')
+        dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(
             open(os.path.join(data_dir, 'about.html')).read() % (__version__))
         dialog.setDetailedText(
@@ -252,13 +270,16 @@ def main(argv=None):
     app = QtGui.QApplication(sys.argv)
     del sys.argv[-1]
     # parse remaining arguments
-    parser = OptionParser(version='Photini %s' % (__version__),
-                          description='Photini photo metadata editor')
-    parser.add_option('-v', '--verbose', action='count', default=0,
-                      help='increase number of logging messages')
+    tr = QtCore.QCoreApplication.translate
+    parser = OptionParser(
+        version='Photini %s' % (__version__),
+        description=str(tr('main', 'Photini photo metadata editor')))
+    parser.add_option(
+        '-v', '--verbose', action='count', default=0,
+        help=str(tr('main', 'increase number of logging messages')))
     options, args = parser.parse_args()
     if len(args) != 0:
-        parser.error('incorrect number of arguments')
+        parser.error(str(tr('main', 'incorrect number of arguments')))
     # create GUI and run application event loop
     main = MainWindow(options.verbose)
     main.show()

@@ -45,7 +45,7 @@ class LineEditWithAuto(QtGui.QWidget):
         self.edit = QtGui.QLineEdit()
         layout.addWidget(self.edit)
         # auto complete button
-        self.auto = QtGui.QPushButton('Auto')
+        self.auto = QtGui.QPushButton(self.tr('Auto'))
         layout.addWidget(self.auto)
         # adopt child widget methods and signals
         self.editingFinished = self.edit.editingFinished
@@ -66,25 +66,26 @@ class Descriptive(QtGui.QWidget):
         # title
         self.widgets['title'] = QtGui.QLineEdit()
         self.widgets['title'].editingFinished.connect(self.new_title)
-        self.form.addRow('Title / Object Name', self.widgets['title'])
+        self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
         self.widgets['description'] = MultiLineEdit()
         self.widgets['description'].editingFinished.connect(self.new_description)
-        self.form.addRow('Description / Caption', self.widgets['description'])
+        self.form.addRow(
+            self.tr('Description / Caption'), self.widgets['description'])
         # keywords
         self.widgets['keywords'] = QtGui.QLineEdit()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
-        self.form.addRow('Keywords', self.widgets['keywords'])
+        self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         # copyright
         self.widgets['copyright'] = LineEditWithAuto()
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
-        self.form.addRow('Copyright', self.widgets['copyright'])
+        self.form.addRow(self.tr('Copyright'), self.widgets['copyright'])
         # creator
         self.widgets['creator'] = LineEditWithAuto()
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
-        self.form.addRow('Creator / Artist', self.widgets['creator'])
+        self.form.addRow(self.tr('Creator / Artist'), self.widgets['creator'])
         # disable until an image is selected
         for key in self.widgets:
             self.widgets[key].setEnabled(False)
@@ -111,8 +112,8 @@ class Descriptive(QtGui.QWidget):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtGui.QInputDialog.getText(
-                self, 'Photini: input name',
-                "Please type in the copyright holder's name",
+                self, self.tr('Photini: input name'),
+                self.tr("Please type in the copyright holder's name"),
                 text=self.config_store.get('user', 'creator_name', ''))
             if OK and name:
                 name = unicode(name)
@@ -125,17 +126,17 @@ class Descriptive(QtGui.QWidget):
                 date = datetime.now()
             else:
                 date = date.value
-            value = 'Copyright ©%d %s. All rights reserved.' % (
-                date.year, name)
-            image.metadata.set_item('copyright', value)
+            value = self.tr('Copyright ©%1 %2. All rights reserved.').arg(
+                '%d' % date.year, name)
+            image.metadata.set_item('copyright', unicode(value))
         self._update_widget('copyright')
 
     def auto_creator(self):
         name = self.config_store.get('user', 'creator_name')
         if not name:
             name, OK = QtGui.QInputDialog.getText(
-                self, 'Photini: input name',
-                "Please type in the creator's name",
+                self, self.tr('Photini: input name'),
+                self.tr("Please type in the creator's name"),
                 text=self.config_store.get('user', 'copyright_name', ''))
             if OK and name:
                 name = unicode(name)
@@ -147,7 +148,7 @@ class Descriptive(QtGui.QWidget):
 
     def _new_value(self, key):
         value = unicode(self.widgets[key].text())
-        if value != '<multiple values>':
+        if value != unicode(self.tr('<multiple values>')):
             for image in self.image_list.get_selected_images():
                 image.metadata.set_item(key, value)
         self._update_widget(key)
@@ -157,7 +158,7 @@ class Descriptive(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             new_value = image.metadata.get_item(key).as_str()
             if value and new_value != value:
-                self.widgets[key].setText('<multiple values>')
+                self.widgets[key].setText(self.tr('<multiple values>'))
                 return
             value = new_value
         if value:

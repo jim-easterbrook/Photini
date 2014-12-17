@@ -57,7 +57,7 @@ class DateAndTimeWidget(QtGui.QWidget):
         self.time.editingFinished.connect(self._new_time)
         layout.addWidget(self.time)
         # clear button
-        clear_button = QtGui.QPushButton('clear')
+        clear_button = QtGui.QPushButton(self.tr('clear'))
         clear_button.clicked.connect(self._clear)
         layout.addWidget(clear_button)
 
@@ -86,11 +86,11 @@ class DateAndTimeWidget(QtGui.QWidget):
         self.time.setTime(self.time.minimumTime())
 
     def setMultipleDate(self):
-        self.date.setSpecialValueText('<multiple>')
+        self.date.setSpecialValueText(self.tr('<multiple>'))
         self.date.setDate(self.date.minimumDate())
 
     def setMultipleTime(self):
-        self.time.setSpecialValueText('<multi>')
+        self.time.setSpecialValueText(self.tr('<multi>'))
         self.time.setTime(self.time.minimumTime())
 
     def setDate(self, value):
@@ -109,15 +109,15 @@ class OffsetWidget(QtGui.QWidget):
         # hours
         self.hours = QtGui.QSpinBox()
         self.hours.setRange(-12, 12)
-        self.hours.setSuffix(' hours')
+        self.hours.setSuffix(self.tr(' hours'))
         layout.addWidget(self.hours)
         # minutes
         self.minutes = QtGui.QSpinBox()
         self.minutes.setRange(-60, 60)
-        self.minutes.setSuffix(' minutes')
+        self.minutes.setSuffix(self.tr(' minutes'))
         layout.addWidget(self.minutes)
         # apply button
-        apply_button = QtGui.QPushButton('apply')
+        apply_button = QtGui.QPushButton(self.tr('apply'))
         apply_button.clicked.connect(self._apply)
         layout.addWidget(apply_button)
 
@@ -141,54 +141,56 @@ class Technical(QtGui.QWidget):
             'modified'  : 'digitised'
             }
         # date and time
-        date_group = QtGui.QGroupBox('Date and time')
+        date_group = QtGui.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(QtGui.QFormLayout())
         # taken
         self.date_widget['taken'] = DateAndTimeWidget('taken')
         self.date_widget['taken'].date_changed.connect(self.new_datetime)
         self.date_widget['taken'].time_changed.connect(self.new_datetime)
-        date_group.layout().addRow('Taken', self.date_widget['taken'])
+        date_group.layout().addRow(self.tr('Taken'), self.date_widget['taken'])
         # link taken & digitised
         self.link_widget['digitised'] = QtGui.QCheckBox(
-            "Link 'taken' and 'digitised'")
+            self.tr("Link 'taken' and 'digitised'"))
         self.link_widget['digitised'].clicked.connect(self.new_link)
         date_group.layout().addRow('', self.link_widget['digitised'])
         # digitised
         self.date_widget['digitised'] = DateAndTimeWidget('digitised')
         self.date_widget['digitised'].date_changed.connect(self.new_datetime)
         self.date_widget['digitised'].time_changed.connect(self.new_datetime)
-        date_group.layout().addRow('Digitised', self.date_widget['digitised'])
+        date_group.layout().addRow(
+            self.tr('Digitised'), self.date_widget['digitised'])
         # link digitised & modified
         self.link_widget['modified'] = QtGui.QCheckBox(
-            "Link 'digitised' and 'modified'")
+            self.tr("Link 'digitised' and 'modified'"))
         self.link_widget['modified'].clicked.connect(self.new_link)
         date_group.layout().addRow('', self.link_widget['modified'])
         # modified
         self.date_widget['modified'] = DateAndTimeWidget('modified')
         self.date_widget['modified'].date_changed.connect(self.new_datetime)
         self.date_widget['modified'].time_changed.connect(self.new_datetime)
-        date_group.layout().addRow('Modified', self.date_widget['modified'])
+        date_group.layout().addRow(
+            self.tr('Modified'), self.date_widget['modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
-        date_group.layout().addRow('Offset', self.offset_widget)
+        date_group.layout().addRow(self.tr('Offset'), self.offset_widget)
         self.layout().addWidget(date_group, 0, 0)
         # other
-        other_group = QtGui.QGroupBox('Other')
+        other_group = QtGui.QGroupBox(self.tr('Other'))
         other_group.setLayout(QtGui.QFormLayout())
         # orientation
         self.orientation = QtGui.QComboBox()
-        self.orientation.addItem('normal', 1)
-        self.orientation.addItem('rotate -90', 6)
-        self.orientation.addItem('rotate +90', 8)
-        self.orientation.addItem('rotate 180', 3)
-        self.orientation.addItem('reflect left-right', 2)
-        self.orientation.addItem('reflect top-bottom', 4)
-        self.orientation.addItem('reflect tr-bl', 5)
-        self.orientation.addItem('reflect tl-br', 7)
-        self.orientation.addItem('<multiple>', -1)
+        self.orientation.addItem(self.tr('normal'), 1)
+        self.orientation.addItem(self.tr('rotate -90'), 6)
+        self.orientation.addItem(self.tr('rotate +90'), 8)
+        self.orientation.addItem(self.tr('rotate 180'), 3)
+        self.orientation.addItem(self.tr('reflect left-right'), 2)
+        self.orientation.addItem(self.tr('reflect top-bottom'), 4)
+        self.orientation.addItem(self.tr('reflect tr-bl'), 5)
+        self.orientation.addItem(self.tr('reflect tl-br'), 7)
+        self.orientation.addItem(self.tr('<multiple>'), -1)
         self.orientation.currentIndexChanged.connect(self.new_orientation)
-        other_group.layout().addRow('Orientation', self.orientation)
+        other_group.layout().addRow(self.tr('Orientation'), self.orientation)
         self.layout().addWidget(other_group, 0, 1)
         # disable until an image is selected
         for key in self.date_widget:
