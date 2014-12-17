@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.com
+
+[photini.photini]
+source_file = build/messages/photini.ts
+source_lang = en
+
