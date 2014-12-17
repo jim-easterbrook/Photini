@@ -25,7 +25,7 @@ class EditSettings(QtGui.QDialog):
     def __init__(self, parent, config_store):
         QtGui.QDialog.__init__(self, parent)
         self.config_store = config_store
-        self.setWindowTitle('Photini: settings')
+        self.setWindowTitle(self.tr('Photini: settings'))
         self.setLayout(QtGui.QGridLayout())
         self.layout().setRowStretch(0, 1)
         self.layout().setColumnStretch(0, 1)
@@ -36,7 +36,7 @@ class EditSettings(QtGui.QDialog):
         panel.setLayout(QtGui.QFormLayout())
 ##        panel.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         # done button
-        done_button = QtGui.QPushButton('Done')
+        done_button = QtGui.QPushButton(self.tr('Done'))
         done_button.clicked.connect(self.accept)
         self.layout().addWidget(done_button, 1, 1)
         # copyright holder name
@@ -45,47 +45,47 @@ class EditSettings(QtGui.QDialog):
             self.config_store.get('user', 'copyright_name', ''))
         self.copyright_name.editingFinished.connect(self.new_copyright_name)
         self.copyright_name.setMinimumWidth(200)
-        panel.layout().addRow('Copyright holder', self.copyright_name)
+        panel.layout().addRow(self.tr('Copyright holder'), self.copyright_name)
         # creator name
         self.creator_name = QtGui.QLineEdit()
         self.creator_name.setText(
             self.config_store.get('user', 'creator_name', ''))
         self.creator_name.editingFinished.connect(self.new_creator_name)
-        panel.layout().addRow('Creator', self.creator_name)
+        panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
-        self.reset_flickr = QtGui.QPushButton('OK')
+        self.reset_flickr = QtGui.QPushButton(self.tr('OK'))
         self.reset_flickr.setEnabled(self.config_store.has_section('flickr'))
         self.reset_flickr.clicked.connect(self.do_reset_flickr)
-        panel.layout().addRow('Reset Flickr', self.reset_flickr)
+        panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
         # reset picasa
         self.reset_picasa = QtGui.QPushButton('OK')
         self.reset_picasa.setEnabled(self.config_store.has_section('picasa'))
         self.reset_picasa.clicked.connect(self.do_reset_picasa)
-        panel.layout().addRow('Reset Picasa', self.reset_picasa)
+        panel.layout().addRow(self.tr('Reset Picasa'), self.reset_picasa)
         # sidecar files
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
         if not if_mode:
             sc_mode = 'always'
-        self.sc_always = QtGui.QRadioButton('Always create')
+        self.sc_always = QtGui.QRadioButton(self.tr('Always create'))
         self.sc_always.setChecked(sc_mode == 'always')
         self.sc_always.clicked.connect(self.new_sc)
-        panel.layout().addRow('Sidecar files', self.sc_always)
-        self.sc_auto = QtGui.QRadioButton('Create if necessary')
+        panel.layout().addRow(self.tr('Sidecar files'), self.sc_always)
+        self.sc_auto = QtGui.QRadioButton(self.tr('Create if necessary'))
         self.sc_auto.setChecked(sc_mode == 'auto')
         self.sc_auto.setEnabled(if_mode)
         self.sc_auto.clicked.connect(self.new_sc)
         panel.layout().addRow('', self.sc_auto)
-        self.sc_delete = QtGui.QRadioButton('Delete when possible')
+        self.sc_delete = QtGui.QRadioButton(self.tr('Delete when possible'))
         self.sc_delete.setChecked(sc_mode == 'delete')
         self.sc_delete.setEnabled(if_mode)
         self.sc_delete.clicked.connect(self.new_sc)
         panel.layout().addRow('', self.sc_delete)
         # image file locking
-        self.write_if = QtGui.QCheckBox('(when possible)')
+        self.write_if = QtGui.QCheckBox(self.tr('(when possible)'))
         self.write_if.setChecked(if_mode)
         self.write_if.clicked.connect(self.new_write_if)
-        panel.layout().addRow('Write to image', self.write_if)
+        panel.layout().addRow(self.tr('Write to image'), self.write_if)
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 

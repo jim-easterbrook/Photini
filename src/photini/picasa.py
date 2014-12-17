@@ -130,7 +130,7 @@ class PicasaUploader(QtGui.QWidget):
         self.current_album = None
         self.uploader = None
         ### album group
-        self.album_group = QtGui.QGroupBox('Album')
+        self.album_group = QtGui.QGroupBox(self.tr('Album'))
         self.album_group.setLayout(QtGui.QHBoxLayout())
         self.layout().addWidget(self.album_group, 0, 0, 3, 3)
         ## album details, left hand side
@@ -144,31 +144,33 @@ class PicasaUploader(QtGui.QWidget):
         self.albums.setInsertPolicy(QtGui.QComboBox.NoInsert)
         self.albums.currentIndexChanged.connect(self.changed_album)
         self.albums.lineEdit().editingFinished.connect(self.new_title)
-        album_form_left.addRow('Title', self.albums)
+        album_form_left.addRow(self.tr('Title'), self.albums)
         # album description
         self.widgets['description'] = MultiLineEdit()
         self.widgets['description'].editingFinished.connect(self.new_description)
-        album_form_left.addRow('Description', self.widgets['description'])
+        album_form_left.addRow(
+            self.tr('Description'), self.widgets['description'])
         # album location
         self.widgets['location'] = QtGui.QLineEdit()
         self.widgets['location'].editingFinished.connect(self.new_location)
-        album_form_left.addRow('Place taken', self.widgets['location'])
+        album_form_left.addRow(self.tr('Place taken'), self.widgets['location'])
         # album visibility
         self.widgets['access'] = QtGui.QComboBox()
-        self.widgets['access'].addItem('Public on the web', 'public')
-        self.widgets['access'].addItem('Limited, anyone with the link', 'private')
-        self.widgets['access'].addItem('Only you', 'protected')
+        self.widgets['access'].addItem(self.tr('Public on the web'), 'public')
+        self.widgets['access'].addItem(
+            self.tr('Limited, anyone with the link'), 'private')
+        self.widgets['access'].addItem(self.tr('Only you'), 'protected')
         self.widgets['access'].currentIndexChanged.connect(self.new_access)
-        album_form_left.addRow('Visibility', self.widgets['access'])
+        album_form_left.addRow(self.tr('Visibility'), self.widgets['access'])
         ## album buttons
         buttons = QtGui.QHBoxLayout()
         album_form_left.addRow('', buttons)
         # new album
-        new_album_button = QtGui.QPushButton('New album')
+        new_album_button = QtGui.QPushButton(self.tr('New album'))
         new_album_button.clicked.connect(self.new_album)
         buttons.addWidget(new_album_button)
         # delete album
-        delete_album_button = QtGui.QPushButton('Delete album')
+        delete_album_button = QtGui.QPushButton(self.tr('Delete album'))
         delete_album_button.clicked.connect(self.delete_album)
         buttons.addWidget(delete_album_button)
         # other init
@@ -182,17 +184,17 @@ class PicasaUploader(QtGui.QWidget):
         self.widgets['timestamp'] = QtGui.QDateEdit()
         self.widgets['timestamp'].setCalendarPopup(True)
         self.widgets['timestamp'].editingFinished.connect(self.new_timestamp)
-        album_form_right.addRow('Date', self.widgets['timestamp'])
+        album_form_right.addRow(self.tr('Date'), self.widgets['timestamp'])
         # album thumbnail
         self.album_thumb = QtGui.QLabel()
         album_form_right.addRow(self.album_thumb)
         ### upload button
-        self.upload_button = QtGui.QPushButton('Upload\nnow')
+        self.upload_button = QtGui.QPushButton(self.tr('Upload\nnow'))
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 2, 3)
         ### progress bar
-        self.layout().addWidget(QtGui.QLabel('Progress'), 3, 0)
+        self.layout().addWidget(QtGui.QLabel(self.tr('Progress')), 3, 0)
         self.total_progress = QtGui.QProgressBar()
         self.layout().addWidget(self.total_progress, 3, 1, 1, 3)
         self.setEnabled(False)
@@ -264,7 +266,7 @@ class PicasaUploader(QtGui.QWidget):
     def new_album(self):
         self.save_changes()
         with Busy():
-            self.current_album = self.pws.InsertAlbum('New album', '')
+            self.current_album = self.pws.InsertAlbum(self.tr('New album'), '')
         self.albums.insertItem(
             0, decode_text(self.current_album.title),
             self.current_album.gphoto_id.text)
@@ -274,10 +276,10 @@ class PicasaUploader(QtGui.QWidget):
     def delete_album(self):
         if int(self.current_album.numphotos.text) > 0:
             if QtGui.QMessageBox.question(
-                self, 'Delete album',
-                """Are you sure you want to delete the album "%s"?
-Doing so will remove the album and its photos from all Google products.""" % (
-    unicode(self.current_album.title.text, 'UTF-8')),
+                self, self.tr('Delete album'),
+                self.tr("""Are you sure you want to delete the album "%1"?
+Doing so will remove the album and its photos from all Google products."""
+                        ).arg(unicode(self.current_album.title.text, 'UTF-8')),
                 QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel,
                 QtGui.QMessageBox.Cancel
                 ) == QtGui.QMessageBox.Cancel:
@@ -461,14 +463,14 @@ Doing so will remove the album and its photos from all Google products.""" % (
         self.pws.SetOAuthToken(request_token)
         auth_url = self.pws.GenerateOAuthAuthorizationURL()
         if webbrowser.open(auth_url, new=2, autoraise=0):
-            info_text = 'use your web browser'
+            info_text = self.tr('use your web browser')
         else:
-            info_text = 'open "%s" in a web browser' % auth_url
+            info_text = self.tr('open "%1" in a web browser').arg(auth_url)
         auth_code, OK = QtGui.QInputDialog.getText(
             self,
-            'Photini: authorise Picasa',
-            """Please %s to grant access to Photini,
-then enter the verification code:""" % info_text)
+            self.tr('Photini: authorise Picasa'),
+            self.tr("""Please %1 to grant access to Photini,
+then enter the verification code:""").arg(info_text))
         if not OK:
             self.pws = None
             return False

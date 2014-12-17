@@ -61,8 +61,8 @@ class GoogleMap(PhotiniMap):
         result = QtGui.QFrame()
         layout = QtGui.QVBoxLayout()
         result.setLayout(layout)
-        layout.addWidget(QtGui.QLabel('Search powered by Google'))
-        load_tou = QtGui.QPushButton('Terms of Use')
+        layout.addWidget(QtGui.QLabel(self.tr('Search powered by Google')))
+        load_tou = QtGui.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
         return result

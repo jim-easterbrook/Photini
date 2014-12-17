@@ -55,7 +55,7 @@ class LoggerWindow(QtGui.QWidget):
 
     def __init__(self, verbose, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.setWindowTitle("Photini error logging")
+        self.setWindowTitle(self.tr("Photini error logging"))
         self.setLayout(QtGui.QGridLayout())
         self.layout().setRowStretch(0, 1)
         self.layout().setColumnStretch(0, 1)
@@ -65,7 +65,7 @@ class LoggerWindow(QtGui.QWidget):
         self.text.setMinimumWidth(500)
         self.layout().addWidget(self.text, 0, 0, 1, 2)
         # dismiss button
-        dismiss_button = QtGui.QPushButton('Dismiss')
+        dismiss_button = QtGui.QPushButton(self.tr('Dismiss'))
         dismiss_button.clicked.connect(self.hide)
         self.layout().addWidget(dismiss_button, 1, 1)
         # Python logger

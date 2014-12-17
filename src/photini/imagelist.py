@@ -225,11 +225,11 @@ class ImageList(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence.SelectAll,
                         self.scroll_area, self.select_all)
         # sort key selector
-        layout.addWidget(QtGui.QLabel('sort by: '), 1, 0)
-        self.sort_name = QtGui.QRadioButton('file name')
+        layout.addWidget(QtGui.QLabel(self.tr('sort by: ')), 1, 0)
+        self.sort_name = QtGui.QRadioButton(self.tr('file name'))
         self.sort_name.clicked.connect(self._new_sort_order)
         layout.addWidget(self.sort_name, 1, 1)
-        self.sort_date = QtGui.QRadioButton('date taken')
+        self.sort_date = QtGui.QRadioButton(self.tr('date taken'))
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
         if eval(self.config_store.get('controls', 'sort_date', 'False')):
@@ -237,7 +237,7 @@ class ImageList(QtGui.QWidget):
         else:
             self.sort_name.setChecked(True)
         # size selector
-        layout.addWidget(QtGui.QLabel('thumbnail size: '), 1, 4)
+        layout.addWidget(QtGui.QLabel(self.tr('thumbnail size: ')), 1, 4)
         self.size_slider = QtGui.QSlider(Qt.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
@@ -286,7 +286,7 @@ class ImageList(QtGui.QWidget):
                 types.append('*.%s' % str(ext))
         path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            "Images (%s);;All files (*)" % ' '.join(types))
+            self.tr("Images (%1);;All files (*)").arg(' '.join(types)))
         if sys.version_info[0] < 3:
             path_list = map(lambda x: x.toLocal8Bit(), path_list)
         # work around for Qt bug 33992
@@ -383,9 +383,9 @@ class ImageList(QtGui.QWidget):
         else:
             return True
         dialog = QtGui.QMessageBox()
-        dialog.setWindowTitle('Photini: unsaved data')
-        dialog.setText('<h3>Some images have unsaved metadata.</h3>')
-        dialog.setInformativeText('Do you want to save your changes?')
+        dialog.setWindowTitle(self.tr('Photini: unsaved data'))
+        dialog.setText(self.tr('<h3>Some images have unsaved metadata.</h3>'))
+        dialog.setInformativeText(self.tr('Do you want to save your changes?'))
         dialog.setIcon(QtGui.QMessageBox.Warning)
         buttons = QtGui.QMessageBox.Save
         if with_cancel:

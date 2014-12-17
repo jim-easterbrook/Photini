@@ -91,25 +91,25 @@ class PhotiniMap(QtGui.QWidget):
         self.map.drop_text.connect(self.drop_text)
         self.layout().addWidget(self.map, 0, 1, 8, 1)
         # search
-        self.layout().addWidget(QtGui.QLabel('Search:'), 0, 0)
+        self.layout().addWidget(QtGui.QLabel(self.tr('Search:')), 0, 0)
         self.edit_box = QtGui.QComboBox()
         self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtGui.QComboBox.NoInsert)
-        self.edit_box.lineEdit().setPlaceholderText('<new search>')
+        self.edit_box.lineEdit().setPlaceholderText(self.tr('<new search>'))
         self.edit_box.lineEdit().returnPressed.connect(self.search)
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
         self.layout().addWidget(self.edit_box, 1, 0)
         # latitude & longitude
-        self.layout().addWidget(QtGui.QLabel('Latitude, longitude:'), 2, 0)
+        self.layout().addWidget(QtGui.QLabel(self.tr('Latitude, longitude:')), 2, 0)
         self.coords = QtGui.QLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
         self.layout().addWidget(self.coords, 3, 0)
         # load map button
-        self.load_map = QtGui.QPushButton('\nLoad map\n')
+        self.load_map = QtGui.QPushButton(self.tr('\nLoad map\n'))
         self.load_map.clicked.connect(self.initialise)
         self.layout().addWidget(self.load_map, 7, 0)
         # other init
@@ -237,7 +237,7 @@ class PhotiniMap(QtGui.QWidget):
             else:
                 new_coords = latlong.value
             if coords and new_coords != coords:
-                self.coords.setText("<multiple values>")
+                self.coords.setText(self.tr("<multiple values>"))
                 return
             coords = new_coords
         if coords:
@@ -289,7 +289,7 @@ class PhotiniMap(QtGui.QWidget):
         self.edit_box.clear()
         self.edit_box.addItem('')
         if self.search_string:
-            self.edit_box.addItem('<repeat search>')
+            self.edit_box.addItem(self.tr('<repeat search>'))
 
     @QtCore.pyqtSlot(float, float, unicode)
     def search_result(self, lat, lng, name):

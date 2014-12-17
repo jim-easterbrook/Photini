@@ -43,8 +43,8 @@ class FolderSource(object):
         if sys.version_info[0] >= 3:
             self.image_types = map(lambda x: eval(str(x)).decode(), self.image_types)
         self.image_types = map(lambda x: ('.%s' % x).lower(), self.image_types)
-        for ext in ('.ico',):
-            if ext in self.image_types:
+        for ext in ('.ico', '.xcf'):
+            while ext in self.image_types:
                 self.image_types.remove(ext)
 
     def list_files(self):
@@ -225,16 +225,16 @@ class Importer(QtGui.QWidget):
         self.source_selector = QtGui.QComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
         box.addWidget(self.source_selector)
-        refresh_button = QtGui.QPushButton('refresh')
+        refresh_button = QtGui.QPushButton(self.tr('refresh'))
         refresh_button.clicked.connect(self.refresh)
         box.addWidget(refresh_button)
         box.setStretch(0, 1)
-        form.addRow('Source', box)
+        form.addRow(self.tr('Source'), box)
         # path format
         self.path_format = QtGui.QLineEdit()
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
-        form.addRow('Target format', self.path_format)
+        form.addRow(self.tr('Target format'), self.path_format)
         # path example
         self.path_example = QtGui.QLabel()
         self.nm.new_example.connect(self.path_example.setText)
@@ -248,13 +248,13 @@ class Importer(QtGui.QWidget):
         # selection buttons
         buttons = QtGui.QVBoxLayout()
         buttons.addStretch(1)
-        select_all = QtGui.QPushButton('Select\nall')
+        select_all = QtGui.QPushButton(self.tr('Select\nall'))
         select_all.clicked.connect(self.select_all)
         buttons.addWidget(select_all)
-        select_new = QtGui.QPushButton('Select\nnew')
+        select_new = QtGui.QPushButton(self.tr('Select\nnew'))
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
-        copy_selected = QtGui.QPushButton('Copy\nphotos')
+        copy_selected = QtGui.QPushButton(self.tr('Copy\nphotos'))
         copy_selected.clicked.connect(self.copy_selected)
         buttons.addWidget(copy_selected)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
@@ -299,7 +299,7 @@ class Importer(QtGui.QWidget):
         else:
             directory = ''
         root = str(QtGui.QFileDialog.getExistingDirectory(
-            self, "Select root folder", directory))
+            self, self.tr("Select root folder"), directory))
         if not root:
             return
         if root in folders:
@@ -309,7 +309,7 @@ class Importer(QtGui.QWidget):
             del folders[-1]
         self.config_store.set('importer', 'folders', repr(folders))
         self.refresh()
-        idx = self.source_selector.findText('folder: %s' % root)
+        idx = self.source_selector.count() - (1 + len(folders))
         self.source_selector.setCurrentIndex(idx)
 ##        self.choose_folder(root)
 
@@ -351,18 +351,19 @@ class Importer(QtGui.QWidget):
         # rebuild list
         self.source_selector.clear()
         self.source_selector.addItem(
-            '<select source>', (self._new_file_list, {}))
+            self.tr('<select source>'), (self._new_file_list, {}))
         cameras = self.camera_lister.get_camera_list()
         for model, port_name in cameras:
             self.source_selector.addItem(
-                'camera: %s' % model, (self.choose_camera, (model, port_name)))
+                self.tr('camera: %1').arg(model),
+                (self.choose_camera, (model, port_name)))
         folders = eval(self.config_store.get('importer', 'folders', '[]'))
         for root in folders:
             if os.path.isdir(root):
                 self.source_selector.addItem(
-                    'folder: %s' % root, (self.choose_folder, root))
+                    self.tr('folder: %1').arg(root), (self.choose_folder, root))
         self.source_selector.addItem(
-            '<add a folder>', (self.add_folder, None))
+            self.tr('<add a folder>'), (self.add_folder, None))
         # restore saved selection
         new_idx = -1
         for idx in range(self.source_selector.count()):

@@ -59,7 +59,7 @@ class BingMap(PhotiniMap):
         layout = QtGui.QVBoxLayout()
         result.setLayout(layout)
         layout.addWidget(self.copyright_widget)
-        load_tou = QtGui.QPushButton('Terms of Use')
+        load_tou = QtGui.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
         return result
