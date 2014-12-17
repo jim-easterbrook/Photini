@@ -228,10 +228,18 @@ class MainWindow(QtGui.QMainWindow):
 
     @QtCore.pyqtSlot()
     def about(self):
+        text = self.tr("""
+<h1 align="center">Photini</h1>
+<h3 align="center">version %1</h3>
+<p align="center">An easy to use digital photograph metadata editor.<br />
+&copy; Jim Easterbrook
+<a href="mailto:jim@jim-easterbrook.me.uk">jim@jim-easterbrook.me.uk</a></p>
+<p>This program is released with a GNU General Public License. For
+details click the 'show details' button.</p>
+""").arg(__version__)
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: about'))
-        dialog.setText(
-            open(os.path.join(data_dir, 'about.html')).read() % (__version__))
+        dialog.setText(text)
         dialog.setDetailedText(
             open(os.path.join(data_dir, 'LICENSE.txt')).read())
         dialog.exec_()
