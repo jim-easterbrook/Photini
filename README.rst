@@ -14,6 +14,13 @@ For example a title and description of the scene or the date & time and the GPS 
 Why is it called Photini?
 Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
 
+Internationalisation
+--------------------
+
+Work has begun on providing Photini in multiple languages.
+I rely on users to do the translation, as I am not fluent in any language other than English.
+If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
+
 Features
 --------
 
