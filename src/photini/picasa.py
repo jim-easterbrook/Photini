@@ -21,16 +21,14 @@ from __future__ import unicode_literals
 from datetime import datetime
 import logging
 import os
-import sys
-import time
+import urllib2
 import webbrowser
+import xml.etree.ElementTree
 
-import atom
-import gdata.auth
-import gdata.photos
-import gdata.photos.service
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
+import requests
+from requests_oauthlib import OAuth2Session
 
 from .descriptive import MultiLineEdit
 from .utils import Busy
@@ -39,37 +37,119 @@ EPOCH = datetime.utcfromtimestamp(0)
 
 logger = logging.getLogger(__name__)
 
-class LoggingPhotosService(object):
-    def __init__(self):
-        self._service = gdata.photos.service.PhotosService(email='default')
+nsmap = {
+    'atom'   : 'http://www.w3.org/2005/Atom',
+    'gd'     : 'http://schemas.google.com/g/2005',
+    'georss' : 'http://www.georss.org/georss',
+    'gml'    : 'http://www.opengis.net/gml',
+    'gphoto' : 'http://schemas.google.com/photos/2007',
+    'media'  : 'http://search.yahoo.com/mrss/',
+    }
+
+for prefix, uri in nsmap.items():
+    xml.etree.ElementTree.register_namespace(prefix, uri)
+xml.etree.ElementTree.register_namespace('', nsmap['atom'])
+
+class BaseNode(object):
+    def __init__(self, dom):
+        self._dom = dom
+        self.etag = dom.get('{' + nsmap['gd'] + '}etag')
 
     def __getattr__(self, name):
-        self._next_call = getattr(self._service, name)
-        return self._call
+        if name not in self._elements:
+            raise AttributeError(name)
+        namespace, repeat, klass = self._elements[name]
+        tag = '{' + nsmap[namespace] + '}' + name
+        if repeat:
+            result = self._dom.findall(tag)
+            if klass:
+                result = map(klass, result)
+            return result
+        result = self._dom.find(tag)
+        if result is None:
+            logger.debug('new %s:%s', self.__class__.__name__, name)
+            result = xml.etree.ElementTree.SubElement(self._dom, tag)
+        if klass:
+            result = klass(result)
+        return result
 
-    def _call(self, *arg, **kw):
-        try:
-            return (self._next_call)(*arg, **kw)
-        except Exception as ex:
-            logger.exception(ex)
+    def to_string(self):
+        return xml.etree.ElementTree.tostring(self._dom, encoding='utf-8')
 
-class MediaSourceWithCallback(object):
-    def __init__(self, path, content_type, callback):
-        self.file = open(path, 'rb')
-        self.content_type = content_type
-        self.content_length = os.path.getsize(path)
-        self.file_handle = self
-        self.callback = callback
+    def GetLink(self, link_type):
+        for child in self._dom.findall('atom:link', nsmap):
+            if child.get('rel').endswith(link_type):
+                return child.get('href')
+        return None
 
+class PointNode(BaseNode):
+    _elements = {'pos' : ('gml', False, None)}
+
+class WhereNode(BaseNode):
+    _elements = {'Point' : ('gml', False, PointNode)}
+
+class GroupNode(BaseNode):
+    _elements = {
+        'keywords'  : ('media', False, None),
+        'thumbnail' : ('media', True,  None),
+        }
+
+class PhotoNode(BaseNode):
+    _elements = {
+        'group'   : ('media',  False, GroupNode),
+        'summary' : ('atom',   False, None),
+        'title'   : ('atom',   False, None),
+        'where'   : ('georss', False, WhereNode),
+        }
+
+class AlbumNode(BaseNode):
+    _elements = {
+        'access'    : ('gphoto', False, None),
+        'category'  : ('atom',   False, None),
+        'group'     : ('media',  False, GroupNode),
+        'id'        : ('gphoto', False, None),
+        'location'  : ('gphoto', False, None),
+        'numphotos' : ('gphoto', False, None),
+        'summary'   : ('atom',   False, None),
+        'timestamp' : ('gphoto', False, None),
+        'title'     : ('atom',   False, None),
+        }
+
+class AlbumsRoot(BaseNode):
+    _elements = {'entry' : ('atom', True, AlbumNode)}
+
+def request_with_check(cmd, *arg, **kw):
+    resp = cmd(*arg, **kw)
+    if resp.status_code >= 300:
+        logger.warning(resp.content)
+    resp.raise_for_status()
+    if resp.text:
+        return xml.etree.ElementTree.fromstring(resp.text.encode('utf-8'))
+    return None
+
+class FileObjWithCallback(object):
+    def __init__(self, fileobj, length, callback):
+        self._f = fileobj
+        self._callback = callback
+        # requests library uses 'len' attribute instead of seeking to
+        # end of file and back
+        self.len = length
+
+    # substitute read method
     def read(self, size):
-        if self.callback:
-            self.callback(self.file.tell() * 100 / self.content_length)
-        return self.file.read(size)
+        result = self._f.read(size)
+        if self._callback:
+            self._callback(self._f.tell() * 100 // self.len)
+        return result
+
+    # delegate all other attributes to file object
+    def __getattr__(self, name):
+        return getattr(self._f, name)
 
 class UploadThread(QtCore.QThread):
-    def __init__(self, pws, upload_list, feed_uri):
+    def __init__(self, session, upload_list, feed_uri):
         QtCore.QThread.__init__(self)
-        self.pws = pws
+        self.session = session
         self.upload_list = upload_list
         self.feed_uri = feed_uri
 
@@ -77,34 +157,25 @@ class UploadThread(QtCore.QThread):
     def run(self):
         self.file_count = 0
         for params in self.upload_list:
-            photo = gdata.photos.PhotoEntry()
-            if not photo.title:
-                photo.title = atom.Title()
-            photo.title.text = os.path.basename(params['path'])
+            title = os.path.basename(params['path'])
+            with open(params['path'], 'rb') as f:
+                fileobj = FileObjWithCallback(
+                    f, os.path.getsize(params['path']), self.callback)
+                dom = request_with_check(
+                    self.session.post, self.feed_uri, data=fileobj,
+                    headers={'Content-Type' : 'image/jpeg', 'Slug' : title})
+            photo = PhotoNode(dom)
+            photo.title.text = title
             if params['summary']:
-                if not photo.summary:
-                    photo.summary = atom.Summary()
                 photo.summary.text = params['summary']
             if params['keywords']:
-                if not photo.media:
-                    photo.media = gdata.media.Group()
-                if not photo.media.keywords:
-                    photo.media.keywords = gdata.media.Keywords()
-                photo.media.keywords.text = params['keywords']
+                photo.group.keywords.text = params['keywords']
             if params['latlong']:
-                if not photo.geo:
-                    photo.geo = gdata.geo.Where()
-                if not photo.geo.Point:
-                    photo.geo.Point = gdata.geo.Point()
-                photo.geo.Point.pos = gdata.geo.Pos(text=params['latlong'])
-            mediasource = MediaSourceWithCallback(
-                params['path'], 'image/jpeg', self.callback)
-            try:
-                photo = self.pws.Post(
-                    photo, uri=self.feed_uri, media_source=mediasource,
-                    converter=gdata.photos.PhotoEntryFromString)
-            except gdata.service.RequestError, e:
-                raise gdata.photos.service.GooglePhotosException(e.args[0])
+                photo.where.Point.pos.text = params['latlong']
+            dom = request_with_check(
+                self.session.put, photo.GetLink('edit'), photo.to_string(),
+                headers={'If-Match' : photo.etag,
+                         'Content-Type' : 'application/atom+xml'})
             self.file_count += 1
         self.finished.emit()
 
@@ -114,18 +185,16 @@ class UploadThread(QtCore.QThread):
             (self.file_count * 100) + progress) / len(self.upload_list)
         self.progress_report.emit(progress, total_progress)
 
-def decode_text(obj):
-    if not obj or obj.text is None:
-        return ''
-    return unicode(obj.text, 'utf-8')
-
 class PicasaUploader(QtGui.QWidget):
+    album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
+    client_id     = '991146392375.apps.googleusercontent.com'
+    client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
-        self.pws = None
+        self.session = None
         self.widgets = {}
         self.current_album = None
         self.uploader = None
@@ -216,9 +285,10 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_title(self):
-        value = unicode(self.albums.lineEdit().text())
+        value = self.albums.lineEdit().text()
         self.albums.setItemText(self.albums.currentIndex(), value)
-        if value != decode_text(self.current_album.title):
+        value = unicode(value)
+        if value != self.current_album.title.text:
             self.changed_title = value
         else:
             self.changed_title = None
@@ -227,7 +297,7 @@ class PicasaUploader(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def new_description(self):
         value = unicode(self.widgets['description'].text())
-        if value != decode_text(self.current_album.summary):
+        if value != self.current_album.summary.text:
             self.changed_description = value
         else:
             self.changed_description = None
@@ -235,10 +305,10 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_timestamp(self):
-        value = '%d' % (
+        value = '{0:d}'.format(
             (self.widgets['timestamp'].dateTime().toPyDateTime() - EPOCH
              ).total_seconds() * 1000)
-        if value != decode_text(self.current_album.timestamp):
+        if value != self.current_album.timestamp.text:
             self.changed_timestamp = value
         else:
             self.changed_timestamp = None
@@ -247,7 +317,7 @@ class PicasaUploader(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def new_location(self):
         value = unicode(self.widgets['location'].text())
-        if value != decode_text(self.current_album.location):
+        if value != self.current_album.location.text:
             self.changed_location = value
         else:
             self.changed_location = None
@@ -255,8 +325,9 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
-        value = unicode(self.widgets['access'].itemData(index).toString())
-        if value != decode_text(self.current_album.access):
+##        value = unicode(self.widgets['access'].itemData(index).toString())
+        value = unicode(self.widgets['access'].itemData(index))
+        if value != self.current_album.access.text:
             self.changed_access = value
         else:
             self.changed_access = None
@@ -266,10 +337,18 @@ class PicasaUploader(QtGui.QWidget):
     def new_album(self):
         self.save_changes()
         with Busy():
-            self.current_album = self.pws.InsertAlbum(self.tr('New album'), '')
+            self.albums_cache = None
+            dom = xml.etree.ElementTree.Element('{' + nsmap['atom'] + '}entry')
+            album = AlbumNode(dom)
+            album.title.text = unicode(self.tr('New album'))
+            album.category.set('scheme', 'http://schemas.google.com/g/2005#kind')
+            album.category.set('term', 'http://schemas.google.com/photos/2007#album')
+            dom = request_with_check(
+                self.session.post, self.album_feed, album.to_string(),
+                headers={'Content-Type' : 'application/atom+xml'})
+            self.current_album = AlbumNode(dom)
         self.albums.insertItem(
-            0, decode_text(self.current_album.title),
-            self.current_album.gphoto_id.text)
+            0, self.current_album.title.text, self.current_album.id.text)
         self.albums.setCurrentIndex(0)
 
     @QtCore.pyqtSlot()
@@ -277,16 +356,19 @@ class PicasaUploader(QtGui.QWidget):
         if int(self.current_album.numphotos.text) > 0:
             if QtGui.QMessageBox.question(
                 self, self.tr('Delete album'),
-                self.tr("""Are you sure you want to delete the album "%1"?
+                self.tr("""Are you sure you want to delete the album "{0}"?
 Doing so will remove the album and its photos from all Google products."""
-                        ).arg(unicode(self.current_album.title.text, 'UTF-8')),
+                        ).format(self.current_album.title.text),
                 QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel,
                 QtGui.QMessageBox.Cancel
                 ) == QtGui.QMessageBox.Cancel:
                 return
         self.clear_changes()
         with Busy():
-            self.pws.Delete(self.current_album)
+            self.albums_cache = None
+            request_with_check(
+                self.session.delete, self.current_album.GetLink('edit'),
+                headers={'If-Match' : self.current_album.etag})
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
@@ -295,50 +377,55 @@ Doing so will remove the album and its photos from all Google products."""
         no_change = True
         # title
         if self.changed_title:
-            self.current_album.title.text = self.changed_title.encode('utf-8')
+            self.current_album.title.text = self.changed_title
             no_change = False
         # description
         if self.changed_description:
-            if not self.current_album.summary:
-                self.current_album.summary.text = atom.summary()
-            self.current_album.summary.text = self.changed_description.encode('utf-8')
+            self.current_album.summary.text = self.changed_description
             no_change = False
         # location
         if self.changed_location:
-            if not self.current_album.location:
-                self.current_album.location = gdata.photos.Location()
-            self.current_album.location.text = self.changed_location.encode('utf-8')
+            self.current_album.location.text = self.changed_location
             no_change = False
         # access
         if self.changed_access:
-            self.current_album.access.text = self.changed_access.encode('utf-8')
+            self.current_album.access.text = self.changed_access
             no_change = False
         # timestamp
         if self.changed_timestamp:
-            self.current_album.timestamp.text = self.changed_timestamp.encode('utf-8')
+            self.current_album.timestamp.text = self.changed_timestamp
             no_change = False
         # upload changes
         self.clear_changes()
         if no_change:
             return
         with Busy():
-            self.current_album = self.pws.Put(
-                self.current_album, self.current_album.GetEditLink().href,
-                converter=gdata.photos.AlbumEntryFromString)
+            self.albums_cache = None
+            dom = request_with_check(
+                self.session.put, self.current_album.GetLink('edit'),
+                self.current_album.to_string(),
+                headers={'If-Match' : self.current_album.etag,
+                         'Content-Type' : 'application/atom+xml'})
+            self.current_album = AlbumNode(dom)
+
+    def get_albums(self):
+        if self.albums_cache is not None:
+            return self.albums_cache
+        dom = request_with_check(self.session.get, self.album_feed)
+        self.albums_cache = AlbumsRoot(dom).entry
+        return self.albums_cache
 
     def refresh(self):
-        if self.pws:
+        if self.session:
             return
         with Busy():
             if not self.authorise():
                 return
-            albums = self.pws.GetUserFeed()
-            for album in albums.entry:
-                if not album.GetEditLink():
+            for album in self.get_albums():
+                if not album.GetLink('edit'):
                     # ignore 'system' albums
                     continue
-                self.albums.addItem(
-                    unicode(album.title.text, 'UTF-8'), album.gphoto_id.text)
+                self.albums.addItem(album.title.text, album.id.text)
             if self.albums.count() == 0:
                 self.new_album()
         self.setEnabled(True)
@@ -347,30 +434,29 @@ Doing so will remove the album and its photos from all Google products."""
     def changed_album(self, index):
         self.save_changes()
         self.current_album = None
-        album_id = unicode(self.albums.itemData(index).toString())
+        album_id = unicode(self.albums.itemData(index))
         with Busy():
-            albums = self.pws.GetUserFeed()
-            for album in albums.entry:
-                if album.gphoto_id.text == album_id:
+            for album in self.get_albums():
+                if album.id.text == album_id:
                     self.current_album = album
                     break
             else:
                 return
-            if self.current_album.media.thumbnail:
-                media = self.pws.GetMedia(self.current_album.media.thumbnail[0].url)
+            if self.current_album.group.thumbnail is not None:
+                url = self.current_album.group.thumbnail[0].get('url')
                 image = QtGui.QPixmap()
-                image.loadFromData(media.file_handle.read())
+                image.loadFromData(urllib2.urlopen(url).read())
                 self.album_thumb.setPixmap(image)
             else:
                 self.album_thumb.clear()
         self.widgets['timestamp'].setDateTime(datetime.utcfromtimestamp(
             float(self.current_album.timestamp.text) * 1.0e-3))
-        value = decode_text(self.current_album.summary)
+        value = self.current_album.summary.text
         if value:
             self.widgets['description'].setText(value)
         else:
             self.widgets['description'].clear()
-        value = decode_text(self.current_album.location)
+        value = self.current_album.location.text
         if value:
             self.widgets['location'].setText(value)
         else:
@@ -388,7 +474,7 @@ Doing so will remove the album and its photos from all Google products."""
             title = image.metadata.get_item('title').as_str()
             description = image.metadata.get_item('description').as_str()
             if title and description:
-                summary = '%s\n\n%s' % (title, description)
+                summary = '{0}\n\n{1}'.format(title, description)
             elif title:
                 summary = title
             else:
@@ -402,7 +488,7 @@ Doing so will remove the album and its photos from all Google products."""
             if latlong.empty():
                 latlong = None
             else:
-                latlong = '%f %f' % latlong.value
+                latlong = '{0} {1}'.format(*latlong.value)
             upload_list.append({
                 'path'     : image.path,
                 'summary'  : summary,
@@ -414,13 +500,13 @@ Doing so will remove the album and its photos from all Google products."""
             self.upload_button.setEnabled(False)
             self.album_group.setEnabled(False)
             self.uploader = UploadThread(
-                self.pws, upload_list, self.current_album.GetFeedLink().href)
+                self.session, upload_list, self.current_album.GetLink('feed'))
             self.uploader.progress_report.connect(self.upload_progress)
             self.uploader.finished.connect(self.upload_done)
             self.uploader.start()
-            # we've passed the service handle to a new thread, so
+            # we've passed the session handle to a new thread, so
             # create a new one for safety
-            self.pws = None
+            self.session = None
             self.authorise()
 
     @QtCore.pyqtSlot(float, float)
@@ -437,54 +523,54 @@ Doing so will remove the album and its photos from all Google products."""
         self.uploader = None
 
     def authorise(self):
-        if self.pws:
+        if self.session:
             return True
-        self.pws = LoggingPhotosService()
-        self.pws.SetOAuthInputParameters(
-            gdata.auth.OAuthSignatureMethod.HMAC_SHA1,
-            b'991146392375.apps.googleusercontent.com',
-            consumer_secret=b'gSCBPBV0tpArWOK2IDcEA6eG')
-        key = self.config_store.get('picasa', 'key', '')
-        secret = self.config_store.get('picasa', 'secret', '')
-        if sys.version_info[0] < 3:
-            key = str(key)
-            secret = str(secret)
-        if key and secret:
-            token = gdata.auth.OAuthToken(
-                key=key, secret=secret,
-                scopes='https://picasaweb.google.com/data/',
-                oauth_input_params=self.pws.GetOAuthInputParameters())
-            self.pws.SetOAuthToken(token)
-            return True
-        request_token = self.pws.FetchOAuthRequestToken(
-            scopes='https://picasaweb.google.com/data/',
-            extra_parameters={'xoauth_displayname' : 'Photini'},
-            oauth_callback='oob')
-        self.pws.SetOAuthToken(request_token)
-        auth_url = self.pws.GenerateOAuthAuthorizationURL()
-        if webbrowser.open(auth_url, new=2, autoraise=0):
-            info_text = self.tr('use your web browser')
+        self.albums_cache = None
+        refresh_token = self.config_store.get('picasa', 'refresh_token')
+        if refresh_token:
+            # create expired token
+            token = {
+                'access_token'  : 'xxx',
+                'refresh_token' : refresh_token,
+                'expires_in'    : -30,
+                }
         else:
-            info_text = self.tr('open "%1" in a web browser').arg(auth_url)
-        auth_code, OK = QtGui.QInputDialog.getText(
-            self,
-            self.tr('Photini: authorise Picasa'),
-            self.tr("""Please %1 to grant access to Photini,
-then enter the verification code:""").arg(info_text))
-        if not OK:
-            self.pws = None
-            return False
-        try:
-            access_token = self.pws.UpgradeToOAuthAccessToken(
-                oauth_verifier=str(auth_code))
-        except gdata.service.TokenUpgradeFailed:
-            self.pws = None
-            return False
-        self.config_store.set('picasa', 'key', access_token.key)
-        self.config_store.set('picasa', 'secret', access_token.secret)
+            # do full authentication procedure
+            oauth = OAuth2Session(
+                self.client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
+                scope='https://picasaweb.google.com/data/')
+            auth_url, state = oauth.authorization_url(
+                'https://accounts.google.com/o/oauth2/auth')
+            if webbrowser.open(auth_url, new=2, autoraise=0):
+                info_text = self.tr('use your web browser')
+            else:
+                info_text = self.tr('open "{0}" in a web browser').format(auth_url)
+            auth_code, OK = QtGui.QInputDialog.getText(
+                self,
+                self.tr('Photini: authorise Picasa'),
+                self.tr("""Please {0} to grant access to Photini,
+then enter the verification code:""").format(info_text))
+            if not OK:
+                self.session = None
+                return False
+            token = oauth.fetch_token(
+                'https://www.googleapis.com/oauth2/v3/token',
+                code=str(auth_code).strip(), client_secret=self.client_secret)
+            self.save_token(token)
+        self.session = OAuth2Session(
+            self.client_id, token=token, token_updater=self.save_token,
+            auto_refresh_kwargs={
+                'client_id'     : self.client_id,
+                'client_secret' : self.client_secret},
+            auto_refresh_url='https://www.googleapis.com/oauth2/v3/token',
+            )
+        self.session.headers.update({'GData-Version': 2})
         return True
+
+    def save_token(self, token):
+        self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
-            len(selection) > 0 and self.pws and not self.uploader)
+            len(selection) > 0 and self.session and not self.uploader)
