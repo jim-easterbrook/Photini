@@ -126,8 +126,9 @@ class Descriptive(QtGui.QWidget):
                 date = datetime.now()
             else:
                 date = date.value
-            value = self.trUtf8('Copyright \xa9%1 %2. All rights reserved.').arg(
-                '%d' % date.year, name)
+            value = self.trUtf8(
+                'Copyright \xa9{0:d} {1}. All rights reserved.').format(
+                    date.year, name)
             image.metadata.set_item('copyright', unicode(value))
         self._update_widget('copyright')
 

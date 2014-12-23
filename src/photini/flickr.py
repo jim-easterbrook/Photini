@@ -265,7 +265,7 @@ class FlickrUploader(QtGui.QWidget):
             if tags.empty():
                 tags = ''
             else:
-                tags = ' '.join(map(lambda x: '"%s"' % x, tags.value))
+                tags = ' '.join(map(lambda x: '"{0}"'.format(x), tags.value))
             upload_list.append({
                 'filename'     : image.path,
                 'title'        : title,
@@ -332,12 +332,12 @@ class FlickrUploader(QtGui.QWidget):
             if webbrowser.open(auth_url, new=2, autoraise=0):
                 info_text = self.tr('use your web browser')
             else:
-                info_text = self.tr('open "%1" in a web browser').arg(auth_url)
+                info_text = self.tr('open "{0}" in a web browser').format(auth_url)
             auth_code, OK = QtGui.QInputDialog.getText(
                 self,
                 self.tr('Photini: authorise Flickr'),
-                self.tr('Please %1 to grant access to Photini,\n' +
-                        'then enter the verification code:').arg(info_text))
+                self.tr('Please {0} to grant access to Photini,\n' +
+                        'then enter the verification code:').format(info_text))
             if not OK:
                 self.flickr = None
                 return False
