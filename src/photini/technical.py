@@ -213,10 +213,10 @@ class Technical(QtGui.QWidget):
     def apply_offset(self, offset):
         for image in self.image_list.get_selected_images():
             for key in self.date_widget:
-                value = image.metadata.get_item('date_%s' % key)
+                value = image.metadata.get_item('date_' + key)
                 if value.empty():
                     continue
-                image.metadata.set_item('date_%s' % key, value.value + offset)
+                image.metadata.set_item('date_' + key, value.value + offset)
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -247,28 +247,28 @@ class Technical(QtGui.QWidget):
         if isinstance(value, QtCore.QTime):
             # update times, leaving date unchanged
             for image in self.image_list.get_selected_images():
-                current = image.metadata.get_item('date_%s' % key)
+                current = image.metadata.get_item('date_' + key)
                 if current.empty():
                     current = pyDateTime.today()
                 else:
                     current = current.value
                 image.metadata.set_item(
-                    'date_%s' % key,
+                    'date_' + key,
                     pyDateTime.combine(current.date(), value.toPyTime()))
         elif value == self.date_widget[key].date.minimumDate():
             # clear date & time
             for image in self.image_list.get_selected_images():
-                image.metadata.del_item('date_%s' % key)
+                image.metadata.del_item('date_' + key)
         else:
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
-                current = image.metadata.get_item('date_%s' % key)
+                current = image.metadata.get_item('date_' + key)
                 if current.empty():
                     current = pyDateTime.min
                 else:
                     current = current.value
                 image.metadata.set_item(
-                    'date_%s' % key,
+                    'date_' + key,
                     pyDateTime.combine(value.toPyDate(), current.time()))
         self._update_datetime(key)
 
@@ -276,7 +276,7 @@ class Technical(QtGui.QWidget):
         dates = []
         times = []
         for image in self.image_list.get_selected_images():
-            value = image.metadata.get_item('date_%s' % key)
+            value = image.metadata.get_item('date_' + key)
             if value.empty():
                 dates.append(None)
                 times.append(None)

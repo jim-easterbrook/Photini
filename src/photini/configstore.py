@@ -37,7 +37,7 @@ class ConfigStore(object):
             data_dir = appdirs.user_data_dir('photini')
         if not os.path.isdir(data_dir):
             os.makedirs(data_dir, mode=0700)
-        self.file_name = os.path.join(data_dir, '%s.ini' % name)
+        self.file_name = os.path.join(data_dir, name + '.ini')
         if name == 'editor':
             for old_file_name in (os.path.expanduser('~/photini.ini'),
                                   os.path.join(data_dir, 'photini.ini')):

@@ -18,6 +18,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from datetime import datetime
 import logging
 import os
@@ -40,9 +42,9 @@ class FolderSource(object):
     def __init__(self, root):
         self.root = root
         self.image_types = QtGui.QImageReader.supportedImageFormats()
-        if sys.version_info[0] >= 3:
-            self.image_types = map(lambda x: eval(str(x)).decode(), self.image_types)
-        self.image_types = map(lambda x: ('.%s' % x).lower(), self.image_types)
+        self.image_types = map(
+            lambda x: x.data().decode('utf-8'), self.image_types)
+        self.image_types = map(lambda x: '.' + x.lower(), self.image_types)
         for ext in ('.ico', '.xcf'):
             while ext in self.image_types:
                 self.image_types.remove(ext)
@@ -269,8 +271,6 @@ class Importer(QtGui.QWidget):
     def new_source(self, idx):
         self.config_section = None
         item_data = self.source_selector.itemData(idx)
-        if sys.version_info[0] < 3:
-            item_data = item_data.toPyObject()
         func, param = item_data
         (func)(param)
 
@@ -282,7 +282,7 @@ class Importer(QtGui.QWidget):
             # camera is no longer available
             self._fail()
             return
-        self.config_section = 'importer %s' % model
+        self.config_section = 'importer ' + model
         path_format = unicode(self.path_format.text())
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
@@ -320,7 +320,7 @@ class Importer(QtGui.QWidget):
             # folder is no longer available
             self._fail()
             return
-        self.config_section = 'importer folder %s' % root
+        self.config_section = 'importer folder ' + root
         path_format = unicode(self.path_format.text())
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
@@ -343,8 +343,6 @@ class Importer(QtGui.QWidget):
         idx = self.source_selector.currentIndex()
         if idx >= 0:
             item_data = self.source_selector.itemData(idx)
-            if sys.version_info[0] < 3:
-                item_data = item_data.toPyObject()
             func, param = item_data
         else:
             func, param = None, None
@@ -355,21 +353,20 @@ class Importer(QtGui.QWidget):
         cameras = self.camera_lister.get_camera_list()
         for model, port_name in cameras:
             self.source_selector.addItem(
-                self.tr('camera: %1').arg(model),
+                self.tr('camera: {0}').format(model),
                 (self.choose_camera, (model, port_name)))
         folders = eval(self.config_store.get('importer', 'folders', '[]'))
         for root in folders:
             if os.path.isdir(root):
                 self.source_selector.addItem(
-                    self.tr('folder: %1').arg(root), (self.choose_folder, root))
+                    self.tr('folder: {0}').format(root),
+                    (self.choose_folder, root))
         self.source_selector.addItem(
             self.tr('<add a folder>'), (self.add_folder, None))
         # restore saved selection
         new_idx = -1
         for idx in range(self.source_selector.count()):
             item_data = self.source_selector.itemData(idx)
-            if sys.version_info[0] < 3:
-                item_data = item_data.toPyObject()
             if item_data == (func, param):
                 new_idx = idx
                 self.source_selector.setCurrentIndex(idx)
@@ -433,7 +430,7 @@ class Importer(QtGui.QWidget):
             timestamp = self.file_data[name]['timestamp']
             dest_path = self.nm.transform(name, timestamp)
             self.file_data[name]['dest_path'] = dest_path
-            item = QtGui.QListWidgetItem('%s -> %s' % (name, dest_path))
+            item = QtGui.QListWidgetItem('{0} -> {1}'.format(name, dest_path))
             if os.path.exists(dest_path):
                 item.setFlags(Qt.NoItemFlags)
             else:
@@ -497,7 +494,7 @@ class Importer(QtGui.QWidget):
                 dest_path = self.file_data[name]['dest_path']
                 src_folder = self.file_data[name]['folder']
 ##                self.statusBar().showMessage(
-##                    'Copying %d/%d %s' % (count, len(indexes), dest_path))
+##                    'Copying {0:d}/{1:d} {2}'.format(count, len(indexes), dest_path))
                 self.app.processEvents()
                 dest_dir = os.path.dirname(dest_path)
                 if not os.path.isdir(dest_dir):

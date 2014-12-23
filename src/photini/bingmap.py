@@ -38,17 +38,17 @@ class BingMap(PhotiniMap):
         src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
         lang, encoding = locale.getdefaultlocale()
         if lang:
-            src += '&mkt=%s,ngt' % lang.replace('_', '-')
+            src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
         else:
             src += '&mkt=ngt'
         return """
     <script charset="UTF-8" type="text/javascript"
-      src="%s">
+      src="{0}">
     </script>
     <script type="text/javascript">
-      var api_key = "%s";
+      var api_key = "{1}";
     </script>
-""" % (src, 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ')
+""".format(src, 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ')
 
     def get_drag_icon(self):
         return QtGui.QPixmap(os.path.join(data_dir, 'bing_grey_marker.png'))

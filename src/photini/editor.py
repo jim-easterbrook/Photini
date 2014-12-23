@@ -40,6 +40,9 @@ else:
     from urlparse import urlparse 
 import webbrowser
 
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 from PyQt4.QtNetwork import QNetworkProxy
@@ -156,7 +159,7 @@ class MainWindow(QtGui.QMainWindow):
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
-            name = QtCore.QString(tab['name']).remove('&')
+            name = unicode(tab['name']).replace('&', '')
             tab['action'] = QtGui.QAction(name, self)
             tab['action'].setCheckable(True)
             if tab['class']:
@@ -230,13 +233,13 @@ class MainWindow(QtGui.QMainWindow):
     def about(self):
         text = self.tr("""
 <h1 align="center">Photini</h1>
-<h3 align="center">version %1</h3>
+<h3 align="center">version {0}</h3>
 <p align="center">An easy to use digital photograph metadata editor.<br />
 &copy; Jim Easterbrook
 <a href="mailto:jim@jim-easterbrook.me.uk">jim@jim-easterbrook.me.uk</a></p>
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
-""").arg(__version__)
+""").format(__version__)
         dialog = QtGui.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
@@ -279,7 +282,7 @@ def main(argv=None):
     del sys.argv[-1]
     # parse remaining arguments
     parser = OptionParser(
-        version='Photini %s' % (__version__),
+        version='Photini ' + __version__,
         description=str(QtCore.QCoreApplication.translate(
             'main', 'Photini photo metadata editor')))
     parser.add_option(

@@ -43,11 +43,11 @@ class WebPage(QtWebKit.QWebPage):
     def userAgentForUrl(self, url):
         # Nominatim requires the user agent to identify the application
         if url.host() == 'nominatim.openstreetmap.org':
-            return 'Photini/%s' % __version__
+            return 'Photini/' + __version__
         return QtWebKit.QWebPage.userAgentForUrl(self, url)
 
 class WebView(QtWebKit.QWebView):
-    drop_text = QtCore.pyqtSignal(int, int, str)
+    drop_text = QtCore.pyqtSignal(int, int, unicode)
     def dragEnterEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
             super(WebView, self).dragMoveEvent(event)
@@ -62,7 +62,7 @@ class WebView(QtWebKit.QWebView):
         if event.format(0) != DRAG_MIMETYPE:
             super(WebView, self).dropEvent(event)
             return
-        text = event.mimeData().data(DRAG_MIMETYPE).data()
+        text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
@@ -138,11 +138,11 @@ class PhotiniMap(QtGui.QWidget):
     </style>
 """
         page_end = """
-    <script type="text/javascript" src="%s.js">
+    <script type="text/javascript" src="{0}.js">
     </script>
   </head>
-  <body onload="initialize(%f, %f, %d)">
-    <div id="mapDiv" style="width:100%%; height:100%%"></div>
+  <body onload="initialize({1:f}, {2:f}, {3:d})">
+    <div id="mapDiv" style="width:100%; height:100%"></div>
   </body>
 </html>
 """
@@ -152,7 +152,7 @@ class PhotiniMap(QtGui.QWidget):
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
             page_start + self.load_api() +
-            page_end % (self.__class__.__name__.lower(), lat, lng, zoom),
+            page_end.format(self.__class__.__name__.lower(), lat, lng, zoom),
             QtCore.QUrl.fromLocalFile(data_dir))
 
     @QtCore.pyqtSlot(bool)
@@ -175,7 +175,8 @@ class PhotiniMap(QtGui.QWidget):
             return
         lat, lng = eval(self.config_store.get('map', 'centre'))
         zoom = eval(self.config_store.get('map', 'zoom'))
-        self.JavaScript('setView(%s, %s, %d)' % (repr(lat), repr(lng), zoom))
+        self.JavaScript(
+            'setView({0}, {1}, {2:d}'.format(repr(lat), repr(lng), zoom))
         self.new_images()
         self.image_list.set_drag_to_map(self.drag_icon)
 
@@ -185,11 +186,10 @@ class PhotiniMap(QtGui.QWidget):
         self.config_store.set('map', 'centre', str(self.map_centre))
         self.config_store.set('map', 'zoom', str(zoom))
 
-    @QtCore.pyqtSlot(int, int, str)
+    @QtCore.pyqtSlot(int, int, unicode)
     def drop_text(self, x, y, text):
-        lat, lng = self.JavaScript(
-            'latLngFromPixel(%d, %d)' % (x, y)).toPyObject()
-        for path in eval(str(text)):
+        lat, lng = self.JavaScript('latLngFromPixel({0:d}, {1:d})'.format(x, y))
+        for path in eval(text):
             image = self.image_list.get_image(path)
             self._add_marker(image, lat, lng)
             self._set_metadata(image, lat, lng)
@@ -201,7 +201,7 @@ class PhotiniMap(QtGui.QWidget):
         if not text:
             for image in self.image_list.get_selected_images():
                 image.metadata.del_item('latlong')
-            self.JavaScript('delMarker("%s")' % (image.path))
+            self.JavaScript('delMarker("{0}")'.format(image.path))
             return
         lat, lng = map(float, text.split(','))
         for image in self.image_list.get_selected_images():
@@ -217,7 +217,7 @@ class PhotiniMap(QtGui.QWidget):
         if not marker_list:
             return
         marker_list = '","'.join(marker_list)
-        self.JavaScript('seeMarkers(["%s"])' % (marker_list))
+        self.JavaScript('seeMarkers(["{0}"])'.format(marker_list))
 
     def see_selection(self):
         marker_list = list()
@@ -226,7 +226,7 @@ class PhotiniMap(QtGui.QWidget):
         if not marker_list:
             return
         marker_list = '","'.join(marker_list)
-        self.JavaScript('seeMarkers(["%s"])' % (marker_list))
+        self.JavaScript('seeMarkers(["{0}"])'.format(marker_list))
 
     def display_coords(self):
         coords = None
@@ -241,7 +241,7 @@ class PhotiniMap(QtGui.QWidget):
                 return
             coords = new_coords
         if coords:
-            self.coords.setText('%.6f, %.6f' % coords)
+            self.coords.setText('{0:.6f}, {1:.6f}'.format(*coords))
         else:
             self.coords.clear()
 
@@ -254,8 +254,8 @@ class PhotiniMap(QtGui.QWidget):
         for image in self.image_list.get_images():
             latlong = image.metadata.get_item('latlong')
             if not latlong.empty():
-                self.JavaScript(
-                    'enableMarker("%s", %d)' % (image.path, image.selected))
+                self.JavaScript('enableMarker("{0}", {1:d})'.format(
+                    image.path, image.selected))
         self.display_coords()
         self.see_selection()
 
@@ -271,8 +271,8 @@ class PhotiniMap(QtGui.QWidget):
             return
         if lat is None or lng is None:
             return
-        self.JavaScript('addMarker("%s", %s, %s, "%s", %d)' % (
-            image.path, repr(lat), repr(lng), image.name, image.selected))
+        self.JavaScript('addMarker("{0}", {1!r}, {2!r}, "{3}", {4:d})'.format(
+            image.path, lat, lng, image.name, image.selected))
 
     def search(self, search_string=None):
         if not search_string:
@@ -283,7 +283,7 @@ class PhotiniMap(QtGui.QWidget):
         self.search_string = search_string
         self.clear_search()
         self.location = dict()
-        self.JavaScript('search("%s")' % (search_string))
+        self.JavaScript('search("{0}")'.format(search_string))
 
     def clear_search(self):
         self.edit_box.clear()
@@ -310,15 +310,15 @@ class PhotiniMap(QtGui.QWidget):
         name = unicode(self.edit_box.itemText(idx))
         if name in self.location:
             lat, lng = self.location[name]
-            self.JavaScript('goTo(%s, %s)' % (repr(lat), repr(lng)))
+            self.JavaScript('goTo({0!r}, {1!r})'.format(lat, lng))
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot(unicode)
     def marker_click(self, path):
-        self.image_list.select_image(str(path))
+        self.image_list.select_image(path)
 
-    @QtCore.pyqtSlot(float, float, str)
+    @QtCore.pyqtSlot(float, float, unicode)
     def marker_drag_end(self, lat, lng, path):
-        image = self.image_list.get_image(str(path))
+        image = self.image_list.get_image(path)
         self._set_metadata(image, lat, lng)
         self.display_coords()
         self.see_selection()

@@ -278,17 +278,11 @@ class ImageList(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def open_files(self):
         types = []
-        if sys.version_info[0] >= 3:
-            for ext in QtGui.QImageReader.supportedImageFormats():
-                types.append('*.%s' % str(ext, encoding='utf_8'))
-        else:
-            for ext in QtGui.QImageReader.supportedImageFormats():
-                types.append('*.%s' % str(ext))
+        for ext in QtGui.QImageReader.supportedImageFormats():
+            types.append('*.' + ext.data().decode('utf_8'))
         path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            self.tr("Images (%1);;All files (*)").arg(' '.join(types)))
-        if sys.version_info[0] < 3:
-            path_list = map(lambda x: x.toLocal8Bit(), path_list)
+            self.tr("Images ({0});;All files (*)").format(' '.join(types)))
         # work around for Qt bug 33992
         # https://bugreports.qt-project.org/browse/QTBUG-33992
         path_list = map(lambda x: str(

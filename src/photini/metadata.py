@@ -16,6 +16,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from datetime import datetime
 import fractions
 import locale
@@ -65,7 +67,7 @@ class NullValue(object):
         return True
 
     def as_str(self):
-        return u''
+        return ''
 
 class BaseValue(object):
     def __init__(self, tag=None):
@@ -109,8 +111,8 @@ class LatLongValue(BaseValue):
     # value is a latitude + longitude pair, stored as floating point numbers
     def as_str(self):
         if self.value:
-            return '%.6f, %.6f' % self.value
-        return u''
+            return '{0:.6f}, {1:.6f}'.format(*self.value)
+        return ''
 
     def to_exif(self, md, tag):
         lat_tag = tag
@@ -133,7 +135,7 @@ class LatLongValue(BaseValue):
             minutes = int(value)
             seconds = (value - minutes) * 60.0
             seconds = fractions.Fraction(seconds).limit_denominator(1000000)
-            value_string = '%d/1 %d/1 %d/%d' % (
+            value_string = '{0:d}/1 {1:d}/1 {2:d}/{3:d}'.format(
                 degrees, minutes, seconds.numerator, seconds.denominator)
             md.set_tag_string(this_tag, value_string)
             md.set_tag_string(this_tag + 'Ref', ref_string)
@@ -180,7 +182,7 @@ class StringValue(BaseValue):
     # value is a single unicode string
     def __init__(self, tag=None):
         BaseValue.__init__(self, tag)
-        self.value = u''
+        self.value = ''
 
     def empty(self):
         return len(self.value) == 0
@@ -200,7 +202,7 @@ class StringValue(BaseValue):
         result = StringValue()
         result.value = self.value
         if other.value not in result.value:
-            result.value = '%s // %s' % (result.value, other.value)
+            result.value = '{0} // {1}'.format(result.value, other.value)
         return result
 
     def set_value(self, value):
@@ -267,10 +269,10 @@ class ListValue(BaseValue):
         pred_value = map(
             lambda x: _decode_string(_encode_string(x, max_bytes)),
             self.value)
-        return u'; '.join(pred_value)
+        return '; '.join(pred_value)
 
     def as_str(self):
-        return u'; '.join(self.value)
+        return '; '.join(self.value)
 
     def merge(self, other):
         result = ListValue()
@@ -328,7 +330,7 @@ class DateTimeValue(BaseValue):
     def as_str(self):
         if self.value:
             return self.value.isoformat()
-        return u''
+        return ''
 
     def to_exif(self, md, tag):
         if not self.value:
@@ -532,7 +534,7 @@ class Metadata(QtCore.QObject):
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
-        self.set_item('software', 'Photini editor v%s' % (__version__))
+        self.set_item('software', 'Photini editor v{0}'.format(__version__))
         if sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False

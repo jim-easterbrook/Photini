@@ -46,12 +46,12 @@ class GoogleMap(PhotiniMap):
             if match:
                 name = match.group(1)
                 if name:
-                    region = '&region=%s' % name
+                    region = '&region=' + name
         return """
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=%s&sensor=false%s">
+      src="http://maps.googleapis.com/maps/api/js?key={0}&sensor=false{1}">
     </script>
-""" % ('AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y', region)
+""".format('AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y', region)
 
     def get_drag_icon(self):
         return QtGui.QPixmap(os.path.join(data_dir, 'google_grey_marker.png'))
