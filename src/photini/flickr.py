@@ -265,7 +265,7 @@ class FlickrUploader(QtGui.QWidget):
             if tags.empty():
                 tags = ''
             else:
-                tags = ' '.join(map(lambda x: '"{0}"'.format(x), tags.value))
+                tags = str(' ').join(map(lambda x: '"{0}"'.format(x), tags.value))
             upload_list.append({
                 'filename'     : image.path,
                 'title'        : title,
