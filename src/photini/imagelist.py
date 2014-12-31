@@ -94,7 +94,7 @@ class Image(QtGui.QFrame):
         drag.setHotSpot(QtCore.QPoint(
             drag.pixmap().width() // 2, drag.pixmap().height()))
         mimeData = QtCore.QMimeData()
-        mimeData.setData(DRAG_MIMETYPE, str(paths))
+        mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(Qt.CopyAction)
 
