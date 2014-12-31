@@ -225,7 +225,7 @@ setup(name = 'Photini',
       extras_require = {
           'flickr'  : ['flickrapi >= 1.4'],
           'importer': ['gphoto2 >= 0.10'],
-          'picasa'  : ['gdata >= 2.0.16']
+          'picasa'  : ['requests', 'requests_oauthlib']
           },
       use_2to3 = True,
       )

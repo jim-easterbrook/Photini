@@ -7,7 +7,7 @@ Unlike some other Picasa uploaders, Photini uses the descriptive metadata you've
 The description is added as a comment.
 This means you don't have to retype all that information!
 
-Note that the Picasa upload tab is only enabled if you have installed gdata-python-client.
+Note that the Picasa upload tab is only enabled if you have installed the relevant libraries.
 See :ref:`installation <installation-picasa>` for more detail.
 
 The first time you select Photini's Picasa upload tab it will ask you to authorise Photini to access Picasa.

@@ -57,7 +57,7 @@ Dependencies
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject *or*
     *   pgi: https://pypi.python.org/pypi/pgi/
 *   python-flickrapi (optional): https://pypi.python.org/pypi/flickrapi/
-*   gdata-python-client (optional): https://pypi.python.org/pypi/gdata/
+*   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
 For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/installation.html>`_.

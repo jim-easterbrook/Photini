@@ -56,7 +56,7 @@ These are all required for Photini to be usable.
 Python
 ^^^^^^
 
-Photini should work with all versions of `Python <https://www.python.org/>`_ from 2.6 onwards, but the Picasa uploader requires a library that has not yet been ported to Python 3.
+Photini should work with all versions of `Python <https://www.python.org/>`_ from 2.6 onwards.
 
 Python may already be installed on your computer.
 To find out, open a terminal window (Windows users run ``cmd.exe``) and try running python by typing this command::
@@ -67,7 +67,6 @@ If Python is installed this should show you the version number.
 
 Linux users should use their system's package manager to install Python.
 Windows and MacOS users can download an installer from https://www.python.org/downloads/.
-As some libraries have not yet been ported to Python 3 you should probably install version 2.7.
 Windows users should install the 32 bit version of Python, even on a 64 bit machine.
 This is because some of the required libraries are not available in 64 bit builds.
 
@@ -153,15 +152,13 @@ You can download the source from https://bitbucket.org/sybren/flickrapi and then
 
 .. _installation-picasa:
 
-gdata-python-client
-^^^^^^^^^^^^^^^^^^^
+requests and requests-oauthlib
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Google Picasa uploader requires `gdata-python-client <https://pypi.python.org/pypi/gdata/>`_.
-This is also installed with pip::
+The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_ and `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_.
+These are also installed with pip::
 
-   sudo pip install gdata
-
-Note that gdata-python-client is not compatible with Python 3.
+   sudo pip install requests requests_oauthlib
 
 .. _installation-importer:
 
