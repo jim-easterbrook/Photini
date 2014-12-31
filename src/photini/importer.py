@@ -18,8 +18,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import datetime
 import logging
 import os
@@ -453,7 +451,7 @@ class Importer(QtGui.QWidget):
         if self.config_section:
             since = datetime.strptime(
                 self.config_store.get(
-                    self.config_section, 'last_transfer', since.isoformat(b' ')),
+                    self.config_section, 'last_transfer', since.isoformat(' ')),
                 '%Y-%m-%d %H:%M:%S')
         self.select_files(since)
 
