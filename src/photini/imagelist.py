@@ -22,6 +22,7 @@ from datetime import datetime
 import os
 import subprocess
 import sys
+import urllib
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -177,7 +178,7 @@ class ScrollArea(QtGui.QScrollArea):
     def dropEvent(self, event):
         file_list = []
         for uri in event.mimeData().urls():
-            file_list.append(str(uri.toLocalFile()))
+            file_list.append(uri.toLocalFile())
         if file_list:
             self.dropped_images.emit(file_list)
 
@@ -285,8 +286,7 @@ class ImageList(QtGui.QWidget):
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))
         # work around for Qt bug 33992
         # https://bugreports.qt-project.org/browse/QTBUG-33992
-        path_list = map(lambda x: str(
-            QtCore.QUrl.fromPercentEncoding(x)), path_list)
+        path_list = map(urllib.unquote, path_list)
         if not path_list:
             return
         self.open_file_list(path_list)
@@ -406,7 +406,6 @@ class ImageList(QtGui.QWidget):
         self.selection_changed.emit(self.get_selected_images())
 
     def thumb_mouse_press(self, path, event):
-        path = str(path)
         if event.modifiers() == Qt.ControlModifier:
             self.select_image(path, multiple_selection=True)
         elif event.modifiers() == Qt.ShiftModifier:
