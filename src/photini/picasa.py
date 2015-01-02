@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from .descriptive import MultiLineEdit
-from .utils import Busy
+from .utils import Busy, FileObjWithCallback
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -127,25 +127,6 @@ def request_with_check(cmd, *arg, **kw):
         return xml.etree.ElementTree.fromstring(resp.text.encode('utf-8'))
     return None
 
-class FileObjWithCallback(object):
-    def __init__(self, fileobj, length, callback):
-        self._f = fileobj
-        self._callback = callback
-        # requests library uses 'len' attribute instead of seeking to
-        # end of file and back
-        self.len = length
-
-    # substitute read method
-    def read(self, size):
-        result = self._f.read(size)
-        if self._callback:
-            self._callback(self._f.tell() * 100 // self.len)
-        return result
-
-    # delegate all other attributes to file object
-    def __getattr__(self, name):
-        return getattr(self._f, name)
-
 class UploadThread(QtCore.QThread):
     def __init__(self, session, upload_list, feed_uri):
         QtCore.QThread.__init__(self)
@@ -159,8 +140,7 @@ class UploadThread(QtCore.QThread):
         for params in self.upload_list:
             title = os.path.basename(params['path'])
             with open(params['path'], 'rb') as f:
-                fileobj = FileObjWithCallback(
-                    f, os.path.getsize(params['path']), self.callback)
+                fileobj = FileObjWithCallback(f, self.callback)
                 dom = request_with_check(
                     self.session.post, self.feed_uri, data=fileobj,
                     headers={'Content-Type' : 'image/jpeg', 'Slug' : title})

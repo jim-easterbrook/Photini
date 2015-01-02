@@ -28,22 +28,7 @@ import flickrapi
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
-from .utils import Busy
-
-class FileWithCallback(object):
-    def __init__(self, path, callback):
-        self.file = open(path, 'rb')
-        self.callback = callback
-        # the following attributes and methods are used by
-        # requests_tools.MultipartEncoder
-        self.len = os.path.getsize(path)
-        self.fileno = self.file.fileno
-        self.tell = self.file.tell
-
-    def read(self, size):
-        if self.callback:
-            self.callback(self.tell() * 100 // self.len)
-        return self.file.read(size)
+from .utils import Busy, FileObjWithCallback
 
 class UploadThread(QtCore.QThread):
     def __init__(self, flickr, upload_list, photosets, new_photosets):
@@ -58,9 +43,9 @@ class UploadThread(QtCore.QThread):
         logger = logging.getLogger(self.__class__.__name__)
         self.file_count = 0
         for params in self.upload_list:
-            params['fileobj'] = FileWithCallback(
-                params['filename'], self.callback)
-            rsp = self.flickr.upload(**params)
+            with open(params['filename'], 'rb') as f:
+                params['fileobj'] = FileObjWithCallback(f, self.callback)
+                rsp = self.flickr.upload(**params)
             if rsp.attrib['stat'] == 'ok':
                 photo_id = rsp.find('photoid').text
                 for photoset_id in self.photosets:
