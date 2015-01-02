@@ -141,15 +141,6 @@ This is easily installed with pip::
 
    sudo pip install flickrapi
 
-Note that there is a bug in v1.4 of flickrapi that stops the upload progress bar working correctly (see `Photini issue #6 <https://github.com/jim-easterbrook/Photini/issues/6>`_).
-Flickrapi v1.4 is also not compatible with Python 3.
-
-If you are using Python 3 then you need to install version 2, which is still under development.
-You can download the source from https://bitbucket.org/sybren/flickrapi and then use setup.py to build and install::
-
-   python setup.py build
-   sudo python setup.py install
-
 .. _installation-picasa:
 
 requests and requests-oauthlib
@@ -158,7 +149,7 @@ requests and requests-oauthlib
 The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_ and `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_.
 These are also installed with pip::
 
-   sudo pip install requests requests_oauthlib
+   sudo pip install requests requests-oauthlib
 
 .. _installation-importer:
 
@@ -175,7 +166,11 @@ Installing Photini
 
 The easiest way to install the latest release of Photini is with the pip command::
 
-   sudo pip install Photini
+   sudo pip install photini
+
+You can also use pip to install the optional dependencies when you install Photini::
+
+   sudo pip install photini[flickr,picasa,importer]
 
 If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
 Either way, you then need to build and install Photini::
