@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v15.01.0:
+  1/ Removed Picasa uploader dependency on gdata-python-client.
+  2/ Several minor bug fixes.
+
 Changes in v14.10.0:
   1/ Improved drag and drop of images on to map.
   2/ Fixed some map bugs caused by '\' in Windows file paths.
