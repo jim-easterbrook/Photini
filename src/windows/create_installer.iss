@@ -18,7 +18,7 @@ LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=7221248
+ExtraDiskSpaceRequired=13000000
 SignTool=normal
 
 [Languages]
@@ -28,9 +28,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "WinPython\python-2.7.6\*"; DestDir: "{#PyDir}"; Excludes: "*.pyc,\Lib\site-packages,\Doc,\include,\Logs,\tcl,\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "WinPython\python-2.7.6\*"; DestDir: "{#PyDir}"; Excludes: "*.pyc,\Lib\site-packages,\Lib\test,\Doc,\include,\Logs,\tcl,\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "WinPython\python-2.7.6\Lib\site-packages\PyQt4\*"; DestDir: "{#PyDir}\Lib\site-packages\PyQt4"; Excludes: "*.exe,\doc,\examples,\sip,\qsci"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "WinPython\python-2.7.6\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; Excludes: "*.pyc,\appdirs*,\async*,\cairo*,\flickrapi*,\git*,\oauthlib*,\photini*,\PyQt4,\requests*,\smmap*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "WinPython\python-2.7.6\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; Excludes: "*.pyc,\appdirs*,\async*,\cairo*,\flickrapi*,\git*,\gnome,\oauthlib*,\photini*,\PyQt4,\requests*,\smmap*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "WinPython\python-2.7.6\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome"; Excludes: "*.exe,\share"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
@@ -40,7 +41,7 @@ Name: "{group}\upgrade Photini"; Filename: "{#ScriptDir}\pip.exe"; Parameters: "
 Name: "{commondesktop}\Photini"; Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico; Tasks: desktopicon
 
 [Run]
-Filename: "{#ScriptDir}\pip.exe"; Parameters: "install photini[flickr,picasa]"; StatusMsg: "Installing PyPI packages..."
+Filename: "{#ScriptDir}\pip.exe"; Parameters: "install -U -I photini[flickr,picasa]"; StatusMsg: "Installing PyPI packages..."
 Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; Description: "{cm:LaunchProgram,Photini}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
