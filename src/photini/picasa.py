@@ -398,9 +398,10 @@ Doing so will remove the album and its photos from all Google products."""
     def refresh(self):
         if self.session:
             return
+        QtGui.QApplication.processEvents()
+        if not self.authorise():
+            return
         with Busy():
-            if not self.authorise():
-                return
             for album in self.get_albums():
                 if not album.GetLink('edit'):
                     # ignore 'system' albums
@@ -533,6 +534,9 @@ then enter the verification code:""").format(info_text))
             if not OK:
                 self.session = None
                 return False
+            # Fix for requests-oauthlib bug #157
+            # https://github.com/requests/requests-oauthlib/issues/157
+            os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
             token = oauth.fetch_token(
                 'https://www.googleapis.com/oauth2/v3/token',
                 code=str(auth_code).strip(), client_secret=self.client_secret)

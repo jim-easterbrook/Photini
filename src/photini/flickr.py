@@ -149,6 +149,7 @@ class FlickrUploader(QtGui.QWidget):
     def refresh(self):
         if self.flickr:
             return
+        QtGui.QApplication.processEvents()
         self.get_photosets()
 
     @QtCore.pyqtSlot()
@@ -289,17 +290,18 @@ class FlickrUploader(QtGui.QWidget):
         api_secret = '1e0d912f586d0ed1'
         token        = self.config_store.get('flickr', 'token', '')
         token_secret = self.config_store.get('flickr', 'token_secret', '')
-        token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
-        self.flickr = flickrapi.FlickrAPI(
-            api_key, api_secret, token=token, store_token=False)
-        if self.flickr.token_valid(perms='write'):
-            return True
-        self.flickr.get_request_token(oauth_callback='oob')
-        auth_url = self.flickr.auth_url(perms='write')
-        if webbrowser.open(auth_url, new=2, autoraise=0):
-            info_text = self.tr('use your web browser')
-        else:
-            info_text = self.tr('open "{0}" in a web browser').format(auth_url)
+        with Busy():
+            token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
+            self.flickr = flickrapi.FlickrAPI(
+                api_key, api_secret, token=token, store_token=False)
+            if self.flickr.token_valid(perms='write'):
+                return True
+            self.flickr.get_request_token(oauth_callback='oob')
+            auth_url = self.flickr.auth_url(perms='write')
+            if webbrowser.open(auth_url, new=2, autoraise=0):
+                info_text = self.tr('use your web browser')
+            else:
+                info_text = self.tr('open "{0}" in a web browser').format(auth_url)
         auth_code, OK = QtGui.QInputDialog.getText(
             self,
             self.tr('Photini: authorise Flickr'),
@@ -308,11 +310,12 @@ class FlickrUploader(QtGui.QWidget):
         if not OK:
             self.flickr = None
             return False
-        try:
-            self.flickr.get_access_token(unicode(auth_code))
-        except Exception, ex:
-            self.flickr = None
-            return False
+        with Busy():
+            try:
+                self.flickr.get_access_token(unicode(auth_code))
+            except Exception, ex:
+                self.flickr = None
+                return False
         token = self.flickr.token_cache.token
         self.config_store.set('flickr', 'token',        token.token)
         self.config_store.set('flickr', 'token_secret', token.token_secret)
