@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@ import webbrowser
 
 from PyQt4 import QtGui, QtCore, QtWebKit
 from PyQt4.QtCore import Qt
+import six
 
 from .imagelist import DRAG_MIMETYPE
 from .utils import data_dir
@@ -35,19 +36,19 @@ class WebPage(QtWebKit.QWebPage):
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def javaScriptConsoleMessage(self, msg, line, source):
-        if unicode(msg).startswith(
-                        "Consider using 'dppx' units instead of 'dpi'"):
+        if msg.startswith("Consider using 'dppx' units instead of 'dpi'"):
             return
         self.logger.error('%s line %d: %s', source, line, msg)
 
     def userAgentForUrl(self, url):
+        host = url.host()
         # Nominatim requires the user agent to identify the application
-        if url.host() == 'nominatim.openstreetmap.org':
+        if 'nominatim' in host:
             return 'Photini/' + __version__
         return QtWebKit.QWebPage.userAgentForUrl(self, url)
 
 class WebView(QtWebKit.QWebView):
-    drop_text = QtCore.pyqtSignal(int, int, unicode)
+    drop_text = QtCore.pyqtSignal(int, int, six.text_type)
     def dragEnterEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
             super(WebView, self).dragMoveEvent(event)
@@ -176,7 +177,7 @@ class PhotiniMap(QtGui.QWidget):
         lat, lng = eval(self.config_store.get('map', 'centre'))
         zoom = eval(self.config_store.get('map', 'zoom'))
         self.JavaScript(
-            'setView({0}, {1}, {2:d}'.format(repr(lat), repr(lng), zoom))
+            'setView({0}, {1}, {2:d})'.format(repr(lat), repr(lng), zoom))
         self.new_images()
         self.image_list.set_drag_to_map(self.drag_icon)
 
@@ -186,7 +187,7 @@ class PhotiniMap(QtGui.QWidget):
         self.config_store.set('map', 'centre', str(self.map_centre))
         self.config_store.set('map', 'zoom', str(zoom))
 
-    @QtCore.pyqtSlot(int, int, unicode)
+    @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
         lat, lng = self.JavaScript('latLngFromPixel({0:d}, {1:d})'.format(x, y))
         for path in eval(text):
@@ -291,10 +292,10 @@ class PhotiniMap(QtGui.QWidget):
         if self.search_string:
             self.edit_box.addItem(self.tr('<repeat search>'))
 
-    @QtCore.pyqtSlot(float, float, unicode)
+    @QtCore.pyqtSlot(float, float, six.text_type)
     def search_result(self, lat, lng, name):
         self.edit_box.addItem(name)
-        self.location[unicode(name)] = lat, lng
+        self.location[name] = lat, lng
         self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
@@ -307,16 +308,16 @@ class PhotiniMap(QtGui.QWidget):
             # repeat search
             self.search(self.search_string)
             return
-        name = unicode(self.edit_box.itemText(idx))
+        name = self.edit_box.itemText(idx)
         if name in self.location:
             lat, lng = self.location[name]
             self.JavaScript('goTo({0!r}, {1!r})'.format(lat, lng))
 
-    @QtCore.pyqtSlot(unicode)
+    @QtCore.pyqtSlot(six.text_type)
     def marker_click(self, path):
         self.image_list.select_image(path)
 
-    @QtCore.pyqtSlot(float, float, unicode)
+    @QtCore.pyqtSlot(float, float, six.text_type)
     def marker_drag_end(self, lat, lng, path):
         image = self.image_list.get_image(path)
         self._set_metadata(image, lat, lng)

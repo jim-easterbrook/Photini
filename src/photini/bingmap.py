@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@ import os
 import webbrowser
 
 from PyQt4 import QtGui, QtCore
+import six
 
 from .photinimap import PhotiniMap
 from .utils import data_dir
@@ -64,7 +65,7 @@ class BingMap(PhotiniMap):
         layout.addWidget(load_tou)
         return result
 
-    @QtCore.pyqtSlot(unicode)
+    @QtCore.pyqtSlot(six.text_type)
     def new_copyright(self, text):
         self.copyright_widget.setText(text)
 

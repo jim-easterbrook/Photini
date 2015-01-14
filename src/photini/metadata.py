@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@ import os
 import sys
 
 from PyQt4 import QtCore
+import six
 
 try:
     from .metadata_gexiv2 import MetadataHandler
@@ -150,7 +151,7 @@ class LatLongValue(BaseValue):
                 return
             value_string = md.get_tag_string(tag)
             ref_string = md.get_tag_string(ref_tag)
-            parts = map(fractions.Fraction, value_string.split())
+            parts = list(map(fractions.Fraction, value_string.split()))
             value = float(parts[0])
             if len(parts) > 1:
                 value += float(parts[1]) / 60.0
@@ -244,7 +245,7 @@ class StringValue(BaseValue):
         if self.tag not in md.get_xmp_tags():
             return
         self.value = md.get_tag_multiple(self.tag)[0]
-        if sys.version_info[0] < 3 and not isinstance(self.value, unicode):
+        if not isinstance(self.value, six.text_type):
             self.value = self.value.decode('utf_8')
         self.sanitise()
 
@@ -266,9 +267,8 @@ class ListValue(BaseValue):
         self.value = new_value
 
     def iptc_pred(self, max_bytes):
-        pred_value = map(
-            lambda x: _decode_string(_encode_string(x, max_bytes)),
-            self.value)
+        pred_value = [
+            _decode_string(_encode_string(x, max_bytes)) for x in self.value]
         return '; '.join(pred_value)
 
     def as_str(self):
@@ -321,8 +321,8 @@ class ListValue(BaseValue):
         if self.tag not in md.get_xmp_tags():
             return
         self.value = md.get_tag_multiple(self.tag)
-        if sys.version_info[0] < 3 and self.value and not isinstance(self.value[0], unicode):
-            self.value = map(lambda x: x.decode('utf_8'), self.value)
+        if self.value and not isinstance(self.value[0], six.text_type):
+            self.value = [x.decode('utf_8') for x in self.value]
         self.sanitise()
 
 class DateTimeValue(BaseValue):
@@ -625,13 +625,13 @@ class Metadata(QtCore.QObject):
             try:
                 value[family] = self._get_value(
                     family, self._primary_tags[name][family])
-            except Exception, ex:
+            except Exception as ex:
                 self.logger.exception(ex)
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
                 try:
                     new_value = self._get_value(family, tag)
-                except Exception, ex:
+                except Exception as ex:
                     self.logger.exception(ex)
                     continue
                 if new_value.empty():

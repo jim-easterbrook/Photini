@@ -18,10 +18,11 @@
 
 from __future__ import unicode_literals
 
+import six
 from datetime import datetime
 import logging
 import os
-import urllib2
+from six.moves.urllib.request import urlopen
 import webbrowser
 import xml.etree.ElementTree
 
@@ -63,7 +64,7 @@ class BaseNode(object):
         if repeat:
             result = self._dom.findall(tag)
             if klass:
-                result = map(klass, result)
+                result = list(map(klass, result))
             return result
         result = self._dom.find(tag)
         if result is None:
@@ -267,7 +268,6 @@ class PicasaUploader(QtGui.QWidget):
     def new_title(self):
         value = self.albums.lineEdit().text()
         self.albums.setItemText(self.albums.currentIndex(), value)
-        value = unicode(value)
         if value != self.current_album.title.text:
             self.changed_title = value
         else:
@@ -276,7 +276,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_description(self):
-        value = unicode(self.widgets['description'].text())
+        value = self.widgets['description'].text()
         if value != self.current_album.summary.text:
             self.changed_description = value
         else:
@@ -296,7 +296,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def new_location(self):
-        value = unicode(self.widgets['location'].text())
+        value = self.widgets['location'].text()
         if value != self.current_album.location.text:
             self.changed_location = value
         else:
@@ -305,8 +305,7 @@ class PicasaUploader(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
-##        value = unicode(self.widgets['access'].itemData(index).toString())
-        value = unicode(self.widgets['access'].itemData(index))
+        value = self.widgets['access'].itemData(index)
         if value != self.current_album.access.text:
             self.changed_access = value
         else:
@@ -320,7 +319,7 @@ class PicasaUploader(QtGui.QWidget):
             self.albums_cache = None
             dom = xml.etree.ElementTree.Element('{' + nsmap['atom'] + '}entry')
             album = AlbumNode(dom)
-            album.title.text = unicode(self.tr('New album'))
+            album.title.text = self.tr('New album')
             album.category.set('scheme', 'http://schemas.google.com/g/2005#kind')
             album.category.set('term', 'http://schemas.google.com/photos/2007#album')
             dom = request_with_check(
@@ -415,7 +414,7 @@ Doing so will remove the album and its photos from all Google products."""
     def changed_album(self, index):
         self.save_changes()
         self.current_album = None
-        album_id = unicode(self.albums.itemData(index))
+        album_id = self.albums.itemData(index)
         with Busy():
             for album in self.get_albums():
                 if album.id.text == album_id:
@@ -426,7 +425,7 @@ Doing so will remove the album and its photos from all Google products."""
             if self.current_album.group.thumbnail is not None:
                 url = self.current_album.group.thumbnail[0].get('url')
                 image = QtGui.QPixmap()
-                image.loadFromData(urllib2.urlopen(url).read())
+                image.loadFromData(urlopen(url).read())
                 self.album_thumb.setPixmap(image)
             else:
                 self.album_thumb.clear()

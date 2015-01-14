@@ -2,7 +2,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -40,9 +40,8 @@ class FolderSource(object):
     def __init__(self, root):
         self.root = root
         self.image_types = QtGui.QImageReader.supportedImageFormats()
-        self.image_types = map(
-            lambda x: x.data().decode('utf-8'), self.image_types)
-        self.image_types = map(lambda x: '.' + x.lower(), self.image_types)
+        self.image_types = [x.data().decode('utf-8') for x in self.image_types]
+        self.image_types = ['.' + x.lower() for x in self.image_types]
         for ext in ('.ico', '.xcf'):
             while ext in self.image_types:
                 self.image_types.remove(ext)
@@ -281,7 +280,7 @@ class Importer(QtGui.QWidget):
             self._fail()
             return
         self.config_section = 'importer ' + model
-        path_format = unicode(self.path_format.text())
+        path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
         self.path_format.setText(path_format)
@@ -319,7 +318,7 @@ class Importer(QtGui.QWidget):
             self._fail()
             return
         self.config_section = 'importer folder ' + root
-        path_format = unicode(self.path_format.text())
+        path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
         self.path_format.setText(path_format)
@@ -402,7 +401,7 @@ class Importer(QtGui.QWidget):
         self.refresh()
 
     def _new_file_list(self, file_data):
-        self.file_list = file_data.keys()
+        self.file_list = list(file_data.keys())
         self.file_data = file_data
         self.sort_file_list()
 

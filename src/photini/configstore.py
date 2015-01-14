@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -18,9 +18,10 @@
 
 from __future__ import unicode_literals
 
-from ConfigParser import RawConfigParser
+import six
+from six.moves.configparser import RawConfigParser
 import os
-import sys
+import stat
 
 import appdirs
 from PyQt4 import QtCore
@@ -29,14 +30,14 @@ class ConfigStore(object):
     def __init__(self, name):
         self.config = RawConfigParser()
         self.file_opts = {}
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             self.file_opts['encoding'] = 'utf-8'
         if hasattr(appdirs, 'user_config_dir'):
             data_dir = appdirs.user_config_dir('photini')
         else:
             data_dir = appdirs.user_data_dir('photini')
         if not os.path.isdir(data_dir):
-            os.makedirs(data_dir, mode=0700)
+            os.makedirs(data_dir, mode=stat.S_IRWXU)
         self.file_name = os.path.join(data_dir, name + '.ini')
         if name == 'editor':
             for old_file_name in (os.path.expanduser('~/photini.ini'),
@@ -55,7 +56,7 @@ class ConfigStore(object):
     def get(self, section, option, default=None):
         if self.config.has_option(section, option):
             result = self.config.get(section, option)
-            if sys.version_info[0] < 3:
+            if six.PY2:
                 return result.decode('utf-8')
             return result
         if default is not None:
@@ -68,7 +69,7 @@ class ConfigStore(object):
         if (self.config.has_option(section, option) and
                 self.config.get(section, option) == value):
             return
-        if sys.version_info[0] < 3:
+        if six.PY2:
             value = value.encode('utf-8')
         self.config.set(section, option, value)
         self.timer.start()
@@ -83,4 +84,4 @@ class ConfigStore(object):
 
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
-        os.chmod(self.file_name, 0600)
+        os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -234,8 +234,8 @@ class Technical(QtGui.QWidget):
 
     @QtCore.pyqtSlot(int)
     def new_orientation(self, index):
-        value, OK = self.orientation.itemData(index).toInt()
-        if value < 1 or not OK:
+        value = self.orientation.itemData(index)
+        if value < 1:
             self._update_orientation()
             return
         for image in self.image_list.get_selected_images():

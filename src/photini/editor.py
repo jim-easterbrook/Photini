@@ -2,7 +2,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,16 +28,13 @@ options are:
 
 from __future__ import unicode_literals
 
+import six
 import logging
 from optparse import OptionParser
 import os
 import sys
-if sys.version_info[0] >= 3:
-    from urllib.request import getproxies
-    from urllib.parse import urlparse
-else:
-    from urllib import getproxies
-    from urlparse import urlparse 
+from six.moves.urllib.request import getproxies
+from six.moves.urllib.parse import urlparse
 import webbrowser
 
 import sip
@@ -159,7 +156,7 @@ class MainWindow(QtGui.QMainWindow):
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
-            name = unicode(tab['name']).replace('&', '')
+            name = tab['name'].replace('&', '')
             tab['action'] = QtGui.QAction(name, self)
             tab['action'].setCheckable(True)
             if tab['class']:

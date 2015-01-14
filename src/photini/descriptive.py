@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -116,7 +116,6 @@ class Descriptive(QtGui.QWidget):
                 self.tr("Please type in the copyright holder's name"),
                 text=self.config_store.get('user', 'creator_name', ''))
             if OK and name:
-                name = unicode(name)
                 self.config_store.set('user', 'copyright_name', name)
             else:
                 name = ''
@@ -129,7 +128,7 @@ class Descriptive(QtGui.QWidget):
             value = self.trUtf8(
                 'Copyright \xa9{0:d} {1}. All rights reserved.').format(
                     date.year, name)
-            image.metadata.set_item('copyright', unicode(value))
+            image.metadata.set_item('copyright', value)
         self._update_widget('copyright')
 
     def auto_creator(self):
@@ -140,7 +139,6 @@ class Descriptive(QtGui.QWidget):
                 self.tr("Please type in the creator's name"),
                 text=self.config_store.get('user', 'copyright_name', ''))
             if OK and name:
-                name = unicode(name)
                 self.config_store.set('user', 'creator_name', name)
             else:
                 name = ''
@@ -148,8 +146,8 @@ class Descriptive(QtGui.QWidget):
         self._new_value('creator')
 
     def _new_value(self, key):
-        value = unicode(self.widgets[key].text())
-        if value != unicode(self.tr('<multiple values>')):
+        value = self.widgets[key].text()
+        if value != self.tr('<multiple values>'):
             for image in self.image_list.get_selected_images():
                 image.metadata.set_item(key, value)
         self._update_widget(key)

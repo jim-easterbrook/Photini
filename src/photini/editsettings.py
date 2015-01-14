@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -90,11 +90,11 @@ class EditSettings(QtGui.QDialog):
         scroll_area.setWidget(panel)
 
     def new_copyright_name(self):
-        value = unicode(self.copyright_name.text())
+        value = self.copyright_name.text()
         self.config_store.set('user', 'copyright_name', value)
 
     def new_creator_name(self):
-        value = unicode(self.creator_name.text())
+        value = self.creator_name.text()
         self.config_store.set('user', 'creator_name', value)
 
     def do_reset_flickr(self):

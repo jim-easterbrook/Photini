@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
 
-__version__ = '15.01.1.dev192'
-_dev_no = '192'
-_commit = '38bc061'
+__version__ = '15.01.1'
+_dev_no = '193'
+_commit = '7fc5e60'

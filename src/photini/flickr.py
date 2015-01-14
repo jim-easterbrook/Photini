@@ -204,10 +204,10 @@ class FlickrUploader(QtGui.QWidget):
         dialog.layout().addRow(buttons)
         if dialog.exec_() != QtGui.QDialog.Accepted:
             return
-        title = unicode(title.text())
+        title = title.text()
         if not title:
             return
-        description = unicode(description.toPlainText())
+        description = description.toPlainText()
         self.new_sets.append((title, description))
         check_box = QtGui.QCheckBox(title.replace('&', '&&'))
         check_box.setChecked(True)
@@ -247,7 +247,7 @@ class FlickrUploader(QtGui.QWidget):
             if tags.empty():
                 tags = ''
             else:
-                tags = str(' ').join(map(lambda x: '"{0}"'.format(x), tags.value))
+                tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
             upload_list.append({
                 'filename'     : image.path,
                 'title'        : title,
@@ -312,8 +312,8 @@ class FlickrUploader(QtGui.QWidget):
             return False
         with Busy():
             try:
-                self.flickr.get_access_token(unicode(auth_code))
-            except Exception, ex:
+                self.flickr.get_access_token(auth_code)
+            except Exception:
                 self.flickr = None
                 return False
         token = self.flickr.token_cache.token

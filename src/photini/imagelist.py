@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -18,11 +18,12 @@
 
 from __future__ import unicode_literals
 
+import six
 from datetime import datetime
 import os
 import subprocess
 import sys
-import urllib
+from six.moves.urllib.parse import unquote
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -111,10 +112,10 @@ class Image(QtGui.QFrame):
         status = ''
         # set 'geotagged' status
         if not self.metadata.get_item('latlong').empty():
-            status += unichr(0x2690)
+            status += six.unichr(0x2690)
         # set 'unsaved' status
         if changed:
-            status += unichr(0x26A1)
+            status += six.unichr(0x26A1)
         self.status.setText(status)
         if changed:
             self.image_list.new_metadata.emit(True)
@@ -284,11 +285,11 @@ class ImageList(QtGui.QWidget):
         path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))
-        # work around for Qt bug 33992
-        # https://bugreports.qt-project.org/browse/QTBUG-33992
-        path_list = map(urllib.unquote, path_list)
         if not path_list:
             return
+        # work around for Qt bug 33992
+        # https://bugreports.qt-project.org/browse/QTBUG-33992
+        path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
     @QtCore.pyqtSlot(list)

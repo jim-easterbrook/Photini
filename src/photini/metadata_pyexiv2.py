@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ class MetadataHandler(object):
     def get_tag_multiple(self, tag):
         item = self._md[tag]
         if item.type == 'Lang Alt':
-            return item.value.values()
+            return list(item.value.values())
         elif item.type == 'Date':
             return [item.raw_value]
         return item.value
