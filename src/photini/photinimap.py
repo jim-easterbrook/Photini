@@ -51,18 +51,16 @@ class WebView(QtWebKit.QWebView):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
     def dragEnterEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
-            super(WebView, self).dragMoveEvent(event)
-            return
+            return super(WebView, self).dragEnterEvent(event)
         event.acceptProposedAction()
 
     def dragMoveEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
-            super(WebView, self).dragEnterEvent(event)
+            return super(WebView, self).dragMoveEvent(event)
 
     def dropEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
-            super(WebView, self).dropEvent(event)
-            return
+            return super(WebView, self).dropEvent(event)
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
