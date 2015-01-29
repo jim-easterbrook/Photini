@@ -134,7 +134,7 @@ class CameraLister(QtCore.QObject):
     def select_camera(self, model, port_name):
         # free any existing camera
         if self.camera:
-            self.camera.exit()
+            self.camera.exit(self.context)
             self.camera = None
         # initialise camera
         self.camera = gp.Camera()
