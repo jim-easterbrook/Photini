@@ -128,6 +128,8 @@ class FlickrUploader(QtGui.QWidget):
         sets_group.setLayout(QtGui.QVBoxLayout())
         self.scrollarea = QtGui.QScrollArea()
         self.scrollarea.setFrameStyle(QtGui.QFrame.NoFrame)
+        self.scrollarea.setStyleSheet(
+            "QScrollArea { background-color: transparent }")
         sets_group.layout().addWidget(self.scrollarea)
         self.layout().addWidget(sets_group, 0, 3, 3, 1)
         # 'go' button
