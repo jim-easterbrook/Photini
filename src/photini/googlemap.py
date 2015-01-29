@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -30,14 +30,6 @@ from .photinimap import PhotiniMap
 from .utils import data_dir
 
 class GoogleMap(PhotiniMap):
-    def __init__(self, config_store, image_list, parent=None):
-        # setting the application name & version stops Google maps
-        # using the multitouch interface
-        app = QtGui.QApplication.instance()
-        app.setApplicationName('chrome')
-        app.setApplicationVersion('1.0')
-        PhotiniMap.__init__(self, config_store, image_list, parent)
-
     def load_api(self):
         region = ''
         lang, encoding = locale.getdefaultlocale()
