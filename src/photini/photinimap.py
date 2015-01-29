@@ -140,7 +140,7 @@ class PhotiniMap(QtGui.QWidget):
     <script type="text/javascript" src="{0}.js">
     </script>
   </head>
-  <body onload="initialize({1:f}, {2:f}, {3:d})">
+  <body ondragstart="return false" onload="initialize({1:f}, {2:f}, {3:d})">
     <div id="mapDiv" style="width:100%; height:100%"></div>
   </body>
 </html>
