@@ -1,12 +1,16 @@
 #define PyDir "{app}\python-2.7.6"
 #define ScriptDir "{app}\python-2.7.6\Scripts"
+#define SrcDir "WinPython\python-2.7.6"
 
 [Setup]
+VersionInfoVersion=15.02
+VersionInfoProductTextVersion=Latest release
 AppId={{55D6EC72-D14D-4A19-AE26-EECC1A6EF1EA}
 AppName=Photini
 AppVerName=Photini
 AppPublisher=Jim Easterbrook
 AppPublisherURL=https://github.com/jim-easterbrook/Photini
+AppCopyright=Copyright (C) 2012-15 Jim Easterbrook
 DefaultDirName={pf}\Photini
 DefaultGroupName=Photini
 AllowNoIcons=yes
@@ -28,10 +32,10 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "WinPython\python-2.7.6\*"; DestDir: "{#PyDir}"; Excludes: "*.pyc,\Lib\site-packages,\Lib\test,\Doc,\include,\Logs,\tcl,\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "WinPython\python-2.7.6\Lib\site-packages\PyQt4\*"; DestDir: "{#PyDir}\Lib\site-packages\PyQt4"; Excludes: "*.exe,\doc,\examples,\sip,\qsci"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "WinPython\python-2.7.6\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; Excludes: "*.pyc,\appdirs*,\async*,\cairo*,\flickrapi*,\git*,\gnome,\oauthlib*,\photini*,\PyQt4,\requests*,\smmap*"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "WinPython\python-2.7.6\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome"; Excludes: "*.exe,\share"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SrcDir}\*"; DestDir: "{#PyDir}"; Excludes: "*.pyc,\Lib\site-packages,\Lib\test,\Doc,\include,\Logs,\tcl,\Tools"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SrcDir}\Lib\site-packages\PyQt4\*"; DestDir: "{#PyDir}\Lib\site-packages\PyQt4"; Excludes: "*.exe,\doc,\examples,\sip,\qsci"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SrcDir}\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; Excludes: "*.pyc,\appdirs*,\async*,\cairo*,\flickrapi*,\git*,\gnome,\oauthlib*,\photini*,\PyQt4,\requests*,\smmap*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome"; Excludes: "*.exe,\share"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
