@@ -9,7 +9,7 @@ All-in-one installer (Windows)
 ------------------------------
 
 The Windows installer creates a standalone Python installation with all the dependencies needed to run Photini.
-The standalone Python interpreter is only used to run Photini, so does not conflict with any other Python version installed on your computer.
+The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
 You can download the latest Windows installer from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page.
 Don't worry if there are newer releases of Photini itself - the installer will download and install the latest release of Photini when it is run.
@@ -21,25 +21,26 @@ If this works then you have successfully installed Photini and can ignore the re
 Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Future versions of the Windows installer will add an "upgrade Photini" command to the start menu.
-In the meantime you can upgrade Photini as follows (Windows 7 - other versions will vary):
+The Windows installer adds an "upgrade Photini" command to the start menu.
+This needs to be run as administrator.
+Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
 
-   #. Right-click on the Photini start menu entry and then click on "properties". Note the path in the "start in" box.
-   #. Find ``cmd.exe`` in the start menu, then right-click on it and click on "run as administrator". Allow it to make changes on your computer.
-   #. Use ``cd`` to navigate to the "start in" path shown in the Photini shortcut properties, then to its ``Scripts`` folder. For example::
+Alternatively, you can use the "Programs and Features" control panel item to uninstall Photini before running the installer again to install the latest version.
 
-         Microsoft Windows [Version 6.1.7601]
-         Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+Verifying the Windows installer
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-         C:\Windows\system32>cd "c:\Program Files (x86)\Photini\python-2.7.6"
+The Windows installer is digitally signed using a "self-signed Certificate Authority".
+If you add my certificate to your computer you will get fewer security warnings when you install Photini.
+You can download the certificate file ``jim_easterbrook_CA.cer`` from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page and install it by running ``cmd.exe`` and issuing the following command::
 
-         c:\Program Files (x86)\Photini\python-2.7.6>cd Scripts
+   certutil -user -addstore Root jim_easterbrook_CA.cer
 
-         c:\Program Files (x86)\Photini\python-2.7.6\Scripts>
+If you want to check the validity of the certificate file, you can do so using GnuPG.
+The file ``jim_easterbrook_CA.cer.asc`` contains a digital signature that can be checked with my public keys ``959AF9B6`` or ``4748AD59``.
 
-   #. Use ``pip`` to upgrade Photini::
-
-         c:\Program Files (x86)\Photini\python-2.7.6\Scripts>pip install -U photini
+If the above means nothing to you, don't worry about it.
+The security warnings when you install Photini can safely be ignored.
 
 Piecemeal installation
 ----------------------
@@ -178,22 +179,13 @@ Either way, you then need to build and install Photini::
    python setup.py build
    sudo python setup.py install
 
-Note that if you are using Python 3 this process uses the `2to3 <https://docs.python.org/2/library/2to3.html>`_ tool to translate the source files.
-
 Running Photini
 ---------------
 
-If the installation has been successful you should be able to run Photini from the command line::
-
-   photini
-
-This should launch the Photini graphical application.
-If it fails, you may get more helpful error messages by running the Photini editor module directly::
+If the installation has been successful you should be able to run Photini from the "Start" menu (Windows) or application launcher (Linux).
+If that fails, you may get more helpful error messages by opening a command window and running the Photini editor module directly::
 
    python -m photini.editor
-
-On many computers you can add Photini to the desktop "start menu" or similar.
-For example, right-clicking on the KDE start menu allows one to "edit applications" and then add Photini to the "Graphics/Photography" section.
 
 Photini documentation
 ---------------------
