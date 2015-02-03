@@ -37,6 +37,13 @@ from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import webbrowser
 
+# on Windows & Python3, GObject needs to be imported before PyQt4
+if sys.platform == 'win32' and sys.version_info[0] >= 3:
+    try:
+        from .metadata_gexiv2 import MetadataHandler
+    except ImportError:
+        pass
+
 import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
