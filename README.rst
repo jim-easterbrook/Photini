@@ -48,21 +48,22 @@ Features
 Dependencies
 ------------
 
+An "all in one" installer for Windows is available that installs Photini and all its dependencies.
+Users of other operating systems will need to install the following:
+
 *   Python, version 2.6+ (including Python 3): http://python.org/
 *   PyQt, version 4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 *   appdirs: http://pypi.python.org/pypi/appdirs/
 *   gexiv2 (GObject Exiv2 wrapper), version 0.5+: https://wiki.gnome.org/Projects/gexiv2
 *   Python GObject bindings:
 
-    *   PyGObject: https://wiki.gnome.org/Projects/PyGObject *or*
+    *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**
     *   pgi: https://pypi.python.org/pypi/pgi/
 *   python-flickrapi (optional): https://pypi.python.org/pypi/flickrapi/
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
 For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/installation.html>`_.
-
-New! An "all in one" installer for Windows is available that installs Photini and all its dependencies.
 
 Documentation
 -------------
@@ -81,7 +82,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
