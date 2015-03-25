@@ -127,6 +127,13 @@ class OffsetWidget(QtGui.QWidget):
                            minutes=self.minutes.value())
         self.apply_offset.emit(offset)
 
+class DoubleValidator(QtGui.QDoubleValidator):
+    def validate(self, input_, pos):
+        # accept empty string as valid, to allow metadata to be cleared
+        if input_ == '':
+            return QtGui.QValidator.Acceptable, input_, pos
+        return super(DoubleValidator, self).validate(input_, pos)
+
 class Technical(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -191,6 +198,17 @@ class Technical(QtGui.QWidget):
         self.orientation.addItem(self.tr('<multiple>'), -1)
         self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow(self.tr('Orientation'), self.orientation)
+        # aperture
+        self.aperture = QtGui.QLineEdit()
+        self.aperture.setValidator(DoubleValidator(bottom=0.1))
+        self.aperture.editingFinished.connect(self.new_aperture)
+        other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
+        # focal length
+        self.focal_length = QtGui.QLineEdit()
+        self.focal_length.setValidator(DoubleValidator(bottom=0.1))
+        self.focal_length.editingFinished.connect(self.new_focal_length)
+        other_group.layout().addRow(
+            self.tr('Focal length (mm)'), self.focal_length)
         self.layout().addWidget(other_group, 0, 1)
         # disable until an image is selected
         for key in self.date_widget:
@@ -242,6 +260,18 @@ class Technical(QtGui.QWidget):
             image.metadata.set_item('orientation', value)
             image.pixmap = None
             image.load_thumbnail()
+
+    def new_aperture(self):
+        value = self.aperture.text()
+        if value != self.tr('<multiple values>'):
+            for image in self.image_list.get_selected_images():
+                image.metadata.set_item('aperture', value)
+
+    def new_focal_length(self):
+        value = self.focal_length.text()
+        if value != self.tr('<multiple values>'):
+            for image in self.image_list.get_selected_images():
+                image.metadata.set_item('focal_length', value)
 
     def _new_datetime_value(self, key, value):
         if isinstance(value, QtCore.QTime):
@@ -320,6 +350,26 @@ class Technical(QtGui.QWidget):
             value = 1
         self.orientation.setCurrentIndex(self.orientation.findData(value))
 
+    def _update_aperture(self):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('aperture')
+            if value and new_value.value != value.value:
+                self.aperture.setText(self.tr('<multiple values>'))
+                return
+            value = new_value
+        self.aperture.setText(value.as_str())
+
+    def _update_focal_length(self):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('focal_length')
+            if value and new_value.value != value.value:
+                self.focal_length.setText(self.tr('<multiple values>'))
+                return
+            value = new_value
+        self.focal_length.setText(value.as_str())
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         if not selection:
@@ -332,6 +382,10 @@ class Technical(QtGui.QWidget):
             self.offset_widget.setEnabled(False)
             self.orientation.setCurrentIndex(self.orientation.findData(1))
             self.orientation.setEnabled(False)
+            self.aperture.clear()
+            self.aperture.setEnabled(False)
+            self.focal_length.clear()
+            self.focal_length.setEnabled(False)
             return
         self.date_widget['taken'].setEnabled(True)
         for key in self.date_widget:
@@ -351,3 +405,7 @@ class Technical(QtGui.QWidget):
         self.offset_widget.setEnabled(True)
         self.orientation.setEnabled(True)
         self._update_orientation()
+        self.aperture.setEnabled(True)
+        self._update_aperture()
+        self.focal_length.setEnabled(True)
+        self._update_focal_length()

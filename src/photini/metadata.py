@@ -22,6 +22,7 @@ from datetime import datetime
 import fractions
 import locale
 import logging
+import math
 import os
 import sys
 
@@ -82,6 +83,8 @@ class BaseValue(object):
         return str(self.value)
 
     def merge(self, other):
+        if self.empty():
+            return other
         return self
 
     def set_value(self, value):
@@ -89,6 +92,14 @@ class BaseValue(object):
 
     def iptc_pred(self, max_bytes):
         return self.as_str()
+
+class ClearOnlyValue(BaseValue):
+    # used only to clear secondary tags when related primary is changed
+    def from_exif(self, md):
+        return
+
+    def from_xmp(self, md):
+        return
 
 class IntValue(BaseValue):
     # value is a single integer
@@ -107,6 +118,49 @@ class IntValue(BaseValue):
         if self.tag not in md.get_xmp_tags():
             return
         self.value = int(md.get_tag_multiple(self.tag)[0])
+
+class RationalValue(BaseValue):
+    # value is a floating point number
+    def as_str(self):
+        if self.value:
+            return '{0:g}'.format(self.value)
+        return ''
+
+    def set_value(self, value):
+        if value:
+            self.value = float(value)
+        else:
+            self.value = None
+
+    def to_exif(self, md, tag):
+        if self.value is None:
+            md.clear_tag(tag)
+            return
+        value = fractions.Fraction(self.value).limit_denominator(1000000)
+        md.set_tag_string(tag, str(value))
+
+    def from_exif(self, md):
+        if not self.tag in md.get_exif_tags():
+            return
+        value_string = md.get_tag_string(self.tag)
+        self.value = float(fractions.Fraction(value_string))
+
+    def from_xmp(self, md):
+        if self.tag not in md.get_xmp_tags():
+            return
+        value_string = md.get_tag_multiple(self.tag)[0]
+        self.value = float(fractions.Fraction(value_string))
+
+class APEXAperture(RationalValue):
+    def from_exif(self, md):
+        super(APEXAperture, self).from_exif(md)
+        if self.value:
+            self.value = math.sqrt(2.0 ** self.value)
+
+    def from_xmp(self, md):
+        super(APEXAperture, self).from_exif(md)
+        if self.value:
+            self.value = math.sqrt(2.0 ** self.value)
 
 class LatLongValue(BaseValue):
     # value is a latitude + longitude pair, stored as floating point numbers
@@ -400,15 +454,22 @@ class DateTimeValue(BaseValue):
 # class to use for each tag's data
 _data_object = {
     'Exif.GPSInfo.GPSLatitude'           : LatLongValue,
+    'Exif.Image.ApertureValue'           : APEXAperture,
     'Exif.Image.Artist'                  : StringValue,
     'Exif.Image.Copyright'               : StringValue,
     'Exif.Image.DateTime'                : DateTimeValue,
     'Exif.Image.DateTimeOriginal'        : DateTimeValue,
+    'Exif.Image.FNumber'                 : RationalValue,
+    'Exif.Image.FocalLength'             : RationalValue,
     'Exif.Image.ImageDescription'        : StringValue,
     'Exif.Image.Orientation'             : IntValue,
     'Exif.Image.ProcessingSoftware'      : StringValue,
+    'Exif.Photo.ApertureValue'           : APEXAperture,
     'Exif.Photo.DateTimeDigitized'       : DateTimeValue,
     'Exif.Photo.DateTimeOriginal'        : DateTimeValue,
+    'Exif.Photo.FNumber'                 : RationalValue,
+    'Exif.Photo.FocalLength'             : RationalValue,
+    'Exif.Photo.FocalLengthIn35mmFilm'   : ClearOnlyValue,
     'Iptc.Application2.Byline'           : ListValue,
     'Iptc.Application2.Caption'          : StringValue,
     'Iptc.Application2.Copyright'        : StringValue,
@@ -423,8 +484,12 @@ _data_object = {
     'Xmp.dc.subject'                     : ListValue,
     'Xmp.dc.title'                       : StringValue,
     'Xmp.photoshop.DateCreated'          : DateTimeValue,
+    'Xmp.exif.ApertureValue'             : APEXAperture,
     'Xmp.exif.DateTimeDigitized'         : DateTimeValue,
     'Xmp.exif.DateTimeOriginal'          : DateTimeValue,
+    'Xmp.exif.FNumber'                   : RationalValue,
+    'Xmp.exif.FocalLength'               : RationalValue,
+    'Xmp.exif.FocalLengthIn35mmFilm'     : ClearOnlyValue,
     'Xmp.exif.GPSLatitude'               : LatLongValue,
     'Xmp.tiff.Artist'                    : StringValue,
     'Xmp.tiff.Copyright'                 : StringValue,
@@ -458,6 +523,7 @@ _max_bytes = {
 class Metadata(QtCore.QObject):
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
+        'aperture'       : {'Exif' : 'Exif.Photo.FNumber'},
         'copyright'      : {'Exif' : 'Exif.Image.Copyright',
                             'Xmp'  : 'Xmp.dc.rights',
                             'Iptc' : 'Iptc.Application2.Copyright'},
@@ -475,6 +541,7 @@ class Metadata(QtCore.QObject):
         'description'    : {'Exif' : 'Exif.Image.ImageDescription',
                             'Xmp'  : 'Xmp.dc.description',
                             'Iptc' : 'Iptc.Application2.Caption'},
+        'focal_length'   : {'Exif' : 'Exif.Photo.FocalLength'},
         'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
                             'Iptc' : 'Iptc.Application2.Keywords'},
         'latlong'        : {'Exif' : 'Exif.GPSInfo.GPSLatitude'},
@@ -487,6 +554,11 @@ class Metadata(QtCore.QObject):
     # data in these is merged in when data is read
     # they get deleted when data is written
     _secondary_tags = {
+        'aperture'       : {'Exif' : ('Exif.Image.FNumber',
+                                      'Exif.Image.ApertureValue',
+                                      'Exif.Photo.ApertureValue',),
+                            'Xmp'  : ('Xmp.exif.FNumber',
+                                      'Xmp.exif.ApertureValue')},
         'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
         'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
         'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
@@ -494,6 +566,10 @@ class Metadata(QtCore.QObject):
         'date_taken'     : {'Exif' : ('Exif.Image.DateTimeOriginal',),
                             'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
         'description'    : {'Xmp'  : ('Xmp.tiff.ImageDescription',)},
+        'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',
+                                      'Exif.Photo.FocalLengthIn35mmFilm',),
+                            'Xmp'  : ('Xmp.exif.FocalLength',
+                                      'Xmp.exif.FocalLengthIn35mmFilm',)},
         'keywords'       : {},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
         'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
