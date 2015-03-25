@@ -201,20 +201,23 @@ class Technical(QtGui.QWidget):
         # aperture
         self.aperture = QtGui.QLineEdit()
         self.aperture.setValidator(DoubleValidator(bottom=0.1))
+        self.aperture.setSizePolicy(
+            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         self.aperture.editingFinished.connect(self.new_aperture)
         other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
         # focal length
         self.focal_length = QtGui.QLineEdit()
         self.focal_length.setValidator(DoubleValidator(bottom=0.1))
+        self.focal_length.setSizePolicy(
+            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
         self.focal_length.editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.focal_length)
         self.layout().addWidget(other_group, 0, 1)
+        self.layout().setColumnStretch(0, 1)
+        self.layout().setColumnStretch(1, 1)
         # disable until an image is selected
-        for key in self.date_widget:
-            self.date_widget[key].setEnabled(False)
-        self.offset_widget.setEnabled(False)
-        self.orientation.setEnabled(False)
+        self.setEnabled(False)
 
     def refresh(self):
         pass
@@ -376,23 +379,15 @@ class Technical(QtGui.QWidget):
             for key in self.date_widget:
                 self.date_widget[key].clearDate()
                 self.date_widget[key].clearTime()
-                self.date_widget[key].setEnabled(False)
-            for key in self.link_widget:
-                self.link_widget[key].setEnabled(False)
-            self.offset_widget.setEnabled(False)
             self.orientation.setCurrentIndex(self.orientation.findData(1))
-            self.orientation.setEnabled(False)
             self.aperture.clear()
-            self.aperture.setEnabled(False)
             self.focal_length.clear()
-            self.focal_length.setEnabled(False)
+            self.setEnabled(False)
             return
-        self.date_widget['taken'].setEnabled(True)
         for key in self.date_widget:
             self._update_datetime(key)
         for key in self.link_widget:
             master = self.link_master[key]
-            self.link_widget[key].setEnabled(True)
             if (self.date_widget[key].date.date() ==
                                         self.date_widget[master].date.date() and
                     self.date_widget[key].time.time() ==
@@ -402,10 +397,7 @@ class Technical(QtGui.QWidget):
             else:
                 self.link_widget[key].setChecked(False)
                 self.date_widget[key].setEnabled(True)
-        self.offset_widget.setEnabled(True)
-        self.orientation.setEnabled(True)
         self._update_orientation()
-        self.aperture.setEnabled(True)
         self._update_aperture()
-        self.focal_length.setEnabled(True)
         self._update_focal_length()
+        self.setEnabled(True)
