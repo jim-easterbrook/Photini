@@ -137,7 +137,8 @@ class RationalValue(BaseValue):
             md.clear_tag(tag)
             return
         value = fractions.Fraction(self.value).limit_denominator(1000000)
-        md.set_tag_string(tag, str(value))
+        value_string = '{}/{}'.format(value.numerator, value.denominator)
+        md.set_tag_string(tag, value_string)
 
     def from_exif(self, md):
         if not self.tag in md.get_exif_tags():
