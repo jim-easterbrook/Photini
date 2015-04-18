@@ -48,6 +48,7 @@ class Image(QtGui.QFrame):
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
+        self.setToolTip(self.path)
         # label to display image
         self.image = QtGui.QLabel()
         self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
