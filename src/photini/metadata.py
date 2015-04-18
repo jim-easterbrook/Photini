@@ -580,14 +580,19 @@ class Metadata(QtCore.QObject):
     def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
-        # create metadata handlers for image file and sidecar (if present)
+        # create metadata handlers for image file and/or sidecar
         self._path = path
-        self._if = MetadataHandler(path)
         self._sc_path = self._find_side_car(path)
         if self._sc_path:
             self._sc = MetadataHandler(self._sc_path)
         else:
             self._sc = None
+        try:
+            self._if = MetadataHandler(path)
+        except Exception:
+            self._if = None
+            if not self._sc:
+                self.create_side_car()
         self._unsaved = False
         self._value_cache = {}
 
@@ -606,16 +611,17 @@ class Metadata(QtCore.QObject):
             of.write('xmlns:x="adobe:ns:meta/">\n')
             of.write('</x:xmpmeta>')
         self._sc = MetadataHandler(self._sc_path)
-        self._sc.copy(self._if, comment=False)
+        if self._if:
+            self._sc.copy(self._if, comment=False)
 
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
         self.set_item('software', 'Photini editor v{0}'.format(__version__))
-        if sc_mode == 'delete' and self._sc:
+        if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
-        if if_mode:
+        if self._if and if_mode:
             OK = self._if.save()
         if sc_mode == 'delete' and self._sc and OK:
             os.unlink(self._sc_path)
@@ -630,7 +636,9 @@ class Metadata(QtCore.QObject):
 
     # tag lists: merge tags from sidecar and image file
     def get_exif_tags(self):
-        result = self._if.get_exif_tags()
+        result = []
+        if self._if:
+            result = self._if.get_exif_tags()
         if self._sc:
             for tag in self._sc.get_exif_tags():
                 if tag not in result:
@@ -638,7 +646,9 @@ class Metadata(QtCore.QObject):
         return result
 
     def get_iptc_tags(self):
-        result = self._if.get_iptc_tags()
+        result = []
+        if self._if:
+            result = self._if.get_iptc_tags()
         if self._sc:
             for tag in self._sc.get_iptc_tags():
                 if tag not in result:
@@ -646,7 +656,9 @@ class Metadata(QtCore.QObject):
         return result
 
     def get_xmp_tags(self):
-        result = self._if.get_xmp_tags()
+        result = []
+        if self._if:
+            result = self._if.get_xmp_tags()
         if self._sc:
             for tag in self._sc.get_xmp_tags():
                 if tag not in result:
@@ -657,28 +669,35 @@ class Metadata(QtCore.QObject):
     def get_tag_string(self, tag):
         if self._sc and tag in self._sc.get_tags():
             return self._sc.get_tag_string(tag)
-        return self._if.get_tag_string(tag)
+        if self._if:
+            return self._if.get_tag_string(tag)
+        return None
 
     def get_tag_multiple(self, tag):
         if self._sc and tag in self._sc.get_tags():
             return self._sc.get_tag_multiple(tag)
-        return self._if.get_tag_multiple(tag)
+        if self._if:
+            return self._if.get_tag_multiple(tag)
+        return None
 
     # setters: set in both sidecar and image file
     def set_tag_string(self, tag, value):
         if self._sc:
             self._sc.set_tag_string(tag, value)
-        self._if.set_tag_string(tag, value)
+        if self._if:
+            self._if.set_tag_string(tag, value)
 
     def set_tag_multiple(self, tag, value):
         if self._sc:
             self._sc.set_tag_multiple(tag, value)
-        self._if.set_tag_multiple(tag, value)
+        if self._if:
+            self._if.set_tag_multiple(tag, value)
 
     def clear_tag(self, tag):
         if self._sc:
             self._sc.clear_tag(tag)
-        self._if.clear_tag(tag)
+        if self._if:
+            self._if.clear_tag(tag)
 
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
