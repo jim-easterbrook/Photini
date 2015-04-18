@@ -137,6 +137,9 @@ class Image(QtGui.QFrame):
         if not self.pixmap:
             result = True
             self.pixmap = QtGui.QPixmap(self.path)
+            if self.pixmap.isNull():
+                self.pixmap = QtGui.QPixmap(200, 150)
+                self.pixmap.fill(Qt.black)
             if max(self.pixmap.width(), self.pixmap.height()) > 400:
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
@@ -280,9 +283,16 @@ class ImageList(QtGui.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        types = []
-        for ext in QtGui.QImageReader.supportedImageFormats():
-            types.append('*.' + ext.data().decode('utf_8'))
+        types = [
+            'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
+            'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
+            'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2'
+            ]
+        for fmt in QtGui.QImageReader.supportedImageFormats():
+            ext = fmt.data().decode('utf_8').lower()
+            if ext not in types:
+                types.append(ext)
+        types = map(lambda x: '*.' + x, types)
         path_list = QtGui.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))
