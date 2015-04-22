@@ -2,6 +2,6 @@
 Type=Application
 Name=Photini
 GenericName=Photini metadata editor
-Exec=python -m photini.editor
+Exec=photini
 Terminal=false
 Categories=Graphics;Photography;
