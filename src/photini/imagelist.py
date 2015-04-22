@@ -137,29 +137,30 @@ class Image(QtGui.QFrame):
         if not self.pixmap:
             result = True
             self.pixmap = QtGui.QPixmap(self.path)
-            if self.pixmap.isNull():
-                self.pixmap = QtGui.QPixmap(200, 150)
-                self.pixmap.fill(Qt.black)
-            if max(self.pixmap.width(), self.pixmap.height()) > 400:
-                # store a scaled down version of image to save memory
-                self.pixmap = self.pixmap.scaled(
-                    400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            orientation = self.metadata.get_item('orientation')
-            if not orientation.empty() and orientation.value != 1:
-                # need to rotate and or reflect image
-                transform = QtGui.QTransform()
-                if orientation.value in (3, 4):
-                    transform = transform.rotate(180.0)
-                elif orientation.value in (5, 6):
-                    transform = transform.rotate(90.0)
-                elif orientation.value in (7, 8):
-                    transform = transform.rotate(-90.0)
-                if orientation.value in (2, 4, 5, 7):
-                    transform = transform.scale(-1.0, 1.0)
-                self.pixmap = self.pixmap.transformed(transform)
-        self.image.setPixmap(self.pixmap.scaled(
-            self.thumb_size, self.thumb_size,
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            if not self.pixmap.isNull():
+                if max(self.pixmap.width(), self.pixmap.height()) > 400:
+                    # store a scaled down version of image to save memory
+                    self.pixmap = self.pixmap.scaled(
+                        400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                orientation = self.metadata.get_item('orientation')
+                if not orientation.empty() and orientation.value != 1:
+                    # need to rotate and or reflect image
+                    transform = QtGui.QTransform()
+                    if orientation.value in (3, 4):
+                        transform = transform.rotate(180.0)
+                    elif orientation.value in (5, 6):
+                        transform = transform.rotate(90.0)
+                    elif orientation.value in (7, 8):
+                        transform = transform.rotate(-90.0)
+                    if orientation.value in (2, 4, 5, 7):
+                        transform = transform.scale(-1.0, 1.0)
+                    self.pixmap = self.pixmap.transformed(transform)
+        if self.pixmap.isNull():
+            self.image.setText(self.tr('Can not\nload\nimage'))
+        else:
+            self.image.setPixmap(self.pixmap.scaled(
+                self.thumb_size, self.thumb_size,
+                Qt.KeepAspectRatio, Qt.SmoothTransformation))
         return result
 
     def set_selected(self, value):
