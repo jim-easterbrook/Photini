@@ -120,48 +120,50 @@ class IntValue(BaseValue):
         self.value = int(md.get_tag_multiple(self.tag)[0])
 
 class RationalValue(BaseValue):
-    # value is a floating point number
+    # value is a ratio of two integers, or None
     def as_str(self):
-        if self.value:
-            return '{0:g}'.format(self.value)
-        return ''
+        if self.value is None:
+            return ''
+        return '{0:g}'.format(float(self.value))
 
     def set_value(self, value):
-        if value:
-            self.value = float(value)
-        else:
+        if value in ('', None):
             self.value = None
+        else:
+            self.value = fractions.Fraction(value).limit_denominator(1000000)
 
     def to_exif(self, md, tag):
         if self.value is None:
             md.clear_tag(tag)
             return
-        value = fractions.Fraction(self.value).limit_denominator(1000000)
-        value_string = '{}/{}'.format(value.numerator, value.denominator)
+        value_string = '{}/{}'.format(
+            self.value.numerator, self.value.denominator)
         md.set_tag_string(tag, value_string)
 
     def from_exif(self, md):
         if not self.tag in md.get_exif_tags():
             return
         value_string = md.get_tag_string(self.tag)
-        self.value = float(fractions.Fraction(value_string))
+        self.value = fractions.Fraction(value_string)
 
     def from_xmp(self, md):
         if self.tag not in md.get_xmp_tags():
             return
         value_string = md.get_tag_multiple(self.tag)[0]
-        self.value = float(fractions.Fraction(value_string))
+        self.value = fractions.Fraction(value_string)
 
 class APEXAperture(RationalValue):
     def from_exif(self, md):
         super(APEXAperture, self).from_exif(md)
-        if self.value:
-            self.value = math.sqrt(2.0 ** self.value)
+        if self.value is not None:
+            self.value = fractions.Fraction(
+                math.sqrt(2.0 ** self.value)).limit_denominator(1000000)
 
     def from_xmp(self, md):
-        super(APEXAperture, self).from_exif(md)
-        if self.value:
-            self.value = math.sqrt(2.0 ** self.value)
+        super(APEXAperture, self).from_xmp(md)
+        if self.value is not None:
+            self.value = fractions.Fraction(
+                math.sqrt(2.0 ** self.value)).limit_denominator(1000000)
 
 class LatLongValue(BaseValue):
     # value is a latitude + longitude pair, stored as floating point numbers
