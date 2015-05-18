@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v15.05.0:
+  1/ Added aperture and focal length to 'technical' tab.
+  2/ Expanded range of file types that can be opened.
+  3/ Fixed several minor bugs and annoyances.
+
 Changes in v15.01.1:
   1/ Fixed several minor bugs and annoyances.
   2/ Removed need for 2to3 conversion when installing with Python3.
