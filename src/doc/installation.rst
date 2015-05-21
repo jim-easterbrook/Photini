@@ -90,21 +90,29 @@ If PyQt4 is installed this will run without generating any error message.
 Linux users should use their package manager to install ``python-qt4``.
 Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
 
-appdirs
-^^^^^^^
+six
+^^^
 
-`appdirs <https://pypi.python.org/pypi/appdirs/>`_ is a small Python module that makes cross-platform programming easier.
+`six <https://pypi.python.org/pypi/six/>`_ is a small module that makes it easier to write Python code that works with versions 2 & 3.
 The best way to install it is with `pip <https://pip.pypa.io/en/latest/>`_.
 Linux users should use their package manager to install ``python-pip``.
 Windows and MacOS users can use the installer from https://pip.pypa.io/en/latest/installing.html#install-pip.
 All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.html#upgrade-pip>`_.
 
-Once pip is installed, installing appdirs is easy::
+Once pip is installed, installing six is easy::
 
-   sudo pip install appdirs
+   sudo pip install six
 
 Note that ``sudo`` is not required on Windows, or if you have root privileges.
-In this case you just run ``pip install appdirs``.
+In this case you just run ``pip install six``.
+
+appdirs
+^^^^^^^
+
+`appdirs <https://pypi.python.org/pypi/appdirs/>`_ is a small Python module that makes cross-platform programming easier.
+It is also easily installed with pip::
+
+   sudo pip install appdirs
 
 gexiv2 (preferred)
 ^^^^^^^^^^^^^^^^^^

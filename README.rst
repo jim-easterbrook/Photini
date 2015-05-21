@@ -53,13 +53,14 @@ Users of other operating systems will need to install the following:
 
 *   Python, version 2.6+ (including Python 3): http://python.org/
 *   PyQt, version 4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
-*   appdirs: http://pypi.python.org/pypi/appdirs/
+*   six, version 1.5+: https://pypi.python.org/pypi/six/
+*   appdirs, version 1.3+: http://pypi.python.org/pypi/appdirs/
 *   gexiv2 (GObject Exiv2 wrapper), version 0.5+: https://wiki.gnome.org/Projects/gexiv2
 *   Python GObject bindings:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**
     *   pgi: https://pypi.python.org/pypi/pgi/
-*   python-flickrapi (optional): https://pypi.python.org/pypi/flickrapi/
+*   python-flickrapi (optional), version 2.0+: https://pypi.python.org/pypi/flickrapi/
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
