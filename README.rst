@@ -24,7 +24,7 @@ If you'd like to help, please join the `Photini team on Transifex <https://www.t
 Features
 --------
 
-.. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_11.png
+.. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_11.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
@@ -36,7 +36,7 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to `Flickr <http://www.flickr.com/>`_ and/or `Picasa <http://picasaweb.google.com/>`_ with reuse of metadata.
 
-.. image:: http://jim-easterbrook.github.io/Photini/doc/html/_images/screenshot_19.png
+.. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
@@ -64,7 +64,7 @@ Users of other operating systems will need to install the following:
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
-For details of how to download and install these, please see the `documentation <http://jim-easterbrook.github.io/Photini/doc/html/installation.html>`_.
+For details of how to download and install these, please see the `documentation <http://photini.readthedocs.org/en/latest/installation.html>`_.
 
 Documentation
 -------------
@@ -74,7 +74,7 @@ Documentation
    It is already usable but, like all other software, it has bugs.
    Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
-Photini's documentation is a long way from complete, but you can read what's been written so far at http://jim-easterbrook.github.io/Photini/doc/html/.
+Photini's documentation is a long way from complete, but you can read what's been written so far at http://photini.readthedocs.org/.
 
 .. _readme-legalese:
 

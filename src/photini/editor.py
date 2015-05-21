@@ -212,7 +212,7 @@ class MainWindow(QtGui.QMainWindow):
         self.new_tab(-1)
 
     def open_docs(self):
-        webbrowser.open_new('http://jim-easterbrook.github.com/Photini/')
+        webbrowser.open_new('http://photini.readthedocs.org/')
     
     def close_files(self):
         self._close_files(False)

@@ -40,7 +40,7 @@ Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
-Name: "{group}\Photini documentation"; Filename: "http://jim-easterbrook.github.io/Photini/doc/html/"
+Name: "{group}\Photini documentation"; Filename: "http://photini.readthedocs.org/"
 Name: "{group}\upgrade Photini"; Filename: "{#ScriptDir}\pip.exe"; Parameters: "install -U -I photini[flickr,picasa]"
 Name: "{commondesktop}\Photini"; Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico; Tasks: desktopicon
 
