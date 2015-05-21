@@ -5,8 +5,9 @@
 Installation
 ============
 
-There are two ways to install Photini.
-The simpler is to use an all-in-one installer, currently only available for Windows.
+There are three ways to install Photini.
+On Windows you can use an all-in-one installer.
+On some Linux distributions you might be able to use your package manager.
 On other platforms you need to install several dependencies before installing Photini.
 
 All-in-one installer (Windows)
@@ -45,6 +46,24 @@ The file ``jim_easterbrook_CA.cer.asc`` contains a digital signature that can be
 
 If the above means nothing to you, don't worry about it.
 The security warnings when you install Photini can safely be ignored.
+
+Package manager (some Linux distributions)
+------------------------------------------
+
+.. note:: These Linux packages are maintained by other people and may not install the latest version of Photini.
+   You may also need to install missing dependencies, as described below.
+
+Ubuntu and derived systems
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Dariusz Duma (https://launchpad.net/~dhor) has added Photini to his PPA (personal package archive).
+See the instructions at http://linuxg.net/how-to-install-photini-15-01-1-on-ubuntu-14-10-ubuntu-14-04-and-derivative-systems/.
+
+OpenSUSE and Fedora
+^^^^^^^^^^^^^^^^^^^
+
+Togan Muftuoglu (https://build.opensuse.org/user/show/toganm) has created a python-photini package.
+See https://build.opensuse.org/package/show/home:toganm:photography/python-photini for more information.
 
 Piecemeal installation
 ----------------------
