@@ -193,6 +193,9 @@ This is often already installed on Linux systems, but you still need its `python
 
    sudo pip install gphoto2
 
+Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
+You should be able to install these with your system package manager.
+
 Installing Photini
 ------------------
 
@@ -221,8 +224,9 @@ If that fails, you may get more helpful error messages by opening a command wind
 Photini documentation
 ---------------------
 
-If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can use setup.py to "compile" the documentation::
+If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and use setup.py to "compile" the documentation::
 
+   sudo pip install sphinx
    python setup.py build_sphinx
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
