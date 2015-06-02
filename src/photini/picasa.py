@@ -476,6 +476,21 @@ Doing so will remove the album and its photos from all Google products."""
                 self.new_album()
         self.setEnabled(True)
 
+    def do_not_close(self):
+        if not self.uploader or self.uploader.isFinished():
+            return False
+        dialog = QtGui.QMessageBox()
+        dialog.setWindowTitle(self.tr('Photini: upload in progress'))
+        dialog.setText(self.tr('<h3>Upload to Picasa has not finished.</h3>'))
+        dialog.setInformativeText(
+            self.tr('Closing now will terminate the upload.'))
+        dialog.setIcon(QtGui.QMessageBox.Warning)
+        dialog.setStandardButtons(
+            QtGui.QMessageBox.Close | QtGui.QMessageBox.Cancel)
+        dialog.setDefaultButton(QtGui.QMessageBox.Cancel)
+        result = dialog.exec_()
+        return result == QtGui.QMessageBox.Cancel
+
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
         self.save_changes()

@@ -222,6 +222,9 @@ class Technical(QtGui.QWidget):
     def refresh(self):
         pass
 
+    def do_not_close(self):
+        return False
+
     def new_datetime(self, key, value):
         key = str(key)
         self._new_datetime_value(key, value)

@@ -154,6 +154,9 @@ class FlickrUploader(QtGui.QWidget):
         QtGui.QApplication.processEvents()
         self.get_photosets()
 
+    def do_not_close(self):
+        return False
+
     @QtCore.pyqtSlot()
     def get_photosets(self):
         if not self.authorise():

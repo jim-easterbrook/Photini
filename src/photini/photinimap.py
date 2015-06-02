@@ -179,6 +179,9 @@ class PhotiniMap(QtGui.QWidget):
         self.new_images()
         self.image_list.set_drag_to_map(self.drag_icon)
 
+    def do_not_close(self):
+        return False
+
     @QtCore.pyqtSlot(float, float, int)
     def new_bounds(self, centre_lat, centre_lng, zoom):
         self.map_centre = centre_lat, centre_lng

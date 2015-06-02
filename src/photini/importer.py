@@ -372,6 +372,9 @@ class Importer(QtGui.QWidget):
         if new_idx < 0:
             self.source_selector.setCurrentIndex(0)
 
+    def do_not_close(self):
+        return False
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         pass

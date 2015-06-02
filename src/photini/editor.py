@@ -225,6 +225,10 @@ class MainWindow(QtGui.QMainWindow):
             self.image_list.close_files(all_files)
 
     def closeEvent(self, event):
+        for n in range(self.tabs.count()):
+            if self.tabs.widget(n).do_not_close():
+                event.ignore()
+                return
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         self.loggerwindow.shutdown()
         QtGui.QMainWindow.closeEvent(self, event)
