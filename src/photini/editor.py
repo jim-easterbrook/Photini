@@ -232,6 +232,7 @@ class MainWindow(QtGui.QMainWindow):
     def edit_settings(self):
         dialog = EditSettings(self, self.config_store)
         dialog.exec_()
+        self.tabs.currentWidget().refresh()
 
     @QtCore.pyqtSlot()
     def about(self):

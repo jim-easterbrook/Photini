@@ -77,7 +77,7 @@ class BaseNode(object):
     def to_string(self):
         return xml.etree.ElementTree.tostring(self._dom, encoding='utf-8')
 
-    def GetLink(self, link_type):
+    def get_link(self, link_type):
         for child in self._dom.findall('atom:link', nsmap):
             if child.get('rel').endswith(link_type):
                 return child.get('href')
@@ -119,21 +119,119 @@ class AlbumNode(BaseNode):
 class AlbumsRoot(BaseNode):
     _elements = {'entry' : ('atom', True, AlbumNode)}
 
-def request_with_check(cmd, *arg, **kw):
-    resp = cmd(*arg, **kw)
-    if resp.status_code >= 300:
-        logger.warning(resp.content)
-    resp.raise_for_status()
-    if resp.text:
-        return xml.etree.ElementTree.fromstring(resp.text.encode('utf-8'))
-    return None
+
+class PicasaSession(object):
+    album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
+    client_id     = '991146392375.apps.googleusercontent.com'
+    client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
+
+    def __init__(self, config_store):
+        self.config_store = config_store
+        self.session = None
+
+    def valid(self):
+        refresh_token = self.config_store.get('picasa', 'refresh_token')
+        if refresh_token and self.session:
+            return True
+        self.session = None
+        return False
+
+    def authorise(self, auth_dialog):
+        refresh_token = self.config_store.get('picasa', 'refresh_token')
+        if refresh_token and self.session:
+            return True
+        if refresh_token:
+            # create expired token
+            token = {
+                'access_token'  : 'xxx',
+                'refresh_token' : refresh_token,
+                'expires_in'    : -30,
+                }
+        else:
+            # do full authentication procedure
+            oauth = OAuth2Session(
+                self.client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
+                scope='https://picasaweb.google.com/data/')
+            auth_url, state = oauth.authorization_url(
+                'https://accounts.google.com/o/oauth2/auth')
+            auth_code = auth_dialog(auth_url)
+            if not auth_code:
+                self.session = None
+                return False
+            # Fix for requests-oauthlib bug #157
+            # https://github.com/requests/requests-oauthlib/issues/157
+            os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
+            token = oauth.fetch_token(
+                'https://www.googleapis.com/oauth2/v3/token',
+                code=auth_code, client_secret=self.client_secret)
+            self.save_token(token)
+        self.session = OAuth2Session(
+            self.client_id, token=token, token_updater=self.save_token,
+            auto_refresh_kwargs={
+                'client_id'     : self.client_id,
+                'client_secret' : self.client_secret},
+            auto_refresh_url='https://www.googleapis.com/oauth2/v3/token',
+            )
+        self.session.headers.update({'GData-Version': 2})
+        return True
+
+    def save_token(self, token):
+        self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
+
+    def get_albums(self):
+        dom = self.parse_response(self.session.get(self.album_feed))
+        return AlbumsRoot(dom).entry
+
+    def new_album(self, title):
+        dom = xml.etree.ElementTree.Element('{' + nsmap['atom'] + '}entry')
+        album = AlbumNode(dom)
+        album.title.text = title
+        album.category.set('scheme', 'http://schemas.google.com/g/2005#kind')
+        album.category.set('term', 'http://schemas.google.com/photos/2007#album')
+        dom = self.parse_response(self.session.post(
+            self.album_feed, album.to_string(),
+            headers={'Content-Type' : 'application/atom+xml'}))
+        return AlbumNode(dom)
+
+    def edit_album(self, album):
+        dom = self.parse_response(self.session.put(
+            album.get_link('edit'), album.to_string(),
+            headers={'If-Match' : album.etag,
+                     'Content-Type' : 'application/atom+xml'}))
+        return AlbumNode(dom)
+
+    def delete_album(self, album):
+        self.parse_response(self.session.delete(
+            album.get_link('edit'), headers={'If-Match' : album.etag}))
+
+    def new_photo(self, title, album, data):
+        dom = self.parse_response(self.session.post(
+            album.get_link('feed'), data=data,
+            headers={'Content-Type' : 'image/jpeg', 'Slug' : title}))
+        return PhotoNode(dom)
+
+    def edit_photo(self, photo):
+        dom = self.parse_response(self.session.put(
+            photo.get_link('edit'), photo.to_string(),
+            headers={'If-Match' : photo.etag,
+                     'Content-Type' : 'application/atom+xml'}))
+        return PhotoNode(dom)
+
+    def parse_response(self, resp):
+        if resp.status_code >= 300:
+            logger.warning(resp.content)
+        resp.raise_for_status()
+        if resp.text:
+            return xml.etree.ElementTree.fromstring(resp.text.encode('utf-8'))
+        return None
+
 
 class UploadThread(QtCore.QThread):
-    def __init__(self, session, upload_list, feed_uri):
+    def __init__(self, picasa, upload_list, album):
         QtCore.QThread.__init__(self)
-        self.session = session
+        self.picasa = picasa
         self.upload_list = upload_list
-        self.feed_uri = feed_uri
+        self.album = album
 
     finished = QtCore.pyqtSignal()
     def run(self):
@@ -142,10 +240,7 @@ class UploadThread(QtCore.QThread):
             title = os.path.basename(params['path'])
             with open(params['path'], 'rb') as f:
                 fileobj = FileObjWithCallback(f, self.callback)
-                dom = request_with_check(
-                    self.session.post, self.feed_uri, data=fileobj,
-                    headers={'Content-Type' : 'image/jpeg', 'Slug' : title})
-            photo = PhotoNode(dom)
+                photo = self.picasa.new_photo(title, self.album, fileobj)
             photo.title.text = title
             if params['summary']:
                 photo.summary.text = params['summary']
@@ -153,10 +248,7 @@ class UploadThread(QtCore.QThread):
                 photo.group.keywords.text = params['keywords']
             if params['latlong']:
                 photo.where.Point.pos.text = params['latlong']
-            dom = request_with_check(
-                self.session.put, photo.GetLink('edit'), photo.to_string(),
-                headers={'If-Match' : photo.etag,
-                         'Content-Type' : 'application/atom+xml'})
+            self.picasa.edit_photo(photo)
             self.file_count += 1
         self.finished.emit()
 
@@ -167,15 +259,12 @@ class UploadThread(QtCore.QThread):
         self.progress_report.emit(progress, total_progress)
 
 class PicasaUploader(QtGui.QWidget):
-    album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
-    client_id     = '991146392375.apps.googleusercontent.com'
-    client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
-        self.session = None
+        self.picasa = PicasaSession(self.config_store)
         self.widgets = {}
         self.current_album = None
         self.uploader = None
@@ -316,16 +405,7 @@ class PicasaUploader(QtGui.QWidget):
     def new_album(self):
         self.save_changes()
         with Busy():
-            self.albums_cache = None
-            dom = xml.etree.ElementTree.Element('{' + nsmap['atom'] + '}entry')
-            album = AlbumNode(dom)
-            album.title.text = self.tr('New album')
-            album.category.set('scheme', 'http://schemas.google.com/g/2005#kind')
-            album.category.set('term', 'http://schemas.google.com/photos/2007#album')
-            dom = request_with_check(
-                self.session.post, self.album_feed, album.to_string(),
-                headers={'Content-Type' : 'application/atom+xml'})
-            self.current_album = AlbumNode(dom)
+            self.current_album = self.picasa.new_album(self.tr('New album'))
         self.albums.insertItem(
             0, self.current_album.title.text, self.current_album.id.text)
         self.albums.setCurrentIndex(0)
@@ -344,10 +424,7 @@ Doing so will remove the album and its photos from all Google products."""
                 return
         self.clear_changes()
         with Busy():
-            self.albums_cache = None
-            request_with_check(
-                self.session.delete, self.current_album.GetLink('edit'),
-                headers={'If-Match' : self.current_album.etag})
+            self.picasa.delete_album(self.current_album)
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
@@ -379,30 +456,19 @@ Doing so will remove the album and its photos from all Google products."""
         if no_change:
             return
         with Busy():
-            self.albums_cache = None
-            dom = request_with_check(
-                self.session.put, self.current_album.GetLink('edit'),
-                self.current_album.to_string(),
-                headers={'If-Match' : self.current_album.etag,
-                         'Content-Type' : 'application/atom+xml'})
-            self.current_album = AlbumNode(dom)
-
-    def get_albums(self):
-        if self.albums_cache is not None:
-            return self.albums_cache
-        dom = request_with_check(self.session.get, self.album_feed)
-        self.albums_cache = AlbumsRoot(dom).entry
-        return self.albums_cache
+            self.current_album = self.picasa.edit_album(self.current_album)
 
     def refresh(self):
-        if self.session:
+        if self.picasa.valid():
             return
         QtGui.QApplication.processEvents()
-        if not self.authorise():
+        if not self.picasa.authorise(self.auth_dialog):
+            self.albums.clear()
+            self.setEnabled(False)
             return
         with Busy():
-            for album in self.get_albums():
-                if not album.GetLink('edit'):
+            for album in self.picasa.get_albums():
+                if not album.get_link('edit'):
                     # ignore 'system' albums
                     continue
                 self.albums.addItem(album.title.text, album.id.text)
@@ -414,9 +480,15 @@ Doing so will remove the album and its photos from all Google products."""
     def changed_album(self, index):
         self.save_changes()
         self.current_album = None
+        self.album_thumb.clear()
+        self.widgets['description'].clear()
+        self.widgets['location'].clear()
+        self.widgets['timestamp'].clear()
+        if not self.picasa.valid():
+            return
         album_id = self.albums.itemData(index)
         with Busy():
-            for album in self.get_albums():
+            for album in self.picasa.get_albums():
                 if album.id.text == album_id:
                     self.current_album = album
                     break
@@ -427,20 +499,14 @@ Doing so will remove the album and its photos from all Google products."""
                 image = QtGui.QPixmap()
                 image.loadFromData(urlopen(url).read())
                 self.album_thumb.setPixmap(image)
-            else:
-                self.album_thumb.clear()
         self.widgets['timestamp'].setDateTime(datetime.utcfromtimestamp(
             float(self.current_album.timestamp.text) * 1.0e-3))
         value = self.current_album.summary.text
         if value:
             self.widgets['description'].setText(value)
-        else:
-            self.widgets['description'].clear()
         value = self.current_album.location.text
         if value:
             self.widgets['location'].setText(value)
-        else:
-            self.widgets['location'].clear()
         self.widgets['access'].setCurrentIndex(
             self.widgets['access'].findData(self.current_album.access.text))
 
@@ -476,18 +542,18 @@ Doing so will remove the album and its photos from all Google products."""
                 'latlong'  : latlong,
                 })
         # pass the list to a separate thread, so GUI can continue
-        if self.authorise():
+        if self.picasa.authorise(self.auth_dialog):
             self.upload_button.setEnabled(False)
             self.album_group.setEnabled(False)
             self.uploader = UploadThread(
-                self.session, upload_list, self.current_album.GetLink('feed'))
+                self.picasa, upload_list, self.current_album)
             self.uploader.progress_report.connect(self.upload_progress)
             self.uploader.finished.connect(self.upload_done)
             self.uploader.start()
-            # we've passed the session handle to a new thread, so
+            # we've passed the picasa session to another thread, so
             # create a new one for safety
-            self.session = None
-            self.authorise()
+            self.picasa = PicasaSession(self.config_store)
+            self.picasa.authorise(self.auth_dialog)
 
     @QtCore.pyqtSlot(float, float)
     def upload_progress(self, progress, total_progress):
@@ -502,58 +568,21 @@ Doing so will remove the album and its photos from all Google products."""
         self.total_progress.setValue(0)
         self.uploader = None
 
-    def authorise(self):
-        if self.session:
-            return True
-        self.albums_cache = None
-        refresh_token = self.config_store.get('picasa', 'refresh_token')
-        if refresh_token:
-            # create expired token
-            token = {
-                'access_token'  : 'xxx',
-                'refresh_token' : refresh_token,
-                'expires_in'    : -30,
-                }
+    def auth_dialog(self, auth_url):
+        if webbrowser.open(auth_url, new=2, autoraise=0):
+            info_text = self.tr('use your web browser')
         else:
-            # do full authentication procedure
-            oauth = OAuth2Session(
-                self.client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
-                scope='https://picasaweb.google.com/data/')
-            auth_url, state = oauth.authorization_url(
-                'https://accounts.google.com/o/oauth2/auth')
-            if webbrowser.open(auth_url, new=2, autoraise=0):
-                info_text = self.tr('use your web browser')
-            else:
-                info_text = self.tr('open "{0}" in a web browser').format(auth_url)
-            auth_code, OK = QtGui.QInputDialog.getText(
-                self,
-                self.tr('Photini: authorise Picasa'),
-                self.tr("""Please {0} to grant access to Photini,
+            info_text = self.tr('open "{0}" in a web browser').format(auth_url)
+        auth_code, OK = QtGui.QInputDialog.getText(
+            self,
+            self.tr('Photini: authorise Picasa'),
+            self.tr("""Please {0} to grant access to Photini,
 then enter the verification code:""").format(info_text))
-            if not OK:
-                self.session = None
-                return False
-            # Fix for requests-oauthlib bug #157
-            # https://github.com/requests/requests-oauthlib/issues/157
-            os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
-            token = oauth.fetch_token(
-                'https://www.googleapis.com/oauth2/v3/token',
-                code=str(auth_code).strip(), client_secret=self.client_secret)
-            self.save_token(token)
-        self.session = OAuth2Session(
-            self.client_id, token=token, token_updater=self.save_token,
-            auto_refresh_kwargs={
-                'client_id'     : self.client_id,
-                'client_secret' : self.client_secret},
-            auto_refresh_url='https://www.googleapis.com/oauth2/v3/token',
-            )
-        self.session.headers.update({'GData-Version': 2})
-        return True
-
-    def save_token(self, token):
-        self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
+        if OK:
+            return str(auth_code).strip()
+        return None
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
-            len(selection) > 0 and self.session and not self.uploader)
+            len(selection) > 0 and self.picasa.valid() and not self.uploader)
