@@ -155,7 +155,19 @@ class FlickrUploader(QtGui.QWidget):
         self.get_photosets()
 
     def do_not_close(self):
-        return False
+        if not self.uploader or self.uploader.isFinished():
+            return False
+        dialog = QtGui.QMessageBox()
+        dialog.setWindowTitle(self.tr('Photini: upload in progress'))
+        dialog.setText(self.tr('<h3>Upload to Flickr has not finished.</h3>'))
+        dialog.setInformativeText(
+            self.tr('Closing now will terminate the upload.'))
+        dialog.setIcon(QtGui.QMessageBox.Warning)
+        dialog.setStandardButtons(
+            QtGui.QMessageBox.Close | QtGui.QMessageBox.Cancel)
+        dialog.setDefaultButton(QtGui.QMessageBox.Cancel)
+        result = dialog.exec_()
+        return result == QtGui.QMessageBox.Cancel
 
     @QtCore.pyqtSlot()
     def get_photosets(self):
