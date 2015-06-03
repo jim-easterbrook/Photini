@@ -72,11 +72,13 @@ class PicasaNode(object):
         'where'     : ('georss', False, True),
         }
 
-    def __init__(self, dom=None):
-        if dom is None:
-            self._dom = ET.Element('{' + nsmap['atom'] + '}entry')
-        else:
+    def __init__(self, dom=None, text=None):
+        if text is not None:
+            self._dom = ET.fromstring(text.encode('utf-8'))
+        elif dom is not None:
             self._dom = dom
+        else:
+            self._dom = ET.Element('{' + nsmap['atom'] + '}entry')
         self.etag = self._dom.get('{' + nsmap['gd'] + '}etag')
 
     def __getattr__(self, name):
@@ -167,43 +169,41 @@ class PicasaSession(object):
         self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
 
     def edit_node(self, node):
-        dom = self._parse_response(self.session.put(
+        resp = self._check_response(self.session.put(
             node.get_link('edit'), node.to_string(),
             headers={'If-Match' : node.etag,
                      'Content-Type' : 'application/atom+xml'}))
-        return PicasaNode(dom)
+        return PicasaNode(text=resp.text)
 
     def get_albums(self):
-        dom = self._parse_response(self.session.get(self.album_feed))
-        return PicasaNode(dom).entry
+        resp = self._check_response(self.session.get(self.album_feed))
+        return PicasaNode(text=resp.text).entry
 
     def new_album(self, title):
         album = PicasaNode()
         album.title.text = title
         album.category.set('scheme', nsmap['gd'] + '#kind')
         album.category.set('term', nsmap['gphoto'] + '#album')
-        dom = self._parse_response(self.session.post(
+        resp = self._check_response(self.session.post(
             self.album_feed, album.to_string(),
             headers={'Content-Type' : 'application/atom+xml'}))
-        return PicasaNode(dom)
+        return PicasaNode(text=resp.text)
 
     def delete_album(self, album):
-        self._parse_response(self.session.delete(
+        self._check_response(self.session.delete(
             album.get_link('edit'), headers={'If-Match' : album.etag}))
 
     def new_photo(self, title, album, data):
-        dom = self._parse_response(self.session.post(
+        resp = self._check_response(self.session.post(
             album.get_link('feed'), data=data,
             headers={'Content-Type' : 'image/jpeg', 'Slug' : title}))
-        return PicasaNode(dom)
+        return PicasaNode(text=resp.text)
 
-    def _parse_response(self, resp):
+    def _check_response(self, resp):
         if resp.status_code >= 300:
             logger.warning(resp.content)
         resp.raise_for_status()
-        if resp.text:
-            return ET.fromstring(resp.text.encode('utf-8'))
-        return None
+        return resp
 
 
 class UploadThread(QtCore.QThread):
