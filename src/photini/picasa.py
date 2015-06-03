@@ -24,7 +24,7 @@ import logging
 import os
 from six.moves.urllib.request import urlopen
 import webbrowser
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ET
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
@@ -48,34 +48,57 @@ nsmap = {
     }
 
 for prefix, uri in nsmap.items():
-    xml.etree.ElementTree.register_namespace(prefix, uri)
-xml.etree.ElementTree.register_namespace('', nsmap['atom'])
+    if prefix == 'atom':
+        prefix = ''
+    ET.register_namespace(prefix, uri)
 
-class BaseNode(object):
-    def __init__(self, dom):
-        self._dom = dom
-        self.etag = dom.get('{' + nsmap['gd'] + '}etag')
+class PicasaNode(object):
+    _elements = {
+        # name         namespace repeat node
+        'access'    : ('gphoto', False, False),
+        'category'  : ('atom',   False, False),
+        'entry'     : ('atom',   True,  True),
+        'group'     : ('media',  False, True),
+        'id'        : ('gphoto', False, False),
+        'keywords'  : ('media',  False, False),
+        'location'  : ('gphoto', False, False),
+        'numphotos' : ('gphoto', False, False),
+        'Point'     : ('gml',    False, True),
+        'pos'       : ('gml',    False, False),
+        'summary'   : ('atom',   False, False),
+        'thumbnail' : ('media',  True,  False),
+        'timestamp' : ('gphoto', False, False),
+        'title'     : ('atom',   False, False),
+        'where'     : ('georss', False, True),
+        }
+
+    def __init__(self, dom=None):
+        if dom is None:
+            self._dom = ET.Element('{' + nsmap['atom'] + '}entry')
+        else:
+            self._dom = dom
+        self.etag = self._dom.get('{' + nsmap['gd'] + '}etag')
 
     def __getattr__(self, name):
         if name not in self._elements:
             raise AttributeError(name)
-        namespace, repeat, klass = self._elements[name]
+        namespace, repeat, node = self._elements[name]
         tag = '{' + nsmap[namespace] + '}' + name
         if repeat:
             result = self._dom.findall(tag)
-            if klass:
-                result = list(map(klass, result))
+            if node:
+                result = list(map(PicasaNode, result))
             return result
         result = self._dom.find(tag)
         if result is None:
-            logger.debug('new %s:%s', self.__class__.__name__, name)
-            result = xml.etree.ElementTree.SubElement(self._dom, tag)
-        if klass:
-            result = klass(result)
+            logger.debug('new %s', name)
+            result = ET.SubElement(self._dom, tag)
+        if node:
+            result = PicasaNode(result)
         return result
 
     def to_string(self):
-        return xml.etree.ElementTree.tostring(self._dom, encoding='utf-8')
+        return ET.tostring(self._dom, encoding='utf-8')
 
     def get_link(self, link_type):
         for child in self._dom.findall('atom:link', nsmap):
@@ -83,44 +106,11 @@ class BaseNode(object):
                 return child.get('href')
         return None
 
-class PointNode(BaseNode):
-    _elements = {'pos' : ('gml', False, None)}
-
-class WhereNode(BaseNode):
-    _elements = {'Point' : ('gml', False, PointNode)}
-
-class GroupNode(BaseNode):
-    _elements = {
-        'keywords'  : ('media', False, None),
-        'thumbnail' : ('media', True,  None),
-        }
-
-class PhotoNode(BaseNode):
-    _elements = {
-        'group'   : ('media',  False, GroupNode),
-        'summary' : ('atom',   False, None),
-        'title'   : ('atom',   False, None),
-        'where'   : ('georss', False, WhereNode),
-        }
-
-class AlbumNode(BaseNode):
-    _elements = {
-        'access'    : ('gphoto', False, None),
-        'category'  : ('atom',   False, None),
-        'group'     : ('media',  False, GroupNode),
-        'id'        : ('gphoto', False, None),
-        'location'  : ('gphoto', False, None),
-        'numphotos' : ('gphoto', False, None),
-        'summary'   : ('atom',   False, None),
-        'timestamp' : ('gphoto', False, None),
-        'title'     : ('atom',   False, None),
-        }
-
-class AlbumsRoot(BaseNode):
-    _elements = {'entry' : ('atom', True, AlbumNode)}
-
 
 class PicasaSession(object):
+    auth_base_url = 'https://accounts.google.com/o/oauth2/auth'
+    token_url     = 'https://www.googleapis.com/oauth2/v3/token'
+    auth_scope    = 'https://picasaweb.google.com/data/'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
     client_id     = '991146392375.apps.googleusercontent.com'
     client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
@@ -151,9 +141,8 @@ class PicasaSession(object):
             # do full authentication procedure
             oauth = OAuth2Session(
                 self.client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
-                scope='https://picasaweb.google.com/data/')
-            auth_url, state = oauth.authorization_url(
-                'https://accounts.google.com/o/oauth2/auth')
+                scope=self.auth_scope)
+            auth_url, state = oauth.authorization_url(self.auth_base_url)
             auth_code = auth_dialog(auth_url)
             if not auth_code:
                 self.session = None
@@ -162,67 +151,58 @@ class PicasaSession(object):
             # https://github.com/requests/requests-oauthlib/issues/157
             os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
             token = oauth.fetch_token(
-                'https://www.googleapis.com/oauth2/v3/token',
-                code=auth_code, client_secret=self.client_secret)
-            self.save_token(token)
+                self.token_url, code=auth_code, client_secret=self.client_secret)
+            self._save_token(token)
         self.session = OAuth2Session(
-            self.client_id, token=token, token_updater=self.save_token,
+            self.client_id, token=token, token_updater=self._save_token,
             auto_refresh_kwargs={
                 'client_id'     : self.client_id,
                 'client_secret' : self.client_secret},
-            auto_refresh_url='https://www.googleapis.com/oauth2/v3/token',
+            auto_refresh_url=self.token_url,
             )
         self.session.headers.update({'GData-Version': 2})
         return True
 
-    def save_token(self, token):
+    def _save_token(self, token):
         self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
 
+    def edit_node(self, node):
+        dom = self._parse_response(self.session.put(
+            node.get_link('edit'), node.to_string(),
+            headers={'If-Match' : node.etag,
+                     'Content-Type' : 'application/atom+xml'}))
+        return PicasaNode(dom)
+
     def get_albums(self):
-        dom = self.parse_response(self.session.get(self.album_feed))
-        return AlbumsRoot(dom).entry
+        dom = self._parse_response(self.session.get(self.album_feed))
+        return PicasaNode(dom).entry
 
     def new_album(self, title):
-        dom = xml.etree.ElementTree.Element('{' + nsmap['atom'] + '}entry')
-        album = AlbumNode(dom)
+        album = PicasaNode()
         album.title.text = title
-        album.category.set('scheme', 'http://schemas.google.com/g/2005#kind')
-        album.category.set('term', 'http://schemas.google.com/photos/2007#album')
-        dom = self.parse_response(self.session.post(
+        album.category.set('scheme', nsmap['gd'] + '#kind')
+        album.category.set('term', nsmap['gphoto'] + '#album')
+        dom = self._parse_response(self.session.post(
             self.album_feed, album.to_string(),
             headers={'Content-Type' : 'application/atom+xml'}))
-        return AlbumNode(dom)
-
-    def edit_album(self, album):
-        dom = self.parse_response(self.session.put(
-            album.get_link('edit'), album.to_string(),
-            headers={'If-Match' : album.etag,
-                     'Content-Type' : 'application/atom+xml'}))
-        return AlbumNode(dom)
+        return PicasaNode(dom)
 
     def delete_album(self, album):
-        self.parse_response(self.session.delete(
+        self._parse_response(self.session.delete(
             album.get_link('edit'), headers={'If-Match' : album.etag}))
 
     def new_photo(self, title, album, data):
-        dom = self.parse_response(self.session.post(
+        dom = self._parse_response(self.session.post(
             album.get_link('feed'), data=data,
             headers={'Content-Type' : 'image/jpeg', 'Slug' : title}))
-        return PhotoNode(dom)
+        return PicasaNode(dom)
 
-    def edit_photo(self, photo):
-        dom = self.parse_response(self.session.put(
-            photo.get_link('edit'), photo.to_string(),
-            headers={'If-Match' : photo.etag,
-                     'Content-Type' : 'application/atom+xml'}))
-        return PhotoNode(dom)
-
-    def parse_response(self, resp):
+    def _parse_response(self, resp):
         if resp.status_code >= 300:
             logger.warning(resp.content)
         resp.raise_for_status()
         if resp.text:
-            return xml.etree.ElementTree.fromstring(resp.text.encode('utf-8'))
+            return ET.fromstring(resp.text.encode('utf-8'))
         return None
 
 
@@ -248,7 +228,7 @@ class UploadThread(QtCore.QThread):
                 photo.group.keywords.text = params['keywords']
             if params['latlong']:
                 photo.where.Point.pos.text = params['latlong']
-            self.picasa.edit_photo(photo)
+            self.picasa.edit_node(photo)
             self.file_count += 1
         self.finished.emit()
 
@@ -456,7 +436,7 @@ Doing so will remove the album and its photos from all Google products."""
         if no_change:
             return
         with Busy():
-            self.current_album = self.picasa.edit_album(self.current_album)
+            self.current_album = self.picasa.edit_node(self.current_album)
 
     def refresh(self):
         if self.picasa.valid():
