@@ -1,5 +1,6 @@
 all : \
 	../photini/data/icon_200.png \
+	../photini/data/icon_120.png \
 	../photini/data/icon_48.png \
 	../windows/icon.ico \
 
