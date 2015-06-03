@@ -1,8 +1,8 @@
-.. image:: src/photini/data/icon_120.png
-   :align: right
-
 Photini
 =======
+
+.. image:: src/photini/data/icon_120.png
+   :align: right
 
 A free, easy to use, digital photograph metadata (EXIF, IPTC, XMP) editing application.
 
