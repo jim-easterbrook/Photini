@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 import logging
 import os
+import six
 import time
 import webbrowser
 
@@ -30,41 +31,107 @@ from PyQt4.QtCore import Qt
 
 from .utils import Busy, FileObjWithCallback
 
+logger = logging.getLogger(__name__)
+
+class FlickrSession(object):
+    api_key    = 'b6263c4693e3406aadcfaebe005280a5'
+    api_secret = '1e0d912f586d0ed1'
+
+    def __init__(self, config_store):
+        self.config_store = config_store
+        self.session = None
+
+    def valid(self):
+        token        = self.config_store.get('flickr', 'token', '')
+        token_secret = self.config_store.get('flickr', 'token_secret', '')
+        if token and token_secret and self.session:
+            return True
+        self.session = None
+        return False
+
+    def authorise(self, auth_dialog):
+        token        = self.config_store.get('flickr', 'token', '')
+        token_secret = self.config_store.get('flickr', 'token_secret', '')
+        if token and token_secret and self.session:
+            return True
+        with Busy():
+            token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
+            self.session = flickrapi.FlickrAPI(
+                self.api_key, self.api_secret, token=token, store_token=False)
+            if self.session.token_valid(perms='write'):
+                return True
+            self.session.get_request_token(oauth_callback='oob')
+            auth_url = self.session.auth_url(perms='write')
+        auth_code = auth_dialog(auth_url)
+        if not auth_code:
+            self.session = None
+            return False
+        with Busy():
+            try:
+                self.session.get_access_token(auth_code)
+            except flickrapi.FlickrError as ex:
+                logger.error(str(ex))
+                self.session = None
+                return False
+        token = self.session.token_cache.token
+        self.config_store.set('flickr', 'token',        token.token)
+        self.config_store.set('flickr', 'token_secret', token.token_secret)
+        return True
+
+    def get_photosets(self):
+        result = []
+        sets = self.session.photosets_getList()
+        for item in sets.find('photosets').findall('photoset'):
+            result.append({
+                'id'    : item.attrib['id'],
+                'title' : item.find('title').text,
+                })
+        return result
+
+    def photosets_create(self, title, description, primary_photo_id):
+        rsp = self.session.photosets_create(
+            title=title, description=description,
+            primary_photo_id=primary_photo_id)
+        if rsp.attrib['stat'] == 'ok':
+            return rsp.find('photoset').attrib['id']
+        logger.error('Create photoset %s failed: %s', title, rsp.attrib['stat'])
+        return None
+
+    def photosets_addPhoto(self, photo_id, photoset_id):
+        self.session.photosets_addPhoto(
+            photo_id=photo_id, photoset_id=photoset_id)
+
+    def upload(self, **params):
+        rsp = self.session.upload(**params)
+        if rsp.attrib['stat'] == 'ok':
+            return rsp.find('photoid').text
+        logger.error(
+            'Upload %s failed: %s',
+            os.path.basename(params['filename']), rsp.attrib['stat'])
+        return None
+
+
 class UploadThread(QtCore.QThread):
-    def __init__(self, flickr, upload_list, photosets, new_photosets):
+    def __init__(self, flickr, upload_list, add_to_sets):
         QtCore.QThread.__init__(self)
         self.flickr = flickr
         self.upload_list = upload_list
-        self.photosets = photosets
-        self.new_photosets = new_photosets
+        self.add_to_sets = add_to_sets
 
-    reload_sets = QtCore.pyqtSignal()
     def run(self):
         logger = logging.getLogger(self.__class__.__name__)
         self.file_count = 0
         for params in self.upload_list:
             with open(params['filename'], 'rb') as f:
                 params['fileobj'] = FileObjWithCallback(f, self.callback)
-                rsp = self.flickr.upload(**params)
-            if rsp.attrib['stat'] == 'ok':
-                photo_id = rsp.find('photoid').text
-                for photoset_id in self.photosets:
-                    self.flickr.photosets_addPhoto(
-                        photo_id=photo_id, photoset_id=photoset_id)
-                if self.new_photosets:
-                    for title, description in self.new_photosets:
-                        rsp2 = self.flickr.photosets_create(
-                            title=title, description=description,
-                            primary_photo_id=photo_id)
-                        if rsp2.attrib['stat'] == 'ok':
-                            self.photosets.append(
-                                rsp2.find('photoset').attrib['id'])
-                    self.new_photosets = []
-                    self.reload_sets.emit()
-            else:
-                logger.error(
-                    'Upload %s failed: %s',
-                    os.path.basename(params['filename']), rsp.attrib['stat'])
+                photo_id = self.flickr.upload(**params)
+            if photo_id:
+                for p_set in self.add_to_sets:
+                    if p_set['id']:
+                        self.flickr.photosets_addPhoto(photo_id, p_set['id'])
+                    else:
+                        p_set['id'] = self.flickr.photosets_create(
+                            p_set['title'], p_set['description'], photo_id)
             self.file_count += 1
 
     progress_report = QtCore.pyqtSignal(float, float)
@@ -79,10 +146,9 @@ class FlickrUploader(QtGui.QWidget):
         self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
-        self.flickr = None
-        self.photosets = list()
+        self.flickr = FlickrSession(self.config_store)
+        self.photosets = []
         self.uploader = None
-        self.new_sets = []
         # privacy settings
         self.privacy = dict()
         privacy_group = QtGui.QGroupBox(self.tr('Who can see the photos?'))
@@ -149,10 +215,23 @@ class FlickrUploader(QtGui.QWidget):
         self.layout().setRowStretch(1, 1)
 
     def refresh(self):
-        if self.flickr:
+        if self.flickr.valid():
             return
+        self.photosets = []
+        self.scrollarea.setWidget(QtGui.QWidget())
         QtGui.QApplication.processEvents()
-        self.get_photosets()
+        if not self.flickr.authorise(self.auth_dialog):
+            self.setEnabled(False)
+            return
+        with Busy():
+            self.photosets = self.flickr.get_photosets()
+        sets_widget = QtGui.QWidget()
+        sets_widget.setLayout(QtGui.QVBoxLayout())
+        for item in self.photosets:
+            item['widget'] = QtGui.QCheckBox(item['title'].replace('&', '&&'))
+            sets_widget.layout().addWidget(item['widget'])
+        self.scrollarea.setWidget(sets_widget)
+        sets_widget.setAutoFillBackground(False)
 
     def do_not_close(self):
         if not self.uploader or self.uploader.isFinished():
@@ -168,27 +247,6 @@ class FlickrUploader(QtGui.QWidget):
         dialog.setDefaultButton(QtGui.QMessageBox.Cancel)
         result = dialog.exec_()
         return result == QtGui.QMessageBox.Cancel
-
-    @QtCore.pyqtSlot()
-    def get_photosets(self):
-        if not self.authorise():
-            return
-        with Busy():
-            self.photosets = []
-            sets = self.flickr.photosets_getList()
-        for item in sets.find('photosets').findall('photoset'):
-            self.photosets.append({
-                'id'    : item.attrib['id'],
-                'title' : item.find('title').text,
-                })
-        sets_widget = QtGui.QWidget()
-        self.sets = QtGui.QVBoxLayout()
-        sets_widget.setLayout(self.sets)
-        for item in self.photosets:
-            self.sets.addWidget(
-                QtGui.QCheckBox(item['title'].replace('&', '&&')))
-        self.scrollarea.setWidget(sets_widget)
-        sets_widget.setAutoFillBackground(False)
 
     @QtCore.pyqtSlot(bool)
     def enable_ff(self, value):
@@ -225,11 +283,15 @@ class FlickrUploader(QtGui.QWidget):
         if not title:
             return
         description = description.toPlainText()
-        self.new_sets.append((title, description))
         check_box = QtGui.QCheckBox(title.replace('&', '&&'))
         check_box.setChecked(True)
-        check_box.setEnabled(False)
-        self.sets.insertWidget(0, check_box)
+        self.scrollarea.widget().layout().insertWidget(0, check_box)
+        self.photosets.insert(0, {
+            'id'          : None,
+            'title'       : title,
+            'description' : description,
+            'widget'      : check_box,
+            })
 
     @QtCore.pyqtSlot()
     def upload(self):
@@ -247,12 +309,11 @@ class FlickrUploader(QtGui.QWidget):
         else:
             content_type = '3'
         hidden = ('1', '2')[self.hidden.isChecked()]
-        photosets = list()
-        for idx in range(len(self.photosets)):
-            if self.sets.itemAt(idx + len(self.new_sets)).widget().isChecked():
-                photosets.append(self.photosets[idx]['id'])
-        new_photosets = self.new_sets
-        self.new_sets = []
+        # make list of sets to add photos to
+        add_to_sets = []
+        for item in self.photosets:
+            if item['widget'].isChecked():
+                add_to_sets.append(item)
         # make list of items to upload
         upload_list = list()
         for image in self.image_list.get_selected_images():
@@ -277,18 +338,16 @@ class FlickrUploader(QtGui.QWidget):
                 'hidden'       : hidden,
                 })
         # pass the list to a separate thread, so GUI can continue
-        if self.authorise():
+        if self.flickr.authorise(self.auth_dialog):
             self.upload_button.setEnabled(False)
-            self.uploader = UploadThread(
-                self.flickr, upload_list, photosets, new_photosets)
+            self.uploader = UploadThread(self.flickr, upload_list, add_to_sets)
             self.uploader.progress_report.connect(self.upload_progress)
             self.uploader.finished.connect(self.upload_done)
-            self.uploader.reload_sets.connect(self.get_photosets)
             self.uploader.start()
             # we've passed the flickr API object to a new thread, so
             # create a new one for safety
-            self.flickr = None
-            self.authorise()
+            self.flickr = FlickrSession(self.config_store)
+            self.flickr.authorise(self.auth_dialog)
 
     @QtCore.pyqtSlot(float, float)
     def upload_progress(self, progress, total_progress):
@@ -300,45 +359,21 @@ class FlickrUploader(QtGui.QWidget):
         self.total_progress.setValue(0)
         self.uploader = None
 
-    def authorise(self):
-        if self.flickr:
-            return True
-        api_key = 'b6263c4693e3406aadcfaebe005280a5'
-        api_secret = '1e0d912f586d0ed1'
-        token        = self.config_store.get('flickr', 'token', '')
-        token_secret = self.config_store.get('flickr', 'token_secret', '')
-        with Busy():
-            token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
-            self.flickr = flickrapi.FlickrAPI(
-                api_key, api_secret, token=token, store_token=False)
-            if self.flickr.token_valid(perms='write'):
-                return True
-            self.flickr.get_request_token(oauth_callback='oob')
-            auth_url = self.flickr.auth_url(perms='write')
-            if webbrowser.open(auth_url, new=2, autoraise=0):
-                info_text = self.tr('use your web browser')
-            else:
-                info_text = self.tr('open "{0}" in a web browser').format(auth_url)
+    def auth_dialog(self, auth_url):
+        if webbrowser.open(auth_url, new=2, autoraise=0):
+            info_text = self.tr('use your web browser')
+        else:
+            info_text = self.tr('open "{0}" in a web browser').format(auth_url)
         auth_code, OK = QtGui.QInputDialog.getText(
             self,
             self.tr('Photini: authorise Flickr'),
-            self.tr('Please {0} to grant access to Photini,\n' +
-                    'then enter the verification code:').format(info_text))
-        if not OK:
-            self.flickr = None
-            return False
-        with Busy():
-            try:
-                self.flickr.get_access_token(auth_code)
-            except Exception:
-                self.flickr = None
-                return False
-        token = self.flickr.token_cache.token
-        self.config_store.set('flickr', 'token',        token.token)
-        self.config_store.set('flickr', 'token_secret', token.token_secret)
-        return True
+            self.tr("""Please {0} to grant access to Photini,
+then enter the verification code:""").format(info_text))
+        if OK:
+            return six.text_type(auth_code).strip()
+        return None
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
-            len(selection) > 0 and self.flickr and not self.uploader)
+            len(selection) > 0 and self.flickr.valid() and not self.uploader)
