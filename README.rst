@@ -1,3 +1,6 @@
+.. image:: src/photini/data/icon_120.png
+   :align: right
+
 Photini
 =======
 
