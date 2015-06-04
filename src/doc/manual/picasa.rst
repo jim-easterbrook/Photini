@@ -15,8 +15,8 @@ Note that the Picasa upload tab is only enabled if you have installed the releva
 See :ref:`installation <installation-picasa>` for more detail.
 
 The first time you select Photini's Picasa upload tab it will ask you to authorise Photini to access Picasa.
-It does this by connecting your web browser to Picasa, from where you can log in and then give Photini permission to access Picasa on your behalf.
-You need to copy a verification code from your browser to Photini, as shown in the screen grab.
+It does this by connecting your web browser to Picasa, from where you can log in and give Photini permission to access Picasa on your behalf.
+You then copy a verification code from your browser to Photini, as shown below.
 
 .. image:: ../images/screenshot_25.png
 

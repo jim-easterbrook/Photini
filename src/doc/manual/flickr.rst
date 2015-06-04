@@ -15,9 +15,8 @@ Note that the Flickr upload tab is only enabled if you have installed python-fli
 See :ref:`installation <installation-flickr>` for more detail.
 
 The first time you select Photini's Flickr upload tab it will ask you to authorise Photini to access Flickr.
-It does this by connecting your web browser to Flickr, from where you can log in and then give Photini permission to access Flickr on your behalf.
-With python-flickrapi v1.4 you can then close your web browser and return to Photini.
-With v2.0 you need to copy a verification code from your browser to Photini, as shown in the screen grab.
+It does this by connecting your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
+You then copy a verification code from your browser to Photini, as shown below.
 
 .. image:: ../images/screenshot_22.png
 

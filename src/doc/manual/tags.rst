@@ -21,20 +21,25 @@ These tags are where Photini stores its metadata.
 Note that "Title / Object Name" and "Keywords" are not stored in EXIF.
 You may prefer not to use these fields to ensure compatibility with software that only handles EXIF.
 
-=======================  ==================================================  =========================  ==================
-Photini field            EXIF tag                                            XMP tag                    IPTC tag
-=======================  ==================================================  =========================  ==================
-Title / Object Name                                                          Xmp.dc.title               Iptc.Application2.ObjectName
-Description / Caption    Exif.Image.ImageDescription                         Xmp.dc.description         Iptc.Application2.Caption
-Keywords                                                                     Xmp.dc.subject             Iptc.Application2.Keywords
-Copyright                Exif.Image.Copyright                                Xmp.dc.rights              Iptc.Application2.Copyright
-Creator / Artist         Exif.Image.Artist                                   Xmp.dc.creator             Iptc.Application2.Byline
-Date and time Taken      Exif.Photo.DateTimeOriginal                         Xmp.photoshop.DateCreated  Iptc.Application2.DateCreated Iptc.Application2.TimeCreated
-Date and time Digitised  Exif.Photo.DateTimeDigitized                        Xmp.xmp.CreateDate         Iptc.Application2.DigitizationDate  Iptc.Application2.DigitizationTime
-Date and time Modified   Exif.Image.DateTime                                 Xmp.xmp.ModifyDate
+=======================  ==============================  =========================  ==================
+Photini field            EXIF tag                        XMP tag                    IPTC tag
+=======================  ==============================  =========================  ==================
+Title / Object Name                                      Xmp.dc.title               Iptc.Application2.ObjectName
+Description / Caption    Exif.Image.ImageDescription     Xmp.dc.description         Iptc.Application2.Caption
+Keywords                                                 Xmp.dc.subject             Iptc.Application2.Keywords
+Copyright                Exif.Image.Copyright            Xmp.dc.rights              Iptc.Application2.Copyright
+Creator / Artist         Exif.Image.Artist               Xmp.dc.creator             Iptc.Application2.Byline
+Date and time Taken      Exif.Photo.DateTimeOriginal     Xmp.photoshop.DateCreated  | Iptc.Application2.DateCreated
+                                                                                    | Iptc.Application2.TimeCreated
+Date and time Digitised  Exif.Photo.DateTimeDigitized    Xmp.xmp.CreateDate         | Iptc.Application2.DigitizationDate
+                                                                                    | Iptc.Application2.DigitizationTime
+Date and time Modified   Exif.Image.DateTime             Xmp.xmp.ModifyDate
 Orientation              Exif.Image.Orientation
-Latitude, longitude      Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLongitude
-=======================  ==================================================  =========================  ==================
+Aperture                 Exif.Photo.FNumber
+Focal length             Exif.Photo.FocalLength
+Latitude, longitude      | Exif.GPSInfo.GPSLatitude
+                         | Exif.GPSInfo.GPSLongitude
+=======================  ==============================  =========================  ==================
 
 Secondary tags
 --------------
@@ -42,10 +47,10 @@ Secondary tags
 Photini reads information from these tags and merges it with information from the primary tags.
 These tags are deleted when the corresponding primary tags are saved.
 
-=======================  ===========================  ==========================================  ==================
-Photini field            EXIF tag                     XMP tag                                     IPTC tag
-=======================  ===========================  ==========================================  ==================
-Title / Object Name                                                                               Iptc.Application2.Headline
+=======================  ===========================  ==========================  ==================
+Photini field            EXIF tag                     XMP tag                     IPTC tag
+=======================  ===========================  ==========================  ==================
+Title / Object Name                                                               Iptc.Application2.Headline
 Description / Caption                                 Xmp.tiff.ImageDescription
 Keywords                 
 Copyright                                             Xmp.tiff.Copyright
@@ -54,6 +59,11 @@ Date and time Taken      Exif.Image.DateTimeOriginal  Xmp.exif.DateTimeOriginal
 Date and time Digitised                               Xmp.exif.DateTimeDigitized
 Date and time Modified                                Xmp.tiff.DateTime
 Orientation                                           Xmp.tiff.Orientation
-Latitude, longitude                                   Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude
-=======================  ===========================  ==========================================  ==================
+Aperture                 | Exif.Image.FNumber         | Xmp.exif.FNumber
+                         | Exif.Image.ApertureValue   | Xmp.exif.ApertureValue
+                         | Exif.Photo.ApertureValue
+Focal length             Exif.Image.FocalLength       Xmp.exif.FocalLength
+Latitude, longitude                                   | Xmp.exif.GPSLatitude
+                                                      | Xmp.exif.GPSLongitude
+=======================  ===========================  ==========================  ==================
 
