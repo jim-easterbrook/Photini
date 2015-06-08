@@ -63,6 +63,7 @@ Users of other operating systems will need to install the following:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**
     *   pgi: https://pypi.python.org/pypi/pgi/
+*   python-keyring (optional), version 4.0+: https://pypi.python.org/pypi/keyring
 *   python-flickrapi (optional), version 2.0+: https://pypi.python.org/pypi/flickrapi/
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/

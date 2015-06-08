@@ -26,6 +26,7 @@ from six.moves.urllib.request import urlopen
 import webbrowser
 import xml.etree.ElementTree as ET
 
+import keyring
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 import requests
@@ -117,19 +118,18 @@ class PicasaSession(object):
     client_id     = '991146392375.apps.googleusercontent.com'
     client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
 
-    def __init__(self, config_store):
-        self.config_store = config_store
+    def __init__(self):
         self.session = None
 
     def valid(self):
-        refresh_token = self.config_store.get('picasa', 'refresh_token')
+        refresh_token = keyring.get_password('photini', 'picasa')
         if refresh_token and self.session:
             return True
         self.session = None
         return False
 
     def authorise(self, auth_dialog):
-        refresh_token = self.config_store.get('picasa', 'refresh_token')
+        refresh_token = keyring.get_password('photini', 'picasa')
         if refresh_token and self.session:
             return True
         if refresh_token:
@@ -166,7 +166,7 @@ class PicasaSession(object):
         return True
 
     def _save_token(self, token):
-        self.config_store.set('picasa', 'refresh_token', token['refresh_token'])
+        keyring.set_password('photini', 'picasa', token['refresh_token'])
 
     def edit_node(self, node):
         resp = self._check_response(self.session.put(
@@ -241,10 +241,9 @@ class UploadThread(QtCore.QThread):
 class PicasaUploader(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
-        self.picasa = PicasaSession(self.config_store)
+        self.picasa = PicasaSession()
         self.widgets = {}
         self.current_album = None
         self.uploader = None
@@ -441,9 +440,9 @@ Doing so will remove the album and its photos from all Google products."""
     def refresh(self):
         if self.picasa.valid():
             return
+        self.albums.clear()
         QtGui.QApplication.processEvents()
         if not self.picasa.authorise(self.auth_dialog):
-            self.albums.clear()
             self.setEnabled(False)
             return
         with Busy():
@@ -547,7 +546,7 @@ Doing so will remove the album and its photos from all Google products."""
             self.uploader.start()
             # we've passed the picasa session to another thread, so
             # create a new one for safety
-            self.picasa = PicasaSession(self.config_store)
+            self.picasa = PicasaSession()
             self.picasa.authorise(self.auth_dialog)
 
     @QtCore.pyqtSlot(float, float)

@@ -18,6 +18,10 @@
 
 from __future__ import unicode_literals
 
+try:
+    import keyring
+except ImportError:
+    keyring = None
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
@@ -54,12 +58,14 @@ class EditSettings(QtGui.QDialog):
         panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
         self.reset_flickr = QtGui.QPushButton(self.tr('OK'))
-        self.reset_flickr.setEnabled(self.config_store.has_section('flickr'))
+        self.reset_flickr.setEnabled(
+            keyring and keyring.get_password('photini', 'flickr') is not None)
         self.reset_flickr.clicked.connect(self.do_reset_flickr)
         panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
         # reset picasa
         self.reset_picasa = QtGui.QPushButton('OK')
-        self.reset_picasa.setEnabled(self.config_store.has_section('picasa'))
+        self.reset_picasa.setEnabled(
+            keyring and keyring.get_password('photini', 'picasa') is not None)
         self.reset_picasa.clicked.connect(self.do_reset_picasa)
         panel.layout().addRow(self.tr('Reset Picasa'), self.reset_picasa)
         # sidecar files
@@ -98,10 +104,14 @@ class EditSettings(QtGui.QDialog):
         self.config_store.set('user', 'creator_name', value)
 
     def do_reset_flickr(self):
+        if keyring.get_password('photini', 'flickr'):
+            keyring.delete_password('photini', 'flickr')
         self.config_store.remove_section('flickr')
         self.reset_flickr.setDisabled(True)
 
     def do_reset_picasa(self):
+        if keyring.get_password('photini', 'picasa'):
+            keyring.delete_password('photini', 'picasa')
         self.config_store.remove_section('picasa')
         self.reset_picasa.setDisabled(True)
 

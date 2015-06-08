@@ -26,6 +26,7 @@ import time
 import webbrowser
 
 import flickrapi
+import keyring
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
@@ -37,23 +38,24 @@ class FlickrSession(object):
     api_key    = 'b6263c4693e3406aadcfaebe005280a5'
     api_secret = '1e0d912f586d0ed1'
 
-    def __init__(self, config_store):
-        self.config_store = config_store
+    def __init__(self):
         self.session = None
 
     def valid(self):
-        token        = self.config_store.get('flickr', 'token', '')
-        token_secret = self.config_store.get('flickr', 'token_secret', '')
-        if token and token_secret and self.session:
+        token = keyring.get_password('photini', 'flickr')
+        if token and self.session:
             return True
         self.session = None
         return False
 
     def authorise(self, auth_dialog):
-        token        = self.config_store.get('flickr', 'token', '')
-        token_secret = self.config_store.get('flickr', 'token_secret', '')
-        if token and token_secret and self.session:
-            return True
+        token = keyring.get_password('photini', 'flickr')
+        if token:
+            if self.session:
+                return True
+            token, token_secret = token.split('&')
+        else:
+            token, token_secret = '', ''
         with Busy():
             token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
             self.session = flickrapi.FlickrAPI(
@@ -74,8 +76,8 @@ class FlickrSession(object):
                 self.session = None
                 return False
         token = self.session.token_cache.token
-        self.config_store.set('flickr', 'token',        token.token)
-        self.config_store.set('flickr', 'token_secret', token.token_secret)
+        keyring.set_password(
+            'photini', 'flickr', token.token + '&' + token.token_secret)
         return True
 
     def get_photosets(self):
@@ -143,10 +145,9 @@ class UploadThread(QtCore.QThread):
 class FlickrUploader(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
-        self.flickr = FlickrSession(self.config_store)
+        self.flickr = FlickrSession()
         self.photosets = []
         self.uploader = None
         # privacy settings
@@ -346,7 +347,7 @@ class FlickrUploader(QtGui.QWidget):
             self.uploader.start()
             # we've passed the flickr API object to a new thread, so
             # create a new one for safety
-            self.flickr = FlickrSession(self.config_store)
+            self.flickr = FlickrSession()
             self.flickr.authorise(self.auth_dialog)
 
     @QtCore.pyqtSlot(float, float)

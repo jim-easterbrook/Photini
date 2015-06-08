@@ -183,6 +183,14 @@ These are also installed with pip::
 
    sudo pip install requests requests-oauthlib
 
+python-keyring
+^^^^^^^^^^^^^^
+
+The Flickr and Picasa uploaders both use `python-keyring <https://pypi.python.org/pypi/keyring/>`_ to store your authorisation credentials.
+This is easily installed with pip::
+
+   sudo pip install keyring
+
 .. _installation-importer:
 
 python-gphoto2
