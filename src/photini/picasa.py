@@ -32,6 +32,7 @@ from PyQt4.QtCore import Qt
 import requests
 from requests_oauthlib import OAuth2Session
 
+from .configstore import key_store
 from .descriptive import MultiLineEdit
 from .utils import Busy, FileObjWithCallback
 
@@ -115,8 +116,6 @@ class PicasaSession(object):
     token_url     = 'https://www.googleapis.com/oauth2/v3/token'
     auth_scope    = 'https://picasaweb.google.com/data/'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
-    client_id     = '991146392375.apps.googleusercontent.com'
-    client_secret = 'gSCBPBV0tpArWOK2IDcEA6eG'
 
     def __init__(self):
         self.session = None
@@ -132,6 +131,8 @@ class PicasaSession(object):
         refresh_token = keyring.get_password('photini', 'picasa')
         if refresh_token and self.session:
             return True
+        client_id     = key_store.get('picasa', 'client_id')
+        client_secret = key_store.get('picasa', 'client_secret')
         if refresh_token:
             # create expired token
             token = {
@@ -142,7 +143,7 @@ class PicasaSession(object):
         else:
             # do full authentication procedure
             oauth = OAuth2Session(
-                self.client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
+                client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
                 scope=self.auth_scope)
             auth_url, state = oauth.authorization_url(self.auth_base_url)
             auth_code = auth_dialog(auth_url)
@@ -153,13 +154,13 @@ class PicasaSession(object):
             # https://github.com/requests/requests-oauthlib/issues/157
             os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
             token = oauth.fetch_token(
-                self.token_url, code=auth_code, client_secret=self.client_secret)
+                self.token_url, code=auth_code, client_secret=client_secret)
             self._save_token(token)
         self.session = OAuth2Session(
-            self.client_id, token=token, token_updater=self._save_token,
+            client_id, token=token, token_updater=self._save_token,
             auto_refresh_kwargs={
-                'client_id'     : self.client_id,
-                'client_secret' : self.client_secret},
+                'client_id'     : client_id,
+                'client_secret' : client_secret},
             auto_refresh_url=self.token_url,
             )
         self.session.headers.update({'GData-Version': 2})

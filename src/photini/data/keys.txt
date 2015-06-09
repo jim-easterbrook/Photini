@@ -1,0 +1,13 @@
+[picasa]
+client_id     = OTkxMTQ2MzkyMzc1LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29t
+client_secret = Z1NDQlBCVjB0cEFyV09LMklEY0VBNmVH
+
+[flickr]
+api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
+api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
+
+[google]
+api_key = QUl6YVN5QlBVZ19rS0dZeHl6VjBqVjdHZzltNHJ4bWU5N3RFMTNZ
+
+[bing]
+api_key = QXJKRXpTUE00N3llQ0UzMUs5WmdlbE4yalBHMjBlZ2JRTkM4REdNX19aNHI5WThVLWh2ajR2eUhKU1JvQWNDUQ==

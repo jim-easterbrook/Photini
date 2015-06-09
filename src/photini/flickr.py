@@ -30,14 +30,12 @@ import keyring
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
+from .configstore import key_store
 from .utils import Busy, FileObjWithCallback
 
 logger = logging.getLogger(__name__)
 
 class FlickrSession(object):
-    api_key    = 'b6263c4693e3406aadcfaebe005280a5'
-    api_secret = '1e0d912f586d0ed1'
-
     def __init__(self):
         self.session = None
 
@@ -56,10 +54,12 @@ class FlickrSession(object):
             token, token_secret = token.split('&')
         else:
             token, token_secret = '', ''
+        api_key    = key_store.get('flickr', 'api_key')
+        api_secret = key_store.get('flickr', 'api_secret')
         with Busy():
             token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
             self.session = flickrapi.FlickrAPI(
-                self.api_key, self.api_secret, token=token, store_token=False)
+                api_key, api_secret, token=token, store_token=False)
             if self.session.token_valid(perms='write'):
                 return True
             self.session.get_request_token(oauth_callback='oob')

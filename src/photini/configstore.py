@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+import codecs
 import six
 from six.moves.configparser import RawConfigParser
 import os
@@ -25,6 +26,8 @@ import stat
 
 import appdirs
 from PyQt4 import QtCore
+
+from .utils import data_dir
 
 class ConfigStore(object):
     def __init__(self, name):
@@ -85,3 +88,41 @@ class ConfigStore(object):
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
+
+
+class KeyStore(object):
+    """Store OAuth2 client ids and client 'secrets'.
+
+    Google recognise that client secrets can't be kept secret in an
+    application that runs on a user's computer. See
+    https://developers.google.com/identity/protocols/OAuth2InstalledApp
+    for more background. However, they also say the secret "may not be
+    embedded in open source projects" (see section 4.b.1 of
+    https://developers.google.com/terms/).
+
+    Photini stores the client credentials in a separate file, using mild
+    obfuscation to hide the actual values. If this is insufficient to
+    satisfy Google then the keys file will have to be removed from open
+    source and distributed by other means. Or users will need to create
+    their own by registering as a developer at Google.
+
+    The position with Flickr keys is less clear, but there's no harm in
+    obfuscating them as well.
+
+    """
+    def __init__(self):
+        self.path = os.path.join(data_dir, 'keys.txt')
+        self.config = RawConfigParser()
+        self.config.read(self.path)
+
+    def get(self, section, option):
+        value = self.config.get(section, option)
+        if six.PY3:
+            value = value.encode('ASCII')
+        value = codecs.decode(value, 'base64_codec')
+        if six.PY3:
+            return value.decode('ASCII')
+        return value
+
+
+key_store = KeyStore()

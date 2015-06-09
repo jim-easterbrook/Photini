@@ -26,24 +26,27 @@ import webbrowser
 
 from PyQt4 import QtGui
 
+from .configstore import key_store
 from .photinimap import PhotiniMap
 from .utils import data_dir
 
 class GoogleMap(PhotiniMap):
     def load_api(self):
-        region = ''
+        url = 'http://maps.googleapis.com/maps/api/js'
+        url += '?key=' + key_store.get('google', 'api_key')
+        url += '&sensor=false'
         lang, encoding = locale.getdefaultlocale()
         if lang:
             match = re.match('[a-zA-Z]+[-_]([A-Z]+)', lang)
             if match:
                 name = match.group(1)
                 if name:
-                    region = '&region=' + name
+                    url += '&region=' + name
         return """
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key={0}&sensor=false{1}">
+      src="{}">
     </script>
-""".format('AIzaSyBPUg_kKGYxyzV0jV7Gg9m4rxme97tE13Y', region)
+""".format(url)
 
     def get_drag_icon(self):
         return QtGui.QPixmap(os.path.join(data_dir, 'google_grey_marker.png'))

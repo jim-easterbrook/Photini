@@ -26,6 +26,7 @@ import webbrowser
 from PyQt4 import QtGui, QtCore
 import six
 
+from .configstore import key_store
 from .photinimap import PhotiniMap
 from .utils import data_dir
 
@@ -37,6 +38,7 @@ class BingMap(PhotiniMap):
 
     def load_api(self):
         src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
+        api_key = key_store.get('bing', 'api_key')
         lang, encoding = locale.getdefaultlocale()
         if lang:
             src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
@@ -49,7 +51,7 @@ class BingMap(PhotiniMap):
     <script type="text/javascript">
       var api_key = "{1}";
     </script>
-""".format(src, 'ArJEzSPM47yeCE31K9ZgelN2jPG20egbQNC8DGM__Z4r9Y8U-hvj4vyHJSRoAcCQ')
+""".format(src, api_key)
 
     def get_drag_icon(self):
         return QtGui.QPixmap(os.path.join(data_dir, 'bing_grey_marker.png'))
