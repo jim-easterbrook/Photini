@@ -106,13 +106,11 @@ class EditSettings(QtGui.QDialog):
     def do_reset_flickr(self):
         if keyring.get_password('photini', 'flickr'):
             keyring.delete_password('photini', 'flickr')
-        self.config_store.remove_section('flickr')
         self.reset_flickr.setDisabled(True)
 
     def do_reset_picasa(self):
         if keyring.get_password('photini', 'picasa'):
             keyring.delete_password('photini', 'picasa')
-        self.config_store.remove_section('picasa')
         self.reset_picasa.setDisabled(True)
 
     def new_sc(self):

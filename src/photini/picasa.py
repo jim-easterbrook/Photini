@@ -242,6 +242,7 @@ class UploadThread(QtCore.QThread):
 class PicasaUploader(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        config_store.remove_section('picasa')
         self.image_list = image_list
         self.setLayout(QtGui.QGridLayout())
         self.picasa = PicasaSession()
