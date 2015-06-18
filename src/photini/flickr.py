@@ -26,12 +26,14 @@ import six
 import time
 import webbrowser
 
+import appdirs
 import flickrapi
 import keyring
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .configstore import key_store
+from .metadata import MetadataHandler
 from .utils import Busy, FileObjWithCallback
 
 logger = logging.getLogger(__name__)
@@ -125,9 +127,13 @@ class UploadThread(QtCore.QThread):
         logger = logging.getLogger(self.__class__.__name__)
         self.file_count = 0
         for params in self.upload_list:
+            delete = params['delete']
+            del params['delete']
             with open(params['filename'], 'rb') as f:
                 params['fileobj'] = FileObjWithCallback(f, self.callback)
                 photo_id = self.flickr.upload(**params)
+            if delete:
+                os.unlink(params['filename'])
             if photo_id:
                 for p_set in self.add_to_sets:
                     if p_set['id']:
@@ -318,26 +324,8 @@ class FlickrUploader(QtGui.QWidget):
             if item['widget'].isChecked():
                 add_to_sets.append(item)
         # make list of items to upload
-        upload_list = list()
+        upload_list = []
         for image in self.image_list.get_selected_images():
-            image_type = imghdr.what(image.path)
-            if image_type not in ('gif', 'jpeg', 'png'):
-                dialog = QtGui.QMessageBox()
-                dialog.setWindowTitle(self.tr('Photini: incompatible type'))
-                dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
-                dialog.setInformativeText(self.tr(
-                    'File "{0}" is of type "{1}", which Flickr may not handle correctly. Would you like to upload it anyway?').format(
-                        os.path.basename(image.path), image_type))
-                dialog.setIcon(QtGui.QMessageBox.Warning)
-                dialog.setStandardButtons(QtGui.QMessageBox.Abort |
-                                          QtGui.QMessageBox.Yes |
-                                          QtGui.QMessageBox.Ignore)
-                dialog.setDefaultButton(QtGui.QMessageBox.Ignore)
-                result = dialog.exec_()
-                if result == QtGui.QMessageBox.Ignore:
-                    continue
-                elif result == QtGui.QMessageBox.Abort:
-                    return
             title = image.metadata.get_item('title').as_str()
             if not title:
                 title = os.path.basename(image.path)
@@ -347,7 +335,7 @@ class FlickrUploader(QtGui.QWidget):
                 tags = ''
             else:
                 tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
-            upload_list.append({
+            this_item = {
                 'filename'     : image.path,
                 'title'        : title,
                 'description'  : description,
@@ -357,9 +345,35 @@ class FlickrUploader(QtGui.QWidget):
                 'is_family'    : is_family,
                 'content_type' : content_type,
                 'hidden'       : hidden,
-                })
-        if not upload_list:
-            return
+                'delete'       : False,
+                }
+            image_type = imghdr.what(image.path)
+            if image_type not in ('gif', 'jpeg', 'png'):
+                dialog = QtGui.QMessageBox()
+                dialog.setWindowTitle(self.tr('Photini: incompatible type'))
+                dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
+                dialog.setInformativeText(self.tr(
+                    'File "{0}" is of type "{1}", which Flickr may not handle correctly. Would you like to convert it to JPEG?').format(
+                        os.path.basename(image.path), image_type))
+                dialog.setIcon(QtGui.QMessageBox.Warning)
+                dialog.setStandardButtons(QtGui.QMessageBox.Yes |
+                                          QtGui.QMessageBox.No)
+                dialog.setDefaultButton(QtGui.QMessageBox.Yes)
+                result = dialog.exec_()
+                if result == QtGui.QMessageBox.Yes:
+                    im = QtGui.QPixmap(image.path)
+                    temp_dir = appdirs.user_cache_dir('photini')
+                    if not os.path.isdir(temp_dir):
+                        os.makedirs(temp_dir)
+                    this_item['filename'] = os.path.join(
+                        temp_dir, os.path.basename(image.path) + '.jpg')
+                    im.save(this_item['filename'], format='jpeg', quality=95)
+                    if image.metadata._if:
+                        md = MetadataHandler(this_item['filename'])
+                        md.copy(image.metadata._if)
+                        md.save()
+                    this_item['delete'] = True
+            upload_list.append(this_item)
         # pass the list to a separate thread, so GUI can continue
         if self.flickr.authorise(self.auth_dialog):
             self.upload_button.setEnabled(False)
