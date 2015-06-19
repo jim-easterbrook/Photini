@@ -106,34 +106,60 @@ class FlickrSession(object):
         self.session.photosets_addPhoto(
             photo_id=photo_id, photoset_id=photoset_id)
 
-    def upload(self, **params):
-        rsp = self.session.upload(**params)
+    def upload(self, filename, fileobj, **params):
+        rsp = self.session.upload(filename, fileobj=fileobj, **params)
         if rsp.attrib['stat'] == 'ok':
             return rsp.find('photoid').text
         logger.error(
             'Upload %s failed: %s',
-            os.path.basename(params['filename']), rsp.attrib['stat'])
+            os.path.basename(filename), rsp.attrib['stat'])
         return None
 
 
 class UploadThread(QtCore.QThread):
-    def __init__(self, flickr, upload_list, add_to_sets):
+    def __init__(self, flickr, fixed_params, upload_list, add_to_sets):
         QtCore.QThread.__init__(self)
         self.flickr = flickr
+        self.fixed_params = fixed_params
         self.upload_list = upload_list
         self.add_to_sets = add_to_sets
 
     def run(self):
         logger = logging.getLogger(self.__class__.__name__)
         self.file_count = 0
-        for params in self.upload_list:
-            delete = params['delete']
-            del params['delete']
-            with open(params['filename'], 'rb') as f:
-                params['fileobj'] = FileObjWithCallback(f, self.callback)
-                photo_id = self.flickr.upload(**params)
-            if delete:
-                os.unlink(params['filename'])
+        for image, convert in self.upload_list:
+            params = dict(self.fixed_params)
+            title = image.metadata.get_item('title').as_str()
+            if not title:
+                title = os.path.basename(image.path)
+            params['title'] = title
+            params['description'] = image.metadata.get_item('description').as_str()
+            tags = image.metadata.get_item('keywords')
+            if tags.empty():
+                tags = ''
+            else:
+                tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
+            params['tags'] = tags
+            if convert:
+                im = QtGui.QImage(image.path)
+                temp_dir = appdirs.user_cache_dir('photini')
+                if not os.path.isdir(temp_dir):
+                    os.makedirs(temp_dir)
+                path = os.path.join(
+                    temp_dir, os.path.basename(image.path) + '.jpg')
+                im.save(path, format='jpeg', quality=95)
+                if image.metadata._if:
+                    md = MetadataHandler(path)
+                    md.copy(image.metadata._if)
+                    md.save()
+            else:
+                path = image.path
+            with open(path, 'rb') as f:
+                fileobj = FileObjWithCallback(f, self.callback)
+                photo_id = self.flickr.upload(
+                    image.path, fileobj=fileobj, **params)
+            if convert:
+                os.unlink(path)
             if photo_id:
                 for p_set in self.add_to_sets:
                     if p_set['id']:
@@ -318,6 +344,13 @@ class FlickrUploader(QtGui.QWidget):
         else:
             content_type = '3'
         hidden = ('1', '2')[self.hidden.isChecked()]
+        fixed_params = {
+            'is_public'    : is_public,
+            'is_friend'    : is_friend,
+            'is_family'    : is_family,
+            'content_type' : content_type,
+            'hidden'       : hidden,
+            }
         # make list of sets to add photos to
         add_to_sets = []
         for item in self.photosets:
@@ -326,27 +359,6 @@ class FlickrUploader(QtGui.QWidget):
         # make list of items to upload
         upload_list = []
         for image in self.image_list.get_selected_images():
-            title = image.metadata.get_item('title').as_str()
-            if not title:
-                title = os.path.basename(image.path)
-            description = image.metadata.get_item('description').as_str()
-            tags = image.metadata.get_item('keywords')
-            if tags.empty():
-                tags = ''
-            else:
-                tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
-            this_item = {
-                'filename'     : image.path,
-                'title'        : title,
-                'description'  : description,
-                'tags'         : tags,
-                'is_public'    : is_public,
-                'is_friend'    : is_friend,
-                'is_family'    : is_family,
-                'content_type' : content_type,
-                'hidden'       : hidden,
-                'delete'       : False,
-                }
             image_type = imghdr.what(image.path)
             if image_type not in ('gif', 'jpeg', 'png'):
                 dialog = QtGui.QMessageBox()
@@ -359,25 +371,15 @@ class FlickrUploader(QtGui.QWidget):
                 dialog.setStandardButtons(QtGui.QMessageBox.Yes |
                                           QtGui.QMessageBox.No)
                 dialog.setDefaultButton(QtGui.QMessageBox.Yes)
-                result = dialog.exec_()
-                if result == QtGui.QMessageBox.Yes:
-                    im = QtGui.QPixmap(image.path)
-                    temp_dir = appdirs.user_cache_dir('photini')
-                    if not os.path.isdir(temp_dir):
-                        os.makedirs(temp_dir)
-                    this_item['filename'] = os.path.join(
-                        temp_dir, os.path.basename(image.path) + '.jpg')
-                    im.save(this_item['filename'], format='jpeg', quality=95)
-                    if image.metadata._if:
-                        md = MetadataHandler(this_item['filename'])
-                        md.copy(image.metadata._if)
-                        md.save()
-                    this_item['delete'] = True
-            upload_list.append(this_item)
+                convert = dialog.exec_() == QtGui.QMessageBox.Yes
+            else:
+                convert = False
+            upload_list.append((image, convert))
         # pass the list to a separate thread, so GUI can continue
         if self.flickr.authorise(self.auth_dialog):
             self.upload_button.setEnabled(False)
-            self.uploader = UploadThread(self.flickr, upload_list, add_to_sets)
+            self.uploader = UploadThread(
+                self.flickr, fixed_params, upload_list, add_to_sets)
             self.uploader.progress_report.connect(self.upload_progress)
             self.uploader.finished.connect(self.upload_done)
             self.uploader.start()
