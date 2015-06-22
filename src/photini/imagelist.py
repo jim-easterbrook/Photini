@@ -25,11 +25,12 @@ import subprocess
 import sys
 from six.moves.urllib.parse import unquote
 
+import appdirs
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .flowlayout import FlowLayout
-from .metadata import Metadata
+from .metadata import Metadata, MetadataHandler
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -162,6 +163,19 @@ class Image(QtGui.QFrame):
                 self.thumb_size, self.thumb_size,
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
         return result
+
+    def as_jpeg(self):
+        im = QtGui.QImage(self.path)
+        temp_dir = appdirs.user_cache_dir('photini')
+        if not os.path.isdir(temp_dir):
+            os.makedirs(temp_dir)
+        path = os.path.join(temp_dir, os.path.basename(self.path) + '.jpg')
+        im.save(path, format='jpeg', quality=95)
+        if self.metadata._if:
+            md = MetadataHandler(path)
+            md.copy(self.metadata._if)
+            md.save()
+        return path
 
     def set_selected(self, value):
         self.selected = value

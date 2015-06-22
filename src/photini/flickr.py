@@ -26,14 +26,12 @@ import six
 import time
 import webbrowser
 
-import appdirs
 import flickrapi
 import keyring
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
 from .configstore import key_store
-from .metadata import MetadataHandler
 from .utils import Busy, FileObjWithCallback
 
 logger = logging.getLogger(__name__)
@@ -141,17 +139,7 @@ class UploadThread(QtCore.QThread):
                 tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
             params['tags'] = tags
             if convert:
-                im = QtGui.QImage(image.path)
-                temp_dir = appdirs.user_cache_dir('photini')
-                if not os.path.isdir(temp_dir):
-                    os.makedirs(temp_dir)
-                path = os.path.join(
-                    temp_dir, os.path.basename(image.path) + '.jpg')
-                im.save(path, format='jpeg', quality=95)
-                if image.metadata._if:
-                    md = MetadataHandler(path)
-                    md.copy(image.metadata._if)
-                    md.save()
+                path = image.as_jpeg()
             else:
                 path = image.path
             with open(path, 'rb') as f:
