@@ -20,6 +20,7 @@ from __future__ import unicode_literals
 
 import six
 from datetime import datetime
+import imghdr
 import logging
 import os
 from six.moves.urllib.request import urlopen
@@ -194,10 +195,10 @@ class PicasaSession(object):
         self._check_response(self.session.delete(
             album.get_link('edit'), headers={'If-Match' : album.etag}))
 
-    def new_photo(self, title, album, data):
+    def new_photo(self, title, album, data, image_type):
         resp = self._check_response(self.session.post(
             album.get_link('feed'), data=data,
-            headers={'Content-Type' : 'image/jpeg', 'Slug' : title}))
+            headers={'Content-Type' : 'image/' + image_type, 'Slug' : title}))
         return PicasaNode(text=resp.text)
 
     def _check_response(self, resp):
@@ -217,18 +218,35 @@ class UploadThread(QtCore.QThread):
     finished = QtCore.pyqtSignal()
     def run(self):
         self.file_count = 0
-        for params in self.upload_list:
-            title = os.path.basename(params['path'])
-            with open(params['path'], 'rb') as f:
+        for image, convert in self.upload_list:
+            # upload photo
+            title = os.path.basename(image.path)
+            if convert:
+                path = image.as_jpeg()
+            else:
+                path = image.path
+            with open(path, 'rb') as f:
                 fileobj = FileObjWithCallback(f, self.callback)
-                photo = self.picasa.new_photo(title, self.album, fileobj)
+                photo = self.picasa.new_photo(
+                    title, self.album, fileobj, imghdr.what(path))
+            if convert:
+                os.unlink(path)
+            # set metadata
             photo.title.text = title
-            if params['summary']:
-                photo.summary.text = params['summary']
-            if params['keywords']:
-                photo.group.keywords.text = params['keywords']
-            if params['latlong']:
-                photo.where.Point.pos.text = params['latlong']
+            title = image.metadata.get_item('title').as_str()
+            description = image.metadata.get_item('description').as_str()
+            if title and description:
+                photo.summary.text = '{0}\n\n{1}'.format(title, description)
+            elif title:
+                photo.summary.text = title
+            elif description:
+                photo.summary.text = description
+            keywords = image.metadata.get_item('keywords')
+            if not keywords.empty():
+                photo.group.keywords.text = ', '.join(keywords.value)
+            latlong = image.metadata.get_item('latlong')
+            if not latlong.empty():
+                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.value)
             self.picasa.edit_node(photo)
             self.file_count += 1
         self.finished.emit()
@@ -513,30 +531,26 @@ Doing so will remove the album and its photos from all Google products."""
         # make list of items to upload
         upload_list = []
         for image in self.image_list.get_selected_images():
-            title = image.metadata.get_item('title').as_str()
-            description = image.metadata.get_item('description').as_str()
-            if title and description:
-                summary = '{0}\n\n{1}'.format(title, description)
-            elif title:
-                summary = title
+            image_type = imghdr.what(image.path)
+            if image_type in ('bmp', 'gif', 'jpeg', 'png'):
+                convert = False
             else:
-                summary = description
-            keywords = image.metadata.get_item('keywords')
-            if keywords.empty():
-                keywords = None
-            else:
-                keywords = ', '.join(keywords.value)
-            latlong = image.metadata.get_item('latlong')
-            if latlong.empty():
-                latlong = None
-            else:
-                latlong = '{0} {1}'.format(*latlong.value)
-            upload_list.append({
-                'path'     : image.path,
-                'summary'  : summary,
-                'keywords' : keywords,
-                'latlong'  : latlong,
-                })
+                dialog = QtGui.QMessageBox()
+                dialog.setWindowTitle(self.tr('Photini: incompatible type'))
+                dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
+                dialog.setInformativeText(self.tr(
+                    'File "{0}" is of type "{1}", which Picasa does not accept. Would you like to convert it to JPEG?').format(
+                        os.path.basename(image.path), image_type))
+                dialog.setIcon(QtGui.QMessageBox.Warning)
+                dialog.setStandardButtons(QtGui.QMessageBox.Yes |
+                                          QtGui.QMessageBox.Ignore)
+                dialog.setDefaultButton(QtGui.QMessageBox.Yes)
+                if dialog.exec_() != QtGui.QMessageBox.Yes:
+                    continue
+                convert = True
+            upload_list.append((image, convert))
+        if not upload_list:
+            return
         # pass the list to a separate thread, so GUI can continue
         if self.picasa.authorise(self.auth_dialog):
             self.upload_button.setEnabled(False)
