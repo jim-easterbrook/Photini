@@ -19,7 +19,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime
-import fractions
+from fractions import Fraction
 import locale
 import logging
 import math
@@ -130,7 +130,7 @@ class RationalValue(BaseValue):
         if value in ('', None):
             self.value = None
         else:
-            self.value = fractions.Fraction(value).limit_denominator(1000000)
+            self.value = Fraction(value).limit_denominator(1000000)
 
     def to_exif(self, md, tag):
         if self.value is None:
@@ -144,25 +144,25 @@ class RationalValue(BaseValue):
         if not self.tag in md.get_exif_tags():
             return
         value_string = md.get_tag_string(self.tag)
-        self.value = fractions.Fraction(value_string)
+        self.value = Fraction(value_string)
 
     def from_xmp(self, md):
         if self.tag not in md.get_xmp_tags():
             return
         value_string = md.get_tag_multiple(self.tag)[0]
-        self.value = fractions.Fraction(value_string)
+        self.value = Fraction(value_string)
 
 class APEXAperture(RationalValue):
     def from_exif(self, md):
         super(APEXAperture, self).from_exif(md)
         if self.value is not None:
-            self.value = fractions.Fraction(
+            self.value = Fraction(
                 math.sqrt(2.0 ** self.value)).limit_denominator(1000000)
 
     def from_xmp(self, md):
         super(APEXAperture, self).from_xmp(md)
         if self.value is not None:
-            self.value = fractions.Fraction(
+            self.value = Fraction(
                 math.sqrt(2.0 ** self.value)).limit_denominator(1000000)
 
 class LatLongValue(BaseValue):
@@ -192,7 +192,7 @@ class LatLongValue(BaseValue):
             value = (value - degrees) * 60.0
             minutes = int(value)
             seconds = (value - minutes) * 60.0
-            seconds = fractions.Fraction(seconds).limit_denominator(1000000)
+            seconds = Fraction(seconds).limit_denominator(1000000)
             value_string = '{0:d}/1 {1:d}/1 {2:d}/{3:d}'.format(
                 degrees, minutes, seconds.numerator, seconds.denominator)
             md.set_tag_string(this_tag, value_string)
@@ -208,7 +208,7 @@ class LatLongValue(BaseValue):
                 return
             value_string = md.get_tag_string(tag)
             ref_string = md.get_tag_string(ref_tag)
-            parts = list(map(fractions.Fraction, value_string.split()))
+            parts = list(map(Fraction, value_string.split()))
             value = float(parts[0])
             if len(parts) > 1:
                 value += float(parts[1]) / 60.0
@@ -235,6 +235,35 @@ class LatLongValue(BaseValue):
                 value = -value
             result.append(value)
         self.value = (result[0], result[1])
+
+class LensSpecValue(BaseValue):
+    # value is a dictionary of four rational numbers, or None
+    keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
+
+    def as_str(self):
+        if self.value is None:
+            return ''
+        return repr(self.value)
+
+    def set_value(self, value):
+        self.value = eval(value)
+
+    def to_exif(self, md, tag):
+        if self.value is None:
+            md.clear_tag(tag)
+            return
+        value_list = []
+        for key in self.keys:
+            value_list.append('{}/{}'.format(
+                self.value[key].numerator, self.value[key].denominator))
+        md.set_tag_string(tag, ' '.join(value_list))
+
+    def from_exif(self, md):
+        if not self.tag in md.get_exif_tags():
+            return
+        value_string = md.get_tag_string(self.tag)
+        self.value = dict(zip(
+            self.keys, map(Fraction, value_string.split())))
 
 class StringValue(BaseValue):
     # value is a single unicode string
@@ -473,6 +502,10 @@ _data_object = {
     'Exif.Photo.FNumber'                 : RationalValue,
     'Exif.Photo.FocalLength'             : RationalValue,
     'Exif.Photo.FocalLengthIn35mmFilm'   : ClearOnlyValue,
+    'Exif.Photo.LensMake'                : StringValue,
+    'Exif.Photo.LensModel'               : StringValue,
+    'Exif.Photo.LensSerialNumber'        : StringValue,
+    'Exif.Photo.LensSpecification'       : LensSpecValue,
     'Iptc.Application2.Byline'           : ListValue,
     'Iptc.Application2.Caption'          : StringValue,
     'Iptc.Application2.Copyright'        : StringValue,
@@ -548,6 +581,10 @@ class Metadata(QtCore.QObject):
         'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
                             'Iptc' : 'Iptc.Application2.Keywords'},
         'latlong'        : {'Exif' : 'Exif.GPSInfo.GPSLatitude'},
+        'lens_make'      : {'Exif' : 'Exif.Photo.LensMake'},
+        'lens_model'     : {'Exif' : 'Exif.Photo.LensModel'},
+        'lens_serial'    : {'Exif' : 'Exif.Photo.LensSerialNumber'},
+        'lens_spec'      : {'Exif' : 'Exif.Photo.LensSpecification'},
         'orientation'    : {'Exif' : 'Exif.Image.Orientation'},
         'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware'},
         'title'          : {'Xmp'  : 'Xmp.dc.title',
@@ -575,6 +612,10 @@ class Metadata(QtCore.QObject):
                                       'Xmp.exif.FocalLengthIn35mmFilm',)},
         'keywords'       : {},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
+        'lens_make'      : {},
+        'lens_model'     : {},
+        'lens_serial'    : {},
+        'lens_spec'      : {},
         'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
         'software'       : {},
         'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
@@ -597,6 +638,11 @@ class Metadata(QtCore.QObject):
                 self.create_side_car()
         self._unsaved = False
         self._value_cache = {}
+        print('Lens info:')
+        print(self.get_tag_string('Exif.Photo.LensSpecification'))
+        print(self.get_tag_string('Exif.Photo.LensMake'))
+        print(self.get_tag_string('Exif.Photo.LensModel'))
+        print(self.get_tag_string('Exif.Photo.LensSerialNumber'))
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
