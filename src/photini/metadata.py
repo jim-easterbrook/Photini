@@ -638,11 +638,6 @@ class Metadata(QtCore.QObject):
                 self.create_side_car()
         self._unsaved = False
         self._value_cache = {}
-        print('Lens info:')
-        print(self.get_tag_string('Exif.Photo.LensSpecification'))
-        print(self.get_tag_string('Exif.Photo.LensMake'))
-        print(self.get_tag_string('Exif.Photo.LensModel'))
-        print(self.get_tag_string('Exif.Photo.LensSerialNumber'))
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
