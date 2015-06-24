@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 from datetime import (
     timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
+from fractions import Fraction
 
 from PyQt4 import QtGui, QtCore
 
@@ -134,6 +135,98 @@ class DoubleValidator(QtGui.QDoubleValidator):
             return QtGui.QValidator.Acceptable, input_, pos
         return super(DoubleValidator, self).validate(input_, pos)
 
+class LensData(object):
+    def __init__(self, config_store):
+        self.config_store = config_store
+        self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
+        self.lenses.sort()
+
+    def image_save(self, model, image):
+        image.metadata.set_item('lens_model', model)
+        section = 'lens ' + model
+        for item in ('lens_make', 'lens_serial', 'lens_spec'):
+            value = self.config_store.get(section, item) or ''
+            image.metadata.set_item(item, value)
+
+    def image_load(self, model, image):
+        section = 'lens '  + model
+        for item in ('lens_make', 'lens_serial', 'lens_spec'):
+            self.config_store.set(
+                section, item, image.metadata.get_item(item).as_str())
+        self.lenses.append(model)
+        self.lenses.sort()
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
+
+    def dialog_load(self, dialog):
+        model = dialog.lens_model.text()
+        section = 'lens '  + model
+        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
+        self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
+        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
+        lens_spec = {}
+        for key in ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn'):
+            lens_spec[key] = Fraction(dialog.lens_spec[key].text())
+        self.config_store.set(section, 'lens_spec', repr(lens_spec))
+        self.lenses.append(model)
+        self.lenses.sort()
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
+        return model
+
+class NewLensDialog(QtGui.QDialog):
+    def __init__(self, parent):
+        super(NewLensDialog, self).__init__(parent)
+        self.setWindowTitle(self.tr('Photini: define lens'))
+        self.setLayout(QtGui.QGridLayout())
+        self.layout().setRowStretch(0, 1)
+        self.layout().setColumnStretch(0, 1)
+        # main dialog area
+        scroll_area = QtGui.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.layout().addWidget(scroll_area, 0, 0, 1, 3)
+        panel = QtGui.QWidget()
+        panel.setLayout(QtGui.QFormLayout())
+        # ok button
+        ok_button = QtGui.QPushButton(self.tr('OK'))
+        ok_button.clicked.connect(self.accept)
+        self.layout().addWidget(ok_button, 1, 2)
+        # cancel button
+        cancel_button = QtGui.QPushButton(self.tr('Cancel'))
+        cancel_button.clicked.connect(self.reject)
+        self.layout().addWidget(cancel_button, 1, 1)
+        # model
+        self.lens_model = QtGui.QLineEdit()
+        panel.layout().addRow(self.tr('Model name'), self.lens_model)
+        # maker
+        self.lens_make = QtGui.QLineEdit()
+        panel.layout().addRow(self.tr("Maker's name"), self.lens_make)
+        # serial number
+        self.lens_serial = QtGui.QLineEdit()
+        panel.layout().addRow(self.tr('Serial number'), self.lens_serial)
+        ## spec has four items
+        self.lens_spec = {}
+        # min focal length
+        self.lens_spec['min_fl'] = QtGui.QLineEdit()
+        self.lens_spec['min_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        panel.layout().addRow(self.tr('Minimum focal length (mm)'),
+                              self.lens_spec['min_fl'])
+        # min focal length aperture
+        self.lens_spec['min_fl_fn'] = QtGui.QLineEdit()
+        self.lens_spec['min_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
+        panel.layout().addRow(self.tr('Aperture at min. focal length f/'),
+                              self.lens_spec['min_fl_fn'])
+        # max focal length
+        self.lens_spec['max_fl'] = QtGui.QLineEdit()
+        self.lens_spec['max_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        panel.layout().addRow(self.tr('Maximum focal length (mm)'),
+                              self.lens_spec['max_fl'])
+        # max focal length aperture
+        self.lens_spec['max_fl_fn'] = QtGui.QLineEdit()
+        self.lens_spec['max_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
+        panel.layout().addRow(self.tr('Aperture at max. focal length f/'),
+                              self.lens_spec['max_fl_fn'])
+        # add panel to scroll area after its size is known
+        scroll_area.setWidget(panel)
+
 class Technical(QtGui.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -147,6 +240,8 @@ class Technical(QtGui.QWidget):
             'digitised' : 'taken',
             'modified'  : 'digitised'
             }
+        # store lens data in another object
+        self.lens_data = LensData(self.config_store)
         # date and time
         date_group = QtGui.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(QtGui.QFormLayout())
@@ -198,6 +293,15 @@ class Technical(QtGui.QWidget):
         self.orientation.addItem(self.tr('<multiple>'), -1)
         self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow(self.tr('Orientation'), self.orientation)
+        # lens model
+        self.lens_model = QtGui.QComboBox()
+        for model in self.lens_data.lenses:
+            self.lens_model.addItem(model)
+        self.lens_model.addItem('', 0)
+        self.lens_model.addItem(self.tr('<add lens>'), -2)
+        self.lens_model.addItem(self.tr('<multiple>'), -1)
+        self.lens_model.currentIndexChanged.connect(self.new_lens_model)
+        other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
         # aperture
         self.aperture = QtGui.QLineEdit()
         self.aperture.setValidator(DoubleValidator(bottom=0.1))
@@ -266,6 +370,28 @@ class Technical(QtGui.QWidget):
             image.metadata.set_item('orientation', value)
             image.pixmap = None
             image.load_thumbnail()
+
+    @QtCore.pyqtSlot(int)
+    def new_lens_model(self, index):
+        value = self.lens_model.itemData(index)
+        if value == -1:
+            self._update_lens_model()
+            return
+        if value == -2:
+            self._add_lens_model()
+            self._update_lens_model()
+            return
+        model = self.lens_model.itemText(index)
+        for image in self.image_list.get_selected_images():
+            self.lens_data.image_save(model, image)
+
+    def _add_lens_model(self):
+        dialog = NewLensDialog(self)
+        if dialog.exec_() == QtGui.QDialog.Accepted:
+            model = self.lens_data.dialog_load(dialog)
+            blocked = self.lens_model.blockSignals(True)
+            self.lens_model.insertItem(0, model)
+            self.lens_model.blockSignals(blocked)
 
     def new_aperture(self):
         value = self.aperture.text()
@@ -356,6 +482,26 @@ class Technical(QtGui.QWidget):
             value = 1
         self.orientation.setCurrentIndex(self.orientation.findData(value))
 
+    def _update_lens_model(self):
+        value = None
+        for image in self.image_list.get_selected_images():
+            new_value = image.metadata.get_item('lens_model').as_str()
+            if value is not None and new_value != value:
+                # multiple values
+                self.lens_model.setCurrentIndex(self.lens_model.findData(-1))
+                return
+            value = new_value
+        index = self.lens_model.findText(value)
+        if index >= 0:
+            self.lens_model.setCurrentIndex(index)
+            return
+        self.lens_data.image_load(
+            value, self.image_list.get_selected_images()[0])
+        blocked = self.lens_model.blockSignals(True)
+        self.lens_model.insertItem(0, value)
+        self.lens_model.setCurrentIndex(0)
+        self.lens_model.blockSignals(blocked)
+
     def _update_aperture(self):
         value = None
         for image in self.image_list.get_selected_images():
@@ -383,6 +529,7 @@ class Technical(QtGui.QWidget):
                 self.date_widget[key].clearDate()
                 self.date_widget[key].clearTime()
             self.orientation.setCurrentIndex(self.orientation.findData(1))
+            self.lens_model.setCurrentIndex(self.orientation.findData(0))
             self.aperture.clear()
             self.focal_length.clear()
             self.setEnabled(False)
@@ -401,6 +548,7 @@ class Technical(QtGui.QWidget):
                 self.link_widget[key].setChecked(False)
                 self.date_widget[key].setEnabled(True)
         self._update_orientation()
+        self._update_lens_model()
         self._update_aperture()
         self._update_focal_length()
         self.setEnabled(True)

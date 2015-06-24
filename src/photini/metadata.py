@@ -246,7 +246,10 @@ class LensSpecValue(BaseValue):
         return repr(self.value)
 
     def set_value(self, value):
-        self.value = eval(value)
+        if value:
+            self.value = eval(value)
+        else:
+            self.value = None
 
     def to_exif(self, md, tag):
         if self.value is None:
