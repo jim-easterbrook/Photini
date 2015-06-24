@@ -172,6 +172,13 @@ class LensData(object):
         self.config_store.set('technical', 'lenses', repr(self.lenses))
         return model
 
+    def get_spec(self, model, key):
+        section = 'lens ' + model
+        spec = self.config_store.get(section, 'lens_spec')
+        if not spec:
+            return None
+        return eval(spec)[key]
+
 class NewLensDialog(QtGui.QDialog):
     def __init__(self, parent):
         super(NewLensDialog, self).__init__(parent)
@@ -302,6 +309,10 @@ class Technical(QtGui.QWidget):
         self.lens_model.addItem(self.tr('<multiple>'), -1)
         self.lens_model.currentIndexChanged.connect(self.new_lens_model)
         other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
+        # link lens to aperture & focal length
+        self.link_lens = QtGui.QCheckBox(
+            self.tr("Link lens to aperture and focal length"))
+        other_group.layout().addRow('', self.link_lens)
         # aperture
         self.aperture = QtGui.QLineEdit()
         self.aperture.setValidator(DoubleValidator(bottom=0.1))
@@ -384,6 +395,26 @@ class Technical(QtGui.QWidget):
         model = self.lens_model.itemText(index)
         for image in self.image_list.get_selected_images():
             self.lens_data.image_save(model, image)
+            if model and self.link_lens.isChecked():
+                aperture = image.metadata.get_item('aperture').value or 0.0
+                focal_length = image.metadata.get_item('focal_length').value or 0.0
+                if focal_length < self.lens_data.get_spec(model, 'min_fl'):
+                    focal_length = self.lens_data.get_spec(model, 'min_fl')
+                    aperture = max(aperture,
+                                   self.lens_data.get_spec(model, 'min_fl_fn'))
+                elif focal_length > self.lens_data.get_spec(model, 'max_fl'):
+                    focal_length = self.lens_data.get_spec(model, 'max_fl')
+                    aperture = max(aperture,
+                                   self.lens_data.get_spec(model, 'max_fl_fn'))
+                else:
+                    aperture = max(aperture,
+                                   self.lens_data.get_spec(model, 'min_fl_fn'),
+                                   self.lens_data.get_spec(model, 'max_fl_fn'))
+                image.metadata.set_item('aperture', aperture)
+                image.metadata.set_item('focal_length', focal_length)
+        if model and self.link_lens.isChecked():
+            self._update_aperture()
+            self._update_focal_length()
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
