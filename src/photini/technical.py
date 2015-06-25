@@ -297,6 +297,7 @@ class Technical(QtGui.QWidget):
         self.orientation.addItem(self.tr('reflect top-bottom'), 4)
         self.orientation.addItem(self.tr('reflect tr-bl'), 5)
         self.orientation.addItem(self.tr('reflect tl-br'), 7)
+        self.orientation.addItem('', 0)
         self.orientation.addItem(self.tr('<multiple>'), -1)
         self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow(self.tr('Orientation'), self.orientation)
@@ -374,9 +375,11 @@ class Technical(QtGui.QWidget):
     @QtCore.pyqtSlot(int)
     def new_orientation(self, index):
         value = self.orientation.itemData(index)
-        if value < 1:
+        if value == -1:
             self._update_orientation()
             return
+        if value == 0:
+            value = None
         for image in self.image_list.get_selected_images():
             image.metadata.set_item('orientation', value)
             image.pixmap = None
@@ -498,59 +501,55 @@ class Technical(QtGui.QWidget):
                 self.date_widget[key].setTime(value)
 
     def _update_orientation(self):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.orientation
-            if new_value:
-                new_value = new_value.value
-            else:
-                new_value = None
-            if value and new_value != value:
-                value = -1
-                break
-            value = new_value
-        if not value:
-            value = 1
+        images = self.image_list.get_selected_images()
+        value = images[0].metadata.orientation
+        for image in images[1:]:
+            if image.metadata.orientation.value != value.value:
+                # multiple values
+                self.orientation.setCurrentIndex(self.orientation.findData(-1))
+                return
+        if value:
+            value = value.value
+        else:
+            value = 0
         self.orientation.setCurrentIndex(self.orientation.findData(value))
 
     def _update_lens_model(self):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.lens_model.as_str()
-            if value is not None and new_value != value:
+        images = self.image_list.get_selected_images()
+        value = images[0].metadata.lens_model
+        for image in images[1:]:
+            if image.metadata.lens_model.value != value.value:
                 # multiple values
                 self.lens_model.setCurrentIndex(self.lens_model.findData(-1))
                 return
-            value = new_value
+        value = value.as_str()
         index = self.lens_model.findText(value)
         if index >= 0:
             self.lens_model.setCurrentIndex(index)
             return
-        self.lens_data.image_load(
-            value, self.image_list.get_selected_images()[0])
+        # lens not seen before, so add to list
+        self.lens_data.image_load(value, images[0])
         blocked = self.lens_model.blockSignals(True)
         self.lens_model.insertItem(0, value)
         self.lens_model.setCurrentIndex(0)
         self.lens_model.blockSignals(blocked)
 
     def _update_aperture(self):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.aperture
-            if value and new_value.value != value.value:
+        images = self.image_list.get_selected_images()
+        value = images[0].metadata.aperture
+        for image in images[1:]:
+            if image.metadata.aperture.value != value.value:
                 self.aperture.setText(self.tr('<multiple values>'))
                 return
-            value = new_value
         self.aperture.setText(value.as_str())
 
     def _update_focal_length(self):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = image.metadata.focal_length
-            if value and new_value.value != value.value:
+        images = self.image_list.get_selected_images()
+        value = images[0].metadata.focal_length
+        for image in images[1:]:
+            if image.metadata.focal_length.value != value.value:
                 self.focal_length.setText(self.tr('<multiple values>'))
                 return
-            value = new_value
         self.focal_length.setText(value.as_str())
 
     @QtCore.pyqtSlot(list)
@@ -559,8 +558,8 @@ class Technical(QtGui.QWidget):
             for key in self.date_widget:
                 self.date_widget[key].clearDate()
                 self.date_widget[key].clearTime()
-            self.orientation.setCurrentIndex(self.orientation.findData(1))
-            self.lens_model.setCurrentIndex(self.orientation.findData(0))
+            self.orientation.setCurrentIndex(self.orientation.findData(0))
+            self.lens_model.setCurrentIndex(self.lens_model.findData(0))
             self.aperture.clear()
             self.focal_length.clear()
             self.setEnabled(False)

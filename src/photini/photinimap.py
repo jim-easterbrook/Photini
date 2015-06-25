@@ -231,19 +231,14 @@ class PhotiniMap(QtGui.QWidget):
         self.JavaScript('seeMarkers(["{0}"])'.format(marker_list))
 
     def display_coords(self):
-        coords = None
-        for image in self.image_list.get_selected_images():
-            latlong = image.metadata.latlong
-            if latlong:
-                new_coords = latlong.value
-            else:
-                new_coords = None
-            if coords and new_coords != coords:
+        images = self.image_list.get_selected_images()
+        coords = images[0].metadata.latlong
+        for image in images[1:]:
+            if image.metadata.latlong.value != coords.value:
                 self.coords.setText(self.tr("<multiple values>"))
                 return
-            coords = new_coords
         if coords:
-            self.coords.setText('{0:.6f}, {1:.6f}'.format(*coords))
+            self.coords.setText('{0:.6f}, {1:.6f}'.format(*coords.value))
         else:
             self.coords.clear()
 

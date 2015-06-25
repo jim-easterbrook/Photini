@@ -156,15 +156,14 @@ class Descriptive(QtGui.QWidget):
         self._update_widget(key)
 
     def _update_widget(self, key):
-        value = None
-        for image in self.image_list.get_selected_images():
-            new_value = getattr(image.metadata, key).as_str()
-            if value and new_value != value:
+        images = self.image_list.get_selected_images()
+        value = getattr(images[0].metadata, key)
+        for image in images[1:]:
+            if getattr(image.metadata, key).value != value.value:
                 self.widgets[key].setText(self.tr('<multiple values>'))
                 return
-            value = new_value
         if value:
-            self.widgets[key].setText(value)
+            self.widgets[key].setText(value.as_str())
         else:
             self.widgets[key].clear()
 

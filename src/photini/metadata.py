@@ -64,18 +64,6 @@ def _encode_string(value, max_bytes=None):
         result = result.decode('utf_8')
     return result
 
-class NullValue(object):
-    # used by Python2 bool()
-    def __nonzero__(self):
-        return False
-
-    # used by Python3 bool()
-    def __bool__(self):
-        return False
-
-    def as_str(self):
-        return ''
-
 class BaseValue(object):
     def __init__(self, tag=None):
         self.tag = tag
@@ -789,7 +777,8 @@ class Metadata(QtCore.QObject):
         if name in self._value_cache:
             return self._value_cache[name]
         # get values from all 3 families, using first tag in list that has data
-        value = {'Exif': NullValue(), 'Iptc': NullValue(), 'Xmp': NullValue()}
+        value = {
+            'Exif': StringValue(), 'Iptc': StringValue(), 'Xmp': StringValue()}
         for family in self._primary_tags[name]:
             try:
                 value[family] = self._get_value(
