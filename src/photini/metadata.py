@@ -257,13 +257,18 @@ class LensSpecValue(BaseValue):
     def as_str(self):
         if self.value is None:
             return ''
-        return repr(self.value)
+        result = {}
+        for key, value in self.value.items():
+            result[key] = float(value)
+        return repr(result)
 
     def set_value(self, value):
-        if value:
-            self.value = eval(value)
-        else:
+        if not value:
             self.value = None
+            return
+        self.value = {}
+        for key, value in eval(value).items():
+            self.value[key] = Fraction(value).limit_denominator(1000000)
 
     def to_exif(self, md, tag):
         if self.value is None:

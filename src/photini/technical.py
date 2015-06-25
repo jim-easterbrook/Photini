@@ -21,7 +21,6 @@ from __future__ import unicode_literals
 
 from datetime import (
     timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
-from fractions import Fraction
 
 from PyQt4 import QtGui, QtCore
 
@@ -165,7 +164,7 @@ class LensData(object):
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         lens_spec = {}
         for key in ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn'):
-            lens_spec[key] = Fraction(dialog.lens_spec[key].text())
+            lens_spec[key] = float(dialog.lens_spec[key].text())
         self.config_store.set(section, 'lens_spec', repr(lens_spec))
         self.lenses.append(model)
         self.lenses.sort()
