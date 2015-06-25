@@ -107,6 +107,11 @@ class ClearOnlyValue(BaseValue):
 
 class IntValue(BaseValue):
     # value is a single integer
+    def __int__(self):
+        if self.value is None:
+            return 0
+        return self.value
+
     def to_exif(self, md, tag):
         if self.value is None:
             md.clear_tag(tag)
@@ -783,8 +788,7 @@ class Metadata(QtCore.QObject):
         if name in self._value_cache:
             return self._value_cache[name]
         # get values from all 3 families, using first tag in list that has data
-        value = {
-            'Exif': StringValue(), 'Iptc': StringValue(), 'Xmp': StringValue()}
+        value = {'Exif': None, 'Iptc': None, 'Xmp': None}
         for family in self._primary_tags[name]:
             try:
                 value[family] = self._get_value(
@@ -810,6 +814,12 @@ class Metadata(QtCore.QObject):
         if value['Exif']:
             preference = 'Exif'
         elif value['Xmp']:
+            preference = 'Xmp'
+        elif value['Iptc']:
+            preference = 'Iptc'
+        elif value['Exif'] is not None:
+            preference = 'Exif'
+        elif value['Xmp'] is not None:
             preference = 'Xmp'
         else:
             preference = 'Iptc'

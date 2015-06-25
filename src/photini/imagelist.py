@@ -143,17 +143,17 @@ class Image(QtGui.QFrame):
                     # store a scaled down version of image to save memory
                     self.pixmap = self.pixmap.scaled(
                         400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                orientation = self.metadata.orientation
-                if orientation and orientation.value != 1:
+                orientation = int(self.metadata.orientation)
+                if orientation > 1:
                     # need to rotate and or reflect image
                     transform = QtGui.QTransform()
-                    if orientation.value in (3, 4):
+                    if orientation in (3, 4):
                         transform = transform.rotate(180.0)
-                    elif orientation.value in (5, 6):
+                    elif orientation in (5, 6):
                         transform = transform.rotate(90.0)
-                    elif orientation.value in (7, 8):
+                    elif orientation in (7, 8):
                         transform = transform.rotate(-90.0)
-                    if orientation.value in (2, 4, 5, 7):
+                    if orientation in (2, 4, 5, 7):
                         transform = transform.scale(-1.0, 1.0)
                     self.pixmap = self.pixmap.transformed(transform)
         if self.pixmap.isNull():

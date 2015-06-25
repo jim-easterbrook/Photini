@@ -508,11 +508,7 @@ class Technical(QtGui.QWidget):
                 # multiple values
                 self.orientation.setCurrentIndex(self.orientation.findData(-1))
                 return
-        if value:
-            value = value.value
-        else:
-            value = 0
-        self.orientation.setCurrentIndex(self.orientation.findData(value))
+        self.orientation.setCurrentIndex(self.orientation.findData(int(value)))
 
     def _update_lens_model(self):
         images = self.image_list.get_selected_images()
