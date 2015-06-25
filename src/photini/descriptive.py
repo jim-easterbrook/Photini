@@ -159,7 +159,7 @@ class Descriptive(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         value = getattr(images[0].metadata, key)
         for image in images[1:]:
-            if getattr(image.metadata, key).value != value.value:
+            if getattr(image.metadata, key) != value:
                 self.widgets[key].setText(self.tr('<multiple values>'))
                 return
         if value:

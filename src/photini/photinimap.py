@@ -234,7 +234,7 @@ class PhotiniMap(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         coords = images[0].metadata.latlong
         for image in images[1:]:
-            if image.metadata.latlong.value != coords.value:
+            if image.metadata.latlong != coords:
                 self.coords.setText(self.tr("<multiple values>"))
                 return
         if coords:

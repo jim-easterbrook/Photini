@@ -399,7 +399,7 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             self.lens_data.image_save(model, image)
             if model and self.link_lens.isChecked():
-                aperture = float(image.metadata.aperture.value)
+                aperture = float(image.metadata.aperture)
                 focal_length = float(image.metadata.focal_length)
                 if focal_length < self.lens_data.get_spec(model, 'min_fl'):
                     focal_length = self.lens_data.get_spec(model, 'min_fl')
@@ -504,7 +504,7 @@ class Technical(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.orientation
         for image in images[1:]:
-            if image.metadata.orientation.value != value.value:
+            if image.metadata.orientation != value:
                 # multiple values
                 self.orientation.setCurrentIndex(self.orientation.findData(-1))
                 return
@@ -518,7 +518,7 @@ class Technical(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.lens_model
         for image in images[1:]:
-            if image.metadata.lens_model.value != value.value:
+            if image.metadata.lens_model != value:
                 # multiple values
                 self.lens_model.setCurrentIndex(self.lens_model.findData(-1))
                 return
@@ -538,7 +538,7 @@ class Technical(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.aperture
         for image in images[1:]:
-            if image.metadata.aperture.value != value.value:
+            if image.metadata.aperture != value:
                 self.aperture.setText(self.tr('<multiple values>'))
                 return
         self.aperture.setText(value.as_str())
@@ -547,7 +547,7 @@ class Technical(QtGui.QWidget):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.focal_length
         for image in images[1:]:
-            if image.metadata.focal_length.value != value.value:
+            if image.metadata.focal_length != value:
                 self.focal_length.setText(self.tr('<multiple values>'))
                 return
         self.focal_length.setText(value.as_str())

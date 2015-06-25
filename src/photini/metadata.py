@@ -71,11 +71,17 @@ class BaseValue(object):
 
     # used by Python2 bool()
     def __nonzero__(self):
-        return self.value is not None
+        return self.__bool__()
 
     # used by Python3 bool()
     def __bool__(self):
         return self.value is not None
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __ne__(self, other):
+        return self.value != other.value
 
     def as_str(self):
         return str(self.value)
@@ -277,11 +283,6 @@ class StringValue(BaseValue):
         BaseValue.__init__(self, tag)
         self.value = ''
 
-    # used by Python2 bool()
-    def __nonzero__(self):
-        return len(self.value) != 0
-
-    # used by Python3 bool()
     def __bool__(self):
         return len(self.value) != 0
 
@@ -352,11 +353,6 @@ class ListValue(BaseValue):
         BaseValue.__init__(self, tag)
         self.value = []
 
-    # used by Python2 bool()
-    def __nonzero__(self):
-        return len(self.value) != 0
-
-    # used by Python3 bool()
     def __bool__(self):
         return len(self.value) != 0
 
