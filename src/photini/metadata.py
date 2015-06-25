@@ -501,6 +501,7 @@ class DateTimeValue(BaseValue):
 
 # class to use for each tag's data
 _data_object = {
+    'Exif.Canon.LensModel'               : ClearOnlyValue,
     'Exif.CanonCs.Lens'                  : ClearOnlyValue,
     'Exif.CanonCs.LensType'              : ClearOnlyValue,
     'Exif.CanonCs.MaxAperture'           : ClearOnlyValue,
@@ -634,7 +635,8 @@ class Metadata(QtCore.QObject):
         'keywords'       : {},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
         'lens_make'      : {},
-        'lens_model'     : {'Exif' : ('Exif.CanonCs.LensType',)},
+        'lens_model'     : {'Exif' : ('Exif.Canon.LensModel',
+                                      'Exif.CanonCs.LensType',)},
         'lens_serial'    : {},
         'lens_spec'      : {'Exif' : ('Exif.CanonCs.Lens',
                                       'Exif.CanonCs.MaxAperture',
