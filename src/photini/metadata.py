@@ -501,6 +501,11 @@ class DateTimeValue(BaseValue):
 
 # class to use for each tag's data
 _data_object = {
+    'Exif.CanonCs.Lens'                  : ClearOnlyValue,
+    'Exif.CanonCs.LensType'              : ClearOnlyValue,
+    'Exif.CanonCs.MaxAperture'           : ClearOnlyValue,
+    'Exif.CanonCs.MinAperture'           : ClearOnlyValue,
+    'Exif.CanonCs.ShortFocal'            : ClearOnlyValue,
     'Exif.GPSInfo.GPSLatitude'           : LatLongValue,
     'Exif.Image.ApertureValue'           : APEXAperture,
     'Exif.Image.Artist'                  : StringValue,
@@ -629,9 +634,12 @@ class Metadata(QtCore.QObject):
         'keywords'       : {},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
         'lens_make'      : {},
-        'lens_model'     : {},
+        'lens_model'     : {'Exif' : ('Exif.CanonCs.LensType',)},
         'lens_serial'    : {},
-        'lens_spec'      : {},
+        'lens_spec'      : {'Exif' : ('Exif.CanonCs.Lens',
+                                      'Exif.CanonCs.MaxAperture',
+                                      'Exif.CanonCs.MinAperture',
+                                      'Exif.CanonCs.ShortFocal')},
         'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
         'software'       : {},
         'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
