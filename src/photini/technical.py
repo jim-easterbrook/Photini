@@ -396,8 +396,8 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             self.lens_data.image_save(model, image)
             if model and self.link_lens.isChecked():
-                aperture = image.metadata.aperture.value or 0.0
-                focal_length = image.metadata.focal_length.value or 0.0
+                aperture = float(image.metadata.aperture.value)
+                focal_length = float(image.metadata.focal_length)
                 if focal_length < self.lens_data.get_spec(model, 'min_fl'):
                     focal_length = self.lens_data.get_spec(model, 'min_fl')
                     aperture = max(aperture,

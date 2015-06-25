@@ -136,6 +136,11 @@ class RationalValue(BaseValue):
             return ''
         return '{0:g}'.format(float(self.value))
 
+    def __float__(self):
+        if self.value is None:
+            return 0.0
+        return float(self.value)
+
     def set_value(self, value):
         if value in ('', None):
             self.value = None
