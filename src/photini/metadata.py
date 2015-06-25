@@ -65,8 +65,13 @@ def _encode_string(value, max_bytes=None):
     return result
 
 class NullValue(object):
-    def empty(self):
-        return True
+    # used by Python2 bool()
+    def __nonzero__(self):
+        return False
+
+    # used by Python3 bool()
+    def __bool__(self):
+        return False
 
     def as_str(self):
         return ''
@@ -76,16 +81,21 @@ class BaseValue(object):
         self.tag = tag
         self.value = None
 
-    def empty(self):
-        return self.value is None
+    # used by Python2 bool()
+    def __nonzero__(self):
+        return self.value is not None
+
+    # used by Python3 bool()
+    def __bool__(self):
+        return self.value is not None
 
     def as_str(self):
         return str(self.value)
 
     def merge(self, other):
-        if self.empty():
-            return other
-        return self
+        if self:
+            return self
+        return other
 
     def set_value(self, value):
         self.value = value
@@ -274,8 +284,13 @@ class StringValue(BaseValue):
         BaseValue.__init__(self, tag)
         self.value = ''
 
-    def empty(self):
-        return len(self.value) == 0
+    # used by Python2 bool()
+    def __nonzero__(self):
+        return len(self.value) != 0
+
+    # used by Python3 bool()
+    def __bool__(self):
+        return len(self.value) != 0
 
     def sanitise(self):
         self.value = self.value.strip()
@@ -344,8 +359,13 @@ class ListValue(BaseValue):
         BaseValue.__init__(self, tag)
         self.value = []
 
-    def empty(self):
-        return len(self.value) == 0
+    # used by Python2 bool()
+    def __nonzero__(self):
+        return len(self.value) != 0
+
+    # used by Python3 bool()
+    def __bool__(self):
+        return len(self.value) != 0
 
     def sanitise(self):
         new_value = []
@@ -778,23 +798,23 @@ class Metadata(QtCore.QObject):
                 except Exception as ex:
                     self.logger.exception(ex)
                     continue
-                if new_value.empty():
+                if not new_value:
                     continue
-                elif value[family].empty():
+                elif not value[family]:
                     value[family] = new_value
                 elif new_value.as_str() not in value[family].as_str():
                     self.logger.warning('merging %s with %s',
                                         new_value.tag, value[family].tag)
                     value[family] = value[family].merge(new_value)
         # choose preferred family
-        if not value['Exif'].empty():
+        if value['Exif']:
             preference = 'Exif'
-        elif not value['Xmp'].empty():
+        elif value['Xmp']:
             preference = 'Xmp'
         else:
             preference = 'Iptc'
         # check for IPTC being modified by non-compliant software
-        if preference != 'Iptc' and not value['Iptc'].empty():
+        if preference != 'Iptc' and value['Iptc']:
             iptc_tag = value['Iptc'].tag
             pred_str = value[preference].iptc_pred(_max_bytes[iptc_tag])
             if pred_str != value['Iptc'].as_str():
@@ -804,7 +824,7 @@ class Metadata(QtCore.QObject):
         # merge in non-matching data so user can review it
         result = value[preference]
         for family in ('Exif', 'Xmp'):
-            if preference != family and not value[family].empty():
+            if preference != family and value[family]:
                 if value[family].as_str() not in result.as_str():
                     self.logger.warning('merging %s with %s',
                                         value[family].tag, value[preference].tag)

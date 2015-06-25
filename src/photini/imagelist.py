@@ -113,7 +113,7 @@ class Image(QtGui.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if not self.metadata.latlong.empty():
+        if self.metadata.latlong:
             status += six.unichr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -144,7 +144,7 @@ class Image(QtGui.QFrame):
                     self.pixmap = self.pixmap.scaled(
                         400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 orientation = self.metadata.orientation
-                if not orientation.empty() and orientation.value != 1:
+                if orientation and orientation.value != 1:
                     # need to rotate and or reflect image
                     transform = QtGui.QTransform()
                     if orientation.value in (3, 4):
@@ -333,11 +333,11 @@ class ImageList(QtGui.QWidget):
 
     def _date_key(self, idx):
         result = self.image[idx].metadata.date_taken
-        if result.empty():
+        if not result:
             result = self.image[idx].metadata.date_digitised
-        if result.empty():
+        if not result:
             result = self.image[idx].metadata.date_modified
-        if result.empty():
+        if not result:
             # use file date as last resort
             result = datetime.fromtimestamp(
                 os.path.getmtime(self.image[idx].path))

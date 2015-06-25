@@ -133,10 +133,10 @@ class UploadThread(QtCore.QThread):
             params['title'] = title
             params['description'] = image.metadata.description.as_str()
             tags = image.metadata.keywords
-            if tags.empty():
-                tags = ''
-            else:
+            if tags:
                 tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
+            else:
+                tags = ''
             params['tags'] = tags
             if convert:
                 path = image.as_jpeg()

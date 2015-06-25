@@ -124,10 +124,10 @@ class Descriptive(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.metadata.date_taken
-            if date.empty():
-                date = datetime.now()
-            else:
+            if date:
                 date = date.value
+            else:
+                date = datetime.now()
             value = self.trUtf8(
                 'Copyright \xa9{0:d} {1}. All rights reserved.').format(
                     date.year, name)

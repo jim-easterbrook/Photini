@@ -234,10 +234,10 @@ class PhotiniMap(QtGui.QWidget):
         coords = None
         for image in self.image_list.get_selected_images():
             latlong = image.metadata.latlong
-            if latlong.empty():
-                new_coords = None
-            else:
+            if latlong:
                 new_coords = latlong.value
+            else:
+                new_coords = None
             if coords and new_coords != coords:
                 self.coords.setText(self.tr("<multiple values>"))
                 return
@@ -255,7 +255,7 @@ class PhotiniMap(QtGui.QWidget):
             self.coords.setEnabled(False)
         for image in self.image_list.get_images():
             latlong = image.metadata.latlong
-            if not latlong.empty():
+            if latlong:
                 self.JavaScript('enableMarker("{0}", {1:d})'.format(
                     image.path, image.selected))
         self.display_coords()
@@ -265,7 +265,7 @@ class PhotiniMap(QtGui.QWidget):
         self.JavaScript('removeMarkers()')
         for image in self.image_list.get_images():
             latlong = image.metadata.latlong
-            if not latlong.empty():
+            if latlong:
                 self._add_marker(image, *latlong.value)
 
     def _add_marker(self, image, lat, lng):

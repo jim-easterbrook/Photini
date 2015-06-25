@@ -353,7 +353,7 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             for key in self.date_widget:
                 value = getattr(image.metadata, 'date_' + key)
-                if value.empty():
+                if not value:
                     continue
                 image.metadata.set_item('date_' + key, value.value + offset)
         for key in self.date_widget:
@@ -441,10 +441,10 @@ class Technical(QtGui.QWidget):
             # update times, leaving date unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current.empty():
-                    current = pyDateTime.today()
-                else:
+                if current:
                     current = current.value
+                else:
+                    current = pyDateTime.today()
                 image.metadata.set_item(
                     'date_' + key,
                     pyDateTime.combine(current.date(), value.toPyTime()))
@@ -456,10 +456,10 @@ class Technical(QtGui.QWidget):
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current.empty():
-                    current = pyDateTime.min
-                else:
+                if current:
                     current = current.value
+                else:
+                    current = pyDateTime.min
                 image.metadata.set_item(
                     'date_' + key,
                     pyDateTime.combine(value.toPyDate(), current.time()))
@@ -470,12 +470,12 @@ class Technical(QtGui.QWidget):
         times = []
         for image in self.image_list.get_selected_images():
             value = getattr(image.metadata, 'date_' + key)
-            if value.empty():
-                dates.append(None)
-                times.append(None)
-            else:
+            if value:
                 dates.append(value.value.date())
                 times.append(value.value.time())
+            else:
+                dates.append(None)
+                times.append(None)
         value = dates[0]
         for new_value in dates[1:]:
             if new_value != value:
@@ -501,10 +501,10 @@ class Technical(QtGui.QWidget):
         value = None
         for image in self.image_list.get_selected_images():
             new_value = image.metadata.orientation
-            if new_value.empty():
-                new_value = None
-            else:
+            if new_value:
                 new_value = new_value.value
+            else:
+                new_value = None
             if value and new_value != value:
                 value = -1
                 break

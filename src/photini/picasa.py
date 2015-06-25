@@ -242,10 +242,10 @@ class UploadThread(QtCore.QThread):
             elif description:
                 photo.summary.text = description
             keywords = image.metadata.keywords
-            if not keywords.empty():
+            if keywords:
                 photo.group.keywords.text = ', '.join(keywords.value)
             latlong = image.metadata.latlong
-            if not latlong.empty():
+            if latlong:
                 photo.where.Point.pos.text = '{0} {1}'.format(*latlong.value)
             self.picasa.edit_node(photo)
             self.file_count += 1
