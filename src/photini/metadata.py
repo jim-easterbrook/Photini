@@ -758,7 +758,9 @@ class Metadata(QtCore.QObject):
             result.from_xmp(self)
         return result
 
-    def get_item(self, name):
+    def __getattr__(self, name):
+        if name not in self._primary_tags:
+            return super(Metadata, self).__getattr__(name)
         if name in self._value_cache:
             return self._value_cache[name]
         # get values from all 3 families, using first tag in list that has data
@@ -811,7 +813,7 @@ class Metadata(QtCore.QObject):
         return result
 
     def set_item(self, name, value):
-        current_object = self.get_item(name)
+        current_object = getattr(self, name)
         for family in ('Exif', 'Xmp', 'Iptc'):
             if family in self._primary_tags[name]:
                 tag = self._primary_tags[name][family]

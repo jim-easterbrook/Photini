@@ -57,11 +57,11 @@ class FolderSource(object):
 
     def get_file_info(self, path):
         metadata = Metadata(path)
-        timestamp = metadata.get_item('date_taken')
+        timestamp = metadata.date_taken
         if timestamp.empty():
-            timestamp = metadata.get_item('date_digitised')
+            timestamp = metadata.date_digitised
         if timestamp.empty():
-            timestamp = metadata.get_item('date_modified')
+            timestamp = metadata.date_modified
         if timestamp.empty():
             # use file date as last resort
             timestamp = datetime.fromtimestamp(os.path.getmtime(path))

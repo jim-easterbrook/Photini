@@ -123,7 +123,7 @@ class Descriptive(QtGui.QWidget):
             else:
                 name = ''
         for image in self.image_list.get_selected_images():
-            date = image.metadata.get_item('date_taken')
+            date = image.metadata.date_taken
             if date.empty():
                 date = datetime.now()
             else:
@@ -158,7 +158,7 @@ class Descriptive(QtGui.QWidget):
     def _update_widget(self, key):
         value = None
         for image in self.image_list.get_selected_images():
-            new_value = image.metadata.get_item(key).as_str()
+            new_value = getattr(image.metadata, key).as_str()
             if value and new_value != value:
                 self.widgets[key].setText(self.tr('<multiple values>'))
                 return
