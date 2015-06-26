@@ -246,7 +246,7 @@ class UploadThread(QtCore.QThread):
                 photo.group.keywords.text = ','.join(keywords.as_list())
             latlong = image.metadata.latlong
             if latlong:
-                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.value)
+                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.as_list())
             self.picasa.edit_node(photo)
             self.file_count += 1
         self.finished.emit()

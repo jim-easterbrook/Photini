@@ -267,7 +267,7 @@ class PhotiniMap(QtGui.QWidget):
         for image in self.image_list.get_images():
             latlong = image.metadata.latlong
             if latlong:
-                self._add_marker(image, *latlong.value)
+                self._add_marker(image, *latlong.as_list())
 
     def _add_marker(self, image, lat, lng):
         if not self.map_loaded:

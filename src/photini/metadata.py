@@ -185,6 +185,11 @@ class LatLongValue(BaseValue):
             return '{0:.6f}, {1:.6f}'.format(*self.value)
         return ''
 
+    def as_list(self):
+        if self.value:
+            return self.value
+        return []
+
     def to_exif(self, md, tag):
         lat_tag = tag
         long_tag = lat_tag.replace('Latitude', 'Longitude')
