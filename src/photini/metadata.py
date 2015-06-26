@@ -24,7 +24,6 @@ import locale
 import logging
 import math
 import os
-import sys
 
 from PyQt4 import QtCore
 import six
@@ -42,7 +41,7 @@ from . import __version__
 _encodings = None
 def _decode_string(value):
     global _encodings
-    if sys.version_info[0] >= 3:
+    if six.PY3:
         return value
     if not _encodings:
         _encodings = ['utf_8', 'latin_1']
@@ -60,7 +59,7 @@ def _encode_string(value, max_bytes=None):
     result = value.encode('utf_8')
     if max_bytes:
         result = result[:max_bytes]
-    if sys.version_info[0] >= 3:
+    if six.PY3:
         result = result.decode('utf_8')
     return result
 
