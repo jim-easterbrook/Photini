@@ -293,6 +293,10 @@ class LensSpecValue(BaseValue):
 
 class StringValue(BaseValue):
     # value is a single unicode string
+    # some tags convert string to list by splitting on ';'
+    _list_tags = ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
+                  'Xmp.dc.creator', 'Xmp.dc.subject')
+
     def __init__(self, tag=None):
         BaseValue.__init__(self, tag)
         self.value = ''
@@ -301,17 +305,24 @@ class StringValue(BaseValue):
         return len(self.value) != 0
 
     def sanitise(self):
-        self.value = self.value.strip()
+        if self.tag in self._list_tags:
+            self.value = '; '.join(self.as_list())
+        else:
+            self.value = self.value.strip()
 
     def iptc_pred(self, max_bytes):
+        if self.tag in self._list_tags:
+            return '; '.join([_decode_string(_encode_string(x, max_bytes))
+                              for x in self.as_list()])
         return _decode_string(_encode_string(self.value, max_bytes))
 
     def as_str(self):
         return self.value
 
+    def as_list(self):
+        return filter(bool, [x.strip() for x in self.value.split(';')])
+
     def merge(self, other):
-        if isinstance(other, ListValue):
-            return other.merge(self)
         result = StringValue()
         result.value = self.value
         if other.value not in result.value:
@@ -326,7 +337,7 @@ class StringValue(BaseValue):
         if not self.value:
             md.clear_tag(tag)
             return
-        md.set_tag_string(tag, _encode_string(self.value))
+        md.set_tag_string(tag, _encode_string(self.as_str()))
 
     def from_exif(self, md):
         if self.tag not in md.get_exif_tags():
@@ -338,99 +349,25 @@ class StringValue(BaseValue):
         if not self.value:
             md.clear_tag(tag)
             return
-        md.set_tag_multiple(tag, [_encode_string(self.value)])
+        if self.tag in self._list_tags:
+            md.set_tag_multiple(tag, map(_encode_string, self.as_list()))
+        else:
+            md.set_tag_multiple(tag, [_encode_string(self.as_str())])
 
     def from_iptc(self, md):
         if self.tag not in md.get_iptc_tags():
             return
-        self.value = md.get_tag_multiple(self.tag)
-        self.value = _decode_string(self.value[0])
+        self.value = '; '.join(map(_decode_string, md.get_tag_multiple(self.tag)))
         self.sanitise()
 
     def to_xmp(self, md, tag):
         if not self.value:
             md.clear_tag(tag)
             return
-        md.set_tag_multiple(tag, [self.value])
-
-    def from_xmp(self, md):
-        if self.tag not in md.get_xmp_tags():
-            return
-        self.value = md.get_tag_multiple(self.tag)[0]
-        if not isinstance(self.value, six.text_type):
-            self.value = self.value.decode('utf_8')
-        self.sanitise()
-
-class ListValue(BaseValue):
-    # value is an array of unicode strings
-    def __init__(self, tag=None):
-        BaseValue.__init__(self, tag)
-        self.value = []
-
-    def __bool__(self):
-        return len(self.value) != 0
-
-    def sanitise(self):
-        new_value = []
-        for item in self.value:
-            item = item.strip()
-            if item:
-                new_value.append(item)
-        self.value = new_value
-
-    def iptc_pred(self, max_bytes):
-        pred_value = [
-            _decode_string(_encode_string(x, max_bytes)) for x in self.value]
-        return '; '.join(pred_value)
-
-    def as_str(self):
-        return '; '.join(self.value)
-
-    def as_list(self):
-        return self.value
-
-    def merge(self, other):
-        result = ListValue()
-        result.value = list(self.value)
-        if isinstance(other, StringValue):
-            items = [other.value]
+        if self.tag in self._list_tags:
+            md.set_tag_multiple(tag, self.as_list())
         else:
-            items = list(other.value)
-        for item in items:
-            if item not in result.value:
-                result.value.append(item)
-        return result
-
-    def set_value(self, value):
-        if value:
-            self.value = value.split(';')
-            self.sanitise()
-        else:
-            self.value = []
-
-    def to_exif(self, md, tag):
-        if not self.value:
-            md.clear_tag(tag)
-            return
-        md.set_tag_string(tag, _encode_string(self.as_str()))
-
-    def to_iptc(self, md, tag):
-        if not self.value:
-            md.clear_tag(tag)
-            return
-        md.set_tag_multiple(tag, map(_encode_string, self.value))
-
-    def from_iptc(self, md):
-        if self.tag not in md.get_exif_tags():
-            return
-        self.value = map(_decode_string, md.get_tag_multiple(self.tag))
-        self.sanitise()
-
-    def to_xmp(self, md, tag):
-        if not self.value:
-            md.clear_tag(tag)
-            return
-        md.set_tag_multiple(tag, self.value)
+            md.set_tag_multiple(tag, [self.as_str()])
 
     def from_xmp(self, md):
         if self.tag not in md.get_xmp_tags():
@@ -438,6 +375,7 @@ class ListValue(BaseValue):
         self.value = md.get_tag_multiple(self.tag)
         if self.value and not isinstance(self.value[0], six.text_type):
             self.value = [x.decode('utf_8') for x in self.value]
+        self.value = '; '.join(self.value)
         self.sanitise()
 
 class DateTimeValue(BaseValue):
@@ -541,18 +479,18 @@ _data_object = {
     'Exif.Photo.LensModel'               : StringValue,
     'Exif.Photo.LensSerialNumber'        : StringValue,
     'Exif.Photo.LensSpecification'       : LensSpecValue,
-    'Iptc.Application2.Byline'           : ListValue,
+    'Iptc.Application2.Byline'           : StringValue,
     'Iptc.Application2.Caption'          : StringValue,
     'Iptc.Application2.Copyright'        : StringValue,
     'Iptc.Application2.DateCreated'      : DateTimeValue,
     'Iptc.Application2.DigitizationDate' : DateTimeValue,
     'Iptc.Application2.Headline'         : StringValue,
-    'Iptc.Application2.Keywords'         : ListValue,
+    'Iptc.Application2.Keywords'         : StringValue,
     'Iptc.Application2.ObjectName'       : StringValue,
-    'Xmp.dc.creator'                     : ListValue,
+    'Xmp.dc.creator'                     : StringValue,
     'Xmp.dc.description'                 : StringValue,
     'Xmp.dc.rights'                      : StringValue,
-    'Xmp.dc.subject'                     : ListValue,
+    'Xmp.dc.subject'                     : StringValue,
     'Xmp.dc.title'                       : StringValue,
     'Xmp.photoshop.DateCreated'          : DateTimeValue,
     'Xmp.exif.ApertureValue'             : APEXAperture,
