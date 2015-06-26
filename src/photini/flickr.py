@@ -132,9 +132,9 @@ class UploadThread(QtCore.QThread):
                 title = os.path.basename(image.path)
             params['title'] = title
             params['description'] = image.metadata.description.as_str()
-            tags = image.metadata.keywords
-            if tags:
-                tags = str(' ').join(['"{0}"'.format(x) for x in tags.value])
+            keywords = image.metadata.keywords
+            if keywords:
+                tags = ' '.join(['"' + x + '"' for x in keywords.as_list()])
             else:
                 tags = ''
             params['tags'] = tags

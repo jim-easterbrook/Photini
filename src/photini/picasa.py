@@ -243,7 +243,7 @@ class UploadThread(QtCore.QThread):
                 photo.summary.text = description
             keywords = image.metadata.keywords
             if keywords:
-                photo.group.keywords.text = ', '.join(keywords.value)
+                photo.group.keywords.text = ','.join(keywords.as_list())
             latlong = image.metadata.latlong
             if latlong:
                 photo.where.Point.pos.text = '{0} {1}'.format(*latlong.value)

@@ -381,6 +381,9 @@ class ListValue(BaseValue):
     def as_str(self):
         return '; '.join(self.value)
 
+    def as_list(self):
+        return self.value
+
     def merge(self, other):
         result = ListValue()
         result.value = list(self.value)
