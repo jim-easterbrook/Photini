@@ -342,7 +342,7 @@ class ImageList(QtGui.QWidget):
             result = datetime.fromtimestamp(
                 os.path.getmtime(self.image[idx].path))
         else:
-            result = result.value
+            result = result.as_datetime()
         return result
 
     def _new_sort_order(self):

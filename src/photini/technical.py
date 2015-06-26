@@ -355,7 +355,8 @@ class Technical(QtGui.QWidget):
                 value = getattr(image.metadata, 'date_' + key)
                 if not value:
                     continue
-                image.metadata.set_item('date_' + key, value.value + offset)
+                image.metadata.set_item(
+                    'date_' + key, value.as_datetime() + offset)
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -444,7 +445,7 @@ class Technical(QtGui.QWidget):
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
                 if current:
-                    current = current.value
+                    current = current.as_datetime()
                 else:
                     current = pyDateTime.today()
                 image.metadata.set_item(
@@ -459,7 +460,7 @@ class Technical(QtGui.QWidget):
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
                 if current:
-                    current = current.value
+                    current = current.as_datetime()
                 else:
                     current = pyDateTime.min
                 image.metadata.set_item(
@@ -473,8 +474,8 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             value = getattr(image.metadata, 'date_' + key)
             if value:
-                dates.append(value.value.date())
-                times.append(value.value.time())
+                dates.append(value.as_datetime().date())
+                times.append(value.as_datetime().time())
             else:
                 dates.append(None)
                 times.append(None)

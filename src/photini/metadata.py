@@ -385,6 +385,9 @@ class DateTimeValue(BaseValue):
             return self.value.isoformat()
         return ''
 
+    def as_datetime(self):
+        return self.value
+
     def to_exif(self, md, tag):
         if not self.value:
             md.clear_tag(tag)
