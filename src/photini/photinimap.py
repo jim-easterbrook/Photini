@@ -245,7 +245,7 @@ class PhotiniMap(QtGui.QWidget):
                 self.coords.setText(self.tr("<multiple values>"))
                 return
         if latlong:
-            self.coords.setText(latlong.as_str())
+            self.coords.setText(str(latlong))
         else:
             self.coords.clear()
 
@@ -267,7 +267,7 @@ class PhotiniMap(QtGui.QWidget):
         for image in self.image_list.get_images():
             latlong = image.metadata.latlong
             if latlong:
-                self._add_marker(image, *latlong.as_list())
+                self._add_marker(image, *latlong.members())
 
     def _add_marker(self, image, lat, lng):
         if not self.map_loaded:

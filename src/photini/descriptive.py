@@ -124,9 +124,7 @@ class Descriptive(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.metadata.date_taken
-            if date:
-                date = date.as_datetime()
-            else:
+            if date is None:
                 date = datetime.now()
             value = self.trUtf8(
                 'Copyright \xa9{0:d} {1}. All rights reserved.').format(
@@ -162,10 +160,12 @@ class Descriptive(QtGui.QWidget):
             if getattr(image.metadata, key) != value:
                 self.widgets[key].setText(self.tr('<multiple values>'))
                 return
-        if value:
-            self.widgets[key].setText(value.as_str())
-        else:
+        if not value:
             self.widgets[key].clear()
+        elif isinstance(value, list):
+            self.widgets[key].setText('; '.join(value))
+        else:
+            self.widgets[key].setText(value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

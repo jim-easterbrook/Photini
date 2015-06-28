@@ -65,8 +65,6 @@ class FolderSource(object):
         if not timestamp:
             # use file date as last resort
             timestamp = datetime.fromtimestamp(os.path.getmtime(path))
-        else:
-            timestamp = timestamp.as_datetime()
         folder, name = os.path.split(path)
         return {
             'path'      : path,

@@ -143,8 +143,8 @@ class Image(QtGui.QFrame):
                     # store a scaled down version of image to save memory
                     self.pixmap = self.pixmap.scaled(
                         400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                orientation = int(self.metadata.orientation)
-                if orientation > 1:
+                orientation = self.metadata.orientation
+                if orientation and orientation > 1:
                     # need to rotate and or reflect image
                     transform = QtGui.QTransform()
                     if orientation in (3, 4):
@@ -333,16 +333,14 @@ class ImageList(QtGui.QWidget):
 
     def _date_key(self, idx):
         result = self.image[idx].metadata.date_taken
-        if not result:
+        if result is None:
             result = self.image[idx].metadata.date_digitised
-        if not result:
+        if result is None:
             result = self.image[idx].metadata.date_modified
-        if not result:
+        if result is None:
             # use file date as last resort
             result = datetime.fromtimestamp(
                 os.path.getmtime(self.image[idx].path))
-        else:
-            result = result.as_datetime()
         return result
 
     def _new_sort_order(self):

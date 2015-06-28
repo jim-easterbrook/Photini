@@ -233,8 +233,8 @@ class UploadThread(QtCore.QThread):
                 os.unlink(path)
             # set metadata
             photo.title.text = title
-            title = image.metadata.title.as_str()
-            description = image.metadata.description.as_str()
+            title = image.metadata.title
+            description = image.metadata.description
             if title and description:
                 photo.summary.text = '{0}\n\n{1}'.format(title, description)
             elif title:
@@ -243,10 +243,10 @@ class UploadThread(QtCore.QThread):
                 photo.summary.text = description
             keywords = image.metadata.keywords
             if keywords:
-                photo.group.keywords.text = ','.join(keywords.as_list())
+                photo.group.keywords.text = ','.join(keywords)
             latlong = image.metadata.latlong
             if latlong:
-                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.as_list())
+                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.members())
             self.picasa.edit_node(photo)
             self.file_count += 1
         self.finished.emit()

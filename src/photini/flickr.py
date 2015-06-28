@@ -127,14 +127,14 @@ class UploadThread(QtCore.QThread):
         self.file_count = 0
         for image, convert in self.upload_list:
             params = dict(self.fixed_params)
-            title = image.metadata.title.as_str()
+            title = image.metadata.title
             if not title:
                 title = os.path.basename(image.path)
             params['title'] = title
-            params['description'] = image.metadata.description.as_str()
+            params['description'] = image.metadata.description
             keywords = image.metadata.keywords
             if keywords:
-                tags = ' '.join(['"' + x + '"' for x in keywords.as_list()])
+                tags = ' '.join(['"' + x + '"' for x in keywords])
             else:
                 tags = ''
             params['tags'] = tags

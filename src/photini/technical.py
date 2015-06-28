@@ -24,6 +24,8 @@ from datetime import (
 
 from PyQt4 import QtGui, QtCore
 
+from .metadata import LensSpec
+
 class DateEdit(QtGui.QDateEdit):
     def focusInEvent(self, event):
         if self.date() == self.minimumDate():
@@ -144,14 +146,15 @@ class LensData(object):
         image.metadata.set_item('lens_model', model)
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
-            value = self.config_store.get(section, item) or ''
+            value = self.config_store.get(section, item) or None
             image.metadata.set_item(item, value)
 
     def image_load(self, model, image):
         section = 'lens '  + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
-            self.config_store.set(
-                section, item, getattr(image.metadata, item).as_str())
+            value = getattr(image.metadata, item)
+            if value is not None:
+                self.config_store.set(section, item, str(value))
         self.lenses.append(model)
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
@@ -162,21 +165,23 @@ class LensData(object):
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
-        lens_spec = {}
-        for key in ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn'):
-            lens_spec[key] = float(dialog.lens_spec[key].text())
-        self.config_store.set(section, 'lens_spec', repr(lens_spec))
+        lens_spec = LensSpec(
+            dialog.lens_spec['min_fl'].text(),
+            dialog.lens_spec['max_fl'].text(),
+            dialog.lens_spec['min_fl_fn'].text(),
+            dialog.lens_spec['max_fl_fn'].text())
+        self.config_store.set(section, 'lens_spec', str(lens_spec))
         self.lenses.append(model)
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
         return model
 
-    def get_spec(self, model, key):
+    def get_spec(self, model):
         section = 'lens ' + model
         spec = self.config_store.get(section, 'lens_spec')
         if not spec:
             return None
-        return eval(spec)[key]
+        return LensSpec.from_string(spec)
 
 class NewLensDialog(QtGui.QDialog):
     def __init__(self, parent):
@@ -353,10 +358,9 @@ class Technical(QtGui.QWidget):
         for image in self.image_list.get_selected_images():
             for key in self.date_widget:
                 value = getattr(image.metadata, 'date_' + key)
-                if not value:
+                if value is None:
                     continue
-                image.metadata.set_item(
-                    'date_' + key, value.as_datetime() + offset)
+                image.metadata.set_item('date_' + key, value + offset)
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -398,24 +402,20 @@ class Technical(QtGui.QWidget):
         model = self.lens_model.itemText(index)
         for image in self.image_list.get_selected_images():
             self.lens_data.image_save(model, image)
-            if model and self.link_lens.isChecked():
-                aperture = float(image.metadata.aperture)
-                focal_length = float(image.metadata.focal_length)
-                if focal_length < self.lens_data.get_spec(model, 'min_fl'):
-                    focal_length = self.lens_data.get_spec(model, 'min_fl')
-                    aperture = max(aperture,
-                                   self.lens_data.get_spec(model, 'min_fl_fn'))
-                elif focal_length > self.lens_data.get_spec(model, 'max_fl'):
-                    focal_length = self.lens_data.get_spec(model, 'max_fl')
-                    aperture = max(aperture,
-                                   self.lens_data.get_spec(model, 'max_fl_fn'))
+        spec = self.lens_data.get_spec(model)
+        if spec and self.link_lens.isChecked():
+            for image in self.image_list.get_selected_images():
+                aperture = image.metadata.aperture
+                focal_length = image.metadata.focal_length
+                focal_length = min(max(focal_length, spec.min_fl), spec.max_fl)
+                if focal_length <= spec.min_fl:
+                    aperture = max(aperture, spec.min_fl_fn)
+                elif focal_length >= spec.max_fl:
+                    aperture = max(aperture, spec.max_fl_fn)
                 else:
-                    aperture = max(aperture,
-                                   self.lens_data.get_spec(model, 'min_fl_fn'),
-                                   self.lens_data.get_spec(model, 'max_fl_fn'))
+                    aperture = max(aperture, spec.min_fl_fn, spec.max_fl_fn)
                 image.metadata.set_item('aperture', aperture)
                 image.metadata.set_item('focal_length', focal_length)
-        if model and self.link_lens.isChecked():
             self._update_aperture()
             self._update_focal_length()
 
@@ -444,9 +444,7 @@ class Technical(QtGui.QWidget):
             # update times, leaving date unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current:
-                    current = current.as_datetime()
-                else:
+                if current is None:
                     current = pyDateTime.today()
                 image.metadata.set_item(
                     'date_' + key,
@@ -459,9 +457,7 @@ class Technical(QtGui.QWidget):
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current:
-                    current = current.as_datetime()
-                else:
+                if current is None:
                     current = pyDateTime.min
                 image.metadata.set_item(
                     'date_' + key,
@@ -473,12 +469,12 @@ class Technical(QtGui.QWidget):
         times = []
         for image in self.image_list.get_selected_images():
             value = getattr(image.metadata, 'date_' + key)
-            if value:
-                dates.append(value.as_datetime().date())
-                times.append(value.as_datetime().time())
-            else:
+            if value is None:
                 dates.append(None)
                 times.append(None)
+            else:
+                dates.append(value.date())
+                times.append(value.time())
         value = dates[0]
         for new_value in dates[1:]:
             if new_value != value:
@@ -508,6 +504,8 @@ class Technical(QtGui.QWidget):
                 # multiple values
                 self.orientation.setCurrentIndex(self.orientation.findData(-1))
                 return
+        if value is None:
+            value = 0
         self.orientation.setCurrentIndex(self.orientation.findData(int(value)))
 
     def _update_lens_model(self):
@@ -518,7 +516,8 @@ class Technical(QtGui.QWidget):
                 # multiple values
                 self.lens_model.setCurrentIndex(self.lens_model.findData(-1))
                 return
-        value = value.as_str()
+        if value is None:
+            value = ''
         index = self.lens_model.findText(value)
         if index >= 0:
             self.lens_model.setCurrentIndex(index)
@@ -537,7 +536,10 @@ class Technical(QtGui.QWidget):
             if image.metadata.aperture != value:
                 self.aperture.setText(self.tr('<multiple values>'))
                 return
-        self.aperture.setText(value.as_str())
+        if value is None:
+            self.aperture.clear()
+        else:
+            self.aperture.setText('{:g}'.format(float(value)))
 
     def _update_focal_length(self):
         images = self.image_list.get_selected_images()
@@ -546,7 +548,10 @@ class Technical(QtGui.QWidget):
             if image.metadata.focal_length != value:
                 self.focal_length.setText(self.tr('<multiple values>'))
                 return
-        self.focal_length.setText(value.as_str())
+        if value is None:
+            self.focal_length.clear()
+        else:
+            self.focal_length.setText('{:g}'.format(float(value)))
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
