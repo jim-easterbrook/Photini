@@ -145,7 +145,7 @@ Windows users should download and run the latest "pygi-aio" (PyGI all-in-one) in
 You should install the "Base packages" and "GExiv2" libraries, but nothing else is needed.
 
 Linux users have a choice of library to provide Python bindings to gexiv2.
-`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ has been used in Photini development, but `pgi <https://pypi.python.org/pypi/pgi/>`_ is a pure Python alternative that should be compatible.
+`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ can be used, but `pgi <https://pypi.python.org/pypi/pgi/>`_ may be more reliable.
 Linux users can use their package manager to install ``python-gobject`` or pip can be used to install pgi::
 
    sudo pip install pgi
