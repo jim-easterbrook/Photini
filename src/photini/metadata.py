@@ -209,15 +209,6 @@ _data_type = {
     'Xmp.xmp.CreateDate'                 : 'datetime',
     'Xmp.xmp.ModifyDate'                 : 'datetime',
     }
-# some data requires more than one tag
-_associated_tags = {
-    'Exif.GPSInfo.GPSLatitude'           : ('Exif.GPSInfo.GPSLatitudeRef',
-                                            'Exif.GPSInfo.GPSLongitude',
-                                            'Exif.GPSInfo.GPSLongitudeRef'),
-    'Iptc.Application2.DateCreated'      : ('Iptc.Application2.TimeCreated',),
-    'Iptc.Application2.DigitizationDate' : ('Iptc.Application2.DigitizationTime',),
-    'Xmp.exif.GPSLatitude'               : ('Xmp.exif.GPSLongitude',),
-    }
 # maximum length of Iptc data
 _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
@@ -392,7 +383,13 @@ def write_iptc(md, tag, value):
 
 def write_xmp(md, tag, value):
     if value is None:
-        md.clear_tag(tag)
+        if _data_type[tag] == 'latlon':
+            lat_tag = tag
+            lon_tag = lat_tag.replace('Latitude', 'Longitude')
+            for sub_tag in (lat_tag, lon_tag):
+                md.clear_tag(sub_tag)
+        else:
+            md.clear_tag(tag)
     elif _data_type[tag] == 'string':
         md.set_tag_multiple(tag, [value])
     elif _data_type[tag] == 'multi_string':
@@ -737,12 +734,14 @@ class Metadata(QtCore.QObject):
         # delete secondary tags
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
-                if tag in self.get_tags():
-                    self.clear_tag(tag)
-                if tag in _associated_tags:
-                    for sup_tag in _associated_tags[tag]:
-                        if sup_tag in self.get_tags():
-                            self.clear_tag(sup_tag)
+                if tag not in _data_type:
+                    raise RuntimeError('Cannot clear tag ' + tag)
+                if family == 'Exif':
+                    write_exif(self, tag, None)
+                elif family == 'Xmp':
+                    write_xmp(self, tag, None)
+                else:
+                    write_iptc(self, tag, None)
         self._set_unsaved(True)
 
     def del_item(self, name):
