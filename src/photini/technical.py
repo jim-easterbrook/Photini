@@ -452,7 +452,7 @@ class Technical(QtGui.QWidget):
         elif value == self.date_widget[key].date.minimumDate():
             # clear date & time
             for image in self.image_list.get_selected_images():
-                image.metadata.del_item('date_' + key)
+                image.metadata.set_item('date_' + key, None)
         else:
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():

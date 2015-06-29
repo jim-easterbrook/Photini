@@ -744,9 +744,6 @@ class Metadata(QtCore.QObject):
                     write_iptc(self, tag, None)
         self._set_unsaved(True)
 
-    def del_item(self, name):
-        self.set_item(name, None)
-
     new_status = QtCore.pyqtSignal(bool)
     def _set_unsaved(self, status):
         self._unsaved = status
