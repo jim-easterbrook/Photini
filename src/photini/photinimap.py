@@ -202,7 +202,7 @@ class PhotiniMap(QtGui.QWidget):
         text = self.coords.text().strip()
         if not text:
             for image in self.image_list.get_selected_images():
-                image.metadata.set_item('latlong', None)
+                image.metadata.latlong = None
             self.JavaScript('delMarker("{0}")'.format(image.path))
             return
         try:
@@ -327,7 +327,7 @@ class PhotiniMap(QtGui.QWidget):
         self.see_selection()
 
     def _set_metadata(self, image, lat, lng):
-        image.metadata.set_item('latlong', (lat, lng))
+        image.metadata.latlong = (lat, lng)
 
     def JavaScript(self, command):
         if self.map_loaded:

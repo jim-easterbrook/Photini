@@ -129,7 +129,7 @@ class Descriptive(QtGui.QWidget):
             value = self.trUtf8(
                 'Copyright \xa9{0:d} {1}. All rights reserved.').format(
                     date.year, name)
-            image.metadata.set_item('copyright', value)
+            image.metadata.copyright = value
         self._update_widget('copyright')
 
     def auto_creator(self):
@@ -150,7 +150,7 @@ class Descriptive(QtGui.QWidget):
         value = self.widgets[key].text()
         if value != self.tr('<multiple values>'):
             for image in self.image_list.get_selected_images():
-                image.metadata.set_item(key, value)
+                setattr(image.metadata, key, value)
         self._update_widget(key)
 
     def _update_widget(self, key):

@@ -143,11 +143,11 @@ class LensData(object):
         self.lenses.sort()
 
     def image_save(self, model, image):
-        image.metadata.set_item('lens_model', model)
+        image.metadata.lens_model = model
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = self.config_store.get(section, item) or None
-            image.metadata.set_item(item, value)
+            setattr(image.metadata, item, value)
 
     def image_load(self, model, image):
         section = 'lens '  + model
@@ -360,7 +360,7 @@ class Technical(QtGui.QWidget):
                 value = getattr(image.metadata, 'date_' + key)
                 if value is None:
                     continue
-                image.metadata.set_item('date_' + key, value + offset)
+                setattr(image.metadata, 'date_' + key, value + offset)
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -385,7 +385,7 @@ class Technical(QtGui.QWidget):
         if value == 0:
             value = None
         for image in self.image_list.get_selected_images():
-            image.metadata.set_item('orientation', value)
+            image.metadata.orientation = value
             image.pixmap = None
             image.load_thumbnail()
 
@@ -414,8 +414,8 @@ class Technical(QtGui.QWidget):
                     aperture = max(aperture, spec.max_fl_fn)
                 else:
                     aperture = max(aperture, spec.min_fl_fn, spec.max_fl_fn)
-                image.metadata.set_item('aperture', aperture)
-                image.metadata.set_item('focal_length', focal_length)
+                image.metadata.aperture = aperture
+                image.metadata.focal_length = focal_length
             self._update_aperture()
             self._update_focal_length()
 
@@ -431,13 +431,13 @@ class Technical(QtGui.QWidget):
         value = self.aperture.text()
         if value != self.tr('<multiple values>'):
             for image in self.image_list.get_selected_images():
-                image.metadata.set_item('aperture', value)
+                image.metadata.aperture = value
 
     def new_focal_length(self):
         value = self.focal_length.text()
         if value != self.tr('<multiple values>'):
             for image in self.image_list.get_selected_images():
-                image.metadata.set_item('focal_length', value)
+                image.metadata.focal_length = value
 
     def _new_datetime_value(self, key, value):
         if isinstance(value, QtCore.QTime):
@@ -446,22 +446,20 @@ class Technical(QtGui.QWidget):
                 current = getattr(image.metadata, 'date_' + key)
                 if current is None:
                     current = pyDateTime.today()
-                image.metadata.set_item(
-                    'date_' + key,
-                    pyDateTime.combine(current.date(), value.toPyTime()))
+                setattr(image.metadata, 'date_' + key,
+                        pyDateTime.combine(current.date(), value.toPyTime()))
         elif value == self.date_widget[key].date.minimumDate():
             # clear date & time
             for image in self.image_list.get_selected_images():
-                image.metadata.set_item('date_' + key, None)
+                setattr(image.metadata, 'date_' + key, None)
         else:
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
                 if current is None:
                     current = pyDateTime.min
-                image.metadata.set_item(
-                    'date_' + key,
-                    pyDateTime.combine(value.toPyDate(), current.time()))
+                setattr(image.metadata, 'date_' + key,
+                        pyDateTime.combine(value.toPyDate(), current.time()))
         self._update_datetime(key)
 
     def _update_datetime(self, key):

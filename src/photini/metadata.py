@@ -553,7 +553,7 @@ class Metadata(QtCore.QObject):
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
-        self.set_item('software', 'Photini editor v{0}'.format(__version__))
+        self.software = 'Photini editor v{0}'.format(__version__)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
@@ -715,7 +715,9 @@ class Metadata(QtCore.QObject):
         self._value_cache[name] = result
         return result
 
-    def set_item(self, name, value):
+    def __setattr__(self, name, value):
+        if name not in self._primary_tags:
+            return super(Metadata, self).__setattr__(name, value)
         value = sanitise(name, value)
         if getattr(self, name) == value:
             return
