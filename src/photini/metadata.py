@@ -219,186 +219,6 @@ _max_bytes = {
     'Iptc.Application2.ObjectName'       :   64,
     }
 
-def read_exif(md, tag):
-    if _data_type[tag] == 'ignore':
-        return None
-    if _data_type[tag] == 'latlon':
-        lat_tag = tag
-        lon_tag = lat_tag.replace('Latitude', 'Longitude')
-        parts = []
-        for sub_tag in (lat_tag, lat_tag + 'Ref', lon_tag, lon_tag + 'Ref'):
-            if sub_tag not in md.get_exif_tags():
-                return None
-            parts.append(md.get_tag_string(sub_tag))
-        return LatLon(LatLon.from_exif_part(parts[0], parts[1]),
-                      LatLon.from_exif_part(parts[2], parts[3]))
-    if tag not in md.get_exif_tags():
-        return None
-    value_string = md.get_tag_string(tag)
-    if _data_type[tag] == 'int':
-        return value_string
-    elif _data_type[tag] == 'APEX_aperture':
-        return math.sqrt(2.0 ** Fraction(value_string))
-    elif _data_type[tag] == 'rational':
-        return value_string
-    elif _data_type[tag] == 'string':
-        return _decode_string(value_string)
-    elif _data_type[tag] == 'multi_string':
-        return _decode_string(value_string).split(';')
-    elif _data_type[tag] == 'datetime':
-        return datetime.strptime(value_string, '%Y:%m:%d %H:%M:%S')
-    elif _data_type[tag] == 'lensspec':
-        return LensSpec(*value_string.split())
-    else:
-        raise RuntimeError('Cannot read tag ' + tag)
-    return result
-
-def read_iptc(md, tag):
-    if _data_type[tag] == 'datetime':
-        date_tag = tag
-        time_tag = date_tag.replace('Date', 'Time')
-        if date_tag in md.get_iptc_tags():
-            date_string = md.get_tag_multiple(date_tag)[0]
-            has_date = True
-        else:
-            date_string = '0001-01-01'
-            has_date = False
-        if time_tag in md.get_iptc_tags():
-            time_string = md.get_tag_multiple(time_tag)[0][:8]
-            has_time = True
-        else:
-            time_string = '00:00:00'
-            has_time = False
-        if has_date or has_time:
-            return datetime.strptime(
-                date_string + time_string, '%Y-%m-%d%H:%M:%S')
-        return None
-    if tag not in md.get_iptc_tags():
-        return None
-    if _data_type[tag] == 'string':
-        return '; '.join(map(_decode_string, md.get_tag_multiple(tag)))
-    elif _data_type[tag] == 'multi_string':
-        return list(map(_decode_string, md.get_tag_multiple(tag)))
-    else:
-        raise RuntimeError('Cannot read tag ' + tag)
-    return result
-
-def read_xmp(md, tag):
-    if _data_type[tag] == 'ignore':
-        return None
-    if _data_type[tag] == 'latlon':
-        lat_tag = tag
-        lon_tag = lat_tag.replace('Latitude', 'Longitude')
-        parts = []
-        for sub_tag in (lat_tag, lon_tag):
-            if sub_tag not in md.get_xmp_tags():
-                return None
-            parts.append(md.get_tag_multiple(sub_tag)[0])
-        return LatLon(LatLon.from_xmp_part(parts[0]),
-                      LatLon.from_xmp_part(parts[1]))
-    if tag not in md.get_xmp_tags():
-        return None
-    value_strings = md.get_tag_multiple(tag)
-    if not value_strings:
-        return None
-    if _data_type[tag] == 'int':
-        return value_strings[0]
-    elif _data_type[tag] == 'APEX_aperture':
-        return math.sqrt(2.0 ** Fraction(value_strings[0]))
-    elif _data_type[tag] == 'rational':
-        return value_strings[0]
-    elif _data_type[tag] == 'string':
-        if not isinstance(value_strings[0], six.text_type):
-            value_strings = [x.decode('utf_8') for x in value_strings]
-        return '; '.join(value_strings)
-    elif _data_type[tag] == 'multi_string':
-        if not isinstance(value_strings[0], six.text_type):
-            value_strings = [x.decode('utf_8') for x in value_strings]
-        return list(value_strings)
-    elif _data_type[tag] == 'datetime':
-        string_value = value_strings[0]
-        # remove any time zone info
-        if string_value.count(':') >= 2:
-            string_value = string_value[:19]
-        else:
-            string_value = string_value[:16]
-        # extend short strings to include all info
-        string_value += '0001-01-01T00:00:00'[len(string_value):]
-        # convert to datetime
-        return datetime.strptime(string_value, '%Y-%m-%dT%H:%M:%S')
-    else:
-        raise RuntimeError('Cannot read tag ' + tag)
-    return result
-
-def write_exif(md, tag, value):
-    if _data_type[tag] == 'latlon':
-        lat_tag = tag
-        lon_tag = lat_tag.replace('Latitude', 'Longitude')
-        tag_list = (lat_tag, lat_tag + 'Ref', lon_tag, lon_tag + 'Ref')
-        if value is None:
-            for sub_tag in tag_list:
-                md.clear_tag(sub_tag)
-            return
-        for sub_value, sub_tag in zip(value.to_exif(), tag_list):
-            md.set_tag_string(sub_tag, sub_value)
-        return
-    if value is None:
-        md.clear_tag(tag)
-    elif _data_type[tag] == 'int':
-        md.set_tag_string(tag, '{:d}'.format(value))
-    elif _data_type[tag] == 'rational':
-        md.set_tag_string(
-            tag, '{:d}/{:d}'.format(value.numerator, value.denominator))
-    elif _data_type[tag] == 'lensspec':
-        md.set_tag_string(tag, ' '.join(['{:d}/{:d}'.format(
-            x.numerator, x.denominator) for x in value.members()]))
-    elif _data_type[tag] == 'string':
-        md.set_tag_string(tag, _encode_string(value))
-    elif _data_type[tag] == 'multi_string':
-        md.set_tag_string(tag, _encode_string(';'.join(value)))
-    elif _data_type[tag] == 'datetime':
-        md.set_tag_string(tag, value.strftime('%Y:%m:%d %H:%M:%S'))
-    else:
-        raise RuntimeError('Cannot write tag ' + tag)
-
-def write_iptc(md, tag, value):
-    if _data_type[tag] == 'datetime':
-        date_tag = tag
-        time_tag = date_tag.replace('Date', 'Time')
-        if value is None:
-            md.clear_tag(date_tag)
-            md.clear_tag(time_tag)
-            return
-        md.set_tag_multiple(date_tag, [value.strftime('%Y-%m-%d')])
-        md.set_tag_multiple(time_tag, [value.strftime('%H:%M:%S')])
-    if value is None:
-        md.clear_tag(tag)
-    elif _data_type[tag] == 'string':
-        md.set_tag_multiple(tag, [_encode_string(value, _max_bytes[tag])])
-    elif _data_type[tag] == 'multi_string':
-        md.set_tag_multiple(
-            tag, [_encode_string(x, _max_bytes[tag]) for x in value])
-    else:
-        raise RuntimeError('Cannot write tag ' + tag)
-
-def write_xmp(md, tag, value):
-    if value is None:
-        if _data_type[tag] == 'latlon':
-            lat_tag = tag
-            lon_tag = lat_tag.replace('Latitude', 'Longitude')
-            for sub_tag in (lat_tag, lon_tag):
-                md.clear_tag(sub_tag)
-        else:
-            md.clear_tag(tag)
-    elif _data_type[tag] == 'string':
-        md.set_tag_multiple(tag, [value])
-    elif _data_type[tag] == 'multi_string':
-        md.set_tag_multiple(tag, value)
-    elif _data_type[tag] == 'datetime':
-        md.set_tag_multiple(tag, [value.strftime('%Y-%m-%dT%H:%M:%S')])
-    else:
-        raise RuntimeError('Cannot write tag ' + tag)
-
 def sanitise(name, value):
     # convert value if required and clean it up
     if value in (None, '', []):
@@ -638,15 +458,126 @@ class Metadata(QtCore.QObject):
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
+    def _read_exif(self, tag):
+        if _data_type[tag] == 'ignore':
+            return None
+        if _data_type[tag] == 'latlon':
+            lat_tag = tag
+            lon_tag = lat_tag.replace('Latitude', 'Longitude')
+            parts = []
+            for sub_tag in (lat_tag, lat_tag + 'Ref', lon_tag, lon_tag + 'Ref'):
+                if sub_tag not in self.get_exif_tags():
+                    return None
+                parts.append(self.get_tag_string(sub_tag))
+            return LatLon(LatLon.from_exif_part(parts[0], parts[1]),
+                          LatLon.from_exif_part(parts[2], parts[3]))
+        if tag not in self.get_exif_tags():
+            return None
+        value_string = self.get_tag_string(tag)
+        if _data_type[tag] == 'int':
+            return value_string
+        elif _data_type[tag] == 'APEX_aperture':
+            return math.sqrt(2.0 ** Fraction(value_string))
+        elif _data_type[tag] == 'rational':
+            return value_string
+        elif _data_type[tag] == 'string':
+            return _decode_string(value_string)
+        elif _data_type[tag] == 'multi_string':
+            return _decode_string(value_string).split(';')
+        elif _data_type[tag] == 'datetime':
+            return datetime.strptime(value_string, '%Y:%m:%d %H:%M:%S')
+        elif _data_type[tag] == 'lensspec':
+            return LensSpec(*value_string.split())
+        else:
+            raise RuntimeError('Cannot read tag ' + tag)
+        return result
+
+    def _read_iptc(self, tag):
+        if _data_type[tag] == 'datetime':
+            date_tag = tag
+            time_tag = date_tag.replace('Date', 'Time')
+            if date_tag in self.get_iptc_tags():
+                date_string = self.get_tag_multiple(date_tag)[0]
+                has_date = True
+            else:
+                date_string = '0001-01-01'
+                has_date = False
+            if time_tag in self.get_iptc_tags():
+                time_string = self.get_tag_multiple(time_tag)[0][:8]
+                has_time = True
+            else:
+                time_string = '00:00:00'
+                has_time = False
+            if has_date or has_time:
+                return datetime.strptime(
+                    date_string + time_string, '%Y-%m-%d%H:%M:%S')
+            return None
+        if tag not in self.get_iptc_tags():
+            return None
+        if _data_type[tag] == 'string':
+            return '; '.join(map(_decode_string, self.get_tag_multiple(tag)))
+        elif _data_type[tag] == 'multi_string':
+            return list(map(_decode_string, self.get_tag_multiple(tag)))
+        else:
+            raise RuntimeError('Cannot read tag ' + tag)
+        return result
+
+    def _read_xmp(self, tag):
+        if _data_type[tag] == 'ignore':
+            return None
+        if _data_type[tag] == 'latlon':
+            lat_tag = tag
+            lon_tag = lat_tag.replace('Latitude', 'Longitude')
+            parts = []
+            for sub_tag in (lat_tag, lon_tag):
+                if sub_tag not in self.get_xmp_tags():
+                    return None
+                parts.append(self.get_tag_multiple(sub_tag)[0])
+            return LatLon(LatLon.from_xmp_part(parts[0]),
+                          LatLon.from_xmp_part(parts[1]))
+        if tag not in self.get_xmp_tags():
+            return None
+        value_strings = self.get_tag_multiple(tag)
+        if not value_strings:
+            return None
+        if _data_type[tag] == 'int':
+            return value_strings[0]
+        elif _data_type[tag] == 'APEX_aperture':
+            return math.sqrt(2.0 ** Fraction(value_strings[0]))
+        elif _data_type[tag] == 'rational':
+            return value_strings[0]
+        elif _data_type[tag] == 'string':
+            if not isinstance(value_strings[0], six.text_type):
+                value_strings = [x.decode('utf_8') for x in value_strings]
+            return '; '.join(value_strings)
+        elif _data_type[tag] == 'multi_string':
+            if not isinstance(value_strings[0], six.text_type):
+                value_strings = [x.decode('utf_8') for x in value_strings]
+            return list(value_strings)
+        elif _data_type[tag] == 'datetime':
+            string_value = value_strings[0]
+            # remove any time zone info
+            if string_value.count(':') >= 2:
+                string_value = string_value[:19]
+            else:
+                string_value = string_value[:16]
+            # extend short strings to include all info
+            string_value += '0001-01-01T00:00:00'[len(string_value):]
+            # convert to datetime
+            return datetime.strptime(string_value, '%Y-%m-%dT%H:%M:%S')
+        else:
+            raise RuntimeError('Cannot read tag ' + tag)
+        return result
+
     def _get_value(self, name, family, tag):
         if tag not in _data_type:
             raise RuntimeError('Cannot read tag ' + tag)
         if family == 'Exif':
-            value = read_exif(self, tag)
+            value = self._read_exif(tag)
         elif family == 'Iptc':
-            value = read_iptc(self, tag)
+            value = self._read_iptc(tag)
         else:
-            value = read_xmp(self, tag)
+            value = self._read_xmp(tag)
         return sanitise(name, value)
 
     def __getattr__(self, name):
@@ -715,6 +646,75 @@ class Metadata(QtCore.QObject):
         self._value_cache[name] = result
         return result
 
+    def _write_exif(self, tag, value):
+        if _data_type[tag] == 'latlon':
+            lat_tag = tag
+            lon_tag = lat_tag.replace('Latitude', 'Longitude')
+            tag_list = (lat_tag, lat_tag + 'Ref', lon_tag, lon_tag + 'Ref')
+            if value is None:
+                for sub_tag in tag_list:
+                    self.clear_tag(sub_tag)
+                return
+            for sub_value, sub_tag in zip(value.to_exif(), tag_list):
+                self.set_tag_string(sub_tag, sub_value)
+            return
+        if value is None:
+            self.clear_tag(tag)
+        elif _data_type[tag] == 'int':
+            self.set_tag_string(tag, '{:d}'.format(value))
+        elif _data_type[tag] == 'rational':
+            self.set_tag_string(
+                tag, '{:d}/{:d}'.format(value.numerator, value.denominator))
+        elif _data_type[tag] == 'lensspec':
+            self.set_tag_string(tag, ' '.join(['{:d}/{:d}'.format(
+                x.numerator, x.denominator) for x in value.members()]))
+        elif _data_type[tag] == 'string':
+            self.set_tag_string(tag, _encode_string(value))
+        elif _data_type[tag] == 'multi_string':
+            self.set_tag_string(tag, _encode_string(';'.join(value)))
+        elif _data_type[tag] == 'datetime':
+            self.set_tag_string(tag, value.strftime('%Y:%m:%d %H:%M:%S'))
+        else:
+            raise RuntimeError('Cannot write tag ' + tag)
+
+    def _write_iptc(self, tag, value):
+        if _data_type[tag] == 'datetime':
+            date_tag = tag
+            time_tag = date_tag.replace('Date', 'Time')
+            if value is None:
+                self.clear_tag(date_tag)
+                self.clear_tag(time_tag)
+                return
+            self.set_tag_multiple(date_tag, [value.strftime('%Y-%m-%d')])
+            self.set_tag_multiple(time_tag, [value.strftime('%H:%M:%S')])
+        if value is None:
+            self.clear_tag(tag)
+        elif _data_type[tag] == 'string':
+            self.set_tag_multiple(tag, [_encode_string(value, _max_bytes[tag])])
+        elif _data_type[tag] == 'multi_string':
+            self.set_tag_multiple(
+                tag, [_encode_string(x, _max_bytes[tag]) for x in value])
+        else:
+            raise RuntimeError('Cannot write tag ' + tag)
+
+    def _write_xmp(self, tag, value):
+        if value is None:
+            if _data_type[tag] == 'latlon':
+                lat_tag = tag
+                lon_tag = lat_tag.replace('Latitude', 'Longitude')
+                for sub_tag in (lat_tag, lon_tag):
+                    self.clear_tag(sub_tag)
+            else:
+                self.clear_tag(tag)
+        elif _data_type[tag] == 'string':
+            self.set_tag_multiple(tag, [value])
+        elif _data_type[tag] == 'multi_string':
+            self.set_tag_multiple(tag, value)
+        elif _data_type[tag] == 'datetime':
+            self.set_tag_multiple(tag, [value.strftime('%Y-%m-%dT%H:%M:%S')])
+        else:
+            raise RuntimeError('Cannot write tag ' + tag)
+
     def __setattr__(self, name, value):
         if name not in self._primary_tags:
             return super(Metadata, self).__setattr__(name, value)
@@ -728,22 +728,22 @@ class Metadata(QtCore.QObject):
             if tag not in _data_type:
                 raise RuntimeError('Cannot write tag ' + tag)
             if family == 'Exif':
-                write_exif(self, tag, value)
+                self._write_exif(tag, value)
             elif family == 'Xmp':
-                write_xmp(self, tag, value)
+                self._write_xmp(tag, value)
             elif tag in self.get_iptc_tags():
-                write_iptc(self, tag, value)
+                self._write_iptc(tag, value)
         # delete secondary tags
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
                 if tag not in _data_type:
                     raise RuntimeError('Cannot clear tag ' + tag)
                 if family == 'Exif':
-                    write_exif(self, tag, None)
+                    self._write_exif(tag, None)
                 elif family == 'Xmp':
-                    write_xmp(self, tag, None)
+                    self._write_xmp(tag, None)
                 else:
-                    write_iptc(self, tag, None)
+                    self._write_iptc(tag, None)
         self._set_unsaved(True)
 
     new_status = QtCore.pyqtSignal(bool)
