@@ -350,7 +350,6 @@ class Metadata(QtCore.QObject):
             if not self._sc:
                 self.create_side_car()
         self._unsaved = False
-        self._value_cache = {}
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -583,8 +582,6 @@ class Metadata(QtCore.QObject):
     def __getattr__(self, name):
         if name not in self._primary_tags:
             return super(Metadata, self).__getattr__(name)
-        if name in self._value_cache:
-            return self._value_cache[name]
         # get values from all 3 families, using first tag in list that has data
         value = {'Exif': None, 'Iptc': None, 'Xmp': None}
         for family in self._primary_tags[name]:
@@ -643,7 +640,7 @@ class Metadata(QtCore.QObject):
                 self.logger.warning(
                     'ignoring conflicting %s data %s from %s',
                     name, str(value[family]), family)
-        self._value_cache[name] = result
+        super(Metadata, self).__setattr__(name, result)
         return result
 
     def _write_exif(self, tag, value):
@@ -721,7 +718,7 @@ class Metadata(QtCore.QObject):
         value = sanitise(name, value)
         if getattr(self, name) == value:
             return
-        self._value_cache[name] = value
+        super(Metadata, self).__setattr__(name, value)
         # write data to primary tags (iptc only if it already exists)
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
