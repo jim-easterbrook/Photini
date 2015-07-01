@@ -88,6 +88,7 @@ class DateAndTimeWidget(QtGui.QWidget):
         # date
         self.date = DateTimeEdit(key, True)
         self.layout().addLayout(self.date)
+        self.layout().addStretch(1)
         # time
         self.time = DateTimeEdit(key, False)
         self.layout().addLayout(self.time)
@@ -99,6 +100,7 @@ class OffsetWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.setLayout(QtGui.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addStretch(1)
         # offset value
         self.offset = QtGui.QTimeEdit()
         self.offset.setDisplayFormat('hh:mm:ss')
@@ -311,15 +313,9 @@ class Technical(QtGui.QWidget):
         other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
         # link lens to aperture & focal length
         self.link_lens = QtGui.QCheckBox(
-            self.tr("Link lens to aperture and focal length"))
+            self.tr("Link lens to focal length and aperture"))
+        self.link_lens.setChecked(True)
         other_group.layout().addRow('', self.link_lens)
-        # aperture
-        self.aperture = QtGui.QLineEdit()
-        self.aperture.setValidator(DoubleValidator(bottom=0.1))
-        self.aperture.setSizePolicy(
-            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
-        self.aperture.editingFinished.connect(self.new_aperture)
-        other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
         # focal length
         self.focal_length = QtGui.QLineEdit()
         self.focal_length.setValidator(DoubleValidator(bottom=0.1))
@@ -328,6 +324,13 @@ class Technical(QtGui.QWidget):
         self.focal_length.editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.focal_length)
+        # aperture
+        self.aperture = QtGui.QLineEdit()
+        self.aperture.setValidator(DoubleValidator(bottom=0.1))
+        self.aperture.setSizePolicy(
+            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+        self.aperture.editingFinished.connect(self.new_aperture)
+        other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
         self.layout().addWidget(other_group, 0, 1)
         self.layout().setColumnStretch(0, 1)
         self.layout().setColumnStretch(1, 1)
