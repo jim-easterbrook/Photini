@@ -181,17 +181,19 @@ class DateTime(object):
         return datetime.datetime.combine(date, time)
 
     @classmethod
-    def from_exif(cls, value_string):
-        print 'DateTime.from_exif', value_string
-        dt = datetime.datetime.strptime(value_string, '%Y:%m:%d %H:%M:%S')
+    def from_exif(cls, datetime_string, sub_sec_string):
+        dt = datetime.datetime.strptime(datetime_string, '%Y:%m:%d %H:%M:%S')
+        if sub_sec_string:
+            dt += datetime.timedelta(seconds=float('0.' + sub_sec_string))
         return cls(dt.date(), dt.time())
 
     def to_exif(self):
-        return self.datetime().strftime('%Y:%m:%d %H:%M:%S')
+        dt = self.datetime()
+        return (dt.strftime('%Y:%m:%d %H:%M:%S'),
+                '{:02d}'.format(dt.microsecond // 10000))
 
     @classmethod
     def from_iptc(cls, date_string, time_string):
-        print 'DateTime.from_iptc', date_string, time_string
         if date_string:
             date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
         else:
@@ -211,7 +213,6 @@ class DateTime(object):
 
     @classmethod
     def from_xmp(cls, value_string):
-        print 'DateTime.from_xmp', value_string
         # split into date & time and remove any time zone info
         date_string = value_string[:10]
         time_string = value_string[11:19]
@@ -565,7 +566,15 @@ class Metadata(QtCore.QObject):
         elif _data_type[tag] == 'multi_string':
             return _decode_string(value_string).split(';')
         elif _data_type[tag] == 'datetime':
-            return DateTime.from_exif(value_string)
+            # Exif.Photo.SubSecXXX can be used with
+            # Exif.Photo.DateTimeXXX or Exif.Image.DataTimeXXX
+            sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
+            sub_sec_tag = sub_sec_tag.replace('Image', 'Photo')
+            if sub_sec_tag in self.get_exif_tags():
+                sub_sec_string = self.get_tag_string(sub_sec_tag)
+            else:
+                sub_sec_string = None
+            return DateTime.from_exif(value_string, sub_sec_string)
         elif _data_type[tag] == 'lensspec':
             return LensSpec(*value_string.split())
         else:
@@ -722,6 +731,23 @@ class Metadata(QtCore.QObject):
             for sub_value, sub_tag in zip(value.to_exif(), tag_list):
                 self.set_tag_string(sub_tag, sub_value)
             return
+        if _data_type[tag] == 'datetime':
+            # don't clear sub_sec value when writing secondary tags
+            if tag == 'Exif.Image.DateTime':
+                sub_sec_tag = 'Exif.Photo.SubSecTime'
+            elif tag.startswith('Exif.Photo'):
+                sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
+            else:
+                sub_sec_tag = None
+            if value is None:
+                self.clear_tag(tag)
+                if sub_sec_tag:
+                    self.clear_tag(sub_sec_tag)
+                return
+            datetime_string, sub_sec_string = value.to_exif()
+            self.set_tag_string(tag, datetime_string)
+            self.set_tag_string(sub_sec_tag, sub_sec_string)
+            return
         if value is None:
             self.clear_tag(tag)
         elif _data_type[tag] == 'int':
@@ -736,8 +762,6 @@ class Metadata(QtCore.QObject):
             self.set_tag_string(tag, _encode_string(value))
         elif _data_type[tag] == 'multi_string':
             self.set_tag_string(tag, _encode_string(';'.join(value)))
-        elif _data_type[tag] == 'datetime':
-            self.set_tag_string(tag, value.to_exif())
         else:
             raise RuntimeError('Cannot write tag ' + tag)
 
