@@ -360,7 +360,9 @@ class Technical(QtGui.QWidget):
                 value = getattr(image.metadata, 'date_' + key)
                 if value is None:
                     continue
-                setattr(image.metadata, 'date_' + key, value + offset)
+                value = value.datetime() + offset
+                setattr(
+                    image.metadata, 'date_' + key, (value.date(), value.time()))
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -444,10 +446,10 @@ class Technical(QtGui.QWidget):
             # update times, leaving date unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current is None:
-                    current = pyDateTime.today()
-                setattr(image.metadata, 'date_' + key,
-                        pyDateTime.combine(current.date(), value.toPyTime()))
+                if current is not None:
+                    current = current.date
+                setattr(
+                    image.metadata, 'date_' + key, (current, value.toPyTime()))
         elif value == self.date_widget[key].date.minimumDate():
             # clear date & time
             for image in self.image_list.get_selected_images():
@@ -456,43 +458,45 @@ class Technical(QtGui.QWidget):
             # update dates, leaving times unchanged
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
-                if current is None:
-                    current = pyDateTime.min
-                setattr(image.metadata, 'date_' + key,
-                        pyDateTime.combine(value.toPyDate(), current.time()))
+                if current is not None:
+                    current = current.time
+                setattr(
+                    image.metadata, 'date_' + key, (value.toPyDate(), current))
         self._update_datetime(key)
 
     def _update_datetime(self, key):
-        dates = []
-        times = []
-        for image in self.image_list.get_selected_images():
-            value = getattr(image.metadata, 'date_' + key)
-            if value is None:
-                dates.append(None)
-                times.append(None)
-            else:
-                dates.append(value.date())
-                times.append(value.time())
-        value = dates[0]
-        for new_value in dates[1:]:
-            if new_value != value:
+        images = self.image_list.get_selected_images()
+        value = getattr(images[0].metadata, 'date_' + key)
+        if value is None:
+            date = None
+            time = None
+        else:
+            date = value.date
+            time = value.time
+        for image in images[1:]:
+            new_value = getattr(image.metadata, 'date_' + key)
+            if new_value is not None:
+                new_value = new_value.date
+            if new_value != date:
                 self.date_widget[key].setMultipleDate()
                 break
         else:
-            if value is None:
+            if date is None:
                 self.date_widget[key].clearDate()
             else:
-                self.date_widget[key].setDate(value)
-        value = times[0]
-        for new_value in times[1:]:
-            if new_value != value:
+                self.date_widget[key].setDate(date)
+        for image in images[1:]:
+            new_value = getattr(image.metadata, 'date_' + key)
+            if new_value is not None:
+                new_value = new_value.time
+            if new_value != time:
                 self.date_widget[key].setMultipleTime()
                 break
         else:
-            if value is None:
+            if time is None:
                 self.date_widget[key].clearTime()
             else:
-                self.date_widget[key].setTime(value)
+                self.date_widget[key].setTime(time)
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()

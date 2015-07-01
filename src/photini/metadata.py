@@ -18,7 +18,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
+import datetime
 from fractions import Fraction
 import locale
 import logging
@@ -151,6 +151,86 @@ class LensSpec(object):
     def from_string(cls, value):
         return cls(*value.split(','))
 
+class DateTime(object):
+    # store date and time as separate Python date/time objects, or None
+    def __init__(self, date, time):
+        self.date = date
+        self.time = time
+
+    def __eq__(self, other):
+        return isinstance(other, DateTime) and self.members() == other.members()
+
+    def __ne__(self, other):
+        return not isinstance(other, DateTime) or self.members() != other.members()
+
+    def __str__(self):
+        return 'DateTime({}, {})'.format(str(self.date), str(self.time))
+
+    def members(self):
+        return (self.date, self.time)
+
+    def datetime(self):
+        if self.date is None:
+            date = datetime.date(datetime.MINYEAR, 1, 1)
+        else:
+            date = self.date
+        if self.time is None:
+            time = datetime.time()
+        else:
+            time = self.time
+        return datetime.datetime.combine(date, time)
+
+    @classmethod
+    def from_exif(cls, value_string):
+        print 'DateTime.from_exif', value_string
+        dt = datetime.datetime.strptime(value_string, '%Y:%m:%d %H:%M:%S')
+        return cls(dt.date(), dt.time())
+
+    def to_exif(self):
+        return self.datetime().strftime('%Y:%m:%d %H:%M:%S')
+
+    @classmethod
+    def from_iptc(cls, date_string, time_string):
+        print 'DateTime.from_iptc', date_string, time_string
+        if date_string:
+            date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
+        else:
+            date = None
+        if time_string:
+            # strip timezone
+            time_string = time_string[:8]
+            time = datetime.datetime.strptime(time_string, '%H:%M:%S').time()
+        else:
+            time = None
+        return cls(date, time)
+
+    def to_iptc(self):
+        if self.time is None:
+            return (self.date.strftime('%Y-%m-%d'), None)
+        return (self.date.strftime('%Y-%m-%d'), self.time.strftime('%H:%M:%S'))
+
+    @classmethod
+    def from_xmp(cls, value_string):
+        print 'DateTime.from_xmp', value_string
+        # split into date & time and remove any time zone info
+        date_string = value_string[:10]
+        time_string = value_string[11:19]
+        # extend short strings to include all info and convert
+        date_string += '0001-01-01'[len(date_string):]
+        date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
+        if time_string:
+            time_string += '00:00:00'[len(time_string):]
+            time = datetime.datetime.strptime(time_string, '%H:%M:%S').time()
+        else:
+            time = None
+        return cls(date, time)
+
+    def to_xmp(self):
+        if self.time is None:
+            return self.date.strftime('%Y-%m-%d')
+        return (self.date.strftime('%Y-%m-%d') + 'T' +
+                self.time.strftime('%H:%M:%S'))
+
 # type of each tag's data
 _data_type = {
     'Exif.Canon.LensModel'               : 'ignore',
@@ -236,7 +316,8 @@ def sanitise(name, value):
             return value
         return None
     if name in ('date_digitised', 'date_modified', 'date_taken'):
-        # single datetime
+        if isinstance(value, (list, tuple)):
+            value = DateTime(*value)
         return value
     if name in ('creator', 'keywords'):
         # list of strings
@@ -484,7 +565,7 @@ class Metadata(QtCore.QObject):
         elif _data_type[tag] == 'multi_string':
             return _decode_string(value_string).split(';')
         elif _data_type[tag] == 'datetime':
-            return datetime.strptime(value_string, '%Y:%m:%d %H:%M:%S')
+            return DateTime.from_exif(value_string)
         elif _data_type[tag] == 'lensspec':
             return LensSpec(*value_string.split())
         else:
@@ -497,19 +578,14 @@ class Metadata(QtCore.QObject):
             time_tag = date_tag.replace('Date', 'Time')
             if date_tag in self.get_iptc_tags():
                 date_string = self.get_tag_multiple(date_tag)[0]
-                has_date = True
             else:
-                date_string = '0001-01-01'
-                has_date = False
+                date_string = None
             if time_tag in self.get_iptc_tags():
-                time_string = self.get_tag_multiple(time_tag)[0][:8]
-                has_time = True
+                time_string = self.get_tag_multiple(time_tag)[0]
             else:
-                time_string = '00:00:00'
-                has_time = False
-            if has_date or has_time:
-                return datetime.strptime(
-                    date_string + time_string, '%Y-%m-%d%H:%M:%S')
+                time_string = None
+            if date_string or time_string:
+                return DateTime.from_iptc(date_string, time_string)
             return None
         if tag not in self.get_iptc_tags():
             return None
@@ -554,16 +630,7 @@ class Metadata(QtCore.QObject):
                 value_strings = [x.decode('utf_8') for x in value_strings]
             return list(value_strings)
         elif _data_type[tag] == 'datetime':
-            string_value = value_strings[0]
-            # remove any time zone info
-            if string_value.count(':') >= 2:
-                string_value = string_value[:19]
-            else:
-                string_value = string_value[:16]
-            # extend short strings to include all info
-            string_value += '0001-01-01T00:00:00'[len(string_value):]
-            # convert to datetime
-            return datetime.strptime(string_value, '%Y-%m-%dT%H:%M:%S')
+            return DateTime.from_xmp(value_strings[0])
         else:
             raise RuntimeError('Cannot read tag ' + tag)
         return result
@@ -670,7 +737,7 @@ class Metadata(QtCore.QObject):
         elif _data_type[tag] == 'multi_string':
             self.set_tag_string(tag, _encode_string(';'.join(value)))
         elif _data_type[tag] == 'datetime':
-            self.set_tag_string(tag, value.strftime('%Y:%m:%d %H:%M:%S'))
+            self.set_tag_string(tag, value.to_exif())
         else:
             raise RuntimeError('Cannot write tag ' + tag)
 
@@ -682,8 +749,12 @@ class Metadata(QtCore.QObject):
                 self.clear_tag(date_tag)
                 self.clear_tag(time_tag)
                 return
-            self.set_tag_multiple(date_tag, [value.strftime('%Y-%m-%d')])
-            self.set_tag_multiple(time_tag, [value.strftime('%H:%M:%S')])
+            date_string, time_string = value.to_iptc()
+            self.set_tag_multiple(date_tag, [date_string])
+            if time_string:
+                self.set_tag_multiple(time_tag, [time_string])
+            else:
+                self.clear_tag(time_tag)
         if value is None:
             self.clear_tag(tag)
         elif _data_type[tag] == 'string':
@@ -708,7 +779,7 @@ class Metadata(QtCore.QObject):
         elif _data_type[tag] == 'multi_string':
             self.set_tag_multiple(tag, value)
         elif _data_type[tag] == 'datetime':
-            self.set_tag_multiple(tag, [value.strftime('%Y-%m-%dT%H:%M:%S')])
+            self.set_tag_multiple(tag, [value.to_xmp()])
         else:
             raise RuntimeError('Cannot write tag ' + tag)
 

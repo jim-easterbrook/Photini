@@ -124,6 +124,8 @@ class Descriptive(QtGui.QWidget):
                 name = ''
         for image in self.image_list.get_selected_images():
             date = image.metadata.date_taken
+            if date is not None:
+                date = date.date
             if date is None:
                 date = datetime.now()
             value = self.trUtf8(

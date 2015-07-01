@@ -339,9 +339,8 @@ class ImageList(QtGui.QWidget):
             result = self.image[idx].metadata.date_modified
         if result is None:
             # use file date as last resort
-            result = datetime.fromtimestamp(
-                os.path.getmtime(self.image[idx].path))
-        return result
+            return datetime.fromtimestamp(os.path.getmtime(self.image[idx].path))
+        return result.datetime()
 
     def _new_sort_order(self):
         self._show_thumbnails()
