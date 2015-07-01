@@ -213,15 +213,21 @@ class DateTime(object):
 
     @classmethod
     def from_xmp(cls, value_string):
-        # split into date & time and remove any time zone info
+        # split into date & time, allowing for possible lack of time info
         date_string = value_string[:10]
-        time_string = value_string[11:19]
+        time_string = value_string[11:]
         # extend short strings to include all info and convert
         date_string += '0001-01-01'[len(date_string):]
         date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
         if time_string:
-            time_string += '00:00:00'[len(time_string):]
-            time = datetime.datetime.strptime(time_string, '%H:%M:%S').time()
+            if time_string[-1] == 'Z':
+                # time zone designator of Z
+                time_string = time_string[:-1]
+            elif time_string[-6] in ('+', '-'):
+                # time zone designator of +hh:mm or -hh:mm
+                time_string = time_string[:-6]
+            time_string += '00:00:00.000000'[len(time_string):]
+            time = datetime.datetime.strptime(time_string, '%H:%M:%S.%f').time()
         else:
             time = None
         return cls(date, time)
@@ -230,7 +236,7 @@ class DateTime(object):
         if self.time is None:
             return self.date.strftime('%Y-%m-%d')
         return (self.date.strftime('%Y-%m-%d') + 'T' +
-                self.time.strftime('%H:%M:%S'))
+                self.time.strftime('%H:%M:%S.%f'))
 
 # type of each tag's data
 _data_type = {
