@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v15.07.0:
+  1/ Convert incompatible image formats before upload to Picasa/Flickr.
+  2/ Added lens selector to 'technical' tab.
+  3/ Improved internal handling of image metadata.
+  4/ Include subseconds in time stamps.
+
 Changes in v15.06.0:
   1/ No longer store Picasa/Flickr login data in plain text file.
   2/ Restructured Picasa and Flickr uploaders.
