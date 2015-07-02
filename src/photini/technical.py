@@ -158,15 +158,18 @@ class LensData(object):
 
     def dialog_load(self, dialog):
         model = dialog.lens_model.text()
+        if not model:
+            return None
+        min_fl = dialog.lens_spec['min_fl'].text()
+        if not min_fl:
+            return None
+        max_fl = dialog.lens_spec['max_fl'].text() or min_fl
+        min_fl_fn = dialog.lens_spec['min_fl_fn'].text() or '0'
+        max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or '0'
+        lens_spec = LensSpec(min_fl, max_fl, min_fl_fn, max_fl_fn)
         section = 'lens '  + model
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
-        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
-        lens_spec = LensSpec(
-            dialog.lens_spec['min_fl'].text(),
-            dialog.lens_spec['max_fl'].text(),
-            dialog.lens_spec['min_fl_fn'].text(),
-            dialog.lens_spec['max_fl_fn'].text())
         self.config_store.set(section, 'lens_spec', str(lens_spec))
         self.lenses.append(model)
         self.lenses.sort()
@@ -430,11 +433,14 @@ class Technical(QtGui.QWidget):
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
-        if dialog.exec_() == QtGui.QDialog.Accepted:
-            model = self.lens_data.dialog_load(dialog)
-            blocked = self.lens_model.blockSignals(True)
-            self.lens_model.insertItem(0, model)
-            self.lens_model.blockSignals(blocked)
+        if dialog.exec_() != QtGui.QDialog.Accepted:
+            return
+        model = self.lens_data.dialog_load(dialog)
+        if not model:
+            return
+        blocked = self.lens_model.blockSignals(True)
+        self.lens_model.insertItem(0, model)
+        self.lens_model.blockSignals(blocked)
 
     def new_aperture(self):
         value = self.aperture.text()
