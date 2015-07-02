@@ -785,6 +785,7 @@ class Metadata(QtCore.QObject):
                 self.set_tag_multiple(time_tag, [time_string])
             else:
                 self.clear_tag(time_tag)
+            return
         if value is None:
             self.clear_tag(tag)
         elif _data_type[tag] == 'string':
