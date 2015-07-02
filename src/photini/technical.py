@@ -313,7 +313,7 @@ class Technical(QtGui.QWidget):
         other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
         # link lens to aperture & focal length
         self.link_lens = QtGui.QCheckBox(
-            self.tr("Link lens to focal length and aperture"))
+            self.tr("Link lens model to\nfocal length && aperture"))
         self.link_lens.setChecked(True)
         other_group.layout().addRow('', self.link_lens)
         # focal length
