@@ -39,7 +39,7 @@ You can add details of all your lenses by selecting ``<add lens>`` from the drop
 This brings up a dialog box for you to enter the lens details.
 You might want to start by dragging the edge of the box to make the text fields a bit larger.
 Type all the relevant information into the appropriate boxes, leaving blank any information you don't have such as the serial number.
-The ``Model name`` is required as it will appear in the ``Lens model`` dropdown list.
+Only the ``Model name`` and ``Minimum focal length`` are required.
 
 .. image:: ../images/screenshot_12b.png
 
