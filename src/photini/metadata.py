@@ -170,15 +170,11 @@ class DateTime(object):
         return (self.date, self.time)
 
     def datetime(self):
-        if self.date is None:
-            date = datetime.date(datetime.MINYEAR, 1, 1)
-        else:
-            date = self.date
         if self.time is None:
             time = datetime.time()
         else:
             time = self.time
-        return datetime.datetime.combine(date, time)
+        return datetime.datetime.combine(self.date, time)
 
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
@@ -197,7 +193,7 @@ class DateTime(object):
         if date_string:
             date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
         else:
-            date = None
+            return None
         if time_string:
             # strip timezone
             time_string = time_string[:8]
@@ -220,6 +216,7 @@ class DateTime(object):
         date_string += '0001-01-01'[len(date_string):]
         date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
         if time_string:
+            # strip timezone
             if time_string[-1] == 'Z':
                 # time zone designator of Z
                 time_string = time_string[:-1]
@@ -708,20 +705,26 @@ class Metadata(QtCore.QObject):
         # merge in non-matching data so user can review it
         result = value[preference]
         for family in ('Exif', 'Xmp', 'Iptc'):
-            if value[family] in (result, None):
+            other = value[family]
+            if other in (result, None):
                 continue
             if isinstance(result, six.string_types):
-                if value[family] not in result:
+                if other not in result:
                     self.logger.warning('merging %s data into %s', family, name)
-                    result += ' // ' + value[family]
+                    result += ' // ' + other
             elif isinstance(result, list):
-                if value[family] not in result:
+                if other not in result:
                     self.logger.warning('merging %s data into %s', family, name)
-                    result += value[family]
+                    result += other
+            elif (isinstance(result, DateTime) and
+                      preference == 'Exif' and result.date == other.date and
+                      other.time is None and result.time == datetime.time()):
+                # Xmp and Iptc can store date without time, Exif can't
+                result.time = None
             else:
                 self.logger.warning(
                     'ignoring conflicting %s data %s from %s',
-                    name, str(value[family]), family)
+                    name, str(other), family)
         super(Metadata, self).__setattr__(name, result)
         return result
 
