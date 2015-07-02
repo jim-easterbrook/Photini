@@ -165,7 +165,7 @@ class LensData(object):
             return None
         max_fl = dialog.lens_spec['max_fl'].text() or min_fl
         min_fl_fn = dialog.lens_spec['min_fl_fn'].text() or '0'
-        max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or '0'
+        max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
         lens_spec = LensSpec(min_fl, max_fl, min_fl_fn, max_fl_fn)
         section = 'lens '  + model
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
