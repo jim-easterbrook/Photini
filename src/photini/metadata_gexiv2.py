@@ -67,7 +67,9 @@ class MetadataHandler(object):
                 self._md.set_tag_multiple(
                     tag, other._md.get_tag_multiple(tag))
         if comment:
-            self._md.set_comment(other._md.get_comment())
+            value = other._md.get_comment()
+            if value:
+                self._md.set_comment(value)
 
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
