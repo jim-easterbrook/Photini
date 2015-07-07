@@ -25,6 +25,9 @@ from PyQt4.QtCore import Qt
 
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
+multiple = QtGui.QApplication.translate('utils', '<multiple>')
+multiple_values = QtGui.QApplication.translate('utils', '<multiple values>')
+
 class Busy(object):
     def __enter__(self):
         QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)

@@ -25,6 +25,7 @@ from datetime import (
 from PyQt4 import QtGui, QtCore
 
 from .metadata import LensSpec
+from .utils import multiple
 
 class DateTimeEdit(QtGui.QHBoxLayout):
     new_value = QtCore.pyqtSignal(str, object)
@@ -74,7 +75,7 @@ class DateTimeEdit(QtGui.QHBoxLayout):
 
     def set_multiple(self):
         self.is_none = True
-        self.datetime.findChild(QtGui.QLineEdit).setText(self.tr('<multiple>'))
+        self.datetime.findChild(QtGui.QLineEdit).setText(multiple)
 
     def editing_finished(self):
         self.is_none = False
@@ -302,7 +303,7 @@ class Technical(QtGui.QWidget):
         self.orientation.addItem(self.tr('reflect tr-bl'), 5)
         self.orientation.addItem(self.tr('reflect tl-br'), 7)
         self.orientation.addItem('', 0)
-        self.orientation.addItem(self.tr('<multiple>'), -1)
+        self.orientation.addItem(multiple, -1)
         self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow(self.tr('Orientation'), self.orientation)
         # lens model
@@ -311,7 +312,7 @@ class Technical(QtGui.QWidget):
             self.lens_model.addItem(model)
         self.lens_model.addItem('', 0)
         self.lens_model.addItem(self.tr('<add lens>'), -2)
-        self.lens_model.addItem(self.tr('<multiple>'), -1)
+        self.lens_model.addItem(multiple, -1)
         self.lens_model.currentIndexChanged.connect(self.new_lens_model)
         other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
         # link lens to aperture & focal length
@@ -444,13 +445,13 @@ class Technical(QtGui.QWidget):
 
     def new_aperture(self):
         value = self.aperture.text()
-        if value != self.tr('<multiple values>'):
+        if value != multiple:
             for image in self.image_list.get_selected_images():
                 image.metadata.aperture = value
 
     def new_focal_length(self):
         value = self.focal_length.text()
-        if value != self.tr('<multiple values>'):
+        if value != multiple:
             for image in self.image_list.get_selected_images():
                 image.metadata.focal_length = value
 
@@ -543,7 +544,7 @@ class Technical(QtGui.QWidget):
         value = images[0].metadata.aperture
         for image in images[1:]:
             if image.metadata.aperture != value:
-                self.aperture.setText(self.tr('<multiple values>'))
+                self.aperture.setText(multiple)
                 return
         if value is None:
             self.aperture.clear()
@@ -555,7 +556,7 @@ class Technical(QtGui.QWidget):
         value = images[0].metadata.focal_length
         for image in images[1:]:
             if image.metadata.focal_length != value:
-                self.focal_length.setText(self.tr('<multiple values>'))
+                self.focal_length.setText(multiple)
                 return
         if value is None:
             self.focal_length.clear()

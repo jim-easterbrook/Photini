@@ -27,7 +27,7 @@ from PyQt4.QtCore import Qt
 import six
 
 from .imagelist import DRAG_MIMETYPE
-from .utils import data_dir
+from .utils import data_dir, multiple_values
 from . import __version__
 
 class WebPage(QtWebKit.QWebPage):
@@ -242,7 +242,7 @@ class PhotiniMap(QtGui.QWidget):
         latlong = images[0].metadata.latlong
         for image in images[1:]:
             if image.metadata.latlong != latlong:
-                self.coords.setText(self.tr("<multiple values>"))
+                self.coords.setText(multiple_values)
                 return
         if latlong:
             self.coords.setText(str(latlong))

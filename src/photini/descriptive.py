@@ -24,6 +24,8 @@ from datetime import datetime
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt
 
+from .utils import multiple_values
+
 class MultiLineEdit(QtGui.QPlainTextEdit):
     def __init__(self, parent=None):
         QtGui.QPlainTextEdit.__init__(self, parent)
@@ -150,7 +152,7 @@ class Descriptive(QtGui.QWidget):
 
     def _new_value(self, key):
         value = self.widgets[key].text()
-        if value != self.tr('<multiple values>'):
+        if value != multiple_values:
             for image in self.image_list.get_selected_images():
                 setattr(image.metadata, key, value)
         self._update_widget(key)
@@ -160,7 +162,7 @@ class Descriptive(QtGui.QWidget):
         value = getattr(images[0].metadata, key)
         for image in images[1:]:
             if getattr(image.metadata, key) != value:
-                self.widgets[key].setText(self.tr('<multiple values>'))
+                self.widgets[key].setText(multiple_values)
                 return
         if not value:
             self.widgets[key].clear()
