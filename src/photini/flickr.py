@@ -285,19 +285,11 @@ class FlickrUploader(QtGui.QWidget):
         dialog.layout().addRow(self.tr('Description'), description)
         dialog.layout().addRow(QtGui.QLabel(
             self.tr('Set will be created when photos are uploaded')))
-        buttons = QtGui.QHBoxLayout()
-        buttons.addStretch(3)
-        cancel = QtGui.QPushButton(self.tr('cancel'))
-        cancel.setAutoDefault(False)
-        cancel.clicked.connect(dialog.reject)
-        buttons.addWidget(cancel)
-        OK = QtGui.QPushButton(self.tr('OK'))
-        OK.setAutoDefault(False)
-        OK.clicked.connect(dialog.accept)
-        buttons.addWidget(OK)
-        buttons.setStretchFactor(cancel, 1)
-        buttons.setStretchFactor(OK, 1)
-        dialog.layout().addRow(buttons)
+        button_box = QtGui.QDialogButtonBox(
+            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
         if dialog.exec_() != QtGui.QDialog.Accepted:
             return
         title = title.text()

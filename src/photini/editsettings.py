@@ -31,19 +31,17 @@ class EditSettings(QtGui.QDialog):
         QtGui.QDialog.__init__(self, parent)
         self.config_store = config_store
         self.setWindowTitle(self.tr('Photini: settings'))
-        self.setLayout(QtGui.QGridLayout())
-        self.layout().setRowStretch(0, 1)
-        self.layout().setColumnStretch(0, 1)
+        self.setLayout(QtGui.QVBoxLayout())
         # main dialog area
         scroll_area = QtGui.QScrollArea()
-        self.layout().addWidget(scroll_area, 0, 0, 1, 2)
+        self.layout().addWidget(scroll_area)
         panel = QtGui.QWidget()
         panel.setLayout(QtGui.QFormLayout())
 ##        panel.setSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         # done button
-        done_button = QtGui.QPushButton(self.tr('Done'))
-        done_button.clicked.connect(self.accept)
-        self.layout().addWidget(done_button, 1, 1)
+        done_button = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Close)
+        done_button.rejected.connect(self.accept)
+        self.layout().addWidget(done_button)
         # copyright holder name
         self.copyright_name = QtGui.QLineEdit()
         self.copyright_name.setText(

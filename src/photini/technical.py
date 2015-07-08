@@ -190,23 +190,19 @@ class NewLensDialog(QtGui.QDialog):
     def __init__(self, parent):
         super(NewLensDialog, self).__init__(parent)
         self.setWindowTitle(self.tr('Photini: define lens'))
-        self.setLayout(QtGui.QGridLayout())
-        self.layout().setRowStretch(0, 1)
-        self.layout().setColumnStretch(0, 1)
+        self.setLayout(QtGui.QVBoxLayout())
         # main dialog area
         scroll_area = QtGui.QScrollArea()
         scroll_area.setWidgetResizable(True)
-        self.layout().addWidget(scroll_area, 0, 0, 1, 3)
+        self.layout().addWidget(scroll_area)
         panel = QtGui.QWidget()
         panel.setLayout(QtGui.QFormLayout())
-        # ok button
-        ok_button = QtGui.QPushButton(self.tr('OK'))
-        ok_button.clicked.connect(self.accept)
-        self.layout().addWidget(ok_button, 1, 2)
-        # cancel button
-        cancel_button = QtGui.QPushButton(self.tr('Cancel'))
-        cancel_button.clicked.connect(self.reject)
-        self.layout().addWidget(cancel_button, 1, 1)
+        # ok & cancel buttons
+        button_box = QtGui.QDialogButtonBox(
+            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.layout().addWidget(button_box)
         # model
         self.lens_model = QtGui.QLineEdit()
         panel.layout().addRow(self.tr('Model name'), self.lens_model)
