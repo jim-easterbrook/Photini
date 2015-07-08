@@ -2,6 +2,7 @@
 host = https://www.transifex.com
 
 [photini.photini]
+file_filter = src/lang/photini.<lang>.ts
 source_file = build/messages/photini.ts
 source_lang = en
 

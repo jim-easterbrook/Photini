@@ -32,5 +32,6 @@ pip-log.txt
 # Extras
 MANIFEST
 /doc
+/src/photini/data/lang
 /src/windows/installers
 /src/windows/WinPython

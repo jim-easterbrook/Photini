@@ -183,6 +183,40 @@ command_options['extract_messages'] = {
     'input_dir'   : ('setup.py', 'src/photini'),
     }
 
+# add command to 'compile' translated messages
+class build_messages(Command):
+    description = 'compile translated strings'
+    user_options = [
+        ('output-dir=', 'o', 'location of output .qm files'),
+        ('input-dir=', 'i', 'location of input .ts files'),
+    ]
+
+    def initialize_options(self):
+        self.output_dir = None
+        self.input_dir = None
+
+    def finalize_options(self):
+        if not self.output_dir:
+            raise DistutilsOptionError('no output directory specified')
+        if not self.input_dir:
+            raise DistutilsOptionError('no input directory specified')
+
+    def run(self):
+        self.mkpath(self.output_dir)
+        for name in os.listdir(self.input_dir):
+            base, ext = os.path.splitext(name)
+            if ext != '.ts':
+                continue
+            subprocess.check_call(
+                ['lrelease', os.path.join(self.input_dir, name),
+                 '-qm', os.path.join(self.output_dir, base + '.qm')])
+
+cmdclass['build_messages'] = build_messages
+command_options['build_messages'] = {
+    'output_dir' : ('setup.py', 'src/photini/data/lang'),
+    'input_dir'  : ('setup.py', 'src/lang'),
+    }
+
 with open('README.rst') as ldf:
     long_description = ldf.read()
 url = 'https://github.com/jim-easterbrook/Photini'
