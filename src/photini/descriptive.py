@@ -130,7 +130,7 @@ class Descriptive(QtGui.QWidget):
                 date = date.date
             if date is None:
                 date = datetime.now()
-            value = self.trUtf8(
+            value = self.tr(
                 'Copyright \xa9{0:d} {1}. All rights reserved.').format(
                     date.year, name)
             image.metadata.copyright = value

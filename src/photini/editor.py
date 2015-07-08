@@ -290,6 +290,7 @@ def main(argv=None):
     app = QtGui.QApplication(sys.argv)
     del sys.argv[-1]
     # install translation
+    QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     locale = QtCore.QLocale.system()
     translator = QtCore.QTranslator()
     translator.load(
