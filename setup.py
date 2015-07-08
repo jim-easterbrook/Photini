@@ -72,6 +72,7 @@ else:
     next_version = next_release
 if next_version != __version__:
     with open('src/photini/__init__.py', 'w') as vf:
+        vf.write("# -*- coding: utf-8 -*-\n\n")
         vf.write("from __future__ import unicode_literals\n\n")
         vf.write("__version__ = '%s'\n" % next_version)
         vf.write("_dev_no = '%s'\n" % _dev_no)
@@ -168,12 +169,11 @@ class extract_messages(Command):
             base, ext = os.path.splitext(name)
             if ext == '.py':
                 inputs.append(os.path.join(self.input_dir, name))
+        inputs.sort()
         out_dir = os.path.dirname(self.output_file)
         self.mkpath(out_dir)
-        temp_file = os.path.join(out_dir, 'temp_latin9.ts')
-        self.spawn(['pylupdate4', '-verbose'] + inputs + ['-ts', temp_file])
-        self.spawn(['iconv', '-f', 'ISO-8859-15', '-t', 'UTF-8',
-                    '-o', self.output_file, temp_file])
+        self.spawn(
+            ['pylupdate4', '-verbose'] + inputs + ['-ts', self.output_file])
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {
