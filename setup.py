@@ -24,7 +24,6 @@ from distutils.errors import DistutilsOptionError
 import os
 from setuptools import setup
 from setuptools.command.install import install as _install
-import subprocess
 import sys
 
 # read current version info without importing package
@@ -172,10 +171,9 @@ class extract_messages(Command):
         out_dir = os.path.dirname(self.output_file)
         self.mkpath(out_dir)
         temp_file = os.path.join(out_dir, 'temp_latin9.ts')
-        subprocess.check_call(
-            ['pylupdate4', '-verbose'] + inputs + ['-ts', temp_file])
-        subprocess.check_call(['iconv', '-f', 'ISO-8859-15', '-t', 'UTF-8',
-                               '-o', self.output_file, temp_file])
+        self.spawn(['pylupdate4', '-verbose'] + inputs + ['-ts', temp_file])
+        self.spawn(['iconv', '-f', 'ISO-8859-15', '-t', 'UTF-8',
+                    '-o', self.output_file, temp_file])
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {
@@ -207,9 +205,8 @@ class build_messages(Command):
             base, ext = os.path.splitext(name)
             if ext != '.ts' or '.' not in base:
                 continue
-            subprocess.check_call(
-                ['lrelease', os.path.join(self.input_dir, name),
-                 '-qm', os.path.join(self.output_dir, base + '.qm')])
+            self.spawn(['lrelease', os.path.join(self.input_dir, name),
+                        '-qm', os.path.join(self.output_dir, base + '.qm')])
 
 cmdclass['build_messages'] = build_messages
 command_options['build_messages'] = {
