@@ -63,7 +63,7 @@ class EditSettings(QtGui.QDialog):
         self.reset_flickr.clicked.connect(self.do_reset_flickr)
         panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
         # reset picasa
-        self.reset_picasa = QtGui.QPushButton('OK')
+        self.reset_picasa = QtGui.QPushButton(self.tr('OK'))
         self.reset_picasa.setEnabled(
             keyring and keyring.get_password('photini', 'picasa') is not None)
         self.reset_picasa.clicked.connect(self.do_reset_picasa)

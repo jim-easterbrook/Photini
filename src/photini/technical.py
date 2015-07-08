@@ -75,7 +75,7 @@ class DateTimeEdit(QtGui.QHBoxLayout):
 
     def set_multiple(self):
         self.is_none = True
-        # first time setText is called sometmies doesn't show
+        # first time setText is called sometimes doesn't show
         self.datetime.findChild(QtGui.QLineEdit).setText(multiple)
         self.datetime.findChild(QtGui.QLineEdit).setText(multiple)
 

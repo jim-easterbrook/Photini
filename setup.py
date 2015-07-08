@@ -211,8 +211,8 @@ setup(name = 'Photini',
       packages = ['photini'],
       package_dir = {'' : 'src'},
       package_data = {
-          'photini' : [
-              'data/*.html', 'data/*.txt', 'data/*.js',   'data/*.png'],
+          'photini' : ['data/*.html', 'data/*.txt', 'data/*.js', 'data/*.png',
+                       'data/lang/*.qm'],
           },
       cmdclass = cmdclass,
       command_options = command_options,

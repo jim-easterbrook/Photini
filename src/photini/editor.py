@@ -289,18 +289,24 @@ def main(argv=None):
     sys.argv.append('xxx')
     app = QtGui.QApplication(sys.argv)
     del sys.argv[-1]
+    # install translation
+    locale = QtCore.QLocale.system()
+    translator = QtCore.QTranslator()
+    translator.load(
+        locale, 'photini', '.', os.path.join(data_dir, 'lang'), '.qm')
+    app.installTranslator(translator)
     # parse remaining arguments
     parser = OptionParser(
         version='Photini ' + __version__,
-        description=str(QtCore.QCoreApplication.translate(
+        description=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Photini photo metadata editor')))
     parser.add_option(
         '-v', '--verbose', action='count', default=0,
-        help=str(QtCore.QCoreApplication.translate(
+        help=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'increase number of logging messages')))
     options, args = parser.parse_args()
     if len(args) != 0:
-        parser.error(str(QtCore.QCoreApplication.translate(
+        parser.error(six.text_type(QtCore.QCoreApplication.translate(
             'main', 'incorrect number of arguments')))
     # create GUI and run application event loop
     main = MainWindow(options.verbose)
