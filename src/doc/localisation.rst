@@ -13,7 +13,7 @@ If not, this is what you need to do.
 Join Transifex
 --------------
 
-The Photini project uses `Transifex<https://www.transifex.com/projects/p/photini/>`_ to host its translations.
+The Photini project uses `Transifex <https://www.transifex.com/projects/p/photini/>`_ to host its translations.
 This provides an online editor, making it easy for individuals to contribute as much or as little effort as they wish.
 Follow the link to the Transifex Photini page and click on "help translate Photini".
 From here you can create a free account and sign in.
