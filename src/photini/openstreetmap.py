@@ -55,7 +55,7 @@ class OpenStreetMap(PhotiniMap):
         load_tou.clicked.connect(self.load_tou_leaflet)
         layout.addWidget(load_tou)
         load_tou = QtGui.QPushButton(
-            self.tr('Map data\n\xa9OpenStreetMap contributors'))
+            self.trUtf8('Map data\n©OpenStreetMap contributors'))
         load_tou.clicked.connect(self.load_tou_osm)
         layout.addWidget(load_tou)
         load_tou = QtGui.QPushButton(self.tr('Tiles courtesy of MapQuest'))
