@@ -204,6 +204,8 @@ This is often already installed on Linux systems, but you still need its `python
 Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
 You should be able to install these with your system package manager.
 
+.. _installation-photini:
+
 Installing Photini
 ------------------
 
