@@ -179,7 +179,7 @@ class extract_messages(Command):
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {
-    'output_file' : ('setup.py', 'build/messages/photini.ts'),
+    'output_file' : ('setup.py', 'src/lang/photini.ts'),
     'input_dir'   : ('setup.py', 'src/photini'),
     }
 
@@ -205,7 +205,7 @@ class build_messages(Command):
         self.mkpath(self.output_dir)
         for name in os.listdir(self.input_dir):
             base, ext = os.path.splitext(name)
-            if ext != '.ts':
+            if ext != '.ts' or '.' not in base:
                 continue
             subprocess.check_call(
                 ['lrelease', os.path.join(self.input_dir, name),
