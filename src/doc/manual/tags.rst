@@ -29,14 +29,18 @@ Description / Caption    Exif.Image.ImageDescription     Xmp.dc.description     
 Keywords                                                 Xmp.dc.subject             Iptc.Application2.Keywords
 Copyright                Exif.Image.Copyright            Xmp.dc.rights              Iptc.Application2.Copyright
 Creator / Artist         Exif.Image.Artist               Xmp.dc.creator             Iptc.Application2.Byline
-Date and time Taken      Exif.Photo.DateTimeOriginal     Xmp.photoshop.DateCreated  | Iptc.Application2.DateCreated
+Date / time Taken        Exif.Photo.DateTimeOriginal     Xmp.photoshop.DateCreated  | Iptc.Application2.DateCreated
                                                                                     | Iptc.Application2.TimeCreated
-Date and time Digitised  Exif.Photo.DateTimeDigitized    Xmp.xmp.CreateDate         | Iptc.Application2.DigitizationDate
+Date / time Digitised    Exif.Photo.DateTimeDigitized    Xmp.xmp.CreateDate         | Iptc.Application2.DigitizationDate
                                                                                     | Iptc.Application2.DigitizationTime
-Date and time Modified   Exif.Image.DateTime             Xmp.xmp.ModifyDate
+Date / time Modified     Exif.Image.DateTime             Xmp.xmp.ModifyDate
 Orientation              Exif.Image.Orientation
 Aperture                 Exif.Photo.FNumber
 Focal length             Exif.Photo.FocalLength
+Lens maker name          Exif.Photo.LensMake
+Lens model name          Exif.Photo.LensModel
+Lens serial number       Exif.Photo.LensSerialNumber
+Lens specification       Exif.Photo.LensSpecification
 Latitude, longitude      | Exif.GPSInfo.GPSLatitude
                          | Exif.GPSInfo.GPSLongitude
 =======================  ==============================  =========================  ==================
@@ -44,7 +48,7 @@ Latitude, longitude      | Exif.GPSInfo.GPSLatitude
 Secondary tags
 --------------
 
-Photini reads information from these tags and merges it with information from the primary tags.
+Photini may read information from these tags and merge it with information from the primary tags.
 These tags are deleted when the corresponding primary tags are saved.
 
 =======================  ===========================  ==========================  ==================
@@ -55,14 +59,22 @@ Description / Caption                                 Xmp.tiff.ImageDescription
 Keywords                 
 Copyright                                             Xmp.tiff.Copyright
 Creator / Artist                                      Xmp.tiff.Artist
-Date and time Taken      Exif.Image.DateTimeOriginal  Xmp.exif.DateTimeOriginal
-Date and time Digitised                               Xmp.exif.DateTimeDigitized
-Date and time Modified                                Xmp.tiff.DateTime
+Date / time Taken        Exif.Image.DateTimeOriginal  Xmp.exif.DateTimeOriginal
+Date / time Digitised                                 Xmp.exif.DateTimeDigitized
+Date / time Modified                                  Xmp.tiff.DateTime
 Orientation                                           Xmp.tiff.Orientation
 Aperture                 | Exif.Image.FNumber         | Xmp.exif.FNumber
                          | Exif.Image.ApertureValue   | Xmp.exif.ApertureValue
                          | Exif.Photo.ApertureValue
 Focal length             Exif.Image.FocalLength       Xmp.exif.FocalLength
+Lens maker name
+Lens model name          | Exif.Canon.LensModel
+                         | Exif.CanonCs.LensType
+Lens serial number
+Lens specification       | Exif.CanonCs.Lens
+                         | Exif.CanonCs.MaxAperture
+                         | Exif.CanonCs.MinAperture
+                         | Exif.CanonCs.ShortFocal
 Latitude, longitude                                   | Xmp.exif.GPSLatitude
                                                       | Xmp.exif.GPSLongitude
 =======================  ===========================  ==========================  ==================
