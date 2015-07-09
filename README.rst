@@ -68,7 +68,7 @@ Users of other operating systems will need to install the following:
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
-For details of how to download and install these, please see the `documentation <http://photini.readthedocs.org/en/latest/installation.html>`_.
+For details of how to download and install these, please see the `documentation <http://photini.readthedocs.org/en/latest/other/installation.html>`_.
 
 Documentation
 -------------

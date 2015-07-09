@@ -8,13 +8,13 @@ Photini documentation
 .. toctree::
    :maxdepth: 2
 
-   introduction
+   other/introduction
    misc/index
-   installation
-   localisation
+   other/installation
+   other/localisation
    manual/index
-   workflow
-   reading
+   other/workflow
+   other/reading
 
 Copyright (C)  2012-15  Jim Easterbrook.
 
