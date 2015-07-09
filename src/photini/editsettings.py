@@ -55,14 +55,16 @@ class EditSettings(QtGui.QDialog):
         panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
         self.reset_flickr = QtGui.QCheckBox()
-        self.reset_flickr.setEnabled(
-            keyring and keyring.get_password('photini', 'flickr') is not None)
         panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
+        if not keyring or keyring.get_password('photini', 'flickr') is None:
+            self.reset_flickr.setDisabled(True)
+            panel.layout().labelForField(self.reset_flickr).setDisabled(True)
         # reset picasa
         self.reset_picasa = QtGui.QCheckBox()
-        self.reset_picasa.setEnabled(
-            keyring and keyring.get_password('photini', 'picasa') is not None)
         panel.layout().addRow(self.tr('Reset Picasa'), self.reset_picasa)
+        if not keyring or keyring.get_password('photini', 'picasa') is None:
+            self.reset_picasa.setDisabled(True)
+            panel.layout().labelForField(self.reset_picasa).setDisabled(True)
         # sidecar files
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
@@ -95,25 +97,23 @@ class EditSettings(QtGui.QDialog):
             self.sc_always.setChecked(True)
 
     def button_clicked(self, button):
-        if button == self.button_box.button(QtGui.QDialogButtonBox.Apply):
-            # change config
-            self.config_store.set(
-                'user', 'copyright_name', self.copyright_name.text())
-            self.config_store.set(
-                'user', 'creator_name', self.creator_name.text())
-            if (self.reset_flickr.isChecked() and
-                                keyring.get_password('photini', 'flickr')):
-                keyring.delete_password('photini', 'flickr')
-            if (self.reset_picasa.isChecked() and
-                                keyring.get_password('photini', 'picasa')):
-                keyring.delete_password('photini', 'picasa')
-            if self.sc_always.isChecked():
-                sc_mode = 'always'
-            elif self.sc_auto.isChecked():
-                sc_mode = 'auto'
-            else:
-                sc_mode = 'delete'
-            self.config_store.set('files', 'sidecar', sc_mode)
-            self.config_store.set(
-                'files', 'image', str(self.write_if.isChecked()))
+        if button != self.button_box.button(QtGui.QDialogButtonBox.Apply):
+            return self.reject()
+        # change config
+        self.config_store.set('user', 'copyright_name', self.copyright_name.text())
+        self.config_store.set('user', 'creator_name', self.creator_name.text())
+        if (self.reset_flickr.isChecked() and
+                            keyring.get_password('photini', 'flickr')):
+            keyring.delete_password('photini', 'flickr')
+        if (self.reset_picasa.isChecked() and
+                            keyring.get_password('photini', 'picasa')):
+            keyring.delete_password('photini', 'picasa')
+        if self.sc_always.isChecked():
+            sc_mode = 'always'
+        elif self.sc_auto.isChecked():
+            sc_mode = 'auto'
+        else:
+            sc_mode = 'delete'
+        self.config_store.set('files', 'sidecar', sc_mode)
+        self.config_store.set('files', 'image', str(self.write_if.isChecked()))
         return self.accept()
