@@ -23,6 +23,7 @@ Internationalisation
 Work has begun on providing Photini in multiple languages.
 I rely on users to do the translation, as I am not fluent in any language other than English.
 If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
+For more details, see the `documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
 
 Features
 --------
