@@ -5,10 +5,16 @@
 "Localisation"
 ==============
 
-Photini's user interface can be configured to use your local language instead of English.
+Photini can be made easier to use for people who don't speak English.
+There are two parts to this -- the text used within the program and the documentation.
 I rely on users to do the translation as I can not write any other language with any fluency.
-If there is already a translation into your language then Photini should use it automatically.
-If not, this is what you need to do.
+
+If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically.
+For example, this is what it looks like if your computer is configured to use Spanish.
+
+.. image:: ../images/screenshot_37.png
+
+If you'd like to help by translating Photini into another language, or by improving an existing translation, this is what you need to do.
 
 Join Transifex
 --------------
@@ -27,39 +33,61 @@ Once your language is added you can ask to join the language team and then start
 Translating Photini
 -------------------
 
-Transifex is quite easy to use.
-However, there are a few things to be aware of when working on the Photini program's strings.
+Transifex is quite easy to use, but there are a few things to be aware of when working on the Photini project.
+On the Transifex site there are several "resources" for Photini.
+The one called ``photini`` is the text used by the Photini program.
+The others, beginning with ``doc``, are the Photini documentation.
+
+``photini`` resource
+^^^^^^^^^^^^^^^^^^^^
+
+Things to be aware of:
 
 Words with special meanings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Some of Photini's GUI elements such as "Title / Object Name" are named after the metadata items in the Exif, Xmp or Iptc specifications.
-If information about these standards is available in your language it may help with translating these words.
+  Some of Photini's GUI elements such as ``Title / Object Name`` are named after the metadata items in the EXIF, XMP or IPTC specifications.
+  If information about these standards is available in your language it may help with translating these words.
 
 Formatting strings
-^^^^^^^^^^^^^^^^^^
-
-In Python curly braces are used to include other data in a string.
-For example, "Copyright ©{0:d} {1}. All rights reserved." includes the year and copyright holder's name when the program is run.
-You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
+   In Python curly braces are used to include other data in a string.
+   For example, ``Copyright ©{0:d} {1}. All rights reserved.`` includes the year and copyright holder's name when the program is run.
+   You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
 
 HTML markup
-^^^^^^^^^^^
-
-Strings such as "<h3>Upload to Flickr has not finished.</h3>" include HTML markup which must be copied to your translated string.
-The Transifex web page includes a "copy source string" button that can help with this.
+   Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string.
+   The Transifex web page includes a "copy source string" button that can help with this.
 
 Keyboard shortcuts
-^^^^^^^^^^^^^^^^^^
+   Some strings include a single ampersand character ``&`` immediately before a letter that is used as a keyboard shortcut.
+   You should choose a suitable letter in your translation and place the ampersand appropriately.
 
-Some strings include a single ampersand character '&' immediately before a letter that is used as a keyboard shortcut.
-You should choose a suitable letter in your translation and place the ampersand appropriately.
+``doc.xxx`` resources
+^^^^^^^^^^^^^^^^^^^^^
 
-Testing your translation
-------------------------
+The Photini documentation is written in `reStructuredText <http://docutils.sourceforge.net/rst.html>`_.
+This is a markup language that looks very like plain text, but uses certain characters to give extra meaning to some parts.
+You need to take extra care when the string to be translated includes such markup.
+
+Double backquotes ``````
+   These usually mark words that are used in the Photini GUI.
+   You may wish to include the English equivalent in brackets after your translation to help users read the documentation as the screen grabs are all from the English version.
+
+Special characters, e.g. ``(|hazard|)``
+   These refer to Unicode symbols and should not be translated.
+
+Short cross references, e.g. ``:doc:`tags```
+   These should not be translated.
+
+Long cross references, e.g. ``:ref:`installation <installation-flickr>```
+   The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link caption.
+
+External links, e.g. ```Flickr <http://www.flickr.com/>`_``
+   The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
+
+Testing your translations
+-------------------------
 
 To test your translated strings you will need to have a local copy of the Photini source files to build and install.
-See :ref:`installation<installation-photini>` for more detail.
+See :ref:`installation <installation-photini>` for more detail.
 You will also need to install the Transifex client program::
 
    sudo pip install transifex-client
@@ -69,7 +97,11 @@ For example, if you've been working on a Dutch translation with the language cod
 
    tx pull -l nl
 
-This will download a ``.ts`` file which needs to be "compiled" before it can be used by the Photini program.
+This will download a ``.ts`` file, which needs to be "compiled" before it can be used by the Photini program, and several ``.po`` files that are used when building the documentation.
+
+Testing the ``photini`` resource
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 This requires the ``lrelease`` program, which is part of the ``libqt4-linguist`` package on some Linux systems.
 Compilation and installation is done with setup.py::
 
@@ -84,3 +116,13 @@ You can force this when running Photini from the command line::
 
 Photini should now be using your translations.
 If all is well, please email jim@jim-easterbrook.me.uk with the good news that another language can be added to the next Photini release.
+
+Testing the ``doc.xxx`` resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you install `Sphinx <http://sphinx-doc.org/index.html>`_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
+For example, to build Dutch documentation::
+
+   LANG=nl python setup.py build_sphinx
+
+Open ``doc/html/index.html`` with a web browser to read the translated documentation.

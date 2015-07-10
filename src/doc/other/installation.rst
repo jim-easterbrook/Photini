@@ -231,6 +231,8 @@ If that fails, you may get more helpful error messages by opening a command wind
 
    python -m photini.editor
 
+.. _installation-documentation:
+
 Photini documentation
 ---------------------
 
