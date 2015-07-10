@@ -297,6 +297,11 @@ def main(argv=None):
     translator.load(
         locale, 'photini', '.', os.path.join(data_dir, 'lang'), '.qm')
     app.installTranslator(translator)
+    qt_translator = QtCore.QTranslator()
+    qt_translator.load(
+        locale, 'qt', '_',
+        QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
+    app.installTranslator(qt_translator)
     # parse remaining arguments
     parser = OptionParser(
         version='Photini ' + __version__,
