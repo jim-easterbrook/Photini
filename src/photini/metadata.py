@@ -467,6 +467,30 @@ class Metadata(QtCore.QObject):
         if not self._unsaved:
             return
         self.software = 'Photini editor v' + __version__
+        for name in self._primary_tags:
+            value = getattr(self, name)
+            # write data to primary tags
+            for family in self._primary_tags[name]:
+                tag = self._primary_tags[name][family]
+                if tag not in _data_type:
+                    raise RuntimeError('Cannot write tag ' + tag)
+                if family == 'Exif':
+                    self._write_exif(tag, value)
+                elif family == 'Xmp':
+                    self._write_xmp(tag, value)
+                elif self._save_iptc:
+                    self._write_iptc(tag, value)
+            # delete secondary tags
+            for family in self._secondary_tags[name]:
+                for tag in self._secondary_tags[name][family]:
+                    if tag not in _data_type:
+                        raise RuntimeError('Cannot clear tag ' + tag)
+                    if family == 'Exif':
+                        self._write_exif(tag, None)
+                    elif family == 'Xmp':
+                        self._write_xmp(tag, None)
+                    else:
+                        self._write_iptc(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
@@ -832,28 +856,6 @@ class Metadata(QtCore.QObject):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
-        # write data to primary tags
-        for family in self._primary_tags[name]:
-            tag = self._primary_tags[name][family]
-            if tag not in _data_type:
-                raise RuntimeError('Cannot write tag ' + tag)
-            if family == 'Exif':
-                self._write_exif(tag, value)
-            elif family == 'Xmp':
-                self._write_xmp(tag, value)
-            elif self._save_iptc:
-                self._write_iptc(tag, value)
-        # delete secondary tags
-        for family in self._secondary_tags[name]:
-            for tag in self._secondary_tags[name][family]:
-                if tag not in _data_type:
-                    raise RuntimeError('Cannot clear tag ' + tag)
-                if family == 'Exif':
-                    self._write_exif(tag, None)
-                elif family == 'Xmp':
-                    self._write_xmp(tag, None)
-                else:
-                    self._write_iptc(tag, None)
         self._set_unsaved(True)
 
     new_status = QtCore.pyqtSignal(bool)
