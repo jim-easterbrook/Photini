@@ -172,10 +172,15 @@ class Image(QtGui.QFrame):
             os.makedirs(temp_dir)
         path = os.path.join(temp_dir, os.path.basename(self.path) + '.jpg')
         im.save(path, format='jpeg', quality=95)
-        if self.metadata._if:
-            md = MetadataHandler(path)
-            md.copy(self.metadata._if)
-            md.save()
+        # copy metadata
+        try:
+            src_md = MetadataHandler(self.path)
+        except Exception:
+            pass
+        else:
+            dst_md = MetadataHandler(path)
+            dst_md.copy(src_md)
+            dst_md.save()
         return path
 
     def set_selected(self, value):
