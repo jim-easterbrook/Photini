@@ -273,6 +273,7 @@ _data_type = {
     'Iptc.Application2.Headline'         : 'string',
     'Iptc.Application2.Keywords'         : 'multi_string',
     'Iptc.Application2.ObjectName'       : 'string',
+    'Iptc.Application2.Program'          : 'string',
     'Xmp.dc.creator'                     : 'multi_string',
     'Xmp.dc.description'                 : 'string',
     'Xmp.dc.rights'                      : 'string',
@@ -302,6 +303,8 @@ _max_bytes = {
     'Iptc.Application2.Headline'         :  256,
     'Iptc.Application2.Keywords'         :   64,
     'Iptc.Application2.ObjectName'       :   64,
+    'Iptc.Application2.Program'          :   32,
+    'Iptc.Application2.ProgramVersion'   :   10,
     }
 
 def sanitise(name, value):
@@ -381,7 +384,8 @@ class Metadata(QtCore.QObject):
         'lens_serial'    : {'Exif' : 'Exif.Photo.LensSerialNumber'},
         'lens_spec'      : {'Exif' : 'Exif.Photo.LensSpecification'},
         'orientation'    : {'Exif' : 'Exif.Image.Orientation'},
-        'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware'},
+        'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware',
+                            'Iptc' : 'Iptc.Application2.Program'},
         'title'          : {'Xmp'  : 'Xmp.dc.title',
                             'Iptc' : 'Iptc.Application2.ObjectName'},
         }
@@ -458,7 +462,7 @@ class Metadata(QtCore.QObject):
     def save(self, if_mode, sc_mode):
         if not self._unsaved:
             return
-        self.software = 'Photini editor v{0}'.format(__version__)
+        self.software = 'Photini editor v' + __version__
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
@@ -600,7 +604,10 @@ class Metadata(QtCore.QObject):
             return None
         if tag not in self.get_iptc_tags():
             return None
-        if _data_type[tag] == 'string':
+        if tag == 'Iptc.Application2.Program':
+            return (_decode_string(self.get_tag_multiple(tag)[0]) + ' v' +
+                    _decode_string(self.get_tag_multiple(tag + 'Version')[0]))
+        elif _data_type[tag] == 'string':
             return '; '.join(map(_decode_string, self.get_tag_multiple(tag)))
         elif _data_type[tag] == 'multi_string':
             return list(map(_decode_string, self.get_tag_multiple(tag)))
@@ -786,6 +793,11 @@ class Metadata(QtCore.QObject):
             return
         if value is None:
             self.clear_tag(tag)
+        elif tag == 'Iptc.Application2.Program':
+            program, version = value.split(' v')
+            self.set_tag_multiple(tag, [_encode_string(program, _max_bytes[tag])])
+            tag += 'Version'
+            self.set_tag_multiple(tag, [_encode_string(version, _max_bytes[tag])])
         elif _data_type[tag] == 'string':
             self.set_tag_multiple(tag, [_encode_string(value, _max_bytes[tag])])
         elif _data_type[tag] == 'multi_string':
