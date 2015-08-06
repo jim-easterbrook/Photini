@@ -423,7 +423,7 @@ class Metadata(QtCore.QObject):
         'software'       : {},
         'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
         }
-    def __init__(self, path, parent=None):
+    def __init__(self, path, force_iptc, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
         # create metadata handlers for image file and/or sidecar
@@ -440,6 +440,7 @@ class Metadata(QtCore.QObject):
             if not self._sc:
                 self.create_side_car()
         self._unsaved = False
+        self._save_iptc = force_iptc or self.get_iptc_tags()
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -831,7 +832,7 @@ class Metadata(QtCore.QObject):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
-        # write data to primary tags (iptc only if iptc tags already exist)
+        # write data to primary tags
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
             if tag not in _data_type:
@@ -840,7 +841,7 @@ class Metadata(QtCore.QObject):
                 self._write_exif(tag, value)
             elif family == 'Xmp':
                 self._write_xmp(tag, value)
-            elif self.get_iptc_tags():
+            elif self._save_iptc:
                 self._write_iptc(tag, value)
         # delete secondary tags
         for family in self._secondary_tags[name]:

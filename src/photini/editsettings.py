@@ -65,6 +65,11 @@ class EditSettings(QtGui.QDialog):
         if not keyring or keyring.get_password('photini', 'picasa') is None:
             self.reset_picasa.setDisabled(True)
             panel.layout().labelForField(self.reset_picasa).setDisabled(True)
+        # IPTC data
+        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
+        self.write_iptc = QtGui.QCheckBox(self.tr('Write unconditionally'))
+        self.write_iptc.setChecked(force_iptc)
+        panel.layout().addRow(self.tr('IPTC metadata'), self.write_iptc)
         # sidecar files
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
@@ -108,6 +113,8 @@ class EditSettings(QtGui.QDialog):
         if (self.reset_picasa.isChecked() and
                             keyring.get_password('photini', 'picasa')):
             keyring.delete_password('photini', 'picasa')
+        self.config_store.set(
+            'files', 'force_iptc', str(self.write_iptc.isChecked()))
         if self.sc_always.isChecked():
             sc_mode = 'always'
         elif self.sc_auto.isChecked():
