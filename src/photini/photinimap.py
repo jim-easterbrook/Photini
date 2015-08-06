@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals
 
+from collections import defaultdict
 import logging
 import os
 import webbrowser
@@ -74,9 +75,10 @@ class PhotiniMap(QtGui.QWidget):
         self.config_store = config_store
         self.image_list = image_list
         self.drag_icon = self.get_drag_icon()
-        self.location = dict()
+        self.location = {}
         self.search_string = None
         self.map_loaded = False
+        self.marker_images = {}
         layout = QtGui.QGridLayout()
         layout.setMargin(0)
         layout.setRowStretch(6, 1)
@@ -199,17 +201,24 @@ class PhotiniMap(QtGui.QWidget):
         lat, lng = self.JavaScript('latLngFromPixel({0:d}, {1:d})'.format(x, y))
         for path in eval(text):
             image = self.image_list.get_image(path)
-            self._add_marker(image, lat, lng)
+            self._remove_image(image)
             self._set_metadata(image, lat, lng)
+            self._add_image(image)
         self.display_coords()
         self.see_selection()
+
+    def _marker_lookup(self, image):
+        for marker_id in self.marker_images:
+            if image in self.marker_images[marker_id]:
+                return marker_id
+        return None
 
     def new_coords(self):
         text = self.coords.text().strip()
         if not text:
             for image in self.image_list.get_selected_images():
                 image.metadata.latlong = None
-            self.JavaScript('delMarker("{0}")'.format(image.path))
+                self._remove_image(image)
             return
         try:
             lat, lng = map(float, text.split(','))
@@ -217,28 +226,28 @@ class PhotiniMap(QtGui.QWidget):
             self.display_coords()
             return
         for image in self.image_list.get_selected_images():
+            self._remove_image(image)
             self._set_metadata(image, lat, lng)
-            self._add_marker(image, lat, lng)
+            self._add_image(image)
         self.display_coords()
         self.see_selection()
 
     def see_all(self):
-        marker_list = list()
-        for image in self.image_list.get_images():
-            marker_list.append(image.path)
-        if not marker_list:
-            return
-        marker_list = '","'.join(marker_list)
-        self.JavaScript('seeMarkers(["{0}"])'.format(marker_list))
+        self._see_markers(self.image_list.get_images())
 
     def see_selection(self):
-        marker_list = list()
-        for image in self.image_list.get_selected_images():
-            marker_list.append(image.path)
-        if not marker_list:
+        self._see_markers(self.image_list.get_selected_images())
+
+    def _see_markers(self, images):
+        marker_ids = []
+        for image in images:
+            marker_id = self._marker_lookup(image)
+            if marker_id and marker_id not in marker_ids:
+                marker_ids.append(marker_id)
+        if not marker_ids:
             return
-        marker_list = '","'.join(marker_list)
-        self.JavaScript('seeMarkers(["{0}"])'.format(marker_list))
+        marker_ids = '","'.join(marker_ids)
+        self.JavaScript('seeMarkers(["{}"])'.format(marker_ids))
 
     def display_coords(self):
         images = self.image_list.get_selected_images()
@@ -261,27 +270,48 @@ class PhotiniMap(QtGui.QWidget):
             self.coords.setEnabled(True)
         else:
             self.coords.setEnabled(False)
-        for image in self.image_list.get_images():
-            if image.metadata.latlong:
-                self.JavaScript('enableMarker("{0}", {1:d})'.format(
-                    image.path, image.selected))
+        for marker_id in self.marker_images:
+            self.JavaScript('enableMarker("{}", {:d})'.format(
+                marker_id,
+                any([image.selected for image in self.marker_images[marker_id]])))
         self.display_coords()
         self.see_selection()
 
     def new_images(self):
         self.JavaScript('removeMarkers()')
+        self.marker_images = {}
         for image in self.image_list.get_images():
-            latlong = image.metadata.latlong
-            if latlong:
-                self._add_marker(image, *latlong.members())
+            self._add_image(image)
 
-    def _add_marker(self, image, lat, lng):
+    def _add_image(self, image):
         if not self.map_loaded:
             return
-        if lat is None or lng is None:
+        latlong = image.metadata.latlong
+        if not latlong:
             return
-        self.JavaScript('addMarker("{0}", {1!r}, {2!r}, "{3}", {4:d})'.format(
-            image.path, lat, lng, image.name, image.selected))
+        marker_id = str(latlong)
+        if marker_id in self.marker_images:
+            self.marker_images[marker_id].append(image)
+            if image.selected:
+                self.JavaScript(
+                    'enableMarker("{}", {:d})'.format(marker_id, True))
+        else:
+            self.marker_images[marker_id] = [image]
+            self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
+                marker_id, latlong.lat, latlong.lon, image.selected))
+
+    def _remove_image(self, image):
+        marker_id = self._marker_lookup(image)
+        if not marker_id:
+            return
+        self.marker_images[marker_id].remove(image)
+        if len(self.marker_images[marker_id]) < 1:
+            self.JavaScript('delMarker("{}")'.format(marker_id))
+            del self.marker_images[marker_id]
+        else:
+            self.JavaScript('enableMarker("{}", {:d})'.format(
+                marker_id,
+                any([image.selected for image in self.marker_images[marker_id]])))
 
     def search(self, search_string=None):
         if not search_string:
@@ -322,14 +352,26 @@ class PhotiniMap(QtGui.QWidget):
             self.JavaScript('goTo({0!r}, {1!r})'.format(lat, lng))
 
     @QtCore.pyqtSlot(six.text_type)
-    def marker_click(self, path):
-        self.image_list.select_image(path)
+    def marker_click(self, marker_id):
+        image = self.marker_images[marker_id][0]
+        self.image_list.select_image(image.path)
 
     @QtCore.pyqtSlot(float, float, six.text_type)
-    def marker_drag_end(self, lat, lng, path):
-        image = self.image_list.get_image(path)
-        self._set_metadata(image, lat, lng)
+    def marker_drag(self, lat, lng, marker_id):
+        self._set_metadata(self.marker_images[marker_id][0], lat, lng)
         self.display_coords()
+        if len(self.marker_images[marker_id]) > 1:
+            latlong = self.marker_images[marker_id][1].metadata.latlong
+            self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
+                'temp_id', latlong.lat, latlong.lon, False))
+            self.marker_images['temp_id'] = self.marker_images[marker_id][1:]
+            del self.marker_images[marker_id][1:]
+
+    @QtCore.pyqtSlot(float, float, six.text_type)
+    def marker_drag_end(self, lat, lng, marker_id):
+        self._set_metadata(self.marker_images[marker_id][0], lat, lng)
+        self.display_coords()
+        self.new_images()
         self.see_selection()
 
     def _set_metadata(self, image, lat, lng):

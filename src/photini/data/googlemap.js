@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -47,12 +47,12 @@ function setView(lat, lng, zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function seeMarkers(paths)
+function seeMarkers(ids)
 {
   var bounds;
-  for (var i = 0; i < paths.length; i++)
+  for (var i = 0; i < ids.length; i++)
   {
-    var marker = markers[paths[i]];
+    var marker = markers[ids[i]];
     if (marker)
     {
       var position = marker.getPosition();
@@ -88,72 +88,78 @@ function goTo(lat, lng)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function enableMarker(path, active)
+function enableMarker(id, active)
 {
-  var marker = markers[path];
-  if (active)
-    marker.setOptions({
-      icon: '',
-      zIndex: 1
-    });
-  else
-    marker.setOptions({
-      icon: 'google_grey_marker.png',
-      zIndex: 0
-    });
+  var marker = markers[id];
+  if (marker)
+  {
+    if (active)
+      marker.setOptions({
+        icon: '',
+        zIndex: 1
+      });
+    else
+      marker.setOptions({
+        icon: 'google_grey_marker.png',
+        zIndex: 0
+      });
+  }
 }
 
-function addMarker(path, lat, lng, label, active)
+function addMarker(id, lat, lng, active)
 {
   var position = new google.maps.LatLng(lat, lng);
-  if (markers[path])
+  if (markers[id])
   {
-    markers[path].setPosition(position);
+    markers[id].setPosition(position);
     return;
   }
   var marker = new google.maps.Marker(
     {
       position: position,
       map: map,
-      title: label,
       draggable: true,
     });
-  markers[path] = marker;
-  marker._path = path;
+  markers[id] = marker;
+  marker._id = id;
   google.maps.event.addListener(marker, 'click', function(event)
   {
-    python.marker_click(this._path)
+    python.marker_click(this._id)
   });
   google.maps.event.addListener(marker, 'dragstart', function(event)
   {
-    python.marker_click(this._path)
+    python.marker_click(this._id)
   });
   google.maps.event.addListener(marker, 'drag', function(event)
   {
     var loc = event.latLng;
-    python.marker_drag_end(loc.lat(), loc.lng(), this._path);
+    python.marker_drag(loc.lat(), loc.lng(), this._id);
   });
   google.maps.event.addListener(marker, 'dragend', function(event)
   {
     var loc = event.latLng;
-    python.marker_drag_end(loc.lat(), loc.lng(), this._path);
+    python.marker_drag_end(loc.lat(), loc.lng(), this._id);
   });
-  enableMarker(path, active)
+  enableMarker(id, active)
 }
 
-function delMarker(path)
+function delMarker(id)
 {
-  if (markers[path])
+  if (markers[id])
   {
-    markers[path].setMap(null);
-    delete markers[path];
+    google.maps.event.clearInstanceListeners(markers[id]);
+    markers[id].setMap(null);
+    delete markers[id];
   }
 }
 
 function removeMarkers()
 {
-  for (var path in markers)
-    markers[path].setMap(null);
+  for (var id in markers)
+  {
+    google.maps.event.clearInstanceListeners(markers[id]);
+    markers[id].setMap(null);
+  }
   markers = {};
 }
 

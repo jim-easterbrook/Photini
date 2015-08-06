@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -61,12 +61,12 @@ function setView(lat, lng, zoom)
   map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function seeMarkers(paths)
+function seeMarkers(ids)
 {
   var locations = [];
-  for (var i = 0; i < paths.length; i++)
+  for (var i = 0; i < ids.length; i++)
   {
-    var marker = markers[paths[i]];
+    var marker = markers[ids[i]];
     if (marker)
       locations.push(marker.getLocation());
   }
@@ -104,66 +104,76 @@ function goTo(lat, lng)
   });
 }
 
-function enableMarker(path, active)
+function enableMarker(id, active)
 {
-  var marker = markers[path];
-  if (active)
-    marker.setOptions({
-      icon: defaultPushpinIcon,
-      zIndex: 1
-    });
-  else
-    marker.setOptions({
-      icon: 'bing_grey_marker.png',
-      zIndex: 0
-    });
+  var marker = markers[id];
+  if (marker)
+  {
+    if (active)
+      marker.setOptions({
+        icon: defaultPushpinIcon,
+        zIndex: 1
+      });
+    else
+      marker.setOptions({
+        icon: 'bing_grey_marker.png',
+        zIndex: 0
+      });
+  }
 }
 
-function addMarker(path, lat, lng, label, active)
+function addMarker(id, lat, lng, active)
 {
   var position = new Microsoft.Maps.Location(lat, lng);
-  if (markers[path])
+  if (markers[id])
   {
-    markers[path].setLocation(position);
+    markers[id].setLocation(position);
     return;
   }
   var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
   defaultPushpinIcon = marker.getIcon();
   map.entities.push(marker);
-  markers[path] = marker;
-  marker._path = path;
+  markers[id] = marker;
+  marker._id = id;
   Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
   Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
-  Microsoft.Maps.Events.addHandler(marker, 'drag', markerDragEnd);
+  Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
   Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
-  enableMarker(path, active);
+  enableMarker(id, active);
 }
 
 function markerClick(event)
 {
   var marker = event.target;
-  python.marker_click(marker._path);
+  python.marker_click(marker._id);
 }
 
 function markerDragStart(event)
 {
   var marker = event.entity;
-  python.marker_click(marker._path);
+  python.marker_click(marker._id);
+}
+
+function markerDrag(event)
+{
+  var marker = event.entity;
+  var loc = marker.getLocation();
+  python.marker_drag(loc.latitude, loc.longitude, marker._id);
 }
 
 function markerDragEnd(event)
 {
   var marker = event.entity;
   var loc = marker.getLocation();
-  python.marker_drag_end(loc.latitude, loc.longitude, marker._path);
+  python.marker_drag_end(loc.latitude, loc.longitude, marker._id);
 }
 
-function delMarker(path)
+function delMarker(id)
 {
-  if (markers[path])
+  if (markers[id])
   {
-    map.entities.remove(markers[path]);
-    delete markers[path];
+    map.entities.remove(markers[id]);
+    delete markers[id];
   }
 }
 

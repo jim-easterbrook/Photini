@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -47,12 +47,12 @@ function setView(lat, lng, zoom)
   map.setView(new L.LatLng(lat, lng), zoom);
 }
 
-function seeMarkers(paths)
+function seeMarkers(ids)
 {
   var locations = [];
-  for (var i = 0; i < paths.length; i++)
+  for (var i = 0; i < ids.length; i++)
   {
-    var marker = markers[paths[i]];
+    var marker = markers[ids[i]];
     if (marker)
       locations.push(marker.getLatLng());
   }
@@ -86,77 +86,78 @@ function goTo(lat, lng)
     new L.LatLng(lat, lng), Math.min(Math.max(map.getZoom(), 11), 16));
 }
 
-function enableMarker(path, active)
+function enableMarker(id, active)
 {
-  var marker = markers[path];
-  if (active)
+  var marker = markers[id];
+  if (marker)
   {
-    marker.setZIndexOffset(1000);
-    marker.setIcon(new L.Icon.Default());
-  }
-  else
-  {
-    marker.setZIndexOffset(0);
-    marker.setIcon(new L.Icon({
-      iconUrl: 'osm_grey_marker.png',
-      iconSize: [25, 40],
-      iconAnchor: [13, 40],
-    }));
+    if (active)
+    {
+      marker.setZIndexOffset(1000);
+      marker.setIcon(new L.Icon.Default());
+    }
+    else
+    {
+      marker.setZIndexOffset(0);
+      marker.setIcon(new L.Icon({
+        iconUrl: 'osm_grey_marker.png',
+        iconSize: [25, 40],
+        iconAnchor: [13, 40],
+      }));
+    }
   }
 }
 
-function addMarker(path, lat, lng, label, active)
+function addMarker(id, lat, lng, active)
 {
-  if (markers[path])
+  if (markers[id])
   {
-    markers[path].setLatLng([lat, lng]);
+    markers[id].setLatLng([lat, lng]);
     return;
   }
   var marker =  L.marker([lat, lng], {
     draggable: true,
-    title: label
   });
   marker.addTo(map);
-  markers[path] = marker;
-  marker._path = path;
+  markers[id] = marker;
+  marker._id = id;
   marker.on('click', markerClick);
   marker.on('drag', markerDrag);
   marker.on('dragend', markerDragEnd);
-  enableMarker(path, active)
+  enableMarker(id, active)
 }
 
 function markerClick(event)
 {
-  python.marker_click(this._path);
+  python.marker_click(this._id);
 }
 
 function markerDrag(event)
 {
   var loc = this.getLatLng();
-  python.marker_drag_end(loc.lat, loc.lng, this._path);
+  python.marker_click(this._id);
+  python.marker_drag(loc.lat, loc.lng, this._id);
 }
 
 function markerDragEnd(event)
 {
   var loc = this.getLatLng();
-  python.marker_drag_end(loc.lat, loc.lng, this._path);
-  // Ought to do this on dragstart, but doing so prevents dragging
-  python.marker_click(this._path);
+  python.marker_drag_end(loc.lat, loc.lng, this._id);
 }
 
-function delMarker(path)
+function delMarker(id)
 {
-  if (markers[path])
+  if (markers[id])
   {
-    map.removeLayer(markers[path]);
-    delete markers[path];
+    map.removeLayer(markers[id]);
+    delete markers[id];
   }
 }
 
 function removeMarkers()
 {
-  for (var path in markers)
-    map.removeLayer(markers[path]);
+  for (var id in markers)
+    map.removeLayer(markers[id]);
   markers = {};
 }
 
