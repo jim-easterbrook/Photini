@@ -57,7 +57,7 @@ class FolderSource(object):
         return result
 
     def get_file_info(self, path):
-        metadata = Metadata(path, False)
+        metadata = Metadata(path)
         timestamp = metadata.date_taken
         if not timestamp:
             timestamp = metadata.date_digitised

@@ -423,7 +423,7 @@ class Metadata(QtCore.QObject):
         'software'       : {},
         'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
         }
-    def __init__(self, path, force_iptc, parent=None):
+    def __init__(self, path, parent=None):
         QtCore.QObject.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
         # create metadata handlers for image file and/or sidecar
@@ -440,7 +440,6 @@ class Metadata(QtCore.QObject):
             if not self._sc:
                 self.create_side_car()
         self._unsaved = False
-        self._save_iptc = force_iptc or self.get_iptc_tags()
         # read existing metadata and add it to object attributes
         for name in self._primary_tags:
             super(Metadata, self).__setattr__(name, self._read_metadata(name))
@@ -463,10 +462,11 @@ class Metadata(QtCore.QObject):
         if self._if:
             self._sc.copy(self._if, comment=False)
 
-    def save(self, if_mode, sc_mode):
+    def save(self, if_mode, sc_mode, force_iptc):
         if not self._unsaved:
             return
         self.software = 'Photini editor v' + __version__
+        save_iptc = force_iptc or self.get_iptc_tags()
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
@@ -478,7 +478,7 @@ class Metadata(QtCore.QObject):
                     self._write_exif(tag, value)
                 elif family == 'Xmp':
                     self._write_xmp(tag, value)
-                elif self._save_iptc:
+                elif save_iptc:
                     self._write_iptc(tag, value)
             # delete secondary tags
             for family in self._secondary_tags[name]:

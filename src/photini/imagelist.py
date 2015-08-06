@@ -36,7 +36,7 @@ from .metadata import Metadata, MetadataHandler
 DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtGui.QFrame):
-    def __init__(self, path, force_iptc, image_list, thumb_size=80, parent=None):
+    def __init__(self, path, image_list, thumb_size=80, parent=None):
         QtGui.QFrame.__init__(self, parent)
         self.path = path
         self.image_list = image_list
@@ -44,7 +44,7 @@ class Image(QtGui.QFrame):
         self.selected = False
         self.pixmap = None
         self.thumb_size = thumb_size
-        self.metadata = Metadata(self.path, force_iptc)
+        self.metadata = Metadata(self.path)
         self.metadata.new_status.connect(self.show_status)
         layout = QtGui.QGridLayout()
         layout.setSpacing(0)
@@ -328,13 +328,12 @@ class ImageList(QtGui.QWidget):
     def open_file_list(self, path_list):
         self.config_store.set(
             'paths', 'images', os.path.dirname(path_list[0]))
-        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
         for path in path_list:
             path = os.path.normpath(path)
             if path in self.path_list:
                 continue
             self.path_list.append(path)
-            image = Image(path, force_iptc, self, thumb_size=self.thumb_size)
+            image = Image(path, self, thumb_size=self.thumb_size)
             self.image[path] = image
         self._show_thumbnails()
 
@@ -391,10 +390,11 @@ class ImageList(QtGui.QWidget):
     def save_files(self):
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
+        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
         unsaved = False
         for path in list(self.path_list):
             image = self.image[path]
-            image.metadata.save(if_mode, sc_mode)
+            image.metadata.save(if_mode, sc_mode, force_iptc)
             unsaved = unsaved or image.metadata.changed()
         self.new_metadata.emit(unsaved)
 
