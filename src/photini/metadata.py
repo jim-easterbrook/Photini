@@ -581,9 +581,7 @@ class Metadata(QtCore.QObject):
             return DateTime.from_exif(value_string, sub_sec_string)
         elif _data_type[tag] == 'lensspec':
             return LensSpec(*value_string.split())
-        else:
-            raise RuntimeError('Cannot read tag ' + tag)
-        return result
+        raise RuntimeError('Cannot read tag ' + tag)
 
     def _read_iptc(self, tag):
         if _data_type[tag] == 'datetime':
@@ -606,9 +604,7 @@ class Metadata(QtCore.QObject):
             return '; '.join(map(_decode_string, self.get_tag_multiple(tag)))
         elif _data_type[tag] == 'multi_string':
             return list(map(_decode_string, self.get_tag_multiple(tag)))
-        else:
-            raise RuntimeError('Cannot read tag ' + tag)
-        return result
+        raise RuntimeError('Cannot read tag ' + tag)
 
     def _read_xmp(self, tag):
         if _data_type[tag] == 'ignore':
@@ -644,9 +640,7 @@ class Metadata(QtCore.QObject):
             return list(value_strings)
         elif _data_type[tag] == 'datetime':
             return DateTime.from_xmp(value_strings[0])
-        else:
-            raise RuntimeError('Cannot read tag ' + tag)
-        return result
+        raise RuntimeError('Cannot read tag ' + tag)
 
     def _get_value(self, name, family, tag):
         if tag not in _data_type:
@@ -825,7 +819,7 @@ class Metadata(QtCore.QObject):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
-        # write data to primary tags (iptc only if it already exists)
+        # write data to primary tags (iptc only if iptc tags already exist)
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
             if tag not in _data_type:
@@ -834,7 +828,7 @@ class Metadata(QtCore.QObject):
                 self._write_exif(tag, value)
             elif family == 'Xmp':
                 self._write_xmp(tag, value)
-            elif tag in self.get_iptc_tags():
+            elif self.get_iptc_tags():
                 self._write_iptc(tag, value)
         # delete secondary tags
         for family in self._secondary_tags[name]:
