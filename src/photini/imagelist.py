@@ -32,6 +32,7 @@ from PyQt4.QtCore import Qt
 
 from .flowlayout import FlowLayout
 from .metadata import Metadata, MetadataHandler
+from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -135,15 +136,13 @@ class Image(QtGui.QFrame):
         self.load_thumbnail()
 
     def load_thumbnail(self):
-        result = False
         if not self.pixmap:
-            result = True
             self.pixmap = QtGui.QPixmap(self.path)
             if not self.pixmap.isNull():
-                if max(self.pixmap.width(), self.pixmap.height()) > 400:
+                if max(self.pixmap.width(), self.pixmap.height()) > 300:
                     # store a scaled down version of image to save memory
                     self.pixmap = self.pixmap.scaled(
-                        400, 400, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 orientation = self.metadata.orientation
                 if orientation and orientation > 1:
                     # need to rotate and or reflect image
@@ -163,7 +162,6 @@ class Image(QtGui.QFrame):
             self.image.setPixmap(self.pixmap.scaled(
                 self.thumb_size, self.thumb_size,
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        return result
 
     def as_jpeg(self):
         im = QtGui.QImage(self.path)
@@ -307,7 +305,7 @@ class ImageList(QtGui.QWidget):
         types = [
             'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
             'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
-            'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2'
+            'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
             ]
         for fmt in QtGui.QImageReader.supportedImageFormats():
             ext = fmt.data().decode('utf_8').lower()
@@ -355,18 +353,19 @@ class ImageList(QtGui.QWidget):
     def _show_thumbnails(self):
         sort_date = self.sort_date.isChecked()
         self.config_store.set('controls', 'sort_date', str(sort_date))
-        if sort_date:
-            self.path_list.sort(key=self._date_key)
-        else:
-            self.path_list.sort()
-        layout = self.thumbnails.layout()
-        for path in self.path_list:
-            image = self.image[path]
-            layout.addWidget(image)
-            if image.load_thumbnail():
+        with Busy():
+            if sort_date:
+                self.path_list.sort(key=self._date_key)
+            else:
+                self.path_list.sort()
+            layout = self.thumbnails.layout()
+            for path in self.path_list:
+                image = self.image[path]
+                layout.addWidget(image)
+                self.app.processEvents()
+                image.load_thumbnail()
                 self.app.processEvents()
                 self.scroll_area.ensureWidgetVisible(image)
-                self.app.processEvents()
         if self.last_selected:
             self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
@@ -476,11 +475,11 @@ class ImageList(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def _new_thumb_size(self):
         self.thumb_size = self.size_slider.value() * 20
+        print '_new_thumb_size', self.thumb_size
         self.config_store.set('controls', 'thumb_size', str(self.thumb_size))
         for path in self.path_list:
             self.image[path].set_thumb_size(self.thumb_size)
         if self.last_selected:
-            self.app.processEvents()
             self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
 
