@@ -21,33 +21,33 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt
 
 from .utils import multiple_values
 
-class MultiLineEdit(QtGui.QPlainTextEdit):
+class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def __init__(self, parent=None):
-        QtGui.QPlainTextEdit.__init__(self, parent)
+        QtWidgets.QPlainTextEdit.__init__(self, parent)
         self.setText = self.setPlainText
         self.text = self.toPlainText
 
     editingFinished = QtCore.pyqtSignal()
     def focusOutEvent(self, event):
         self.editingFinished.emit()
-        QtGui.QPlainTextEdit.focusOutEvent(self, event)
+        QtWidgets.QPlainTextEdit.focusOutEvent(self, event)
 
-class LineEditWithAuto(QtGui.QWidget):
+class LineEditWithAuto(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        layout = QtGui.QHBoxLayout()
+        QtWidgets.QWidget.__init__(self, parent)
+        layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = QtGui.QLineEdit()
+        self.edit = QtWidgets.QLineEdit()
         layout.addWidget(self.edit)
         # auto complete button
-        self.auto = QtGui.QPushButton(self.tr('Auto'))
+        self.auto = QtWidgets.QPushButton(self.tr('Auto'))
         layout.addWidget(self.auto)
         # adopt child widget methods and signals
         self.editingFinished = self.edit.editingFinished
@@ -56,17 +56,17 @@ class LineEditWithAuto(QtGui.QWidget):
         self.text = self.edit.text
         self.autoComplete = self.auto.clicked
 
-class Descriptive(QtGui.QWidget):
+class Descriptive(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.form = QtGui.QFormLayout()
+        self.form = QtWidgets.QFormLayout()
         self.setLayout(self.form)
         # construct widgets
         self.widgets = dict()
         # title
-        self.widgets['title'] = QtGui.QLineEdit()
+        self.widgets['title'] = QtWidgets.QLineEdit()
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
@@ -75,7 +75,7 @@ class Descriptive(QtGui.QWidget):
         self.form.addRow(
             self.tr('Description / Caption'), self.widgets['description'])
         # keywords
-        self.widgets['keywords'] = QtGui.QLineEdit()
+        self.widgets['keywords'] = QtWidgets.QLineEdit()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         # copyright
@@ -116,7 +116,7 @@ class Descriptive(QtGui.QWidget):
     def auto_copyright(self):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
-            name, OK = QtGui.QInputDialog.getText(
+            name, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('Photini: input name'),
                 self.tr("Please type in the copyright holder's name"),
                 text=self.config_store.get('user', 'creator_name', ''))
@@ -139,7 +139,7 @@ class Descriptive(QtGui.QWidget):
     def auto_creator(self):
         name = self.config_store.get('user', 'creator_name')
         if not name:
-            name, OK = QtGui.QInputDialog.getText(
+            name, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('Photini: input name'),
                 self.tr("Please type in the creator's name"),
                 text=self.config_store.get('user', 'copyright_name', ''))

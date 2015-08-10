@@ -21,53 +21,53 @@ from __future__ import unicode_literals
 
 try:
     import keyring
-except ImportError:
+except (ImportError, RuntimeError):
     keyring = None
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt
 
-class EditSettings(QtGui.QDialog):
+class EditSettings(QtWidgets.QDialog):
     def __init__(self, parent, config_store):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self.config_store = config_store
         self.setWindowTitle(self.tr('Photini: settings'))
-        self.setLayout(QtGui.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
-        scroll_area = QtGui.QScrollArea()
+        scroll_area = QtWidgets.QScrollArea()
         self.layout().addWidget(scroll_area)
-        panel = QtGui.QWidget()
-        panel.setLayout(QtGui.QFormLayout())
+        panel = QtWidgets.QWidget()
+        panel.setLayout(QtWidgets.QFormLayout())
         # apply & cancel buttons
-        self.button_box = QtGui.QDialogButtonBox(
-            QtGui.QDialogButtonBox.Apply | QtGui.QDialogButtonBox.Cancel)
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Apply | QtWidgets.QDialogButtonBox.Cancel)
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # copyright holder name
-        self.copyright_name = QtGui.QLineEdit()
+        self.copyright_name = QtWidgets.QLineEdit()
         self.copyright_name.setText(
             self.config_store.get('user', 'copyright_name', ''))
         self.copyright_name.setMinimumWidth(200)
         panel.layout().addRow(self.tr('Copyright holder'), self.copyright_name)
         # creator name
-        self.creator_name = QtGui.QLineEdit()
+        self.creator_name = QtWidgets.QLineEdit()
         self.creator_name.setText(
             self.config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
-        self.reset_flickr = QtGui.QCheckBox()
+        self.reset_flickr = QtWidgets.QCheckBox()
         panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
         if not keyring or keyring.get_password('photini', 'flickr') is None:
             self.reset_flickr.setDisabled(True)
             panel.layout().labelForField(self.reset_flickr).setDisabled(True)
         # reset picasa
-        self.reset_picasa = QtGui.QCheckBox()
+        self.reset_picasa = QtWidgets.QCheckBox()
         panel.layout().addRow(self.tr('Reset Picasa'), self.reset_picasa)
         if not keyring or keyring.get_password('photini', 'picasa') is None:
             self.reset_picasa.setDisabled(True)
             panel.layout().labelForField(self.reset_picasa).setDisabled(True)
         # IPTC data
         force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
-        self.write_iptc = QtGui.QCheckBox(self.tr('Write unconditionally'))
+        self.write_iptc = QtWidgets.QCheckBox(self.tr('Write unconditionally'))
         self.write_iptc.setChecked(force_iptc)
         panel.layout().addRow(self.tr('IPTC metadata'), self.write_iptc)
         # sidecar files
@@ -75,19 +75,19 @@ class EditSettings(QtGui.QDialog):
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
         if not if_mode:
             sc_mode = 'always'
-        self.sc_always = QtGui.QRadioButton(self.tr('Always create'))
+        self.sc_always = QtWidgets.QRadioButton(self.tr('Always create'))
         self.sc_always.setChecked(sc_mode == 'always')
         panel.layout().addRow(self.tr('Sidecar files'), self.sc_always)
-        self.sc_auto = QtGui.QRadioButton(self.tr('Create if necessary'))
+        self.sc_auto = QtWidgets.QRadioButton(self.tr('Create if necessary'))
         self.sc_auto.setChecked(sc_mode == 'auto')
         self.sc_auto.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_auto)
-        self.sc_delete = QtGui.QRadioButton(self.tr('Delete when possible'))
+        self.sc_delete = QtWidgets.QRadioButton(self.tr('Delete when possible'))
         self.sc_delete.setChecked(sc_mode == 'delete')
         self.sc_delete.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_delete)
         # image file locking
-        self.write_if = QtGui.QCheckBox(self.tr('(when possible)'))
+        self.write_if = QtWidgets.QCheckBox(self.tr('(when possible)'))
         self.write_if.setChecked(if_mode)
         self.write_if.clicked.connect(self.new_write_if)
         panel.layout().addRow(self.tr('Write to image'), self.write_if)
@@ -102,7 +102,7 @@ class EditSettings(QtGui.QDialog):
             self.sc_always.setChecked(True)
 
     def button_clicked(self, button):
-        if button != self.button_box.button(QtGui.QDialogButtonBox.Apply):
+        if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()
         # change config
         self.config_store.set('user', 'copyright_name', self.copyright_name.text())

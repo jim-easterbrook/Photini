@@ -23,7 +23,7 @@ import locale
 import os
 import webbrowser
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtGui, QtWidgets, QtCore
 import six
 
 from .configstore import key_store
@@ -32,7 +32,7 @@ from .utils import data_dir
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
-        self.copyright_widget = QtGui.QLabel()
+        self.copyright_widget = QtWidgets.QLabel()
         self.copyright_widget.setWordWrap(True)
         PhotiniMap.__init__(self, *arg, **kw)
 
@@ -58,11 +58,11 @@ class BingMap(PhotiniMap):
 
     def show_terms(self):
         # return a widget to display map terms and conditions
-        result = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        result = QtWidgets.QFrame()
+        layout = QtWidgets.QVBoxLayout()
         result.setLayout(layout)
         layout.addWidget(self.copyright_widget)
-        load_tou = QtGui.QPushButton(self.tr('Terms of Use'))
+        load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
         return result

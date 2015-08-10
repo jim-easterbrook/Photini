@@ -26,12 +26,12 @@ http://doc.qt.digia.com/4.7-snapshot/layouts-flowlayout.html
 
 from __future__ import unicode_literals
 
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt
 
-class FlowLayout(QtGui.QLayout):
+class FlowLayout(QtWidgets.QLayout):
     def __init__(self, parent=None, hSpacing=-1, vSpacing=-1):
-        QtGui.QLayout.__init__(self, parent)
+        QtWidgets.QLayout.__init__(self, parent)
         self.h_space = hSpacing
         self.v_space = vSpacing
         self.item_list = list()
@@ -42,12 +42,12 @@ class FlowLayout(QtGui.QLayout):
     def horizontalSpacing(self):
         if self.h_space >= 0:
             return self.h_space
-        return self._smart_spacing(QtGui.QStyle.PM_LayoutHorizontalSpacing)
+        return self._smart_spacing(QtWidgets.QStyle.PM_LayoutHorizontalSpacing)
 
     def verticalSpacing(self):
         if self.v_space >= 0:
             return self.v_space
-        return self._smart_spacing(QtGui.QStyle.PM_LayoutVerticalSpacing)
+        return self._smart_spacing(QtWidgets.QStyle.PM_LayoutVerticalSpacing)
 
     def count(self):
         return len(self.item_list)
@@ -72,7 +72,7 @@ class FlowLayout(QtGui.QLayout):
         return self._do_layout(QtCore.QRect(0, 0, width, 0), True)
 
     def setGeometry(self, rect):
-        QtGui.QLayout.setGeometry(self, rect)
+        QtWidgets.QLayout.setGeometry(self, rect)
         self._do_layout(rect, False)
 
     def sizeHint(self):
@@ -82,7 +82,8 @@ class FlowLayout(QtGui.QLayout):
         size = QtCore.QSize()
         for item in self.item_list:
             size = size.expandedTo(item.minimumSize())
-        size += QtCore.QSize(2 * self.margin(), 2 * self.margin())
+        left, top, right, bottom = self.getContentsMargins()
+        size += QtCore.QSize(left + right, top + bottom)
         return size
 
     def _do_layout(self, rect, testOnly):

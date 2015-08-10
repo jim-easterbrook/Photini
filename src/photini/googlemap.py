@@ -24,7 +24,7 @@ import os
 import re
 import webbrowser
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui, QtWidgets
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
@@ -53,11 +53,11 @@ class GoogleMap(PhotiniMap):
 
     def show_terms(self):
         # return a widget to display map terms and conditions
-        result = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        result = QtWidgets.QFrame()
+        layout = QtWidgets.QVBoxLayout()
         result.setLayout(layout)
-        layout.addWidget(QtGui.QLabel(self.tr('Search powered by Google')))
-        load_tou = QtGui.QPushButton(self.tr('Terms of Use'))
+        layout.addWidget(QtWidgets.QLabel(self.tr('Search powered by Google')))
+        load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
         layout.addWidget(load_tou)
         return result

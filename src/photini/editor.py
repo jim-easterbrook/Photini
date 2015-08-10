@@ -38,7 +38,7 @@ from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import webbrowser
 
-# on Windows & Python3, GObject needs to be imported before PyQt4
+# on Windows & Python3, GObject needs to be imported before PyQt5
 if sys.platform == 'win32' and six.PY3:
     try:
         from .metadata_gexiv2 import MetadataHandler
@@ -48,9 +48,9 @@ if sys.platform == 'win32' and six.PY3:
 import sip
 sip.setapi('QString', 2)
 sip.setapi('QVariant', 2)
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
-from PyQt4.QtNetwork import QNetworkProxy
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtNetwork import QNetworkProxy
 
 from .configstore import ConfigStore
 from .bingmap import BingMap
@@ -73,9 +73,9 @@ from .technical import Technical
 from .utils import data_dir
 from . import __version__
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, verbose):
-        QtGui.QMainWindow.__init__(self)
+        QtWidgets.QMainWindow.__init__(self)
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
         self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
         self.selection = list()
@@ -132,40 +132,40 @@ class MainWindow(QtGui.QMainWindow):
                 tab['object'] = None
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
-        open_action = QtGui.QAction(self.tr('Open images'), self)
+        open_action = QtWidgets.QAction(self.tr('Open images'), self)
         open_action.setShortcuts(QtGui.QKeySequence.Open)
         open_action.triggered.connect(self.image_list.open_files)
         file_menu.addAction(open_action)
-        self.save_action = QtGui.QAction(
+        self.save_action = QtWidgets.QAction(
             self.tr('Save images with new data'), self)
         self.save_action.setShortcuts(QtGui.QKeySequence.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
         file_menu.addAction(self.save_action)
-        self.close_action = QtGui.QAction(
+        self.close_action = QtWidgets.QAction(
             self.tr('Close selected images'), self)
         self.close_action.setEnabled(False)
         self.close_action.triggered.connect(self.close_files)
         file_menu.addAction(self.close_action)
-        close_all_action = QtGui.QAction(self.tr('Close all images'), self)
+        close_all_action = QtWidgets.QAction(self.tr('Close all images'), self)
         close_all_action.triggered.connect(self.close_all_files)
         file_menu.addAction(close_all_action)
         file_menu.addSeparator()
-        quit_action = QtGui.QAction(self.tr('Quit'), self)
+        quit_action = QtWidgets.QAction(self.tr('Quit'), self)
         quit_action.setShortcuts(
             [QtGui.QKeySequence.Quit, QtGui.QKeySequence.Close])
         quit_action.triggered.connect(
-            QtGui.QApplication.instance().closeAllWindows)
+            QtWidgets.QApplication.instance().closeAllWindows)
         file_menu.addAction(quit_action)
         # options menu
         options_menu = self.menuBar().addMenu(self.tr('Options'))
-        settings_action = QtGui.QAction(self.tr('Settings'), self)
+        settings_action = QtWidgets.QAction(self.tr('Settings'), self)
         settings_action.triggered.connect(self.edit_settings)
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
             name = tab['name'].replace('&', '')
-            tab['action'] = QtGui.QAction(name, self)
+            tab['action'] = QtWidgets.QAction(name, self)
             tab['action'].setCheckable(True)
             if tab['class']:
                 tab['action'].setChecked(
@@ -176,18 +176,18 @@ class MainWindow(QtGui.QMainWindow):
             options_menu.addAction(tab['action'])
         # help menu
         help_menu = self.menuBar().addMenu(self.tr('Help'))
-        about_action = QtGui.QAction(self.tr('About Photini'), self)
+        about_action = QtWidgets.QAction(self.tr('About Photini'), self)
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
         help_menu.addSeparator()
-        help_action = QtGui.QAction(self.tr('Photini documentation'), self)
+        help_action = QtWidgets.QAction(self.tr('Photini documentation'), self)
         help_action.triggered.connect(self.open_docs)
         help_menu.addAction(help_action)
         # main application area
-        self.central_widget = QtGui.QSplitter()
+        self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)
         self.central_widget.setChildrenCollapsible(False)
-        self.tabs = QtGui.QTabWidget()
+        self.tabs = QtWidgets.QTabWidget()
         self.tabs.currentChanged.connect(self.new_tab)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
@@ -232,7 +232,7 @@ class MainWindow(QtGui.QMainWindow):
                 return
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         self.loggerwindow.shutdown()
-        QtGui.QMainWindow.closeEvent(self, event)
+        QtWidgets.QMainWindow.closeEvent(self, event)
 
     def edit_settings(self):
         dialog = EditSettings(self, self.config_store)
@@ -250,7 +250,7 @@ class MainWindow(QtGui.QMainWindow):
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
 """).format(__version__)
-        dialog = QtGui.QMessageBox()
+        dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
         dialog.setDetailedText(
@@ -288,10 +288,10 @@ def main(argv=None):
         sys.argv = argv
     # let PyQt handle its options (need at least one argument after options)
     sys.argv.append('xxx')
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     del sys.argv[-1]
     # install translation
-    QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
+##    QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     locale = QtCore.QLocale.system()
     translator = QtCore.QTranslator()
     translator.load(

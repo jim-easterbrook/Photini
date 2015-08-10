@@ -27,8 +27,8 @@ import sys
 from six.moves.urllib.parse import unquote
 
 import appdirs
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt
 
 from .flowlayout import FlowLayout
 from .metadata import Metadata, MetadataHandler
@@ -36,9 +36,9 @@ from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
-class Image(QtGui.QFrame):
+class Image(QtWidgets.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
-        QtGui.QFrame.__init__(self, parent)
+        QtWidgets.QFrame.__init__(self, parent)
         self.path = path
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
@@ -47,32 +47,32 @@ class Image(QtGui.QFrame):
         self.thumb_size = thumb_size
         self.metadata = Metadata(self.path)
         self.metadata.new_status.connect(self.show_status)
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
         self.setToolTip(self.path)
         # label to display image
-        self.image = QtGui.QLabel()
+        self.image = QtWidgets.QLabel()
         self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
-        self.label = QtGui.QLabel(self.name)
+        self.label = QtWidgets.QLabel(self.name)
         self.label.setAlignment(Qt.AlignRight)
         self.label.setStyleSheet("QLabel { font-size: 12px }")
         layout.addWidget(self.label, 1, 1)
         # label to display status
-        self.status = QtGui.QLabel()
+        self.status = QtWidgets.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
         self.status.setSizePolicy(
-            QtGui.QSizePolicy.Fixed, self.status.sizePolicy().verticalPolicy())
+            QtWidgets.QSizePolicy.Fixed, self.status.sizePolicy().verticalPolicy())
         self.status.setStyleSheet("QLabel { font-size: 12px }")
         self.status.setFont(QtGui.QFont("Dejavu Sans"))
         if not self.status.fontInfo().exactMatch():
             # probably on Windows, try a different font
             self.status.setFont(QtGui.QFont("Segoe UI Symbol"))
         layout.addWidget(self.status, 1, 0)
-        self.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Plain)
+        self.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Plain)
         self.setObjectName("thumbnail")
         self.set_selected(False)
         self.show_status(False)
@@ -87,14 +87,14 @@ class Image(QtGui.QFrame):
         if not self.image_list.drag_icon:
             return
         if ((event.pos() - self.drag_start_pos).manhattanLength() <
-                                    QtGui.QApplication.startDragDistance()):
+                                    QtWidgets.QApplication.startDragDistance()):
             return
         paths = []
         for image in self.image_list.get_selected_images():
             paths.append(image.path)
         if not paths:
             return
-        drag = QtGui.QDrag(self)
+        drag = QtWidgets.QDrag(self)
         drag.setPixmap(self.image_list.drag_icon)
         drag.setHotSpot(QtCore.QPoint(
             drag.pixmap().width() // 2, drag.pixmap().height()))
@@ -164,7 +164,7 @@ class Image(QtGui.QFrame):
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def as_jpeg(self):
-        im = QtGui.QImage(self.path)
+        im = QtWidgets.QImage(self.path)
         temp_dir = appdirs.user_cache_dir('photini')
         if not os.path.isdir(temp_dir):
             os.makedirs(temp_dir)
@@ -191,10 +191,10 @@ class Image(QtGui.QFrame):
     def get_selected(self):
         return self.selected
 
-class ScrollArea(QtGui.QScrollArea):
+class ScrollArea(QtWidgets.QScrollArea):
     dropped_images = QtCore.pyqtSignal(list)
     def __init__(self, parent=None):
-        QtGui.QScrollArea.__init__(self, parent)
+        QtWidgets.QScrollArea.__init__(self, parent)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
@@ -210,15 +210,15 @@ class ScrollArea(QtGui.QScrollArea):
         if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
 
-class ImageList(QtGui.QWidget):
+class ImageList(QtWidgets.QWidget):
     image_list_changed = QtCore.pyqtSignal()
     new_metadata = QtCore.pyqtSignal(bool)
     selection_changed = QtCore.pyqtSignal(list)
     sort_order_changed = QtCore.pyqtSignal()
     def __init__(self, config_store, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.config_store = config_store
-        self.app = QtGui.QApplication.instance()
+        self.app = QtWidgets.QApplication.instance()
         self.drag_icon = None
         self.path_list = list()
         self.image = dict()
@@ -226,35 +226,35 @@ class ImageList(QtGui.QWidget):
         self.selection_anchor = None
         self.thumb_size = int(self.config_store.get(
             'controls', 'thumb_size', '80'))
-        layout = QtGui.QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setRowStretch(0, 1)
         layout.setColumnStretch(3, 1)
         self.setLayout(layout)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         # thumbnail display
         self.scroll_area = ScrollArea()
         self.scroll_area.dropped_images.connect(self.open_file_list)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
-        self.thumbnails = QtGui.QWidget()
+        self.thumbnails = QtWidgets.QWidget()
         self.thumbnails.setLayout(FlowLayout(hSpacing=0, vSpacing=0))
         self.scroll_area.setWidget(self.thumbnails)
-        QtGui.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
+        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                         self.scroll_area, self.move_to_prev_thumb)
-        QtGui.QShortcut(QtGui.QKeySequence.MoveToNextChar,
+        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToNextChar,
                         self.scroll_area, self.move_to_next_thumb)
-        QtGui.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
+        QtWidgets.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
                         self.scroll_area, self.select_prev_thumb)
-        QtGui.QShortcut(QtGui.QKeySequence.SelectNextChar,
+        QtWidgets.QShortcut(QtGui.QKeySequence.SelectNextChar,
                         self.scroll_area, self.select_next_thumb)
-        QtGui.QShortcut(QtGui.QKeySequence.SelectAll,
+        QtWidgets.QShortcut(QtGui.QKeySequence.SelectAll,
                         self.scroll_area, self.select_all)
         # sort key selector
-        layout.addWidget(QtGui.QLabel(self.tr('sort by: ')), 1, 0)
-        self.sort_name = QtGui.QRadioButton(self.tr('file name'))
+        layout.addWidget(QtWidgets.QLabel(self.tr('sort by: ')), 1, 0)
+        self.sort_name = QtWidgets.QRadioButton(self.tr('file name'))
         self.sort_name.clicked.connect(self._new_sort_order)
         layout.addWidget(self.sort_name, 1, 1)
-        self.sort_date = QtGui.QRadioButton(self.tr('date taken'))
+        self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
         if eval(self.config_store.get('controls', 'sort_date', 'False')):
@@ -262,13 +262,13 @@ class ImageList(QtGui.QWidget):
         else:
             self.sort_name.setChecked(True)
         # size selector
-        layout.addWidget(QtGui.QLabel(self.tr('thumbnail size: ')), 1, 4)
-        self.size_slider = QtGui.QSlider(Qt.Horizontal)
+        layout.addWidget(QtWidgets.QLabel(self.tr('thumbnail size: ')), 1, 4)
+        self.size_slider = QtWidgets.QSlider(Qt.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
         self.size_slider.setPageStep(1)
         self.size_slider.setValue(self.thumb_size / 20)
-        self.size_slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.size_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.size_slider.setMinimumWidth(140)
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 5)
@@ -312,7 +312,7 @@ class ImageList(QtGui.QWidget):
             if ext not in types:
                 types.append(ext)
         types = map(lambda x: '*.' + x, types)
-        path_list = QtGui.QFileDialog.getOpenFileNames(
+        path_list, types = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))
         if not path_list:
@@ -413,23 +413,23 @@ class ImageList(QtGui.QWidget):
                 break
         else:
             return True
-        dialog = QtGui.QMessageBox()
+        dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: unsaved data'))
         dialog.setText(self.tr('<h3>Some images have unsaved metadata.</h3>'))
         dialog.setInformativeText(self.tr('Do you want to save your changes?'))
-        dialog.setIcon(QtGui.QMessageBox.Warning)
-        buttons = QtGui.QMessageBox.Save
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        buttons = QtWidgets.QMessageBox.Save
         if with_cancel:
-            buttons |= QtGui.QMessageBox.Cancel
+            buttons |= QtWidgets.QMessageBox.Cancel
         if with_discard:
-            buttons |= QtGui.QMessageBox.Discard
+            buttons |= QtWidgets.QMessageBox.Discard
         dialog.setStandardButtons(buttons)
-        dialog.setDefaultButton(QtGui.QMessageBox.Save)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Save)
         result = dialog.exec_()
-        if result == QtGui.QMessageBox.Save:
+        if result == QtWidgets.QMessageBox.Save:
             self.save_files()
             return True
-        return result == QtGui.QMessageBox.Discard
+        return result == QtWidgets.QMessageBox.Discard
 
     def get_selected_images(self):
         selection = list()
