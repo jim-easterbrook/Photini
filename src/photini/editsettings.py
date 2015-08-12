@@ -23,8 +23,8 @@ try:
     import keyring
 except (ImportError, RuntimeError):
     keyring = None
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
+
+from .pyqt import Qt, QtCore, QtWidgets
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, parent, config_store):

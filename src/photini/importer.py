@@ -30,11 +30,10 @@ try:
     import gphoto2 as gp
 except ImportError:
     gp = None
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
 
 from .configstore import ConfigStore
 from .metadata import Metadata
+from .pyqt import Qt, QtCore, QtWidgets
 from .utils import Busy
 
 class FolderSource(object):

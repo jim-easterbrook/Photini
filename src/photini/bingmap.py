@@ -23,11 +23,11 @@ import locale
 import os
 import webbrowser
 
-from PyQt5 import QtGui, QtWidgets, QtCore
 import six
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
+from .pyqt import QtCore, QtGui, QtWidgets
 from .utils import data_dir
 
 class BingMap(PhotiniMap):

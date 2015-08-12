@@ -38,19 +38,12 @@ from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import webbrowser
 
-# on Windows & Python3, GObject needs to be imported before PyQt5
+# on Windows & Python3, GObject needs to be imported before PyQt
 if sys.platform == 'win32' and six.PY3:
     try:
         from .metadata_gexiv2 import MetadataHandler
     except ImportError:
         pass
-
-import sip
-sip.setapi('QString', 2)
-sip.setapi('QVariant', 2)
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtNetwork import QNetworkProxy
 
 from .configstore import ConfigStore
 from .bingmap import BingMap
@@ -69,6 +62,7 @@ try:
     from .picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
+from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets
 from .technical import Technical
 from .utils import data_dir
 from . import __version__

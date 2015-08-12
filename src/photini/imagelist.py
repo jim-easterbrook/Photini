@@ -27,11 +27,10 @@ import sys
 from six.moves.urllib.parse import unquote
 
 import appdirs
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import Qt
 
 from .flowlayout import FlowLayout
 from .metadata import Metadata, MetadataHandler
+from .pyqt import Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -312,14 +311,17 @@ class ImageList(QtWidgets.QWidget):
             if ext not in types:
                 types.append(ext)
         types = map(lambda x: '*.' + x, types)
-        path_list, types = QtWidgets.QFileDialog.getOpenFileNames(
+        path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))
+        if QtCore.QT_VERSION_STR.split('.')[0] == '5':
+            path_list = path_list[0]
         if not path_list:
             return
         # work around for Qt bug 33992
         # https://bugreports.qt-project.org/browse/QTBUG-33992
-        path_list = list(map(unquote, path_list))
+        if QtCore.QT_VERSION_STR in ('4.8.4', '4.8.5'):
+            path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
     @QtCore.pyqtSlot(list)

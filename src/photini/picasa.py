@@ -29,13 +29,12 @@ import webbrowser
 import xml.etree.ElementTree as ET
 
 import keyring
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
 import requests
 from requests_oauthlib import OAuth2Session
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit
+from .pyqt import Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy, FileObjWithCallback
 
 EPOCH = datetime.utcfromtimestamp(0)
@@ -511,7 +510,7 @@ Doing so will remove the album and its photos from all Google products."""
                 return
             if self.current_album.group.thumbnail is not None:
                 url = self.current_album.group.thumbnail[0].get('url')
-                image = QtWidgets.QPixmap()
+                image = QtGui.QPixmap()
                 image.loadFromData(urlopen(url).read())
                 self.album_thumb.setPixmap(image)
         self.widgets['timestamp'].setDateTime(datetime.utcfromtimestamp(

@@ -28,10 +28,9 @@ import webbrowser
 
 import flickrapi
 import keyring
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
 
 from .configstore import key_store
+from .pyqt import Qt, QtCore, QtWidgets
 from .utils import Busy, FileObjWithCallback
 
 logger = logging.getLogger(__name__)

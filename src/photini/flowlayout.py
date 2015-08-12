@@ -26,8 +26,7 @@ http://doc.qt.digia.com/4.7-snapshot/layouts-flowlayout.html
 
 from __future__ import unicode_literals
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
+from .pyqt import Qt, QtCore, QtWidgets
 
 class FlowLayout(QtWidgets.QLayout):
     def __init__(self, parent=None, hSpacing=-1, vSpacing=-1):

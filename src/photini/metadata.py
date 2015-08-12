@@ -26,7 +26,6 @@ import logging
 import math
 import os
 
-from PyQt5 import QtCore
 import six
 
 try:
@@ -37,6 +36,7 @@ except ImportError as e:
     except ImportError:
         # raise exception on the one we really wanted
         raise e
+from .pyqt import QtCore
 from . import __version__
 
 _encodings = None

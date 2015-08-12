@@ -24,11 +24,10 @@ import logging
 import os
 import webbrowser
 
-from PyQt5 import QtWidgets, QtCore, QtWebKitWidgets
-from PyQt5.QtCore import Qt
 import six
 
 from .imagelist import DRAG_MIMETYPE
+from .pyqt import Qt, QtCore, QtWebKitWidgets, QtWidgets
 from .utils import data_dir, multiple_values
 from . import __version__
 

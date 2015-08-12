@@ -21,9 +21,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import Qt
-
+from .pyqt import Qt, QtCore, QtWidgets
 from .utils import multiple_values
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):

@@ -21,8 +21,7 @@ from __future__ import unicode_literals
 
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from .pyqt import Qt, QtWidgets
 
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 

@@ -24,10 +24,9 @@ import os
 import re
 import webbrowser
 
-from PyQt5 import QtGui, QtWidgets
-
 from .configstore import key_store
 from .photinimap import PhotiniMap
+from .pyqt import QtGui, QtWidgets
 from .utils import data_dir
 
 class GoogleMap(PhotiniMap):

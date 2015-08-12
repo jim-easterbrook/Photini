@@ -22,9 +22,8 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 
-from PyQt5 import QtGui, QtWidgets
-
 from .photinimap import PhotiniMap
+from .pyqt import QtGui, QtWidgets
 from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):

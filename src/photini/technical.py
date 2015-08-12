@@ -22,9 +22,8 @@ from __future__ import unicode_literals
 from datetime import (
     timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
 
-from PyQt5 import QtGui, QtCore, QtWidgets
-
 from .metadata import LensSpec
+from .pyqt import QtCore, QtGui, QtWidgets
 from .utils import multiple
 
 class DateTimeEdit(QtWidgets.QHBoxLayout):

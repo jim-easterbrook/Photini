@@ -22,7 +22,8 @@ from __future__ import unicode_literals
 import logging
 import logging.handlers
 import sys
-from PyQt5 import QtCore, QtWidgets
+
+from .pyqt import QtCore, QtWidgets
 
 class OutputInterceptor(object):
     def __init__(self, name, stream):
