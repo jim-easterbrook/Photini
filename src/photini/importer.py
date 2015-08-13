@@ -103,7 +103,7 @@ class CameraSource(object):
     def get_file_info(self, path):
         folder, name = os.path.split(path)
         info = self.camera.file_get_info(folder, name, self.context)
-        timestamp = datetime.fromtimestamp(info.file.mtime)
+        timestamp = datetime.utcfromtimestamp(info.file.mtime)
         return {
             'path'      : path,
             'folder'    : folder,
