@@ -26,6 +26,7 @@ try:
 except ImportError:
     pass
 from gi.repository import GObject, GExiv2
+import six
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
@@ -39,11 +40,29 @@ class MetadataHandler(object):
         self.get_exif_tags    = self._md.get_exif_tags
         self.get_iptc_tags    = self._md.get_iptc_tags
         self.get_xmp_tags     = self._md.get_xmp_tags
-        self.get_tag_string   = self._md.get_tag_string
-        self.get_tag_multiple = self._md.get_tag_multiple
+        if six.PY3:
+            self.get_tag_string   = self._get_tag_string
+            self.get_tag_multiple = self._get_tag_multiple
+        else:
+            self.get_tag_string   = self._md.get_tag_string
+            self.get_tag_multiple = self._md.get_tag_multiple
         self.set_tag_string   = self._md.set_tag_string
         self.set_tag_multiple = self._md.set_tag_multiple
         self.clear_tag        = self._md.clear_tag
+
+    def _get_tag_string(self, tag):
+        try:
+            result = self._md.get_tag_string(tag)
+        except UnicodeDecodeError:
+            return ''
+        return result
+
+    def _get_tag_multiple(self, tag):
+        try:
+            result = self._md.get_tag_multiple(tag)
+        except UnicodeDecodeError:
+            return []
+        return result
 
     def save(self):
         try:
