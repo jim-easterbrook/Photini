@@ -633,8 +633,12 @@ class Metadata(QtCore.QObject):
         if tag not in self.get_iptc_tags():
             return None
         if tag == 'Iptc.Application2.Program':
-            return (_decode_string(self.get_tag_multiple(tag)[0]) + ' v' +
-                    _decode_string(self.get_tag_multiple(tag + 'Version')[0]))
+            result = _decode_string(self.get_tag_multiple(tag)[0])
+            version_tag = tag + 'Version'
+            if version_tag in self.get_iptc_tags():
+                result += (' v' +
+                           _decode_string(self.get_tag_multiple(version_tag)[0]))
+            return result
         elif _data_type[tag] == 'string':
             return '; '.join(map(_decode_string, self.get_tag_multiple(tag)))
         elif _data_type[tag] == 'multi_string':
