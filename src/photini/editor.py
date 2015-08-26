@@ -62,7 +62,7 @@ try:
     from .picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
-from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets
+from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, QT_VERSION
 from .technical import Technical
 from .utils import data_dir
 from . import __version__
@@ -285,7 +285,8 @@ def main(argv=None):
     app = QtWidgets.QApplication(sys.argv)
     del sys.argv[-1]
     # install translation
-##    QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
+    if QT_VERSION[0] < 5:
+        QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     locale = QtCore.QLocale.system()
     translator = QtCore.QTranslator()
     translator.load(

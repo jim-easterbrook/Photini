@@ -30,3 +30,5 @@ else:
     from PyQt4 import QtWebKit as QtWebKitWidgets
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
+
+QT_VERSION = map(int, QtCore.QT_VERSION_STR.split('.'))

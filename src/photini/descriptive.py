@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from .pyqt import Qt, QtCore, QtWidgets
+from .pyqt import Qt, QtCore, QtWidgets, QT_VERSION
 from .utils import multiple_values
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
@@ -61,6 +61,8 @@ class Descriptive(QtWidgets.QWidget):
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
         self.setLayout(self.form)
+        if QT_VERSION[0] >= 5:
+            self.trUtf8 = self.tr
         # construct widgets
         self.widgets = dict()
         # title

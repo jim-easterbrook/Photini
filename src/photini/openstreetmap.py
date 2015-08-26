@@ -23,7 +23,7 @@ import os
 import webbrowser
 
 from .photinimap import PhotiniMap
-from .pyqt import QtGui, QtWidgets
+from .pyqt import QtGui, QtWidgets, QT_VERSION
 from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):
@@ -53,6 +53,8 @@ class OpenStreetMap(PhotiniMap):
         load_tou = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
         load_tou.clicked.connect(self.load_tou_leaflet)
         layout.addWidget(load_tou)
+        if QT_VERSION[0] >= 5:
+            self.trUtf8 = self.tr
         load_tou = QtWidgets.QPushButton(
             self.trUtf8('Map data\n©OpenStreetMap contributors'))
         load_tou.clicked.connect(self.load_tou_osm)
