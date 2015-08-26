@@ -89,8 +89,7 @@ class Descriptive(QtGui.QWidget):
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(self.tr('Creator / Artist'), self.widgets['creator'])
         # disable until an image is selected
-        for key in self.widgets:
-            self.widgets[key].setEnabled(False)
+        self.setEnabled(False)
 
     def refresh(self):
         pass
@@ -176,8 +175,8 @@ class Descriptive(QtGui.QWidget):
         if not selection:
             for key in self.widgets:
                 self.widgets[key].clear()
-                self.widgets[key].setEnabled(False)
+            self.setEnabled(False)
             return
         for key in self.widgets:
-            self.widgets[key].setEnabled(True)
             self._update_widget(key)
+        self.setEnabled(True)
