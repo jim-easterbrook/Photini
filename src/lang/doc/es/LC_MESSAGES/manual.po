@@ -1,0 +1,982 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012-15, Jim Easterbrook
+# This file is distributed under the same license as the Photini package.
+# 
+# Translators:
+# Esteban Martinena <orensbruli@gmail.com>, 2015
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2015
+msgid ""
+msgstr ""
+"Project-Id-Version: Photini\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-10 18:43+0100\n"
+"PO-Revision-Date: 2015-08-22 17:45+0000\n"
+"Last-Translator: Esteban Martinena <orensbruli@gmail.com>\n"
+"Language-Team: Spanish (http://www.transifex.com/jim-easterbrook/photini/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../../doc/manual/configuration.rst:6
+msgid "Configuration"
+msgstr "Configuración"
+
+#: ../../../doc/manual/configuration.rst:8
+msgid ""
+"If there are tabs in the Photini GUI that you don't use, you can remove them"
+" by deselecting their entry in the ``Options`` menu."
+msgstr "Si hay pestañas en la interfaz de Photini que no usas, puedes eliminarlas deseleccionadolas en su apartado en el menu \"Opciones\""
+
+#: ../../../doc/manual/configuration.rst:10
+msgid ""
+"The ``Options`` menu also has a ``Settings`` item which opens the dialog "
+"shown below."
+msgstr "El menú \"opciones\" tiene también un elemento \"Configuración\" que abre el dialogo que se muestra a continuación."
+
+#: ../../../doc/manual/configuration.rst:14
+msgid ""
+"This allows you to edit the names used to auto-generate some descriptive "
+"metadata, reset the Flickr or Picasa authorisation (requiring you to re-"
+"authenticate next time you use them) and adjust how Photini uses \"sidecar\""
+" files."
+msgstr "Esto te permite editar los nombres utilizados para auto-generar algunos metadatos descriptivos, resetear las autorizaciones de Flickr o Picasa (requiriendo que te vuelvas a identificar la próxima vez que las uses) y ajustar como usa Photini los ficheros \"sidecar\"."
+
+#: ../../../doc/manual/configuration.rst:16
+msgid ""
+"Sidecar files allow metadata to be stored without needing to write to the "
+"actual image file. If you deselect \"write to image\" then sidecars will "
+"always be created. Otherwise, you can choose to have them always created "
+"(storing data in parallel with the image file), only created when necessary "
+"(e.g. an image file is write protected), or deleted when possible (if "
+"metadata can be copied to the image file the sidecar is deleted)."
+msgstr "Los ficheros sidecar permiten almacenar metadatos sin la necesidad de escribir al directamente en el fichero de imagen. Si deseleccionas \"escribir en la imagen\" entonces siempre se crearán ficheros sidecar (almacenando los datos en paralelo a la imagen), creandolo sólo cuando sea necesario (p.e. cuando una imagen está protegida contra escritura), o eliminandolo cuando sea posible (si los metadatos se pueden copiar a la imagen el fichero sidecar es borrdado)."
+
+#: ../../../doc/manual/descriptive_metadata.rst:6
+msgid "Descriptive metadata"
+msgstr "Metadatos descriptivos"
+
+#: ../../../doc/manual/descriptive_metadata.rst:8
+msgid ""
+"The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to"
+" edit basic information about your photographs, such as the title and "
+"description."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:12
+msgid ""
+"The first thing I usually do with a new set of photographs is to set the "
+"copyright and creator/artist metadata. Select all the images (keyboard "
+"shortcut ``Ctrl+A``) then click on the ``Auto`` button next to the "
+"``Copyright`` text entry box. The first time you do this Photini asks you to"
+" provide the name of the copyright holder. This should probably be your "
+"name, but could be the name of a company. Type in the name and click ``OK``."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:18
+msgid ""
+"The ``Auto`` button generates a standard copyright notice, but if you prefer"
+" a different wording you can edit the text manually."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:22
+msgid ""
+"Next click on the ``Creator / Artist`` field's ``Auto`` button. Now Photini "
+"will ask for the name of the creator. Edit the name if required, then click "
+"``OK``."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:28
+msgid ""
+"Note that all the image thumbnails now have a warning symbol (|hazard|) "
+"displayed next to them. This shows that they have unsaved metadata edits. "
+"The ``File`` menu ``Save images with new data`` item (keyboard shortcut "
+"``Ctrl+S``) saves your edits and clears the warning symbols, as shown below."
+" I do this frequently to avoid losing any of my work."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:35
+msgid ""
+"Next I set the title. Select all the images that should have the same title,"
+" then type the title in the ``Title / Object name`` text editing box. Note "
+"that the title (and keywords) are stored in XMP but not in EXIF, so may not "
+"be visible to software that only handles EXIF metadata (see :doc:`tags` for "
+"more detail). You may prefer to leave the title and keywords fields blank."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:42
+msgid ""
+"Now you can add more detail in the ``Description / Caption`` box. There are "
+"probably only one or two photographs that share the same description, so "
+"select those images first."
+msgstr ""
+
+#: ../../../doc/manual/descriptive_metadata.rst:47
+msgid ""
+"Finally you can set a list of keywords for the image by typing them in the "
+"``Keywords`` box. Keywords should be separated by semi-colon (;) characters."
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:6
+msgid "Flickr uploader"
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:8
+msgid ""
+"The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload"
+" your photographs to `Flickr <http://www.flickr.com/>`_. Flickr is a popular"
+" online photograph sharing service."
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:11
+msgid ""
+"Unlike some other Flickr uploaders, Photini uses the descriptive metadata "
+"you've created to set Flickr's title, description and tags. This means you "
+"don't have to retype all that information!"
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:14
+msgid ""
+"Note that the Flickr upload tab is only enabled if you have installed "
+"python-flickrapi. See :ref:`installation <installation-flickr>` for more "
+"detail."
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:17
+msgid ""
+"The first time you select Photini's Flickr upload tab it will ask you to "
+"authorise Photini to access Flickr. It does this by connecting your web "
+"browser to Flickr, from where you can log in and give Photini permission to "
+"access Flickr on your behalf. You then copy a verification code from your "
+"browser to Photini, as shown below."
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:23
+msgid ""
+"To upload one or more photographs to Flickr, select them in the image "
+"selector area, then choose which (if any) of your sets (or albums) to add "
+"them to and set any of the other attributes, then click on the ``Upload "
+"now`` button. You can create a new set before uploading with the \"new set\""
+" button."
+msgstr ""
+
+#: ../../../doc/manual/flickr.rst:28
+msgid ""
+"During uploading Photini displays a progress bar. Uploading takes place in "
+"the background, so you can continue to use other tabs while the upload is in"
+" progress."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:6
+msgid "Image selector"
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:8
+msgid ""
+"When you start the Photini editor it displays a GUI (graphical user "
+"interface) as shown below. The exact appearance will depend on your "
+"operating system and window manager preferences, but the same functional "
+"elements should be present."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:13
+msgid ""
+"The Photini editor GUI has two main areas. The upper part has a set of tabs "
+"to select different functions. The lower part is an image selector that is "
+"common to all the tabs. In between the two is a divider that can be dragged "
+"with the mouse to change the relative sizes of the two parts. The overall "
+"size of the window can also be changed by dragging its edges or corners with"
+" the mouse."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:21
+msgid ""
+"Now load some images using the ``File`` menu ``Open images`` item (or its "
+"keyboard shortcut ``Ctrl+O``) or by \"drag and drop\" from a file manager "
+"window. The loaded images are displayed as thumbnail images in the image "
+"selector part of the GUI. Note that the thumbnail size can be changed with "
+"the slider control just beneath the thumbnail display area. The images can "
+"also be sorted by name or date by clicking on the appropriate button."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:28
+msgid ""
+"Clicking on any thumbnail selects that image. The selected image is "
+"highlighted by a red border. Double clicking on a thumbnail should display "
+"the full size image, using your default image viewing application."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:34
+msgid ""
+"Multiple images can be selected by holding down the 'shift' key while "
+"clicking on a second image."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:38
+msgid ""
+"To select multiple images that are not adjacent, hold down the 'control' key"
+" while clicking on the images."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:42
+msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded images."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:6
+msgid "Image importer"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:8
+msgid ""
+"The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy "
+"photographs from your digital camera or anywhere else on your computer (for "
+"example, a camera memory card if your computer has a card reader). Whilst "
+"there are many other programs to do this, I've never found one that does "
+"things the way I want, so I added one to Photini."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:11
+msgid ""
+"Note that you can only import directly from cameras if you have installed "
+"python-gphoto2. See :ref:`installation <installation-importer>` for more "
+"detail."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:14
+msgid ""
+"The key part of the importer is the \"target format\" field. This provides a"
+" very flexible way to specify where on your computer imported images should "
+"be stored. It uses ``%`` formats to generate file and directory names based "
+"on the image capture date & time. The most useful ones are ``%Y`` (year), "
+"``%m`` (month number) and ``%d`` (day of the month) but many more are "
+"available. See the `Python documentation "
+"<https://docs.python.org/2/library/datetime.html#strftime-strptime-"
+"behavior>`_ for a complete list."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:20
+msgid ""
+"As well as the date & time format strings, bracketed keywords can be used to"
+" manipulate parts of the file name:"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:23
+msgid "keyword"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:23
+msgid "meaning"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:23
+msgid "example"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:25
+msgid "(name)"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:25
+msgid "the complete file name"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:25
+msgid "IMG_9999.JPG"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:26
+msgid "(number)"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:26
+msgid "the numeric part of the file name"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:26
+msgid "9999"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:27
+msgid "(root)"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:27
+msgid "the filename without its extension"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:27
+msgid "IMG_9999"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:28
+msgid "(ext)"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:28
+msgid "the filename extension"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:28
+msgid ".JPG"
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:31
+msgid ""
+"Below the \"target format\" field is an example generated from the current "
+"format to help you edit it correctly."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:33
+msgid ""
+"Note that Photini stores a different target format for each camera or source"
+" folder that you use. This can be useful if you have two cameras that use "
+"the same file names. For example, I use "
+"``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/IMGe(number)(ext)`` for my DSLR"
+" to rename files from ``IMG_9999.JPG`` to ``IMGe9999.JPG`` so they don't "
+"clash with files from my compact camera, which also uses names like "
+"``IMG_9999.JPG``."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:39
+msgid ""
+"After connecting one or more cameras and pressing the \"refresh\" button, a "
+"camera can be chosen from the \"<select source>\" drop down list. Photini "
+"then fetches a list of all the files stored on the camera, which can take "
+"some time."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:42
+msgid ""
+"The drop down list also includes the most recent source folders you have "
+"used. Click on \"<add a folder>\" to choose a new source folder. Photini "
+"lists all the image files in the source folder and all its sub-folders, so "
+"take care to navigate down to the folder containing the photos you want, to "
+"avoid including too many other files."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:46
+msgid ""
+"The list is displayed in the central area, with the location where the file "
+"would be stored. It is sorted by name or date, as selected by the buttons "
+"below the image thumbnail area."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:51
+msgid ""
+"When the \"target format\" has been set to match where previous images were "
+"put, images that have already been copied to the computer are non selectable"
+" (shown in light grey)."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:55
+msgid ""
+"The remaining images can be selected by clicking on them, or by using the "
+"\"select all\" or \"select new\" buttons."
+msgstr ""
+
+#: ../../../doc/manual/importer.rst:59
+msgid ""
+"Clicking the \"copy photos\" button copies the selected images to the "
+"computer and loads them into Photini. To avoid overloading Photini you "
+"should be careful not to select too many images before clicking on \"copy "
+"photos\"."
+msgstr ""
+
+#: ../../../doc/manual/index.rst:6
+msgid "User manual"
+msgstr ""
+
+#: ../../../doc/manual/index.rst:8
+msgid ""
+"This manual attempts to cover every part of Photini in detail, but still be "
+"usable as a tutorial. I suggest you read the :doc:`image_selector` section "
+"first, then read other sections when you start using the relevant features."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:6
+msgid "Geotagging"
+msgstr ""
+
+#: ../../../doc/manual/map.rst:8
+msgid ""
+"The ``Map (Google)`` (keyboard shortcut ``Alt+G``), ``Map (Bing)`` (keyboard"
+" shortcut ``Alt+B``) & ``Map (OSM)`` (keyboard shortcut ``Alt+O``) tabs "
+"allow you to set geolocation data (latitude & longitude) where a photograph "
+"was taken. (Some people argue that it should be the position of the subject "
+"of the photograph, but what about photographs of the Moon?) All three tabs "
+"have similar functionality, but use different providers of map data and "
+"imagery."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:14
+msgid ""
+"When you first select one of the map tabs you need to click the ``Load map``"
+" button. This helps reduce the load on the map providers' servers by not "
+"having them contacted every time you run Photini."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:19
+msgid ""
+"Once the map is loaded, the ``Load map`` button is replaced by legal notices"
+" and a button (or buttons) to display the terms of use in your web browser."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:21
+msgid ""
+"The map initially displays the previously used location. You can change the "
+"view by zooming in or out, or by panning the map with the pan control, or by"
+" dragging it with the mouse. However, it's usually easier to find a specific"
+" location by using the search facility."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:27
+msgid ""
+"Click on the ``<new search>`` edit box and type in a search term such as the"
+" name of a town, then press the 'return' key. A drop down list of place "
+"names should appear, from which you can select one. Note that the search is "
+"influenced by the current location shown on the map. A search for 'newport' "
+"will return different results if the map is showing New York than if it's "
+"showing London. Sometimes you may need to drag the map to somewhere near "
+"where you want to be and then click on the ``<repeat search>`` item in the "
+"drop down list."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:35
+msgid ""
+"Having found the right town, you can then zoom in and pan around to find the"
+" exact location where your photograph was taken. Using aerial / satellite "
+"imagery (if it's available) can help with this."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:40
+msgid ""
+"Now you can drag and drop your photograph onto the map to set its location. "
+"To drag multiple images to the same location, select them all and then drag "
+"with the 'control' or 'shift' key held down."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:47
+msgid ""
+"Note that photographs that have location data are shown with a flag symbol "
+"(|flag|) in the image selector area."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:49
+msgid ""
+"The location coordinates are shown in the ``Latitude, longitude:`` box. "
+"These values are editable, so you can set the location of photographs "
+"directly, e.g. by copying and pasting from another one."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:54
+msgid ""
+"When several photographs have location metadata Photini will pan the map "
+"(and zoom out if required) to ensure all the selected images are shown on "
+"the map. Selected images are shown with coloured markers. Unselected images "
+"are shown with grey markers."
+msgstr ""
+
+#: ../../../doc/manual/map.rst:60
+msgid ""
+"Selecting another map tab, and loading the map, will show the same location "
+"but with data from a different provider."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:6
+msgid "Google Picasa uploader"
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:8
+msgid ""
+"The ``Picasa upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload"
+" your photographs to `Google Picasa <https://picasaweb.google.com/>`_."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:10
+msgid ""
+"Unlike some other Picasa uploaders, Photini uses the descriptive metadata "
+"you've created to set the photo's title and tags. The description is added "
+"as a comment. This means you don't have to retype all that information!"
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:14
+msgid ""
+"Note that the Picasa upload tab is only enabled if you have installed the "
+"relevant libraries. See :ref:`installation <installation-picasa>` for more "
+"detail."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:17
+msgid ""
+"The first time you select Photini's Picasa upload tab it will ask you to "
+"authorise Photini to access Picasa. It does this by connecting your web "
+"browser to Picasa, from where you can log in and give Photini permission to "
+"access Picasa on your behalf. You then copy a verification code from your "
+"browser to Photini, as shown below."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:23
+msgid ""
+"Every image uploaded to Picasa has to be stored in an \"album\". You can "
+"select one of your existing albums from the drop down list (next to the "
+"\"title\" label) or you can create a new album by clicking on the \"new "
+"album\" button."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:30
+msgid ""
+"The title, description and other attributes of an album can be changed "
+"simply by editing the appropriate fields. (The album cover photograph cannot"
+" be changed due to a restriction in the API. You need to log into Picasa "
+"with a web browser to change it.)"
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:35
+msgid ""
+"To upload one or more photographs to Picasa, select them in the image "
+"selector area, then click on the \"upload now\" button. During uploading "
+"Photini displays a progress bar. Uploading takes place in the background, so"
+" you can continue to use other tabs while the upload is in progress."
+msgstr ""
+
+#: ../../../doc/manual/picasa.rst:41
+msgid ""
+"The first image uploaded to a new album becomes the album's cover image."
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:6
+msgid "Tag reference"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:8
+msgid ""
+"This section lists the \"mapping\" from Photini's field names (such as "
+"\"Title / Object Name\") to the EXIF / XMP / IPTC tags the data is stored "
+"in. The tag names are those used by the Exiv2 library. See "
+"http://exiv2.org/metadata.html for more detail."
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:12
+msgid ""
+"As far as possible Photini follows the `Metadata Working Group "
+"<http://www.metadataworkinggroup.org/>`_ (MWG) `Guidelines for Handling "
+"Image Metadata <http://www.metadataworkinggroup.org/specs/>`_. These specify"
+" the mapping between tags in EXIF, XMP and IPTC, and say how software should"
+" reconcile any differences between information stored in equivalent tags."
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:16
+msgid "Primary tags"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:18
+msgid ""
+"These tags are where Photini stores its metadata. (IPTC tags are only used "
+"if they already exist in the file, in line with the MWG guidelines.)"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:21
+msgid ""
+"Note that \"Title / Object Name\" and \"Keywords\" are not stored in EXIF. "
+"You may prefer not to use these fields to ensure compatibility with software"
+" that only handles EXIF."
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:25 ../../../doc/manual/tags.rst:55
+msgid "Photini field"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:25 ../../../doc/manual/tags.rst:55
+msgid "EXIF tag"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:25 ../../../doc/manual/tags.rst:55
+msgid "XMP tag"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:25 ../../../doc/manual/tags.rst:55
+msgid "IPTC tag"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:27 ../../../doc/manual/tags.rst:57
+msgid "Title / Object Name"
+msgstr "Título / Nombre del objeto"
+
+#: ../../../doc/manual/tags.rst:27
+msgid "Xmp.dc.title"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:27
+msgid "Iptc.Application2.ObjectName"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:28 ../../../doc/manual/tags.rst:58
+msgid "Description / Caption"
+msgstr "Descripción / Leyenda"
+
+#: ../../../doc/manual/tags.rst:28
+msgid "Exif.Image.ImageDescription"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:28
+msgid "Xmp.dc.description"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:28
+msgid "Iptc.Application2.Caption"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:29 ../../../doc/manual/tags.rst:59
+msgid "Keywords"
+msgstr "Palabras clave"
+
+#: ../../../doc/manual/tags.rst:29
+msgid "Xmp.dc.subject"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:29
+msgid "Iptc.Application2.Keywords"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:30 ../../../doc/manual/tags.rst:60
+msgid "Copyright"
+msgstr "Derechos de autor"
+
+#: ../../../doc/manual/tags.rst:30
+msgid "Exif.Image.Copyright"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:30
+msgid "Xmp.dc.rights"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:30
+msgid "Iptc.Application2.Copyright"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:31 ../../../doc/manual/tags.rst:61
+msgid "Creator / Artist"
+msgstr "Creador / Artista"
+
+#: ../../../doc/manual/tags.rst:31
+msgid "Exif.Image.Artist"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:31
+msgid "Xmp.dc.creator"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:31
+msgid "Iptc.Application2.Byline"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:32 ../../../doc/manual/tags.rst:62
+msgid "Date / time Taken"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:32
+msgid "Exif.Photo.DateTimeOriginal"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:32
+msgid "Xmp.photoshop.DateCreated"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Iptc.Application2.DateCreated"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Iptc.Application2.TimeCreated"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:34 ../../../doc/manual/tags.rst:63
+msgid "Date / time Digitised"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:34
+msgid "Exif.Photo.DateTimeDigitized"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:34
+msgid "Xmp.xmp.CreateDate"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Iptc.Application2.DigitizationDate"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Iptc.Application2.DigitizationTime"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:36 ../../../doc/manual/tags.rst:64
+msgid "Date / time Modified"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:36
+msgid "Exif.Image.DateTime"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:36
+msgid "Xmp.xmp.ModifyDate"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:37 ../../../doc/manual/tags.rst:65
+msgid "Orientation"
+msgstr "Orientación"
+
+#: ../../../doc/manual/tags.rst:37
+msgid "Exif.Image.Orientation"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:38 ../../../doc/manual/tags.rst:66
+msgid "Aperture"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:38
+msgid "Exif.Photo.FNumber"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:39 ../../../doc/manual/tags.rst:69
+msgid "Focal length"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:39
+msgid "Exif.Photo.FocalLength"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:40 ../../../doc/manual/tags.rst:70
+msgid "Lens maker name"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:40
+msgid "Exif.Photo.LensMake"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:41 ../../../doc/manual/tags.rst:71
+msgid "Lens model name"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:41
+msgid "Exif.Photo.LensModel"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:42 ../../../doc/manual/tags.rst:73
+msgid "Lens serial number"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:42
+msgid "Exif.Photo.LensSerialNumber"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:43 ../../../doc/manual/tags.rst:74
+msgid "Lens specification"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:43
+msgid "Exif.Photo.LensSpecification"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:44 ../../../doc/manual/tags.rst:78
+msgid "Latitude, longitude"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.GPSInfo.GPSLatitude"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.GPSInfo.GPSLongitude"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:49
+msgid "Secondary tags"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:51
+msgid ""
+"Photini may read information from these tags and merge it with information "
+"from the primary tags. These tags are deleted when the corresponding primary"
+" tags are saved."
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:57
+msgid "Iptc.Application2.Headline"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:58
+msgid "Xmp.tiff.ImageDescription"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:60
+msgid "Xmp.tiff.Copyright"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:61
+msgid "Xmp.tiff.Artist"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:62
+msgid "Exif.Image.DateTimeOriginal"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:62
+msgid "Xmp.exif.DateTimeOriginal"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:63
+msgid "Xmp.exif.DateTimeDigitized"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:64
+msgid "Xmp.tiff.DateTime"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:65
+msgid "Xmp.tiff.Orientation"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.Image.FNumber"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.Image.ApertureValue"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.Photo.ApertureValue"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Xmp.exif.FNumber"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Xmp.exif.ApertureValue"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:69
+msgid "Exif.Image.FocalLength"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:69
+msgid "Xmp.exif.FocalLength"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.Canon.LensModel"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.CanonCs.LensType"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.CanonCs.Lens"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.CanonCs.MaxAperture"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.CanonCs.MinAperture"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Exif.CanonCs.ShortFocal"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Xmp.exif.GPSLatitude"
+msgstr ""
+
+#: ../../../doc/manual/tags.rst:0
+msgid "Xmp.exif.GPSLongitude"
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:6
+msgid "Technical metadata"
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:8
+msgid ""
+"The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to "
+"edit 'technical' information about your photographs, such as the date & time"
+" they were taken. Generally you should not need to edit any of this data, as"
+" it should have been correctly set by your camera."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:13
+msgid ""
+"The date can be picked from a calendar widget that pops up when you click on"
+" the down arrow. The time can be adjusted by clicking on the hour, minute or"
+" second and then using the up or down arrows. You can also double click on "
+"any of the numbers to select it and type a new value in directly. The date "
+"and time fields can be cleared with their ``clear`` buttons."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:18
+msgid ""
+"The ``Link ...`` tick-boxes allow the different date & time values to be "
+"changed simultaneously. The ``Digitised`` and ``Modified`` date & time "
+"values can only be edited when their ``Link`` boxes are not ticked."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:21
+msgid ""
+"The ``Adjust times`` fields allow a constant offset to be applied to the "
+"time stamps of several pictures at once. This can be useful if you forgot to"
+" set your camera's clock before a day's shooting! Set the required offset "
+"hours, minutes & seconds, then use the ``+`` or ``-`` button to add or "
+"subtract that amount from each selected picture's timestamp."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:25
+msgid ""
+"The ``Orientation`` value sets the required rotation or reflection to "
+"display the image. Note that this does not actually transform the image "
+"data. Image display programs should rotate or reflect the image according to"
+" the orientation metadata, but not all of them do."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:29
+msgid ""
+"The ``Lens model`` dropdown list allows you to change the lens specification"
+" stored in the image metadata. This should usually be left blank for cameras"
+" with non-removable lenses, but may be useful if you have an SLR that you "
+"use with lenses that its electronics doesn't recognise."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:32
+msgid ""
+"If the ``Link lens model ...`` tick-box is selected when you change the lens"
+" model then the focal length and aperture will be adjusted to fit the lens "
+"specification. The focal length and aperture can also be edited directly, "
+"regardless of the tick-box status."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:35
+msgid ""
+"You can add details of all your lenses by selecting ``<add lens>`` from the "
+"dropdown list."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:39
+msgid ""
+"This brings up a dialog box for you to enter the lens details. You might "
+"want to start by dragging the edge of the box to make the text fields a bit "
+"larger. Type all the relevant information into the appropriate boxes, "
+"leaving blank any information you don't have such as the serial number. Only"
+" the ``Model name`` and ``Minimum focal length`` are required."
+msgstr ""
+
+#: ../../../doc/manual/technical_metadata.rst:46
+msgid ""
+"The data you enter is stored in the Photini configuration file so you can "
+"easily apply it to images in future by selecting the lens you have defined "
+"from the dropdown list."
+msgstr ""

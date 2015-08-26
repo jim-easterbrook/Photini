@@ -1,0 +1,44 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012-15, Jim Easterbrook
+# This file is distributed under the same license as the Photini package.
+# 
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: Photini\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-10 18:43+0100\n"
+"PO-Revision-Date: 2015-07-09 13:18+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Spanish (http://www.transifex.com/jim-easterbrook/photini/language/es/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../../../doc/misc/changelog.rst:6
+msgid "Change Log"
+msgstr ""
+
+#: ../../../doc/misc/doc_licence.rst:6
+msgid "GNU Free Documentation License"
+msgstr ""
+
+#: ../../../doc/misc/doc_licence.rst:8
+msgid ""
+"The Photini documentation is licensed under the GNU Free Documentation "
+"License."
+msgstr ""
+
+#: ../../../doc/misc/index.rst:6
+msgid "Miscellaneous"
+msgstr ""
+
+#: ../../../doc/misc/licence.rst:6
+msgid "GNU General Public License"
+msgstr ""
+
+#: ../../../doc/misc/licence.rst:8
+msgid "The Photini software is licensed under the GNU General Public License."
+msgstr ""
