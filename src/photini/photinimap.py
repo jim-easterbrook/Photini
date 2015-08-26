@@ -24,19 +24,18 @@ import logging
 import os
 import webbrowser
 
-from PyQt4 import QtGui, QtCore, QtWebKit
-from PyQt4.QtCore import Qt
 import six
 
 from .imagelist import DRAG_MIMETYPE
+from .pyqt import Qt, QtCore, QtWebKitWidgets, QtWidgets
 from .utils import data_dir, multiple_values
 from . import __version__
 
 translate = QtCore.QCoreApplication.translate
 
-class WebPage(QtWebKit.QWebPage):
+class WebPage(QtWebKitWidgets.QWebPage):
     def __init__(self, parent=None):
-        QtWebKit.QWebPage.__init__(self, parent)
+        QtWebKitWidgets.QWebPage.__init__(self, parent)
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def javaScriptConsoleMessage(self, msg, line, source):
@@ -49,9 +48,9 @@ class WebPage(QtWebKit.QWebPage):
         # Nominatim requires the user agent to identify the application
         if 'nominatim' in host:
             return 'Photini/' + __version__
-        return QtWebKit.QWebPage.userAgentForUrl(self, url)
+        return QtWebKitWidgets.QWebPage.userAgentForUrl(self, url)
 
-class WebView(QtWebKit.QWebView):
+class WebView(QtWebKitWidgets.QWebView):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
     def dragEnterEvent(self, event):
         if event.format(0) != DRAG_MIMETYPE:
@@ -69,9 +68,9 @@ class WebView(QtWebKit.QWebView):
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
-class PhotiniMap(QtGui.QWidget):
+class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
         self.drag_icon = self.get_drag_icon()
@@ -79,8 +78,8 @@ class PhotiniMap(QtGui.QWidget):
         self.search_string = None
         self.map_loaded = False
         self.marker_images = {}
-        layout = QtGui.QGridLayout()
-        layout.setMargin(0)
+        layout = QtWidgets.QGridLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setRowStretch(6, 1)
         layout.setColumnStretch(1, 1)
         self.setLayout(layout)
@@ -88,7 +87,8 @@ class PhotiniMap(QtGui.QWidget):
         self.map = WebView()
         self.map.setPage(WebPage())
         self.map.setAcceptDrops(False)
-        self.map.page().setLinkDelegationPolicy(QtWebKit.QWebPage.DelegateAllLinks)
+        self.map.page().setLinkDelegationPolicy(
+            QtWebKitWidgets.QWebPage.DelegateAllLinks)
         self.map.page().linkClicked.connect(self.link_clicked)
         self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
@@ -96,11 +96,11 @@ class PhotiniMap(QtGui.QWidget):
         self.layout().addWidget(self.map, 0, 1, 8, 1)
         # search
         self.layout().addWidget(
-            QtGui.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
-        self.edit_box = QtGui.QComboBox()
+            QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
+        self.edit_box = QtWidgets.QComboBox()
         self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
-        self.edit_box.setInsertPolicy(QtGui.QComboBox.NoInsert)
+        self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.edit_box.lineEdit().setPlaceholderText(
             translate('PhotiniMap', '<new search>'))
         self.edit_box.lineEdit().returnPressed.connect(self.search)
@@ -110,13 +110,13 @@ class PhotiniMap(QtGui.QWidget):
         self.layout().addWidget(self.edit_box, 1, 0)
         # latitude & longitude
         self.layout().addWidget(
-            QtGui.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 2, 0)
-        self.coords = QtGui.QLineEdit()
+            QtWidgets.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 2, 0)
+        self.coords = QtWidgets.QLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
         self.layout().addWidget(self.coords, 3, 0)
         # load map button
-        self.load_map = QtGui.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
+        self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
         self.load_map.clicked.connect(self.initialise)
         self.layout().addWidget(self.load_map, 7, 0)
         # other init
@@ -156,7 +156,7 @@ class PhotiniMap(QtGui.QWidget):
         lat, lng = eval(
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
             page_start + self.load_api() +
             page_end.format(self.__class__.__name__.lower(), lat, lng, zoom),
@@ -164,7 +164,7 @@ class PhotiniMap(QtGui.QWidget):
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
-        QtGui.QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
         if success:
             self.map_loaded = True
             self.layout().removeWidget(self.load_map)

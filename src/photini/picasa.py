@@ -29,13 +29,12 @@ import webbrowser
 import xml.etree.ElementTree as ET
 
 import keyring
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
 import requests
 from requests_oauthlib import OAuth2Session
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit
+from .pyqt import Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy, FileObjWithCallback
 
 EPOCH = datetime.utcfromtimestamp(0)
@@ -258,29 +257,29 @@ class UploadThread(QtCore.QThread):
             (self.file_count * 100) + progress) / len(self.upload_list)
         self.progress_report.emit(progress, total_progress)
 
-class PicasaUploader(QtGui.QWidget):
+class PicasaUploader(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         config_store.remove_section('picasa')
         self.image_list = image_list
-        self.setLayout(QtGui.QGridLayout())
+        self.setLayout(QtWidgets.QGridLayout())
         self.picasa = PicasaSession()
         self.widgets = {}
         self.current_album = None
         self.uploader = None
         ### album group
-        self.album_group = QtGui.QGroupBox(self.tr('Album'))
-        self.album_group.setLayout(QtGui.QHBoxLayout())
+        self.album_group = QtWidgets.QGroupBox(self.tr('Album'))
+        self.album_group.setLayout(QtWidgets.QHBoxLayout())
         self.layout().addWidget(self.album_group, 0, 0, 3, 3)
         ## album details, left hand side
-        album_form_left = QtGui.QFormLayout()
+        album_form_left = QtWidgets.QFormLayout()
         album_form_left.setFieldGrowthPolicy(
-            QtGui.QFormLayout.AllNonFixedFieldsGrow)
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         self.album_group.layout().addLayout(album_form_left)
         # album title / selector
-        self.albums = QtGui.QComboBox()
+        self.albums = QtWidgets.QComboBox()
         self.albums.setEditable(True)
-        self.albums.setInsertPolicy(QtGui.QComboBox.NoInsert)
+        self.albums.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.albums.currentIndexChanged.connect(self.changed_album)
         self.albums.lineEdit().editingFinished.connect(self.new_title)
         album_form_left.addRow(self.tr('Title'), self.albums)
@@ -290,11 +289,11 @@ class PicasaUploader(QtGui.QWidget):
         album_form_left.addRow(
             self.tr('Description'), self.widgets['description'])
         # album location
-        self.widgets['location'] = QtGui.QLineEdit()
+        self.widgets['location'] = QtWidgets.QLineEdit()
         self.widgets['location'].editingFinished.connect(self.new_location)
         album_form_left.addRow(self.tr('Place taken'), self.widgets['location'])
         # album visibility
-        self.widgets['access'] = QtGui.QComboBox()
+        self.widgets['access'] = QtWidgets.QComboBox()
         self.widgets['access'].addItem(self.tr('Public on the web'), 'public')
         self.widgets['access'].addItem(
             self.tr('Limited, anyone with the link'), 'private')
@@ -302,39 +301,39 @@ class PicasaUploader(QtGui.QWidget):
         self.widgets['access'].currentIndexChanged.connect(self.new_access)
         album_form_left.addRow(self.tr('Visibility'), self.widgets['access'])
         ## album buttons
-        buttons = QtGui.QHBoxLayout()
+        buttons = QtWidgets.QHBoxLayout()
         album_form_left.addRow('', buttons)
         # new album
-        new_album_button = QtGui.QPushButton(self.tr('New album'))
+        new_album_button = QtWidgets.QPushButton(self.tr('New album'))
         new_album_button.clicked.connect(self.new_album)
         buttons.addWidget(new_album_button)
         # delete album
-        delete_album_button = QtGui.QPushButton(self.tr('Delete album'))
+        delete_album_button = QtWidgets.QPushButton(self.tr('Delete album'))
         delete_album_button.clicked.connect(self.delete_album)
         buttons.addWidget(delete_album_button)
         # other init
         self.clear_changes()
         ## album details, right hand side
-        album_form_right = QtGui.QFormLayout()
+        album_form_right = QtWidgets.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
-            QtGui.QFormLayout.AllNonFixedFieldsGrow)
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         self.album_group.layout().addLayout(album_form_right)
         # album date
-        self.widgets['timestamp'] = QtGui.QDateEdit()
+        self.widgets['timestamp'] = QtWidgets.QDateEdit()
         self.widgets['timestamp'].setCalendarPopup(True)
         self.widgets['timestamp'].editingFinished.connect(self.new_timestamp)
         album_form_right.addRow(self.tr('Date'), self.widgets['timestamp'])
         # album thumbnail
-        self.album_thumb = QtGui.QLabel()
+        self.album_thumb = QtWidgets.QLabel()
         album_form_right.addRow(self.album_thumb)
         ### upload button
-        self.upload_button = QtGui.QPushButton(self.tr('Upload\nnow'))
+        self.upload_button = QtWidgets.QPushButton(self.tr('Upload\nnow'))
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 2, 3)
         ### progress bar
-        self.layout().addWidget(QtGui.QLabel(self.tr('Progress')), 3, 0)
-        self.total_progress = QtGui.QProgressBar()
+        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 3, 0)
+        self.total_progress = QtWidgets.QProgressBar()
         self.layout().addWidget(self.total_progress, 3, 1, 1, 3)
         self.setEnabled(False)
         # adjust spacing
@@ -413,14 +412,14 @@ class PicasaUploader(QtGui.QWidget):
     @QtCore.pyqtSlot()
     def delete_album(self):
         if int(self.current_album.numphotos.text) > 0:
-            if QtGui.QMessageBox.question(
+            if QtWidgets.QMessageBox.question(
                 self, self.tr('Delete album'),
                 self.tr("""Are you sure you want to delete the album "{0}"?
 Doing so will remove the album and its photos from all Google products."""
                         ).format(self.current_album.title.text),
-                QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel,
-                QtGui.QMessageBox.Cancel
-                ) == QtGui.QMessageBox.Cancel:
+                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                QtWidgets.QMessageBox.Cancel
+                ) == QtWidgets.QMessageBox.Cancel:
                 return
         self.clear_changes()
         with Busy():
@@ -462,7 +461,7 @@ Doing so will remove the album and its photos from all Google products."""
         if self.picasa.valid():
             return
         self.albums.clear()
-        QtGui.QApplication.processEvents()
+        QtWidgets.QApplication.processEvents()
         if not self.picasa.authorise(self.auth_dialog):
             self.setEnabled(False)
             return
@@ -479,17 +478,17 @@ Doing so will remove the album and its photos from all Google products."""
     def do_not_close(self):
         if not self.uploader or self.uploader.isFinished():
             return False
-        dialog = QtGui.QMessageBox()
+        dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: upload in progress'))
         dialog.setText(self.tr('<h3>Upload to Picasa has not finished.</h3>'))
         dialog.setInformativeText(
             self.tr('Closing now will terminate the upload.'))
-        dialog.setIcon(QtGui.QMessageBox.Warning)
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(
-            QtGui.QMessageBox.Close | QtGui.QMessageBox.Cancel)
-        dialog.setDefaultButton(QtGui.QMessageBox.Cancel)
+            QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
         result = dialog.exec_()
-        return result == QtGui.QMessageBox.Cancel
+        return result == QtWidgets.QMessageBox.Cancel
 
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
@@ -536,17 +535,17 @@ Doing so will remove the album and its photos from all Google products."""
             if image_type in ('bmp', 'gif', 'jpeg', 'png'):
                 convert = False
             else:
-                dialog = QtGui.QMessageBox()
+                dialog = QtWidgets.QMessageBox()
                 dialog.setWindowTitle(self.tr('Photini: incompatible type'))
                 dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
                 dialog.setInformativeText(self.tr(
                     'File "{0}" is of type "{1}", which Picasa does not accept. Would you like to convert it to JPEG?').format(
                         os.path.basename(image.path), image_type))
-                dialog.setIcon(QtGui.QMessageBox.Warning)
-                dialog.setStandardButtons(QtGui.QMessageBox.Yes |
-                                          QtGui.QMessageBox.Ignore)
-                dialog.setDefaultButton(QtGui.QMessageBox.Yes)
-                if dialog.exec_() != QtGui.QMessageBox.Yes:
+                dialog.setIcon(QtWidgets.QMessageBox.Warning)
+                dialog.setStandardButtons(QtWidgets.QMessageBox.Yes |
+                                          QtWidgets.QMessageBox.Ignore)
+                dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+                if dialog.exec_() != QtWidgets.QMessageBox.Yes:
                     continue
                 convert = True
             upload_list.append((image, convert))
@@ -584,7 +583,7 @@ Doing so will remove the album and its photos from all Google products."""
             info_text = self.tr('use your web browser')
         else:
             info_text = self.tr('open "{0}" in a web browser').format(auth_url)
-        auth_code, OK = QtGui.QInputDialog.getText(
+        auth_code, OK = QtWidgets.QInputDialog.getText(
             self,
             self.tr('Photini: authorise Picasa'),
             self.tr("""Please {0} to grant access to Photini,

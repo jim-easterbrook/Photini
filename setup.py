@@ -20,7 +20,7 @@
 from datetime import date
 from distutils.cmd import Command
 from distutils.command.upload import upload
-from distutils.errors import DistutilsOptionError
+from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
 from setuptools import setup
 from setuptools.command.install import install as _install
@@ -180,8 +180,12 @@ class extract_messages(Command):
         inputs.sort()
         out_dir = os.path.dirname(self.output_file)
         self.mkpath(out_dir)
-        self.spawn(
-            ['pylupdate4', '-verbose'] + inputs + ['-ts', self.output_file])
+        try:
+            self.spawn(
+                ['pylupdate5', '-verbose'] + inputs + ['-ts', self.output_file])
+        except DistutilsExecError:
+            self.spawn(
+                ['pylupdate4', '-verbose'] + inputs + ['-ts', self.output_file])
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {

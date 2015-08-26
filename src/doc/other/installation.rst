@@ -98,15 +98,19 @@ PyQt
 ^^^^
 
 The `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ application framework provides the graphical user interface elements used by Photini.
-Version 4 is required.
+Version 4 or 5 is required.
 
-You can check if PyQt4 is already installed with this command::
+You can check if PyQt is already installed with one of these commands::
+
+   python -c "import PyQt5"
+
+or ::
 
    python -c "import PyQt4"
 
-If PyQt4 is installed this will run without generating any error message.
+If PyQt is installed then one of these will run without generating any error message.
 
-Linux users should use their package manager to install ``python-qt4``.
+Linux users should use their package manager to install ``python-qt4`` or ``python-qt5``.
 Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
 
 six

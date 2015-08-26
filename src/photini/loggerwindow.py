@@ -22,7 +22,8 @@ from __future__ import unicode_literals
 import logging
 import logging.handlers
 import sys
-from PyQt4 import QtCore, QtGui
+
+from .pyqt import QtCore, QtWidgets
 
 class OutputInterceptor(object):
     def __init__(self, name, stream):
@@ -39,7 +40,7 @@ class OutputInterceptor(object):
         elif msg:
             self.logger.info(msg)
 
-class LoggerWindow(QtGui.QWidget):
+class LoggerWindow(QtWidgets.QWidget):
     class StreamProxy(QtCore.QObject):
         # only the GUI thread is allowed to write messages in the
         # LoggerWindow, so this class acts as a proxy, passing messages
@@ -55,18 +56,18 @@ class LoggerWindow(QtGui.QWidget):
             self.flush_text.emit()
 
     def __init__(self, verbose, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.setWindowTitle(self.tr("Photini error logging"))
-        self.setLayout(QtGui.QGridLayout())
+        self.setLayout(QtWidgets.QGridLayout())
         self.layout().setRowStretch(0, 1)
         self.layout().setColumnStretch(0, 1)
         # main dialog area
-        self.text = QtGui.QTextEdit()
+        self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
         self.text.setMinimumWidth(500)
         self.layout().addWidget(self.text, 0, 0, 1, 2)
         # dismiss button
-        dismiss_button = QtGui.QPushButton(self.tr('Dismiss'))
+        dismiss_button = QtWidgets.QPushButton(self.tr('Dismiss'))
         dismiss_button.clicked.connect(self.hide)
         self.layout().addWidget(dismiss_button, 1, 1)
         # Python logger

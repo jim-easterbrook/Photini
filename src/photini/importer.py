@@ -30,11 +30,10 @@ try:
     import gphoto2 as gp
 except ImportError:
     gp = None
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import Qt
 
 from .configstore import ConfigStore
 from .metadata import Metadata
+from .pyqt import Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy
 
 class FolderSource(object):
@@ -204,15 +203,15 @@ class NameMangler(QtCore.QObject):
         # then do timestamp
         return timestamp.strftime(result)
 
-class Importer(QtGui.QWidget):
+class Importer(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.setLayout(QtGui.QGridLayout())
-        form = QtGui.QFormLayout()
-        form.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
-        self.app = QtGui.QApplication.instance()
+        self.setLayout(QtWidgets.QGridLayout())
+        form = QtWidgets.QFormLayout()
+        form.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        self.app = QtWidgets.QApplication.instance()
         self.camera_lister = CameraLister()
         self.nm = NameMangler()
         self.file_data = {}
@@ -220,41 +219,41 @@ class Importer(QtGui.QWidget):
         self.source = None
         self.config_section = None
         # source selector
-        box = QtGui.QHBoxLayout()
-        box.setMargin(0)
-        self.source_selector = QtGui.QComboBox()
+        box = QtWidgets.QHBoxLayout()
+        box.setContentsMargins(0, 0, 0, 0)
+        self.source_selector = QtWidgets.QComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
         box.addWidget(self.source_selector)
-        refresh_button = QtGui.QPushButton(self.tr('refresh'))
+        refresh_button = QtWidgets.QPushButton(self.tr('refresh'))
         refresh_button.clicked.connect(self.refresh)
         box.addWidget(refresh_button)
         box.setStretch(0, 1)
         form.addRow(self.tr('Source'), box)
         # path format
-        self.path_format = QtGui.QLineEdit()
+        self.path_format = QtWidgets.QLineEdit()
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
         form.addRow(self.tr('Target format'), self.path_format)
         # path example
-        self.path_example = QtGui.QLabel()
+        self.path_example = QtWidgets.QLabel()
         self.nm.new_example.connect(self.path_example.setText)
         form.addRow('=>', self.path_example)
         self.layout().addLayout(form, 0, 0)
         # file list
-        self.file_list_widget = QtGui.QListWidget()
+        self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.setSelectionMode(
-            QtGui.QAbstractItemView.ExtendedSelection)
+            QtWidgets.QAbstractItemView.ExtendedSelection)
         self.layout().addWidget(self.file_list_widget, 1, 0)
         # selection buttons
-        buttons = QtGui.QVBoxLayout()
+        buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
-        select_all = QtGui.QPushButton(self.tr('Select\nall'))
+        select_all = QtWidgets.QPushButton(self.tr('Select\nall'))
         select_all.clicked.connect(self.select_all)
         buttons.addWidget(select_all)
-        select_new = QtGui.QPushButton(self.tr('Select\nnew'))
+        select_new = QtWidgets.QPushButton(self.tr('Select\nnew'))
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
-        copy_selected = QtGui.QPushButton(self.tr('Copy\nphotos'))
+        copy_selected = QtWidgets.QPushButton(self.tr('Copy\nphotos'))
         copy_selected.clicked.connect(self.copy_selected)
         buttons.addWidget(copy_selected)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
@@ -296,7 +295,7 @@ class Importer(QtGui.QWidget):
             directory = folders[0]
         else:
             directory = ''
-        root = str(QtGui.QFileDialog.getExistingDirectory(
+        root = str(QtWidgets.QFileDialog.getExistingDirectory(
             self, self.tr("Select root folder"), directory))
         if not root:
             return
@@ -431,7 +430,7 @@ class Importer(QtGui.QWidget):
             timestamp = self.file_data[name]['timestamp']
             dest_path = self.nm.transform(name, timestamp)
             self.file_data[name]['dest_path'] = dest_path
-            item = QtGui.QListWidgetItem('{0} -> {1}'.format(name, dest_path))
+            item = QtWidgets.QListWidgetItem('{0} -> {1}'.format(name, dest_path))
             if os.path.exists(dest_path):
                 item.setFlags(Qt.NoItemFlags)
             else:
@@ -442,7 +441,7 @@ class Importer(QtGui.QWidget):
         if not first_active:
             first_active = item
         self.file_list_widget.scrollToItem(
-            first_active, QtGui.QAbstractItemView.PositionAtTop)
+            first_active, QtWidgets.QAbstractItemView.PositionAtTop)
 
     @QtCore.pyqtSlot()
     def select_all(self):
@@ -477,7 +476,7 @@ class Importer(QtGui.QWidget):
         if not first_active:
             first_active = item
         self.file_list_widget.scrollToItem(
-            first_active, QtGui.QAbstractItemView.PositionAtTop)
+            first_active, QtWidgets.QAbstractItemView.PositionAtTop)
 
     @QtCore.pyqtSlot()
     def copy_selected(self):

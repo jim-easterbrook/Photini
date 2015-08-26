@@ -21,21 +21,20 @@ from __future__ import unicode_literals
 
 import os
 
-from PyQt4 import QtGui
-from PyQt4.QtCore import Qt
+from .pyqt import Qt, QtWidgets
 
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
-multiple = QtGui.QApplication.translate('utils', '<multiple>')
-multiple_values = QtGui.QApplication.translate('utils', '<multiple values>')
+multiple = QtWidgets.QApplication.translate('utils', '<multiple>')
+multiple_values = QtWidgets.QApplication.translate('utils', '<multiple values>')
 
 class Busy(object):
     def __enter__(self):
-        QtGui.QApplication.setOverrideCursor(Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         return self
 
     def __exit__(self, type, value, traceback):
-        QtGui.QApplication.restoreOverrideCursor()
+        QtWidgets.QApplication.restoreOverrideCursor()
 
 
 class FileObjWithCallback(object):

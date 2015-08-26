@@ -22,9 +22,8 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 
-from PyQt4 import QtGui
-
 from .photinimap import PhotiniMap
+from .pyqt import QtGui, QtWidgets, QT_VERSION
 from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):
@@ -45,20 +44,22 @@ class OpenStreetMap(PhotiniMap):
 
     def show_terms(self):
         # return a widget to display map terms and conditions
-        result = QtGui.QFrame()
-        layout = QtGui.QVBoxLayout()
+        result = QtWidgets.QFrame()
+        layout = QtWidgets.QVBoxLayout()
         result.setLayout(layout)
-        load_tou = QtGui.QPushButton(self.tr('Search powered by Nominatim'))
+        load_tou = QtWidgets.QPushButton(self.tr('Search powered by Nominatim'))
         load_tou.clicked.connect(self.load_tou_nominatim)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(self.tr('Map powered by Leaflet'))
+        load_tou = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
         load_tou.clicked.connect(self.load_tou_leaflet)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(
+        if QT_VERSION[0] >= 5:
+            self.trUtf8 = self.tr
+        load_tou = QtWidgets.QPushButton(
             self.trUtf8('Map data\n©OpenStreetMap contributors'))
         load_tou.clicked.connect(self.load_tou_osm)
         layout.addWidget(load_tou)
-        load_tou = QtGui.QPushButton(self.tr('Tiles courtesy of MapQuest'))
+        load_tou = QtWidgets.QPushButton(self.tr('Tiles courtesy of MapQuest'))
         load_tou.clicked.connect(self.load_tou_tiles)
         layout.addWidget(load_tou)
         return result

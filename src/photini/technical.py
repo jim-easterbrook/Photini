@@ -22,12 +22,11 @@ from __future__ import unicode_literals
 from datetime import (
     timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
 
-from PyQt4 import QtGui, QtCore
-
 from .metadata import LensSpec
+from .pyqt import QtCore, QtGui, QtWidgets
 from .utils import multiple
 
-class DateTimeEdit(QtGui.QHBoxLayout):
+class DateTimeEdit(QtWidgets.QHBoxLayout):
     new_value = QtCore.pyqtSignal(str, object)
 
     def __init__(self, key, is_date, parent=None):
@@ -37,7 +36,7 @@ class DateTimeEdit(QtGui.QHBoxLayout):
         self.is_none = True
         self.setContentsMargins(0, 0, 0, 0)
         # main widget
-        self.datetime = QtGui.QDateTimeEdit()
+        self.datetime = QtWidgets.QDateTimeEdit()
         if self.is_date:
             self.datetime.setDisplayFormat('yyyy-MM-dd')
             self.datetime.setCalendarPopup(True)
@@ -47,7 +46,7 @@ class DateTimeEdit(QtGui.QHBoxLayout):
         self.datetime.editingFinished.connect(self.editing_finished)
         self.addWidget(self.datetime)
         # clear button
-        clear_button = QtGui.QPushButton(self.tr('clear'))
+        clear_button = QtWidgets.QPushButton(self.tr('clear'))
         clear_button.clicked.connect(self._clear)
         self.addWidget(clear_button)
 
@@ -65,7 +64,7 @@ class DateTimeEdit(QtGui.QHBoxLayout):
         if value is None:
             self.is_none = True
             # QDateTimeEdit clear method only clears first number
-            self.datetime.findChild(QtGui.QLineEdit).setText('')
+            self.datetime.findChild(QtWidgets.QLineEdit).setText('')
         else:
             self.is_none = False
             if self.is_date:
@@ -76,17 +75,17 @@ class DateTimeEdit(QtGui.QHBoxLayout):
     def set_multiple(self):
         self.is_none = True
         # first time setText is called sometimes doesn't show
-        self.datetime.findChild(QtGui.QLineEdit).setText(multiple)
-        self.datetime.findChild(QtGui.QLineEdit).setText(multiple)
+        self.datetime.findChild(QtWidgets.QLineEdit).setText(multiple)
+        self.datetime.findChild(QtWidgets.QLineEdit).setText(multiple)
 
     def editing_finished(self):
         self.is_none = False
         self.new_value.emit(self.key, self.get_value())
 
-class DateAndTimeWidget(QtGui.QWidget):
+class DateAndTimeWidget(QtWidgets.QWidget):
     def __init__(self, key, parent=None):
         super(DateAndTimeWidget, self).__init__(parent)
-        self.setLayout(QtGui.QHBoxLayout())
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # date
         self.date = DateTimeEdit(key, True)
@@ -96,24 +95,24 @@ class DateAndTimeWidget(QtGui.QWidget):
         self.time = DateTimeEdit(key, False)
         self.layout().addLayout(self.time)
 
-class OffsetWidget(QtGui.QWidget):
+class OffsetWidget(QtWidgets.QWidget):
     apply_offset = QtCore.pyqtSignal(timedelta)
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.setLayout(QtGui.QHBoxLayout())
+        QtWidgets.QWidget.__init__(self, parent)
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addStretch(1)
         # offset value
-        self.offset = QtGui.QTimeEdit()
+        self.offset = QtWidgets.QTimeEdit()
         self.offset.setDisplayFormat('hh:mm:ss')
         self.layout().addWidget(self.offset)
         # add offset button
-        add_button = QtGui.QPushButton(' + ')
+        add_button = QtWidgets.QPushButton(' + ')
         add_button.clicked.connect(self.add)
         self.layout().addWidget(add_button)
         # subtract offset button
-        sub_button = QtGui.QPushButton(' - ')
+        sub_button = QtWidgets.QPushButton(' - ')
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
 
@@ -186,63 +185,63 @@ class LensData(object):
             return None
         return LensSpec.from_string(spec)
 
-class NewLensDialog(QtGui.QDialog):
+class NewLensDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super(NewLensDialog, self).__init__(parent)
         self.setWindowTitle(self.tr('Photini: define lens'))
-        self.setLayout(QtGui.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
-        scroll_area = QtGui.QScrollArea()
+        scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
         self.layout().addWidget(scroll_area)
-        panel = QtGui.QWidget()
-        panel.setLayout(QtGui.QFormLayout())
+        panel = QtWidgets.QWidget()
+        panel.setLayout(QtWidgets.QFormLayout())
         # ok & cancel buttons
-        button_box = QtGui.QDialogButtonBox(
-            QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
         # model
-        self.lens_model = QtGui.QLineEdit()
+        self.lens_model = QtWidgets.QLineEdit()
         panel.layout().addRow(self.tr('Model name'), self.lens_model)
         # maker
-        self.lens_make = QtGui.QLineEdit()
+        self.lens_make = QtWidgets.QLineEdit()
         panel.layout().addRow(self.tr("Maker's name"), self.lens_make)
         # serial number
-        self.lens_serial = QtGui.QLineEdit()
+        self.lens_serial = QtWidgets.QLineEdit()
         panel.layout().addRow(self.tr('Serial number'), self.lens_serial)
         ## spec has four items
         self.lens_spec = {}
         # min focal length
-        self.lens_spec['min_fl'] = QtGui.QLineEdit()
-        self.lens_spec['min_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        self.lens_spec['min_fl'] = QtWidgets.QLineEdit()
+        self.lens_spec['min_fl'].setValidator(QtWidgets.QDoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Minimum focal length (mm)'),
                               self.lens_spec['min_fl'])
         # min focal length aperture
-        self.lens_spec['min_fl_fn'] = QtGui.QLineEdit()
+        self.lens_spec['min_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['min_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Aperture at min. focal length f/'),
                               self.lens_spec['min_fl_fn'])
         # max focal length
-        self.lens_spec['max_fl'] = QtGui.QLineEdit()
-        self.lens_spec['max_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
+        self.lens_spec['max_fl'] = QtWidgets.QLineEdit()
+        self.lens_spec['max_fl'].setValidator(QtWidgets.QDoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Maximum focal length (mm)'),
                               self.lens_spec['max_fl'])
         # max focal length aperture
-        self.lens_spec['max_fl_fn'] = QtGui.QLineEdit()
+        self.lens_spec['max_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['max_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Aperture at max. focal length f/'),
                               self.lens_spec['max_fl_fn'])
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
-class Technical(QtGui.QWidget):
+class Technical(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         self.config_store = config_store
         self.image_list = image_list
-        self.setLayout(QtGui.QGridLayout())
+        self.setLayout(QtWidgets.QGridLayout())
         self.date_widget = {}
         self.link_widget = {}
         self.link_master = {
@@ -253,15 +252,15 @@ class Technical(QtGui.QWidget):
         # store lens data in another object
         self.lens_data = LensData(self.config_store)
         # date and time
-        date_group = QtGui.QGroupBox(self.tr('Date and time'))
-        date_group.setLayout(QtGui.QFormLayout())
+        date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
+        date_group.setLayout(QtWidgets.QFormLayout())
         # taken
         self.date_widget['taken'] = DateAndTimeWidget('taken')
         self.date_widget['taken'].date.new_value.connect(self.new_date)
         self.date_widget['taken'].time.new_value.connect(self.new_time)
         date_group.layout().addRow(self.tr('Taken'), self.date_widget['taken'])
         # link taken & digitised
-        self.link_widget['digitised'] = QtGui.QCheckBox(
+        self.link_widget['digitised'] = QtWidgets.QCheckBox(
             self.tr("Link 'taken' and 'digitised'"))
         self.link_widget['digitised'].clicked.connect(self.new_link)
         date_group.layout().addRow('', self.link_widget['digitised'])
@@ -272,7 +271,7 @@ class Technical(QtGui.QWidget):
         date_group.layout().addRow(
             self.tr('Digitised'), self.date_widget['digitised'])
         # link digitised & modified
-        self.link_widget['modified'] = QtGui.QCheckBox(
+        self.link_widget['modified'] = QtWidgets.QCheckBox(
             self.tr("Link 'digitised' and 'modified'"))
         self.link_widget['modified'].clicked.connect(self.new_link)
         date_group.layout().addRow('', self.link_widget['modified'])
@@ -288,10 +287,10 @@ class Technical(QtGui.QWidget):
         date_group.layout().addRow(self.tr('Adjust times'), self.offset_widget)
         self.layout().addWidget(date_group, 0, 0)
         # other
-        other_group = QtGui.QGroupBox(self.tr('Other'))
-        other_group.setLayout(QtGui.QFormLayout())
+        other_group = QtWidgets.QGroupBox(self.tr('Other'))
+        other_group.setLayout(QtWidgets.QFormLayout())
         # orientation
-        self.orientation = QtGui.QComboBox()
+        self.orientation = QtWidgets.QComboBox()
         self.orientation.addItem(self.tr('normal'), 1)
         self.orientation.addItem(self.tr('rotate -90'), 6)
         self.orientation.addItem(self.tr('rotate +90'), 8)
@@ -305,7 +304,7 @@ class Technical(QtGui.QWidget):
         self.orientation.currentIndexChanged.connect(self.new_orientation)
         other_group.layout().addRow(self.tr('Orientation'), self.orientation)
         # lens model
-        self.lens_model = QtGui.QComboBox()
+        self.lens_model = QtWidgets.QComboBox()
         for model in self.lens_data.lenses:
             self.lens_model.addItem(model)
         self.lens_model.addItem('', 0)
@@ -314,23 +313,23 @@ class Technical(QtGui.QWidget):
         self.lens_model.currentIndexChanged.connect(self.new_lens_model)
         other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
         # link lens to aperture & focal length
-        self.link_lens = QtGui.QCheckBox(
+        self.link_lens = QtWidgets.QCheckBox(
             self.tr("Link lens model to\nfocal length && aperture"))
         self.link_lens.setChecked(True)
         other_group.layout().addRow('', self.link_lens)
         # focal length
-        self.focal_length = QtGui.QLineEdit()
+        self.focal_length = QtWidgets.QLineEdit()
         self.focal_length.setValidator(DoubleValidator(bottom=0.1))
         self.focal_length.setSizePolicy(
-            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.focal_length.editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.focal_length)
         # aperture
-        self.aperture = QtGui.QLineEdit()
+        self.aperture = QtWidgets.QLineEdit()
         self.aperture.setValidator(DoubleValidator(bottom=0.1))
         self.aperture.setSizePolicy(
-            QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Fixed)
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.aperture.editingFinished.connect(self.new_aperture)
         other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
         self.layout().addWidget(other_group, 0, 1)
@@ -432,7 +431,7 @@ class Technical(QtGui.QWidget):
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
-        if dialog.exec_() != QtGui.QDialog.Accepted:
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
         model = self.lens_data.dialog_load(dialog)
         if not model:

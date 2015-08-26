@@ -26,8 +26,8 @@ import os
 import stat
 
 import appdirs
-from PyQt4 import QtCore
 
+from .pyqt import QtCore
 from .utils import data_dir
 
 class ConfigStore(object):
