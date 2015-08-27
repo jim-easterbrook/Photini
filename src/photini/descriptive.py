@@ -25,38 +25,90 @@ from .pyqt import Qt, QtCore, QtWidgets, QT_VERSION
 from .utils import multiple_values
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    def __init__(self, parent=None):
-        QtWidgets.QPlainTextEdit.__init__(self, parent)
-        self.setText = self.setPlainText
-        self.text = self.toPlainText
-
     editingFinished = QtCore.pyqtSignal()
+
+    def __init__(self, *arg, **kw):
+        super(MultiLineEdit, self).__init__(*arg, **kw)
+        self._is_multiple = False
+
     def focusOutEvent(self, event):
         self.editingFinished.emit()
-        QtWidgets.QPlainTextEdit.focusOutEvent(self, event)
+        super(MultiLineEdit, self).focusOutEvent(event)
+
+    def set_value(self, value):
+        self._is_multiple = False
+        if not value:
+            self.clear()
+            self.setPlaceholderText('')
+        elif isinstance(value, list):
+            self.setPlainText('; '.join(value))
+        else:
+            self.setPlainText(value)
+
+    def get_value(self):
+        return self.toPlainText()
+
+    def set_multiple(self):
+        self._is_multiple = True
+        self.setPlaceholderText(multiple_values)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+
+class LineEdit(QtWidgets.QLineEdit):
+    def __init__(self, *arg, **kw):
+        super(LineEdit, self).__init__(*arg, **kw)
+        self._is_multiple = False
+
+    def set_value(self, value):
+        self._is_multiple = False
+        if not value:
+            self.clear()
+            self.setPlaceholderText('')
+        elif isinstance(value, list):
+            self.setText('; '.join(value))
+        else:
+            self.setText(value)
+
+    def get_value(self):
+        return self.text()
+
+    def set_multiple(self):
+        self._is_multiple = True
+        self.setPlaceholderText(multiple_values)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
 
 class LineEditWithAuto(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, *arg, **kw):
+        super(LineEditWithAuto, self).__init__(*arg, **kw)
+        self._is_multiple = False
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = QtWidgets.QLineEdit()
+        self.edit = LineEdit()
         layout.addWidget(self.edit)
         # auto complete button
         self.auto = QtWidgets.QPushButton(self.tr('Auto'))
         layout.addWidget(self.auto)
         # adopt child widget methods and signals
+        self.set_value = self.edit.set_value
+        self.get_value = self.edit.get_value
+        self.set_multiple = self.edit.set_multiple
+        self.is_multiple = self.edit.is_multiple
         self.editingFinished = self.edit.editingFinished
-        self.setText = self.edit.setText
-        self.clear = self.edit.clear
-        self.text = self.edit.text
         self.autoComplete = self.auto.clicked
 
+
 class Descriptive(QtWidgets.QWidget):
-    def __init__(self, config_store, image_list, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, config_store, image_list, *arg, **kw):
+        super(Descriptive, self).__init__(*arg, **kw)
         self.config_store = config_store
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
@@ -64,9 +116,9 @@ class Descriptive(QtWidgets.QWidget):
         if QT_VERSION[0] >= 5:
             self.trUtf8 = self.tr
         # construct widgets
-        self.widgets = dict()
+        self.widgets = {}
         # title
-        self.widgets['title'] = QtWidgets.QLineEdit()
+        self.widgets['title'] = LineEdit()
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
@@ -75,7 +127,7 @@ class Descriptive(QtWidgets.QWidget):
         self.form.addRow(
             self.tr('Description / Caption'), self.widgets['description'])
         # keywords
-        self.widgets['keywords'] = QtWidgets.QLineEdit()
+        self.widgets['keywords'] = LineEdit()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         # copyright
@@ -146,12 +198,13 @@ class Descriptive(QtWidgets.QWidget):
                 self.config_store.set('user', 'creator_name', name)
             else:
                 name = ''
-        self.widgets['creator'].setText(name)
-        self._new_value('creator')
+        for image in self.image_list.get_selected_images():
+            image.metadata.creator = name
+        self._update_widget('creator')
 
     def _new_value(self, key):
-        value = self.widgets[key].text()
-        if value != multiple_values:
+        if not self.widgets[key].is_multiple():
+            value = self.widgets[key].get_value()
             for image in self.image_list.get_selected_images():
                 setattr(image.metadata, key, value)
         self._update_widget(key)
@@ -161,20 +214,15 @@ class Descriptive(QtWidgets.QWidget):
         value = getattr(images[0].metadata, key)
         for image in images[1:]:
             if getattr(image.metadata, key) != value:
-                self.widgets[key].setText(multiple_values)
+                self.widgets[key].set_multiple()
                 return
-        if not value:
-            self.widgets[key].clear()
-        elif isinstance(value, list):
-            self.widgets[key].setText('; '.join(value))
-        else:
-            self.widgets[key].setText(value)
+        self.widgets[key].set_value(value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:
-                self.widgets[key].clear()
+                self.widgets[key].set_value(None)
             self.setEnabled(False)
             return
         for key in self.widgets:
