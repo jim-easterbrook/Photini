@@ -26,11 +26,80 @@ from .metadata import LensSpec
 from .pyqt import QtCore, QtGui, QtWidgets
 from .utils import multiple
 
+
+class DropdownEdit(QtWidgets.QComboBox):
+    new_value = QtCore.pyqtSignal()
+
+    def __init__(self, *arg, **kw):
+        super(DropdownEdit, self).__init__(*arg, **kw)
+        self.addItem('', None)
+        self.addItem(multiple)
+        self.currentIndexChanged.connect(self._new_value)
+
+    @QtCore.pyqtSlot(int)
+    def _new_value(self, index):
+        if index >= 0:
+            self.new_value.emit()
+
+    def add_item(self, text, data=None):
+        if data is None:
+            data = text
+        blocked = self.blockSignals(True)
+        self.insertItem(self.count() - 2, text, str(data))
+        self.blockSignals(blocked)
+
+    def known_value(self, value):
+        if value is None:
+            return True
+        return self.findData(str(value)) >= 0
+
+    def set_value(self, value):
+        if value is None:
+            self.setCurrentIndex(self.count() - 2)
+        else:
+            self.setCurrentIndex(self.findData(str(value)))
+
+    def get_value(self):
+        return self.itemData(self.currentIndex())
+
+    def set_multiple(self):
+        self.setCurrentIndex(self.count() - 1)
+
+    def is_multiple(self):
+        return self.currentIndex() == self.count() - 1
+
+
+class FloatEdit(QtWidgets.QLineEdit):
+    def __init__(self, *arg, **kw):
+        super(FloatEdit, self).__init__(*arg, **kw)
+        self.setValidator(DoubleValidator())
+        self._is_multiple = False
+
+    def set_value(self, value):
+        self._is_multiple = False
+        if value is None:
+            self.clear()
+            self.setPlaceholderText('')
+        else:
+            self.setText('{:g}'.format(float(value)))
+
+    def get_value(self):
+        return self.text()
+
+    def set_multiple(self):
+        self._is_multiple = True
+        self.setPlaceholderText(multiple)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+
 class DateTimeEdit(QtWidgets.QHBoxLayout):
     new_value = QtCore.pyqtSignal(str, object)
 
-    def __init__(self, key, is_date, parent=None):
-        super(DateTimeEdit, self).__init__(parent)
+    def __init__(self, key, is_date, *arg, **kw):
+        super(DateTimeEdit, self).__init__(*arg, **kw)
         self.key = key
         self.is_date = is_date
         self.is_none = True
@@ -83,8 +152,8 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         self.new_value.emit(self.key, self.get_value())
 
 class DateAndTimeWidget(QtWidgets.QWidget):
-    def __init__(self, key, parent=None):
-        super(DateAndTimeWidget, self).__init__(parent)
+    def __init__(self, key, *arg, **kw):
+        super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # date
@@ -95,11 +164,12 @@ class DateAndTimeWidget(QtWidgets.QWidget):
         self.time = DateTimeEdit(key, False)
         self.layout().addLayout(self.time)
 
+
 class OffsetWidget(QtWidgets.QWidget):
     apply_offset = QtCore.pyqtSignal(timedelta)
 
-    def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, *arg, **kw):
+        super(OffsetWidget, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addStretch(1)
@@ -128,6 +198,7 @@ class OffsetWidget(QtWidgets.QWidget):
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
         self.apply_offset.emit(-offset)
 
+
 class DoubleValidator(QtGui.QDoubleValidator):
     def validate(self, input_, pos):
         # accept empty string as valid, to allow metadata to be cleared
@@ -143,6 +214,10 @@ class LensData(object):
 
     def image_save(self, model, image):
         image.metadata.lens_model = model
+        if not model:
+            for item in ('lens_make', 'lens_serial', 'lens_spec'):
+                setattr(image.metadata, item, None)
+            return
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = self.config_store.get(section, item) or None
@@ -179,6 +254,8 @@ class LensData(object):
         return model
 
     def get_spec(self, model):
+        if not model:
+            return None
         section = 'lens ' + model
         spec = self.config_store.get(section, 'lens_spec')
         if not spec:
@@ -186,8 +263,8 @@ class LensData(object):
         return LensSpec.from_string(spec)
 
 class NewLensDialog(QtWidgets.QDialog):
-    def __init__(self, parent):
-        super(NewLensDialog, self).__init__(parent)
+    def __init__(self, *arg, **kw):
+        super(NewLensDialog, self).__init__(*arg, **kw)
         self.setWindowTitle(self.tr('Photini: define lens'))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
@@ -203,8 +280,8 @@ class NewLensDialog(QtWidgets.QDialog):
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
         # model
-        self.lens_model = QtWidgets.QLineEdit()
-        panel.layout().addRow(self.tr('Model name'), self.lens_model)
+        self.widgets['lens_model'] = QtWidgets.QLineEdit()
+        panel.layout().addRow(self.tr('Model name'), self.widgets['lens_model'])
         # maker
         self.lens_make = QtWidgets.QLineEdit()
         panel.layout().addRow(self.tr("Maker's name"), self.lens_make)
@@ -215,7 +292,7 @@ class NewLensDialog(QtWidgets.QDialog):
         self.lens_spec = {}
         # min focal length
         self.lens_spec['min_fl'] = QtWidgets.QLineEdit()
-        self.lens_spec['min_fl'].setValidator(QtWidgets.QDoubleValidator(bottom=0.0))
+        self.lens_spec['min_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Minimum focal length (mm)'),
                               self.lens_spec['min_fl'])
         # min focal length aperture
@@ -225,7 +302,7 @@ class NewLensDialog(QtWidgets.QDialog):
                               self.lens_spec['min_fl_fn'])
         # max focal length
         self.lens_spec['max_fl'] = QtWidgets.QLineEdit()
-        self.lens_spec['max_fl'].setValidator(QtWidgets.QDoubleValidator(bottom=0.0))
+        self.lens_spec['max_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
         panel.layout().addRow(self.tr('Maximum focal length (mm)'),
                               self.lens_spec['max_fl'])
         # max focal length aperture
@@ -237,11 +314,12 @@ class NewLensDialog(QtWidgets.QDialog):
         scroll_area.setWidget(panel)
 
 class Technical(QtWidgets.QWidget):
-    def __init__(self, config_store, image_list, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, config_store, image_list, *arg, **kw):
+        super(Technical, self).__init__(*arg, **kw)
         self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
+        self.widgets = {}
         self.date_widget = {}
         self.link_widget = {}
         self.link_master = {
@@ -290,48 +368,48 @@ class Technical(QtWidgets.QWidget):
         other_group = QtWidgets.QGroupBox(self.tr('Other'))
         other_group.setLayout(QtWidgets.QFormLayout())
         # orientation
-        self.orientation = QtWidgets.QComboBox()
-        self.orientation.addItem(self.tr('normal'), 1)
-        self.orientation.addItem(self.tr('rotate -90'), 6)
-        self.orientation.addItem(self.tr('rotate +90'), 8)
-        self.orientation.addItem(self.tr('rotate 180'), 3)
-        self.orientation.addItem(self.tr('reflect left-right'), 2)
-        self.orientation.addItem(self.tr('reflect top-bottom'), 4)
-        self.orientation.addItem(self.tr('reflect tr-bl'), 5)
-        self.orientation.addItem(self.tr('reflect tl-br'), 7)
-        self.orientation.addItem('', 0)
-        self.orientation.addItem(multiple, -1)
-        self.orientation.currentIndexChanged.connect(self.new_orientation)
-        other_group.layout().addRow(self.tr('Orientation'), self.orientation)
+        self.widgets['orientation'] = DropdownEdit()
+        self.widgets['orientation'].add_item(self.tr('normal'), 1)
+        self.widgets['orientation'].add_item(self.tr('rotate -90'), 6)
+        self.widgets['orientation'].add_item(self.tr('rotate +90'), 8)
+        self.widgets['orientation'].add_item(self.tr('rotate 180'), 3)
+        self.widgets['orientation'].add_item(self.tr('reflect left-right'), 2)
+        self.widgets['orientation'].add_item(self.tr('reflect top-bottom'), 4)
+        self.widgets['orientation'].add_item(self.tr('reflect tr-bl'), 5)
+        self.widgets['orientation'].add_item(self.tr('reflect tl-br'), 7)
+        self.widgets['orientation'].new_value.connect(self.new_orientation)
+        other_group.layout().addRow(
+            self.tr('Orientation'), self.widgets['orientation'])
         # lens model
-        self.lens_model = QtWidgets.QComboBox()
+        self.widgets['lens_model'] = DropdownEdit()
+        self.widgets['lens_model'].add_item(
+            self.tr('<define new lens>'), '<add lens>')
         for model in self.lens_data.lenses:
-            self.lens_model.addItem(model)
-        self.lens_model.addItem('', 0)
-        self.lens_model.addItem(self.tr('<add lens>'), -2)
-        self.lens_model.addItem(multiple, -1)
-        self.lens_model.currentIndexChanged.connect(self.new_lens_model)
-        other_group.layout().addRow(self.tr('Lens model'), self.lens_model)
+            self.widgets['lens_model'].add_item(model)
+        self.widgets['lens_model'].new_value.connect(self.new_lens_model)
+        other_group.layout().addRow(
+            self.tr('Lens model'), self.widgets['lens_model'])
         # link lens to aperture & focal length
         self.link_lens = QtWidgets.QCheckBox(
             self.tr("Link lens model to\nfocal length && aperture"))
         self.link_lens.setChecked(True)
         other_group.layout().addRow('', self.link_lens)
         # focal length
-        self.focal_length = QtWidgets.QLineEdit()
-        self.focal_length.setValidator(DoubleValidator(bottom=0.1))
-        self.focal_length.setSizePolicy(
+        self.widgets['focal_length'] = FloatEdit()
+        self.widgets['focal_length'].validator().setBottom(0.1)
+        self.widgets['focal_length'].setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        self.focal_length.editingFinished.connect(self.new_focal_length)
+        self.widgets['focal_length'].editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
-            self.tr('Focal length (mm)'), self.focal_length)
+            self.tr('Focal length (mm)'), self.widgets['focal_length'])
         # aperture
-        self.aperture = QtWidgets.QLineEdit()
-        self.aperture.setValidator(DoubleValidator(bottom=0.1))
-        self.aperture.setSizePolicy(
+        self.widgets['aperture'] = FloatEdit()
+        self.widgets['aperture'].validator().setBottom(0.1)
+        self.widgets['aperture'].setSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
-        self.aperture.editingFinished.connect(self.new_aperture)
-        other_group.layout().addRow(self.tr('Aperture f/'), self.aperture)
+        self.widgets['aperture'].editingFinished.connect(self.new_aperture)
+        other_group.layout().addRow(
+            self.tr('Aperture f/'), self.widgets['aperture'])
         self.layout().addWidget(other_group, 0, 1)
         self.layout().setColumnStretch(0, 1)
         self.layout().setColumnStretch(1, 1)
@@ -386,33 +464,32 @@ class Technical(QtWidgets.QWidget):
             else:
                 self.date_widget[key].setEnabled(True)
 
-    @QtCore.pyqtSlot(int)
-    def new_orientation(self, index):
-        value = self.orientation.itemData(index)
-        if value == -1:
+    @QtCore.pyqtSlot()
+    def new_orientation(self):
+        if self.widgets['orientation'].is_multiple():
             self._update_orientation()
             return
-        if value == 0:
-            value = None
+        value = self.widgets['orientation'].get_value()
+        if value is not None:
+            value = int(value)
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.pixmap = None
             image.load_thumbnail()
 
-    @QtCore.pyqtSlot(int)
-    def new_lens_model(self, index):
-        value = self.lens_model.itemData(index)
-        if value == -1:
+    @QtCore.pyqtSlot()
+    def new_lens_model(self):
+        if self.widgets['lens_model'].is_multiple():
             self._update_lens_model()
             return
-        if value == -2:
+        value = self.widgets['lens_model'].get_value()
+        if value == '<add lens>':
             self._add_lens_model()
             self._update_lens_model()
             return
-        model = self.lens_model.itemText(index)
         for image in self.image_list.get_selected_images():
-            self.lens_data.image_save(model, image)
-        spec = self.lens_data.get_spec(model)
+            self.lens_data.image_save(value, image)
+        spec = self.lens_data.get_spec(value)
         if spec and self.link_lens.isChecked():
             for image in self.image_list.get_selected_images():
                 aperture = image.metadata.aperture
@@ -436,19 +513,17 @@ class Technical(QtWidgets.QWidget):
         model = self.lens_data.dialog_load(dialog)
         if not model:
             return
-        blocked = self.lens_model.blockSignals(True)
-        self.lens_model.insertItem(0, model)
-        self.lens_model.blockSignals(blocked)
+        self.widgets['lens_model'].add_item(model)
 
     def new_aperture(self):
-        value = self.aperture.text()
-        if value != multiple:
+        if not self.widgets['aperture'].is_multiple():
+            value = self.widgets['aperture'].get_value()
             for image in self.image_list.get_selected_images():
                 image.metadata.aperture = value
 
     def new_focal_length(self):
-        value = self.focal_length.text()
-        if value != multiple:
+        if not self.widgets['focal_length'].is_multiple():
+            value = self.widgets['focal_length'].get_value()
             for image in self.image_list.get_selected_images():
                 image.metadata.focal_length = value
 
@@ -509,11 +584,9 @@ class Technical(QtWidgets.QWidget):
         for image in images[1:]:
             if image.metadata.orientation != value:
                 # multiple values
-                self.orientation.setCurrentIndex(self.orientation.findData(-1))
+                self.widgets['orientation'].set_multiple()
                 return
-        if value is None:
-            value = 0
-        self.orientation.setCurrentIndex(self.orientation.findData(int(value)))
+        self.widgets['orientation'].set_value(value)
 
     def _update_lens_model(self):
         images = self.image_list.get_selected_images()
@@ -521,44 +594,31 @@ class Technical(QtWidgets.QWidget):
         for image in images[1:]:
             if image.metadata.lens_model != value:
                 # multiple values
-                self.lens_model.setCurrentIndex(self.lens_model.findData(-1))
+                self.widgets['lens_model'].set_multiple()
                 return
-        if value is None:
-            value = ''
-        index = self.lens_model.findText(value)
-        if index >= 0:
-            self.lens_model.setCurrentIndex(index)
-            return
-        # lens not seen before, so add to list
-        self.lens_data.image_load(value, images[0])
-        blocked = self.lens_model.blockSignals(True)
-        self.lens_model.insertItem(0, value)
-        self.lens_model.setCurrentIndex(0)
-        self.lens_model.blockSignals(blocked)
+        if not self.widgets['lens_model'].known_value(value):
+            # new lens
+            self.lens_data.image_load(value, images[0])
+            self.widgets['lens_model'].add_item(value)
+        self.widgets['lens_model'].set_value(value)
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.aperture
         for image in images[1:]:
             if image.metadata.aperture != value:
-                self.aperture.setText(multiple)
+                self.widgets['aperture'].set_multiple()
                 return
-        if value is None:
-            self.aperture.clear()
-        else:
-            self.aperture.setText('{:g}'.format(float(value)))
+        self.widgets['aperture'].set_value(value)
 
     def _update_focal_length(self):
         images = self.image_list.get_selected_images()
         value = images[0].metadata.focal_length
         for image in images[1:]:
             if image.metadata.focal_length != value:
-                self.focal_length.setText(multiple)
+                self.widgets['focal_length'].set_multiple()
                 return
-        if value is None:
-            self.focal_length.clear()
-        else:
-            self.focal_length.setText('{:g}'.format(float(value)))
+        self.widgets['focal_length'].set_value(value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -566,10 +626,8 @@ class Technical(QtWidgets.QWidget):
             for key in self.date_widget:
                 self.date_widget[key].date.set_value(None)
                 self.date_widget[key].time.set_value(None)
-            self.orientation.setCurrentIndex(self.orientation.findData(0))
-            self.lens_model.setCurrentIndex(self.lens_model.findData(0))
-            self.aperture.clear()
-            self.focal_length.clear()
+            for key in self.widgets:
+                self.widgets[key].set_value(None)
             self.setEnabled(False)
             return
         for key in self.date_widget:
@@ -583,8 +641,8 @@ class Technical(QtWidgets.QWidget):
                 self.date_widget[key].setEnabled(False)
                 self.link_widget[key].setChecked(True)
             else:
-                self.link_widget[key].setChecked(False)
                 self.date_widget[key].setEnabled(True)
+                self.link_widget[key].setChecked(False)
         self._update_orientation()
         self._update_lens_model()
         self._update_aperture()
