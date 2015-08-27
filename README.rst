@@ -23,7 +23,7 @@ Internationalisation
 Work has begun on providing Photini in multiple languages.
 I rely on users to do the translation, as I am not fluent in any language other than English.
 If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
-For more details, see the `documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
+For more details, see the `localisation documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
 
 Features
 --------
@@ -69,7 +69,7 @@ Users of other operating systems will need to install the following:
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
-For details of how to download and install these, please see the `documentation <http://photini.readthedocs.org/en/latest/other/installation.html>`_.
+For details of how to download and install these, please see the `installation documentation <http://photini.readthedocs.org/en/latest/other/installation.html>`_.
 
 Documentation
 -------------
