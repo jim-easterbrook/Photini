@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-10 18:43+0100\n"
-"PO-Revision-Date: 2015-07-10 15:45+0000\n"
+"POT-Creation-Date: 2015-08-27 08:51+0100\n"
+"PO-Revision-Date: 2015-08-27 07:51+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language-Team: Spanish (http://www.transifex.com/jim-easterbrook/photini/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -200,31 +200,37 @@ msgstr ""
 msgid ""
 "The `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ application"
 " framework provides the graphical user interface elements used by Photini. "
-"Version 4 is required."
+"Version 4 or 5 is required."
 msgstr ""
 
 #: ../../../doc/other/installation.rst:103
-msgid "You can check if PyQt4 is already installed with this command::"
+msgid ""
+"You can check if PyQt is already installed with one of these commands::"
 msgstr ""
 
 #: ../../../doc/other/installation.rst:107
-msgid ""
-"If PyQt4 is installed this will run without generating any error message."
+msgid "or ::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:109
+#: ../../../doc/other/installation.rst:111
 msgid ""
-"Linux users should use their package manager to install ``python-qt4``. "
-"Windows users can download a binary installer from "
+"If PyQt is installed then one of these will run without generating any error"
+" message."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:113
+msgid ""
+"Linux users should use their package manager to install ``python-qt4`` or "
+"``python-qt5``. Windows users can download a binary installer from "
 "http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you "
 "choose the installer for your version of Python)."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:113
+#: ../../../doc/other/installation.rst:117
 msgid "six"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:115
+#: ../../../doc/other/installation.rst:119
 msgid ""
 "`six <https://pypi.python.org/pypi/six/>`_ is a small module that makes it "
 "easier to write Python code that works with versions 2 & 3. The best way to "
@@ -236,32 +242,32 @@ msgid ""
 "pip>`_."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:121
+#: ../../../doc/other/installation.rst:125
 msgid "Once pip is installed, installing six is easy::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:125
+#: ../../../doc/other/installation.rst:129
 msgid ""
 "Note that ``sudo`` is not required on Windows, or if you have root "
 "privileges. In this case you just run ``pip install six``."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:129
+#: ../../../doc/other/installation.rst:133
 msgid "appdirs"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:131
+#: ../../../doc/other/installation.rst:135
 msgid ""
 "`appdirs <https://pypi.python.org/pypi/appdirs/>`_ is a small Python module "
 "that makes cross-platform programming easier. It is also easily installed "
 "with pip::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:137
+#: ../../../doc/other/installation.rst:141
 msgid "gexiv2 (preferred)"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:139
+#: ../../../doc/other/installation.rst:143
 msgid ""
 "The latest Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "
 "\"introspection bindings\" to `gexiv2 "
@@ -269,7 +275,7 @@ msgid ""
 "around Exiv2."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:141
+#: ../../../doc/other/installation.rst:145
 msgid ""
 "Linux users should use their package manager to install these bindings, but "
 "note that the package name is not obvious. The core gexiv2 wrapper is "
@@ -278,7 +284,7 @@ msgid ""
 "Ubuntu systems they are called ``gir1.2-gexiv2-0.4``."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:144
+#: ../../../doc/other/installation.rst:148
 msgid ""
 "Windows users should download and run the latest \"pygi-aio\" (PyGI all-in-"
 "one) installer from http://sourceforge.net/projects/pygobjectwin32/files/. "
@@ -286,7 +292,7 @@ msgid ""
 "nothing else is needed."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:147
+#: ../../../doc/other/installation.rst:151
 msgid ""
 "Linux users have a choice of library to provide Python bindings to gexiv2. "
 "`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ can be used, but "
@@ -295,11 +301,11 @@ msgid ""
 "used to install pgi::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:154
+#: ../../../doc/other/installation.rst:158
 msgid "pyexiv2 (if gexiv2 cannot be installed)"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:156
+#: ../../../doc/other/installation.rst:160
 msgid ""
 "`pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ is an older Python binding to "
 "Exiv2. If you are unable to install gexiv2 then it can be used instead. "
@@ -309,32 +315,32 @@ msgid ""
 "package manager to install ``python-pyexiv2``."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:162
+#: ../../../doc/other/installation.rst:166
 msgid "Optional dependencies"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:164
+#: ../../../doc/other/installation.rst:168
 msgid ""
 "Some of Photini's features are optional - if you don't install these "
 "libraries Photini will work but the relevant feature will not be available."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:169
+#: ../../../doc/other/installation.rst:173
 msgid "python-flickrapi"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:171
+#: ../../../doc/other/installation.rst:175
 msgid ""
 "Photini's Flickr uploader requires `python-flickrapi "
 "<https://pypi.python.org/pypi/flickrapi/>`_. This is easily installed with "
 "pip::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:179
+#: ../../../doc/other/installation.rst:183
 msgid "requests and requests-oauthlib"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:181
+#: ../../../doc/other/installation.rst:185
 msgid ""
 "The Google Picasa uploader requires `requests "
 "<https://github.com/kennethreitz/requests>`_ and `requests-oauthlib "
@@ -342,22 +348,22 @@ msgid ""
 "with pip::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:187
+#: ../../../doc/other/installation.rst:191
 msgid "python-keyring"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:189
+#: ../../../doc/other/installation.rst:193
 msgid ""
 "The Flickr and Picasa uploaders both use `python-keyring "
 "<https://pypi.python.org/pypi/keyring/>`_ to store your authorisation "
 "credentials. This is easily installed with pip::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:197
+#: ../../../doc/other/installation.rst:201
 msgid "python-gphoto2"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:199
+#: ../../../doc/other/installation.rst:203
 msgid ""
 "Photini can import pictures from many types of digital camera using "
 "`libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_. This is often "
@@ -366,30 +372,30 @@ msgid ""
 "greater::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:204
+#: ../../../doc/other/installation.rst:208
 msgid ""
 "Installation of python-gphoto2 will require the \"development headers\" "
 "versions of Python and libgphoto2. You should be able to install these with "
 "your system package manager."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:210
+#: ../../../doc/other/installation.rst:214
 msgid "Installing Photini"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:212
+#: ../../../doc/other/installation.rst:216
 msgid ""
 "The easiest way to install the latest release of Photini is with the pip "
 "command::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:216
+#: ../../../doc/other/installation.rst:220
 msgid ""
 "You can also use pip to install the optional dependencies when you install "
 "Photini::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:220
+#: ../../../doc/other/installation.rst:224
 msgid ""
 "If you prefer to install the development version you can use git to clone "
 "the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or "
@@ -397,11 +403,11 @@ msgid ""
 "build and install Photini::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:227
+#: ../../../doc/other/installation.rst:231
 msgid "Running Photini"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:229
+#: ../../../doc/other/installation.rst:233
 msgid ""
 "If the installation has been successful you should be able to run Photini "
 "from the \"Start\" menu (Windows) or application launcher (Linux). If that "
@@ -409,11 +415,11 @@ msgid ""
 "and running the Photini editor module directly::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:237
+#: ../../../doc/other/installation.rst:241
 msgid "Photini documentation"
 msgstr "Documentación de Photini"
 
-#: ../../../doc/other/installation.rst:239
+#: ../../../doc/other/installation.rst:243
 msgid ""
 "If you would like to have a local copy of the Photini documentation, and "
 "have downloaded or cloned the source files, you can install `Sphinx <http"
@@ -421,7 +427,7 @@ msgid ""
 "documentation::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:244
+#: ../../../doc/other/installation.rst:248
 msgid ""
 "Open ``doc/html/index.html`` with a web browser to read the local "
 "documentation."
@@ -504,7 +510,8 @@ msgstr ""
 
 #: ../../../../README.rst:16
 msgid ""
-"PyQt, version 4: http://www.riverbankcomputing.co.uk/software/pyqt/intro"
+"PyQt, version 4 or 5: "
+"http://www.riverbankcomputing.co.uk/software/pyqt/intro"
 msgstr ""
 
 #: ../../../../README.rst:17

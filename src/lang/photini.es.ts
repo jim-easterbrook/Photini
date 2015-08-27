@@ -1,4 +1,4 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS language="es" sourcelanguage="" version="2.0">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="es" version="2.0">
 <context>
     <name>BingMap</name>
     <message>
@@ -18,49 +18,49 @@
 <context>
     <name>Descriptive</name>
     <message>
-        <location filename="descriptive.py" line="69"/>
+        <location filename="descriptive.py" line="71"/>
         <source>Title / Object Name</source>
         <translation>Título / Nombre del objeto</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="73"/>
+        <location filename="descriptive.py" line="75"/>
         <source>Description / Caption</source>
         <translation>Descripción / Leyenda</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="78"/>
+        <location filename="descriptive.py" line="80"/>
         <source>Keywords</source>
         <translation>Palabras clave</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="83"/>
+        <location filename="descriptive.py" line="85"/>
         <source>Copyright</source>
         <translation>Derechos de autor</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="88"/>
+        <location filename="descriptive.py" line="90"/>
         <source>Creator / Artist</source>
         <translation>Creador / Artista</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="141"/>
+        <location filename="descriptive.py" line="142"/>
         <source>Photini: input name</source>
         <translation>Photini: nombre de entrada</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="117"/>
+        <location filename="descriptive.py" line="118"/>
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Por favor escribe el nombre del dueño de los derechos de autor</translation>
     </message>
-    <message>
-        <location filename="descriptive.py" line="141"/>
-        <source>Please type in the creator&apos;s name</source>
-        <translation>Por favor escribe el nombre del autor</translation>
-    </message>
     <message encoding="UTF-8">
-        <location filename="descriptive.py" line="132"/>
+        <location filename="descriptive.py" line="133"/>
         <source>Copyright ©{0:d} {1}. All rights reserved.</source>
         <translation>Copyright ©{0:d} {1}. Todos los derechos reservados.</translation>
+    </message>
+    <message>
+        <location filename="descriptive.py" line="142"/>
+        <source>Please type in the creator&apos;s name</source>
+        <translation>Por favor escribe el nombre del autor</translation>
     </message>
 </context>
 <context>
@@ -69,11 +69,6 @@
         <location filename="editsettings.py" line="33"/>
         <source>Photini: settings</source>
         <translation>Photini: configuración</translation>
-    </message>
-    <message>
-        <location filename="editsettings.py" line="44"/>
-        <source>Done</source>
-        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="editsettings.py" line="50"/>
@@ -86,11 +81,6 @@
         <translation>Autor</translation>
     </message>
     <message>
-        <location filename="editsettings.py" line="67"/>
-        <source>OK</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
         <location filename="editsettings.py" line="58"/>
         <source>Reset Flickr</source>
         <translation>Reiniciar Flickr</translation>
@@ -99,6 +89,16 @@
         <location filename="editsettings.py" line="64"/>
         <source>Reset Picasa</source>
         <translation>Reiniciar Picasa</translation>
+    </message>
+    <message>
+        <location filename="editsettings.py" line="70"/>
+        <source>Write unconditionally</source>
+        <translation>Escribir incondicionalmente</translation>
+    </message>
+    <message>
+        <location filename="editsettings.py" line="72"/>
+        <source>IPTC metadata</source>
+        <translation>Metadatos IPTC</translation>
     </message>
     <message>
         <location filename="editsettings.py" line="78"/>
@@ -129,16 +129,6 @@
         <location filename="editsettings.py" line="93"/>
         <source>Write to image</source>
         <translation>Guardar en la imagen</translation>
-    </message>
-    <message>
-        <location filename="editsettings.py" line="70"/>
-        <source>Write unconditionally</source>
-        <translation>Escribir incondicionalmente</translation>
-    </message>
-    <message>
-        <location filename="editsettings.py" line="72"/>
-        <source>IPTC metadata</source>
-        <translation>Metadatos IPTC</translation>
     </message>
 </context>
 <context>
@@ -249,16 +239,6 @@ ahora</translation>
         <location filename="flickr.py" line="286"/>
         <source>Set will be created when photos are uploaded</source>
         <translation>Se creará el conjunto cuando las fotos se hayan cargado</translation>
-    </message>
-    <message>
-        <location filename="flickr.py" line="291"/>
-        <source>cancel</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
-        <location filename="flickr.py" line="295"/>
-        <source>OK</source>
-        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="flickr.py" line="343"/>
@@ -575,16 +555,6 @@ favor de hacer clic en el botón &apos;mostrar detalles&apos;.&lt;/p&gt;
         <translation>Photini: definir lente</translation>
     </message>
     <message>
-        <location filename="technical.py" line="203"/>
-        <source>OK</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
-        <location filename="technical.py" line="207"/>
-        <source>Cancel</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
         <location filename="technical.py" line="207"/>
         <source>Model name</source>
         <translation>Nombre del modelo</translation>
@@ -632,17 +602,17 @@ favor de hacer clic en el botón &apos;mostrar detalles&apos;.&lt;/p&gt;
         <source>Map powered by Leaflet</source>
         <translation>Mapa proveído por Leaflet</translation>
     </message>
-    <message>
-        <location filename="openstreetmap.py" line="62"/>
-        <source>Tiles courtesy of MapQuest</source>
-        <translation>Cuadros cortesía de MapQuest</translation>
-    </message>
     <message encoding="UTF-8">
-        <location filename="openstreetmap.py" line="58"/>
+        <location filename="openstreetmap.py" line="60"/>
         <source>Map data
 ©OpenStreetMap contributors</source>
         <translation>Datos del Mapa
 ©contribuidores de OpenStreetMap</translation>
+    </message>
+    <message>
+        <location filename="openstreetmap.py" line="64"/>
+        <source>Tiles courtesy of MapQuest</source>
+        <translation>Cuadros cortesía de MapQuest</translation>
     </message>
 </context>
 <context>
@@ -937,17 +907,17 @@ con distancia focal y apertura</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="editor.py" line="300"/>
+        <location filename="editor.py" line="301"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini editor de metadatos fotográficos</translation>
     </message>
     <message>
-        <location filename="editor.py" line="304"/>
+        <location filename="editor.py" line="305"/>
         <source>increase number of logging messages</source>
         <translation>aumentar el número de mensajes del registro</translation>
     </message>
     <message>
-        <location filename="editor.py" line="310"/>
+        <location filename="editor.py" line="311"/>
         <source>incorrect number of arguments</source>
         <translation>número de argumentos incorrecto</translation>
     </message>
