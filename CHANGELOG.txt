@@ -16,14 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
-Changes in v15.08.0:
+Changes in v15.08.1:
   1/ Added Spanish translation of program strings.
   2/ Added option to always write IPTC data.
   3/ Improved speed on slow computers.
   4/ Use PyQt5 if installed, PyQt4 otherwise.
   5/ Fixed several minor bugs and annoyances.
 
-Changes in v15.07.0:
+Changes in v15.07.1:
   1/ Convert incompatible image formats before upload to Picasa/Flickr.
   2/ Added lens selector to 'technical' tab.
   3/ Improved internal handling of image metadata.
