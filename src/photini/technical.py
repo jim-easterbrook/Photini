@@ -96,11 +96,10 @@ class FloatEdit(QtWidgets.QLineEdit):
 
 
 class DateTimeEdit(QtWidgets.QHBoxLayout):
-    new_value = QtCore.pyqtSignal(str, object)
+    new_value = QtCore.pyqtSignal(object)
 
-    def __init__(self, key, is_date, *arg, **kw):
+    def __init__(self, is_date, *arg, **kw):
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.key = key
         self.is_date = is_date
         self.is_none = True
         self.setContentsMargins(0, 0, 0, 0)
@@ -118,9 +117,11 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         clear_button = QtWidgets.QPushButton(self.tr('clear'))
         clear_button.clicked.connect(self._clear)
         self.addWidget(clear_button)
+        # get internals of QDateTimeEdit widget
+        self.line_edit = self.datetime.findChild(QtWidgets.QLineEdit)
 
     def _clear(self):
-        self.new_value.emit(self.key, None)
+        self.new_value.emit(None)
 
     def get_value(self):
         if self.is_none:
@@ -133,7 +134,7 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         if value is None:
             self.is_none = True
             # QDateTimeEdit clear method only clears first number
-            self.datetime.findChild(QtWidgets.QLineEdit).setText('')
+            self.line_edit.setText('')
         else:
             self.is_none = False
             if self.is_date:
@@ -144,24 +145,25 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
     def set_multiple(self):
         self.is_none = True
         # first time setText is called sometimes doesn't show
-        self.datetime.findChild(QtWidgets.QLineEdit).setText(multiple)
-        self.datetime.findChild(QtWidgets.QLineEdit).setText(multiple)
+        self.line_edit.setText(multiple)
+        self.line_edit.setText(multiple)
 
     def editing_finished(self):
         self.is_none = False
-        self.new_value.emit(self.key, self.get_value())
+        self.new_value.emit(self.get_value())
+
 
 class DateAndTimeWidget(QtWidgets.QWidget):
-    def __init__(self, key, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # date
-        self.date = DateTimeEdit(key, True)
+        self.date = DateTimeEdit(True)
         self.layout().addLayout(self.date)
         self.layout().addStretch(1)
         # time
-        self.time = DateTimeEdit(key, False)
+        self.time = DateTimeEdit(False)
         self.layout().addLayout(self.time)
 
 
@@ -205,6 +207,7 @@ class DoubleValidator(QtGui.QDoubleValidator):
         if input_ == '':
             return QtGui.QValidator.Acceptable, input_, pos
         return super(DoubleValidator, self).validate(input_, pos)
+
 
 class LensData(object):
     def __init__(self, config_store):
@@ -262,6 +265,7 @@ class LensData(object):
             return None
         return LensSpec.from_string(spec)
 
+
 class NewLensDialog(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
         super(NewLensDialog, self).__init__(*arg, **kw)
@@ -313,6 +317,7 @@ class NewLensDialog(QtWidgets.QDialog):
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
+
 class Technical(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, *arg, **kw):
         super(Technical, self).__init__(*arg, **kw)
@@ -322,41 +327,38 @@ class Technical(QtWidgets.QWidget):
         self.widgets = {}
         self.date_widget = {}
         self.link_widget = {}
-        self.link_master = {
-            'taken'     : None,
-            'digitised' : 'taken',
-            'modified'  : 'digitised'
-            }
         # store lens data in another object
         self.lens_data = LensData(self.config_store)
         # date and time
         date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(QtWidgets.QFormLayout())
         # taken
-        self.date_widget['taken'] = DateAndTimeWidget('taken')
-        self.date_widget['taken'].date.new_value.connect(self.new_date)
-        self.date_widget['taken'].time.new_value.connect(self.new_time)
+        self.date_widget['taken'] = DateAndTimeWidget()
+        self.date_widget['taken'].date.new_value.connect(self.new_date_taken)
+        self.date_widget['taken'].time.new_value.connect(self.new_time_taken)
         date_group.layout().addRow(self.tr('Taken'), self.date_widget['taken'])
         # link taken & digitised
-        self.link_widget['digitised'] = QtWidgets.QCheckBox(
+        self.link_widget['taken', 'digitised'] = QtWidgets.QCheckBox(
             self.tr("Link 'taken' and 'digitised'"))
-        self.link_widget['digitised'].clicked.connect(self.new_link)
-        date_group.layout().addRow('', self.link_widget['digitised'])
+        self.link_widget[
+            'taken', 'digitised'].clicked.connect(self.new_link_digitised)
+        date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
         # digitised
-        self.date_widget['digitised'] = DateAndTimeWidget('digitised')
-        self.date_widget['digitised'].date.new_value.connect(self.new_date)
-        self.date_widget['digitised'].time.new_value.connect(self.new_time)
+        self.date_widget['digitised'] = DateAndTimeWidget()
+        self.date_widget['digitised'].date.new_value.connect(self.new_date_digitised)
+        self.date_widget['digitised'].time.new_value.connect(self.new_time_digitised)
         date_group.layout().addRow(
             self.tr('Digitised'), self.date_widget['digitised'])
         # link digitised & modified
-        self.link_widget['modified'] = QtWidgets.QCheckBox(
+        self.link_widget['digitised', 'modified'] = QtWidgets.QCheckBox(
             self.tr("Link 'digitised' and 'modified'"))
-        self.link_widget['modified'].clicked.connect(self.new_link)
-        date_group.layout().addRow('', self.link_widget['modified'])
+        self.link_widget[
+            'digitised', 'modified'].clicked.connect(self.new_link_modified)
+        date_group.layout().addRow('', self.link_widget['digitised', 'modified'])
         # modified
-        self.date_widget['modified'] = DateAndTimeWidget('modified')
-        self.date_widget['modified'].date.new_value.connect(self.new_date)
-        self.date_widget['modified'].time.new_value.connect(self.new_time)
+        self.date_widget['modified'] = DateAndTimeWidget()
+        self.date_widget['modified'].date.new_value.connect(self.new_date_modified)
+        self.date_widget['modified'].time.new_value.connect(self.new_time_modified)
         date_group.layout().addRow(
             self.tr('Modified'), self.date_widget['modified'])
         # offset
@@ -422,23 +424,37 @@ class Technical(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(str, object)
-    def new_date(self, key, value):
-        self._new_date_value(key, value)
-        for slave in self.link_widget:
-            if self.link_master[slave] == key:
-                if self.link_widget[slave].isChecked():
-                    self.new_date(slave, value)
-                break
+    @QtCore.pyqtSlot(object)
+    def new_date_taken(self, value):
+        self._new_date_value('taken', value)
+        if self.link_widget['taken', 'digitised'].isChecked():
+            self.new_date_digitised(value)
 
-    @QtCore.pyqtSlot(str, object)
-    def new_time(self, key, value):
-        self._new_time_value(key, value)
-        for slave in self.link_widget:
-            if self.link_master[slave] == key:
-                if self.link_widget[slave].isChecked():
-                    self.new_time(slave, value)
-                break
+    @QtCore.pyqtSlot(object)
+    def new_date_digitised(self, value):
+        self._new_date_value('digitised', value)
+        if self.link_widget['digitised', 'modified'].isChecked():
+            self.new_date_modified(value)
+
+    @QtCore.pyqtSlot(object)
+    def new_date_modified(self, value):
+        self._new_date_value('modified', value)
+
+    @QtCore.pyqtSlot(object)
+    def new_time_taken(self, value):
+        self._new_time_value('taken', value)
+        if self.link_widget['taken', 'digitised'].isChecked():
+            self.new_time_digitised(value)
+
+    @QtCore.pyqtSlot(object)
+    def new_time_digitised(self, value):
+        self._new_time_value('digitised', value)
+        if self.link_widget['digitised', 'modified'].isChecked():
+            self.new_time_modified(value)
+
+    @QtCore.pyqtSlot(object)
+    def new_time_modified(self, value):
+        self._new_time_value('modified', value)
 
     def apply_offset(self, offset):
         for image in self.image_list.get_selected_images():
@@ -452,17 +468,21 @@ class Technical(QtWidgets.QWidget):
         for key in self.date_widget:
             self._update_datetime(key)
 
-    def new_link(self):
-        for key in self.link_widget:
-            master = self.link_master[key]
-            if self.link_widget[key].isChecked():
-                self._new_date_value(
-                    key, self.date_widget[master].date.get_value())
-                self._new_time_value(
-                    key, self.date_widget[master].time.get_value())
-                self.date_widget[key].setEnabled(False)
-            else:
-                self.date_widget[key].setEnabled(True)
+    def new_link_digitised(self):
+        if self.link_widget['taken', 'digitised'].isChecked():
+            self.date_widget['digitised'].setEnabled(False)
+            self.new_date_digitised(self.date_widget['taken'].date.get_value())
+            self.new_time_digitised(self.date_widget['taken'].time.get_value())
+        else:
+            self.date_widget['digitised'].setEnabled(True)
+
+    def new_link_modified(self):
+        if self.link_widget['digitised', 'modified'].isChecked():
+            self.date_widget['modified'].setEnabled(False)
+            self.new_date_modified(self.date_widget['digitised'].date.get_value())
+            self.new_time_modified(self.date_widget['digitised'].time.get_value())
+        else:
+            self.date_widget['modified'].setEnabled(True)
 
     @QtCore.pyqtSlot()
     def new_orientation(self):
@@ -632,17 +652,16 @@ class Technical(QtWidgets.QWidget):
             return
         for key in self.date_widget:
             self._update_datetime(key)
-        for key in self.link_widget:
-            master = self.link_master[key]
-            if (self.date_widget[key].date.get_value() ==
+        for master, slave in self.link_widget:
+            if (self.date_widget[slave].date.get_value() ==
                                 self.date_widget[master].date.get_value() and
-                    self.date_widget[key].time.get_value() ==
+                    self.date_widget[slave].time.get_value() ==
                                 self.date_widget[master].time.get_value()):
-                self.date_widget[key].setEnabled(False)
-                self.link_widget[key].setChecked(True)
+                self.date_widget[slave].setEnabled(False)
+                self.link_widget[master, slave].setChecked(True)
             else:
-                self.date_widget[key].setEnabled(True)
-                self.link_widget[key].setChecked(False)
+                self.date_widget[slave].setEnabled(True)
+                self.link_widget[master, slave].setChecked(False)
         self._update_orientation()
         self._update_lens_model()
         self._update_aperture()
