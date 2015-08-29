@@ -152,19 +152,36 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         self.is_none = False
         self.new_value.emit(self.get_value())
 
+    def set_enabled(self, enabled):
+        for n in range(self.count()):
+            self.itemAt(n).widget().setEnabled(enabled)
 
-class DateAndTimeWidget(QtWidgets.QWidget):
+
+class DateAndTimeWidget(QtWidgets.QHBoxLayout):
     def __init__(self, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
-        self.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.setContentsMargins(0, 0, 0, 0)
         # date
         self.date = DateTimeEdit(True)
-        self.layout().addLayout(self.date)
-        self.layout().addStretch(1)
+        self.addLayout(self.date)
+        self.addStretch(1)
         # time
         self.time = DateTimeEdit(False)
-        self.layout().addLayout(self.time)
+        self.addLayout(self.time)
+
+    def set_date(self, value):
+        self.date.set_value(value)
+        self.time.set_enabled(value is not None)
+
+    def set_time(self, value):
+        self.time.set_value(value)
+
+    def set_multiple_date(self):
+        self.date.set_multiple()
+        self.time.set_enabled(False)
+
+    def set_multiple_time(self):
+        self.time.set_multiple()
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -456,15 +473,18 @@ class Technical(QtWidgets.QWidget):
     def new_time_modified(self, value):
         self._new_time_value('modified', value)
 
+    @QtCore.pyqtSlot(timedelta)
     def apply_offset(self, offset):
         for image in self.image_list.get_selected_images():
-            for key in self.date_widget:
-                value = getattr(image.metadata, 'date_' + key)
-                if value is None:
-                    continue
-                value = value.datetime() + offset
-                setattr(
-                    image.metadata, 'date_' + key, (value.date(), value.time()))
+            value = image.metadata.date_taken
+            if value is None:
+                continue
+            value = value.datetime() + offset
+            image.metadata.date_taken = value.date(), value.time()
+            if self.link_widget['taken', 'digitised'].isChecked():
+                image.metadata.date_digitised = value.date(), value.time()
+                if self.link_widget['digitised', 'modified'].isChecked():
+                    image.metadata.date_modified = value.date(), value.time()
         for key in self.date_widget:
             self._update_datetime(key)
 
@@ -584,19 +604,19 @@ class Technical(QtWidgets.QWidget):
             if new_value is not None:
                 new_value = new_value.date
             if new_value != date:
-                self.date_widget[key].date.set_multiple()
+                self.date_widget[key].set_multiple_date()
                 break
         else:
-            self.date_widget[key].date.set_value(date)
+            self.date_widget[key].set_date(date)
         for image in images[1:]:
             new_value = getattr(image.metadata, 'date_' + key)
             if new_value is not None:
                 new_value = new_value.time
             if new_value != time:
-                self.date_widget[key].time.set_multiple()
+                self.date_widget[key].set_multiple_time()
                 break
         else:
-            self.date_widget[key].time.set_value(time)
+            self.date_widget[key].set_time(time)
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
@@ -644,8 +664,8 @@ class Technical(QtWidgets.QWidget):
     def new_selection(self, selection):
         if not selection:
             for key in self.date_widget:
-                self.date_widget[key].date.set_value(None)
-                self.date_widget[key].time.set_value(None)
+                self.date_widget[key].set_date(None)
+                self.date_widget[key].set_time(None)
             for key in self.widgets:
                 self.widgets[key].set_value(None)
             self.setEnabled(False)
