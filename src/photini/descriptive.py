@@ -39,7 +39,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         self._is_multiple = False
         if not value:
             self.clear()
-            self.setPlaceholderText('')
+            if QT_VERSION >= [5, 3]:
+                self.setPlaceholderText('')
         elif isinstance(value, list):
             self.setPlainText('; '.join(value))
         else:
@@ -50,8 +51,11 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def set_multiple(self):
         self._is_multiple = True
-        self.setPlaceholderText(multiple_values)
-        self.clear()
+        if QT_VERSION >= [5, 3]:
+            self.setPlaceholderText(multiple_values)
+            self.clear()
+        else:
+            self.setPlainText(multiple_values)
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
