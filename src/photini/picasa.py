@@ -364,7 +364,7 @@ class PicasaUploader(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_description(self):
-        value = self.widgets['description'].text()
+        value = self.widgets['description'].get_value()
         if value != self.current_album.summary.text:
             self.changed_description = value
         else:
@@ -495,7 +495,7 @@ Doing so will remove the album and its photos from all Google products."""
         self.save_changes()
         self.current_album = None
         self.album_thumb.clear()
-        self.widgets['description'].clear()
+        self.widgets['description'].set_value(None)
         self.widgets['location'].clear()
         self.widgets['timestamp'].clear()
         if not self.picasa.valid():
@@ -517,7 +517,7 @@ Doing so will remove the album and its photos from all Google products."""
             float(self.current_album.timestamp.text) * 1.0e-3))
         value = self.current_album.summary.text
         if value:
-            self.widgets['description'].setText(value)
+            self.widgets['description'].set_value(value)
         value = self.current_album.location.text
         if value:
             self.widgets['location'].setText(value)
