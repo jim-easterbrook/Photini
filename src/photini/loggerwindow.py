@@ -83,9 +83,11 @@ class LoggerWindow(QtWidgets.QWidget):
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
         logger.addHandler(handler)
-        # intercept stdout and stderr
-        sys.stderr = OutputInterceptor('stderr', sys.stderr)
-        sys.stdout = OutputInterceptor('stdout', sys.stdout)
+        # intercept stdout and stderr, if they exist
+        if sys.stderr:
+            sys.stderr = OutputInterceptor('stderr', sys.stderr)
+        if sys.stdout:
+            sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
     def shutdown(self):
         logger = logging.getLogger('')

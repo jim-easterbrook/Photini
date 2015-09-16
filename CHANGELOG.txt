@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v15.09.0:
+  1/ Fix bugs with Qt4 and Python 3 introduced in last release.
+  2/ Improved widgets on 'technical' and 'descriptive' tabs.
+
 Changes in v15.08.1:
   1/ Added Spanish translation of program strings.
   2/ Added option to always write IPTC data.
