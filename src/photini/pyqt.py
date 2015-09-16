@@ -18,7 +18,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
+    from xPyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
 except ImportError:
@@ -31,4 +31,4 @@ except ImportError:
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
 
-QT_VERSION = map(int, QtCore.QT_VERSION_STR.split('.'))
+QT_VERSION = list(map(int, QtCore.QT_VERSION_STR.split('.')))
