@@ -8,7 +8,7 @@ Image importer
 The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy photographs from your digital camera or anywhere else on your computer (for example, a camera memory card if your computer has a card reader).
 Whilst there are many other programs to do this, I've never found one that does things the way I want, so I added one to Photini.
 
-Note that you can only import directly from cameras if you have installed python-gphoto2.
+Note that you can only import directly from cameras if you have installed python-gphoto2 (which is not available on Windows).
 See :ref:`installation <installation-importer>` for more detail.
 
 The key part of the importer is the "target format" field.
@@ -52,7 +52,7 @@ When the "target format" has been set to match where previous images were put, i
 
 .. image:: ../images/screenshot_33.png
 
-The remaining images can be selected by clicking on them, or by using the "select all" or "select new" buttons.
+The remaining images can be selected by clicking on them, or by using the "select all" button (to select all uncopied images) or "select new" button (to select images newer than the last ones copied).
 
 .. image:: ../images/screenshot_34.png
 
