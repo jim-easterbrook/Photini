@@ -22,4 +22,4 @@ Introduction
    :end-before: Documentation
 
 .. include:: ../../../README.rst
-   :start-after: readme-legalese:
+   :start-after: _readme-getting_help:

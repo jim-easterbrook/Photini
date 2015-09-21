@@ -14,14 +14,6 @@ For example a title and description of the scene or the date & time and the GPS 
 Why is it called Photini?
 Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
 
-Internationalisation
---------------------
-
-Work has begun on providing Photini in multiple languages.
-I rely on users to do the translation, as I am not fluent in any language other than English.
-If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
-For more details, see the `localisation documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
-
 Features
 --------
 
@@ -77,6 +69,22 @@ Documentation
    Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
 Photini's documentation is a long way from complete, but you can read what's been written so far at http://photini.readthedocs.org/.
+
+.. _readme-getting_help:
+
+Getting help
+------------
+
+If you encounter any problems installing or running Photini, please email jim@jim-easterbrook.me.uk and I'll respond as soon as I can.
+If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page <https://github.com/jim-easterbrook/Photini/issues>`_.
+
+Internationalisation
+--------------------
+
+Work has begun on providing Photini in multiple languages.
+I rely on users to do the translation, as I am not fluent in any language other than English.
+If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
+For more details, see the `localisation documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
 
 .. _readme-legalese:
 
