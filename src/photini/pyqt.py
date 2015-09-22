@@ -18,7 +18,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 try:
-    from xPyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
 except ImportError:
