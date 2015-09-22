@@ -31,7 +31,7 @@ import appdirs
 from .flowlayout import FlowLayout
 from .metadata import Metadata, MetadataHandler
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy
+from .utils import Busy, image_types
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -301,16 +301,7 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        types = [
-            'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
-            'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
-            'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
-            ]
-        for fmt in QtGui.QImageReader.supportedImageFormats():
-            ext = fmt.data().decode('utf_8').lower()
-            if ext not in types:
-                types.append(ext)
-        types = map(lambda x: '*.' + x, types)
+        types = ['*.' + x for x in image_types]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(' '.join(types)))

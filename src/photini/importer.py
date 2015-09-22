@@ -33,18 +33,13 @@ except ImportError:
 
 from .configstore import ConfigStore
 from .metadata import Metadata
-from .pyqt import Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy
+from .pyqt import Qt, QtCore, QtWidgets
+from .utils import Busy, image_types
 
 class FolderSource(object):
     def __init__(self, root):
         self.root = root
-        self.image_types = QtGui.QImageReader.supportedImageFormats()
-        self.image_types = [x.data().decode('utf-8') for x in self.image_types]
-        self.image_types = ['.' + x.lower() for x in self.image_types]
-        for ext in ('.ico', '.xcf'):
-            while ext in self.image_types:
-                self.image_types.remove(ext)
+        self.image_types = ['.' + x for x in image_types]
 
     def list_files(self):
         result = []

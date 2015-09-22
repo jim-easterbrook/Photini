@@ -21,12 +21,25 @@ from __future__ import unicode_literals
 
 import os
 
-from .pyqt import Qt, QtWidgets
+from .pyqt import Qt, QtGui, QtWidgets
 
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
 multiple = QtWidgets.QApplication.translate('utils', '<multiple>')
 multiple_values = QtWidgets.QApplication.translate('utils', '<multiple values>')
+
+image_types = [
+    'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
+    'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
+    'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
+    ]
+for _fmt in QtGui.QImageReader.supportedImageFormats():
+    _ext = _fmt.data().decode('utf_8').lower()
+    if _ext not in image_types:
+        image_types.append(_ext)
+for _ext in ('ico', 'xcf'):
+    if _ext in image_types:
+        image_types.remove(_ext)
 
 class Busy(object):
     def __enter__(self):
