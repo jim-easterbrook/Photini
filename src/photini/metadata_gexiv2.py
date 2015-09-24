@@ -30,6 +30,8 @@ import six
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
+GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
+
 class MetadataHandler(object):
     def __init__(self, path):
         self.logger = logging.getLogger(self.__class__.__name__)
