@@ -54,6 +54,7 @@ class FlickrSession(object):
             token, token_secret = token.split('&')
         else:
             token, token_secret = '', ''
+        logger.info('using %s', keyring.get_keyring().__module__)
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
         with Busy():

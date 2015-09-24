@@ -132,6 +132,7 @@ class PicasaSession(object):
         refresh_token = keyring.get_password('photini', 'picasa')
         if refresh_token and self.session:
             return True
+        logger.info('using %s', keyring.get_keyring().__module__)
         client_id     = key_store.get('picasa', 'client_id')
         client_secret = key_store.get('picasa', 'client_secret')
         if refresh_token:
