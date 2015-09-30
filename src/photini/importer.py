@@ -73,6 +73,7 @@ class FolderSource(object):
     def copy_file(self, folder, name, dest):
         shutil.copy2(os.path.join(folder, name), dest)
 
+
 class CameraSource(object):
     def __init__(self, camera, context):
         self.camera = camera
@@ -81,13 +82,11 @@ class CameraSource(object):
     def list_files(self, path='/'):
         result = []
         # get files
-        for name, value in self.camera.folder_list_files(
-                                                    str(path), self.context):
+        for name, value in self.camera.folder_list_files(path, self.context):
             result.append(os.path.join(path, name))
         # get folders
         folders = []
-        for name, value in self.camera.folder_list_folders(
-                                                    str(path), self.context):
+        for name, value in self.camera.folder_list_folders(path, self.context):
             folders.append(name)
         # recurse over subfolders
         for name in folders:
@@ -110,9 +109,10 @@ class CameraSource(object):
             folder, name, gp.GP_FILE_TYPE_NORMAL, self.context)
         camera_file.save(dest)
 
+
 class CameraLister(QtCore.QObject):
     def __init__(self, parent=None):
-        QtCore.QObject.__init__(self, parent)
+        super(CameraLister, self).__init__(parent)
         if gp:
             self.context = gp.Context()
         self.camera = None
@@ -126,37 +126,32 @@ class CameraLister(QtCore.QObject):
         camera_list.sort(key=lambda x: x[0])
         return camera_list
 
-    def select_camera(self, model, port_name):
+    def select_camera(self, port_name):
         # free any existing camera
         if self.camera:
             self.camera.exit(self.context)
             self.camera = None
         # initialise camera
         self.camera = gp.Camera()
-        # search abilities for camera model
-        abilities_list = gp.CameraAbilitiesList()
-        abilities_list.load(self.context)
-        idx = abilities_list.lookup_model(str(model))
-        self.camera.set_abilities(abilities_list[idx])
         # search ports for camera port name
         port_info_list = gp.PortInfoList()
         port_info_list.load()
-        idx = port_info_list.lookup_path(str(port_name))
+        idx = port_info_list.lookup_path(port_name)
         self.camera.set_port_info(port_info_list[idx])
         self.camera.init(self.context)
         return CameraSource(self.camera, self.context)
+
 
 class NameMangler(QtCore.QObject):
     number_parser = re.compile('\D*(\d+)')
     new_example = QtCore.pyqtSignal(str)
     def __init__(self, parent=None):
-        QtCore.QObject.__init__(self, parent)
+        super(NameMangler, self).__init__(parent)
         self.example = None
         self.format_string = None
 
     @QtCore.pyqtSlot(str)
     def new_format(self, format_string):
-        format_string = str(format_string)
         self.format_string = format_string
         # extract bracket delimited words from string
         self.parts = []
@@ -198,9 +193,10 @@ class NameMangler(QtCore.QObject):
         # then do timestamp
         return timestamp.strftime(result)
 
+
 class Importer(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super(Importer, self).__init__(parent)
         self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
@@ -269,7 +265,7 @@ class Importer(QtWidgets.QWidget):
     def choose_camera(self, params):
         model, port_name = params
         try:
-            self.source = self.camera_lister.select_camera(model, port_name)
+            self.source = self.camera_lister.select_camera(port_name)
         except gp.GPhoto2Error:
             # camera is no longer available
             self._fail()
@@ -290,8 +286,8 @@ class Importer(QtWidgets.QWidget):
             directory = folders[0]
         else:
             directory = ''
-        root = str(QtWidgets.QFileDialog.getExistingDirectory(
-            self, self.tr("Select root folder"), directory))
+        root = QtWidgets.QFileDialog.getExistingDirectory(
+            self, self.tr("Select root folder"), directory)
         if not root:
             return
         if root in folders:
@@ -462,12 +458,12 @@ class Importer(QtWidgets.QWidget):
             item = self.file_list_widget.item(row)
             if not (item.flags() & Qt.ItemIsSelectable):
                 continue
-            name = str(item.text()).split()[0]
+            name = item.text().split()[0]
             timestamp = self.file_data[name]['timestamp']
             if timestamp > since:
                 if not first_active:
                     first_active = item
-                self.file_list_widget.setItemSelected(item, True)
+                item.setSelected(True)
         if not first_active:
             first_active = item
         self.file_list_widget.scrollToItem(
@@ -484,7 +480,7 @@ class Importer(QtWidgets.QWidget):
             for idx in indexes:
                 count += 1
                 item = self.file_list_widget.itemFromIndex(idx)
-                name = str(item.text()).split()[0]
+                name = item.text().split()[0]
                 timestamp = self.file_data[name]['timestamp']
                 dest_path = self.file_data[name]['dest_path']
                 src_folder = self.file_data[name]['folder']
