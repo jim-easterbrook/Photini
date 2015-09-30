@@ -93,7 +93,7 @@ class Image(QtWidgets.QFrame):
             paths.append(image.path)
         if not paths:
             return
-        drag = QtWidgets.QDrag(self)
+        drag = QtGui.QDrag(self)
         drag.setPixmap(self.image_list.drag_icon)
         drag.setHotSpot(QtCore.QPoint(
             drag.pixmap().width() // 2, drag.pixmap().height()))
