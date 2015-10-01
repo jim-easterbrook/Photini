@@ -21,11 +21,9 @@ from __future__ import unicode_literals
 
 import six
 from datetime import datetime
-import imghdr
 import logging
 import os
 from six.moves.urllib.request import urlopen
-import webbrowser
 import xml.etree.ElementTree as ET
 
 import keyring
@@ -34,8 +32,9 @@ from requests_oauthlib import OAuth2Session
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit
-from .pyqt import Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy, FileObjWithCallback
+from .pyqt import QtCore, QtGui, QtWidgets
+from .uploader import PhotiniUploader
+from .utils import Busy
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -121,14 +120,7 @@ class PicasaSession(object):
     def __init__(self):
         self.session = None
 
-    def valid(self):
-        refresh_token = keyring.get_password('photini', 'picasa')
-        if refresh_token and self.session:
-            return True
-        self.session = None
-        return False
-
-    def authorise(self, auth_dialog):
+    def authorise(self, auth_dialog=None):
         refresh_token = keyring.get_password('photini', 'picasa')
         if refresh_token and self.session:
             return True
@@ -142,6 +134,9 @@ class PicasaSession(object):
                 'refresh_token' : refresh_token,
                 'expires_in'    : -30,
                 }
+        elif not auth_dialog:
+            self.session = None
+            return False
         else:
             # do full authentication procedure
             oauth = OAuth2Session(
@@ -202,6 +197,35 @@ class PicasaSession(object):
             headers={'Content-Type' : 'image/' + image_type, 'Slug' : title}))
         return PicasaNode(text=resp.text)
 
+    def do_upload(self, fileobj, image_type, image, params):
+        # upload photo
+        title = os.path.basename(image.path)
+        try:
+            photo = self.new_photo(title, params, fileobj, image_type)
+        except Exception as ex:
+            return str(ex)
+        # set metadata
+        photo.title.text = title
+        title = image.metadata.title
+        description = image.metadata.description
+        if title and description:
+            photo.summary.text = '{0}\n\n{1}'.format(title, description)
+        elif title:
+            photo.summary.text = title
+        elif description:
+            photo.summary.text = description
+        keywords = image.metadata.keywords
+        if keywords:
+            photo.group.keywords.text = ','.join(keywords)
+        latlong = image.metadata.latlong
+        if latlong:
+            photo.where.Point.pos.text = '{0} {1}'.format(*latlong.members())
+        try:
+            self.edit_node(photo)
+        except Exception as ex:
+            return str(ex)
+        return ''
+
     def _check_response(self, resp):
         if resp.status_code >= 300:
             logger.warning(resp.content)
@@ -209,80 +233,26 @@ class PicasaSession(object):
         return resp
 
 
-class UploadWorker(QtCore.QObject):
-    upload_progress = QtCore.pyqtSignal(float)
-    upload_finished = QtCore.pyqtSignal(object, str)
-
-    @QtCore.pyqtSlot(object, object)
-    def init_upload(self, picasa, album):
-        self.picasa = picasa
-        self.album = album
-
-    @QtCore.pyqtSlot(object, bool)
-    def upload_file(self, image, convert):
-        error = ''
-        # upload photo
-        title = os.path.basename(image.path)
-        if convert:
-            path = image.as_jpeg()
-        else:
-            path = image.path
-        with open(path, 'rb') as f:
-            fileobj = FileObjWithCallback(f, self.upload_progress.emit)
-            try:
-                photo = self.picasa.new_photo(
-                    title, self.album, fileobj, imghdr.what(path))
-            except Exception as ex:
-                error = str(ex)
-                photo = None
-        if convert:
-            os.unlink(path)
-        # set metadata
-        if photo:
-            photo.title.text = title
-            title = image.metadata.title
-            description = image.metadata.description
-            if title and description:
-                photo.summary.text = '{0}\n\n{1}'.format(title, description)
-            elif title:
-                photo.summary.text = title
-            elif description:
-                photo.summary.text = description
-            keywords = image.metadata.keywords
-            if keywords:
-                photo.group.keywords.text = ','.join(keywords)
-            latlong = image.metadata.latlong
-            if latlong:
-                photo.where.Point.pos.text = '{0} {1}'.format(*latlong.members())
-            try:
-                self.picasa.edit_node(photo)
-            except Exception as ex:
-                error = str(ex)
-        self.upload_finished.emit(image, error)
-
-
-class PicasaUploader(QtWidgets.QWidget):
-    init_upload = QtCore.pyqtSignal(object, object)
-    upload_file = QtCore.pyqtSignal(object, bool)
-
-    def __init__(self, config_store, image_list, parent=None):
-        super(PicasaUploader, self).__init__(parent)
-        config_store.remove_section('picasa')
-        self.image_list = image_list
-        self.setLayout(QtWidgets.QGridLayout())
-        self.picasa = PicasaSession()
+class PicasaUploadConfig(QtWidgets.QGroupBox):
+    def __init__(self, parent=None):
+        super(PicasaUploadConfig, self).__init__(parent)
+        self.service_name = self.tr('Picasa')
+        self.convert = {
+            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
+            'msg'     : self.tr(
+                'File "{0}" is of type "{1}", which Picasa does not' +
+                ' accept. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
+            }
+        self.setTitle(self.tr('Album'))
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
         self.current_album = None
-        self.upload_list = []
-        ### album group
-        self.album_group = QtWidgets.QGroupBox(self.tr('Album'))
-        self.album_group.setLayout(QtWidgets.QHBoxLayout())
-        self.layout().addWidget(self.album_group, 0, 0, 3, 3)
         ## album details, left hand side
         album_form_left = QtWidgets.QFormLayout()
         album_form_left.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        self.album_group.layout().addLayout(album_form_left)
+        self.layout().addLayout(album_form_left)
         # album title / selector
         self.albums = QtWidgets.QComboBox()
         self.albums.setEditable(True)
@@ -318,13 +288,11 @@ class PicasaUploader(QtWidgets.QWidget):
         delete_album_button = QtWidgets.QPushButton(self.tr('Delete album'))
         delete_album_button.clicked.connect(self.delete_album)
         buttons.addWidget(delete_album_button)
-        # other init
-        self.clear_changes()
         ## album details, right hand side
         album_form_right = QtWidgets.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        self.album_group.layout().addLayout(album_form_right)
+        self.layout().addLayout(album_form_right)
         # album date
         self.widgets['timestamp'] = QtWidgets.QDateEdit()
         self.widgets['timestamp'].setCalendarPopup(True)
@@ -333,37 +301,16 @@ class PicasaUploader(QtWidgets.QWidget):
         # album thumbnail
         self.album_thumb = QtWidgets.QLabel()
         album_form_right.addRow(self.album_thumb)
-        ### upload button
-        self.upload_button = QtWidgets.QPushButton(self.tr('Upload\nnow'))
-        self.upload_button.setEnabled(False)
-        self.upload_button.clicked.connect(self.upload)
-        self.layout().addWidget(self.upload_button, 2, 3)
-        ### progress bar
-        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 3, 0)
-        self.total_progress = QtWidgets.QProgressBar()
-        self.layout().addWidget(self.total_progress, 3, 1, 1, 3)
-        self.setEnabled(False)
-        # adjust spacing
-        self.layout().setColumnStretch(2, 1)
-        self.layout().setRowStretch(1, 1)
+        # other init
+        self.clear_changes()
         # timer to store album data after it's edited
         self.timer = QtCore.QTimer()
         self.timer.setSingleShot(True)
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
-        # create separate thread to upload images
-        self.upload_thread = QtCore.QThread()
-        self.upload_worker = UploadWorker()
-        self.upload_worker.moveToThread(self.upload_thread)
-        self.init_upload.connect(self.upload_worker.init_upload)
-        self.upload_file.connect(self.upload_worker.upload_file)
-        self.upload_worker.upload_progress.connect(self.upload_progress)
-        self.upload_worker.upload_finished.connect(self.upload_finished)
-        self.upload_thread.start()
 
-    def __del__(self):
-        self.upload_thread.quit()
-        self.upload_thread.wait()
+    def set_session(self, session):
+        self.session = session
 
     def clear_changes(self):
         self.changed_title = None
@@ -393,9 +340,9 @@ class PicasaUploader(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_timestamp(self):
-        value = '{0:d}'.format(
+        value = '{0:d}'.format(int(
             (self.widgets['timestamp'].dateTime().toPyDateTime() - EPOCH
-             ).total_seconds() * 1000)
+             ).total_seconds() * 1000))
         if value != self.current_album.timestamp.text:
             self.changed_timestamp = value
         else:
@@ -424,7 +371,7 @@ class PicasaUploader(QtWidgets.QWidget):
     def new_album(self):
         self.save_changes()
         with Busy():
-            self.current_album = self.picasa.new_album(self.tr('New album'))
+            self.current_album = self.session.new_album(self.tr('New album'))
         self.albums.insertItem(
             0, self.current_album.title.text, self.current_album.id.text)
         self.albums.setCurrentIndex(0)
@@ -443,7 +390,7 @@ Doing so will remove the album and its photos from all Google products."""
                 return
         self.clear_changes()
         with Busy():
-            self.picasa.delete_album(self.current_album)
+            self.session.delete_album(self.current_album)
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
@@ -475,40 +422,7 @@ Doing so will remove the album and its photos from all Google products."""
         if no_change:
             return
         with Busy():
-            self.current_album = self.picasa.edit_node(self.current_album)
-
-    def refresh(self):
-        if self.picasa.valid():
-            return
-        self.albums.clear()
-        QtWidgets.QApplication.processEvents()
-        if not self.picasa.authorise(self.auth_dialog):
-            self.setEnabled(False)
-            return
-        with Busy():
-            for album in self.picasa.get_albums():
-                if not album.get_link('edit'):
-                    # ignore 'system' albums
-                    continue
-                self.albums.addItem(album.title.text, album.id.text)
-            if self.albums.count() == 0:
-                self.new_album()
-        self.setEnabled(True)
-
-    def do_not_close(self):
-        if not self.upload_list:
-            return False
-        dialog = QtWidgets.QMessageBox()
-        dialog.setWindowTitle(self.tr('Photini: upload in progress'))
-        dialog.setText(self.tr('<h3>Upload to Picasa has not finished.</h3>'))
-        dialog.setInformativeText(
-            self.tr('Closing now will terminate the upload.'))
-        dialog.setIcon(QtWidgets.QMessageBox.Warning)
-        dialog.setStandardButtons(
-            QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
-        dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        result = dialog.exec_()
-        return result == QtWidgets.QMessageBox.Cancel
+            self.current_album = self.session.edit_node(self.current_album)
 
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
@@ -518,11 +432,11 @@ Doing so will remove the album and its photos from all Google products."""
         self.widgets['description'].set_value(None)
         self.widgets['location'].clear()
         self.widgets['timestamp'].clear()
-        if not self.picasa.valid():
+        if not self.session.authorise():
             return
         album_id = self.albums.itemData(index)
         with Busy():
-            for album in self.picasa.get_albums():
+            for album in self.session.get_albums():
                 if album.id.text == album_id:
                     self.current_album = album
                     break
@@ -544,92 +458,32 @@ Doing so will remove the album and its photos from all Google products."""
         self.widgets['access'].setCurrentIndex(
             self.widgets['access'].findData(self.current_album.access.text))
 
-    @QtCore.pyqtSlot()
-    def upload(self):
-        if not self.image_list.unsaved_files_dialog(with_discard=False):
-            return
-        # make list of items to upload
-        self.upload_list = []
-        self.uploads_done = []
-        for image in self.image_list.get_selected_images():
-            image_type = imghdr.what(image.path)
-            if image_type in ('bmp', 'gif', 'jpeg', 'png'):
-                convert = False
-            else:
-                dialog = QtWidgets.QMessageBox()
-                dialog.setWindowTitle(self.tr('Photini: incompatible type'))
-                dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
-                dialog.setInformativeText(self.tr(
-                    'File "{0}" is of type "{1}", which Picasa does not accept. Would you like to convert it to JPEG?').format(
-                        os.path.basename(image.path), image_type))
-                dialog.setIcon(QtWidgets.QMessageBox.Warning)
-                dialog.setStandardButtons(QtWidgets.QMessageBox.Yes |
-                                          QtWidgets.QMessageBox.Ignore)
-                dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
-                if dialog.exec_() != QtWidgets.QMessageBox.Yes:
+    def clear_sets(self):
+        self.albums.clear()
+
+    def load_sets(self):
+        with Busy():
+            for album in self.session.get_albums():
+                if not album.get_link('edit'):
+                    # ignore 'system' albums
                     continue
-                convert = True
-            self.upload_list.append((image, convert))
-        # start uploading in separate thread, so GUI can continue
-        if self.upload_list and self.picasa.authorise(self.auth_dialog):
-            self.upload_button.setEnabled(False)
-            self.album_group.setEnabled(False)
-            self.init_upload.emit(self.picasa, self.current_album)
-            self.upload_file.emit(*self.upload_list[0])
-            # we've passed the flickr picasa session to a separate
-            # thread, so create a new one for safety
-            self.picasa = PicasaSession()
-            self.picasa.authorise(self.auth_dialog)
+                self.albums.addItem(album.title.text, album.id.text)
+            if self.albums.count() == 0:
+                self.new_album()
 
-    @QtCore.pyqtSlot(float)
-    def upload_progress(self, progress):
-        total_progress = (
-            (len(self.uploads_done) * 100) + progress) / len(self.upload_list)
-        self.total_progress.setValue(total_progress)
+    def get_upload_params(self):
+        return self.current_album
 
-    @QtCore.pyqtSlot(object, str)
-    def upload_finished(self, image, error):
-        if error:
-            dialog = QtWidgets.QMessageBox()
-            dialog.setWindowTitle(self.tr('Photini: upload error'))
-            dialog.setText(self.tr('<h3>File "{}" upload failed.</h3>').format(
-                os.path.basename(image.path)))
-            dialog.setInformativeText(error)
-            dialog.setIcon(QtWidgets.QMessageBox.Warning)
-            dialog.setStandardButtons(QtWidgets.QMessageBox.Abort |
-                                      QtWidgets.QMessageBox.Retry)
-            dialog.setDefaultButton(QtWidgets.QMessageBox.Retry)
-            if dialog.exec_() == QtWidgets.QMessageBox.Abort:
-                self.upload_list = []
-        else:
-            self.uploads_done.append(image)
-        if len(self.uploads_done) < len(self.upload_list):
-            # start uploading next file
-            self.upload_file.emit(*self.upload_list[len(self.uploads_done)])
-        else:
-            self.upload_list = []
-            self.uploads_done = []
-            self.upload_button.setEnabled(True)
-            self.album_group.setEnabled(True)
-            self.total_progress.setValue(0)
-            # reload current album
-            self.changed_album(self.albums.currentIndex())
+    def upload_started(self):
+        self.setEnabled(False)
 
-    def auth_dialog(self, auth_url):
-        if webbrowser.open(auth_url, new=2, autoraise=0):
-            info_text = self.tr('use your web browser')
-        else:
-            info_text = self.tr('open "{0}" in a web browser').format(auth_url)
-        auth_code, OK = QtWidgets.QInputDialog.getText(
-            self,
-            self.tr('Photini: authorise Picasa'),
-            self.tr("""Please {0} to grant access to Photini,
-then enter the verification code:""").format(info_text))
-        if OK:
-            return str(auth_code).strip()
-        return None
+    def upload_finished(self):
+        self.setEnabled(True)
+        # reload current album
+        self.changed_album(self.albums.currentIndex())
 
-    @QtCore.pyqtSlot(list)
-    def new_selection(self, selection):
-        self.upload_button.setEnabled(
-            len(selection) > 0 and self.picasa.valid() and not self.upload_list)
+
+def PicasaUploader(config_store, image_list, parent=None):
+    config_store.remove_section('picasa')
+    return PhotiniUploader(
+        PicasaUploadConfig(), PicasaSession, image_list, parent)
