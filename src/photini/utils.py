@@ -48,22 +48,3 @@ class Busy(object):
 
     def __exit__(self, type, value, traceback):
         QtWidgets.QApplication.restoreOverrideCursor()
-
-
-class FileObjWithCallback(object):
-    def __init__(self, fileobj, callback):
-        self._f = fileobj
-        self._callback = callback
-        # requests library uses 'len' attribute instead of seeking to
-        # end of file and back
-        self.len = os.fstat(self._f.fileno()).st_size
-
-    # substitute read method
-    def read(self, size):
-        if self._callback:
-            self._callback(self._f.tell() * 100 // self.len)
-        return self._f.read(size)
-
-    # delegate all other attributes to file object
-    def __getattr__(self, name):
-        return getattr(self._f, name)
