@@ -67,16 +67,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_config.set_session(self.session)
         self.initialised = False
         # 'service' specific widget
-        self.layout().addWidget(self.upload_config, 0, 0, 2, 2)
+        self.layout().addWidget(self.upload_config, 0, 0, 1, 3)
         # upload button
-        self.upload_button = QtWidgets.QPushButton(self.tr('Upload\nnow'))
+        self.upload_button = QtWidgets.QPushButton(self.tr('Upload now'))
         self.upload_button.setEnabled(False)
         self.upload_button.clicked.connect(self.upload)
         self.layout().addWidget(self.upload_button, 1, 2)
         # progress bar
-        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 2, 0)
+        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 1, 0)
         self.total_progress = QtWidgets.QProgressBar()
-        self.layout().addWidget(self.total_progress, 2, 1, 1, 2)
+        self.layout().addWidget(self.total_progress, 1, 1)
         # adjust spacing
         self.layout().setColumnStretch(1, 1)
         self.layout().setRowStretch(0, 1)
