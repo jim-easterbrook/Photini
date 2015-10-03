@@ -366,6 +366,9 @@ class Importer(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
+    def shutdown(self):
+        pass
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         pass

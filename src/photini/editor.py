@@ -69,7 +69,7 @@ from . import __version__
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, verbose):
-        QtWidgets.QMainWindow.__init__(self)
+        super(MainWindow, self).__init__()
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
         self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
         self.selection = list()
@@ -225,8 +225,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 event.ignore()
                 return
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
+        for n in range(self.tabs.count()):
+            self.tabs.widget(n).shutdown()
         self.loggerwindow.shutdown()
-        QtWidgets.QMainWindow.closeEvent(self, event)
+        super(MainWindow, self).closeEvent(event)
 
     def edit_settings(self):
         dialog = EditSettings(self, self.config_store)
