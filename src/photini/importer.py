@@ -234,10 +234,14 @@ class Importer(QtWidgets.QWidget):
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection)
+        self.file_list_widget.itemSelectionChanged.connect(self.selection_changed)
         self.layout().addWidget(self.file_list_widget, 1, 0)
         # selection buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
+        self.selected_count = QtWidgets.QLabel()
+        self.selection_changed()
+        buttons.addWidget(self.selected_count)
         select_all = QtWidgets.QPushButton(self.tr('Select\nall'))
         select_all.clicked.connect(self.select_all)
         buttons.addWidget(select_all)
@@ -436,6 +440,11 @@ class Importer(QtWidgets.QWidget):
             first_active = item
         self.file_list_widget.scrollToItem(
             first_active, QtWidgets.QAbstractItemView.PositionAtTop)
+
+    @QtCore.pyqtSlot()
+    def selection_changed(self):
+        count = len(self.file_list_widget.selectedItems())
+        self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
 
     @QtCore.pyqtSlot()
     def select_all(self):
