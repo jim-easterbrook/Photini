@@ -445,10 +445,12 @@ class Importer(QtWidgets.QWidget):
     def select_new(self):
         since = datetime.min
         if self.config_section:
-            since = datetime.strptime(
-                self.config_store.get(
-                    self.config_section, 'last_transfer', since.isoformat(' ')),
-                '%Y-%m-%d %H:%M:%S')
+            since = self.config_store.get(
+                self.config_section, 'last_transfer', since.isoformat(' '))
+            if len(since) > 19:
+                since = datetime.strptime(since, '%Y-%m-%d %H:%M:%S.%f')
+            else:
+                since = datetime.strptime(since, '%Y-%m-%d %H:%M:%S')
         self.select_files(since)
 
     def select_files(self, since):
