@@ -33,8 +33,9 @@ pip-log.txt
 MANIFEST
 /doc
 /src/lang/photini.ts
-src/lang/doc/doctrees/
-src/lang/doc/gettext/
+/src/lang/doc/doctrees/
+/src/lang/doc/en/
+/src/lang/doc/gettext/
 /src/photini/data/lang
 /src/windows/installers
 /src/windows/WinPython

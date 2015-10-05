@@ -1,3 +1,4 @@
 include *.txt MANIFEST.in README.rst
 recursive-include src *
 global-exclude *~ *.pyc
+prune src/lang/doc/doctrees
