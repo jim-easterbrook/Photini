@@ -63,6 +63,7 @@ try:
 except ImportError:
     PicasaUploader = None
 from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, QT_VERSION
+from .spelling import SpellingManager
 from .technical import Technical
 from .utils import data_dir
 from . import __version__
@@ -92,6 +93,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list = ImageList(self.config_store)
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
+        # spelling manager
+        self.spelling_manager = SpellingManager(self.config_store)
         # prepare list of tabs and associated stuff
         self.tab_list = (
             {'name'  : self.tr('&Descriptive metadata'),
@@ -168,6 +171,27 @@ class MainWindow(QtWidgets.QMainWindow):
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
             options_menu.addAction(tab['action'])
+        # spelling menu
+        languages = self.spelling_manager.available_languages()
+        spelling_menu = self.menuBar().addMenu(self.tr('Spelling'))
+        enable_action = QtWidgets.QAction(self.tr('Enable spell check'), self)
+        enable_action.setEnabled(bool(languages))
+        enable_action.setCheckable(True)
+        enable_action.setChecked(self.spelling_manager.enabled())
+        enable_action.toggled.connect(self.spelling_manager.enable)
+        spelling_menu.addAction(enable_action)
+        language_menu = QtWidgets.QMenu(self.tr('Choose language'), self)
+        language_menu.setEnabled(bool(languages))
+        language_group = QtWidgets.QActionGroup(self)
+        current_language = self.spelling_manager.current_language()
+        for tag in languages:
+            language_action = QtWidgets.QAction(tag, self)
+            language_action.setCheckable(True)
+            language_action.setChecked(tag == current_language)
+            language_action.setActionGroup(language_group)
+            language_menu.addAction(language_action)
+        language_group.triggered.connect(self.spelling_manager.set_language)
+        spelling_menu.addMenu(language_menu)
         # help menu
         help_menu = self.menuBar().addMenu(self.tr('Help'))
         about_action = QtWidgets.QAction(self.tr('About Photini'), self)

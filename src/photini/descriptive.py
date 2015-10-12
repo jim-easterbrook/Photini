@@ -21,7 +21,8 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from .pyqt import Qt, QtCore, QtWidgets, QT_VERSION
+from .pyqt import Qt, QtCore, QtGui, QtWidgets, QT_VERSION
+from .spelling import SpellingHighlighter
 from .utils import multiple_values
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
@@ -29,7 +30,24 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def __init__(self, *arg, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
+        self.setTabChangesFocus(True)
         self._is_multiple = False
+        self._single_line = False
+
+    def set_single_line(self):
+        margins = self.getContentsMargins()
+        self.setFixedHeight(self.fontMetrics().lineSpacing() + 4 +
+                            margins[1] + margins[3] + (self.frameWidth() * 2))
+        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._single_line = True
+
+    def keyPressEvent(self, event):
+        if self._single_line and event.key() == Qt.Key_Return:
+            event.ignore()
+            return
+        super(MultiLineEdit, self).keyPressEvent(event)
 
     def focusOutEvent(self, event):
         self.editingFinished.emit()
@@ -122,7 +140,8 @@ class Descriptive(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = LineEdit()
+        self.widgets['title'] = MultiLineEdit()
+        self.widgets['title'].set_single_line()
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
@@ -144,6 +163,12 @@ class Descriptive(QtWidgets.QWidget):
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(self.tr('Creator / Artist'), self.widgets['creator'])
+        # install spell checkers
+        self.spelling = {}
+        self.spelling['title'] = SpellingHighlighter(
+            self.widgets['title'].document())
+        self.spelling['description'] = SpellingHighlighter(
+            self.widgets['description'].document())
         # disable until an image is selected
         self.setEnabled(False)
 
