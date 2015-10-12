@@ -124,7 +124,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_thread.start()
 
     def shutdown(self):
-        self.upload_worker.disconnect()
+        self.upload_worker.upload_progress.disconnect()
+        self.upload_worker.upload_finished.disconnect()
         if self.upload_list:
             self.upload_worker.abort_upload()
         self.upload_thread.quit()
