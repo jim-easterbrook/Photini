@@ -9,10 +9,10 @@ For example a title and description of the scene or the date & time and the GPS 
 
    "It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily."
    
-   -- `Linux Format <http://www.linuxformat.com/>`_ magazine, January 2013 
+   -- `Linux Format`_ magazine, January 2013
 
 Why is it called Photini?
-Read my `blog post <http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html>`_ on how I chose a name.
+Read my `blog post`_ on how I chose a name.
 
 Features
 --------
@@ -22,12 +22,13 @@ Features
 
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
+*   Spell checking of some fields (optional).
 *   Can set metadata for multiple images simultaneously.
 *   Can adjust picture date & time.
 *   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to `Flickr <http://www.flickr.com/>`_ and/or `Picasa <http://picasaweb.google.com/>`_ with reuse of metadata.
+*   Upload to Flickr_ and/or Picasa_ with reuse of metadata.
 
 .. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
@@ -53,12 +54,13 @@ Users of other operating systems will need to install the following:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**
     *   pgi: https://pypi.python.org/pypi/pgi/
+*   PyEnchant (optional): http://pythonhosted.org/pyenchant/
 *   python-keyring (optional), version 4.0+: https://pypi.python.org/pypi/keyring
 *   python-flickrapi (optional), version 2.0+: https://pypi.python.org/pypi/flickrapi/
 *   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
 *   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
-For details of how to download and install these, please see the `installation documentation <http://photini.readthedocs.org/en/latest/other/installation.html>`_.
+For details of how to download and install these, please see the `installation documentation`_.
 
 Documentation
 -------------
@@ -76,15 +78,15 @@ Getting help
 ------------
 
 If you encounter any problems installing or running Photini, please email jim@jim-easterbrook.me.uk and I'll respond as soon as I can.
-If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page <https://github.com/jim-easterbrook/Photini/issues>`_.
+If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page`_.
 
 Internationalisation
 --------------------
 
 Work has begun on providing Photini in multiple languages.
 I rely on users to do the translation, as I am not fluent in any language other than English.
-If you'd like to help, please join the `Photini team on Transifex <https://www.transifex.com/projects/p/photini/>`_.
-For more details, see the `localisation documentation <http://photini.readthedocs.org/en/latest/other/localisation.html>`_.
+If you'd like to help, please join the `Photini team on Transifex`_.
+For more details, see the `localisation documentation`_.
 
 .. _readme-legalese:
 
@@ -111,14 +113,34 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 Map terms and conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use of the Google map tab is subject to the `Google Maps Terms of Use <http://www.google.com/help/terms_maps.html>`_.
+Use of the Google map tab is subject to the `Google Maps Terms of Use`_.
 
-Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use <http://www.microsoft.com/maps/assets/docs/terms.aspx>`_.
+Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_.
 
-Use of the OpenStreetMap tab is subject to the `Nominatim usage policy <http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy>`_ and the `MapQuest Terms and Conditions <http://developer.mapquest.com/web/info/terms-of-use>`_.
+Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `MapQuest Terms and Conditions`_.
 
 Documentation licence
 ^^^^^^^^^^^^^^^^^^^^^
 
 Permission is granted to copy, distribute and/or modify the Photini documentation under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the documentation section entitled "GNU Free Documentation License".
+
+.. _blog post:     http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html
+.. _Flickr:        http://www.flickr.com/
+.. _Google Maps Terms of Use:
+                   http://www.google.com/help/terms_maps.html
+.. _installation documentation:
+                   http://photini.readthedocs.org/en/latest/other/installation.html
+.. _"issues" page: https://github.com/jim-easterbrook/Photini/issues
+.. _Linux Format:  http://www.linuxformat.com/archives?issue=166
+.. _localisation documentation:
+                   http://photini.readthedocs.org/en/latest/other/localisation.html
+.. _MapQuest Terms and Conditions:
+                   http://developer.mapquest.com/web/info/terms-of-use
+.. _Microsoft Bing Maps Terms of Use:
+                   http://www.microsoft.com/maps/assets/docs/terms.aspx
+.. _Nominatim usage policy:
+                   http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
+.. _Photini team on Transifex:
+                   https://www.transifex.com/projects/p/photini/
+.. _Picasa:        http://picasaweb.google.com/
