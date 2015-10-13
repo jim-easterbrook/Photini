@@ -28,14 +28,37 @@ from .utils import multiple_values
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtCore.pyqtSignal()
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, spell_check=False, *arg, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         self.setTabChangesFocus(True)
         self._is_multiple = False
+        if spell_check:
+            self.spell_check = SpellingHighlighter(self.document())
+        else:
+            self.spell_check = None
 
     def focusOutEvent(self, event):
         self.editingFinished.emit()
         super(MultiLineEdit, self).focusOutEvent(event)
+
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        suggestion_group = QtWidgets.QActionGroup(menu)
+        if self.spell_check:
+            cursor = self.cursorForPosition(event.pos())
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            word = cursor.selectedText()
+            suggestions = self.spell_check.suggestions(word)
+            if suggestions:
+                sep = menu.insertSeparator(menu.actions()[0])
+                for suggestion in suggestions:
+                    action = QtWidgets.QAction(suggestion, suggestion_group)
+                    menu.insertAction(sep, action)
+        action = menu.exec_(event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            cursor = self.cursorForPosition(event.pos())
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            cursor.insertText(action.text())
 
     def set_value(self, value):
         self._is_multiple = False
@@ -143,11 +166,11 @@ class Descriptive(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = SingleLineEdit()
+        self.widgets['title'] = SingleLineEdit(spell_check=True)
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
-        self.widgets['description'] = MultiLineEdit()
+        self.widgets['description'] = MultiLineEdit(spell_check=True)
         self.widgets['description'].editingFinished.connect(self.new_description)
         self.form.addRow(
             self.tr('Description / Caption'), self.widgets['description'])
@@ -165,12 +188,6 @@ class Descriptive(QtWidgets.QWidget):
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(self.tr('Creator / Artist'), self.widgets['creator'])
-        # install spell checkers
-        self.spelling = {}
-        self.spelling['title'] = SpellingHighlighter(
-            self.widgets['title'].document())
-        self.spelling['description'] = SpellingHighlighter(
-            self.widgets['description'].document())
         # disable until an image is selected
         self.setEnabled(False)
 

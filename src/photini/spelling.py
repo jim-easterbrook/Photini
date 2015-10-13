@@ -115,3 +115,10 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
                 self.setFormat(
                     word.start(), word.end() - word.start(), formatter)
 
+    def suggestions(self, word):
+        if not _spell_check.enabled:
+            return []
+        if _spell_check.dict.check(word):
+            return []
+        return _spell_check.dict.suggest(word)
+
