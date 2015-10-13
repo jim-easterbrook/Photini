@@ -31,7 +31,6 @@ except ImportError:
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy, image_types
 
-
 class SpellCheck(QtCore.QObject):
     new_dict = QtCore.pyqtSignal()
 
@@ -45,14 +44,20 @@ class SpellCheck(QtCore.QObject):
         self.new_dict.emit()
 
     def set_dict(self, tag):
-        if tag is None or not enchant.dict_exists(tag):
-            self.dict = enchant.Dict()
-        else:
+        if not bool(enchant):
+            self.dict = None
+        elif tag and enchant.dict_exists(tag):
             self.dict = enchant.Dict(tag)
+        else:
+            self.dict = enchant.Dict()
+        if self.dict:
+            self.tag = self.dict.tag
+        else:
+            self.tag = ''
         self.new_dict.emit()
 
     def available_languages(self):
-        if enchant is None:
+        if not bool(enchant):
             return []
         result = enchant.list_languages()
         result.sort()
@@ -74,7 +79,7 @@ class SpellingManager(QtCore.QObject):
         self.available_languages = _spell_check.available_languages
 
     def current_language(self):
-        return _spell_check.dict.tag
+        return _spell_check.tag
 
     def enabled(self):
         return _spell_check.enabled
