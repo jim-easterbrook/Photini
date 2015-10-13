@@ -170,6 +170,15 @@ Optional dependencies
 
 Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
 
+PyEnchant
+^^^^^^^^^
+
+`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the Enchant spell-checking library.
+If it is installed then spell checking is available for some of Photini's text entry fields.
+Use pip to install it::
+
+   sudo pip install pyenchant
+
 .. _installation-flickr:
 
 python-flickrapi
