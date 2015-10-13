@@ -32,22 +32,6 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         self.setTabChangesFocus(True)
         self._is_multiple = False
-        self._single_line = False
-
-    def set_single_line(self):
-        margins = self.getContentsMargins()
-        self.setFixedHeight(self.fontMetrics().lineSpacing() + 4 +
-                            margins[1] + margins[3] + (self.frameWidth() * 2))
-        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self._single_line = True
-
-    def keyPressEvent(self, event):
-        if self._single_line and event.key() == Qt.Key_Return:
-            event.ignore()
-            return
-        super(MultiLineEdit, self).keyPressEvent(event)
 
     def focusOutEvent(self, event):
         self.editingFinished.emit()
@@ -77,6 +61,25 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
+
+
+class SingleLineEdit(MultiLineEdit):
+    def __init__(self, *arg, **kw):
+        super(SingleLineEdit, self).__init__(*arg, **kw)
+        self.setFixedHeight(
+            self.fontMetrics().lineSpacing() + 8 + (self.frameWidth() * 2))
+        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Return:
+            event.ignore()
+            return
+        super(MultiLineEdit, self).keyPressEvent(event)
+
+    def insertFromMimeData(self, source):
+        self.insertPlainText(source.text().replace('\n', ' '))
 
 
 class LineEdit(QtWidgets.QLineEdit):
@@ -140,8 +143,7 @@ class Descriptive(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = MultiLineEdit()
-        self.widgets['title'].set_single_line()
+        self.widgets['title'] = SingleLineEdit()
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
         # description
