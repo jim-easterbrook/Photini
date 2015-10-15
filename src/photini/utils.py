@@ -28,18 +28,26 @@ data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 multiple = QtWidgets.QApplication.translate('utils', '<multiple>')
 multiple_values = QtWidgets.QApplication.translate('utils', '<multiple values>')
 
-image_types = [
-    'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
-    'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
-    'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
-    ]
-for _fmt in QtGui.QImageReader.supportedImageFormats():
-    _ext = _fmt.data().decode('utf_8').lower()
-    if _ext not in image_types:
-        image_types.append(_ext)
-for _ext in ('ico', 'xcf'):
-    if _ext in image_types:
-        image_types.remove(_ext)
+_image_types = None
+
+def image_types():
+    global _image_types
+    if _image_types:
+        return _image_types
+    _image_types = [
+        'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
+        'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
+        'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
+        ]
+    for fmt in QtGui.QImageReader.supportedImageFormats():
+        ext = fmt.data().decode('utf_8').lower()
+        if ext not in _image_types:
+            _image_types.append(ext)
+    for ext in ('ico', 'xcf'):
+        if ext in _image_types:
+            _image_types.remove(ext)
+    return _image_types
+
 
 class Busy(object):
     def __enter__(self):

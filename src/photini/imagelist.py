@@ -37,7 +37,7 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtWidgets.QFrame):
     def __init__(self, path, image_list, thumb_size=80, parent=None):
-        QtWidgets.QFrame.__init__(self, parent)
+        super(Image, self).__init__(parent)
         self.path = path
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
@@ -193,7 +193,7 @@ class Image(QtWidgets.QFrame):
 class ScrollArea(QtWidgets.QScrollArea):
     dropped_images = QtCore.pyqtSignal(list)
     def __init__(self, parent=None):
-        QtWidgets.QScrollArea.__init__(self, parent)
+        super(ScrollArea, self).__init__(parent)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
@@ -209,14 +209,17 @@ class ScrollArea(QtWidgets.QScrollArea):
         if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
 
+
 class ImageList(QtWidgets.QWidget):
     image_list_changed = QtCore.pyqtSignal()
     new_metadata = QtCore.pyqtSignal(bool)
     selection_changed = QtCore.pyqtSignal(list)
     sort_order_changed = QtCore.pyqtSignal()
+
     def __init__(self, config_store, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super(ImageList, self).__init__(parent)
         self.config_store = config_store
+        self.image_types = ['*.' + x for x in image_types()]
         self.app = QtWidgets.QApplication.instance()
         self.drag_icon = None
         self.path_list = list()
@@ -301,10 +304,10 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        types = ['*.' + x for x in image_types]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            self.tr("Images ({0});;All files (*)").format(' '.join(types)))
+            self.tr("Images ({0});;All files (*)").format(
+                ' '.join(self.image_types)))
         if QtCore.QT_VERSION_STR.split('.')[0] == '5':
             path_list = path_list[0]
         if not path_list:

@@ -39,7 +39,7 @@ from .utils import Busy, image_types
 class FolderSource(object):
     def __init__(self, root):
         self.root = root
-        self.image_types = ['.' + x for x in image_types]
+        self.image_types = ['.' + x for x in image_types()]
 
     def list_files(self):
         result = []
