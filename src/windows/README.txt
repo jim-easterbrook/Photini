@@ -15,7 +15,7 @@ Brief notes.  (-:
    pip, pkginfo, pyqt4, pywin32, setuptools, wheel, winpython
 6/ Install All-In-One PyGI/PyGObject for Windows from http://sourceforge.net/projects/pygobjectwin32/files/
    Add the Photini/src/windows/WinPython Python as a "portable Python" installation
-   Select "Base packages" and "Gexiv2" packages
+   Select "Base packages" and "Gexiv2" packages, then "Enchant-extra-dicts" non-GNOME library
 7/ Run WinPython Command Prompt.exe to open a shell, then navigate to the Photini root directory
    a/ Run "pip install -U appdirs six flickrapi keyring"
    b/ Run "python setup.py build"

@@ -21,7 +21,29 @@
 
 from __future__ import unicode_literals
 
+import os
 import re
+import shutil
+import site
+import sys
+
+# avoid "dll Hell" on Windows by copying PyGObject's copies of some dlls
+if sys.platform == 'win32':
+    enchant_dir = None
+    gnome_dir = None
+    for name in site.getsitepackages():
+        dir_name = os.path.join(name, 'enchant')
+        if os.path.isdir(dir_name):
+            enchant_dir = dir_name
+        dir_name = os.path.join(name, 'gnome')
+        if os.path.isdir(dir_name):
+            gnome_dir = dir_name
+    if enchant_dir and gnome_dir:
+        for name in (
+                'libenchant-1.dll', 'libglib-2.0-0.dll', 'libgmodule-2.0-0.dll'):
+            src = os.path.join(gnome_dir, name)
+            if os.path.exists(src):
+                shutil.copy(src, enchant_dir)
 
 try:
     import enchant
