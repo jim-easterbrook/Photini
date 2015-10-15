@@ -25,9 +25,6 @@ from .pyqt import Qt, QtGui, QtWidgets
 
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
-multiple = QtWidgets.QApplication.translate('utils', '<multiple>')
-multiple_values = QtWidgets.QApplication.translate('utils', '<multiple values>')
-
 _image_types = None
 
 def image_types():

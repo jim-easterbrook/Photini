@@ -21,11 +21,10 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from .pyqt import Qt, QtCore, QtGui, QtWidgets, QT_VERSION
+from .pyqt import Multiple, Qt, QtCore, QtGui, QtWidgets, QT_VERSION
 from .spelling import SpellingHighlighter
-from .utils import multiple_values
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit):
+class MultiLineEdit(QtWidgets.QPlainTextEdit, Multiple):
     editingFinished = QtCore.pyqtSignal()
 
     def __init__(self, spell_check=False, *arg, **kw):
@@ -77,10 +76,10 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def set_multiple(self):
         self._is_multiple = True
         if QT_VERSION >= [5, 3]:
-            self.setPlaceholderText(multiple_values)
+            self.setPlaceholderText(self.multiple_values)
             self.clear()
         else:
-            self.setPlainText(multiple_values)
+            self.setPlainText(self.multiple_values)
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
@@ -105,7 +104,7 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
-class LineEdit(QtWidgets.QLineEdit):
+class LineEdit(QtWidgets.QLineEdit, Multiple):
     def __init__(self, *arg, **kw):
         super(LineEdit, self).__init__(*arg, **kw)
         self._is_multiple = False
@@ -125,7 +124,7 @@ class LineEdit(QtWidgets.QLineEdit):
 
     def set_multiple(self):
         self._is_multiple = True
-        self.setPlaceholderText(multiple_values)
+        self.setPlaceholderText(self.multiple_values)
         self.clear()
 
     def is_multiple(self):

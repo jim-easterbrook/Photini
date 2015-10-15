@@ -27,15 +27,15 @@ import webbrowser
 import six
 
 from .imagelist import DRAG_MIMETYPE
-from .pyqt import Qt, QtCore, QtWebKitWidgets, QtWidgets
-from .utils import data_dir, multiple_values
+from .pyqt import Multiple, Qt, QtCore, QtWebKitWidgets, QtWidgets
+from .utils import data_dir
 from . import __version__
 
 translate = QtCore.QCoreApplication.translate
 
 class WebPage(QtWebKitWidgets.QWebPage):
     def __init__(self, parent=None):
-        QtWebKitWidgets.QWebPage.__init__(self, parent)
+        super(WebPage, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def javaScriptConsoleMessage(self, msg, line, source):
@@ -49,6 +49,7 @@ class WebPage(QtWebKitWidgets.QWebPage):
         if 'nominatim' in host:
             return 'Photini/' + __version__
         return QtWebKitWidgets.QWebPage.userAgentForUrl(self, url)
+
 
 class WebView(QtWebKitWidgets.QWebView):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
@@ -68,9 +69,10 @@ class WebView(QtWebKitWidgets.QWebView):
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
-class PhotiniMap(QtWidgets.QWidget):
+
+class PhotiniMap(QtWidgets.QWidget, Multiple):
     def __init__(self, config_store, image_list, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super(PhotiniMap, self).__init__(parent)
         self.config_store = config_store
         self.image_list = image_list
         self.drag_icon = self.get_drag_icon()
@@ -260,7 +262,7 @@ class PhotiniMap(QtWidgets.QWidget):
         latlong = images[0].metadata.latlong
         for image in images[1:]:
             if image.metadata.latlong != latlong:
-                self.coords.setText(multiple_values)
+                self.coords.setText(self.multiple_values)
                 return
         if latlong:
             self.coords.setText(str(latlong))

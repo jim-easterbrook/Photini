@@ -32,3 +32,13 @@ except ImportError:
     from PyQt4.QtNetwork import QNetworkProxy
 
 QT_VERSION = list(map(int, QtCore.QT_VERSION_STR.split('.')))
+
+class Multiple(QtCore.QObject):
+    """Mixin for Qt widgets to provide common translations of
+    "<multiple>" and "<multiple values>".
+
+    """
+    def __init__(self, *arg, **kw):
+        super(Multiple, self).__init__(*arg, **kw)
+        self.multiple = self.tr('<multiple>')
+        self.multiple_values = self.tr('<multiple values>')
