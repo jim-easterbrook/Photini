@@ -266,9 +266,10 @@ setup(name = 'Photini',
           },
       install_requires = ['appdirs >= 1.3', 'six >= 1.5'],
       extras_require = {
-          'flickr'  : ['flickrapi >= 2.0', 'keyring >= 4.0'],
-          'importer': ['gphoto2 >= 0.10'],
-          'picasa'  : ['requests >= 2.5', 'requests-oauthlib >= 0.4',
-                       'keyring >= 4.0']
+          'flickr'   : ['flickrapi >= 2.0', 'keyring >= 4.0'],
+          'importer' : ['gphoto2 >= 0.10'],
+          'picasa'   : ['requests >= 2.5', 'requests-oauthlib >= 0.4',
+                        'keyring >= 4.0'],
+          'spelling' : ['pyenchant >= 1.6'],
           },
       )
