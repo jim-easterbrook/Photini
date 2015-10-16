@@ -45,20 +45,22 @@ Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packa
   Excludes: "*.exe,\share"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "WinPython\WinPython Command Prompt.exe"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
 Name: "{group}\Photini documentation"; Filename: "http://photini.readthedocs.org/"
 Name: "{group}\upgrade Photini"; Filename: "{#PyDir}\python.exe"; \
-  Parameters: "-m pip install -U -I photini[flickr,picasa]"
+  Parameters: "-m pip install -U -I setuptools_scm pyenchant photini[flickr,picasa]"
 Name: "{commondesktop}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
   IconFileName: {app}\icon.ico; Tasks: desktopicon
 
 [Run]
-Filename: "{#PyDir}\python.exe"; Parameters: "-m pip install -U -I photini[flickr,picasa]"; \
-  StatusMsg: "Installing PyPI packages..."
+Filename: "{#PyDir}\python.exe"; \
+  Parameters: "-m pip install -U -I setuptools_scm pyenchant photini[flickr,picasa]"; \
+  StatusMsg: "Installing PyPI packages..."; Flags: hidewizard
 Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; \
   Description: "{cm:LaunchProgram,Photini}"; Flags: nowait postinstall skipifsilent
 
