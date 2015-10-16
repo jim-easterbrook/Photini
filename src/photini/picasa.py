@@ -261,7 +261,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         self.albums.lineEdit().editingFinished.connect(self.new_title)
         album_form_left.addRow(self.tr('Title'), self.albums)
         # album description
-        self.widgets['description'] = MultiLineEdit()
+        self.widgets['description'] = MultiLineEdit(spell_check=True)
         self.widgets['description'].editingFinished.connect(self.new_description)
         album_form_left.addRow(
             self.tr('Description'), self.widgets['description'])

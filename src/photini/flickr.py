@@ -28,6 +28,7 @@ import flickrapi
 import keyring
 
 from .configstore import key_store
+from .descriptive import MultiLineEdit, SingleLineEdit
 from .pyqt import QtCore, QtWidgets
 from .uploader import PhotiniUploader
 from .utils import Busy
@@ -204,9 +205,9 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         dialog = QtWidgets.QDialog()
         dialog.setWindowTitle(self.tr('Create new Flickr set'))
         dialog.setLayout(QtWidgets.QFormLayout())
-        title = QtWidgets.QLineEdit()
+        title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(self.tr('Title'), title)
-        description = QtWidgets.QPlainTextEdit()
+        description = MultiLineEdit(spell_check=True)
         dialog.layout().addRow(self.tr('Description'), description)
         dialog.layout().addRow(QtWidgets.QLabel(
             self.tr('Set will be created when photos are uploaded')))
@@ -217,7 +218,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         dialog.layout().addRow(button_box)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
-        title = title.text()
+        title = title.toPlainText()
         if not title:
             return
         description = description.toPlainText()

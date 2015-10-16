@@ -174,7 +174,7 @@ class Descriptive(QtWidgets.QWidget):
         self.form.addRow(
             self.tr('Description / Caption'), self.widgets['description'])
         # keywords
-        self.widgets['keywords'] = LineEdit()
+        self.widgets['keywords'] = SingleLineEdit(spell_check=True)
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         # copyright
