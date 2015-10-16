@@ -60,5 +60,7 @@ class Multiple(QtCore.QObject):
     """
     def __init__(self, *arg, **kw):
         super(Multiple, self).__init__(*arg, **kw)
-        self.multiple = self.tr('<multiple>')
-        self.multiple_values = self.tr('<multiple values>')
+        self.multiple = QtCore.QCoreApplication.translate(
+            'Multiple', '<multiple>')
+        self.multiple_values = QtCore.QCoreApplication.translate(
+            'Multiple', '<multiple values>')
