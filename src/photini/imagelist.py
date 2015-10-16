@@ -30,8 +30,8 @@ import appdirs
 
 from .flowlayout import FlowLayout
 from .metadata import Metadata, MetadataHandler
-from .pyqt import Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy, image_types
+from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets
+from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -210,7 +210,7 @@ class ScrollArea(QtWidgets.QScrollArea):
             event.acceptProposedAction()
 
 
-class ImageList(QtWidgets.QWidget):
+class ImageList(QtWidgets.QWidget, ImageTypes):
     image_list_changed = QtCore.pyqtSignal()
     new_metadata = QtCore.pyqtSignal(bool)
     selection_changed = QtCore.pyqtSignal(list)
@@ -219,7 +219,6 @@ class ImageList(QtWidgets.QWidget):
     def __init__(self, config_store, parent=None):
         super(ImageList, self).__init__(parent)
         self.config_store = config_store
-        self.image_types = ['*.' + x for x in image_types()]
         self.app = QtWidgets.QApplication.instance()
         self.drag_icon = None
         self.path_list = list()
@@ -304,10 +303,10 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
+        image_types = ' '.join(['*.' + x for x in self.image_types])
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            self.tr("Images ({0});;All files (*)").format(
-                ' '.join(self.image_types)))
+            self.tr("Images ({0});;All files (*)").format(image_types))
         if QtCore.QT_VERSION_STR.split('.')[0] == '5':
             path_list = path_list[0]
         if not path_list:
