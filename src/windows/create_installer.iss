@@ -2,7 +2,7 @@
 #define SrcDir "WinPython\python-3.4.3"
 
 [Setup]
-VersionInfoVersion=15.09
+VersionInfoVersion=15.10
 VersionInfoProductTextVersion=Latest release
 AppId={{55D6EC72-D14D-4A19-AE26-EECC1A6EF1EA}
 AppName=Photini
