@@ -122,7 +122,7 @@ class SpellingManager(QtCore.QObject):
 class SpellingHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, *arg, **kw):
         super(SpellingHighlighter, self).__init__(*arg, **kw)
-        self.words = re.compile('(?iu)[\w\']+')
+        self.words = re.compile('[\w]+', flags=re.IGNORECASE | re.UNICODE)
         _spell_check.new_dict.connect(self.rehighlight)
 
     def highlightBlock(self, text):
