@@ -70,7 +70,7 @@ class SpellCheck(QtCore.QObject):
         elif tag and enchant.dict_exists(tag):
             self.dict = enchant.Dict(tag)
         else:
-            self.dict = enchant.Dict()
+            self.dict = None
         if self.dict:
             self.tag = self.dict.tag
         else:
@@ -126,7 +126,7 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
         _spell_check.new_dict.connect(self.rehighlight)
 
     def highlightBlock(self, text):
-        if not _spell_check.enabled:
+        if not (_spell_check.enabled and _spell_check.dict):
             return
         formatter = QtGui.QTextCharFormat()
         formatter.setUnderlineColor(Qt.red)
@@ -137,7 +137,7 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
                     word.start(), word.end() - word.start(), formatter)
 
     def suggestions(self, word):
-        if not _spell_check.enabled:
+        if not (_spell_check.enabled and _spell_check.dict):
             return []
         if _spell_check.dict.check(word):
             return []
