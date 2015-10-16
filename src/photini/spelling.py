@@ -51,7 +51,6 @@ except ImportError:
     enchant = None
 
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy, image_types
 
 class SpellCheck(QtCore.QObject):
     new_dict = QtCore.pyqtSignal()
