@@ -23,32 +23,38 @@ from __future__ import unicode_literals
 
 import os
 import re
-import shutil
 import site
 import sys
 
-# avoid "dll Hell" on Windows by copying PyGObject's copies of some dlls
+# avoid "dll Hell" on Windows by getting PyEnchant to use PyGObject's
+# copy of libenchant and associated libraries
 if sys.platform == 'win32':
-    enchant_dir = None
-    gnome_dir = None
+    # disable PyEnchant's forced use of its bundled DLLs
+    sys.platform = 'win32x'
+    # add gnome DLLs to PATH
     for name in site.getsitepackages():
-        dir_name = os.path.join(name, 'enchant')
-        if os.path.isdir(dir_name):
-            enchant_dir = dir_name
-        dir_name = os.path.join(name, 'gnome')
-        if os.path.isdir(dir_name):
-            gnome_dir = dir_name
-    if enchant_dir and gnome_dir:
-        for name in (
-                'libenchant-1.dll', 'libglib-2.0-0.dll', 'libgmodule-2.0-0.dll'):
-            src = os.path.join(gnome_dir, name)
-            if os.path.exists(src):
-                shutil.copy(src, enchant_dir)
+        gnome_path = os.path.join(name, 'gnome')
+        if os.path.isdir(gnome_path):
+            os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
+            break
 
 try:
     import enchant
 except ImportError:
     enchant = None
+
+if sys.platform == 'win32x':
+    # reset sys.platform
+    sys.platform = 'win32'
+    # using PyGObject's copy of libenchant means it won't find the
+    # dictionaries installed with PyEnchant
+    if enchant:
+        for name in site.getsitepackages():
+            dict_path = os.path.join(
+                name, 'enchant', 'share', 'enchant', 'myspell')
+            if os.path.isdir(dict_path):
+                enchant.set_param('enchant.myspell.dictionary.path', dict_path)
+                break
 
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
 
