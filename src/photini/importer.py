@@ -33,7 +33,7 @@ except ImportError:
 
 from .configstore import ConfigStore
 from .metadata import Metadata
-from .pyqt import ImageTypes, Qt, QtCore, QtWidgets
+from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy
 
 class FolderSource(ImageTypes):
@@ -195,6 +195,16 @@ class NameMangler(QtCore.QObject):
         return timestamp.strftime(result)
 
 
+class PathFormatValidator(QtGui.QValidator):
+    def validate(self, inp, pos):
+        if os.path.abspath(inp) == inp:
+            return QtGui.QValidator.Acceptable, inp, pos
+        return QtGui.QValidator.Intermediate, inp, pos
+
+    def fixup(self, inp):
+        return os.path.abspath(inp)
+
+
 class Importer(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         super(Importer, self).__init__(parent)
@@ -223,6 +233,7 @@ class Importer(QtWidgets.QWidget):
         form.addRow(self.tr('Source'), box)
         # path format
         self.path_format = QtWidgets.QLineEdit()
+        self.path_format.setValidator(PathFormatValidator())
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
         form.addRow(self.tr('Target format'), self.path_format)
@@ -255,8 +266,14 @@ class Importer(QtWidgets.QWidget):
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
-        self.path_format.setText(os.path.join(
-            os.path.expanduser('~/Pictures'), '%Y/%Y_%m_%d/(name)'))
+        if sys.platform == 'win32':
+            import win32com.shell as ws
+            path = ws.shell.SHGetFolderPath(
+                0, ws.shellcon.CSIDL_MYPICTURES, None, 0)
+        else:
+            path = os.path.expanduser('~/Pictures')
+        self.path_format.setText(
+            os.path.join(path, '%Y', '%Y_%m_%d', '(name)'))
         self.refresh()
         self.list_files()
 
