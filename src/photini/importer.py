@@ -311,6 +311,7 @@ class Importer(QtWidgets.QWidget):
         root = QtWidgets.QFileDialog.getExistingDirectory(
             self, self.tr("Select root folder"), directory)
         if not root:
+            self._fail()
             return
         if root in folders:
             folders.remove(root)
