@@ -96,7 +96,7 @@ class CameraSource(object):
 
     def get_file_info(self, path):
         folder, name = os.path.split(path)
-        info = self.camera.file_get_info(folder, name, self.context)
+        info = self.camera.file_get_info(str(folder), str(name), self.context)
         timestamp = datetime.utcfromtimestamp(info.file.mtime)
         return {
             'path'      : path,
@@ -107,7 +107,7 @@ class CameraSource(object):
 
     def copy_file(self, folder, name, dest):
         camera_file = self.camera.file_get(
-            folder, name, gp.GP_FILE_TYPE_NORMAL, self.context)
+            str(folder), str(name), gp.GP_FILE_TYPE_NORMAL, self.context)
         camera_file.save(dest)
 
 
