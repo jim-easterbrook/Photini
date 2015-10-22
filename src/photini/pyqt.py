@@ -57,3 +57,11 @@ def multiple():
 
 def multiple_values():
     return QtCore.QCoreApplication.translate('Multiple', '<multiple values>')
+
+class Busy(object):
+    def __enter__(self):
+        QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+        return self
+
+    def __exit__(self, type, value, traceback):
+        QtWidgets.QApplication.restoreOverrideCursor()

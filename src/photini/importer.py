@@ -33,8 +33,7 @@ except ImportError:
 
 from .configstore import ConfigStore
 from .metadata import Metadata
-from .pyqt import image_types, Qt, QtCore, QtGui, QtWidgets
-from .utils import Busy
+from .pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets
 
 class FolderSource(object):
     def __init__(self, root):

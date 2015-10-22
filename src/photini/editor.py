@@ -45,7 +45,7 @@ if sys.platform == 'win32' and six.PY3:
     except ImportError:
         pass
 
-from .configstore import ConfigStore
+from .configstore import ConfigStore, data_dir
 from .bingmap import BingMap
 from .descriptive import Descriptive
 try:
@@ -65,7 +65,6 @@ except ImportError:
 from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
 from .spelling import SpellingManager
 from .technical import Technical
-from .utils import data_dir
 from . import __version__
 
 class MainWindow(QtWidgets.QMainWindow):

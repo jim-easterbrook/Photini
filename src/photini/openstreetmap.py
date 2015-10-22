@@ -24,7 +24,6 @@ import webbrowser
 
 from .photinimap import PhotiniMap
 from .pyqt import QtWidgets, qt_version_info
-from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):
     drag_icon_name = 'osm_grey_marker.png'

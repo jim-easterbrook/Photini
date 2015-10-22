@@ -26,9 +26,9 @@ import webbrowser
 
 import six
 
+from .configstore import data_dir
 from .imagelist import DRAG_MIMETYPE
 from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
-from .utils import data_dir
 from . import __version__
 
 translate = QtCore.QCoreApplication.translate

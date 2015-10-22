@@ -29,9 +29,8 @@ import keyring
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
-from .pyqt import QtCore, QtWidgets
+from .pyqt import Busy, QtCore, QtWidgets
 from .uploader import PhotiniUploader
-from .utils import Busy
 
 logger = logging.getLogger(__name__)
 

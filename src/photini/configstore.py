@@ -28,7 +28,8 @@ import stat
 import appdirs
 
 from .pyqt import QtCore
-from .utils import data_dir
+
+data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
 class ConfigStore(object):
     def __init__(self, name):
@@ -37,15 +38,15 @@ class ConfigStore(object):
         if six.PY3:
             self.file_opts['encoding'] = 'utf-8'
         if hasattr(appdirs, 'user_config_dir'):
-            data_dir = appdirs.user_config_dir('photini')
+            config_dir = appdirs.user_config_dir('photini')
         else:
-            data_dir = appdirs.user_data_dir('photini')
-        if not os.path.isdir(data_dir):
-            os.makedirs(data_dir, mode=stat.S_IRWXU)
-        self.file_name = os.path.join(data_dir, name + '.ini')
+            config_dir = appdirs.user_data_dir('photini')
+        if not os.path.isdir(config_dir):
+            os.makedirs(config_dir, mode=stat.S_IRWXU)
+        self.file_name = os.path.join(config_dir, name + '.ini')
         if name == 'editor':
             for old_file_name in (os.path.expanduser('~/photini.ini'),
-                                  os.path.join(data_dir, 'photini.ini')):
+                                  os.path.join(config_dir, 'photini.ini')):
                 if os.path.exists(old_file_name):
                     self.config.read(old_file_name, **self.file_opts)
                     self.save()

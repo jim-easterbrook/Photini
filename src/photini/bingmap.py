@@ -28,7 +28,6 @@ import six
 from .configstore import key_store
 from .photinimap import PhotiniMap
 from .pyqt import QtCore, QtWidgets
-from .utils import data_dir
 
 class BingMap(PhotiniMap):
     drag_icon_name = 'bing_grey_marker.png'

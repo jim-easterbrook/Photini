@@ -27,7 +27,6 @@ import webbrowser
 from .configstore import key_store
 from .photinimap import PhotiniMap
 from .pyqt import QtWidgets
-from .utils import data_dir
 
 class GoogleMap(PhotiniMap):
     drag_icon_name = 'google_grey_marker.png'

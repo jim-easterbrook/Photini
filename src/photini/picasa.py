@@ -32,9 +32,8 @@ from requests_oauthlib import OAuth2Session
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit
-from .pyqt import QtCore, QtGui, QtWidgets
+from .pyqt import Busy, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
-from .utils import Busy
 
 EPOCH = datetime.utcfromtimestamp(0)
 

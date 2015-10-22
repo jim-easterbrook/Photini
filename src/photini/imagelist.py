@@ -29,8 +29,8 @@ from six.moves.urllib.parse import unquote
 import appdirs
 
 from .metadata import Metadata, MetadataHandler
-from .pyqt import image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info
-from .utils import Busy
+from .pyqt import (
+    Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info)
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
