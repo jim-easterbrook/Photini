@@ -26,10 +26,12 @@ import webbrowser
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
-from .pyqt import QtGui, QtWidgets
+from .pyqt import QtWidgets
 from .utils import data_dir
 
 class GoogleMap(PhotiniMap):
+    drag_icon_name = 'google_grey_marker.png'
+
     def load_api(self):
         url = 'http://maps.googleapis.com/maps/api/js'
         url += '?key=' + key_store.get('google', 'api_key')
@@ -47,19 +49,12 @@ class GoogleMap(PhotiniMap):
     </script>
 """.format(url)
 
-    def get_drag_icon(self):
-        return QtGui.QPixmap(os.path.join(data_dir, 'google_grey_marker.png'))
-
     def show_terms(self):
-        # return a widget to display map terms and conditions
-        result = QtWidgets.QFrame()
-        layout = QtWidgets.QVBoxLayout()
-        result.setLayout(layout)
-        layout.addWidget(QtWidgets.QLabel(self.tr('Search powered by Google')))
+        # return widgets to display map terms and conditions
+        yield QtWidgets.QLabel(self.tr('Search powered by Google'))
         load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
-        layout.addWidget(load_tou)
-        return result
+        yield load_tou
 
     def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')

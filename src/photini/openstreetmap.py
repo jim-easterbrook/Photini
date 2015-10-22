@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,10 +23,12 @@ import os
 import webbrowser
 
 from .photinimap import PhotiniMap
-from .pyqt import QtGui, QtWidgets, qt_version_info
+from .pyqt import QtWidgets, qt_version_info
 from .utils import data_dir
 
 class OpenStreetMap(PhotiniMap):
+    drag_icon_name = 'osm_grey_marker.png'
+
     def load_api(self):
         return """
     <link rel="stylesheet"
@@ -39,30 +41,23 @@ class OpenStreetMap(PhotiniMap):
     </script>
 """
 
-    def get_drag_icon(self):
-        return QtGui.QPixmap(os.path.join(data_dir, 'osm_grey_marker.png'))
-
     def show_terms(self):
-        # return a widget to display map terms and conditions
-        result = QtWidgets.QFrame()
-        layout = QtWidgets.QVBoxLayout()
-        result.setLayout(layout)
+        # return widgets to display map terms and conditions
         load_tou = QtWidgets.QPushButton(self.tr('Search powered by Nominatim'))
         load_tou.clicked.connect(self.load_tou_nominatim)
-        layout.addWidget(load_tou)
+        yield load_tou
         load_tou = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
         load_tou.clicked.connect(self.load_tou_leaflet)
-        layout.addWidget(load_tou)
+        yield load_tou
         if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
         load_tou = QtWidgets.QPushButton(
             self.trUtf8('Map data\n©OpenStreetMap contributors'))
         load_tou.clicked.connect(self.load_tou_osm)
-        layout.addWidget(load_tou)
+        yield load_tou
         load_tou = QtWidgets.QPushButton(self.tr('Tiles courtesy of MapQuest'))
         load_tou.clicked.connect(self.load_tou_tiles)
-        layout.addWidget(load_tou)
-        return result
+        yield load_tou
 
     def load_tou_nominatim(self):
         webbrowser.open_new(

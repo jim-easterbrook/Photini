@@ -27,14 +27,16 @@ import six
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtGui, QtWidgets
+from .pyqt import QtCore, QtWidgets
 from .utils import data_dir
 
 class BingMap(PhotiniMap):
+    drag_icon_name = 'bing_grey_marker.png'
+
     def __init__(self, *arg, **kw):
         self.copyright_widget = QtWidgets.QLabel()
         self.copyright_widget.setWordWrap(True)
-        PhotiniMap.__init__(self, *arg, **kw)
+        super(BingMap, self).__init__(*arg, **kw)
 
     def load_api(self):
         src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
@@ -53,19 +55,12 @@ class BingMap(PhotiniMap):
     </script>
 """.format(src, api_key)
 
-    def get_drag_icon(self):
-        return QtGui.QPixmap(os.path.join(data_dir, 'bing_grey_marker.png'))
-
     def show_terms(self):
-        # return a widget to display map terms and conditions
-        result = QtWidgets.QFrame()
-        layout = QtWidgets.QVBoxLayout()
-        result.setLayout(layout)
-        layout.addWidget(self.copyright_widget)
+        # return widgets to display map terms and conditions
+        yield self.copyright_widget
         load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
-        layout.addWidget(load_tou)
-        return result
+        yield load_tou
 
     @QtCore.pyqtSlot(six.text_type)
     def new_copyright(self, text):

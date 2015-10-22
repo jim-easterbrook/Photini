@@ -27,7 +27,7 @@ import webbrowser
 import six
 
 from .imagelist import DRAG_MIMETYPE
-from .pyqt import multiple_values, Qt, QtCore, QtWebKitWidgets, QtWidgets
+from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from .utils import data_dir
 from . import __version__
 
@@ -76,7 +76,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.config_store = config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
-        self.drag_icon = self.get_drag_icon()
+        self.drag_icon = QtGui.QPixmap(
+            os.path.join(data_dir, self.drag_icon_name))
         self.location = {}
         self.search_string = None
         self.map_loaded = False
@@ -172,9 +173,11 @@ class PhotiniMap(QtWidgets.QWidget):
             self.map_loaded = True
             self.layout().removeWidget(self.load_map)
             self.load_map.setParent(None)
-            show_terms = self.show_terms()
-            show_terms.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
-            self.layout().addWidget(show_terms, 7, 0)
+            show_terms = QtWidgets.QVBoxLayout()
+            for widget in self.show_terms():
+                widget.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
+                show_terms.addWidget(widget)
+            self.layout().addLayout(show_terms, 7, 0)
             self.edit_box.setEnabled(True)
             self.map.setAcceptDrops(True)
             self.new_images()
