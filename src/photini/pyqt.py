@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from collections import namedtuple
+
 try:
     from PyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
@@ -31,7 +33,9 @@ except ImportError:
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
 
-QT_VERSION = list(map(int, QtCore.QT_VERSION_STR.split('.')))
+qt_version_info = namedtuple(
+    'qt_version_info', ('major', 'minor', 'micro'))._make(
+        map(int, QtCore.QT_VERSION_STR.split('.')))
 
 class ImageTypes(QtCore.QObject):
     """Mixin for Qt widgets to provide list of image file types".

@@ -29,7 +29,7 @@ from six.moves.urllib.parse import unquote
 import appdirs
 
 from .metadata import Metadata, MetadataHandler
-from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets
+from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -384,13 +384,13 @@ class ImageList(QtWidgets.QWidget, ImageTypes):
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(image_types))
-        if QtCore.QT_VERSION_STR.split('.')[0] == '5':
+        if qt_version_info >= (5, 0):
             path_list = path_list[0]
         if not path_list:
             return
         # work around for Qt bug 33992
         # https://bugreports.qt-project.org/browse/QTBUG-33992
-        if QtCore.QT_VERSION_STR in ('4.8.4', '4.8.5'):
+        if qt_version_info in ((4, 8, 4), (4, 8, 5)):
             path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 

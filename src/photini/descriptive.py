@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from .pyqt import Multiple, Qt, QtCore, QtGui, QtWidgets, QT_VERSION
+from .pyqt import Multiple, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .spelling import SpellingHighlighter
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit, Multiple):
@@ -63,7 +63,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, Multiple):
         self._is_multiple = False
         if not value:
             self.clear()
-            if QT_VERSION >= [5, 3]:
+            if qt_version_info >= (5, 3):
                 self.setPlaceholderText('')
         elif isinstance(value, list):
             self.setPlainText('; '.join(value))
@@ -75,7 +75,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit, Multiple):
 
     def set_multiple(self):
         self._is_multiple = True
-        if QT_VERSION >= [5, 3]:
+        if qt_version_info >= (5, 3):
             self.setPlaceholderText(self.multiple_values)
             self.clear()
         else:
@@ -160,7 +160,7 @@ class Descriptive(QtWidgets.QWidget):
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
         self.setLayout(self.form)
-        if QT_VERSION[0] >= 5:
+        if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
         # construct widgets
         self.widgets = {}
