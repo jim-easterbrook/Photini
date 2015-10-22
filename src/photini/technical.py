@@ -23,16 +23,16 @@ from datetime import (
     timedelta, datetime as pyDateTime, date as pyDate, time as pyTime)
 
 from .metadata import LensSpec
-from .pyqt import Multiple, QtCore, QtGui, QtWidgets
+from .pyqt import multiple, QtCore, QtGui, QtWidgets
 
 
-class DropdownEdit(QtWidgets.QComboBox, Multiple):
+class DropdownEdit(QtWidgets.QComboBox):
     new_value = QtCore.pyqtSignal()
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
         self.addItem('', None)
-        self.addItem(self.multiple)
+        self.addItem(multiple())
         self.currentIndexChanged.connect(self._new_value)
 
     @QtCore.pyqtSlot(int)
@@ -68,9 +68,10 @@ class DropdownEdit(QtWidgets.QComboBox, Multiple):
         return self.currentIndex() == self.count() - 1
 
 
-class FloatEdit(QtWidgets.QLineEdit, Multiple):
+class FloatEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(FloatEdit, self).__init__(*arg, **kw)
+        self.multiple = multiple()
         self.setValidator(DoubleValidator())
         self._is_multiple = False
 
@@ -94,11 +95,12 @@ class FloatEdit(QtWidgets.QLineEdit, Multiple):
         return self._is_multiple and not bool(self.get_value())
 
 
-class DateTimeEdit(QtWidgets.QHBoxLayout, Multiple):
+class DateTimeEdit(QtWidgets.QHBoxLayout):
     new_value = QtCore.pyqtSignal(object)
 
     def __init__(self, is_date, *arg, **kw):
         super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.multiple = multiple()
         self.is_date = is_date
         self.is_none = True
         self.setContentsMargins(0, 0, 0, 0)

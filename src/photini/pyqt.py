@@ -52,15 +52,8 @@ def image_types():
             result.remove(ext)
     return result
 
+def multiple():
+    return QtCore.QCoreApplication.translate('Multiple', '<multiple>')
 
-class Multiple(QtCore.QObject):
-    """Mixin for Qt widgets to provide common translations of
-    "<multiple>" and "<multiple values>".
-
-    """
-    def __init__(self, *arg, **kw):
-        super(Multiple, self).__init__(*arg, **kw)
-        self.multiple = QtCore.QCoreApplication.translate(
-            'Multiple', '<multiple>')
-        self.multiple_values = QtCore.QCoreApplication.translate(
-            'Multiple', '<multiple values>')
+def multiple_values():
+    return QtCore.QCoreApplication.translate('Multiple', '<multiple values>')

@@ -27,7 +27,7 @@ import webbrowser
 import six
 
 from .imagelist import DRAG_MIMETYPE
-from .pyqt import Multiple, Qt, QtCore, QtWebKitWidgets, QtWidgets
+from .pyqt import multiple_values, Qt, QtCore, QtWebKitWidgets, QtWidgets
 from .utils import data_dir
 from . import __version__
 
@@ -70,11 +70,12 @@ class WebView(QtWebKitWidgets.QWebView):
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
 
-class PhotiniMap(QtWidgets.QWidget, Multiple):
+class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, config_store, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.config_store = config_store
         self.image_list = image_list
+        self.multiple_values = multiple_values()
         self.drag_icon = self.get_drag_icon()
         self.location = {}
         self.search_string = None

@@ -21,14 +21,15 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
-from .pyqt import Multiple, Qt, QtCore, QtGui, QtWidgets, qt_version_info
+from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .spelling import SpellingHighlighter
 
-class MultiLineEdit(QtWidgets.QPlainTextEdit, Multiple):
+class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtCore.pyqtSignal()
 
     def __init__(self, spell_check=False, *arg, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
+        self.multiple_values = multiple_values()
         self.setTabChangesFocus(True)
         self._is_multiple = False
         if spell_check:
@@ -104,9 +105,10 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
-class LineEdit(QtWidgets.QLineEdit, Multiple):
+class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(LineEdit, self).__init__(*arg, **kw)
+        self.multiple_values = multiple_values()
         self._is_multiple = False
 
     def set_value(self, value):
