@@ -29,7 +29,7 @@ from six.moves.urllib.parse import unquote
 import appdirs
 
 from .metadata import Metadata, MetadataHandler
-from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets, qt_version_info
+from .pyqt import image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .utils import Busy
 
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -287,7 +287,7 @@ class FlowLayout(QtWidgets.QLayout):
         return y + row_height - rect.y() + bottom
 
 
-class ImageList(QtWidgets.QWidget, ImageTypes):
+class ImageList(QtWidgets.QWidget):
     image_list_changed = QtCore.pyqtSignal()
     new_metadata = QtCore.pyqtSignal(bool)
     selection_changed = QtCore.pyqtSignal(list)
@@ -380,10 +380,10 @@ class ImageList(QtWidgets.QWidget, ImageTypes):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        image_types = ' '.join(['*.' + x for x in self.image_types])
+        types = ' '.join(['*.' + x for x in image_types()])
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.config_store.get('paths', 'images', ''),
-            self.tr("Images ({0});;All files (*)").format(image_types))
+            self.tr("Images ({0});;All files (*)").format(types))
         if qt_version_info >= (5, 0):
             path_list = path_list[0]
         if not path_list:

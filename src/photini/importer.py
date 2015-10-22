@@ -33,21 +33,21 @@ except ImportError:
 
 from .configstore import ConfigStore
 from .metadata import Metadata
-from .pyqt import ImageTypes, Qt, QtCore, QtGui, QtWidgets
+from .pyqt import image_types, Qt, QtCore, QtGui, QtWidgets
 from .utils import Busy
 
-class FolderSource(ImageTypes):
+class FolderSource(object):
     def __init__(self, root):
         super(FolderSource, self).__init__()
         self.root = root
+        self.image_types = ['.' + x for x in image_types()]
 
     def list_files(self):
         result = []
-        image_types = ['.' + x for x in self.image_types]
         for root, dirs, files in os.walk(self.root):
             for name in files:
                 base, ext = os.path.splitext(name)
-                if ext.lower() in image_types:
+                if ext.lower() in self.image_types:
                     result.append(os.path.join(root, name))
         return result
 

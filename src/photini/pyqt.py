@@ -37,24 +37,20 @@ qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
         map(int, QtCore.QT_VERSION_STR.split('.')))
 
-class ImageTypes(QtCore.QObject):
-    """Mixin for Qt widgets to provide list of image file types".
-
-    """
-    def __init__(self, *arg, **kw):
-        super(ImageTypes, self).__init__(*arg, **kw)
-        self.image_types = [
-            'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
-            'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
-            'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
-            ]
-        for fmt in QtGui.QImageReader.supportedImageFormats():
-            ext = fmt.data().decode('utf_8').lower()
-            if ext not in self.image_types:
-                self.image_types.append(ext)
-        for ext in ('ico', 'xcf'):
-            if ext in self.image_types:
-                self.image_types.remove(ext)
+def image_types():
+    result = [
+        'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
+        'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
+        'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
+        ]
+    for fmt in QtGui.QImageReader.supportedImageFormats():
+        ext = fmt.data().decode('utf_8').lower()
+        if ext not in result:
+            result.append(ext)
+    for ext in ('ico', 'xcf'):
+        if ext in result:
+            result.remove(ext)
+    return result
 
 
 class Multiple(QtCore.QObject):
