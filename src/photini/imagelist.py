@@ -238,7 +238,7 @@ class ImageList(QtWidgets.QWidget, ImageTypes):
         self.scroll_area.dropped_images.connect(self.open_file_list)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
         self.thumbnails = QtWidgets.QWidget()
-        self.thumbnails.setLayout(FlowLayout(hSpacing=0, vSpacing=0))
+        self.thumbnails.setLayout(FlowLayout())
         self.scroll_area.setWidget(self.thumbnails)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                         self.scroll_area, self.move_to_prev_thumb)
@@ -355,7 +355,6 @@ class ImageList(QtWidgets.QWidget, ImageTypes):
                 self.path_list.sort(key=self._date_key)
             else:
                 self.path_list.sort()
-            layout = self.thumbnails.layout()
             for path in self.path_list:
                 self.show_thumbnail(self.image[path], False)
         if self.last_selected:
