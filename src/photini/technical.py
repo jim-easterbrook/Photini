@@ -518,7 +518,6 @@ class Technical(QtWidgets.QWidget):
             value = int(value)
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
-            image.pixmap = None
             image.load_thumbnail()
 
     @QtCore.pyqtSlot()

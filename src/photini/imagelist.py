@@ -41,10 +41,18 @@ class Image(QtWidgets.QFrame):
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False
-        self.pixmap = None
         self.thumb_size = thumb_size
+        # read image metadata
         self.metadata = Metadata(self.path)
         self.metadata.new_status.connect(self.show_status)
+        # make 'master' thumbnail
+        self.pixmap = QtGui.QPixmap(self.path)
+        if not self.pixmap.isNull():
+            if max(self.pixmap.width(), self.pixmap.height()) > 300:
+                # store a scaled down version of image to save memory
+                self.pixmap = self.pixmap.scaled(
+                    300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # sub widgets
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
@@ -134,30 +142,24 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
 
     def load_thumbnail(self):
-        if not self.pixmap:
-            self.pixmap = QtGui.QPixmap(self.path)
-            if not self.pixmap.isNull():
-                if max(self.pixmap.width(), self.pixmap.height()) > 300:
-                    # store a scaled down version of image to save memory
-                    self.pixmap = self.pixmap.scaled(
-                        300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                orientation = self.metadata.orientation
-                if orientation and orientation > 1:
-                    # need to rotate and or reflect image
-                    transform = QtGui.QTransform()
-                    if orientation in (3, 4):
-                        transform = transform.rotate(180.0)
-                    elif orientation in (5, 6):
-                        transform = transform.rotate(90.0)
-                    elif orientation in (7, 8):
-                        transform = transform.rotate(-90.0)
-                    if orientation in (2, 4, 5, 7):
-                        transform = transform.scale(-1.0, 1.0)
-                    self.pixmap = self.pixmap.transformed(transform)
         if self.pixmap.isNull():
             self.image.setText(self.tr('Can not\nload\nimage'))
         else:
-            self.image.setPixmap(self.pixmap.scaled(
+            pixmap = self.pixmap
+            orientation = self.metadata.orientation
+            if orientation and orientation > 1:
+                # need to rotate and or reflect image
+                transform = QtGui.QTransform()
+                if orientation in (3, 4):
+                    transform = transform.rotate(180.0)
+                elif orientation in (5, 6):
+                    transform = transform.rotate(90.0)
+                elif orientation in (7, 8):
+                    transform = transform.rotate(-90.0)
+                if orientation in (2, 4, 5, 7):
+                    transform = transform.scale(-1.0, 1.0)
+                pixmap = pixmap.transformed(transform)
+            self.image.setPixmap(pixmap.scaled(
                 self.thumb_size, self.thumb_size,
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
