@@ -65,13 +65,12 @@ class FolderSource(object):
         folder, name = os.path.split(path)
         return {
             'path'      : path,
-            'folder'    : folder,
             'name'      : name,
             'timestamp' : timestamp,
             }
 
-    def copy_file(self, folder, name, dest):
-        shutil.copy2(os.path.join(folder, name), dest)
+    def copy_file(self, info, dest):
+        shutil.copy2(info['path'], dest)
 
 
 class CameraSource(object):
@@ -98,15 +97,14 @@ class CameraSource(object):
         info = self.camera.file_get_info(str(folder), str(name), self.context)
         timestamp = datetime.utcfromtimestamp(info.file.mtime)
         return {
-            'path'      : path,
             'folder'    : folder,
             'name'      : name,
             'timestamp' : timestamp,
             }
 
-    def copy_file(self, folder, name, dest):
+    def copy_file(self, info, dest):
         camera_file = self.camera.file_get(
-            str(folder), str(name), gp.GP_FILE_TYPE_NORMAL, self.context)
+            info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL, self.context)
         camera_file.save(dest)
 
 
@@ -296,7 +294,6 @@ class Importer(QtWidgets.QWidget):
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
         self.path_format.setText(path_format)
-##        self.statusBar().showMessage('Getting file list...')
         self.file_list_widget.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
@@ -412,7 +409,6 @@ class Importer(QtWidgets.QWidget):
                         self._fail()
                         return
                     file_data[info['name']] = info
-    ##        self.statusBar().clearMessage()
         self._new_file_list(file_data)
 
     def _fail(self):
@@ -507,29 +503,26 @@ class Importer(QtWidgets.QWidget):
         if not indexes:
             return
         last_transfer = datetime.min
-        count = 0
         with Busy():
             for idx in indexes:
-                count += 1
                 item = self.file_list_widget.itemFromIndex(idx)
                 name = item.text().split()[0]
                 timestamp = self.file_data[name]['timestamp']
                 dest_path = self.file_data[name]['dest_path']
-                src_folder = self.file_data[name]['folder']
-##                self.statusBar().showMessage(
-##                    'Copying {0:d}/{1:d} {2}'.format(count, len(indexes), dest_path))
-                self.app.processEvents()
                 dest_dir = os.path.dirname(dest_path)
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
                 try:
-                    self.source.copy_file(src_folder, name, dest_path)
+                    self.source.copy_file(self.file_data[name], dest_path)
                 except gp.GPhoto2Error:
                     self._fail()
                     return
-                self.image_list.open_file_list([dest_path])
-                last_transfer = max(last_transfer, timestamp)
-                self.config_store.set(self.config_section, 'last_transfer',
-                                      last_transfer.isoformat(' '))
-##        self.statusBar().clearMessage()
+                self.image_list.open_file(dest_path)
+                if last_transfer < timestamp:
+                    last_transfer = timestamp
+                    last_path = dest_path
+                self.app.processEvents()
+        self.config_store.set(self.config_section, 'last_transfer',
+                              last_transfer.isoformat(' '))
+        self.image_list.done_opening(last_path)
         self.show_file_list()

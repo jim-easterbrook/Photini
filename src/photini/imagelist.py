@@ -35,16 +35,17 @@ from .pyqt import (
 DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtWidgets.QFrame):
-    def __init__(self, path, image_list, thumb_size=80, parent=None):
-        super(Image, self).__init__(parent)
+    def __init__(self, path, image_list, thumb_size=80, *arg, **kw):
+        super(Image, self).__init__(*arg, **kw)
         self.path = path
         self.image_list = image_list
         self.name = os.path.splitext(os.path.basename(self.path))[0]
         self.selected = False
         self.thumb_size = thumb_size
-        # read image metadata
+        # read image
         with open(self.path, 'rb') as pf:
             image_data = pf.read()
+        # read metadata
         self.metadata = Metadata(self.path, image_data)
         self.metadata.new_status.connect(self.show_status)
         # make 'master' thumbnail
@@ -401,17 +402,22 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(list)
     def open_file_list(self, path_list):
-        self.config_store.set(
-            'paths', 'images', os.path.dirname(path_list[0]))
         with Busy():
             for path in path_list:
-                path = os.path.normpath(path)
-                if path in self.path_list:
-                    continue
-                self.path_list.append(path)
-                image = Image(path, self, thumb_size=self.thumb_size)
-                self.image[path] = image
-                self.show_thumbnail(image)
+                self.open_file(path)
+        self.done_opening(path_list[-1])
+
+    def open_file(self, path):
+        path = os.path.normpath(path)
+        if path in self.path_list:
+            return
+        self.path_list.append(path)
+        image = Image(path, self, thumb_size=self.thumb_size)
+        self.image[path] = image
+        self.show_thumbnail(image)
+
+    def done_opening(self, path):
+        self.config_store.set('paths', 'images', os.path.dirname(path))
         self._sort_thumbnails()
 
     def _date_key(self, idx):
