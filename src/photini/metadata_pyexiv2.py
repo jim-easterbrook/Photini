@@ -22,7 +22,7 @@ import logging
 import pyexiv2
 
 class MetadataHandler(object):
-    def __init__(self, path):
+    def __init__(self, path, image_data=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self._md = pyexiv2.ImageMetadata(path)
         self._md.read()

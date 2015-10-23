@@ -423,8 +423,8 @@ class Metadata(QtCore.QObject):
         'software'       : {},
         'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
         }
-    def __init__(self, path, parent=None):
-        QtCore.QObject.__init__(self, parent)
+    def __init__(self, path, image_data, parent=None):
+        super(Metadata, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
         # create metadata handlers for image file and/or sidecar
         self._path = path
@@ -434,7 +434,7 @@ class Metadata(QtCore.QObject):
         else:
             self._sc = None
         try:
-            self._if = MetadataHandler(path)
+            self._if = MetadataHandler(path, image_data)
         except Exception:
             self._if = None
             if not self._sc:

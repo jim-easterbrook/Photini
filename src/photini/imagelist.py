@@ -43,10 +43,13 @@ class Image(QtWidgets.QFrame):
         self.selected = False
         self.thumb_size = thumb_size
         # read image metadata
-        self.metadata = Metadata(self.path)
+        with open(self.path, 'rb') as pf:
+            image_data = pf.read()
+        self.metadata = Metadata(self.path, image_data)
         self.metadata.new_status.connect(self.show_status)
         # make 'master' thumbnail
-        self.pixmap = QtGui.QPixmap(self.path)
+        self.pixmap = QtGui.QPixmap()
+        self.pixmap.loadFromData(image_data)
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 300:
                 # store a scaled down version of image to save memory

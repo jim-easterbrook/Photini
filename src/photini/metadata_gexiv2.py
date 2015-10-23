@@ -33,11 +33,14 @@ import six
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
 class MetadataHandler(object):
-    def __init__(self, path):
+    def __init__(self, path, image_data=None):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.path = path
         self._md = GExiv2.Metadata()
-        self._md.open_path(self.path)
+        if image_data:
+            self._md.open_buf(image_data)
+        else:
+            self._md.open_path(self.path)
         # adopt some GExiv2.Metadata methods
         self.get_exif_tags    = self._md.get_exif_tags
         self.get_iptc_tags    = self._md.get_iptc_tags
