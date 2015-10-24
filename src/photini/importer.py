@@ -217,6 +217,7 @@ class Importer(QtWidgets.QWidget):
         self.file_list = []
         self.source = None
         self.config_section = None
+        self.copying = False
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -383,10 +384,22 @@ class Importer(QtWidgets.QWidget):
             self.source_selector.setCurrentIndex(0)
 
     def do_not_close(self):
-        return False
+        if not self.copying:
+            return False
+        dialog = QtWidgets.QMessageBox()
+        dialog.setWindowTitle(self.tr('Photini: import in progress'))
+        dialog.setText(self.tr('<h3>Importing photos has not finished.</h3>'))
+        dialog.setInformativeText(
+            self.tr('Closing now will terminate the import.'))
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setStandardButtons(
+            QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+        result = dialog.exec_()
+        return result == QtWidgets.QMessageBox.Cancel
 
     def shutdown(self):
-        pass
+        self.copying = False
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -503,8 +516,11 @@ class Importer(QtWidgets.QWidget):
         if not indexes:
             return
         last_transfer = datetime.min
+        self.copying = True
         with Busy():
             for idx in indexes:
+                if not self.copying:
+                    break
                 item = self.file_list_widget.itemFromIndex(idx)
                 name = item.text().split()[0]
                 timestamp = self.file_data[name]['timestamp']
@@ -522,6 +538,7 @@ class Importer(QtWidgets.QWidget):
                     last_transfer = timestamp
                     last_path = dest_path
                 self.app.processEvents()
+        self.copying = False
         self.config_store.set(self.config_section, 'last_transfer',
                               last_transfer.isoformat(' '))
         self.image_list.done_opening(last_path)
