@@ -22,9 +22,12 @@
 from datetime import datetime
 import logging
 import os
+import six
+from six.moves.queue import Empty, Queue
 import re
 import shutil
 import sys
+import threading
 
 try:
     import gphoto2 as gp
@@ -202,31 +205,34 @@ class PathFormatValidator(QtGui.QValidator):
         return os.path.abspath(inp)
 
 
-class ImportWorker(QtCore.QObject):
-    new_import = QtCore.pyqtSignal(object, object)
+class ImportWorker(threading.Thread):
+    def __init__(self, source, item_list, out_q):
+        super(ImportWorker, self).__init__()
+        self.source = source
+        self.item_list = item_list
+        self.out_q = out_q
+        self.running = True
 
-    @QtCore.pyqtSlot(object, object)
-    def do_import(self, source, item_list):
-        self.copying = True
-        for item in item_list:
-            if not self.copying:
+    def run(self):
+        for item in self.item_list:
+            if not self.running:
                 break
             dest_path = item['dest_path']
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
             try:
-                camera_file = source.copy_file(item, dest_path)
+                camera_file = self.source.copy_file(item, dest_path)
             except gp.GPhoto2Error:
+                self.out_q.put((None, None))
                 break
-            self.new_import.emit(item, camera_file)
-        self.copying = False
-        self.new_import.emit(None, None)
+            self.out_q.put((item, camera_file))
+
+    def abort(self):
+        self.running = False
 
 
 class Importer(QtWidgets.QWidget):
-    do_import = QtCore.pyqtSignal(object, object)
-
     def __init__(self, config_store, image_list, parent=None):
         super(Importer, self).__init__(parent)
         self.config_store = config_store
@@ -234,13 +240,13 @@ class Importer(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QGridLayout())
         form = QtWidgets.QFormLayout()
         form.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        self.app = QtWidgets.QApplication.instance()
         self.camera_lister = CameraLister()
         self.nm = NameMangler()
         self.file_data = {}
         self.file_list = []
         self.source = None
         self.config_section = None
+        self.import_worker = None
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -285,14 +291,6 @@ class Importer(QtWidgets.QWidget):
         copy_selected.clicked.connect(self.copy_selected)
         buttons.addWidget(copy_selected)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
-        # create separate thread to upload images
-        self.import_thread = QtCore.QThread()
-        self.import_worker = ImportWorker()
-        self.import_worker.copying = False
-        self.import_worker.moveToThread(self.import_thread)
-        self.do_import.connect(self.import_worker.do_import)
-        self.import_worker.new_import.connect(self.new_import)
-        self.import_thread.start()
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
         if sys.platform == 'win32':
@@ -415,7 +413,7 @@ class Importer(QtWidgets.QWidget):
             self.source_selector.setCurrentIndex(0)
 
     def do_not_close(self):
-        if not self.import_worker.copying:
+        if not self.import_worker:
             return False
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: import in progress'))
@@ -430,10 +428,8 @@ class Importer(QtWidgets.QWidget):
         return result == QtWidgets.QMessageBox.Cancel
 
     def shutdown(self):
-        self.import_worker.new_import.disconnect()
-        self.import_worker.copying = False
-        self.import_thread.quit()
-        self.import_thread.wait()
+        if self.import_worker:
+            self.import_worker.abort()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -552,24 +548,39 @@ class Importer(QtWidgets.QWidget):
             copy_list.append(self.file_data[name])
         if not copy_list:
             return
-        self.last_transfer = datetime.min
         self.setEnabled(False)
-        self.do_import.emit(self.source, copy_list)
-
-    @QtCore.pyqtSlot(object, object)
-    def new_import(self, item, camera_file):
-        if not item:
-            self.setEnabled(True)
+        # create separate thread to import images
+        item_queue = Queue()
+        self.import_worker = ImportWorker(self.source, copy_list, item_queue)
+        self.import_worker.start()
+        last_transfer = datetime.min
+        last_path = None
+        while self.import_worker.is_alive():
+            QtWidgets.QApplication.flush()
+            QtWidgets.QApplication.processEvents()
+            if not self.isVisible():
+                # user closed program
+                return
+            if item_queue.empty():
+                continue
+            item, camera_file = item_queue.get()
+            if not item:
+                # import failed
+                self._fail()
+                break
+            timestamp = item['timestamp']
+            dest_path = item['dest_path']
+            if camera_file:
+                camera_file.save(dest_path)
+            self.image_list.open_file(dest_path)
+            if last_transfer < timestamp:
+                last_transfer = timestamp
+                last_path = dest_path
+        if last_path:
             self.config_store.set(self.config_section, 'last_transfer',
-                                  self.last_transfer.isoformat(' '))
-            self.image_list.done_opening(self.last_path)
-            self.show_file_list()
-            return
-        timestamp = item['timestamp']
-        dest_path = item['dest_path']
-        if camera_file:
-            camera_file.save(dest_path)
-        self.image_list.open_file(dest_path)
-        if self.last_transfer < timestamp:
-            self.last_transfer = timestamp
-            self.last_path = dest_path
+                                  last_transfer.isoformat(' '))
+            self.image_list.done_opening(last_path)
+        self.show_file_list()
+        self.import_worker.join()
+        self.import_worker = None
+        self.setEnabled(True)
