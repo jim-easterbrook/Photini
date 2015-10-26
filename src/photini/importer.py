@@ -205,34 +205,29 @@ class PathFormatValidator(QtGui.QValidator):
         return os.path.abspath(inp)
 
 
-class ImportWorker(threading.Thread):
-    def __init__(self, source, item_list, out_q):
+class ImportWorker(QtCore.QObject):
+    def __init__(self, source, out_q):
         super(ImportWorker, self).__init__()
         self.source = source
-        self.item_list = item_list
         self.out_q = out_q
-        self.running = True
 
-    def run(self):
-        for item in self.item_list:
-            if not self.running:
-                break
-            dest_path = item['dest_path']
-            dest_dir = os.path.dirname(dest_path)
-            if not os.path.isdir(dest_dir):
-                os.makedirs(dest_dir)
-            try:
-                camera_file = self.source.copy_file(item, dest_path)
-            except gp.GPhoto2Error:
-                self.out_q.put((None, None))
-                break
-            self.out_q.put((item, camera_file))
-
-    def abort(self):
-        self.running = False
+    @QtCore.pyqtSlot(object)
+    def import_file(self, item):
+        dest_path = item['dest_path']
+        dest_dir = os.path.dirname(dest_path)
+        if not os.path.isdir(dest_dir):
+            os.makedirs(dest_dir)
+        try:
+            camera_file = self.source.copy_file(item, dest_path)
+        except gp.GPhoto2Error:
+            self.out_q.put((None, None))
+            return
+        self.out_q.put((item, camera_file))
 
 
 class Importer(QtWidgets.QWidget):
+    import_file = QtCore.pyqtSignal(object)
+
     def __init__(self, config_store, image_list, parent=None):
         super(Importer, self).__init__(parent)
         self.config_store = config_store
@@ -246,7 +241,7 @@ class Importer(QtWidgets.QWidget):
         self.file_list = []
         self.source = None
         self.config_section = None
-        self.import_worker = None
+        self.worker_thread = None
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -413,7 +408,7 @@ class Importer(QtWidgets.QWidget):
             self.source_selector.setCurrentIndex(0)
 
     def do_not_close(self):
-        if not self.import_worker:
+        if not self.worker_thread:
             return False
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: import in progress'))
@@ -428,8 +423,9 @@ class Importer(QtWidgets.QWidget):
         return result == QtWidgets.QMessageBox.Cancel
 
     def shutdown(self):
-        if self.import_worker:
-            self.import_worker.abort()
+        if self.worker_thread:
+            self.worker_thread.quit()
+            self.worker_thread.wait()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -551,36 +547,46 @@ class Importer(QtWidgets.QWidget):
         self.setEnabled(False)
         # create separate thread to import images
         item_queue = Queue()
-        self.import_worker = ImportWorker(self.source, copy_list, item_queue)
-        self.import_worker.start()
+        self.worker_thread = QtCore.QThread()
+        import_worker = ImportWorker(self.source, item_queue)
+        import_worker.moveToThread(self.worker_thread)
+        self.import_file.connect(import_worker.import_file)
+        self.worker_thread.start()
         last_transfer = datetime.min
         last_path = None
-        while self.import_worker.is_alive():
-            QtWidgets.QApplication.flush()
+        self.import_file.emit(copy_list.pop(0))
+        while True:
             QtWidgets.QApplication.processEvents()
-            if not self.isVisible():
-                # user closed program
+            if not self.worker_thread.isRunning():
+                # user has closed program
                 return
             if item_queue.empty():
                 continue
             item, camera_file = item_queue.get()
-            if not item:
+            if item is None:
                 # import failed
                 self._fail()
                 break
             timestamp = item['timestamp']
             dest_path = item['dest_path']
-            if camera_file:
-                camera_file.save(dest_path)
-            self.image_list.open_file(dest_path)
             if last_transfer < timestamp:
                 last_transfer = timestamp
                 last_path = dest_path
+            if copy_list:
+                # start fetching next file
+                self.import_file.emit(copy_list[0])
+            if camera_file:
+                camera_file.save(dest_path)
+            self.image_list.open_file(dest_path)
+            if not copy_list:
+                break
+            copy_list.pop(0)
         if last_path:
             self.config_store.set(self.config_section, 'last_transfer',
                                   last_transfer.isoformat(' '))
             self.image_list.done_opening(last_path)
         self.show_file_list()
-        self.import_worker.join()
-        self.import_worker = None
+        self.worker_thread.quit()
+        self.worker_thread.wait()
+        self.worker_thread = None
         self.setEnabled(True)
