@@ -58,14 +58,18 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtCore.pyqtSignal(float)
     upload_finished = QtCore.pyqtSignal(object, str)
 
-    @QtCore.pyqtSlot(object, object)
-    def init_upload(self, session, params):
+    def __init__(self, session, params):
+        super(UploadWorker, self).__init__()
         self.session = session
         self.params = params
+        self.fileobj = None
+        self.thread = QtCore.QThread()
+        self.moveToThread(self.thread)
 
     def abort_upload(self):
         if self.fileobj:
             self.fileobj.close()
+            self.fileobj = None
 
     @QtCore.pyqtSlot(object, bool)
     def upload_file(self, image, convert):
@@ -77,14 +81,15 @@ class UploadWorker(QtCore.QObject):
             self.fileobj = FileObjWithCallback(f, self.upload_progress.emit)
             error = self.session.do_upload(
                 self.fileobj, imghdr.what(path), image, self.params)
-        self.fileobj = None
         if convert:
             os.unlink(path)
-        self.upload_finished.emit(image, error)
+        if self.fileobj:
+            self.fileobj = None
+            # upload wasn't aborted
+            self.upload_finished.emit(image, error)
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    init_upload = QtCore.pyqtSignal(object, object)
     upload_file = QtCore.pyqtSignal(object, bool)
 
     def __init__(self, upload_config, session_factory, image_list, parent):
@@ -93,10 +98,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.session_factory = session_factory
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
-        self.upload_list = []
         self.session = self.session_factory()
         self.upload_config.set_session(self.session)
         self.initialised = False
+        self.upload_worker = None
         # 'service' specific widget
         self.layout().addWidget(self.upload_config, 0, 0, 1, 3)
         # upload button
@@ -113,23 +118,12 @@ class PhotiniUploader(QtWidgets.QWidget):
         # adjust spacing
         self.layout().setColumnStretch(1, 1)
         self.layout().setRowStretch(0, 1)
-        # create separate thread to upload images
-        self.upload_thread = QtCore.QThread()
-        self.upload_worker = UploadWorker()
-        self.upload_worker.moveToThread(self.upload_thread)
-        self.init_upload.connect(self.upload_worker.init_upload)
-        self.upload_file.connect(self.upload_worker.upload_file)
-        self.upload_worker.upload_progress.connect(self.total_progress.setValue)
-        self.upload_worker.upload_finished.connect(self.upload_finished)
-        self.upload_thread.start()
 
     def shutdown(self):
-        self.upload_worker.upload_progress.disconnect()
-        self.upload_worker.upload_finished.disconnect()
-        if self.upload_button.isChecked():
+        if self.upload_worker:
             self.upload_worker.abort_upload()
-        self.upload_thread.quit()
-        self.upload_thread.wait()
+            self.upload_worker.thread.quit()
+            self.upload_worker.thread.wait()
 
     def refresh(self):
         if self.initialised and self.session.authorise():
@@ -144,7 +138,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.initialised = True
 
     def do_not_close(self):
-        if not self.upload_button.isChecked():
+        if not self.upload_worker:
             return False
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: upload in progress'))
@@ -161,12 +155,11 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def stop_upload(self):
-        if self.upload_list:
-            # cancel upload currently in progress
-            self.upload_list = []
-            self.upload_button.setEnabled(False)
-            # invoke method in this thread as worker thread is busy
+        if self.upload_worker:
+            # invoke worker method in this thread as worker thread is busy
             self.upload_worker.abort_upload()
+            # reset GUI
+            self.upload_finished(None, '')
 
     @QtCore.pyqtSlot()
     def start_upload(self):
@@ -175,7 +168,6 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         # make list of items to upload
         self.upload_list = []
-        self.uploads_done = []
         for image in self.image_list.get_selected_images():
             image_type = imghdr.what(image.path)
             if image_type in self.upload_config.convert['types']:
@@ -198,9 +190,14 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
-        self.upload_config.upload_started()
-        self.init_upload.emit(
+        self.upload_worker = UploadWorker(
             self.session, self.upload_config.get_upload_params())
+        self.upload_file.connect(self.upload_worker.upload_file)
+        self.upload_worker.upload_progress.connect(self.total_progress.setValue)
+        self.upload_worker.upload_finished.connect(self.upload_finished)
+        self.upload_worker.thread.start()
+        self.upload_config.upload_started()
+        self.uploads_done = 0
         self.next_upload()
         # we've passed the session object to a separate thread, so
         # create a new one for safety
@@ -209,20 +206,17 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_config.set_session(self.session)
 
     def next_upload(self):
-        image, convert = self.upload_list[len(self.uploads_done)]
+        image, convert = self.upload_list[self.uploads_done]
         self.total_progress.setFormat('{} ({}/{}) %p%'.format(
             os.path.basename(image.path),
-            len(self.uploads_done) + 1, len(self.upload_list)))
+            1 + self.uploads_done, len(self.upload_list)))
         self.total_progress.setValue(0)
         QtWidgets.QApplication.processEvents()
         self.upload_file.emit(image, convert)
 
     @QtCore.pyqtSlot(object, str)
     def upload_finished(self, image, error):
-        if error and not self.upload_button.isChecked():
-            # user aborted upload
-            pass
-        elif error:
+        if error:
             dialog = QtWidgets.QMessageBox()
             dialog.setWindowTitle(self.tr('Photini: upload error'))
             dialog.setText(self.tr('<h3>File "{}" upload failed.</h3>').format(
@@ -235,20 +229,24 @@ class PhotiniUploader(QtWidgets.QWidget):
             if dialog.exec_() == QtWidgets.QMessageBox.Abort:
                 self.upload_button.setChecked(False)
         else:
-            self.uploads_done.append(image)
-        if self.upload_button.isChecked() and len(self.uploads_done) < len(self.upload_list):
-            # start uploading next file
+            self.uploads_done += 1
+        if (self.upload_button.isChecked() and
+                    self.uploads_done < len(self.upload_list)):
+            # start uploading next file (or retry same file)
             self.next_upload()
-        else:
-            self.init_upload.emit(None, None)
-            self.upload_list = []
-            self.uploads_done = []
-            self.upload_button.setChecked(False)
-            self.total_progress.setValue(0)
-            self.total_progress.setFormat('%p%')
-            self.upload_config.upload_finished()
-            # enable or disable upload button
-            self.new_selection(self.image_list.get_selected_images())
+            return
+        self.upload_button.setChecked(False)
+        self.total_progress.setValue(0)
+        self.total_progress.setFormat('%p%')
+        self.upload_config.upload_finished()
+        self.upload_file.disconnect()
+        self.upload_worker.upload_progress.disconnect()
+        self.upload_worker.upload_finished.disconnect()
+        self.upload_worker.thread.quit()
+        self.upload_worker.thread.wait()
+        self.upload_worker = None
+        # enable or disable upload button
+        self.new_selection(self.image_list.get_selected_images())
 
     def auth_dialog(self, auth_url):
         if webbrowser.open(auth_url, new=2, autoraise=0):
