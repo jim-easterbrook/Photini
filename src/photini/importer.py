@@ -210,6 +210,8 @@ class ImportWorker(QtCore.QObject):
         super(ImportWorker, self).__init__()
         self.source = source
         self.out_q = out_q
+        self.thread = QtCore.QThread()
+        self.moveToThread(self.thread)
 
     @QtCore.pyqtSlot(object)
     def import_file(self, item):
@@ -241,7 +243,7 @@ class Importer(QtWidgets.QWidget):
         self.file_list = []
         self.source = None
         self.config_section = None
-        self.worker_thread = None
+        self.import_worker = None
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -409,7 +411,7 @@ class Importer(QtWidgets.QWidget):
             self.source_selector.setCurrentIndex(0)
 
     def do_not_close(self):
-        if not self.worker_thread:
+        if not self.import_worker:
             return False
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: import in progress'))
@@ -424,9 +426,9 @@ class Importer(QtWidgets.QWidget):
         return result == QtWidgets.QMessageBox.Cancel
 
     def shutdown(self):
-        if self.worker_thread:
-            self.worker_thread.quit()
-            self.worker_thread.wait()
+        if self.import_worker:
+            self.import_worker.thread.quit()
+            self.import_worker.thread.wait()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -539,7 +541,7 @@ class Importer(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def copy_selected(self):
-        if self.worker_thread:
+        if self.import_worker:
             # user has clicked while upload is still cancelling
             self.copy_button.setChecked(False)
             return
@@ -552,17 +554,15 @@ class Importer(QtWidgets.QWidget):
             return
         # create separate thread to import images
         item_queue = Queue()
-        self.worker_thread = QtCore.QThread()
-        import_worker = ImportWorker(self.source, item_queue)
-        import_worker.moveToThread(self.worker_thread)
-        self.import_file.connect(import_worker.import_file)
-        self.worker_thread.start()
+        self.import_worker = ImportWorker(self.source, item_queue)
+        self.import_file.connect(self.import_worker.import_file)
+        self.import_worker.thread.start()
         last_transfer = datetime.min
         last_path = None
         self.import_file.emit(copy_list.pop(0))
         while self.copy_button.isChecked():
             QtWidgets.QApplication.processEvents()
-            if not self.worker_thread.isRunning():
+            if not self.import_worker.thread.isRunning():
                 # user has closed program
                 return
             if item_queue.empty():
@@ -592,7 +592,7 @@ class Importer(QtWidgets.QWidget):
             self.image_list.done_opening(last_path)
         self.show_file_list()
         self.import_file.disconnect()
-        self.worker_thread.quit()
-        self.worker_thread.wait()
-        self.worker_thread = None
+        self.import_worker.thread.quit()
+        self.import_worker.thread.wait()
+        self.import_worker = None
         self.copy_button.setChecked(False)
