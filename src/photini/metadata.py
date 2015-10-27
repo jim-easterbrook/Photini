@@ -253,8 +253,10 @@ _data_type = {
     'Exif.Image.FNumber'                 : 'rational',
     'Exif.Image.FocalLength'             : 'rational',
     'Exif.Image.ImageDescription'        : 'string',
+    'Exif.Image.Model'                   : 'string',
     'Exif.Image.Orientation'             : 'int',
     'Exif.Image.ProcessingSoftware'      : 'string',
+    'Exif.Image.UniqueCameraModel'       : 'string',
     'Exif.Photo.ApertureValue'           : 'APEX_aperture',
     'Exif.Photo.DateTimeDigitized'       : 'datetime',
     'Exif.Photo.DateTimeOriginal'        : 'datetime',
@@ -316,8 +318,8 @@ def sanitise(name, value):
         if not isinstance(value, Fraction):
             value = Fraction(value).limit_denominator(1000000)
         return value
-    if name in ('copyright', 'description', 'lens_make', 'lens_model',
-                'lens_serial', 'software', 'title'):
+    if name in ('camera_model', 'copyright', 'description',
+                'lens_make', 'lens_model', 'lens_serial', 'software', 'title'):
         # single string
         value = value.strip()
         if value:
@@ -358,6 +360,7 @@ class Metadata(QtCore.QObject):
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
         'aperture'       : {'Exif' : 'Exif.Photo.FNumber'},
+        'camera_model'   : {'Exif' : 'Exif.Image.Model'},
         'copyright'      : {'Exif' : 'Exif.Image.Copyright',
                             'Xmp'  : 'Xmp.dc.rights',
                             'Iptc' : 'Iptc.Application2.Copyright'},
@@ -398,6 +401,7 @@ class Metadata(QtCore.QObject):
                                       'Exif.Photo.ApertureValue',),
                             'Xmp'  : ('Xmp.exif.FNumber',
                                       'Xmp.exif.ApertureValue')},
+        'camera_model'   : {'Exif' : ('Exif.Image.UniqueCameraModel',)},
         'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
         'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
         'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},

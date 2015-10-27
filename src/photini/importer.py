@@ -66,6 +66,7 @@ class FolderSource(object):
             timestamp = timestamp.datetime()
         folder, name = os.path.split(path)
         return {
+            'camera'    : metadata.camera_model,
             'path'      : path,
             'name'      : name,
             'timestamp' : timestamp,
@@ -80,6 +81,7 @@ class CameraSource(object):
     def __init__(self, camera, context):
         self.camera = camera
         self.context = context
+        self.camera_model = self.camera.get_abilities().model
 
     def list_files(self, path='/'):
         result = []
@@ -100,6 +102,7 @@ class CameraSource(object):
         info = self.camera.file_get_info(str(folder), str(name), self.context)
         timestamp = datetime.utcfromtimestamp(info.file.mtime)
         return {
+            'camera'    : self.camera_model,
             'folder'    : folder,
             'name'      : name,
             'timestamp' : timestamp,
@@ -167,15 +170,16 @@ class NameMangler(QtCore.QObject):
             format_string = parts[2]
         self.refresh_example()
 
-    def set_example(self, name, timestamp):
-        self.example = name, timestamp
+    def set_example(self, example):
+        self.example = example
         self.refresh_example()
 
     def refresh_example(self):
         if self.format_string and self.example:
-            self.new_example.emit(self.transform(*self.example))
+            self.new_example.emit(self.transform(self.example))
 
-    def transform(self, name, timestamp):
+    def transform(self, file_data):
+        name = file_data['name']
         subst = {'name': name}
         match = self.number_parser.match(name)
         if match:
@@ -183,6 +187,8 @@ class NameMangler(QtCore.QObject):
         else:
             subst['number'] = ''
         subst['root'], subst['ext'] = os.path.splitext(name)
+        subst['camera'] = file_data['camera'] or 'unknown_camera'
+        subst['camera'] = subst['camera'].replace(' ', '_')
         result = ''
         # process (...) parts first
         for left, right in self.parts:
@@ -192,7 +198,7 @@ class NameMangler(QtCore.QObject):
             else:
                 result += right
         # then do timestamp
-        return timestamp.strftime(result)
+        return file_data['timestamp'].strftime(result)
 
 
 class PathFormatValidator(QtGui.QValidator):
@@ -469,22 +475,24 @@ class Importer(QtWidgets.QWidget):
             self.file_list.sort()
         self.show_file_list()
         if self.file_list:
-            name = self.file_list[-1]
-            timestamp = self.file_data[name]['timestamp']
+            example = self.file_data[self.file_list[-1]]
         else:
-            name = 'IMG_9999.JPG'
-            timestamp = datetime.now()
-        self.nm.set_example(name, timestamp)
+            example = {
+                'camera'    : None,
+                'name'      : 'IMG_9999.JPG',
+                'timestamp' : datetime.now(),
+                }
+        self.nm.set_example(example)
 
     def show_file_list(self):
         self.file_list_widget.clear()
         first_active = None
         item = None
         for name in self.file_list:
-            timestamp = self.file_data[name]['timestamp']
-            dest_path = self.nm.transform(name, timestamp)
-            self.file_data[name]['dest_path'] = dest_path
-            item = QtWidgets.QListWidgetItem('{0} -> {1}'.format(name, dest_path))
+            file_data = self.file_data[name]
+            dest_path = self.nm.transform(file_data)
+            file_data['dest_path'] = dest_path
+            item = QtWidgets.QListWidgetItem(name + ' -> ' + dest_path)
             if os.path.exists(dest_path):
                 item.setFlags(Qt.NoItemFlags)
             else:
