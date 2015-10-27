@@ -591,6 +591,7 @@ class Importer(QtWidgets.QWidget):
                                   last_transfer.isoformat(' '))
             self.image_list.done_opening(last_path)
         self.show_file_list()
+        self.import_file.disconnect()
         self.worker_thread.quit()
         self.worker_thread.wait()
         self.worker_thread = None
