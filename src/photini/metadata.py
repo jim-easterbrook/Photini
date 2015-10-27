@@ -440,9 +440,6 @@ class Metadata(QtCore.QObject):
             if not self._sc:
                 self.create_side_car()
         self._unsaved = False
-        # read existing metadata and add it to object attributes
-        for name in self._primary_tags:
-            super(Metadata, self).__setattr__(name, self._read_metadata(name))
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -692,7 +689,9 @@ class Metadata(QtCore.QObject):
             value = self._read_xmp(tag)
         return sanitise(name, value)
 
-    def _read_metadata(self, name):
+    def __getattr__(self, name):
+        if name not in self._primary_tags:
+            return super(Metadata, self).__getattr__(name)
         # get values from all 3 families
         value = {'Exif': None, 'Iptc': None, 'Xmp': None}
         for family in self._primary_tags[name]:
@@ -757,6 +756,9 @@ class Metadata(QtCore.QObject):
                 self.logger.warning(
                     'ignoring conflicting %s data %s from %s',
                     name, str(other), family)
+        # add value to object attributes so __getattr__ doesn't get
+        # called again
+        super(Metadata, self).__setattr__(name, result)
         return result
 
     def _write_exif(self, tag, value):
