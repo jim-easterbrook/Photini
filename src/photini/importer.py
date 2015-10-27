@@ -35,7 +35,7 @@ except ImportError:
     gp = None
 
 from .metadata import Metadata
-from .pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets
+from .pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
 class FolderSource(object):
     def __init__(self, root):
@@ -282,9 +282,10 @@ class Importer(QtWidgets.QWidget):
         select_new = QtWidgets.QPushButton(self.tr('Select\nnew'))
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
-        copy_selected = QtWidgets.QPushButton(self.tr('Copy\nphotos'))
-        copy_selected.clicked.connect(self.copy_selected)
-        buttons.addWidget(copy_selected)
+        self.copy_button = StartStopButton(self.tr('Copy\nphotos'),
+                                           self.tr('Stop\nimport'))
+        self.copy_button.click_start.connect(self.copy_selected)
+        buttons.addWidget(self.copy_button)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
@@ -538,13 +539,17 @@ class Importer(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def copy_selected(self):
+        if self.worker_thread:
+            # user has clicked while upload is still cancelling
+            self.copy_button.setChecked(False)
+            return
         copy_list = []
         for item in self.file_list_widget.selectedItems():
             name = item.text().split()[0]
             copy_list.append(self.file_data[name])
         if not copy_list:
+            self.copy_button.setChecked(False)
             return
-        self.setEnabled(False)
         # create separate thread to import images
         item_queue = Queue()
         self.worker_thread = QtCore.QThread()
@@ -555,7 +560,7 @@ class Importer(QtWidgets.QWidget):
         last_transfer = datetime.min
         last_path = None
         self.import_file.emit(copy_list.pop(0))
-        while True:
+        while self.copy_button.isChecked():
             QtWidgets.QApplication.processEvents()
             if not self.worker_thread.isRunning():
                 # user has closed program
@@ -589,4 +594,4 @@ class Importer(QtWidgets.QWidget):
         self.worker_thread.quit()
         self.worker_thread.wait()
         self.worker_thread = None
-        self.setEnabled(True)
+        self.copy_button.setChecked(False)

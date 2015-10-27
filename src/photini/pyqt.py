@@ -65,3 +65,39 @@ class Busy(object):
 
     def __exit__(self, type, value, traceback):
         QtWidgets.QApplication.restoreOverrideCursor()
+
+
+class StartStopButton(QtWidgets.QPushButton):
+    click_start = QtCore.pyqtSignal()
+    click_stop = QtCore.pyqtSignal()
+
+    def __init__(self, start_text, stop_text, *arg, **kw):
+        super(StartStopButton, self).__init__(*arg, **kw)
+        self.start_text = start_text
+        self.stop_text = stop_text
+        self.setCheckable(True)
+        self.toggled.connect(self.toggle_text)
+        self.clicked.connect(self.do_clicked)
+        # get a size big enough for either text
+        self.setText(self.stop_text)
+        stop_size = super(StartStopButton, self).sizeHint()
+        self.setText(self.start_text)
+        start_size = super(StartStopButton, self).sizeHint()
+        self.minimum_size = stop_size.expandedTo(start_size)
+
+    def sizeHint(self):
+        return self.minimum_size
+
+    @QtCore.pyqtSlot(bool)
+    def toggle_text(self, checked):
+        if checked:
+            self.setText(self.stop_text)
+        else:
+            self.setText(self.start_text)
+
+    @QtCore.pyqtSlot(bool)
+    def do_clicked(self, checked):
+        if checked:
+            self.click_start.emit()
+        else:
+            self.click_stop.emit()
