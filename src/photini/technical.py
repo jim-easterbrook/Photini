@@ -95,12 +95,54 @@ class FloatEdit(QtWidgets.QLineEdit):
         return self._is_multiple and not bool(self.get_value())
 
 
-class QDateTimeEditEx(QtWidgets.QDateTimeEdit):
+class DateTimeEdit(QtWidgets.QDateTimeEdit):
+    new_value = QtCore.pyqtSignal(object)
+
+    def __init__(self, is_date, *arg, **kw):
+        super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.is_date = is_date
+        self.is_none = True
+        self.multiple = multiple()
+        if self.is_date:
+            self.setDisplayFormat('yyyy-MM-dd')
+            self.setCalendarPopup(True)
+            self.setDate(QtCore.QDate.currentDate())
+        else:
+            self.setDisplayFormat('hh:mm:ss.zzz')
+        self.editingFinished.connect(self.editing_finished)
+
     def focusInEvent(self, event):
         if self.dateTime() == self.minimumDateTime():
             self.setDate(QtCore.QDate.currentDate())
             self.setSpecialValueText('')
-        super(QDateTimeEditEx, self).focusInEvent(event)
+        super(DateTimeEdit, self).focusInEvent(event)
+
+    def get_value(self):
+        if self.is_none:
+            return None
+        if self.is_date:
+            return self.date()
+        return self.time()
+
+    def set_value(self, value):
+        if value is None:
+            self.is_none = True
+            self.set_special(' ')
+        else:
+            self.is_none = False
+            self.set_normal()
+            if self.is_date:
+                self.setDate(value)
+            else:
+                self.setTime(value)
+
+    def set_multiple(self):
+        self.is_none = True
+        self.set_special(self.multiple)
+
+    def editing_finished(self):
+        self.is_none = False
+        self.new_value.emit(self.get_value())
 
     def set_special(self, text):
         self.setSpecialValueText(text)
@@ -110,65 +152,6 @@ class QDateTimeEditEx(QtWidgets.QDateTimeEdit):
         self.setSpecialValueText('')
 
 
-class DateTimeEdit(QtWidgets.QHBoxLayout):
-    new_value = QtCore.pyqtSignal(object)
-
-    def __init__(self, is_date, *arg, **kw):
-        super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.multiple = multiple()
-        self.is_date = is_date
-        self.is_none = True
-        self.setContentsMargins(0, 0, 0, 0)
-        # main widget
-        self.datetime = QDateTimeEditEx()
-        if self.is_date:
-            self.datetime.setDisplayFormat('yyyy-MM-dd')
-            self.datetime.setCalendarPopup(True)
-            self.datetime.setDate(QtCore.QDate.currentDate())
-        else:
-            self.datetime.setDisplayFormat('hh:mm:ss.zzz')
-        self.datetime.editingFinished.connect(self.editing_finished)
-        self.addWidget(self.datetime)
-        # clear button
-        clear_button = QtWidgets.QPushButton(self.tr('clear'))
-        clear_button.clicked.connect(self._clear)
-        self.addWidget(clear_button)
-
-    def _clear(self):
-        self.new_value.emit(None)
-
-    def get_value(self):
-        if self.is_none:
-            return None
-        if self.is_date:
-            return self.datetime.date()
-        return self.datetime.time()
-
-    def set_value(self, value):
-        if value is None:
-            self.is_none = True
-            self.datetime.set_special(' ')
-        else:
-            self.is_none = False
-            self.datetime.set_normal()
-            if self.is_date:
-                self.datetime.setDate(value)
-            else:
-                self.datetime.setTime(value)
-
-    def set_multiple(self):
-        self.is_none = True
-        self.datetime.set_special(self.multiple)
-
-    def editing_finished(self):
-        self.is_none = False
-        self.new_value.emit(self.get_value())
-
-    def set_enabled(self, enabled):
-        for n in range(self.count()):
-            self.itemAt(n).widget().setEnabled(enabled)
-
-
 class DateAndTimeWidget(QtWidgets.QHBoxLayout):
     def __init__(self, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
@@ -176,30 +159,45 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
         self.enabled = True
         # date
         self.date = DateTimeEdit(True)
-        self.addLayout(self.date)
+        self.addWidget(self.date)
+        self.date_clear = QtWidgets.QPushButton(self.tr('clear'))
+        self.date_clear.clicked.connect(self._clear_date)
+        self.addWidget(self.date_clear)
         self.addStretch(1)
         # time
         self.time = DateTimeEdit(False)
-        self.addLayout(self.time)
+        self.addWidget(self.time)
+        self.time_clear = QtWidgets.QPushButton(self.tr('clear'))
+        self.time_clear.clicked.connect(self._clear_time)
+        self.addWidget(self.time_clear)
+
+    def _clear_date(self):
+        self.date.new_value.emit(None)
+
+    def _clear_time(self):
+        self.time.new_value.emit(None)
 
     def set_date(self, value):
         self.date.set_value(value)
-        self.time.set_enabled(self.enabled and value is not None)
+        self.time.setEnabled(self.enabled and value is not None)
 
     def set_time(self, value):
         self.time.set_value(value)
 
     def set_multiple_date(self):
         self.date.set_multiple()
-        self.time.set_enabled(False)
+        self.time.setEnabled(False)
 
     def set_multiple_time(self):
         self.time.set_multiple()
 
     def set_enabled(self, enabled):
         self.enabled = enabled
-        self.date.set_enabled(self.enabled)
-        self.time.set_enabled(self.enabled and self.date.get_value() is not None)
+        self.date.setEnabled(enabled)
+        self.date_clear.setEnabled(enabled)
+        enabled = enabled and self.date.get_value() is not None
+        self.time.setEnabled(enabled)
+        self.time_clear.setEnabled(enabled)
 
 
 class OffsetWidget(QtWidgets.QWidget):
