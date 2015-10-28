@@ -21,3 +21,10 @@ Otherwise, you can choose to have them always created (storing data in parallel 
    The `Metadata Working Group <http://www.metadataworkinggroup.org/specs/>`_ recommends that IPTC metadata is not written to files unless already present.
    Photini has an option to always write IPTC metadata.
    You may need this if you use some other software that reads IPTC but not EXIF or XMP.
+
+Spell checking
+^^^^^^^^^^^^^^
+
+The ``Spelling`` menu allows you to enable or disable spell checking on Photini's text fields, and to select the language dictionary to use.
+The available languages depend on what dictionaries you have installed.
+See the `PyEnchant documentation <http://pythonhosted.org/pyenchant/tutorial.html#adding-language-dictionaries>`_ for details of how to add dictionaries.

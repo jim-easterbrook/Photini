@@ -37,6 +37,10 @@ Select all the images that should have the same title, then type the title in th
 Note that the title (and keywords) are stored in XMP but not in EXIF, so may not be visible to software that only handles EXIF metadata (see :doc:`tags` for more detail).
 You may prefer to leave the title and keywords fields blank.
 
+The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
+The word "Gontier" is not in the British English dictionary, as indicated by the red underlining.
+Right-clicking on a misspelled word shows a list of suggested alternatives, one of which can be chosen by clicking on it.
+
 .. image:: ../images/screenshot_10.png
 
 Now you can add more detail in the ``Description / Caption`` box.

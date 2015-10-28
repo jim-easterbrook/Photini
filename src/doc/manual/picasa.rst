@@ -21,7 +21,7 @@ You then copy a verification code from your browser to Photini, as shown below.
 .. image:: ../images/screenshot_25.png
 
 Every image uploaded to Picasa has to be stored in an "album".
-You can select one of your existing albums from the drop down list (next to the "title" label) or you can create a new album by clicking on the "new album" button.
+You can select one of your existing albums from the drop down list (next to the "title" label) or you can create a new album by clicking on the ``New album`` button.
 
 .. image:: ../images/screenshot_26.png
 
@@ -32,7 +32,7 @@ The title, description and other attributes of an album can be changed simply by
 
 .. image:: ../images/screenshot_28.png
 
-To upload one or more photographs to Picasa, select them in the image selector area, then click on the "upload now" button.
+To upload one or more photographs to Picasa, select them in the image selector area, then click on the ``Start upload`` button.
 During uploading Photini displays a progress bar.
 Uploading takes place in the background, so you can continue to use other tabs while the upload is in progress.
 

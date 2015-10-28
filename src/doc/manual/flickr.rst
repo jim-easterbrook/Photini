@@ -20,8 +20,8 @@ You then copy a verification code from your browser to Photini, as shown below.
 
 .. image:: ../images/screenshot_22.png
 
-To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your sets (or albums) to add them to and set any of the other attributes, then click on the ``Upload now`` button.
-You can create a new set before uploading with the "new set" button.
+To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your sets (or albums) to add them to and set any of the other attributes, then click on the ``Start upload`` button.
+You can create a new set before uploading with the ``New set`` button.
 
 .. image:: ../images/screenshot_23.png
 

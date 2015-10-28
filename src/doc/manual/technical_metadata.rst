@@ -18,7 +18,7 @@ The date and time fields can be cleared with their ``clear`` buttons.
 The ``Link ...`` tick-boxes allow the different date & time values to be changed simultaneously.
 The ``Digitised`` and ``Modified`` date & time values can only be edited when their ``Link`` boxes are not ticked.
 
-The ``Adjust times`` fields allow a constant offset to be applied to the time stamps of several pictures at once.
+The ``Adjust times`` field allows a constant offset to be applied to the time stamps of several pictures at once.
 This can be useful if you forgot to set your camera's clock before a day's shooting!
 Set the required offset hours, minutes & seconds, then use the ``+`` or ``-`` button to add or subtract that amount from each selected picture's timestamp.
 
@@ -32,7 +32,7 @@ This should usually be left blank for cameras with non-removable lenses, but may
 If the ``Link lens model ...`` tick-box is selected when you change the lens model then the focal length and aperture will be adjusted to fit the lens specification.
 The focal length and aperture can also be edited directly, regardless of the tick-box status.
 
-You can add details of all your lenses by selecting ``<add lens>`` from the dropdown list.
+You can add details of all your lenses by selecting ``<define new lens>`` from the dropdown list.
 
 .. image:: ../images/screenshot_12a.png
 
