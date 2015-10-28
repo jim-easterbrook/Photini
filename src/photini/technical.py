@@ -128,8 +128,8 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         if self.is_none:
             return None
         if self.is_date:
-            return self.datetime.date().toPyDate()
-        return self.datetime.time().toPyTime()
+            return self.datetime.date()
+        return self.datetime.time()
 
     def set_value(self, value):
         if value is None:
@@ -495,8 +495,11 @@ class Technical(QtWidgets.QWidget):
                 image.metadata.date_digitised = value.date(), value.time()
                 if self.link_widget['digitised', 'modified'].isChecked():
                     image.metadata.date_modified = value.date(), value.time()
-        for key in self.date_widget:
-            self._update_datetime(key)
+        self._update_datetime('taken')
+        if self.link_widget['taken', 'digitised'].isChecked():
+            self._update_datetime('digitised')
+            if self.link_widget['digitised', 'modified'].isChecked():
+                self._update_datetime('modified')
 
     def new_link_digitised(self):
         if self.link_widget['taken', 'digitised'].isChecked():
@@ -583,6 +586,8 @@ class Technical(QtWidgets.QWidget):
                 setattr(image.metadata, 'date_' + key, None)
         else:
             # update dates, leaving times unchanged
+            if value:
+                value = value.toPyDate()
             for image in self.image_list.get_selected_images():
                 current = getattr(image.metadata, 'date_' + key)
                 if current is not None:
@@ -592,6 +597,8 @@ class Technical(QtWidgets.QWidget):
 
     def _new_time_value(self, key, value):
         # update time, leaving dates unchanged
+        if value:
+            value = value.toPyTime()
         for image in self.image_list.get_selected_images():
             current = getattr(image.metadata, 'date_' + key)
             if current is not None:
