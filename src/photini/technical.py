@@ -95,6 +95,21 @@ class FloatEdit(QtWidgets.QLineEdit):
         return self._is_multiple and not bool(self.get_value())
 
 
+class QDateTimeEditEx(QtWidgets.QDateTimeEdit):
+    def focusInEvent(self, event):
+        if self.dateTime() == self.minimumDateTime():
+            self.setDate(QtCore.QDate.currentDate())
+            self.setSpecialValueText('')
+        super(QDateTimeEditEx, self).focusInEvent(event)
+
+    def set_special(self, text):
+        self.setSpecialValueText(text)
+        self.setDateTime(self.minimumDateTime())
+
+    def set_normal(self):
+        self.setSpecialValueText('')
+
+
 class DateTimeEdit(QtWidgets.QHBoxLayout):
     new_value = QtCore.pyqtSignal(object)
 
@@ -105,11 +120,11 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         self.is_none = True
         self.setContentsMargins(0, 0, 0, 0)
         # main widget
-        self.datetime = QtWidgets.QDateTimeEdit()
+        self.datetime = QDateTimeEditEx()
         if self.is_date:
             self.datetime.setDisplayFormat('yyyy-MM-dd')
             self.datetime.setCalendarPopup(True)
-            self.datetime.setDate(pyDate.today())
+            self.datetime.setDate(QtCore.QDate.currentDate())
         else:
             self.datetime.setDisplayFormat('hh:mm:ss.zzz')
         self.datetime.editingFinished.connect(self.editing_finished)
@@ -118,8 +133,6 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
         clear_button = QtWidgets.QPushButton(self.tr('clear'))
         clear_button.clicked.connect(self._clear)
         self.addWidget(clear_button)
-        # get internals of QDateTimeEdit widget
-        self.line_edit = self.datetime.findChild(QtWidgets.QLineEdit)
 
     def _clear(self):
         self.new_value.emit(None)
@@ -134,10 +147,10 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
     def set_value(self, value):
         if value is None:
             self.is_none = True
-            # QDateTimeEdit clear method only clears first number
-            self.line_edit.setText('')
+            self.datetime.set_special(' ')
         else:
             self.is_none = False
+            self.datetime.set_normal()
             if self.is_date:
                 self.datetime.setDate(value)
             else:
@@ -145,9 +158,7 @@ class DateTimeEdit(QtWidgets.QHBoxLayout):
 
     def set_multiple(self):
         self.is_none = True
-        # first time setText is called sometimes doesn't show
-        self.line_edit.setText(self.multiple)
-        self.line_edit.setText(self.multiple)
+        self.datetime.set_special(self.multiple)
 
     def editing_finished(self):
         self.is_none = False
