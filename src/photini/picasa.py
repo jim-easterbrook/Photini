@@ -322,7 +322,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
     def new_title(self):
         value = self.albums.lineEdit().text()
         self.albums.setItemText(self.albums.currentIndex(), value)
-        if value != self.current_album.title.text:
+        if self.current_album and value != self.current_album.title.text:
             self.changed_title = value
         else:
             self.changed_title = None
@@ -331,7 +331,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
     @QtCore.pyqtSlot()
     def new_description(self):
         value = self.widgets['description'].get_value()
-        if value != self.current_album.summary.text:
+        if self.current_album and value != self.current_album.summary.text:
             self.changed_description = value
         else:
             self.changed_description = None
@@ -342,7 +342,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         value = '{0:d}'.format(int(
             (self.widgets['timestamp'].dateTime().toPyDateTime() - EPOCH
              ).total_seconds() * 1000))
-        if value != self.current_album.timestamp.text:
+        if self.current_album and value != self.current_album.timestamp.text:
             self.changed_timestamp = value
         else:
             self.changed_timestamp = None
@@ -351,7 +351,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
     @QtCore.pyqtSlot()
     def new_location(self):
         value = self.widgets['location'].text()
-        if value != self.current_album.location.text:
+        if self.current_album and value != self.current_album.location.text:
             self.changed_location = value
         else:
             self.changed_location = None
@@ -360,7 +360,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
     @QtCore.pyqtSlot(int)
     def new_access(self, index):
         value = self.widgets['access'].itemData(index)
-        if value != self.current_album.access.text:
+        if self.current_album and value != self.current_album.access.text:
             self.changed_access = value
         else:
             self.changed_access = None

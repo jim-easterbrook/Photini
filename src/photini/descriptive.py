@@ -263,6 +263,8 @@ class Descriptive(QtWidgets.QWidget):
 
     def _update_widget(self, key):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = getattr(images[0].metadata, key)
         for image in images[1:]:
             if getattr(image.metadata, key) != value:

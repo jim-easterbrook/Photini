@@ -302,8 +302,8 @@ class NewLensDialog(QtWidgets.QDialog):
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
         # model
-        self.widgets['lens_model'] = QtWidgets.QLineEdit()
-        panel.layout().addRow(self.tr('Model name'), self.widgets['lens_model'])
+        self.lens_model = QtWidgets.QLineEdit()
+        panel.layout().addRow(self.tr('Model name'), self.lens_model)
         # maker
         self.lens_make = QtWidgets.QLineEdit()
         panel.layout().addRow(self.tr("Maker's name"), self.lens_make)
