@@ -165,7 +165,9 @@ class DateTime(object):
         return not isinstance(other, DateTime) or self.members() != other.members()
 
     def __str__(self):
-        return 'DateTime({}, {})'.format(str(self.date), str(self.time))
+        if self.time is None:
+            return str(self.date)
+        return str(self.date) + 'T' + str(self.time)
 
     def members(self):
         return (self.date, self.time)
@@ -728,8 +730,9 @@ class Metadata(QtCore.QObject):
                         value[family] += new_value
                 else:
                     self.logger.warning(
-                        'ignoring conflicting data %s from tag %s',
-                        str(new_value), tag)
+                        'using %s value %s', name, str(value[family]))
+                    self.logger.warning(
+                        'ignoring %s value %s', tag, str(new_value))
         # choose preferred family
         if value['Exif'] is not None:
             preference = 'Exif'
@@ -758,8 +761,9 @@ class Metadata(QtCore.QObject):
                 result.time = None
             else:
                 self.logger.warning(
-                    'ignoring conflicting %s data %s from %s',
-                    name, str(other), family)
+                    'using %s %s value %s', preference, name, str(result))
+                self.logger.warning(
+                    'ignoring %s value %s', family, str(other))
         # add value to object attributes so __getattr__ doesn't get
         # called again
         super(Metadata, self).__setattr__(name, result)
