@@ -162,6 +162,7 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
     def __init__(self, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self.setContentsMargins(0, 0, 0, 0)
+        self.enabled = True
         # date
         self.date = DateTimeEdit(True)
         self.addLayout(self.date)
@@ -172,7 +173,7 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
 
     def set_date(self, value):
         self.date.set_value(value)
-        self.time.set_enabled(value is not None)
+        self.time.set_enabled(self.enabled and value is not None)
 
     def set_time(self, value):
         self.time.set_value(value)
@@ -183,6 +184,11 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
 
     def set_multiple_time(self):
         self.time.set_multiple()
+
+    def set_enabled(self, enabled):
+        self.enabled = enabled
+        self.date.set_enabled(self.enabled)
+        self.time.set_enabled(self.enabled and self.date.get_value() is not None)
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -494,19 +500,19 @@ class Technical(QtWidgets.QWidget):
 
     def new_link_digitised(self):
         if self.link_widget['taken', 'digitised'].isChecked():
-            self.date_widget['digitised'].setEnabled(False)
+            self.date_widget['digitised'].set_enabled(False)
             self.new_date_digitised(self.date_widget['taken'].date.get_value())
             self.new_time_digitised(self.date_widget['taken'].time.get_value())
         else:
-            self.date_widget['digitised'].setEnabled(True)
+            self.date_widget['digitised'].set_enabled(True)
 
     def new_link_modified(self):
         if self.link_widget['digitised', 'modified'].isChecked():
-            self.date_widget['modified'].setEnabled(False)
+            self.date_widget['modified'].set_enabled(False)
             self.new_date_modified(self.date_widget['digitised'].date.get_value())
             self.new_time_modified(self.date_widget['digitised'].time.get_value())
         else:
-            self.date_widget['modified'].setEnabled(True)
+            self.date_widget['modified'].set_enabled(True)
 
     @QtCore.pyqtSlot()
     def new_orientation(self):
@@ -680,10 +686,10 @@ class Technical(QtWidgets.QWidget):
                                 self.date_widget[master].date.get_value() and
                     self.date_widget[slave].time.get_value() ==
                                 self.date_widget[master].time.get_value()):
-                self.date_widget[slave].setEnabled(False)
+                self.date_widget[slave].set_enabled(False)
                 self.link_widget[master, slave].setChecked(True)
             else:
-                self.date_widget[slave].setEnabled(True)
+                self.date_widget[slave].set_enabled(True)
                 self.link_widget[master, slave].setChecked(False)
         self._update_orientation()
         self._update_lens_model()
