@@ -140,6 +140,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         self.is_none = True
         self.set_special(self.multiple)
 
+    @QtCore.pyqtSlot()
     def editing_finished(self):
         self.is_none = False
         self.new_value.emit(self.get_value())
@@ -171,9 +172,11 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
         self.time_clear.clicked.connect(self._clear_time)
         self.addWidget(self.time_clear)
 
+    @QtCore.pyqtSlot()
     def _clear_date(self):
         self.date.new_value.emit(None)
 
+    @QtCore.pyqtSlot()
     def _clear_time(self):
         self.time.new_value.emit(None)
 
@@ -221,12 +224,14 @@ class OffsetWidget(QtWidgets.QWidget):
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
 
+    @QtCore.pyqtSlot()
     def add(self):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
         self.apply_offset.emit(offset)
 
+    @QtCore.pyqtSlot()
     def sub(self):
         value = self.offset.time()
         offset = timedelta(
@@ -510,6 +515,7 @@ class Technical(QtWidgets.QWidget):
             if self.link_widget['digitised', 'modified'].isChecked():
                 self._update_datetime('modified')
 
+    @QtCore.pyqtSlot()
     def new_link_digitised(self):
         if self.link_widget['taken', 'digitised'].isChecked():
             self.date_widget['digitised'].set_enabled(False)
@@ -518,6 +524,7 @@ class Technical(QtWidgets.QWidget):
         else:
             self.date_widget['digitised'].set_enabled(True)
 
+    @QtCore.pyqtSlot()
     def new_link_modified(self):
         if self.link_widget['digitised', 'modified'].isChecked():
             self.date_widget['modified'].set_enabled(False)
@@ -576,12 +583,14 @@ class Technical(QtWidgets.QWidget):
             return
         self.widgets['lens_model'].add_item(model)
 
+    @QtCore.pyqtSlot()
     def new_aperture(self):
         if not self.widgets['aperture'].is_multiple():
             value = self.widgets['aperture'].get_value()
             for image in self.image_list.get_selected_images():
                 image.metadata.aperture = value
 
+    @QtCore.pyqtSlot()
     def new_focal_length(self):
         if not self.widgets['focal_length'].is_multiple():
             value = self.widgets['focal_length'].get_value()
