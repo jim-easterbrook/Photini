@@ -20,7 +20,7 @@ Otherwise, you can choose to have them always created (storing data in parallel 
 .. versionadded:: 15.08.0.dev311
    The `Metadata Working Group <http://www.metadataworkinggroup.org/specs/>`_ recommends that IPTC metadata is not written to files unless already present.
    Photini has an option to always write IPTC metadata.
-   You may need this if you use some other software that reads IPTC but not EXIF or XMP.
+   You may need this if you use some other software that reads IPTC but not Exif or XMP.
 
 Spell checking
 ^^^^^^^^^^^^^^

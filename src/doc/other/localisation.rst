@@ -44,7 +44,7 @@ The others, beginning with ``doc``, are the Photini documentation.
 Things to be aware of:
 
 Words with special meanings
-  Some of Photini's GUI elements such as ``Title / Object Name`` are named after the metadata items in the EXIF, XMP or IPTC specifications.
+  Some of Photini's GUI elements such as ``Title / Object Name`` are named after the metadata items in the Exif, XMP or IPTC specifications.
   If information about these standards is available in your language it may help with translating these words.
 
 Formatting strings

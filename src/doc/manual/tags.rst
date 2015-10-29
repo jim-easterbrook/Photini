@@ -5,12 +5,12 @@
 Tag reference
 =============
 
-This section lists the "mapping" from Photini's field names (such as "Title / Object Name") to the EXIF / XMP / IPTC tags the data is stored in.
+This section lists the "mapping" from Photini's field names (such as "Title / Object Name") to the Exif / XMP / IPTC tags the data is stored in.
 The tag names are those used by the Exiv2 library.
 See http://exiv2.org/metadata.html for more detail.
 
 As far as possible Photini follows the `Metadata Working Group <http://www.metadataworkinggroup.org/>`_ (MWG) `Guidelines for Handling Image Metadata <http://www.metadataworkinggroup.org/specs/>`_.
-These specify the mapping between tags in EXIF, XMP and IPTC, and say how software should reconcile any differences between information stored in equivalent tags.
+These specify the mapping between tags in Exif, XMP and IPTC, and say how software should reconcile any differences between information stored in equivalent tags.
 
 Primary tags
 ------------
@@ -18,11 +18,11 @@ Primary tags
 These tags are where Photini stores its metadata.
 (IPTC tags are only used if they already exist in the file, in line with the MWG guidelines.)
 
-Note that "Title / Object Name" and "Keywords" are not stored in EXIF.
-You may prefer not to use these fields to ensure compatibility with software that only handles EXIF.
+Note that "Title / Object Name" and "Keywords" are not stored in Exif.
+You may prefer not to use these fields to ensure compatibility with software that only handles Exif.
 
 =======================  ==============================  =========================  ==================
-Photini field            EXIF tag                        XMP tag                    IPTC tag
+Photini field            Exif tag                        XMP tag                    IPTC tag
 =======================  ==============================  =========================  ==================
 Title / Object Name                                      Xmp.dc.title               Iptc.Application2.ObjectName
 Description / Caption    Exif.Image.ImageDescription     Xmp.dc.description         Iptc.Application2.Caption
@@ -52,7 +52,7 @@ Photini may read information from these tags and merge it with information from 
 These tags are deleted when the corresponding primary tags are saved.
 
 =======================  ===========================  ==========================  ==================
-Photini field            EXIF tag                     XMP tag                     IPTC tag
+Photini field            Exif tag                     XMP tag                     IPTC tag
 =======================  ===========================  ==========================  ==================
 Title / Object Name                                                               Iptc.Application2.Headline
 Description / Caption                                 Xmp.tiff.ImageDescription

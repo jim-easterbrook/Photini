@@ -34,7 +34,7 @@ I do this frequently to avoid losing any of my work.
 
 Next I set the title.
 Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box.
-Note that the title (and keywords) are stored in XMP but not in EXIF, so may not be visible to software that only handles EXIF metadata (see :doc:`tags` for more detail).
+Note that the title (and keywords) are stored in XMP but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tags` for more detail).
 You may prefer to leave the title and keywords fields blank.
 
 The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
