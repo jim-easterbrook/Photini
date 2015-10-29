@@ -733,11 +733,15 @@ class Metadata(QtCore.QObject):
                     continue
                 elif isinstance(value[family], six.string_types):
                     if new_value not in value[family]:
-                        self.logger.warning('merging %s into %s', tag, name)
+                        self.logger.warning(
+                            '%s: merging %s into %s',
+                            os.path.basename(self._path), tag, name)
                         value[family] += ' // ' + new_value
                 elif isinstance(value[family], list):
                     if new_value not in value[family]:
-                        self.logger.warning('merging %s into %s', tag, name)
+                        self.logger.warning(
+                            '%s: merging %s into %s',
+                            os.path.basename(self._path), tag, name)
                         value[family] += new_value
                 else:
                     self.logger.warning(
@@ -760,11 +764,15 @@ class Metadata(QtCore.QObject):
                 continue
             if isinstance(result, six.string_types):
                 if other not in result:
-                    self.logger.warning('merging %s data into %s', family, name)
+                    self.logger.warning(
+                        '%s: merging %s data into %s:%s',
+                        os.path.basename(self._path), family, preference, name)
                     result += ' // ' + other
             elif isinstance(result, list):
                 if other not in result:
-                    self.logger.warning('merging %s data into %s', family, name)
+                    self.logger.warning(
+                        '%s: merging %s data into %s:%s',
+                        os.path.basename(self._path), family, preference, name)
                     result += other
             else:
                 self.logger.warning(
