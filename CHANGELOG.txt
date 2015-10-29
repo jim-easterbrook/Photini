@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v15.10.0:
+  1/ Added error handling to Flickr & Picasa uploaders.
+  2/ Added spell checking to most text entry fields.
+  3/ Speeded up importing photos from a camera.
+  4/ Fixed several minor bugs and annoyances.
+
 Changes in v15.09.1:
   1/ Fix bug with importer not recognising some image types
 
