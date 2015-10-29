@@ -181,12 +181,23 @@ class DateTime(object):
 
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
-        dt = datetime.datetime.strptime(datetime_string, '%Y:%m:%d %H:%M:%S')
+        # replace space between date & time
+        datetime_string = datetime_string[:10] + 'T' + datetime_string[11:]
+        # replace any spaces representing missing values
+        missing_values = datetime_string.count('  ')
+        if missing_values:
+            datetime_string = datetime_string.replace('  ', '00')
+        dt = datetime.datetime.strptime(datetime_string, '%Y:%m:%dT%H:%M:%S')
+        if missing_values >= 3:
+            # no time information
+            return cls(dt.date(), None)
         if sub_sec_string:
             dt += datetime.timedelta(seconds=float('0.' + sub_sec_string))
         return cls(dt.date(), dt.time())
 
     def to_exif(self):
+        if self.time is None:
+            return (self.date.strftime('%Y:%m:%d   :  :  '), None)
         dt = self.datetime()
         return (dt.strftime('%Y:%m:%d %H:%M:%S'),
                 '{:02d}'.format(dt.microsecond // 10000))
@@ -370,12 +381,12 @@ class Metadata(QtCore.QObject):
                             'Xmp'  : 'Xmp.dc.creator',
                             'Iptc' : 'Iptc.Application2.Byline'},
         'date_digitised' : {'Exif' : 'Exif.Photo.DateTimeDigitized',
-                            'Xmp'  : 'Xmp.xmp.CreateDate',
+                            'Xmp'  : 'Xmp.exif.DateTimeDigitized',
                             'Iptc' : 'Iptc.Application2.DigitizationDate'},
         'date_modified'  : {'Exif' : 'Exif.Image.DateTime',
-                            'Xmp'  : 'Xmp.xmp.ModifyDate'},
+                            'Xmp'  : 'Xmp.tiff.DateTime'},
         'date_taken'     : {'Exif' : 'Exif.Photo.DateTimeOriginal',
-                            'Xmp'  : 'Xmp.photoshop.DateCreated',
+                            'Xmp'  : 'Xmp.exif.DateTimeOriginal',
                             'Iptc' : 'Iptc.Application2.DateCreated'},
         'description'    : {'Exif' : 'Exif.Image.ImageDescription',
                             'Xmp'  : 'Xmp.dc.description',
@@ -406,10 +417,10 @@ class Metadata(QtCore.QObject):
         'camera_model'   : {'Exif' : ('Exif.Image.UniqueCameraModel',)},
         'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
         'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
-        'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
-        'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
+        'date_digitised' : {'Xmp'  : ('Xmp.xmp.CreateDate',)},
+        'date_modified'  : {'Xmp'  : ('Xmp.xmp.ModifyDate',)},
         'date_taken'     : {'Exif' : ('Exif.Image.DateTimeOriginal',),
-                            'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
+                            'Xmp'  : ('Xmp.photoshop.DateCreated',)},
         'description'    : {'Xmp'  : ('Xmp.tiff.ImageDescription',)},
         'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',
                                       'Exif.Photo.FocalLengthIn35mmFilm',),
@@ -730,9 +741,10 @@ class Metadata(QtCore.QObject):
                         value[family] += new_value
                 else:
                     self.logger.warning(
-                        'using %s value %s', name, str(value[family]))
-                    self.logger.warning(
-                        'ignoring %s value %s', tag, str(new_value))
+                        '%s: using %s value "%s", ignoring %s value "%s"',
+                        os.path.basename(self._path),
+                        self._primary_tags[name][family], str(value[family]),
+                        tag, str(new_value))
         # choose preferred family
         if value['Exif'] is not None:
             preference = 'Exif'
@@ -754,16 +766,11 @@ class Metadata(QtCore.QObject):
                 if other not in result:
                     self.logger.warning('merging %s data into %s', family, name)
                     result += other
-            elif (isinstance(result, DateTime) and
-                      preference == 'Exif' and result.date == other.date and
-                      other.time is None and result.time == datetime.time()):
-                # Xmp and Iptc can store date without time, Exif can't
-                result.time = None
             else:
                 self.logger.warning(
-                    'using %s %s value %s', preference, name, str(result))
-                self.logger.warning(
-                    'ignoring %s value %s', family, str(other))
+                    '%s: %s: using %s value "%s", ignoring %s value "%s"',
+                    os.path.basename(self._path),
+                    name, preference, str(result), family, str(other))
         # add value to object attributes so __getattr__ doesn't get
         # called again
         super(Metadata, self).__setattr__(name, result)
@@ -796,7 +803,12 @@ class Metadata(QtCore.QObject):
                 return
             datetime_string, sub_sec_string = value.to_exif()
             self.set_tag_string(tag, datetime_string)
-            self.set_tag_string(sub_sec_tag, sub_sec_string)
+            if sub_sec_tag is None:
+                pass
+            elif sub_sec_string is None:
+                self.clear_tag(sub_sec_tag)
+            else:
+                self.set_tag_string(sub_sec_tag, sub_sec_string)
             return
         if value is None:
             self.clear_tag(tag)
