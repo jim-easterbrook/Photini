@@ -607,6 +607,8 @@ class Technical(QtWidgets.QWidget):
 
     def _update_datetime(self, key):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = getattr(images[0].metadata, 'date_' + key)
         for image in images[1:]:
             new_value = getattr(image.metadata, 'date_' + key)
@@ -618,6 +620,8 @@ class Technical(QtWidgets.QWidget):
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = images[0].metadata.orientation
         for image in images[1:]:
             if image.metadata.orientation != value:
@@ -628,6 +632,8 @@ class Technical(QtWidgets.QWidget):
 
     def _update_lens_model(self):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = images[0].metadata.lens_model
         for image in images[1:]:
             if image.metadata.lens_model != value:
@@ -642,6 +648,8 @@ class Technical(QtWidgets.QWidget):
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = images[0].metadata.aperture
         for image in images[1:]:
             if image.metadata.aperture != value:
@@ -651,6 +659,8 @@ class Technical(QtWidgets.QWidget):
 
     def _update_focal_length(self):
         images = self.image_list.get_selected_images()
+        if not images:
+            return
         value = images[0].metadata.focal_length
         for image in images[1:]:
             if image.metadata.focal_length != value:
