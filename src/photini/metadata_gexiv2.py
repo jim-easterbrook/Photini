@@ -20,11 +20,6 @@
 import logging
 import sys
 
-try:
-    import pgi
-    pgi.install_as_gi()
-except ImportError:
-    pass
 from gi.repository import GObject, GExiv2
 import six
 
