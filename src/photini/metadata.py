@@ -166,42 +166,61 @@ class DateTime(object):
         return not isinstance(other, DateTime) or self.members() != other.members()
 
     def __str__(self):
-        return self.datetime.strftime(''.join(self.parts[:self.precision]))
+        return self.to_ISO_8601()
 
     def members(self):
         return self.datetime, self.precision
 
     @classmethod
-    def from_exif(cls, datetime_string, sub_sec_string):
-        # replace any spaces representing missing values
-        missing_values = datetime_string.count('  ')
-        datetime_string = datetime_string.replace(' ', '0')
-        precision = len(cls.parts) - 1
-        if missing_values:
-            precision -= missing_values
-        elif sub_sec_string:
-            precision += 1
-        if precision == 0:
-            return None
-        if sub_sec_string:
-            datetime_string = datetime_string + '.' + sub_sec_string
+    def from_ISO_8601(cls, datetime_string):
+        """Sufficiently general ISO 8601 parser.
+
+        See https://en.wikipedia.org/wiki/ISO_8601
+
+        """
+        # separate date and time
+        date_string, sep, time_string = datetime_string.partition('T')
+        # strip timezone
+        if time_string[-1] == 'Z':
+            # time zone designator of Z
+            time_string = time_string[:-1]
         else:
-            datetime_string = datetime_string + '.0'
+            time_string, sep, zone_string = time_string.partition('+')
+            if not sep:
+                time_string, sep, zone_string = time_string.partition('-')
+        datetime_string = date_string + 'T' + time_string
+        precision = min((len(datetime_string) - 1) // 3, 6)
+        if precision <= 0:
+            return None
+        if precision == 6 and datetime_string.count('.') > 0:
+            precision = 7
         return cls(datetime.strptime(
-            datetime_string, '%Y:%m:%d0%H:%M:%S.%f'), precision)
+            datetime_string, ''.join(cls.parts[:precision])), precision)
+
+    def to_ISO_8601(self):
+        return self.datetime.strftime(''.join(self.parts[:self.precision]))
+
+    @classmethod
+    def from_exif(cls, datetime_string, sub_sec_string):
+        # convert to ISO 8601
+        datetime_string = (datetime_string[:10].replace(':', '-') + 'T' +
+                           datetime_string[11:])
+        # truncate if any missing values
+        space_pos = datetime_string.find(' ')
+        if space_pos >= 1:
+            datetime_string = datetime_string[:space_pos-1]
+        elif sub_sec_string:
+            datetime_string += '.' + sub_sec_string
+        return cls.from_ISO_8601(datetime_string)
 
     def to_exif(self):
-        fmt = ''
-        for n, space in enumerate(('    ', ':  ', ':  ', '   ', ':  ', ':  ')):
-            if n < self.precision:
-                fmt += self.parts[n].replace('-', ':').replace('T', ' ')
-            else:
-                fmt += space
-        if self.precision >= len(self.parts):
-            sub_sec_string = '{:02d}'.format(self.datetime.microsecond // 10000)
-        else:
+        datetime_string, sep, sub_sec_string = self.to_ISO_8601().partition('.')
+        if sub_sec_string == '':
             sub_sec_string = None
-        return (self.datetime.strftime(fmt), sub_sec_string)
+        datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
+        # add spaces for any missing values
+        datetime_string += '    :  :     :  :  '[len(datetime_string):]
+        return datetime_string, sub_sec_string
 
     @classmethod
     def from_iptc(cls, date_string, time_string):
@@ -227,24 +246,11 @@ class DateTime(object):
         return self.datetime.strftime(date_fmt), self.datetime.strftime(time_fmt)
 
     @classmethod
-    def from_xmp(cls, value_string):
-        # strip timezone
-        if value_string[-1] == 'Z':
-            # time zone designator of Z
-            value_string = value_string[:-1]
-        elif value_string.count('T') > 0 and value_string[-6] in ('+', '-'):
-            # time zone designator of +hh:mm or -hh:mm
-            value_string = value_string[:-6]
-        precision = min(max((len(value_string) - 1) // 3, 0), 6)
-        if precision == 0:
-            return None
-        if precision == 6 and value_string.count('.') > 0:
-            precision = 7
-        return cls(datetime.strptime(
-            value_string, ''.join(cls.parts[:precision])), precision)
+    def from_xmp(cls, datetime_string):
+        return cls.from_ISO_8601(datetime_string)
 
     def to_xmp(self):
-        return self.datetime.strftime(''.join(self.parts[:self.precision]))
+        return self.to_ISO_8601()
 
 # type of each tag's data
 _data_type = {
@@ -780,7 +786,7 @@ class Metadata(QtCore.QObject):
                         os.path.basename(self._path), family, preference, name)
                     result += other
             elif (isinstance(other, DateTime) and
-                          other.precision > result.precision):
+                  family != 'Iptc' and other.precision > result.precision):
                 self.logger.warning(
                     '%s: %s: using %s value "%s", ignoring %s value "%s"',
                     os.path.basename(self._path),
