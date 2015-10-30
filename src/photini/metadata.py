@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals
 
-import datetime
+from datetime import datetime
 from fractions import Fraction
 import locale
 import logging
@@ -153,10 +153,11 @@ class LensSpec(object):
         return cls(*value.split(','))
 
 class DateTime(object):
-    # store date and time as separate Python date/time objects, or None
-    def __init__(self, date, time):
-        self.date = date
-        self.time = time
+    # store date and time with "precision" to store how much is valid
+    parts = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+    def __init__(self, datetime, precision):
+        self.datetime = datetime
+        self.precision = precision
 
     def __eq__(self, other):
         return isinstance(other, DateTime) and self.members() == other.members()
@@ -165,89 +166,85 @@ class DateTime(object):
         return not isinstance(other, DateTime) or self.members() != other.members()
 
     def __str__(self):
-        if self.time is None:
-            return str(self.date)
-        return str(self.date) + 'T' + str(self.time)
+        return self.datetime.strftime(''.join(self.parts[:self.precision]))
 
     def members(self):
-        return (self.date, self.time)
-
-    def datetime(self):
-        if self.time is None:
-            time = datetime.time()
-        else:
-            time = self.time
-        return datetime.datetime.combine(self.date, time)
+        return self.datetime, self.precision
 
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
-        # replace space between date & time
-        datetime_string = datetime_string[:10] + 'T' + datetime_string[11:]
         # replace any spaces representing missing values
         missing_values = datetime_string.count('  ')
+        datetime_string = datetime_string.replace(' ', '0')
+        precision = len(cls.parts) - 1
         if missing_values:
-            datetime_string = datetime_string.replace('  ', '00')
-        dt = datetime.datetime.strptime(datetime_string, '%Y:%m:%dT%H:%M:%S')
-        if missing_values >= 3:
-            # no time information
-            return cls(dt.date(), None)
+            precision -= missing_values
+        elif sub_sec_string:
+            precision += 1
+        if precision == 0:
+            return None
         if sub_sec_string:
-            dt += datetime.timedelta(seconds=float('0.' + sub_sec_string))
-        return cls(dt.date(), dt.time())
+            datetime_string = datetime_string + '.' + sub_sec_string
+        else:
+            datetime_string = datetime_string + '.0'
+        return cls(datetime.strptime(
+            datetime_string, '%Y:%m:%d0%H:%M:%S.%f'), precision)
 
     def to_exif(self):
-        if self.time is None:
-            return (self.date.strftime('%Y:%m:%d   :  :  '), None)
-        dt = self.datetime()
-        return (dt.strftime('%Y:%m:%d %H:%M:%S'),
-                '{:02d}'.format(dt.microsecond // 10000))
+        fmt = ''
+        for n, space in enumerate(('    ', ':  ', ':  ', '   ', ':  ', ':  ')):
+            if n < self.precision:
+                fmt += self.parts[n].replace('-', ':').replace('T', ' ')
+            else:
+                fmt += space
+        if self.precision >= len(self.parts):
+            sub_sec_string = '{:02d}'.format(self.datetime.microsecond // 10000)
+        else:
+            sub_sec_string = None
+        return (self.datetime.strftime(fmt), sub_sec_string)
 
     @classmethod
     def from_iptc(cls, date_string, time_string):
-        if date_string:
-            date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
-        else:
+        if not date_string:
             return None
+        # remove extraneous characters
+        date_string = date_string.replace('-', '')[:8]
         if time_string:
-            # strip timezone
-            time_string = time_string[:8]
-            time = datetime.datetime.strptime(time_string, '%H:%M:%S').time()
+            # clean up, remove timezone and append to date string
+            date_string = date_string + ' ' + time_string.replace(':', '')[:6]
+            fmt = '%Y%m%d %H%M%S'
+            precision = 6
         else:
-            time = None
-        return cls(date, time)
+            fmt = '%Y%m%d'
+            precision = 3
+        return cls(datetime.strptime(date_string, fmt), precision)
 
     def to_iptc(self):
-        if self.time is None:
-            return (self.date.strftime('%Y-%m-%d'), None)
-        return (self.date.strftime('%Y-%m-%d'), self.time.strftime('%H:%M:%S'))
+        date_fmt = '%Y%m%d'
+        if self.precision <= 3:
+            return self.datetime.strftime(date_fmt), None
+        time_fmt = '%H%M%S:0000'
+        return self.datetime.strftime(date_fmt), self.datetime.strftime(time_fmt)
 
     @classmethod
     def from_xmp(cls, value_string):
-        # split into date & time, allowing for possible lack of time info
-        date_string = value_string[:10]
-        time_string = value_string[11:]
-        # extend short strings to include all info and convert
-        date_string += '0001-01-01'[len(date_string):]
-        date = datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
-        if time_string:
-            # strip timezone
-            if time_string[-1] == 'Z':
-                # time zone designator of Z
-                time_string = time_string[:-1]
-            elif time_string[-6] in ('+', '-'):
-                # time zone designator of +hh:mm or -hh:mm
-                time_string = time_string[:-6]
-            time_string += '00:00:00.000000'[len(time_string):]
-            time = datetime.datetime.strptime(time_string, '%H:%M:%S.%f').time()
-        else:
-            time = None
-        return cls(date, time)
+        # strip timezone
+        if value_string[-1] == 'Z':
+            # time zone designator of Z
+            value_string = value_string[:-1]
+        elif value_string.count('T') > 0 and value_string[-6] in ('+', '-'):
+            # time zone designator of +hh:mm or -hh:mm
+            value_string = value_string[:-6]
+        precision = min(max((len(value_string) - 1) // 3, 0), 6)
+        if precision == 0:
+            return None
+        if precision == 6 and value_string.count('.') > 0:
+            precision = 7
+        return cls(datetime.strptime(
+            value_string, ''.join(cls.parts[:precision])), precision)
 
     def to_xmp(self):
-        if self.time is None:
-            return self.date.strftime('%Y-%m-%d')
-        return (self.date.strftime('%Y-%m-%d') + 'T' +
-                self.time.strftime('%H:%M:%S.%f'))
+        return self.datetime.strftime(''.join(self.parts[:self.precision]))
 
 # type of each tag's data
 _data_type = {
@@ -743,6 +740,14 @@ class Metadata(QtCore.QObject):
                             '%s: merging %s into %s',
                             os.path.basename(self._path), tag, name)
                         value[family] += new_value
+                elif (isinstance(value[family], DateTime) and
+                      new_value.precision > value[family].precision):
+                    self.logger.warning(
+                        '%s: using %s value "%s", ignoring %s value "%s"',
+                        os.path.basename(self._path),
+                        tag, str(new_value),
+                        self._primary_tags[name][family], str(value[family]))
+                    value[family] = new_value
                 else:
                     self.logger.warning(
                         '%s: using %s value "%s", ignoring %s value "%s"',
@@ -774,6 +779,13 @@ class Metadata(QtCore.QObject):
                         '%s: merging %s data into %s:%s',
                         os.path.basename(self._path), family, preference, name)
                     result += other
+            elif (isinstance(other, DateTime) and
+                          other.precision > result.precision):
+                self.logger.warning(
+                    '%s: %s: using %s value "%s", ignoring %s value "%s"',
+                    os.path.basename(self._path),
+                    name, family, str(other), preference, str(result))
+                result = other
             else:
                 self.logger.warning(
                     '%s: %s: using %s value "%s", ignoring %s value "%s"',

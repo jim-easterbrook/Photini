@@ -429,7 +429,7 @@ class ImageList(QtWidgets.QWidget):
         if result is None:
             # use file date as last resort
             return datetime.fromtimestamp(os.path.getmtime(self.image[idx].path))
-        return result.datetime()
+        return result.datetime
 
     def _new_sort_order(self):
         self._sort_thumbnails()
