@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 from datetime import timedelta
+import re
 
 from .metadata import DateTime, LensSpec
 from .pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
@@ -138,6 +139,47 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.setDateTime(self.datetime)
 
 
+class TimeZoneWidget(QtWidgets.QSpinBox):
+    def __init__(self, *arg, **kw):
+        super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.setRange(45 - (15 * 60), 15 * 60)
+        self.setSingleStep(15)
+        self.setWrapping(True)
+        self.setSpecialValueText(' ')
+
+    def validate(self, text, pos):
+        if re.match('[+-]?\d{1,2}(:\d{0,2})?$', text):
+            return QtGui.QValidator.Acceptable, text, pos
+        if re.match('[+-]?$', text):
+            return QtGui.QValidator.Intermediate, text, pos
+        return QtGui.QValidator.Invalid, text, pos
+
+    def valueFromText(self, text):
+        hours, sep, minutes = text.partition(':')
+        hours = int(hours)
+        if minutes:
+            minutes = int(15.0 * round(float(minutes) / 15.0))
+            if hours < 0:
+                minutes = -minutes
+        else:
+            minutes = 0
+        return (hours * 60) + minutes
+
+    def textFromValue(self, value):
+        if value < 0:
+            sign = '-'
+            value = -value
+        else:
+            sign = '+'
+        return '{}{:02d}:{:02d}'.format(sign, value // 60, value % 60)
+
+    def set_value(self, value):
+        if value is None:
+            self.setValue(self.minimum())
+        else:
+            self.setValue(value)
+
+
 class Slider(QtWidgets.QSlider):
     editing_finished = QtCore.pyqtSignal()
 
@@ -146,24 +188,28 @@ class Slider(QtWidgets.QSlider):
         super(Slider, self).focusOutEvent(event)
 
 
-class DateAndTimeWidget(QtWidgets.QHBoxLayout):
+class DateAndTimeWidget(QtWidgets.QGridLayout):
     new_value = QtCore.pyqtSignal(object)
 
     def __init__(self, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self.setContentsMargins(0, 0, 0, 0)
+        self.setColumnStretch(3, 1)
         self.multiple = multiple_values()
         self._is_multiple = False
         # date & time
         self.datetime = DateTimeEdit()
         self.datetime.setCalendarPopup(True)
-        self.addWidget(self.datetime)
+        self.addWidget(self.datetime, 0, 0, 1, 2)
+        # time zone
+        self.time_zone = TimeZoneWidget()
+        self.addWidget(self.time_zone, 0, 2)
         # precision
-        self.addWidget(QtWidgets.QLabel(self.tr('Precision:')))
+        self.addWidget(QtWidgets.QLabel(self.tr('Precision:')), 1, 0)
         self.precision = Slider(Qt.Horizontal)
         self.precision.setRange(0, 7)
         self.precision.setPageStep(1)
-        self.addWidget(self.precision)
+        self.addWidget(self.precision, 1, 1)
         # connections
         self.datetime.new_precision.connect(self.precision.setValue)
         self.datetime.editingFinished.connect(self.new_datetime)
@@ -187,9 +233,11 @@ class DateAndTimeWidget(QtWidgets.QHBoxLayout):
         self._is_multiple = False
         if value is None:
             self.datetime.set_value(precision=0)
+            self.time_zone.set_value(None)
         else:
             self.datetime.set_value(
                 datetime=value.datetime, precision=value.precision)
+            self.time_zone.set_value(value.tz_minutes())
         self.precision.blockSignals(blocked)
 
     def set_multiple(self):

@@ -171,6 +171,11 @@ class DateTime(object):
     def members(self):
         return self.datetime, self.precision
 
+    def tz_minutes(self):
+        if self.tz_offset is None:
+            return None
+        return int(self.tz_offset.total_seconds()) // 60
+
     @classmethod
     def from_ISO_8601(cls, date_string, time_string):
         """Sufficiently general ISO 8601 parser.
@@ -225,17 +230,17 @@ class DateTime(object):
     def tz_string(self, basic=False):
         if self.tz_offset is None:
             return ''
-        seconds = int(self.tz_offset.total_seconds())
-        if seconds >= 0:
+        minutes = self.tz_minutes()
+        if minutes >= 0:
             sign_string = '+'
         else:
             sign_string = '-'
-            seconds = -seconds
+            minutes = -minutes
         if basic:
             fmt = '{}{:02d}{:02d}'
         else:
             fmt = '{}{:02d}:{:02d}'
-        return fmt.format(sign_string, seconds // 3600, (seconds % 3600) // 60)
+        return fmt.format(sign_string, minutes // 60, minutes % 60)
 
     # Exif datetime replaces missing values with spaces, keeping the
     # colon separators and the overall string length. See
@@ -857,12 +862,9 @@ class Metadata(QtCore.QObject):
                         os.path.basename(self._path), family, preference, name)
                     result += other
             elif (isinstance(other, DateTime) and
-                  family != 'Iptc' and other.precision > result.precision):
-                self.logger.warning(
-                    '%s: %s: using %s value "%s", ignoring %s value "%s"',
-                    os.path.basename(self._path),
-                    name, family, str(other), preference, str(result))
-                result = other
+                  other.datetime == result.datetime):
+                if result.tz_offset is None and family != 'Iptc':
+                    result.tz_offset = other.tz_offset
             else:
                 self.logger.warning(
                     '%s: %s: using %s value "%s", ignoring %s value "%s"',
