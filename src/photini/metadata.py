@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from fractions import Fraction
 import locale
 import logging
@@ -154,10 +154,10 @@ class LensSpec(object):
 
 class DateTime(object):
     # store date and time with "precision" to store how much is valid
-    parts = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
-    def __init__(self, datetime, precision):
+    def __init__(self, datetime, precision, tz_offset=None):
         self.datetime = datetime
         self.precision = precision
+        self.tz_offset = tz_offset
 
     def __eq__(self, other):
         return isinstance(other, DateTime) and self.members() == other.members()
@@ -172,85 +172,156 @@ class DateTime(object):
         return self.datetime, self.precision
 
     @classmethod
-    def from_ISO_8601(cls, datetime_string):
+    def from_ISO_8601(cls, date_string, time_string):
         """Sufficiently general ISO 8601 parser.
 
+        Inputs must be in "basic" format, i.e. no '-' or ':' separators.
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
-        # separate date and time
-        date_string, sep, time_string = datetime_string.partition('T')
-        # strip timezone
-        if time_string[-1] == 'Z':
-            # time zone designator of Z
-            time_string = time_string[:-1]
-        else:
-            time_string, sep, zone_string = time_string.partition('+')
-            if not sep:
-                time_string, sep, zone_string = time_string.partition('-')
-        datetime_string = date_string + 'T' + time_string
-        precision = min((len(datetime_string) - 1) // 3, 6)
+        # separate time and timezone
+        tz_offset = None
+        if time_string:
+            if time_string[-1] == 'Z':
+                # time zone designator of Z
+                time_string = time_string[:-1]
+                zone_string = '0000'
+                zone_sign = '+'
+            else:
+                time_string, zone_sign, zone_string = time_string.partition('+')
+                if not zone_string:
+                    time_string, zone_sign, zone_string = time_string.partition('-')
+            # compute tz_offset
+            if zone_string:
+                zone_string += '  00'[len(zone_string):]
+                tz_offset = timedelta(
+                    hours=int(zone_string[:2]), minutes=int(zone_string[2:]))
+                if zone_sign == '-':
+                    tz_offset = -tz_offset
+        datetime_string = date_string + time_string
+        precision = min((len(datetime_string) - 2) // 2, 6)
         if precision <= 0:
             return None
         if precision == 6 and datetime_string.count('.') > 0:
             precision = 7
-        return cls(datetime.strptime(
-            datetime_string, ''.join(cls.parts[:precision])), precision)
+        fmt = ''.join(cls.basic_fmt[:precision])
+        return cls(datetime.strptime(datetime_string, fmt), precision, tz_offset)
 
-    def to_ISO_8601(self):
-        return self.datetime.strftime(''.join(self.parts[:self.precision]))
+    basic_fmt    = ('%Y',  '%m',  '%d',  '%H',  '%M',  '%S', '.%f')
+    extended_fmt = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
 
+    def to_ISO_8601(self, basic=False, precision=None, time_zone=True):
+        if precision is None:
+            precision = self.precision
+        if basic:
+            fmt = ''.join(self.basic_fmt[:precision])
+        else:
+            fmt = ''.join(self.extended_fmt[:precision])
+        datetime_string = self.datetime.strftime(fmt)
+        if precision > 3 and time_zone and self.tz_offset is not None:
+            return datetime_string + self.tz_string(basic=basic)
+        return datetime_string
+
+    def tz_string(self, basic=False):
+        if self.tz_offset is None:
+            return ''
+        seconds = int(self.tz_offset.total_seconds())
+        if seconds >= 0:
+            sign_string = '+'
+        else:
+            sign_string = '-'
+            seconds = -seconds
+        if basic:
+            fmt = '{}{:02d}{:02d}'
+        else:
+            fmt = '{}{:02d}:{:02d}'
+        return fmt.format(sign_string, seconds // 3600, (seconds % 3600) // 60)
+
+    # Exif datetime replaces missing values with spaces, keeping the
+    # colon separators and the overall string length. See
+    # http://www.awaresystems.be/imaging/tiff/tifftags/privateifd/exif/datetimeoriginal.html
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
-        # convert to ISO 8601
-        datetime_string = (datetime_string[:10].replace(':', '-') + 'T' +
-                           datetime_string[11:])
+        # separate date & time and remove separators
+        date_string = datetime_string[:10].replace(':', '')
+        time_string = datetime_string[11:].replace(':', '')
         # truncate if any missing values
-        space_pos = datetime_string.find(' ')
-        if space_pos >= 1:
-            datetime_string = datetime_string[:space_pos-1]
-        elif sub_sec_string:
-            datetime_string += '.' + sub_sec_string
-        return cls.from_ISO_8601(datetime_string)
+        space_pos = date_string.find(' ')
+        if space_pos >= 0:
+            date_string = date_string[:space_pos]
+            time_string = ''
+        else:
+            space_pos = time_string.find(' ')
+            if space_pos >= 0:
+                time_string = time_string[:space_pos]
+            elif sub_sec_string:
+                time_string += '.' + sub_sec_string
+        return cls.from_ISO_8601(date_string, time_string)
 
     def to_exif(self):
-        datetime_string, sep, sub_sec_string = self.to_ISO_8601().partition('.')
+        datetime_string, sep, sub_sec_string = self.to_ISO_8601(
+            time_zone=False).partition('.')
         if sub_sec_string == '':
             sub_sec_string = None
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
         # add spaces for any missing values
+        #                   YYYY mm dd HH MM SS
         datetime_string += '    :  :     :  :  '[len(datetime_string):]
         return datetime_string, sub_sec_string
 
+    # IPTC date & time should have no separators and be 8 and 11 chars
+    # respectively (time includes time zone offset). I suspect the exiv2
+    # library is adding separators on read and time zone on write, but
+    # am not sure.
+
+    # The date (but not time) can have missing values represented by 00
+    # according to
+    # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
     def from_iptc(cls, date_string, time_string):
-        if not date_string:
-            return None
-        # remove extraneous characters
-        date_string = date_string.replace('-', '')[:8]
-        if time_string:
-            # clean up, remove timezone and append to date string
-            date_string = date_string + ' ' + time_string.replace(':', '')[:6]
-            fmt = '%Y%m%d %H%M%S'
-            precision = 6
+        # remove separators (that shouldn't be there)
+        date_string = date_string.replace('-', '')
+        # remove missing values
+        while len(date_string) > 4 and date_string[-2:] == '00':
+            date_string = date_string[:-2]
+        if date_string == '0000':
+            date_string = ''
+        # ignore time if date is not full precision
+        if len(date_string) >= 8 and time_string:
+            # remove separators (that shouldn't be there)
+            time_string = time_string.replace(':', '')
         else:
-            fmt = '%Y%m%d'
-            precision = 3
-        return cls(datetime.strptime(date_string, fmt), precision)
+            time_string = ''
+        return cls.from_ISO_8601(date_string, time_string)
 
     def to_iptc(self):
-        date_fmt = '%Y%m%d'
         if self.precision <= 3:
-            return self.datetime.strftime(date_fmt), None
-        time_fmt = '%H%M%S:0000'
-        return self.datetime.strftime(date_fmt), self.datetime.strftime(time_fmt)
+            date_string = self.to_ISO_8601(basic=True)
+            #               YYYYmmdd
+            date_string += '00000000'[len(date_string):]
+            return date_string, None
+        datetime_string = self.to_ISO_8601(basic=True, precision=6)
+        return datetime_string[:8], datetime_string[8:]
 
+    # XMP uses extended ISO 8601, but the time cannot be hours only. See
+    # p75 of
+    # https://partners.adobe.com/public/developer/en/xmp/sdk/XMPspecification.pdf
+    # According to p71, when converting Exif values with no time zone,
+    # local time zone should be assumed. However, the MWG guidelines say
+    # this must not be assumed to be the time zone where the photo is
+    # processed. It also says the XMP standard has been revised to make
+    # time zone information optional.
     @classmethod
     def from_xmp(cls, datetime_string):
-        return cls.from_ISO_8601(datetime_string)
+        date_string, sep, time_string = datetime_string.partition('T')
+        return cls.from_ISO_8601(
+            date_string.replace('-', ''), time_string.replace(':', ''))
 
     def to_xmp(self):
-        return self.to_ISO_8601()
+        precision = self.precision
+        if precision == 4:
+            precision = 5
+        return self.to_ISO_8601(precision=precision)
 
 # type of each tag's data
 _data_type = {
@@ -644,7 +715,7 @@ class Metadata(QtCore.QObject):
                 time_string = self.get_tag_multiple(time_tag)[0]
             else:
                 time_string = None
-            if date_string or time_string:
+            if date_string:
                 return DateTime.from_iptc(date_string, time_string)
             return None
         if tag not in self.get_iptc_tags():
