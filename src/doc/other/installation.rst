@@ -140,10 +140,10 @@ It is also easily installed with pip::
 
    sudo pip install appdirs
 
-gexiv2 (preferred)
-^^^^^^^^^^^^^^^^^^
+gexiv2
+^^^^^^
 
-The latest Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "introspection bindings" to `gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_, which is a GObject wrapper around Exiv2.
+The Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "introspection bindings" to `gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_, which is a GObject wrapper around Exiv2.
 
 Linux users should use their package manager to install these bindings, but note that the package name is not obvious.
 The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
@@ -157,13 +157,8 @@ Linux users can use their package manager to install ``python-gobject`` or pip c
 
    sudo pip install pgi
 
-pyexiv2 (if gexiv2 cannot be installed)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-`pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ is an older Python binding to Exiv2.
-If you are unable to install gexiv2 then it can be used instead.
-Windows users can download a binary installer from http://tilloy.net/dev/pyexiv2/download.html (once again, make sure you choose the installer for your version of Python).
-Linux users can use their package manager to install ``python-pyexiv2``.
+.. note::
+   pgi use in Photini has been temporarily disabled because of problems reading metadata from an image loaded into memory.
 
 Optional dependencies
 ---------------------

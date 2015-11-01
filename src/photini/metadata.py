@@ -28,14 +28,7 @@ import os
 
 import six
 
-try:
-    from .metadata_gexiv2 import MetadataHandler
-except ImportError as e:
-    try:
-        from .metadata_pyexiv2 import MetadataHandler
-    except ImportError:
-        # raise exception on the one we really wanted
-        raise e
+from .metadata_gexiv2 import MetadataHandler
 from .pyqt import QtCore
 from . import __version__
 
