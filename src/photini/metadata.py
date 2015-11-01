@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from fractions import Fraction
 import locale
 import logging
@@ -154,6 +154,7 @@ class LensSpec(object):
 
 class DateTime(object):
     # store date and time with "precision" to store how much is valid
+    # tz_offset is stored in minutes
     def __init__(self, datetime, precision, tz_offset=None):
         self.datetime = datetime
         self.precision = precision
@@ -169,12 +170,7 @@ class DateTime(object):
         return self.to_ISO_8601()
 
     def members(self):
-        return self.datetime, self.precision
-
-    def tz_minutes(self):
-        if self.tz_offset is None:
-            return None
-        return int(self.tz_offset.total_seconds()) // 60
+        return self.datetime, self.precision, self.tz_offset
 
     @classmethod
     def from_ISO_8601(cls, date_string, time_string):
@@ -199,8 +195,7 @@ class DateTime(object):
             # compute tz_offset
             if zone_string:
                 zone_string += '  00'[len(zone_string):]
-                tz_offset = timedelta(
-                    hours=int(zone_string[:2]), minutes=int(zone_string[2:]))
+                tz_offset = (int(zone_string[:2]) * 60) + int(zone_string[2:])
                 if zone_sign == '-':
                     tz_offset = -tz_offset
         datetime_string = date_string + time_string
@@ -230,7 +225,7 @@ class DateTime(object):
     def tz_string(self, basic=False):
         if self.tz_offset is None:
             return ''
-        minutes = self.tz_minutes()
+        minutes = self.tz_offset
         if minutes >= 0:
             sign_string = '+'
         else:

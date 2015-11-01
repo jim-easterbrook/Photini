@@ -113,7 +113,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
 
     def focusInEvent(self, event):
         if self.precision < 1:
-            self.set_value(datetime=self.datetime, precision=1)
+            self.set_value(precision=1)
         elif self.dateTime() == self.minimumDateTime():
             self.setDateTime(self.datetime)
         super(DateTimeEdit, self).focusInEvent(event)
@@ -197,6 +197,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.setColumnStretch(3, 1)
         self.multiple = multiple_values()
         self._is_multiple = False
+        self._enabled = True
         # date & time
         self.datetime = DateTimeEdit()
         self.datetime.setCalendarPopup(True)
@@ -213,6 +214,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         # connections
         self.datetime.new_precision.connect(self.precision.setValue)
         self.datetime.editingFinished.connect(self.new_datetime)
+        self.time_zone.editingFinished.connect(self.new_time_zone)
         self.precision.valueChanged.connect(self.set_precision)
         self.precision.editing_finished.connect(self.new_precision)
 
@@ -224,29 +226,39 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         if self._is_multiple:
             return None
         precision = self.datetime.precision
-        if precision == 0:
+        if precision <= 0:
             return None
-        return DateTime(self.datetime.datetime, precision)
+        tz_offset = self.time_zone.value()
+        if tz_offset == self.time_zone.minimum():
+            # special value - no time zone
+            tz_offset = None
+        return DateTime(self.datetime.datetime, precision, tz_offset)
 
     def set_value(self, value):
         blocked = self.precision.blockSignals(True)
         self._is_multiple = False
         if value is None:
             self.datetime.set_value(precision=0)
-            self.time_zone.set_value(None)
         else:
             self.datetime.set_value(
                 datetime=value.datetime, precision=value.precision)
-            self.time_zone.set_value(value.tz_minutes())
+        if value is None or value.precision <= 3:
+            self.time_zone.set_value(None)
+        else:
+            self.time_zone.set_value(value.tz_offset)
+        self.time_zone.setEnabled(self._enabled)
         self.precision.blockSignals(blocked)
 
     def set_multiple(self):
         blocked = self.precision.blockSignals(True)
         self._is_multiple = True
         self.datetime.set_value(text=self.multiple, precision=7)
+        self.time_zone.set_value(None)
+        self.time_zone.setEnabled(False)
         self.precision.blockSignals(blocked)
 
     def set_enabled(self, enabled):
+        self._enabled = enabled
         self.datetime.setEnabled(enabled)
         self.precision.setEnabled(enabled)
 
@@ -258,6 +270,10 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
     def new_datetime(self):
         self._is_multiple = False
         self.datetime.set_value(datetime=self.datetime.dateTime().toPyDateTime())
+        self.new_value.emit(self.get_value())
+
+    @QtCore.pyqtSlot()
+    def new_time_zone(self):
         self.new_value.emit(self.get_value())
 
 
@@ -643,14 +659,8 @@ class Technical(QtWidgets.QWidget):
                 image.metadata.focal_length = value
 
     def _new_date_value(self, key, value):
-        if value is None:
-            # clear date and time
-            for image in self.image_list.get_selected_images():
-                setattr(image.metadata, 'date_' + key, None)
-        else:
-            for image in self.image_list.get_selected_images():
-                setattr(image.metadata, 'date_' + key,
-                        (value.datetime, value.precision))
+        for image in self.image_list.get_selected_images():
+            setattr(image.metadata, 'date_' + key, value)
         self._update_datetime(key)
 
     def _update_datetime(self, key):
