@@ -36,69 +36,62 @@ from . import __version__
 
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
-class MetadataHandler(object):
+class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path, image_data=None):
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.path = path
-        self._md = GExiv2.Metadata()
+        super(MetadataHandler, self).__init__()
+        self._logger = logging.getLogger(self.__class__.__name__)
+        self._path = path
         if image_data:
-            self._md.open_buf(image_data)
+            self.open_buf(image_data)
         else:
-            self._md.open_path(self.path)
-        # adopt some GExiv2.Metadata methods
-        self.get_exif_tags    = self._md.get_exif_tags
-        self.get_iptc_tags    = self._md.get_iptc_tags
-        self.get_xmp_tags     = self._md.get_xmp_tags
-        if six.PY3:
-            self.get_tag_string   = self._get_tag_string
-            self.get_tag_multiple = self._get_tag_multiple
-        else:
-            self.get_tag_string   = self._md.get_tag_string
-            self.get_tag_multiple = self._md.get_tag_multiple
-        self.set_tag_string   = self._md.set_tag_string
-        self.set_tag_multiple = self._md.set_tag_multiple
-        self.clear_tag        = self._md.clear_tag
+            self.open_path(self._path)
 
-    def _get_tag_string(self, tag):
+    def get_tag_string(self, tag):
+        if six.PY2:
+            return super(MetadataHandler, self).get_tag_string(tag)
         try:
-            result = self._md.get_tag_string(tag)
-        except UnicodeDecodeError:
+            result = super(MetadataHandler, self).get_tag_string(tag)
+        except UnicodeDecodeError as ex:
+            self._logger.error(str(ex))
             return ''
         return result
 
-    def _get_tag_multiple(self, tag):
+    def get_tag_multiple(self, tag):
+        if six.PY2:
+            return super(MetadataHandler, self).get_tag_multiple(tag)
         try:
-            result = self._md.get_tag_multiple(tag)
-        except UnicodeDecodeError:
+            result = super(MetadataHandler, self).get_tag_multiple(tag)
+        except UnicodeDecodeError as ex:
+            self._logger.error(str(ex))
             return []
         return result
 
     def save(self):
         try:
-            self._md.save_file(self.path)
+            self.save_file(self._path)
         except GObject.GError as ex:
-            self.logger.exception(ex)
+            self._logger.exception(ex)
             return False
         return True
 
     def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
         # copy from other to self
         if exif:
-            for tag in other._md.get_exif_tags():
-                self._md.set_tag_string(
-                    tag, other._md.get_tag_string(tag))
+            for tag in other.get_exif_tags():
+                self.set_tag_string(
+                    tag, other.get_tag_string(tag))
         if iptc:
-            for tag in other._md.get_iptc_tags():
-                self._md.set_tag_multiple(
-                    tag, other._md.get_tag_multiple(tag))
+            for tag in other.get_iptc_tags():
+                self.set_tag_multiple(
+                    tag, other.get_tag_multiple(tag))
         if xmp:
-            for tag in other._md.get_xmp_tags():
-                self._md.set_tag_multiple(
-                    tag, other._md.get_tag_multiple(tag))
+            for tag in other.get_xmp_tags():
+                self.set_tag_multiple(
+                    tag, other.get_tag_multiple(tag))
         if comment:
-            value = other._md.get_comment()
+            value = other.get_comment()
             if value:
-                self._md.set_comment(value)
+                self.set_comment(value)
 
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
@@ -121,6 +114,7 @@ def _decode_string(value):
             continue
     return value.decode('utf_8')
 
+
 def _encode_string(value, max_bytes=None):
     result = value.encode('utf_8')
     if max_bytes:
@@ -128,6 +122,7 @@ def _encode_string(value, max_bytes=None):
     if six.PY3:
         result = result.decode('utf_8')
     return result
+
 
 class LatLon(object):
     # simple class to store latitude and longitude
@@ -191,6 +186,7 @@ class LatLon(object):
             value = -value
         return value
 
+
 class LensSpec(object):
     # simple class to store lens "specificaton"
     def __init__(self, min_fl, max_fl, min_fl_fn, max_fl_fn):
@@ -216,6 +212,7 @@ class LensSpec(object):
     @classmethod
     def from_string(cls, value):
         return cls(*value.split(','))
+
 
 class DateTime(object):
     # store date and time with "precision" to store how much is valid
@@ -387,6 +384,7 @@ class DateTime(object):
         if precision == 4:
             precision = 5
         return self.to_ISO_8601(precision=precision)
+
 
 # type of each tag's data
 _data_type = {
