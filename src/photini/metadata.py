@@ -778,10 +778,12 @@ class Metadata(QtCore.QObject):
             return super(Metadata, self).__getattr__(name)
         # get values from all 3 families
         value = {'Exif': None, 'Iptc': None, 'Xmp': None}
+        used_tag = {'Exif': None, 'Iptc': None, 'Xmp': None}
         for family in self._primary_tags[name]:
+            tag = self._primary_tags[name][family]
             try:
-                value[family] = self._get_value(
-                    name, family, self._primary_tags[name][family])
+                value[family] = self._get_value(name, family, tag)
+                used_tag[family] = tag
             except Exception as ex:
                 self.logger.exception(ex)
         # merge conflicting data from secondary tags
@@ -796,34 +798,43 @@ class Metadata(QtCore.QObject):
                     continue
                 elif value[family] is None:
                     value[family] = new_value
+                    used_tag[family] = tag
                 elif new_value == value[family]:
                     continue
                 elif isinstance(value[family], six.string_types):
                     if new_value not in value[family]:
                         self.logger.warning(
                             '%s: merging %s into %s',
-                            os.path.basename(self._path), tag, name)
+                            os.path.basename(self._path), tag, used_tag[family])
                         value[family] += ' // ' + new_value
                 elif isinstance(value[family], list):
                     if new_value not in value[family]:
                         self.logger.warning(
                             '%s: merging %s into %s',
-                            os.path.basename(self._path), tag, name)
+                            os.path.basename(self._path), tag, used_tag[family])
                         value[family] += new_value
+                elif (isinstance(value[family], DateTime) and
+                      new_value.datetime == value[family].datetime):
+                    self.logger.warning(
+                        '%s: merging %s into %s',
+                        os.path.basename(self._path), tag, used_tag[family])
+                    value[family].precision = max(
+                        value[family].precision, new_value.precision)
+                    if value[family].tz_offset is None:
+                        value[family].tz_offset = new_value.tz_offset
                 elif (isinstance(value[family], DateTime) and
                       new_value.precision > value[family].precision):
                     self.logger.warning(
                         '%s: using %s value "%s", ignoring %s value "%s"',
-                        os.path.basename(self._path),
-                        tag, str(new_value),
-                        self._primary_tags[name][family], str(value[family]))
+                        os.path.basename(self._path), tag, str(new_value),
+                        used_tag[family], str(value[family]))
                     value[family] = new_value
+                    used_tag[family] = tag
                 else:
                     self.logger.warning(
                         '%s: using %s value "%s", ignoring %s value "%s"',
-                        os.path.basename(self._path),
-                        self._primary_tags[name][family], str(value[family]),
-                        tag, str(new_value))
+                        os.path.basename(self._path), used_tag[family],
+                        str(value[family]), tag, str(new_value))
         # choose preferred family
         if value['Exif'] is not None:
             preference = 'Exif'
@@ -840,24 +851,30 @@ class Metadata(QtCore.QObject):
             if isinstance(result, six.string_types):
                 if other not in result:
                     self.logger.warning(
-                        '%s: merging %s data into %s:%s',
-                        os.path.basename(self._path), family, preference, name)
+                        '%s: merging %s data into %s',
+                        os.path.basename(self._path),
+                        used_tag[family], used_tag[preference])
                     result += ' // ' + other
             elif isinstance(result, list):
                 if other not in result:
                     self.logger.warning(
-                        '%s: merging %s data into %s:%s',
-                        os.path.basename(self._path), family, preference, name)
+                        '%s: merging %s data into %s',
+                        os.path.basename(self._path),
+                        used_tag[family], used_tag[preference])
                     result += other
             elif (isinstance(other, DateTime) and
                   other.datetime == result.datetime):
                 if result.tz_offset is None and family != 'Iptc':
+                    self.logger.warning(
+                        '%s: merging %s data into %s',
+                        os.path.basename(self._path),
+                        used_tag[family], used_tag[preference])
                     result.tz_offset = other.tz_offset
             else:
                 self.logger.warning(
-                    '%s: %s: using %s value "%s", ignoring %s value "%s"',
-                    os.path.basename(self._path),
-                    name, preference, str(result), family, str(other))
+                    '%s: using %s value "%s", ignoring %s value "%s"',
+                    os.path.basename(self._path), used_tag[preference],
+                    str(result), used_tag[family], str(other))
         # add value to object attributes so __getattr__ doesn't get
         # called again
         super(Metadata, self).__setattr__(name, result)
