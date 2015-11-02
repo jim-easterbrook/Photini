@@ -21,9 +21,11 @@ from __future__ import unicode_literals
 
 import logging
 import logging.handlers
+import os
 import sys
 
-from .pyqt import QtCore, QtWidgets
+from .configstore import data_dir
+from .pyqt import QtCore, QtGui, QtWidgets
 
 class OutputInterceptor(object):
     def __init__(self, name, stream):
@@ -58,6 +60,7 @@ class LoggerWindow(QtWidgets.QWidget):
     def __init__(self, verbose, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setWindowTitle(self.tr("Photini error logging"))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setRowStretch(0, 1)
         self.layout().setColumnStretch(0, 1)
