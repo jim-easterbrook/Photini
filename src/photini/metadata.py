@@ -26,11 +26,83 @@ import logging
 import math
 import os
 
+from gi.repository import GObject, GExiv2
 import six
 
-from .metadata_gexiv2 import MetadataHandler
 from .pyqt import QtCore
 from . import __version__
+
+# pydoc gi.repository.GExiv2.Metadata is useful to see methods available
+
+GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
+
+class MetadataHandler(object):
+    def __init__(self, path, image_data=None):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.path = path
+        self._md = GExiv2.Metadata()
+        if image_data:
+            self._md.open_buf(image_data)
+        else:
+            self._md.open_path(self.path)
+        # adopt some GExiv2.Metadata methods
+        self.get_exif_tags    = self._md.get_exif_tags
+        self.get_iptc_tags    = self._md.get_iptc_tags
+        self.get_xmp_tags     = self._md.get_xmp_tags
+        if six.PY3:
+            self.get_tag_string   = self._get_tag_string
+            self.get_tag_multiple = self._get_tag_multiple
+        else:
+            self.get_tag_string   = self._md.get_tag_string
+            self.get_tag_multiple = self._md.get_tag_multiple
+        self.set_tag_string   = self._md.set_tag_string
+        self.set_tag_multiple = self._md.set_tag_multiple
+        self.clear_tag        = self._md.clear_tag
+
+    def _get_tag_string(self, tag):
+        try:
+            result = self._md.get_tag_string(tag)
+        except UnicodeDecodeError:
+            return ''
+        return result
+
+    def _get_tag_multiple(self, tag):
+        try:
+            result = self._md.get_tag_multiple(tag)
+        except UnicodeDecodeError:
+            return []
+        return result
+
+    def save(self):
+        try:
+            self._md.save_file(self.path)
+        except GObject.GError as ex:
+            self.logger.exception(ex)
+            return False
+        return True
+
+    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
+        # copy from other to self
+        if exif:
+            for tag in other._md.get_exif_tags():
+                self._md.set_tag_string(
+                    tag, other._md.get_tag_string(tag))
+        if iptc:
+            for tag in other._md.get_iptc_tags():
+                self._md.set_tag_multiple(
+                    tag, other._md.get_tag_multiple(tag))
+        if xmp:
+            for tag in other._md.get_xmp_tags():
+                self._md.set_tag_multiple(
+                    tag, other._md.get_tag_multiple(tag))
+        if comment:
+            value = other._md.get_comment()
+            if value:
+                self._md.set_comment(value)
+
+    def get_tags(self):
+        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+
 
 _encodings = None
 def _decode_string(value):
