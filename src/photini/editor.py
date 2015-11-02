@@ -38,13 +38,6 @@ from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import webbrowser
 
-# on Windows & Python3, GObject needs to be imported before PyQt
-if sys.platform == 'win32' and six.PY3:
-    try:
-        from .metadata_gexiv2 import MetadataHandler
-    except ImportError:
-        pass
-
 from .configstore import ConfigStore, data_dir
 from .bingmap import BingMap
 from .descriptive import Descriptive
