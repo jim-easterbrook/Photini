@@ -129,14 +129,14 @@ class FlickrSession(object):
                     p_set['title'], p_set['description'], photo_id)
         # set date (Flickr doesn't understand Exif with missing parts)
         date_taken = image.metadata.date_taken
-        if date_taken and date_taken.precision < 6:
-            granularity = 8 - (date_taken.precision * 2)
+        if date_taken and date_taken.value['precision'] < 6:
+            granularity = 8 - (date_taken.value['precision'] * 2)
             if granularity < 4:
                 granularity = 0
             try:
                 rsp = self.session.photos_setDates(
                     photo_id=photo_id,
-                    date_taken=date_taken.datetime.isoformat(b' '),
+                    date_taken=date_taken.value['datetime'].isoformat(b' '),
                     date_taken_granularity=granularity)
             except flickrapi.FlickrError as ex:
                 return str(ex)

@@ -21,6 +21,8 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+import six
+
 from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .spelling import SpellingHighlighter
 
@@ -66,10 +68,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             self.clear()
             if qt_version_info >= (5, 3):
                 self.setPlaceholderText('')
-        elif isinstance(value, list):
-            self.setPlainText('; '.join(value))
         else:
-            self.setPlainText(value)
+            self.setPlainText(six.text_type(value))
 
     def get_value(self):
         return self.toPlainText()
@@ -116,10 +116,8 @@ class LineEdit(QtWidgets.QLineEdit):
         if not value:
             self.clear()
             self.setPlaceholderText('')
-        elif isinstance(value, list):
-            self.setText('; '.join(value))
         else:
-            self.setText(value)
+            self.setText(six.text_type(value))
 
     def get_value(self):
         return self.text()
@@ -232,7 +230,7 @@ class Descriptive(QtWidgets.QWidget):
             if date_taken is None:
                 date_taken = datetime.now()
             else:
-                date_taken = date_taken.datetime
+                date_taken = date_taken.value['datetime']
             value = self.trUtf8(
                 'Copyright ©{0:d} {1}. All rights reserved.').format(
                     date_taken.year, name)

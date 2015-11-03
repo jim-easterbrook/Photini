@@ -151,16 +151,16 @@ class Image(QtWidgets.QFrame):
         else:
             pixmap = self.pixmap
             orientation = self.metadata.orientation
-            if orientation and orientation > 1:
+            if orientation and orientation.value > 1:
                 # need to rotate and or reflect image
                 transform = QtGui.QTransform()
-                if orientation in (3, 4):
+                if orientation.value in (3, 4):
                     transform = transform.rotate(180.0)
-                elif orientation in (5, 6):
+                elif orientation.value in (5, 6):
                     transform = transform.rotate(90.0)
-                elif orientation in (7, 8):
+                elif orientation.value in (7, 8):
                     transform = transform.rotate(-90.0)
-                if orientation in (2, 4, 5, 7):
+                if orientation.value in (2, 4, 5, 7):
                     transform = transform.scale(-1.0, 1.0)
                 pixmap = pixmap.transformed(transform)
             self.image.setPixmap(pixmap.scaled(
@@ -429,7 +429,7 @@ class ImageList(QtWidgets.QWidget):
         if result is None:
             # use file date as last resort
             return datetime.fromtimestamp(os.path.getmtime(self.image[idx].path))
-        return result.datetime
+        return result.value['datetime']
 
     def _new_sort_order(self):
         self._sort_thumbnails()

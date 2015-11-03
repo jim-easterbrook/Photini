@@ -53,7 +53,7 @@ class DropdownEdit(QtWidgets.QComboBox):
         return self.findData(str(value)) >= 0
 
     def set_value(self, value):
-        if value is None:
+        if not value:
             self.setCurrentIndex(self.count() - 2)
         else:
             self.setCurrentIndex(self.findData(str(value)))
@@ -77,11 +77,11 @@ class FloatEdit(QtWidgets.QLineEdit):
 
     def set_value(self, value):
         self._is_multiple = False
-        if value is None:
+        if not value:
             self.clear()
             self.setPlaceholderText('')
         else:
-            self.setText('{:g}'.format(float(value)))
+            self.setText(str(value))
 
     def get_value(self):
         return self.text()
@@ -241,11 +241,11 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
             self.datetime.set_value(precision=0)
         else:
             self.datetime.set_value(
-                datetime=value.datetime, precision=value.precision)
-        if value is None or value.precision <= 3:
+                datetime=value.value['datetime'], precision=value.value['precision'])
+        if not value or value.value['precision'] <= 3:
             self.time_zone.set_value(None)
         else:
-            self.time_zone.set_value(value.tz_offset)
+            self.time_zone.set_value(value.value['tz_offset'])
         self.time_zone.setEnabled(self._enabled)
         self.precision.blockSignals(blocked)
 
@@ -340,15 +340,16 @@ class LensData(object):
                 setattr(image.metadata, item, None)
             return
         section = 'lens ' + model
-        for item in ('lens_make', 'lens_serial', 'lens_spec'):
+        for item in ('lens_make', 'lens_serial'):
             value = self.config_store.get(section, item) or None
             setattr(image.metadata, item, value)
+        image.metadata.lens_spec = self.get_spec(model)
 
     def image_load(self, model, image):
-        section = 'lens '  + model
+        section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
-            if value is not None:
+            if value:
                 self.config_store.set(section, item, str(value))
         self.lenses.append(model)
         self.lenses.sort()
@@ -364,7 +365,7 @@ class LensData(object):
         max_fl = dialog.lens_spec['max_fl'].text() or min_fl
         min_fl_fn = dialog.lens_spec['min_fl_fn'].text() or '0'
         max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
-        lens_spec = LensSpec(min_fl, max_fl, min_fl_fn, max_fl_fn)
+        lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
         section = 'lens '  + model
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
@@ -381,7 +382,7 @@ class LensData(object):
         spec = self.config_store.get(section, 'lens_spec')
         if not spec:
             return None
-        return LensSpec.from_string(spec)
+        return LensSpec.from_string(spec, sep=',')
 
 
 class NewLensDialog(QtWidgets.QDialog):
@@ -564,7 +565,7 @@ class Technical(QtWidgets.QWidget):
             value = image.metadata.date_taken
             if value is None:
                 continue
-            value.datetime = value.datetime + offset
+            value.value['datetime'] = value.value['datetime'] + offset
             image.metadata.date_taken = value
             if self.link_widget['taken', 'digitised'].isChecked():
                 image.metadata.date_digitised = value
@@ -622,14 +623,24 @@ class Technical(QtWidgets.QWidget):
         if spec and self.link_lens.isChecked():
             for image in self.image_list.get_selected_images():
                 aperture = image.metadata.aperture
-                focal_length = image.metadata.focal_length
-                focal_length = min(max(focal_length, spec.min_fl), spec.max_fl)
-                if focal_length <= spec.min_fl:
-                    aperture = max(aperture, spec.min_fl_fn)
-                elif focal_length >= spec.max_fl:
-                    aperture = max(aperture, spec.max_fl_fn)
+                if aperture:
+                    aperture = aperture.value
                 else:
-                    aperture = max(aperture, spec.min_fl_fn, spec.max_fl_fn)
+                    aperture = 0
+                focal_length = image.metadata.focal_length
+                if focal_length:
+                    focal_length = focal_length.value
+                else:
+                    focal_length = 0
+                focal_length = min(max(
+                    focal_length, spec.value['min_fl']), spec.value['max_fl'])
+                if focal_length <= spec.value['min_fl']:
+                    aperture = max(aperture, spec.value['min_fl_fn'])
+                elif focal_length >= spec.value['max_fl']:
+                    aperture = max(aperture, spec.value['max_fl_fn'])
+                else:
+                    aperture = max(aperture, spec.value['min_fl_fn'],
+                                             spec.value['max_fl_fn'])
                 image.metadata.aperture = aperture
                 image.metadata.focal_length = focal_length
             self._update_aperture()
@@ -698,11 +709,15 @@ class Technical(QtWidgets.QWidget):
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
-        if not self.widgets['lens_model'].known_value(value):
+        if value:
+            model = value.value
+        else:
+            model = None
+        if not self.widgets['lens_model'].known_value(model):
             # new lens
-            self.lens_data.image_load(value, images[0])
-            self.widgets['lens_model'].add_item(value)
-        self.widgets['lens_model'].set_value(value)
+            self.lens_data.image_load(model, images[0])
+            self.widgets['lens_model'].add_item(model)
+        self.widgets['lens_model'].set_value(model)
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()

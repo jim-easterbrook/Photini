@@ -218,7 +218,8 @@ class PicasaSession(object):
             photo.group.keywords.text = ','.join(keywords)
         latlong = image.metadata.latlong
         if latlong:
-            photo.where.Point.pos.text = '{0} {1}'.format(*latlong.members())
+            photo.where.Point.pos.text = '{0} {1}'.format(
+                latlong.value['lat'], latlong.value['lon'])
         try:
             self.edit_node(photo)
         except Exception as ex:
