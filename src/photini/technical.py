@@ -382,7 +382,7 @@ class LensData(object):
         spec = self.config_store.get(section, 'lens_spec')
         if not spec:
             return None
-        return LensSpec.from_string(spec, sep=',')
+        return LensSpec(spec, sep=',')
 
 
 class NewLensDialog(QtWidgets.QDialog):

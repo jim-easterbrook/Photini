@@ -66,6 +66,8 @@ class Ignore(MetadataValue):
 class LatLon(MetadataValue):
     # simple class to store latitude and longitude
     def __init__(self, value):
+        if isinstance(value, six.string_types):
+            value = value.split(',')
         lat, lon = value
         super(LatLon, self).__init__({
             'lat' : round(float(lat), 6),
@@ -123,17 +125,15 @@ class LatLon(MetadataValue):
         return cls((cls.from_xmp_part(lat_string),
                     cls.from_xmp_part(lon_string)))
 
-    @classmethod
-    def from_string(cls, value):
-        return cls(value.split(','))
-
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.value['lat'], self.value['lon'])
 
 
 class LensSpec(MetadataValue):
     # simple class to store lens "specificaton"
-    def __init__(self, value):
+    def __init__(self, value, sep=None):
+        if isinstance(value, six.string_types):
+            value = value.split(sep)
         min_fl, max_fl, min_fl_fn, max_fl_fn = value
         super(LensSpec, self).__init__({
             'min_fl'    : Fraction(min_fl).limit_denominator(1000000),
@@ -141,10 +141,6 @@ class LensSpec(MetadataValue):
             'min_fl_fn' : Fraction(min_fl_fn).limit_denominator(1000000),
             'max_fl_fn' : Fraction(max_fl_fn).limit_denominator(1000000),
             })
-
-    @classmethod
-    def from_string(cls, value, sep=None):
-        return cls(value.split(sep))
 
     def __str__(self):
         return '{:g}, {:g}, {:g}, {:g}'.format(
@@ -344,10 +340,6 @@ class MultiString(MetadataValue):
         value = list(filter(bool, [x.strip() for x in value]))
         super(MultiString, self).__init__(value)
 
-    @classmethod
-    def from_string(cls, raw_string):
-        return cls(raw_string)
-
     def __str__(self):
         return '; '.join(self.value)
 
@@ -365,11 +357,9 @@ class MultiString(MetadataValue):
 @six.python_2_unicode_compatible
 class String(MetadataValue):
     def __init__(self, value):
+        if isinstance(value, list):
+            value = value[0]
         super(String, self).__init__(six.text_type(value).strip())
-
-    @classmethod
-    def from_string(cls, raw_string):
-        return cls(raw_string)
 
     def __str__(self):
         return self.value
@@ -396,10 +386,6 @@ class Int(MetadataValue):
     def __nonzero__(self):
         return self.value is not None
 
-    @classmethod
-    def from_string(cls, raw_string):
-        return cls(raw_string)
-
     def __str__(self):
         return '{:d}'.format(self.value)
 
@@ -411,18 +397,13 @@ class Rational(MetadataValue):
     def __nonzero__(self):
         return self.value is not None
 
-    @classmethod
-    def from_string(cls, raw_string):
-        return cls(raw_string)
-
     def __str__(self):
         return '{:g}'.format(float(self.value))
 
 
 class APEXAperture(Rational):
-    @classmethod
-    def from_string(cls, raw_string):
-        return cls(math.sqrt(2.0 ** Fraction(raw_string)))
+    def __init__(self, value):
+        super(APEXAperture, self).__init__(math.sqrt(2.0 ** Fraction(value)))
 
 
 # type of each tag's data
@@ -554,7 +535,7 @@ class MetadataHandler(GExiv2.Metadata):
         return result
 
 
-    def get_tag(self, tag):
+    def get_value(self, tag):
         # get value as our preferred data type
         exiv_type = MetadataHandler.get_tag_type(tag)
         if exiv_type in ('Ascii', 'XmpText'):
@@ -567,12 +548,6 @@ class MetadataHandler(GExiv2.Metadata):
             raise RuntimeError('Unknown tag type ' + exiv_type)
         if not result:
             return None
-        if _data_type[tag] == String:
-            if exiv_type in ('LangAlt', 'String'):
-                result = result[0]
-            return String.from_string(result)
-        if _data_type[tag] == MultiString:
-            return MultiString(result)
         if _data_type[tag] == DateTime:
             if MetadataHandler.is_exif_tag(tag):
                 # Exif.Photo.SubSecXXX can be used with
@@ -603,9 +578,9 @@ class MetadataHandler(GExiv2.Metadata):
             version_tag = tag + 'Version'
             if self.has_tag(version_tag):
                 result += ' v' + self.get_tag_string(version_tag)
-        return _data_type[tag].from_string(result)
+        return _data_type[tag](result)
 
-    def set_tag(self, tag, value):
+    def set_value(self, tag, value):
         exiv_type = MetadataHandler.get_tag_type(tag)
         # do multi-tag items
         if _data_type[tag] == LatLon and MetadataHandler.is_exif_tag(tag):
@@ -851,11 +826,11 @@ class Metadata(QtCore.QObject):
             # write data to primary tags
             for family in self._primary_tags[name]:
                 tag = self._primary_tags[name][family]
-                self.set_tag(tag, value)
+                self.set_value(tag, value)
             # delete secondary tags
             for family in self._secondary_tags[name]:
                 for tag in self._secondary_tags[name][family]:
-                    self.set_tag(tag, None)
+                    self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc, comment=False)
         OK = False
@@ -873,15 +848,15 @@ class Metadata(QtCore.QObject):
         self._set_unsaved(not OK)
 
     # getters: use sidecar if tag is present, otherwise use image file
-    def get_tag(self, tag):
+    def get_value(self, tag):
         assert(tag in _data_type)
         if _data_type[tag] == Ignore:
             return None
         result = None
         if self._sc:
-            result = self._sc.get_tag(tag)
+            result = self._sc.get_value(tag)
         if self._if and not result:
-            result = self._if.get_tag(tag)
+            result = self._if.get_value(tag)
         return result
 
     def has_iptc(self):
@@ -892,12 +867,12 @@ class Metadata(QtCore.QObject):
         return False
 
     # setters: set in both sidecar and image file
-    def set_tag(self, tag, value):
+    def set_value(self, tag, value):
         assert(tag in _data_type)
         if self._sc:
-            self._sc.set_tag(tag, value)
+            self._sc.set_value(tag, value)
         if self._if:
-            self._if.set_tag(tag, value)
+            self._if.set_value(tag, value)
 
     def __getattr__(self, name):
         if name not in self._primary_tags:
@@ -908,7 +883,7 @@ class Metadata(QtCore.QObject):
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
             try:
-                value[family] = self.get_tag(tag)
+                value[family] = self.get_value(tag)
                 used_tag[family] = tag
             except Exception as ex:
                 self.logger.exception(ex)
@@ -916,7 +891,7 @@ class Metadata(QtCore.QObject):
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
                 try:
-                    new_value = self.get_tag(tag)
+                    new_value = self.get_value(tag)
                 except Exception as ex:
                     self.logger.exception(ex)
                     continue
