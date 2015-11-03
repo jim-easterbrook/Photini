@@ -36,85 +36,6 @@ from . import __version__
 
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
-class MetadataHandler(GExiv2.Metadata):
-    def __init__(self, path, image_data=None):
-        super(MetadataHandler, self).__init__()
-        self._logger = logging.getLogger(self.__class__.__name__)
-        self._path = path
-        if image_data:
-            self.open_buf(image_data)
-        else:
-            self.open_path(self._path)
-
-    def get_tag_string(self, tag):
-        if six.PY2:
-            return super(MetadataHandler, self).get_tag_string(tag)
-        try:
-            result = super(MetadataHandler, self).get_tag_string(tag)
-        except UnicodeDecodeError as ex:
-            self._logger.error(str(ex))
-            return ''
-        return result
-
-    def get_tag_multiple(self, tag):
-        if six.PY2:
-            return super(MetadataHandler, self).get_tag_multiple(tag)
-        try:
-            result = super(MetadataHandler, self).get_tag_multiple(tag)
-        except UnicodeDecodeError as ex:
-            self._logger.error(str(ex))
-            return []
-        return result
-
-    def save(self):
-        try:
-            self.save_file(self._path)
-        except GObject.GError as ex:
-            self._logger.exception(ex)
-            return False
-        return True
-
-    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
-        # copy from other to self
-        if exif:
-            for tag in other.get_exif_tags():
-                self.set_tag_string(
-                    tag, other.get_tag_string(tag))
-        if iptc:
-            for tag in other.get_iptc_tags():
-                self.set_tag_multiple(
-                    tag, other.get_tag_multiple(tag))
-        if xmp:
-            for tag in other.get_xmp_tags():
-                self.set_tag_multiple(
-                    tag, other.get_tag_multiple(tag))
-        if comment:
-            value = other.get_comment()
-            if value:
-                self.set_comment(value)
-
-    def get_tags(self):
-        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
-
-
-_encodings = None
-def _decode_string(value):
-    global _encodings
-    if six.PY3:
-        return value
-    if not _encodings:
-        _encodings = ['utf_8', 'latin_1']
-        char_set = locale.getdefaultlocale()[1]
-        if char_set:
-            _encodings.append(char_set)
-    for encoding in _encodings:
-        try:
-            return value.decode(encoding)
-        except UnicodeDecodeError:
-            continue
-    return value.decode('utf_8')
-
-
 def _encode_string(value, max_bytes=None):
     result = value.encode('utf_8')
     if max_bytes:
@@ -158,6 +79,11 @@ class LatLon(object):
             result = -result
         return result
 
+    @classmethod
+    def from_exif(cls, lat_string, lat_ref, lon_string, lon_ref):
+        return cls(LatLon.from_exif_part(lat_string, lat_ref),
+                   LatLon.from_exif_part(lon_string, lon_ref))
+
     def to_exif(self):
         result = []
         for value, sign_char in zip((self.lat, self.lon), ('NS', 'EW')):
@@ -185,6 +111,11 @@ class LatLon(object):
         if ref in ('S', 'W'):
             value = -value
         return value
+
+    @classmethod
+    def from_xmp(cls, lat_string, lon_string):
+        return cls(LatLon.from_xmp_part(lat_string),
+                   LatLon.from_xmp_part(lon_string))
 
 
 class LensSpec(object):
@@ -459,6 +390,152 @@ _max_bytes = {
     'Iptc.Application2.ProgramVersion'   :   10,
     }
 
+_encodings = None
+
+class MetadataHandler(GExiv2.Metadata):
+    def __init__(self, path, image_data=None):
+        super(MetadataHandler, self).__init__()
+        self._logger = logging.getLogger(self.__class__.__name__)
+        self._path = path
+        if image_data:
+            self.open_buf(image_data)
+        else:
+            self.open_path(self._path)
+
+    def _decode_string(self, value):
+        global _encodings
+        if not _encodings:
+            _encodings = ['utf_8', 'latin_1']
+            char_set = locale.getdefaultlocale()[1]
+            if char_set:
+                _encodings.append(char_set)
+        for encoding in _encodings:
+            try:
+                return value.decode(encoding)
+            except UnicodeDecodeError:
+                continue
+        return value.decode('utf_8')
+
+    def get_tag(self, tag):
+        # get value as our preferred data type
+        exiv_type = MetadataHandler.get_tag_type(tag)
+        if exiv_type in ('Ascii', 'Date', 'Rational', 'Short', 'XmpText'):
+            result = self.get_tag_string(tag)
+        elif exiv_type in ('LangAlt', 'String', 'XmpBag', 'XmpSeq'):
+            result = self.get_tag_multiple(tag)
+        else:
+            raise RuntimeError('Unknown tag type ' + exiv_type)
+        if not bool(result):
+            return None
+        if _data_type[tag] == 'string':
+            if exiv_type in ('LangAlt', 'String'):
+                result = result[0].strip()
+            if six.PY2:
+                result = self._decode_string(result)
+        elif _data_type[tag] == 'multi_string':
+            if exiv_type in ('Ascii', 'XmpText'):
+                result = result.split(';')
+            if six.PY2:
+                result = list(map(self._decode_string, result))
+            result = list(filter(bool, [x.strip() for x in result]))
+            if not result:
+                return None
+        elif _data_type[tag] == 'int':
+            result = int(result)
+        elif _data_type[tag] == 'rational':
+            result = float(Fraction(result))
+        elif _data_type[tag] == 'APEX_aperture':
+            result = math.sqrt(2.0 ** float(Fraction(result)))
+        elif _data_type[tag] == 'datetime':
+            if MetadataHandler.is_exif_tag(tag):
+                # Exif.Photo.SubSecXXX can be used with
+                # Exif.Photo.DateTimeXXX or Exif.Image.DataTimeXXX
+                sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
+                sub_sec_tag = sub_sec_tag.replace('Image', 'Photo')
+                if sub_sec_tag in self.get_exif_tags():
+                    sub_sec_string = self.get_tag_string(sub_sec_tag)
+                else:
+                    sub_sec_string = None
+                result = DateTime.from_exif(result, sub_sec_string)
+            elif MetadataHandler.is_iptc_tag(tag):
+                time_tag = tag.replace('Date', 'Time')
+                if time_tag in self.get_iptc_tags():
+                    time_string = self.get_tag_string(time_tag)
+                else:
+                    time_string = None
+                result = DateTime.from_iptc(result, time_string)
+            else:
+                result = DateTime.from_xmp(result)
+        elif _data_type[tag] == 'latlon':
+            lon_tag = tag.replace('Latitude', 'Longitude')
+            if MetadataHandler.is_exif_tag(tag):
+                parts = [result]
+                for sub_tag in (tag + 'Ref', lon_tag, lon_tag + 'Ref'):
+                    if sub_tag not in self.get_exif_tags():
+                        return None
+                    parts.append(self.get_tag_string(sub_tag))
+                result = LatLon.from_exif(*parts)
+            else:
+                if lon_tag not in self.get_xmp_tags():
+                    return None
+                return LatLon.from_xmp(result, self.get_tag_string(lon_tag))
+        elif _data_type[tag] == 'lensspec':
+            return LensSpec(*result.split())
+        else:
+            raise RuntimeError('Cannot convert ' + tag)
+        return result
+
+    def get_tag_string(self, tag):
+        if six.PY2:
+            return super(MetadataHandler, self).get_tag_string(tag)
+        try:
+            result = super(MetadataHandler, self).get_tag_string(tag)
+        except UnicodeDecodeError as ex:
+            self._logger.error(str(ex))
+            return ''
+        return result
+
+    def get_tag_multiple(self, tag):
+        if six.PY2:
+            return super(MetadataHandler, self).get_tag_multiple(tag)
+        try:
+            result = super(MetadataHandler, self).get_tag_multiple(tag)
+        except UnicodeDecodeError as ex:
+            self._logger.error(str(ex))
+            return []
+        return result
+
+    def save(self):
+        try:
+            self.save_file(self._path)
+        except GObject.GError as ex:
+            self._logger.exception(ex)
+            return False
+        return True
+
+    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
+        # copy from other to self
+        if exif:
+            for tag in other.get_exif_tags():
+                self.set_tag_string(
+                    tag, other.get_tag_string(tag))
+        if iptc:
+            for tag in other.get_iptc_tags():
+                self.set_tag_multiple(
+                    tag, other.get_tag_multiple(tag))
+        if xmp:
+            for tag in other.get_xmp_tags():
+                self.set_tag_multiple(
+                    tag, other.get_tag_multiple(tag))
+        if comment:
+            value = other.get_comment()
+            if value:
+                self.set_comment(value)
+
+    def get_tags(self):
+        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+
+
 def sanitise(name, value):
     # convert value if required and clean it up
     if value in (None, '', []):
@@ -690,18 +767,15 @@ class Metadata(QtCore.QObject):
         return result
 
     # getters: use sidecar if tag is present, otherwise use image file
-    def get_tag_string(self, tag):
+    def get_tag(self, tag):
+        if tag not in _data_type:
+            raise RuntimeError('Cannot read tag ' + tag)
+        if _data_type[tag] == 'ignore':
+            return None
         if self._sc and tag in self._sc.get_tags():
-            return self._sc.get_tag_string(tag)
+            return self._sc.get_tag(tag)
         if self._if:
-            return self._if.get_tag_string(tag)
-        return None
-
-    def get_tag_multiple(self, tag):
-        if self._sc and tag in self._sc.get_tags():
-            return self._sc.get_tag_multiple(tag)
-        if self._if:
-            return self._if.get_tag_multiple(tag)
+            return self._if.get_tag(tag)
         return None
 
     # setters: set in both sidecar and image file
@@ -726,123 +800,6 @@ class Metadata(QtCore.QObject):
     def get_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
-    def _read_exif(self, tag):
-        if _data_type[tag] == 'ignore':
-            return None
-        if _data_type[tag] == 'latlon':
-            lat_tag = tag
-            lon_tag = lat_tag.replace('Latitude', 'Longitude')
-            parts = []
-            for sub_tag in (lat_tag, lat_tag + 'Ref', lon_tag, lon_tag + 'Ref'):
-                if sub_tag not in self.get_exif_tags():
-                    return None
-                parts.append(self.get_tag_string(sub_tag))
-            return LatLon(LatLon.from_exif_part(parts[0], parts[1]),
-                          LatLon.from_exif_part(parts[2], parts[3]))
-        if tag not in self.get_exif_tags():
-            return None
-        value_string = self.get_tag_string(tag)
-        if _data_type[tag] == 'int':
-            return value_string
-        elif _data_type[tag] == 'APEX_aperture':
-            return math.sqrt(2.0 ** Fraction(value_string))
-        elif _data_type[tag] == 'rational':
-            return value_string
-        elif _data_type[tag] == 'string':
-            return _decode_string(value_string)
-        elif _data_type[tag] == 'multi_string':
-            return _decode_string(value_string).split(';')
-        elif _data_type[tag] == 'datetime':
-            # Exif.Photo.SubSecXXX can be used with
-            # Exif.Photo.DateTimeXXX or Exif.Image.DataTimeXXX
-            sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
-            sub_sec_tag = sub_sec_tag.replace('Image', 'Photo')
-            if sub_sec_tag in self.get_exif_tags():
-                sub_sec_string = self.get_tag_string(sub_sec_tag)
-            else:
-                sub_sec_string = None
-            return DateTime.from_exif(value_string, sub_sec_string)
-        elif _data_type[tag] == 'lensspec':
-            return LensSpec(*value_string.split())
-        raise RuntimeError('Cannot read tag ' + tag)
-
-    def _read_iptc(self, tag):
-        if _data_type[tag] == 'datetime':
-            date_tag = tag
-            time_tag = date_tag.replace('Date', 'Time')
-            if date_tag in self.get_iptc_tags():
-                date_string = self.get_tag_multiple(date_tag)[0]
-            else:
-                date_string = None
-            if time_tag in self.get_iptc_tags():
-                time_string = self.get_tag_multiple(time_tag)[0]
-            else:
-                time_string = None
-            if date_string:
-                return DateTime.from_iptc(date_string, time_string)
-            return None
-        if tag not in self.get_iptc_tags():
-            return None
-        if tag == 'Iptc.Application2.Program':
-            result = _decode_string(self.get_tag_multiple(tag)[0])
-            version_tag = tag + 'Version'
-            if version_tag in self.get_iptc_tags():
-                result += (' v' +
-                           _decode_string(self.get_tag_multiple(version_tag)[0]))
-            return result
-        elif _data_type[tag] == 'string':
-            return '; '.join(map(_decode_string, self.get_tag_multiple(tag)))
-        elif _data_type[tag] == 'multi_string':
-            return list(map(_decode_string, self.get_tag_multiple(tag)))
-        raise RuntimeError('Cannot read tag ' + tag)
-
-    def _read_xmp(self, tag):
-        if _data_type[tag] == 'ignore':
-            return None
-        if _data_type[tag] == 'latlon':
-            lat_tag = tag
-            lon_tag = lat_tag.replace('Latitude', 'Longitude')
-            parts = []
-            for sub_tag in (lat_tag, lon_tag):
-                if sub_tag not in self.get_xmp_tags():
-                    return None
-                parts.append(self.get_tag_multiple(sub_tag)[0])
-            return LatLon(LatLon.from_xmp_part(parts[0]),
-                          LatLon.from_xmp_part(parts[1]))
-        if tag not in self.get_xmp_tags():
-            return None
-        value_strings = self.get_tag_multiple(tag)
-        if not value_strings:
-            return None
-        if _data_type[tag] == 'int':
-            return value_strings[0]
-        elif _data_type[tag] == 'APEX_aperture':
-            return math.sqrt(2.0 ** Fraction(value_strings[0]))
-        elif _data_type[tag] == 'rational':
-            return value_strings[0]
-        elif _data_type[tag] == 'string':
-            if not isinstance(value_strings[0], six.text_type):
-                value_strings = [x.decode('utf_8') for x in value_strings]
-            return '; '.join(value_strings)
-        elif _data_type[tag] == 'multi_string':
-            if not isinstance(value_strings[0], six.text_type):
-                value_strings = [x.decode('utf_8') for x in value_strings]
-            return list(value_strings)
-        elif _data_type[tag] == 'datetime':
-            return DateTime.from_xmp(value_strings[0])
-        raise RuntimeError('Cannot read tag ' + tag)
-
-    def _get_value(self, name, family, tag):
-        if tag not in _data_type:
-            raise RuntimeError('Cannot read tag ' + tag)
-        if family == 'Exif':
-            value = self._read_exif(tag)
-        elif family == 'Iptc':
-            value = self._read_iptc(tag)
-        else:
-            value = self._read_xmp(tag)
-        return sanitise(name, value)
-
     def __getattr__(self, name):
         if name not in self._primary_tags:
             return super(Metadata, self).__getattr__(name)
@@ -852,7 +809,7 @@ class Metadata(QtCore.QObject):
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
             try:
-                value[family] = self._get_value(name, family, tag)
+                value[family] = self.get_tag(tag)
                 used_tag[family] = tag
             except Exception as ex:
                 self.logger.exception(ex)
@@ -860,7 +817,7 @@ class Metadata(QtCore.QObject):
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
                 try:
-                    new_value = self._get_value(name, family, tag)
+                    new_value = self.get_tag(tag)
                 except Exception as ex:
                     self.logger.exception(ex)
                     continue
