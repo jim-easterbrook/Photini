@@ -32,7 +32,8 @@ This should usually be left blank for cameras with non-removable lenses, but may
 If the ``Link lens model ...`` tick-box is selected when you change the lens model then the focal length and aperture will be adjusted to fit the lens specification.
 The focal length and aperture can also be edited directly, regardless of the tick-box status.
 
-You can add details of all your lenses by selecting ``<define new lens>`` from the dropdown list.
+Lens details already in a photograph's metadata are automatically added to the list when the photograph is loaded.
+If your camera doesn't record the details of some lenses you can add them by selecting ``<define new lens>`` from the dropdown list.
 
 .. image:: ../images/screenshot_12a.png
 
@@ -44,3 +45,5 @@ Only the ``Model name`` and ``Minimum focal length`` are required.
 .. image:: ../images/screenshot_12b.png
 
 The data you enter is stored in the Photini configuration file so you can easily apply it to images in future by selecting the lens you have defined from the dropdown list.
+To remove a lens from the list right-click on it to bring up its context menu.
+This includes options to delete any lens but the one currently in use.
