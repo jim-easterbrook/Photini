@@ -259,7 +259,7 @@ class DateTime(MetadataValue):
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
         # add zeros for any missing values
         #                   YYYY mm dd HH MM SS
-        datetime_string += '0000:00:00 00:00:00'[len(datetime_string):]
+        datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
         return datetime_string, sub_sec_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
