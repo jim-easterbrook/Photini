@@ -53,9 +53,9 @@ class MetadataValue(object):
         return not isinstance(other, MetadataValue) or self.value != other.value
 
     def contains(self, other):
-        return other is None or other.value == self.value
+        return (not other) or (other.value == self.value)
 
-    def merge(self, other, family):
+    def merge(self, other, family=None):
         return False
 
 
@@ -229,25 +229,26 @@ class DateTime(MetadataValue):
             fmt = '{}{:02d}:{:02d}'
         return fmt.format(sign_string, minutes // 60, minutes % 60)
 
-    # Exif datetime replaces missing values with spaces, keeping the
-    # colon separators and the overall string length. See
-    # http://www.awaresystems.be/imaging/tiff/tifftags/privateifd/exif/datetimeoriginal.html
+    # Exif datetime replaces missing values with zeros, keeping the
+    # colon separators and the overall string length.
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
         # separate date & time and remove separators
         date_string = datetime_string[:10].replace(':', '')
         time_string = datetime_string[11:].replace(':', '')
-        # truncate if any missing values
-        space_pos = date_string.find(' ')
-        if space_pos >= 0:
-            date_string = date_string[:space_pos]
+        # remove missing values
+        while len(date_string) > 4 and date_string[-2:] == '00':
+            date_string = date_string[:-2]
+        if date_string == '0000':
+            date_string = ''
+        # ignore time if date is not full precision
+        if len(date_string) < 8:
             time_string = ''
-        else:
-            space_pos = time_string.find(' ')
-            if space_pos >= 0:
-                time_string = time_string[:space_pos]
-            elif sub_sec_string:
-                time_string += '.' + sub_sec_string
+        elif sub_sec_string:
+            time_string += '.' + sub_sec_string
+        elif time_string == '000000':
+            # probably a missing time
+            time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
     def to_exif(self):
@@ -256,16 +257,16 @@ class DateTime(MetadataValue):
         if sub_sec_string == '':
             sub_sec_string = None
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
-        # add spaces for any missing values
+        # add zeros for any missing values
         #                   YYYY mm dd HH MM SS
-        datetime_string += '    :  :     :  :  '[len(datetime_string):]
+        datetime_string += '0000:00:00 00:00:00'[len(datetime_string):]
         return datetime_string, sub_sec_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
     # library is adding separators, but am not sure.
 
-    # The date (but not time) can have missing values represented by 00
+    # The date (and time?) can have missing values represented by 00
     # according to
     # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
@@ -282,6 +283,9 @@ class DateTime(MetadataValue):
             # remove separators (that shouldn't be there)
             time_string = time_string.replace(':', '')
         else:
+            time_string = ''
+        if time_string[:6] == '000000':
+            # probably a missing time
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
@@ -318,18 +322,25 @@ class DateTime(MetadataValue):
         return self.to_ISO_8601()
 
     def contains(self, other):
-        return (other is None or (other.value['datetime'] == self.value['datetime'] and
-                                  other.value['precision'] <= self.value['precision']))
+        if (not other) or (other.value == self.value):
+            return True
+        if other.value['datetime'] != self.value['datetime']:
+            return False
+        if other.value['precision'] < self.value['precision']:
+            return False
+        return bool(other.value['tz_offset']) == bool(self.value['tz_offset'])
 
-    def merge(self, other, family):
-        if not isinstance(other, DateTime):
-            return False
-        if other.value['datetime'] != self.value['datetime'] or family == 'Iptc':
-            return False
-        self.value['precision'] = max(self.value['precision'], other.value['precision'])
-        if self.value['tz_offset'] is None:
+    def merge(self, other, family=None):
+        result = False
+        # some formats default to a higher precision
+        if self.value['precision'] > other.value['precision']:
+            self.value['precision'] = other.value['precision']
+            result = True
+        # don't trust IPTC time zone
+        if self.value['tz_offset'] is None and family != 'Iptc':
             self.value['tz_offset'] = other.value['tz_offset']
-        return True
+            result = True
+        return result
 
 
 @six.python_2_unicode_compatible
@@ -344,12 +355,10 @@ class MultiString(MetadataValue):
         return '; '.join(self.value)
 
     def contains(self, other):
-        return other is None or not bool(
-            [x for x in other.value if x not in self.value])
+        return (not other) or (not bool(
+            [x for x in other.value if x not in self.value]))
 
-    def merge(self, other, family):
-        if not isinstance(other, MultiString):
-            return False
+    def merge(self, other, family=None):
         self.value += other.value
         return True
 
@@ -365,11 +374,9 @@ class String(MetadataValue):
         return self.value
 
     def contains(self, other):
-        return other is None or other.value in self.value
+        return (not other) or (other.value in self.value)
 
-    def merge(self, other, family):
-        if not other:
-            return False
+    def merge(self, other, family=None):
         self.value += ' // ' + other.value
         return True
 
@@ -902,7 +909,7 @@ class Metadata(QtCore.QObject):
                     used_tag[family] = tag
                 elif value[family].contains(new_value):
                     continue
-                elif value[family].merge(new_value, family):
+                elif value[family].merge(new_value):
                     self.logger.warning(
                         '%s: merged %s into %s',
                         os.path.basename(self._path), tag, used_tag[family])
