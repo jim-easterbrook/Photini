@@ -46,6 +46,11 @@ class DropdownEdit(QtWidgets.QComboBox):
         self.insertItem(self.count() - 2, str(text), str(data))
         self.blockSignals(blocked)
 
+    def remove_item(self, data):
+        blocked = self.blockSignals(True)
+        self.removeItem(self.findData(data))
+        self.blockSignals(blocked)
+
     def known_value(self, value):
         if not value:
             return True
@@ -332,6 +337,13 @@ class LensData(object):
         self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
         self.lenses.sort()
 
+    def delete_model(self, model):
+        if model not in self.lenses:
+            return
+        self.config_store.remove_section('lens ' + model)
+        self.lenses.remove(model)
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
+
     def save_to_image(self, model, image):
         image.metadata.lens_model = model
         if not model:
@@ -490,11 +502,14 @@ class Technical(QtWidgets.QWidget):
             self.tr('Orientation'), self.widgets['orientation'])
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
+        self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(
             self.tr('<define new lens>'), '<add lens>')
         for model in self.lens_data.lenses:
             self.widgets['lens_model'].add_item(model)
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
+        self.widgets['lens_model'].customContextMenuRequested.connect(
+            self.remove_lens_model)
         other_group.layout().addRow(
             self.tr('Lens model'), self.widgets['lens_model'])
         # link lens to aperture & focal length
@@ -596,6 +611,24 @@ class Technical(QtWidgets.QWidget):
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def remove_lens_model(self, pos):
+        current_model = self.widgets['lens_model'].get_value()
+        menu = QtWidgets.QMenu()
+        for model in self.lens_data.lenses:
+            if model == current_model:
+                continue
+            action = QtWidgets.QAction(
+                self.tr('Remove lens "{}"').format(model), self)
+            action.setData(model)
+            menu.addAction(action)
+        action = menu.exec_(self.widgets['lens_model'].mapToGlobal(pos))
+        if not action:
+            return
+        model = action.data()
+        self.lens_data.delete_model(model)
+        self.widgets['lens_model'].remove_item(model)
 
     @QtCore.pyqtSlot()
     def new_lens_model(self):
