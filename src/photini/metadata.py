@@ -53,9 +53,12 @@ class MetadataValue(object):
         return not isinstance(other, MetadataValue) or self.value != other.value
 
     def contains(self, other):
+        # "contains" = no need to merge or replace.
         return (not other) or (other.value == self.value)
 
     def merge(self, other, family=None):
+        # Only called if contains returns False. Returns True if other
+        # merged into self, False if self should be replaced by other.
         return False
 
 
@@ -229,25 +232,17 @@ class DateTime(MetadataValue):
             fmt = '{}{:02d}:{:02d}'
         return fmt.format(sign_string, minutes // 60, minutes % 60)
 
-    # Exif datetime replaces missing values with zeros, keeping the
-    # colon separators and the overall string length.
+    # Exif datetime is always full resolution and valid. Assume a time
+    # of 00:00:00 is a none value though.
     @classmethod
     def from_exif(cls, datetime_string, sub_sec_string):
         # separate date & time and remove separators
         date_string = datetime_string[:10].replace(':', '')
         time_string = datetime_string[11:].replace(':', '')
-        # remove missing values
-        while len(date_string) > 4 and date_string[-2:] == '00':
-            date_string = date_string[:-2]
-        if date_string == '0000':
-            date_string = ''
-        # ignore time if date is not full precision
-        if len(date_string) < 8:
-            time_string = ''
-        elif sub_sec_string:
+        # append sub seconds or wipe 'none' value
+        if sub_sec_string:
             time_string += '.' + sub_sec_string
         elif time_string == '000000':
-            # probably a missing time
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
@@ -257,7 +252,7 @@ class DateTime(MetadataValue):
         if sub_sec_string == '':
             sub_sec_string = None
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
-        # add zeros for any missing values
+        # pad out any missing values
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
         return datetime_string, sub_sec_string
@@ -289,7 +284,7 @@ class DateTime(MetadataValue):
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
-    def to_iptc(self):
+    def to_iptc(self, tag):
         if self.value['precision'] <= 3:
             date_string = self.to_ISO_8601()
             #               YYYY mm dd
@@ -351,6 +346,26 @@ class MultiString(MetadataValue):
         value = list(filter(bool, [x.strip() for x in value]))
         super(MultiString, self).__init__(value)
 
+    def to_exif(self):
+        result = ';'.join(self.value)
+        if six.PY2:
+            result = result.encode('utf_8')
+        return result
+
+    def to_iptc(self, tag):
+        result = []
+        for item in self.value:
+            item = item.encode('utf_8')[:_max_bytes[tag]]
+            if six.PY3:
+                item = item.decode('utf_8')
+            result.append(item)
+        return result
+
+    def to_xmp(self):
+        if six.PY2:
+            return [x.encode('utf_8') for x in self.value]
+        return self.value
+
     def __str__(self):
         return '; '.join(self.value)
 
@@ -370,6 +385,22 @@ class String(MetadataValue):
             value = value[0]
         super(String, self).__init__(six.text_type(value).strip())
 
+    def to_exif(self):
+        if six.PY2:
+            return self.value.encode('utf_8')
+        return self.value
+
+    def to_iptc(self, tag):
+        result = self.value.encode('utf_8')[:_max_bytes[tag]]
+        if six.PY3:
+            result = result.decode('utf_8')
+        return result
+
+    def to_xmp(self):
+        if six.PY2:
+            return self.value.encode('utf_8')
+        return self.value
+
     def __str__(self):
         return self.value
 
@@ -382,13 +413,17 @@ class String(MetadataValue):
 
 
 class Software(String):
-    def to_iptc(self):
-        return self.value.split(' v')
+    def to_iptc(self, tag):
+        program, version = self.value.split(' v')
+        program = program[:_max_bytes[tag]]
+        version = version[:_max_bytes[tag + 'Version']]
+        return program, version
 
 
 class Int(MetadataValue):
     def __init__(self, value):
         super(Int, self).__init__(int(value))
+        self.to_exif = self.__str__
 
     def __nonzero__(self):
         return self.value is not None
@@ -403,6 +438,9 @@ class Rational(MetadataValue):
 
     def __nonzero__(self):
         return self.value is not None
+
+    def to_exif(self):
+        return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
 
     def __str__(self):
         return '{:g}'.format(float(self.value))
@@ -533,15 +571,6 @@ class MetadataHandler(GExiv2.Metadata):
                 continue
         return value.decode('utf_8')
 
-    def _encode_string(self, tag, value):
-        result = value.encode('utf_8')
-        if tag in _max_bytes:
-            result = result[:_max_bytes[tag]]
-        if six.PY3:
-            result = result.decode('utf_8')
-        return result
-
-
     def get_value(self, tag):
         # get value as our preferred data type
         exiv_type = MetadataHandler.get_tag_type(tag)
@@ -570,16 +599,16 @@ class MetadataHandler(GExiv2.Metadata):
             return DateTime.from_xmp(result)
         if _data_type[tag] == LatLon:
             lon_tag = tag.replace('Latitude', 'Longitude')
-            if MetadataHandler.is_exif_tag(tag):
-                parts = [result]
-                for sub_tag in (tag + 'Ref', lon_tag, lon_tag + 'Ref'):
-                    if not self.has_tag(sub_tag):
-                        return None
-                    parts.append(self.get_tag_string(sub_tag))
-                return LatLon.from_exif(*parts)
-            if not self.has_tag(lon_tag):
+            lon_val = self.get_tag_string(lon_tag)
+            if not lon_val:
                 return None
-            return LatLon.from_xmp(result, self.get_tag_string(lon_tag))
+            if MetadataHandler.is_exif_tag(tag):
+                lat_ref = self.get_tag_string(tag + 'Ref')
+                lon_ref = self.get_tag_string(lon_tag + 'Ref')
+                if not lat_ref or not lon_ref:
+                    return None
+                return LatLon.from_exif(result, lat_ref, lon_val, lon_ref)
+            return LatLon.from_xmp(result, lon_val)
         if _data_type[tag] == Software and MetadataHandler.is_iptc_tag(tag):
             result = result[0]
             version_tag = tag + 'Version'
@@ -588,7 +617,6 @@ class MetadataHandler(GExiv2.Metadata):
         return _data_type[tag](result)
 
     def set_value(self, tag, value):
-        exiv_type = MetadataHandler.get_tag_type(tag)
         # do multi-tag items
         if _data_type[tag] == LatLon and MetadataHandler.is_exif_tag(tag):
             lon_tag = tag.replace('Latitude', 'Longitude')
@@ -628,7 +656,7 @@ class MetadataHandler(GExiv2.Metadata):
                 self.clear_tag(tag)
                 self.clear_tag(time_tag)
                 return
-            date_string, time_string = value.to_iptc()
+            date_string, time_string = value.to_iptc(tag)
             self.set_tag_string(tag, date_string)
             if time_string:
                 self.set_tag_string(time_tag, time_string)
@@ -636,31 +664,24 @@ class MetadataHandler(GExiv2.Metadata):
                 self.clear_tag(time_tag)
             return
         if _data_type[tag] == Software and MetadataHandler.is_iptc_tag(tag):
-            program, version = value.to_iptc()
-            self.set_tag_string_unicode(tag, program)
-            self.set_tag_string_unicode(tag + 'Version', version)
+            program, version = value.to_iptc(tag)
+            self.set_tag_string(tag, program)
+            self.set_tag_string(tag + 'Version', version)
             return
         # do single tag items
         if not value:
             self.clear_tag(tag)
-        elif _data_type[tag] == DateTime:
-            self.set_tag_string(tag, value.to_xmp())
-        elif _data_type[tag] == MultiString:
-            if exiv_type in ('Ascii', 'XmpText'):
-                self.set_tag_string_unicode(tag, ';'.join(value.value))
-            else:
-                self.set_tag_multiple_unicode(tag, value.value)
-        elif _data_type[tag] == Rational and MetadataHandler.is_exif_tag(tag):
-            self.set_tag_string(tag, '{:d}/{:d}'.format(
-                value.value.numerator, value.value.denominator))
-        elif _data_type[tag] == Int and MetadataHandler.is_exif_tag(tag):
-            self.set_tag_string(tag, '{:d}'.format(value.value))
-        elif _data_type[tag] == LensSpec and MetadataHandler.is_exif_tag(tag):
-            self.set_tag_string(tag, value.to_exif())
-        elif isinstance(value, String):
-            self.set_tag_string_unicode(tag, six.text_type(value))
+            return
+        if MetadataHandler.is_exif_tag(tag):
+            file_value = value.to_exif()
+        elif MetadataHandler.is_iptc_tag(tag):
+            file_value = value.to_iptc(tag)
         else:
-            raise RuntimeError('Cannot write tag ' + tag)
+            file_value = value.to_xmp()
+        if isinstance(file_value, six.string_types):
+            self.set_tag_string(tag, file_value)
+        else:
+            self.set_tag_multiple(tag, file_value)
 
     def get_tag_string_unicode(self, tag):
         try:
@@ -672,9 +693,6 @@ class MetadataHandler(GExiv2.Metadata):
             return ''
         return result
 
-    def set_tag_string_unicode(self, tag, value):
-        self.set_tag_string(tag, self._encode_string(tag, value))
-
     def get_tag_multiple_unicode(self, tag):
         try:
             result = self.get_tag_multiple(tag)
@@ -684,9 +702,6 @@ class MetadataHandler(GExiv2.Metadata):
             self._logger.error(str(ex))
             return []
         return result
-
-    def set_tag_multiple_unicode(self, tag, value):
-        self.set_tag_multiple(tag, [self._encode_string(tag, x) for x in value])
 
     def save(self):
         try:
