@@ -35,8 +35,6 @@ from .descriptive import MultiLineEdit
 from .pyqt import Busy, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
 
-EPOCH = datetime.utcfromtimestamp(0)
-
 logger = logging.getLogger(__name__)
 
 nsmap = {
@@ -340,9 +338,8 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
 
     @QtCore.pyqtSlot()
     def new_timestamp(self):
-        value = '{0:d}'.format(int(
-            (self.widgets['timestamp'].dateTime().toPyDateTime() - EPOCH
-             ).total_seconds() * 1000))
+        value = self.widgets[
+            'timestamp'].dateTime().toPyDateTime().strftime('%s000')
         if self.current_album and value != self.current_album.timestamp.text:
             self.changed_timestamp = value
         else:
