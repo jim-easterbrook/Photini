@@ -623,6 +623,9 @@ class Technical(QtWidgets.QWidget):
                 self.tr('Remove lens "{}"').format(model), self)
             action.setData(model)
             menu.addAction(action)
+        if menu.isEmpty():
+            # no deletable lenses
+            return
         action = menu.exec_(self.widgets['lens_model'].mapToGlobal(pos))
         if not action:
             return
@@ -731,6 +734,22 @@ class Technical(QtWidgets.QWidget):
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
+        if self.link_lens.isChecked():
+            for image in images:
+                spec = image.metadata.lens_spec
+                if not spec:
+                    continue
+                focal_length = image.metadata.focal_length
+                if focal_length and (
+                        focal_length.value < spec.value['min_fl'] or
+                        focal_length.value > spec.value['max_fl']):
+                    self.link_lens.setChecked(False)
+                    break
+                aperture = image.metadata.aperture
+                if aperture and aperture.value < min(spec.value['min_fl_fn'],
+                                                     spec.value['max_fl_fn']):
+                    self.link_lens.setChecked(False)
+                    break
         if not self.widgets['lens_model'].known_value(value):
             # new lens
             self.lens_data.load_from_image(value, images[0])
