@@ -120,17 +120,14 @@ class FlickrSession(object):
         if status != 'ok':
             return status
         photo_id = rsp.find('photoid').text
-        # set date (Flickr doesn't understand Exif with missing parts)
+        # set date granularity
         date_taken = image.metadata.date_taken
-        if date_taken:
+        if date_taken and date_taken.value['precision'] <= 2:
             granularity = 8 - (date_taken.value['precision'] * 2)
-            if granularity < 4:
-                granularity = 0
             for attempt in range(3):
                 try:
                     rsp = self.session.photos_setDates(
                         photo_id=photo_id,
-                        date_taken=date_taken.value['datetime'].isoformat(b' '),
                         date_taken_granularity=granularity)
                     status = rsp.attrib['stat']
                     if status == 'ok':
