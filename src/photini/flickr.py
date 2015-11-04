@@ -119,30 +119,33 @@ class FlickrSession(object):
         status = rsp.attrib['stat']
         if status != 'ok':
             return status
-        # add to sets
         photo_id = rsp.find('photoid').text
+        # set date (Flickr doesn't understand Exif with missing parts)
+        date_taken = image.metadata.date_taken
+        if date_taken:
+            granularity = 8 - (date_taken.value['precision'] * 2)
+            if granularity < 4:
+                granularity = 0
+            for attempt in range(3):
+                try:
+                    rsp = self.session.photos_setDates(
+                        photo_id=photo_id,
+                        date_taken=date_taken.value['datetime'].isoformat(b' '),
+                        date_taken_granularity=granularity)
+                    status = rsp.attrib['stat']
+                    if status == 'ok':
+                        break
+                except flickrapi.FlickrError as ex:
+                    status = str(ex)
+            else:
+                return status
+        # add to sets
         for p_set in params[1]:
             if p_set['id']:
                 self.photosets_addPhoto(photo_id, p_set['id'])
             else:
                 p_set['id'] = self.photosets_create(
                     p_set['title'], p_set['description'], photo_id)
-        # set date (Flickr doesn't understand Exif with missing parts)
-        date_taken = image.metadata.date_taken
-        if date_taken and date_taken.value['precision'] < 6:
-            granularity = 8 - (date_taken.value['precision'] * 2)
-            if granularity < 4:
-                granularity = 0
-            try:
-                rsp = self.session.photos_setDates(
-                    photo_id=photo_id,
-                    date_taken=date_taken.value['datetime'].isoformat(b' '),
-                    date_taken_granularity=granularity)
-            except flickrapi.FlickrError as ex:
-                return str(ex)
-            status = rsp.attrib['stat']
-            if status != 'ok':
-                return status
         return ''
 
 
