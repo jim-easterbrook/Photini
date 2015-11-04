@@ -25,14 +25,13 @@ import re
 from .metadata import DateTime, LensSpec
 from .pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
 
-
 class DropdownEdit(QtWidgets.QComboBox):
     new_value = QtCore.pyqtSignal()
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
         self.addItem('', None)
-        self.addItem(multiple())
+        self.addItem(multiple(), None)
         self.currentIndexChanged.connect(self._new_value)
 
     @QtCore.pyqtSlot(int)
@@ -333,19 +332,18 @@ class LensData(object):
         self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
         self.lenses.sort()
 
-    def image_save(self, model, image):
+    def save_to_image(self, model, image):
         image.metadata.lens_model = model
         if not model:
             for item in ('lens_make', 'lens_serial', 'lens_spec'):
                 setattr(image.metadata, item, None)
             return
         section = 'lens ' + model
-        for item in ('lens_make', 'lens_serial'):
+        for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = self.config_store.get(section, item) or None
             setattr(image.metadata, item, value)
-        image.metadata.lens_spec = self.get_spec(model)
 
-    def image_load(self, model, image):
+    def load_from_image(self, model, image):
         model = str(model)
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
@@ -356,7 +354,7 @@ class LensData(object):
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
 
-    def dialog_load(self, dialog):
+    def load_from_dialog(self, dialog):
         model = dialog.lens_model.text()
         if not model:
             return None
@@ -367,7 +365,7 @@ class LensData(object):
         min_fl_fn = dialog.lens_spec['min_fl_fn'].text() or '0'
         max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
         lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
-        section = 'lens '  + model
+        section = 'lens ' + model
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
         self.config_store.set(section, 'lens_spec', str(lens_spec))
@@ -375,15 +373,6 @@ class LensData(object):
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
         return model
-
-    def get_spec(self, model):
-        if not model:
-            return None
-        section = 'lens ' + model
-        spec = self.config_store.get(section, 'lens_spec')
-        if not spec:
-            return None
-        return LensSpec(spec, sep=',')
 
 
 class NewLensDialog(QtWidgets.QDialog):
@@ -619,39 +608,38 @@ class Technical(QtWidgets.QWidget):
             self._update_lens_model()
             return
         for image in self.image_list.get_selected_images():
-            self.lens_data.image_save(value, image)
-        spec = self.lens_data.get_spec(value)
-        if spec and self.link_lens.isChecked():
-            for image in self.image_list.get_selected_images():
-                aperture = image.metadata.aperture
-                if aperture:
-                    aperture = aperture.value
-                else:
-                    aperture = 0
-                focal_length = image.metadata.focal_length
-                if focal_length:
-                    focal_length = focal_length.value
-                else:
-                    focal_length = 0
-                focal_length = min(max(
-                    focal_length, spec.value['min_fl']), spec.value['max_fl'])
-                if focal_length <= spec.value['min_fl']:
-                    aperture = max(aperture, spec.value['min_fl_fn'])
-                elif focal_length >= spec.value['max_fl']:
-                    aperture = max(aperture, spec.value['max_fl_fn'])
-                else:
-                    aperture = max(aperture, spec.value['min_fl_fn'],
-                                             spec.value['max_fl_fn'])
-                image.metadata.aperture = aperture
-                image.metadata.focal_length = focal_length
-            self._update_aperture()
-            self._update_focal_length()
+            self.lens_data.save_to_image(value, image)
+        if not self.link_lens.isChecked():
+            return
+        for image in self.image_list.get_selected_images():
+            spec = image.metadata.lens_spec
+            if not spec:
+                continue
+            if not image.metadata.aperture:
+                image.metadata.aperture = 0
+            if not image.metadata.focal_length:
+                image.metadata.focal_length = 0
+            aperture = image.metadata.aperture.value
+            focal_length = image.metadata.focal_length.value
+            if focal_length <= spec.value['min_fl']:
+                focal_length = spec.value['min_fl']
+                aperture = max(aperture, spec.value['min_fl_fn'])
+            elif focal_length >= spec.value['max_fl']:
+                focal_length = spec.value['max_fl']
+                aperture = max(aperture, spec.value['max_fl_fn'])
+            else:
+                aperture = max(aperture, min(spec.value['min_fl_fn'],
+                                             spec.value['max_fl_fn']))
+            image.metadata.aperture = aperture
+            image.metadata.focal_length = focal_length
+        self._update_aperture()
+        self._update_focal_length()
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
-        model = self.lens_data.dialog_load(dialog)
+        model = self.lens_data.load_from_dialog(dialog)
         if not model:
             return
         self.widgets['lens_model'].add_item(model)
@@ -712,7 +700,7 @@ class Technical(QtWidgets.QWidget):
                 return
         if not self.widgets['lens_model'].known_value(value):
             # new lens
-            self.lens_data.image_load(value, images[0])
+            self.lens_data.load_from_image(value, images[0])
             self.widgets['lens_model'].add_item(value)
         self.widgets['lens_model'].set_value(value)
 

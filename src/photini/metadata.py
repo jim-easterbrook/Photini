@@ -152,8 +152,11 @@ class LatLon(MetadataValue):
 
 class LensSpec(MetadataValue):
     # simple class to store lens "specificaton"
-    def __init__(self, value, sep=None):
+    def __init__(self, value):
         if isinstance(value, six.string_types):
+            sep = None
+            if ',' in value:
+                sep = ','
             value = value.split(sep)
         min_fl, max_fl, min_fl_fn, max_fl_fn = value
         super(LensSpec, self).__init__({
@@ -164,7 +167,7 @@ class LensSpec(MetadataValue):
             })
 
     def __str__(self):
-        return '{:g}, {:g}, {:g}, {:g}'.format(
+        return '{:g} {:g} {:g} {:g}'.format(
             float(self.value['min_fl']),    float(self.value['max_fl']),
             float(self.value['min_fl_fn']), float(self.value['max_fl_fn']))
 
