@@ -43,6 +43,18 @@ class MetadataValue(object):
         assert(value is not None)
         self.value = value
 
+    @classmethod
+    def from_exif(cls, value):
+        return cls(value)
+
+    @classmethod
+    def from_iptc(cls, value):
+        return cls(value)
+
+    @classmethod
+    def from_xmp(cls, value):
+        return cls(value)
+
     def __nonzero__(self):
         return bool(self.value)
 
@@ -90,9 +102,12 @@ class LatLon(MetadataValue):
         return result
 
     @classmethod
-    def from_exif(cls, lat_string, lat_ref, lon_string, lon_ref):
-        return cls((cls.from_exif_part(lat_string, lat_ref),
-                    cls.from_exif_part(lon_string, lon_ref)))
+    def from_exif(cls, value_list):
+        lat_string, lat_ref, lon_string, lon_ref = value_list
+        if lat_string and lat_ref and lon_string and lon_ref:
+            return cls((cls.from_exif_part(lat_string, lat_ref),
+                        cls.from_exif_part(lon_string, lon_ref)))
+        return None
 
     def to_exif(self):
         result = []
@@ -124,9 +139,12 @@ class LatLon(MetadataValue):
         return value
 
     @classmethod
-    def from_xmp(cls, lat_string, lon_string):
-        return cls((cls.from_xmp_part(lat_string),
-                    cls.from_xmp_part(lon_string)))
+    def from_xmp(cls, value_list):
+        lat_string, lon_string = value_list
+        if lat_string and lon_string:
+            return cls((cls.from_xmp_part(lat_string),
+                        cls.from_xmp_part(lon_string)))
+        return None
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.value['lat'], self.value['lon'])
@@ -235,7 +253,10 @@ class DateTime(MetadataValue):
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
     @classmethod
-    def from_exif(cls, datetime_string, sub_sec_string):
+    def from_exif(cls, value_list):
+        datetime_string, sub_sec_string = value_list
+        if not datetime_string:
+            return None
         # separate date & time and remove separators
         date_string = datetime_string[:10].replace(':', '')
         time_string = datetime_string[11:].replace(':', '')
@@ -265,7 +286,10 @@ class DateTime(MetadataValue):
     # according to
     # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
-    def from_iptc(cls, date_string, time_string):
+    def from_iptc(cls, value_list):
+        date_string, time_string = value_list
+        if not date_string:
+            return None
         # remove separators (that shouldn't be there)
         date_string = date_string.replace('-', '')
         # remove missing values
@@ -328,7 +352,8 @@ class DateTime(MetadataValue):
     def merge(self, other, family=None):
         result = False
         # some formats default to a higher precision
-        if self.value['precision'] > other.value['precision']:
+        if (self.value['precision'] < 7 and
+                self.value['precision'] > other.value['precision']):
             self.value['precision'] = other.value['precision']
             result = True
         # don't trust IPTC time zone
@@ -413,6 +438,15 @@ class String(MetadataValue):
 
 
 class Software(String):
+    @classmethod
+    def from_iptc(cls, value_list):
+        program, version = value_list
+        if not program:
+            return None
+        if version:
+            program += ' v' + version
+        return cls(version)
+
     def to_iptc(self, tag):
         program, version = self.value.split(' v')
         program = program[:_max_bytes[tag]]
@@ -542,6 +576,20 @@ _max_bytes = {
     'Iptc.Application2.Program'          :   32,
     'Iptc.Application2.ProgramVersion'   :   10,
     }
+# some data is stored in more than one tag
+_sub_tags = {
+    'Exif.GPSInfo.GPSLatitude'           : ('Exif.GPSInfo.GPSLatitudeRef',
+                                            'Exif.GPSInfo.GPSLongitude',
+                                            'Exif.GPSInfo.GPSLongitudeRef', ),
+    'Exif.Image.DateTime'                : ('Exif.Photo.SubSecTime', ),
+    'Exif.Image.DateTimeOriginal'        : ('None', ),
+    'Exif.Photo.DateTimeDigitized'       : ('Exif.Photo.SubSecTimeDigitized', ),
+    'Exif.Photo.DateTimeOriginal'        : ('Exif.Photo.SubSecTimeOriginal', ),
+    'Iptc.Application2.DateCreated'      : ('Iptc.Application2.TimeCreated', ),
+    'Iptc.Application2.DigitizationDate' : ('Iptc.Application2.DigitizationTime', ),
+    'Iptc.Application2.Program'          : ('Iptc.Application2.ProgramVersion', ),
+    'Xmp.exif.GPSLatitude'               : ('Xmp.exif.GPSLongitude', ),
+    }
 
 _encodings = None
 
@@ -573,111 +621,61 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_value(self, tag):
         # get value as our preferred data type
-        exiv_type = MetadataHandler.get_tag_type(tag)
-        if exiv_type in ('Ascii', 'XmpText'):
-            result = self.get_tag_string_unicode(tag)
-        elif exiv_type in ('Date', 'Rational', 'Short'):
-            result = self.get_tag_string(tag)
-        elif exiv_type in ('LangAlt', 'String', 'XmpBag', 'XmpSeq'):
-            result = self.get_tag_multiple_unicode(tag)
+        if tag in _sub_tags:
+            # multi-tag value
+            file_value = []
+            for sub_tag in [tag] + list(_sub_tags[tag]):
+                if sub_tag:
+                    file_value.append(self.get_tag_string(sub_tag))
+                else:
+                    file_value.append(None)
         else:
-            raise RuntimeError('Unknown tag type ' + exiv_type)
-        if not result:
+            # single tag value
+            exiv_type = MetadataHandler.get_tag_type(tag)
+            if exiv_type in ('Ascii', 'XmpText'):
+                file_value = self.get_tag_string_unicode(tag)
+            elif exiv_type in ('Rational', 'Short'):
+                file_value = self.get_tag_string(tag)
+            elif exiv_type in ('LangAlt', 'String', 'XmpBag', 'XmpSeq'):
+                file_value = self.get_tag_multiple_unicode(tag)
+            else:
+                raise RuntimeError('Unknown tag type ' + exiv_type)
+        if not file_value:
             return None
-        if _data_type[tag] == DateTime:
-            if MetadataHandler.is_exif_tag(tag):
-                # Exif.Photo.SubSecXXX can be used with
-                # Exif.Photo.DateTimeXXX or Exif.Image.DataTimeXXX
-                sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
-                sub_sec_tag = sub_sec_tag.replace('Image', 'Photo')
-                sub_sec_string = self.get_tag_string(sub_sec_tag)
-                return DateTime.from_exif(result, sub_sec_string)
-            if MetadataHandler.is_iptc_tag(tag):
-                time_tag = tag.replace('Date', 'Time')
-                time_string = self.get_tag_string(time_tag)
-                return DateTime.from_iptc(result, time_string)
-            return DateTime.from_xmp(result)
-        if _data_type[tag] == LatLon:
-            lon_tag = tag.replace('Latitude', 'Longitude')
-            lon_val = self.get_tag_string(lon_tag)
-            if not lon_val:
-                return None
-            if MetadataHandler.is_exif_tag(tag):
-                lat_ref = self.get_tag_string(tag + 'Ref')
-                lon_ref = self.get_tag_string(lon_tag + 'Ref')
-                if not lat_ref or not lon_ref:
-                    return None
-                return LatLon.from_exif(result, lat_ref, lon_val, lon_ref)
-            return LatLon.from_xmp(result, lon_val)
-        if _data_type[tag] == Software and MetadataHandler.is_iptc_tag(tag):
-            result = result[0]
-            version_tag = tag + 'Version'
-            if self.has_tag(version_tag):
-                result += ' v' + self.get_tag_string(version_tag)
-        return _data_type[tag](result)
+        if MetadataHandler.is_exif_tag(tag):
+            return _data_type[tag].from_exif(file_value)
+        if MetadataHandler.is_iptc_tag(tag):
+            return _data_type[tag].from_iptc(file_value)
+        return _data_type[tag].from_xmp(file_value)
 
     def set_value(self, tag, value):
-        # do multi-tag items
-        if _data_type[tag] == LatLon and MetadataHandler.is_exif_tag(tag):
-            lon_tag = tag.replace('Latitude', 'Longitude')
-            tag_list = (tag, tag + 'Ref', lon_tag, lon_tag + 'Ref')
-            if not value:
-                for sub_tag in tag_list:
-                    self.clear_tag(sub_tag)
-            else:
-                for sub_value, sub_tag in zip(value.to_exif(), tag_list):
-                    self.set_tag_string(sub_tag, sub_value)
-            return
-        if _data_type[tag] == DateTime and MetadataHandler.is_exif_tag(tag):
-            # don't clear sub_sec value when writing secondary tags
-            if tag == 'Exif.Image.DateTime':
-                sub_sec_tag = 'Exif.Photo.SubSecTime'
-            elif tag.startswith('Exif.Photo'):
-                sub_sec_tag = tag.replace('DateTime', 'SubSecTime')
-            else:
-                sub_sec_tag = None
-            if not value:
-                self.clear_tag(tag)
-                if sub_sec_tag:
-                    self.clear_tag(sub_sec_tag)
-                return
-            datetime_string, sub_sec_string = value.to_exif()
-            self.set_tag_string(tag, datetime_string)
-            if sub_sec_tag is None:
-                pass
-            elif sub_sec_string is None:
-                self.clear_tag(sub_sec_tag)
-            else:
-                self.set_tag_string(sub_sec_tag, sub_sec_string)
-            return
-        if _data_type[tag] == DateTime and MetadataHandler.is_iptc_tag(tag):
-            time_tag = tag.replace('Date', 'Time')
-            if not value:
-                self.clear_tag(tag)
-                self.clear_tag(time_tag)
-                return
-            date_string, time_string = value.to_iptc(tag)
-            self.set_tag_string(tag, date_string)
-            if time_string:
-                self.set_tag_string(time_tag, time_string)
-            else:
-                self.clear_tag(time_tag)
-            return
-        if _data_type[tag] == Software and MetadataHandler.is_iptc_tag(tag):
-            program, version = value.to_iptc(tag)
-            self.set_tag_string(tag, program)
-            self.set_tag_string(tag + 'Version', version)
-            return
-        # do single tag items
+        # clear tag(s) if no value
         if not value:
-            self.clear_tag(tag)
+            if tag in _sub_tags:
+                for sub_tag in [tag] + list(_sub_tags[tag]):
+                    if sub_tag:
+                        self.clear_tag(sub_tag)
+            else:
+                self.clear_tag(tag)
             return
+        # get output formatted value(s)
         if MetadataHandler.is_exif_tag(tag):
             file_value = value.to_exif()
         elif MetadataHandler.is_iptc_tag(tag):
             file_value = value.to_iptc(tag)
         else:
             file_value = value.to_xmp()
+        # do multi-tag items
+        if tag in _sub_tags:
+            tag_list = [tag] + list(_sub_tags[tag])
+            for sub_tag, value_string in zip(tag_list, file_value):
+                if sub_tag:
+                    if value_string:
+                        self.set_tag_string(sub_tag, value_string)
+                    else:
+                        self.clear_tag(sub_tag)
+            return
+        # do single tag items
         if isinstance(file_value, six.string_types):
             self.set_tag_string(tag, file_value)
         else:
