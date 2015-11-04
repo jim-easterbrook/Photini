@@ -44,11 +44,11 @@ class DropdownEdit(QtWidgets.QComboBox):
         if data is None:
             data = text
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 2, text, str(data))
+        self.insertItem(self.count() - 2, str(text), str(data))
         self.blockSignals(blocked)
 
     def known_value(self, value):
-        if value is None:
+        if not value:
             return True
         return self.findData(str(value)) >= 0
 
@@ -346,6 +346,7 @@ class LensData(object):
         image.metadata.lens_spec = self.get_spec(model)
 
     def image_load(self, model, image):
+        model = str(model)
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
@@ -562,15 +563,15 @@ class Technical(QtWidgets.QWidget):
     @QtCore.pyqtSlot(timedelta)
     def apply_offset(self, offset):
         for image in self.image_list.get_selected_images():
-            value = image.metadata.date_taken
-            if value is None:
+            date_taken = image.metadata.date_taken
+            if not date_taken:
                 continue
-            value.value['datetime'] = value.value['datetime'] + offset
-            image.metadata.date_taken = value
+            date_taken.value['datetime'] += offset
+            image.metadata.date_taken = date_taken
             if self.link_widget['taken', 'digitised'].isChecked():
-                image.metadata.date_digitised = value
+                image.metadata.date_digitised = date_taken
                 if self.link_widget['digitised', 'modified'].isChecked():
-                    image.metadata.date_modified = value
+                    image.metadata.date_modified = date_taken
         self._update_datetime('taken')
         if self.link_widget['taken', 'digitised'].isChecked():
             self._update_datetime('digitised')
@@ -709,15 +710,11 @@ class Technical(QtWidgets.QWidget):
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
-        if value:
-            model = value.value
-        else:
-            model = None
-        if not self.widgets['lens_model'].known_value(model):
+        if not self.widgets['lens_model'].known_value(value):
             # new lens
-            self.lens_data.image_load(model, images[0])
-            self.widgets['lens_model'].add_item(model)
-        self.widgets['lens_model'].set_value(model)
+            self.lens_data.image_load(value, images[0])
+            self.widgets['lens_model'].add_item(value)
+        self.widgets['lens_model'].set_value(value)
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()

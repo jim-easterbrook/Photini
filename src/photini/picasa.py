@@ -208,17 +208,17 @@ class PicasaSession(object):
         title = image.metadata.title
         description = image.metadata.description
         if title and description:
-            photo.summary.text = '{0}\n\n{1}'.format(title, description)
+            photo.summary.text = title.value + '\n\n' + description.value
         elif title:
-            photo.summary.text = title
+            photo.summary.text = title.value
         elif description:
-            photo.summary.text = description
+            photo.summary.text = description.value
         keywords = image.metadata.keywords
         if keywords:
-            photo.group.keywords.text = ','.join(keywords)
+            photo.group.keywords.text = ','.join(keywords.value)
         latlong = image.metadata.latlong
         if latlong:
-            photo.where.Point.pos.text = '{0} {1}'.format(
+            photo.where.Point.pos.text = '{:.6f} {:.6f}'.format(
                 latlong.value['lat'], latlong.value['lon'])
         try:
             self.edit_node(photo)
