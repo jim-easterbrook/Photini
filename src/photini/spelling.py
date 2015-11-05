@@ -40,8 +40,10 @@ if sys.platform == 'win32':
 
 try:
     import enchant
+    enchant_version = 'enchant {}'.format(enchant.__version__)
 except ImportError:
     enchant = None
+    enchant_version = None
 
 if sys.platform == 'win32x':
     # reset sys.platform

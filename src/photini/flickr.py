@@ -34,6 +34,8 @@ from .uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
 
+flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
+
 class FlickrSession(object):
     def __init__(self):
         self.session = None

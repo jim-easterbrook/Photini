@@ -48,6 +48,7 @@ except ImportError:
 from .editsettings import EditSettings
 from .googlemap import GoogleMap
 from .importer import Importer
+from .metadata import gexiv2_version
 from .openstreetmap import OpenStreetMap
 from .imagelist import ImageList
 from .loggerwindow import LoggerWindow
@@ -56,7 +57,7 @@ try:
 except ImportError:
     PicasaUploader = None
 from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
-from .spelling import SpellingManager
+from .spelling import enchant_version, SpellingManager
 from .technical import Technical
 from . import __version__
 
@@ -316,8 +317,18 @@ def main(argv=None):
         QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
     app.installTranslator(qt_translator)
     # parse remaining arguments
+    version = 'Photini ' + __version__
+    version += '\n  Python ' + sys.version
+    version += '\n  ' + gexiv2_version
+    version += '\n  PyQt {}, Qt {}'.format(
+        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+    if enchant_version:
+        version += '\n  ' + enchant_version
+    if FlickrUploader:
+        from .flickr import flickr_version
+        version += '\n  ' + flickr_version
     parser = OptionParser(
-        version='Photini ' + __version__,
+        version=version,
         description=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Photini photo metadata editor')))
     parser.add_option(

@@ -38,6 +38,9 @@ import six
 from .pyqt import QtCore
 from . import __version__
 
+gexiv2_version = 'GExiv2 {}, GObject {}'.format(
+    GExiv2._version, GObject._version)
+
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
