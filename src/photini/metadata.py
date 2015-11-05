@@ -27,6 +27,12 @@ import logging
 import math
 import os
 
+try:
+    import pgi
+    pgi.install_as_gi()
+    using_pgi = True
+except ImportError:
+    using_pgi = False
 from gi.repository import GObject, GExiv2
 import six
 
@@ -624,7 +630,7 @@ class MetadataHandler(GExiv2.Metadata):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
         # read metadata from file
-        if image_data:
+        if image_data and not using_pgi:
             self.open_buf(image_data)
         else:
             self.open_path(self._path)

@@ -157,9 +157,6 @@ Linux users can use their package manager to install ``python-gobject`` or pip c
 
    sudo pip install pgi
 
-.. note::
-   pgi use in Photini has been temporarily disabled because of problems reading metadata from an image loaded into memory.
-
 Optional dependencies
 ---------------------
 
