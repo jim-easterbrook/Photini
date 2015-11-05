@@ -32,13 +32,15 @@ try:
     using_pgi = True
 except ImportError:
     using_pgi = False
+import gi
 from gi.repository import GObject, GExiv2
 import six
 
 from .pyqt import QtCore
 from . import __version__
 
-gexiv2_version = 'GExiv2 {}, GObject {}'.format(
+gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
+    ('PyGI', 'pgi')[using_pgi], gi.__version__,
     GExiv2._version, GObject._version)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
