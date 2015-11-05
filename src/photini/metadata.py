@@ -24,7 +24,6 @@ from datetime import datetime
 from fractions import Fraction
 import locale
 import logging
-import math
 import os
 
 try:
@@ -512,7 +511,7 @@ class Rational(MetadataValue):
 
 class APEXAperture(Rational):
     def __init__(self, value):
-        super(APEXAperture, self).__init__(math.sqrt(2.0 ** Fraction(value)))
+        super(APEXAperture, self).__init__(2.0 ** (Fraction(value) / 2.0))
 
 
 # type of each tag's data
@@ -975,9 +974,9 @@ class Metadata(QtCore.QObject):
                 except Exception as ex:
                     self.logger.exception(ex)
                     continue
-                if new_value is None:
+                if not new_value:
                     continue
-                elif value[family] is None:
+                elif not value[family]:
                     value[family] = new_value
                     used_tag[family] = tag
                 elif value[family].contains(new_value):
@@ -992,15 +991,15 @@ class Metadata(QtCore.QObject):
                         os.path.basename(self._path), used_tag[family],
                         str(value[family]), tag, str(new_value))
         # choose preferred family
-        if value['Exif'] is not None:
+        if value['Exif']:
             preference = 'Exif'
-        elif value['Xmp'] is not None:
+        elif value['Xmp']:
             preference = 'Xmp'
         else:
             preference = 'Iptc'
         # merge in non-matching data so user can review it
         result = value[preference]
-        if result is not None:
+        if result:
             for family in ('Exif', 'Xmp', 'Iptc'):
                 other = value[family]
                 if result.contains(other):
