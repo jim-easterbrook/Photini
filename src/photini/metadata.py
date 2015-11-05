@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals
 
+import codecs
 from datetime import datetime
 from fractions import Fraction
 import locale
@@ -440,6 +441,26 @@ class String(MetadataValue):
         return True
 
 
+class CharacterSet(String):
+    known_encodings = {
+        'latin_1' : '\x1b/A',
+        'utf_8'   : '\x1b%G',
+        }
+
+    @classmethod
+    def from_iptc(cls, value):
+        if not value:
+            return None
+        value = value[0]
+        for charset, encoding in cls.known_encodings.items():
+            if encoding == value:
+                return cls(charset)
+        return None
+
+    def to_iptc(self, tag):
+        return self.known_encodings[self.value]
+
+
 class Software(String):
     @classmethod
     def from_iptc(cls, value_list):
@@ -492,6 +513,7 @@ class APEXAperture(Rational):
 _data_type = {
     'aperture'                           : Rational,
     'camera_model'                       : String,
+    'character_set'                      : CharacterSet,
     'copyright'                          : String,
     'creator'                            : MultiString,
     'date_digitised'                     : DateTime,
@@ -547,6 +569,7 @@ _data_type = {
     'Iptc.Application2.Keywords'         : MultiString,
     'Iptc.Application2.ObjectName'       : String,
     'Iptc.Application2.Program'          : Software,
+    'Iptc.Envelope.CharacterSet'         : CharacterSet,
     'Xmp.dc.creator'                     : MultiString,
     'Xmp.dc.description'                 : String,
     'Xmp.dc.rights'                      : String,
@@ -578,6 +601,7 @@ _max_bytes = {
     'Iptc.Application2.ObjectName'       :   64,
     'Iptc.Application2.Program'          :   32,
     'Iptc.Application2.ProgramVersion'   :   10,
+    'Iptc.Envelope.CharacterSet'         :   32,
     }
 # some data is stored in more than one tag
 _sub_tags = {
@@ -594,28 +618,51 @@ _sub_tags = {
     'Xmp.exif.GPSLatitude'               : ('Xmp.exif.GPSLongitude', ),
     }
 
-_encodings = None
-
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path, image_data=None):
         super(MetadataHandler, self).__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
+        # read metadata from file
         if image_data:
             self.open_buf(image_data)
         else:
             self.open_path(self._path)
+        # make list of possible character encodings
+        self._encodings = []
+        for name in ('utf_8', 'latin_1'):
+            self._encodings.append(codecs.lookup(name).name)
+        char_set = locale.getdefaultlocale()[1]
+        if char_set:
+            try:
+                name = codecs.lookup(char_set).name
+                if name not in self._encodings:
+                    self._encodings.append(name)
+            except LookupError:
+                pass
+        # convert IPTC data to UTF-8
+        if not self.has_iptc():
+            return
+        current_encoding = self.get_value('Iptc.Envelope.CharacterSet')
+        if current_encoding:
+            if current_encoding.value == 'utf_8':
+                return
+            try:
+                name = codecs.lookup(current_encoding.value).name
+                if name not in self._encodings:
+                    self._encodings.insert(0, name)
+            except LookupError:
+                pass
+        for tag in self.get_iptc_tags():
+            value_list = self.get_tag_multiple_unicode(tag)
+            if six.PY2:
+                value_list = [x.encode('utf_8') for x in value_list]
+            self.set_tag_multiple(tag, value_list)
 
     def _decode_string(self, value):
-        global _encodings
         if not value:
             return value
-        if not _encodings:
-            _encodings = ['utf_8', 'latin_1']
-            char_set = locale.getdefaultlocale()[1]
-            if char_set:
-                _encodings.append(char_set)
-        for encoding in _encodings:
+        for encoding in self._encodings:
             try:
                 return value.decode(encoding)
             except UnicodeDecodeError:
@@ -737,6 +784,7 @@ class Metadata(QtCore.QObject):
     _primary_tags = {
         'aperture'       : {'Exif' : 'Exif.Photo.FNumber'},
         'camera_model'   : {'Exif' : 'Exif.Image.Model'},
+        'character_set'  : {'Iptc' : 'Iptc.Envelope.CharacterSet'},
         'copyright'      : {'Exif' : 'Exif.Image.Copyright',
                             'Xmp'  : 'Xmp.dc.rights',
                             'Iptc' : 'Iptc.Application2.Copyright'},
@@ -777,6 +825,7 @@ class Metadata(QtCore.QObject):
                                       'Exif.Photo.ApertureValue',),
                             'Xmp'  : ('Xmp.exif.FNumber',
                                       'Xmp.exif.ApertureValue')},
+        'character_set'  : {},
         'camera_model'   : {'Exif' : ('Exif.Image.UniqueCameraModel',)},
         'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
         'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
@@ -843,13 +892,15 @@ class Metadata(QtCore.QObject):
         if not self._unsaved:
             return
         self.software = 'Photini editor v' + __version__
+        self.character_set = 'utf_8'
         save_iptc = force_iptc or self.has_iptc()
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
             for family in self._primary_tags[name]:
-                tag = self._primary_tags[name][family]
-                self.set_value(tag, value)
+                if save_iptc or family != 'Iptc':
+                    tag = self._primary_tags[name][family]
+                    self.set_value(tag, value)
             # delete secondary tags
             for family in self._secondary_tags[name]:
                 for tag in self._secondary_tags[name][family]:
