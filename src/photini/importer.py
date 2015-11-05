@@ -66,7 +66,7 @@ class FolderSource(object):
             timestamp = timestamp.value['datetime']
         folder, name = os.path.split(path)
         return {
-            'camera'    : unicode(metadata.camera_model),
+            'camera'    : six.text_type(metadata.camera_model),
             'path'      : path,
             'name'      : name,
             'timestamp' : timestamp,
