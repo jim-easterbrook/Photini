@@ -102,12 +102,12 @@ class LatLon(MetadataValue):
 
     @staticmethod
     def from_exif_part(value, ref):
-        parts = list(map(Fraction, value.split()))
-        result = float(parts[0])
+        parts = [float(Fraction(x)) for x in value.split()]
+        result = parts[0]
         if len(parts) > 1:
-            result += float(parts[1]) / 60.0
+            result += parts[1] / 60.0
         if len(parts) > 2:
-            result += float(parts[2]) / 3600.0
+            result += parts[2] / 3600.0
         if ref in ('S', 'W'):
             result = -result
         return result
@@ -755,7 +755,7 @@ class MetadataHandler(GExiv2.Metadata):
         try:
             result = self.get_tag_multiple(tag)
             if six.PY2:
-                result = map(self._decode_string, result)
+                result = [self._decode_string(x) for x in result]
         except UnicodeDecodeError as ex:
             self._logger.error(str(ex))
             return []
@@ -769,7 +769,7 @@ class MetadataHandler(GExiv2.Metadata):
             return False
         return True
 
-    def copy(self, other, exif=True, iptc=True, xmp=True, comment=True):
+    def copy(self, other, exif=True, iptc=True, xmp=True):
         # copy from other to self
         if exif:
             for tag in other.get_exif_tags():
@@ -783,10 +783,6 @@ class MetadataHandler(GExiv2.Metadata):
             for tag in other.get_xmp_tags():
                 self.set_tag_multiple(
                     tag, other.get_tag_multiple(tag))
-        if comment:
-            value = other.get_comment()
-            if value:
-                self.set_comment(value)
 
 
 class Metadata(QtCore.QObject):
@@ -896,7 +892,7 @@ class Metadata(QtCore.QObject):
             of.write('</x:xmpmeta>')
         self._sc = MetadataHandler(self._sc_path)
         if self._if:
-            self._sc.copy(self._if, comment=False)
+            self._sc.copy(self._if)
 
     def save(self, if_mode, sc_mode, force_iptc):
         if not self._unsaved:
@@ -916,7 +912,7 @@ class Metadata(QtCore.QObject):
                 for tag in self._secondary_tags[name][family]:
                     self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
-            self._if.copy(self._sc, comment=False)
+            self._if.copy(self._sc)
         OK = False
         if self._if and if_mode:
             OK = self._if.save()
