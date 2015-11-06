@@ -127,7 +127,7 @@ It has optional "introspection bindings" that allow it to be used by other langu
 `PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ provides a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-Linux users should use their package manager to install these, but note that the package name is not obvious.
+Linux users should use their package manager to install these, but note that the package names are not obvious.
 The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
 The PyGObject interface probably appears in the package manager as ``python-gobject`` or ``python-gi``.
 
@@ -180,13 +180,13 @@ They can be installed by one command::
 Note that ``sudo`` is not required on Windows, or if you have root privileges.
 In this case you just run ``pip install six appdirs``.
 
-Optional dependencies
----------------------
+Optional Python packages
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
 
 Spelling
-^^^^^^^^
+""""""""
 
 `PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the Enchant spell-checking library.
 If it is installed then spell checking is available for some of Photini's text entry fields.
@@ -197,7 +197,7 @@ Use pip to install it::
 .. _installation-flickr:
 
 Flickr
-^^^^^^
+""""""
 
 Photini's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
 These are easily installed with pip::
@@ -207,7 +207,7 @@ These are easily installed with pip::
 .. _installation-picasa:
 
 Picasa
-^^^^^^
+""""""
 
 The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
 These are also installed with pip::
@@ -217,7 +217,7 @@ These are also installed with pip::
 .. _installation-importer:
 
 Importer
-^^^^^^^^
+""""""""
 
 Photini can import pictures from many types of digital camera using `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_.
 This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
@@ -228,7 +228,7 @@ Installation of python-gphoto2 will require the "development headers" versions o
 You should be able to install these with your system package manager.
 
 pgi
-^^^
+"""
 
 If you find the PyGObject bindings to be unreliable (I found they sometimes crash when using Python 3) you can use `pgi <https://pypi.python.org/pypi/pgi/>`_ instead::
 
@@ -245,7 +245,7 @@ Running Photini
 If the installation has been successful you should be able to run Photini from the "Start" menu (Windows) or application launcher (Linux).
 
 Troubleshooting
----------------
+^^^^^^^^^^^^^^^
 
 If Photini fails to run for some reason you may be able to find out why by trying to run it in a command window.
 On Windows you need to open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``WinPython Command Prompt.exe`` program.
