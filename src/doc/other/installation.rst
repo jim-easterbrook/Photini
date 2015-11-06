@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2012-15  Jim Easterbrook.
-   See the file DOC_LICENSE.txt for copying condidions.
+   See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
 ============
@@ -22,6 +22,7 @@ The installer is suitable for 32 bit and 64 bit Windows, and should work on any 
 
 The installer should finish by running the Photini program.
 If this works then you have successfully installed Photini and can ignore the rest of these instructions.
+If not, see the troubleshooting_ section below.
 
 Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,101 +117,35 @@ If PyQt is installed then one of these will run without generating any error mes
 Linux users should use their package manager to install ``python-qt4`` or ``python-qt5``.
 Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
 
-six
-^^^
-
-`six <https://pypi.python.org/pypi/six/>`_ is a small module that makes it easier to write Python code that works with versions 2 & 3.
-The best way to install it is with `pip <https://pip.pypa.io/en/latest/>`_.
-Linux users should use their package manager to install ``python-pip``.
-Windows and MacOS users can use the installer from https://pip.pypa.io/en/latest/installing.html#install-pip.
-All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.html#upgrade-pip>`_.
-
-Once pip is installed, installing six is easy::
-
-   sudo pip install six
-
-Note that ``sudo`` is not required on Windows, or if you have root privileges.
-In this case you just run ``pip install six``.
-
-appdirs
-^^^^^^^
-
-`appdirs <https://pypi.python.org/pypi/appdirs/>`_ is a small Python module that makes cross-platform programming easier.
-It is also easily installed with pip::
-
-   sudo pip install appdirs
-
 gexiv2
 ^^^^^^
 
-The Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "introspection bindings" to `gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_, which is a GObject wrapper around Exiv2.
+Several libraries are needed to access photograph metadata from Python.
+`Exiv2 <http://www.exiv2.org/>`_ is the core "C" library.
+`gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_ is a GObject wrapper around the Exiv2 library.
+It has optional "introspection bindings" that allow it to be used by other languages.
+`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ provides a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
+Got that?
 
-Linux users should use their package manager to install these bindings, but note that the package name is not obvious.
+Linux users should use their package manager to install these, but note that the package name is not obvious.
 The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
+The PyGObject interface probably appears in the package manager as ``python-gobject`` or ``python-gi``.
 
 Windows users should download and run the latest "pygi-aio" (PyGI all-in-one) installer from http://sourceforge.net/projects/pygobjectwin32/files/.
-You should install the "Base packages" and "GExiv2" libraries, but nothing else is needed.
+You should install the "Base packages" & "GExiv2" packages, and the "Enchant-extra-dicts" non-GNOME library.
 
-Linux users have a choice of library to provide Python bindings to gexiv2.
-`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ can be used, but `pgi <https://pypi.python.org/pypi/pgi/>`_ may be more reliable.
-Linux users can use their package manager to install ``python-gobject`` or pip can be used to install pgi::
+pip
+^^^
 
-   sudo pip install pgi
+The remaining dependencies are Python packages that are easily installed with `pip <https://pip.pypa.io/en/latest/>`_.
+You may already have pip installed on your computer.
+You can check with the ``pip list`` command::
 
-Optional dependencies
----------------------
+   pip list
 
-Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
-
-PyEnchant
-^^^^^^^^^
-
-`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the Enchant spell-checking library.
-If it is installed then spell checking is available for some of Photini's text entry fields.
-Use pip to install it::
-
-   sudo pip install pyenchant
-
-.. _installation-flickr:
-
-python-flickrapi
-^^^^^^^^^^^^^^^^
-
-Photini's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_.
-This is easily installed with pip::
-
-   sudo pip install flickrapi
-
-.. _installation-picasa:
-
-requests and requests-oauthlib
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_ and `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_.
-These are also installed with pip::
-
-   sudo pip install requests requests-oauthlib
-
-python-keyring
-^^^^^^^^^^^^^^
-
-The Flickr and Picasa uploaders both use `python-keyring <https://pypi.python.org/pypi/keyring/>`_ to store your authorisation credentials.
-This is easily installed with pip::
-
-   sudo pip install keyring
-
-.. _installation-importer:
-
-python-gphoto2
-^^^^^^^^^^^^^^
-
-Photini can import pictures from many types of digital camera using `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_.
-This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
-
-   sudo pip install gphoto2
-
-Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
-You should be able to install these with your system package manager.
+Linux users should use their package manager to install ``python-pip``.
+Windows and MacOS users can use the installer from https://pip.pypa.io/en/latest/installing.html#install-pip.
+All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.html#upgrade-pip>`_.
 
 .. _installation-photini:
 
@@ -221,9 +156,10 @@ The easiest way to install the latest release of Photini is with the pip command
 
    sudo pip install photini
 
+This will install Photini and any Python packages it requires.
 You can also use pip to install the optional dependencies when you install Photini::
 
-   sudo pip install photini[flickr,picasa,importer]
+   sudo pip install photini[flickr,picasa,importer,spelling]
 
 If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
 Either way, you then need to build and install Photini::
@@ -231,13 +167,101 @@ Either way, you then need to build and install Photini::
    python setup.py build
    sudo python setup.py install
 
+You will also need to install the remaining Python packages.
+
+Essential Python packages
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There are two small Python packages needed to run Photini.
+They can be installed by one command::
+
+   sudo pip install six appdirs
+
+Note that ``sudo`` is not required on Windows, or if you have root privileges.
+In this case you just run ``pip install six appdirs``.
+
+Optional dependencies
+---------------------
+
+Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
+
+Spelling
+^^^^^^^^
+
+`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the Enchant spell-checking library.
+If it is installed then spell checking is available for some of Photini's text entry fields.
+Use pip to install it::
+
+   sudo pip install pyenchant
+
+.. _installation-flickr:
+
+Flickr
+^^^^^^
+
+Photini's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
+These are easily installed with pip::
+
+   sudo pip install flickrapi keyring
+
+.. _installation-picasa:
+
+Picasa
+^^^^^^
+
+The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
+These are also installed with pip::
+
+   sudo pip install requests requests-oauthlib keyring
+
+.. _installation-importer:
+
+Importer
+^^^^^^^^
+
+Photini can import pictures from many types of digital camera using `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_.
+This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
+
+   sudo pip install -v gphoto2
+
+Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
+You should be able to install these with your system package manager.
+
+pgi
+^^^
+
+If you find the PyGObject bindings to be unreliable (I found they sometimes crash when using Python 3) you can use `pgi <https://pypi.python.org/pypi/pgi/>`_ instead::
+
+   sudo pip install pgi
+
+Note that pgi may also have problems.
+If you need to go back to using PyGObject you should uninstall pgi::
+
+   sudo pip uninstall pgi
+
 Running Photini
 ---------------
 
 If the installation has been successful you should be able to run Photini from the "Start" menu (Windows) or application launcher (Linux).
-If that fails, you may get more helpful error messages by opening a command window and running the Photini editor module directly::
+
+Troubleshooting
+---------------
+
+If Photini fails to run for some reason you may be able to find out why by trying to run it in a command window.
+On Windows you need to open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``WinPython Command Prompt.exe`` program.
+On Linux you can run any terminal or console program.
+
+Start the Photini program as follows.
+If it fails to run you should get some diagnostic information::
 
    python -m photini.editor
+
+If you need more help, please email jim@jim-easterbrook.me.uk.
+It would probably be helpful to copy any diagnostic messages into your email.
+If Photini runs but you have some other problem with it then I would find it useful to know what version you are running.
+You can find out with the ``--version`` option::
+
+   python -m photini.editor --version
 
 .. _installation-documentation:
 
