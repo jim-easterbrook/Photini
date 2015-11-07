@@ -123,11 +123,11 @@ gexiv2
 Several libraries are needed to access photograph metadata from Python.
 `Exiv2 <http://www.exiv2.org/>`_ is the core "C" library.
 `gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_ is a GObject wrapper around the Exiv2 library.
-It has optional "introspection bindings" that allow it to be used by other languages.
-`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ provides a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
+It has extra "introspection bindings" that allow it to be used by other languages.
+`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ (also known as PyGI) provides a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-Linux users should use their package manager to install these, but note that the package names are not obvious.
+Linux users should use their package manager to install these, but note that the package names may not be obvious.
 The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
 The PyGObject interface probably appears in the package manager as ``python-gobject`` or ``python-gi``.
 
@@ -173,7 +173,7 @@ Essential Python packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are two small Python packages needed to run Photini.
-They can be installed by one command::
+They can be installed with one command::
 
    sudo pip install six appdirs
 
@@ -188,7 +188,7 @@ Some of Photini's features are optional - if you don't install these libraries P
 Spelling
 """"""""
 
-`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the Enchant spell-checking library.
+`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the `Enchant <http://www.abisource.com/projects/enchant/>`_ spell-checking library.
 If it is installed then spell checking is available for some of Photini's text entry fields.
 Use pip to install it::
 
@@ -219,8 +219,8 @@ These are also installed with pip::
 Importer
 """"""""
 
-Photini can import pictures from many types of digital camera using `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_.
-This is often already installed on Linux systems, but you still need its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
+Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux amd MacOS systems it can also import directly from a camera.
+This requires `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_, which is often already installed, and its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
 
    sudo pip install -v gphoto2
 
