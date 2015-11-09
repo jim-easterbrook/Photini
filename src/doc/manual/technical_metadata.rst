@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2012-15  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Technical metadata
 ==================
@@ -10,13 +10,33 @@ Generally you should not need to edit any of this data, as it should have been c
 
 .. image:: ../images/screenshot_12.png
 
-The date can be picked from a calendar widget that pops up when you click on the down arrow.
-The time can be adjusted by clicking on the hour, minute or second and then using the up or down arrows.
-You can also double click on any of the numbers to select it and type a new value in directly.
-The date and time fields can be cleared with their ``clear`` buttons.
+The GUI shows three date/time entries - ``taken``, ``digitised`` and ``modified``.
+These are often the same, and are linked by the ``link ...`` check boxes.
+These allow you to change all three when you change the ``taken`` date/time.
 
-The ``Link ...`` tick-boxes allow the different date & time values to be changed simultaneously.
-The ``Digitised`` and ``Modified`` date & time values can only be edited when their ``Link`` boxes are not ticked.
+You may wish to unlink the three entries and adjust the dates or times separately.
+For example, you could use the ``modified`` entry to note when you have edited the metadata with Photini.
+If you scan some old photographs you should set the ``taken`` entry to when the photographs were taken and the ``digitised`` entry to when you scanned them.
+
+The date can be picked from a calendar widget that pops up when you click on the down arrow in a date/time entry.
+Clicking on any of the numbers allows them to be adjusted with your keyboard up & down arrow keys.
+You can also double click on any of the numbers to select it and type a new value in directly.
+
+.. image:: ../images/screenshot_12c.png
+
+To the right of each date/time is a widget to adjust the time zone.
+The time a photograph was taken is assumed to be "local time".
+The time zone records how many hours & minutes offset from UTC (or GMT) the local time zone was when the photograph was taken, digitised or modified.
+
+.. image:: ../images/screenshot_12d.png
+
+Below each date/time is a slider that allows you to set the precision.
+At its maximum value the time is shown to a precision of 1 millisecond.
+Cameras that can take more than one photograph per second need this precision!
+Moving the slider to the left removes parts of the date & time.
+For example, you may know the date when an old photograph was taken but not the time.
+You might only know the year it was taken in.
+Setting the precision allows you to record this uncertainty.
 
 The ``Adjust times`` field allows a constant offset to be applied to the time stamps of several pictures at once.
 This can be useful if you forgot to set your camera's clock before a day's shooting!
