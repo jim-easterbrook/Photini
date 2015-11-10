@@ -124,8 +124,8 @@ class FlickrSession(object):
         photo_id = rsp.find('photoid').text
         # set date granularity
         date_taken = image.metadata.date_taken
-        if date_taken and date_taken.value['precision'] <= 2:
-            granularity = 8 - (date_taken.value['precision'] * 2)
+        if date_taken and date_taken.precision <= 2:
+            granularity = 8 - (date_taken.precision * 2)
             for attempt in range(3):
                 try:
                     rsp = self.session.photos_setDates(

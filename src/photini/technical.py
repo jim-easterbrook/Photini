@@ -245,11 +245,11 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
             self.datetime.set_value(precision=0)
         else:
             self.datetime.set_value(
-                datetime=value.value['datetime'], precision=value.value['precision'])
-        if not value or value.value['precision'] <= 3:
+                datetime=value.datetime, precision=value.precision)
+        if not value or value.precision <= 3:
             self.time_zone.set_value(None)
         else:
-            self.time_zone.set_value(value.value['tz_offset'])
+            self.time_zone.set_value(value.tz_offset)
         self.time_zone.setEnabled(self._enabled)
         self.precision.blockSignals(blocked)
 
@@ -570,7 +570,7 @@ class Technical(QtWidgets.QWidget):
             date_taken = image.metadata.date_taken
             if not date_taken:
                 continue
-            date_taken.value['datetime'] += offset
+            date_taken.datetime += offset
             image.metadata.date_taken = date_taken
             if self.link_widget['taken', 'digitised'].isChecked():
                 image.metadata.date_digitised = date_taken
@@ -657,15 +657,14 @@ class Technical(QtWidgets.QWidget):
                 image.metadata.focal_length = 0
             aperture = image.metadata.aperture.value
             focal_length = image.metadata.focal_length.value
-            if focal_length <= spec.value['min_fl']:
-                focal_length = spec.value['min_fl']
-                aperture = max(aperture, spec.value['min_fl_fn'])
-            elif focal_length >= spec.value['max_fl']:
-                focal_length = spec.value['max_fl']
-                aperture = max(aperture, spec.value['max_fl_fn'])
+            if focal_length <= spec.min_fl:
+                focal_length = spec.min_fl
+                aperture = max(aperture, spec.min_fl_fn)
+            elif focal_length >= spec.max_fl:
+                focal_length = spec.max_fl
+                aperture = max(aperture, spec.max_fl_fn)
             else:
-                aperture = max(aperture, min(spec.value['min_fl_fn'],
-                                             spec.value['max_fl_fn']))
+                aperture = max(aperture, min(spec.min_fl_fn, spec.max_fl_fn))
             image.metadata.aperture = aperture
             image.metadata.focal_length = focal_length
         self._update_aperture()
@@ -740,14 +739,13 @@ class Technical(QtWidgets.QWidget):
                 if not spec:
                     continue
                 focal_length = image.metadata.focal_length
-                if focal_length and (
-                        focal_length.value < spec.value['min_fl'] or
-                        focal_length.value > spec.value['max_fl']):
+                if focal_length and (focal_length.value < spec.min_fl or
+                                     focal_length.value > spec.max_fl):
                     self.link_lens.setChecked(False)
                     break
                 aperture = image.metadata.aperture
-                if aperture and aperture.value < min(spec.value['min_fl_fn'],
-                                                     spec.value['max_fl_fn']):
+                if aperture and aperture.value < min(
+                                        spec.min_fl_fn, spec.max_fl_fn):
                     self.link_lens.setChecked(False)
                     break
         if not self.widgets['lens_model'].known_value(value):

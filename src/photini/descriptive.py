@@ -230,7 +230,7 @@ class Descriptive(QtWidgets.QWidget):
             if date_taken is None:
                 date_taken = datetime.now()
             else:
-                date_taken = date_taken.value['datetime']
+                date_taken = date_taken.datetime
             value = self.trUtf8(
                 'Copyright ©{0:d} {1}. All rights reserved.').format(
                     date_taken.year, name)

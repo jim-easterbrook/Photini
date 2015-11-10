@@ -89,7 +89,21 @@ class Ignore(MetadataValue):
     pass
 
 
-class LatLon(MetadataValue):
+class MetadataDictValue(MetadataValue):
+    value = {}
+
+    def __getattr__(self, name):
+        if name in self.value:
+            return self.value[name]
+        return super(MetadataDictValue, self).__getattr__(name)
+
+    def __setattr__(self, name, value):
+        if name in self.value:
+            self.value[name] = value
+        super(MetadataDictValue, self).__setattr__(name, value)
+
+
+class LatLon(MetadataDictValue):
     # simple class to store latitude and longitude
     def __init__(self, value):
         if isinstance(value, six.string_types):
@@ -122,8 +136,7 @@ class LatLon(MetadataValue):
 
     def to_exif(self):
         result = []
-        for value, sign_char in zip((self.value['lat'], self.value['lon']),
-                                    ('NS', 'EW')):
+        for value, sign_char in zip((self.lat, self.lon), ('NS', 'EW')):
             if value >= 0.0:
                 ref = sign_char[0]
             else:
@@ -158,10 +171,10 @@ class LatLon(MetadataValue):
         return None
 
     def __str__(self):
-        return '{:.6f}, {:.6f}'.format(self.value['lat'], self.value['lon'])
+        return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
 
-class LensSpec(MetadataValue):
+class LensSpec(MetadataDictValue):
     # simple class to store lens "specificaton"
     def __init__(self, value):
         if isinstance(value, six.string_types):
@@ -179,17 +192,16 @@ class LensSpec(MetadataValue):
 
     def __str__(self):
         return '{:g} {:g} {:g} {:g}'.format(
-            float(self.value['min_fl']),    float(self.value['max_fl']),
-            float(self.value['min_fl_fn']), float(self.value['max_fl_fn']))
+            float(self.min_fl),    float(self.max_fl),
+            float(self.min_fl_fn), float(self.max_fl_fn))
 
     def to_exif(self):
         return ' '.join(
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
-                self.value['min_fl'], self.value['max_fl'],
-                self.value['min_fl_fn'], self.value['max_fl_fn'])])
+                self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
 
 
-class DateTime(MetadataValue):
+class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
     def __init__(self, datetime, precision, tz_offset=None):
@@ -239,20 +251,20 @@ class DateTime(MetadataValue):
 
     def to_ISO_8601(self, basic=False, precision=None, time_zone=True):
         if precision is None:
-            precision = self.value['precision']
+            precision = self.precision
         if basic:
             fmt = ''.join(self.basic_fmt[:precision])
         else:
             fmt = ''.join(self.extended_fmt[:precision])
-        datetime_string = self.value['datetime'].strftime(fmt)
-        if precision > 3 and time_zone and self.value['tz_offset'] is not None:
+        datetime_string = self.datetime.strftime(fmt)
+        if precision > 3 and time_zone and self.tz_offset is not None:
             return datetime_string + self.tz_string(basic=basic)
         return datetime_string
 
     def tz_string(self, basic=False):
-        if self.value['tz_offset'] is None:
+        if self.tz_offset is None:
             return ''
-        minutes = self.value['tz_offset']
+        minutes = self.tz_offset
         if minutes >= 0:
             sign_string = '+'
         else:
@@ -323,7 +335,7 @@ class DateTime(MetadataValue):
         return cls.from_ISO_8601(date_string, time_string)
 
     def to_iptc(self, tag):
-        if self.value['precision'] <= 3:
+        if self.precision <= 3:
             date_string = self.to_ISO_8601()
             #               YYYY mm dd
             date_string += '0000-00-00'[len(date_string):]
@@ -346,7 +358,7 @@ class DateTime(MetadataValue):
             date_string.replace('-', ''), time_string.replace(':', ''))
 
     def to_xmp(self):
-        precision = self.value['precision']
+        precision = self.precision
         if precision == 4:
             precision = 5
         return self.to_ISO_8601(precision=precision)
@@ -357,22 +369,21 @@ class DateTime(MetadataValue):
     def contains(self, other):
         if (not other) or (other.value == self.value):
             return True
-        if other.value['datetime'] != self.value['datetime']:
+        if other.datetime != self.datetime:
             return False
-        if other.value['precision'] < self.value['precision']:
+        if other.precision < self.precision:
             return False
-        return bool(other.value['tz_offset']) == bool(self.value['tz_offset'])
+        return bool(other.tz_offset) == bool(self.tz_offset)
 
     def merge(self, other, family=None):
         result = False
         # some formats default to a higher precision
-        if (self.value['precision'] < 7 and
-                self.value['precision'] > other.value['precision']):
-            self.value['precision'] = other.value['precision']
+        if self.precision < 7 and self.precision > other.precision:
+            self.precision = other.precision
             result = True
         # don't trust IPTC time zone
-        if self.value['tz_offset'] is None and family != 'Iptc':
-            self.value['tz_offset'] = other.value['tz_offset']
+        if self.tz_offset is None and family != 'Iptc':
+            self.tz_offset = other.tz_offset
             result = True
         return result
 

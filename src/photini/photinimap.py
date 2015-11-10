@@ -307,7 +307,7 @@ class PhotiniMap(QtWidgets.QWidget):
         else:
             self.marker_images[marker_id] = [image]
             self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
-                marker_id, latlong.value['lat'], latlong.value['lon'],
+                marker_id, latlong.lat, latlong.lon,
                 image.selected))
 
     def _remove_image(self, image):
@@ -373,7 +373,7 @@ class PhotiniMap(QtWidgets.QWidget):
         if len(self.marker_images[marker_id]) > 1:
             latlong = self.marker_images[marker_id][1].metadata.latlong
             self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
-                'temp_id', latlong.value['lat'], latlong.value['lon'], False))
+                'temp_id', latlong.lat, latlong.lon, False))
             self.marker_images['temp_id'] = self.marker_images[marker_id][1:]
             del self.marker_images[marker_id][1:]
 
