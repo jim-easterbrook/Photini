@@ -49,7 +49,7 @@ GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
 class MetadataValue(object):
     # base for classes that store a metadata value, e.g. a string, int
-    # or latitude & longitude pair
+    # or float
     def __init__(self, value):
         assert(value is not None)
         self.value = value
@@ -90,6 +90,8 @@ class Ignore(MetadataValue):
 
 
 class MetadataDictValue(MetadataValue):
+    # base for classes that store a dictionary of metadata values, e.g.
+    # latitude & longitude
     value = {}
 
     def __getattr__(self, name):
@@ -100,6 +102,7 @@ class MetadataDictValue(MetadataValue):
     def __setattr__(self, name, value):
         if name in self.value:
             self.value[name] = value
+            return
         super(MetadataDictValue, self).__setattr__(name, value)
 
 
@@ -204,7 +207,8 @@ class LensSpec(MetadataDictValue):
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
-    def __init__(self, date_time, precision, tz_offset=None):
+    def __init__(self, value):
+        date_time, precision, tz_offset = value
         parts = (date_time.year, date_time.month, date_time.day,
                  date_time.hour, date_time.minute, date_time.second,
                  date_time.microsecond)
@@ -247,7 +251,8 @@ class DateTime(MetadataDictValue):
         if precision == 6 and datetime_string.count('.') > 0:
             precision = 7
         fmt = ''.join(cls.basic_fmt[:precision])
-        return cls(datetime.strptime(datetime_string, fmt), precision, tz_offset)
+        return cls(
+            (datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
     basic_fmt    = ('%Y',  '%m',  '%d',  '%H',  '%M',  '%S', '.%f')
     extended_fmt = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
@@ -383,6 +388,7 @@ class DateTime(MetadataDictValue):
         # some formats default to a higher precision
         if self.precision < 7 and self.precision > other.precision:
             self.precision = other.precision
+            self.datetime = other.datetime
             result = True
         # don't trust IPTC time zone
         if self.tz_offset is None and family != 'Iptc':

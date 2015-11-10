@@ -236,7 +236,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         if tz_offset == self.time_zone.minimum():
             # special value - no time zone
             tz_offset = None
-        return DateTime(self.datetime.datetime, precision, tz_offset)
+        return DateTime((self.datetime.datetime, precision, tz_offset))
 
     def set_value(self, value):
         blocked = self.precision.blockSignals(True)
