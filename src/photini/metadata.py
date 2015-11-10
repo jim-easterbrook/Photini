@@ -211,9 +211,11 @@ class DateTime(MetadataDictValue):
         date_time, precision, tz_offset = value
         parts = (date_time.year, date_time.month, date_time.day,
                  date_time.hour, date_time.minute, date_time.second,
-                 date_time.microsecond)
+                 date_time.microsecond)[:precision]
+        while len(parts) < 3:
+            parts.append(1)
         super(DateTime, self).__init__({
-            'datetime'  : datetime(*parts[:precision]),
+            'datetime'  : datetime(*parts),
             'precision' : precision,
             'tz_offset' : tz_offset,
             })
