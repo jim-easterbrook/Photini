@@ -204,9 +204,12 @@ class LensSpec(MetadataDictValue):
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
-    def __init__(self, datetime, precision, tz_offset=None):
+    def __init__(self, date_time, precision, tz_offset=None):
+        parts = (date_time.year, date_time.month, date_time.day,
+                 date_time.hour, date_time.minute, date_time.second,
+                 date_time.microsecond)
         super(DateTime, self).__init__({
-            'datetime'  : datetime,
+            'datetime'  : datetime(*parts[:precision]),
             'precision' : precision,
             'tz_offset' : tz_offset,
             })
