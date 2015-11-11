@@ -209,13 +209,20 @@ class DateTime(MetadataDictValue):
     # tz_offset is stored in minutes
     def __init__(self, value):
         date_time, precision, tz_offset = value
-        parts = (date_time.year, date_time.month, date_time.day,
-                 date_time.hour, date_time.minute, date_time.second,
-                 date_time.microsecond)[:precision]
-        while len(parts) < 3:
-            parts.append(1)
+        if date_time is None:
+            # use a well known 'zero'
+            date_time = datetime(1970, 1, 1)
+        else:
+            parts = [date_time.year, date_time.month, date_time.day,
+                     date_time.hour, date_time.minute, date_time.second,
+                     date_time.microsecond][:precision]
+            while len(parts) < 3:
+                parts.append(1)
+            date_time = datetime(*parts)
+        if precision <= 3:
+            tz_offset = None
         super(DateTime, self).__init__({
-            'datetime'  : datetime(*parts),
+            'datetime'  : date_time,
             'precision' : precision,
             'tz_offset' : tz_offset,
             })
