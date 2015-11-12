@@ -172,11 +172,15 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         self.setSpecialValueText(' ')
 
     def focusInEvent(self, event):
+        self.setSpecialValueText(' ')
+        self.is_multiple = False
         if self.value() == self.minimum():
             self.setValue(0)
         super(TimeZoneWidget, self).focusInEvent(event)
 
     def validate(self, text, pos):
+        if not text.strip():
+            return QtGui.QValidator.Acceptable, text, pos
         if re.match('[+-]?\d{1,2}(:\d{0,2})?$', text):
             return QtGui.QValidator.Acceptable, text, pos
         if re.match('[+-]?$', text):
@@ -184,6 +188,8 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         return QtGui.QValidator.Invalid, text, pos
 
     def valueFromText(self, text):
+        if not text.strip():
+            return self.minimum()
         hours, sep, minutes = text.partition(':')
         hours = int(hours)
         if minutes:
