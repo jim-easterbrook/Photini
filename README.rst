@@ -113,11 +113,22 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 Map terms and conditions
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use of the Google map tab is subject to the `Google Maps Terms of Use`_.
+Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Google Privacy Policy`_.
 
-Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_.
+Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
 
-Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `MapQuest Terms and Conditions`_.
+Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `MapQuest Terms of Use`_.
+
+Privacy statement
+^^^^^^^^^^^^^^^^^
+
+Photini does not directly gather any information from its users, but the online services it uses (maps, Flickr and Picasa) may do so.
+You should read these services' privacy policies before using them.
+
+Photini stores user preferences in a text file on the user's computer.
+This file can be found in ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
+OAuth_ access tokens for Flickr & Picasa are securely stored on the user's computer using `Python keyring`_.
+
 
 Documentation licence
 ^^^^^^^^^^^^^^^^^^^^^
@@ -129,18 +140,25 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _Flickr:        http://www.flickr.com/
 .. _Google Maps Terms of Use:
                    http://www.google.com/help/terms_maps.html
+.. _Google Privacy Policy:
+                   http://www.google.com/policies/privacy/
 .. _installation documentation:
                    http://photini.readthedocs.org/en/latest/other/installation.html
 .. _"issues" page: https://github.com/jim-easterbrook/Photini/issues
 .. _Linux Format:  http://www.linuxformat.com/archives?issue=166
 .. _localisation documentation:
                    http://photini.readthedocs.org/en/latest/other/localisation.html
-.. _MapQuest Terms and Conditions:
-                   http://developer.mapquest.com/web/info/terms-of-use
+.. _MapQuest Terms of Use:
+                   http://hello.mapquest.com/terms-of-use
 .. _Microsoft Bing Maps Terms of Use:
                    http://www.microsoft.com/maps/assets/docs/terms.aspx
+.. _Microsoft Privacy Statement:
+                   http://www.microsoft.com/en-us/privacystatement/
 .. _Nominatim usage policy:
                    http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
+.. _OAuth:         http://oauth.net/
 .. _Photini team on Transifex:
                    https://www.transifex.com/projects/p/photini/
 .. _Picasa:        http://picasaweb.google.com/
+.. _Python keyring:
+                   https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
