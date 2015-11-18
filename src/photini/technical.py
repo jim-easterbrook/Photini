@@ -317,13 +317,14 @@ class OffsetWidget(QtWidgets.QWidget):
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
         # add offset button
-        add_button = SquareButton(' + ')
+        add_button = SquareButton('+')
         add_button.clicked.connect(self.add)
         self.layout().addWidget(add_button)
         # subtract offset button
-        sub_button = SquareButton(' - ')
+        sub_button = SquareButton('-')
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
+        self.layout().addStretch(1)
 
     @QtCore.pyqtSlot()
     def add(self):
