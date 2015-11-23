@@ -34,7 +34,6 @@ class GoogleMap(PhotiniMap):
     def load_api(self):
         url = 'http://maps.googleapis.com/maps/api/js'
         url += '?key=' + key_store.get('google', 'api_key')
-        url += '&sensor=false'
         lang, encoding = locale.getdefaultlocale()
         if lang:
             match = re.match('[a-zA-Z]+[-_]([A-Z]+)', lang)
