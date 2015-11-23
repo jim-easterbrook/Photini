@@ -64,6 +64,10 @@ function seeMarkers(ids)
   var ne = bounds.getNorthEast();
   var map_sw = map_bounds.getSouthWest();
   var map_ne = map_bounds.getNorthEast();
+  var map_height = map_ne.lat - map_sw.lat;
+  var map_width = map_ne.lng - map_sw.lng;
+  map_ne = new L.LatLng(map_ne.lat - (map_height / 10.0), map_ne.lng - (map_width / 10.0));
+  map_sw = new L.LatLng(map_sw.lat + (map_height / 10.0), map_sw.lng + (map_width / 10.0));
   if ((ne.lat - sw.lat > map_ne.lat - map_sw.lat) |
       (ne.lng - sw.lng > map_ne.lng - map_sw.lng))
   {

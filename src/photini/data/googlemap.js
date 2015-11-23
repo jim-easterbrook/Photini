@@ -64,18 +64,20 @@ function seeMarkers(ids)
   }
   if (!bounds)
     return;
-  var span = bounds.toSpan();
   var map_span = map.getBounds().toSpan();
-  var scale = Math.max(span.lat() / map_span.lat(),
-                       span.lng() / map_span.lng());
-  var zoom = map.getZoom();
-  while (scale > 0.95)
-  {
-    zoom -= 1;
-    scale = scale / 2.0;
-  }
-  map.setZoom(zoom);
-  map.panToBounds(bounds);
+  var map_height = map_span.lat();
+  var map_width = map_span.lng();
+  var ne = bounds.getNorthEast();
+  var sw = bounds.getSouthWest();
+  bounds.extend((new google.maps.LatLng(ne.lat() + (map_height / 20.0),
+					ne.lng() + (map_width / 20.0))));
+  bounds.extend((new google.maps.LatLng(sw.lat() - (map_height / 20.0),
+					sw.lng() - (map_width / 20.0))));
+  var span = bounds.toSpan();
+  if ((span.lat() > map_height) | (span.lng() > map_width))
+    map.fitBounds(bounds);
+  else
+    map.panToBounds(bounds);
 }
 
 function goTo(lat, lng)
