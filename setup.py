@@ -264,7 +264,7 @@ setup(name = 'Photini',
               'photini = photini.editor:main',
               ],
           },
-      install_requires = ['appdirs >= 1.3', 'six >= 1.5'],
+      install_requires = ['appdirs >= 1.3', 'six >= 1.9'],
       extras_require = {
           'flickr'   : ['flickrapi >= 2.0', 'keyring >= 4.0'],
           'importer' : ['gphoto2 >= 0.10'],
