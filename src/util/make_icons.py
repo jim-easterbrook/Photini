@@ -2,7 +2,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-14  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -53,6 +53,6 @@ def draw_marker(width, height, offset, filename):
 
 path = os.path.normpath(os.path.join(
     os.path.dirname(__file__), '..', 'photini', 'data'))
-draw_marker(25, 37, 8.5, os.path.join(path, 'bing_grey_marker.png'))
-draw_marker(25, 40, 12, os.path.join(path, 'osm_grey_marker.png'))
-draw_marker(21.5, 40, 10.0, os.path.join(path, 'google_grey_marker.png'))
+draw_marker(25, 37, 8.5, os.path.join(path, 'bingmap', 'grey_marker.png'))
+draw_marker(25, 40, 12, os.path.join(path, 'openstreetmap', 'grey_marker.png'))
+draw_marker(21.5, 40, 10.0, os.path.join(path, 'googlemap', 'grey_marker.png'))
