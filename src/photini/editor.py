@@ -255,15 +255,19 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def about(self):
         text = self.tr("""
+<img src="{2}" style="float:right" />
 <h1 align="center">Photini</h1>
 <h3 align="center">version {0}, build {1}</h3>
-<p align="center">An easy to use digital photograph metadata editor.<br />
-&copy; Jim Easterbrook
-<a href="mailto:jim@jim-easterbrook.me.uk">jim@jim-easterbrook.me.uk</a></p>
+<p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
+jim@jim-easterbrook.me.uk</a><br /><br />
+An easy to use digital photograph metadata editor.<br />
+Open source package available from
+<a href="https://github.com/jim-easterbrook/Photini">
+github.com/jim-easterbrook/Photini</a>.</p>
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
-""").format(__version__, build)
-        dialog = QtWidgets.QMessageBox()
+""").format(__version__, build, os.path.join(data_dir, 'icon_120.png'))
+        dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
         dialog.setDetailedText(
