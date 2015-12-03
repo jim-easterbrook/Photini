@@ -70,7 +70,7 @@ if next_build != build:
     with open('src/photini/__init__.py', 'w') as vf:
         vf.write("from __future__ import unicode_literals\n\n")
         vf.write("__version__ = '%s'\n" % __version__)
-        vf.write("build = '%s'\n'" % build)
+        vf.write("build = '%s'\n" % build)
         vf.write("_dev_no = '%s'\n" % _dev_no)
         vf.write("_commit = '%s'\n" % _commit)
 
