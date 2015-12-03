@@ -24,6 +24,7 @@ import six
 from six.moves.configparser import RawConfigParser
 import os
 import stat
+import sys
 
 import appdirs
 import pkg_resources
@@ -113,8 +114,13 @@ class KeyStore(object):
     """
     def __init__(self):
         self.config = RawConfigParser()
-        data = pkg_resources.resource_stream('photini', 'data/keys.txt')
-        self.config.readfp(data)
+        if sys.version_info >= (3, 2):
+            data = pkg_resources.resource_string('photini', 'data/keys.txt')
+            data = data.decode('utf-8')
+            self.config.read_string(data)
+        else:
+            data = pkg_resources.resource_stream('photini', 'data/keys.txt')
+            self.config.readfp(data)
 
     def get(self, section, option):
         value = self.config.get(section, option)
