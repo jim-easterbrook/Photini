@@ -251,6 +251,7 @@ setup(name = 'Photini',
       package_dir = {'' : 'src'},
       package_data = {
           'photini' : ['data/*.html', 'data/*.txt', 'data/*.js', 'data/*.png',
+                       'data/*map/grey_marker.png', 'data/*map/script.js',
                        'data/lang/*.qm'],
           },
       cmdclass = cmdclass,

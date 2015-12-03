@@ -76,9 +76,10 @@ class PhotiniMap(QtWidgets.QWidget):
         self.config_store = config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
-        self.drag_icon = QtGui.QPixmap()
-        self.drag_icon.loadFromData(pkg_resources.resource_string(
-            'photini', 'data/' + self.drag_icon_name))
+        self.script_dir = pkg_resources.resource_filename(
+            'photini', 'data/' + self.__class__.__name__.lower() + '/')
+        self.drag_icon = QtGui.QPixmap(
+            os.path.join(self.script_dir, 'grey_marker.png'))
         self.location = {}
         self.search_string = None
         self.map_loaded = False
@@ -150,10 +151,10 @@ class PhotiniMap(QtWidgets.QWidget):
     </style>
 """
         page_end = """
-    <script type="text/javascript" src="{0}.js">
+    <script type="text/javascript" src="script.js">
     </script>
   </head>
-  <body ondragstart="return false" onload="initialize({1:f}, {2:f}, {3:d})">
+  <body ondragstart="return false" onload="initialize({0:f}, {1:f}, {2:d})">
     <div id="mapDiv" style="width:100%; height:100%"></div>
   </body>
 </html>
@@ -162,10 +163,8 @@ class PhotiniMap(QtWidgets.QWidget):
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
-        self.script_dir = pkg_resources.resource_filename('photini', 'data/')
         self.map.setHtml(
-            page_start + self.load_api() +
-            page_end.format(self.__class__.__name__.lower(), lat, lng, zoom),
+            page_start + self.load_api() + page_end.format(lat, lng, zoom),
             QtCore.QUrl.fromLocalFile(self.script_dir))
 
     @QtCore.pyqtSlot(bool)

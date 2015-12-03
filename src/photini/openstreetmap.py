@@ -26,8 +26,6 @@ from .photinimap import PhotiniMap
 from .pyqt import QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
-    drag_icon_name = 'osm_grey_marker.png'
-
     def load_api(self):
         return """
     <link rel="stylesheet"

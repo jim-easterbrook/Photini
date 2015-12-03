@@ -29,8 +29,6 @@ from .photinimap import PhotiniMap
 from .pyqt import QtWidgets
 
 class GoogleMap(PhotiniMap):
-    drag_icon_name = 'google_grey_marker.png'
-
     def load_api(self):
         url = 'http://maps.googleapis.com/maps/api/js?v=3'
         url += '&key=' + key_store.get('google', 'api_key')

@@ -104,7 +104,7 @@ function enableMarker(id, active)
     {
       marker.setZIndexOffset(0);
       marker.setIcon(new L.Icon({
-        iconUrl: 'osm_grey_marker.png',
+        iconUrl: 'grey_marker.png',
         iconSize: [25, 40],
         iconAnchor: [13, 40],
       }));

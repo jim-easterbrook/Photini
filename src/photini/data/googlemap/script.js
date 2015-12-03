@@ -102,7 +102,7 @@ function enableMarker(id, active)
       });
     else
       marker.setOptions({
-        icon: 'google_grey_marker.png',
+        icon: 'grey_marker.png',
         zIndex: 0
       });
   }

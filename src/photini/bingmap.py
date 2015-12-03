@@ -30,8 +30,6 @@ from .photinimap import PhotiniMap
 from .pyqt import QtCore, QtWidgets
 
 class BingMap(PhotiniMap):
-    drag_icon_name = 'bing_grey_marker.png'
-
     def __init__(self, *arg, **kw):
         self.copyright_widget = QtWidgets.QLabel()
         self.copyright_widget.setWordWrap(True)
