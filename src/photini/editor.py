@@ -59,7 +59,7 @@ except ImportError:
 from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
 from .spelling import enchant_version, SpellingManager
 from .technical import Technical
-from . import __version__
+from . import __version__, build
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, verbose):
@@ -256,13 +256,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def about(self):
         text = self.tr("""
 <h1 align="center">Photini</h1>
-<h3 align="center">version {0}</h3>
+<h3 align="center">version {0}, build {1}</h3>
 <p align="center">An easy to use digital photograph metadata editor.<br />
 &copy; Jim Easterbrook
 <a href="mailto:jim@jim-easterbrook.me.uk">jim@jim-easterbrook.me.uk</a></p>
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
-""").format(__version__)
+""").format(__version__, build)
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
@@ -317,7 +317,7 @@ def main(argv=None):
         QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
     app.installTranslator(qt_translator)
     # parse remaining arguments
-    version = 'Photini ' + __version__
+    version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
     version += '\n  ' + gexiv2_version
     version += '\n  PyQt {}, Qt {}'.format(

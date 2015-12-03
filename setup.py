@@ -36,7 +36,6 @@ command_options = {}
 # get GitHub repo information
 # requires GitPython - 'sudo pip install gitpython --pre'
 last_commit = _commit
-last_release = None
 try:
     import git
     try:
@@ -44,10 +43,10 @@ try:
         latest = 0
         for tag in repo.tags:
             tag_name = str(tag)
-            if (tag_name.startswith('Photini') and
+            if (tag_name.startswith('Photini-') and
                     tag.commit.committed_date > latest):
                 latest = tag.commit.committed_date
-                last_release = tag_name
+                __version__ = tag_name.split('-')[1]
         last_commit = str(repo.head.commit)[:7]
     except git.exc.InvalidGitRepositoryError:
         pass
@@ -58,23 +57,20 @@ except ImportError:
 if last_commit != _commit:
     _dev_no = str(int(_dev_no) + 1)
     _commit = last_commit
-if last_release:
-    major, minor, patch = last_release.split('.')
+next_build = '%s (%s)' % (_dev_no, _commit)
+if next_build != build:
+    build = next_build
+    major, minor, micro = __version__.split('.')
     today = date.today()
-    if today.strftime('%m') == minor:
-        patch = int(patch) + 1
+    if today.strftime('%Y%m') == major + minor:
+        micro = int(micro) + 1
     else:
-        patch = 0
-    next_release = today.strftime('%y.%m') + '.%d' % patch
-    next_version = next_release + '.dev%s' % _dev_no
-else:
-    next_release = '.'.join(__version__.split('.')[:3])
-    next_version = next_release
-if next_version != __version__:
+        micro = 0
+    __version__ = today.strftime('%Y.%m') + '.%d' % micro
     with open('src/photini/__init__.py', 'w') as vf:
-        vf.write("# -*- coding: utf-8 -*-\n\n")
         vf.write("from __future__ import unicode_literals\n\n")
-        vf.write("__version__ = '%s'\n" % next_version)
+        vf.write("__version__ = '%s'\n" % __version__)
+        vf.write("build = '%s'\n'" % build)
         vf.write("_dev_no = '%s'\n" % _dev_no)
         vf.write("_commit = '%s'\n" % _commit)
 
@@ -109,7 +105,7 @@ command_options['upload_docs'] = {
 class upload_and_tag(upload):
     def run(self):
         import git
-        tag_path = 'Photini-%s' % next_release
+        tag_path = 'Photini-%s' % __version__
         message = '%s\n\n' % tag_path
         with open('CHANGELOG.txt') as cl:
             while not cl.readline().startswith('Changes'):
@@ -231,11 +227,11 @@ with open('README.rst') as ldf:
 url = 'https://github.com/jim-easterbrook/Photini'
 
 setup(name = 'Photini',
-      version = next_release,
+      version = __version__,
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
       url = url,
-      download_url = url + '/archive/Photini-' + next_release + '.tar.gz',
+      download_url = url + '/archive/Photini-' + __version__ + '.tar.gz',
       description = 'Simple photo metadata editor',
       long_description = long_description,
       classifiers = [
