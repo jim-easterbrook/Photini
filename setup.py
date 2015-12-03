@@ -36,6 +36,7 @@ command_options = {}
 # get GitHub repo information
 # requires GitPython - 'sudo pip install gitpython --pre'
 last_commit = _commit
+last_release = __version__
 try:
     import git
     try:
@@ -46,7 +47,7 @@ try:
             if (tag_name.startswith('Photini-') and
                     tag.commit.committed_date > latest):
                 latest = tag.commit.committed_date
-                __version__ = tag_name.split('-')[1]
+                last_release = tag_name.split('-')[1]
         last_commit = str(repo.head.commit)[:7]
     except git.exc.InvalidGitRepositoryError:
         pass
@@ -60,7 +61,7 @@ if last_commit != _commit:
 next_build = '%s (%s)' % (_dev_no, _commit)
 if next_build != build:
     build = next_build
-    major, minor, micro = __version__.split('.')
+    major, minor, micro = last_release.split('.')
     today = date.today()
     if today.strftime('%Y%m') == major + minor:
         micro = int(micro) + 1
@@ -245,8 +246,6 @@ setup(name = 'Photini',
           'Programming Language :: Python :: 3',
           'Topic :: Multimedia :: Graphics',
           ],
-      license = 'GNU GPL',
-      platforms = ['POSIX', 'MacOS', 'Windows'],
       packages = ['photini'],
       package_dir = {'' : 'src'},
       package_data = {
