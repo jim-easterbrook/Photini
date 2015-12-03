@@ -26,10 +26,9 @@ import os
 import stat
 
 import appdirs
+import pkg_resources
 
 from .pyqt import QtCore
-
-data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', '')
 
 class ConfigStore(object):
     def __init__(self, name):
@@ -113,9 +112,9 @@ class KeyStore(object):
 
     """
     def __init__(self):
-        self.path = os.path.join(data_dir, 'keys.txt')
         self.config = RawConfigParser()
-        self.config.read(self.path)
+        data = pkg_resources.resource_stream('photini', 'data/keys.txt')
+        self.config.readfp(data)
 
     def get(self, section, option):
         value = self.config.get(section, option)

@@ -38,7 +38,9 @@ from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import webbrowser
 
-from .configstore import ConfigStore, data_dir
+import pkg_resources
+
+from .configstore import ConfigStore
 from .bingmap import BingMap
 from .descriptive import Descriptive
 try:
@@ -65,10 +67,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, verbose):
         super(MainWindow, self).__init__()
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
-        self.setWindowIcon(QtGui.QIcon(os.path.join(data_dir, 'icon_48.png')))
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(
+            pkg_resources.resource_string('photini', 'data/icon_48.png'))
+        icon = QtGui.QIcon(pixmap)
+        self.setWindowIcon(icon)
         self.selection = list()
         # logger window
         self.loggerwindow = LoggerWindow(verbose)
+        self.loggerwindow.setWindowIcon(icon)
         self.logger = logging.getLogger(self.__class__.__name__)
         # config store
         self.config_store = ConfigStore('editor')
@@ -266,12 +273,13 @@ Open source package available from
 github.com/jim-easterbrook/Photini</a>.</p>
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
-""").format(__version__, build, os.path.join(data_dir, 'icon_120.png'))
+""").format(__version__, build,
+            pkg_resources.resource_filename('photini', 'data/icon_120.png'))
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
         dialog.setDetailedText(
-            open(os.path.join(data_dir, 'LICENSE.txt')).read())
+            pkg_resources.resource_string('photini', 'data/LICENSE.txt'))
         dialog.exec_()
 
     @QtCore.pyqtSlot(int, int)
@@ -312,8 +320,8 @@ def main(argv=None):
         QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     locale = QtCore.QLocale.system()
     translator = QtCore.QTranslator()
-    translator.load(
-        locale, 'photini', '.', os.path.join(data_dir, 'lang'), '.qm')
+    translator.load(locale, 'photini', '.', pkg_resources.resource_filename(
+        'photini', 'data/lang'), '.qm')
     app.installTranslator(translator)
     qt_translator = QtCore.QTranslator()
     qt_translator.load(

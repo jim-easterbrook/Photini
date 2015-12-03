@@ -24,9 +24,9 @@ import logging
 import os
 import webbrowser
 
+import pkg_resources
 import six
 
-from .configstore import data_dir
 from .imagelist import DRAG_MIMETYPE
 from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from . import __version__
@@ -76,8 +76,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.config_store = config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
-        self.drag_icon = QtGui.QPixmap(
-            os.path.join(data_dir, self.drag_icon_name))
+        self.drag_icon = QtGui.QPixmap()
+        self.drag_icon.loadFromData(pkg_resources.resource_string(
+            'photini', 'data/' + self.drag_icon_name))
         self.location = {}
         self.search_string = None
         self.map_loaded = False
@@ -161,10 +162,11 @@ class PhotiniMap(QtWidgets.QWidget):
             self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+        self.script_dir = pkg_resources.resource_filename('photini', 'data/')
         self.map.setHtml(
             page_start + self.load_api() +
             page_end.format(self.__class__.__name__.lower(), lat, lng, zoom),
-            QtCore.QUrl.fromLocalFile(data_dir))
+            QtCore.QUrl.fromLocalFile(self.script_dir))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
