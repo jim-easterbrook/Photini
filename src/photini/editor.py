@@ -278,8 +278,8 @@ details click the 'show details' button.</p>
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)
-        dialog.setDetailedText(
-            pkg_resources.resource_string('photini', 'data/LICENSE.txt'))
+        licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
+        dialog.setDetailedText(licence.decode('utf-8'))
         dialog.exec_()
 
     @QtCore.pyqtSlot(int, int)
