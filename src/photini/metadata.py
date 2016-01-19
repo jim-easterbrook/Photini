@@ -424,7 +424,7 @@ class MultiString(MetadataValue):
         result = []
         for item in self.value:
             item = item.encode('utf_8')[:_max_bytes[tag]]
-            if six.PY3:
+            if not six.PY2:
                 item = item.decode('utf_8')
             result.append(item)
         return result
@@ -460,7 +460,7 @@ class String(MetadataValue):
 
     def to_iptc(self, tag):
         result = self.value.encode('utf_8')[:_max_bytes[tag]]
-        if six.PY3:
+        if not six.PY2:
             result = result.decode('utf_8')
         return result
 

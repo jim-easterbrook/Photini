@@ -35,7 +35,7 @@ class ConfigStore(object):
     def __init__(self, name):
         self.config = RawConfigParser()
         self.file_opts = {}
-        if six.PY3:
+        if not six.PY2:
             self.file_opts['encoding'] = 'utf-8'
         if hasattr(appdirs, 'user_config_dir'):
             config_dir = appdirs.user_config_dir('photini')
@@ -124,10 +124,10 @@ class KeyStore(object):
 
     def get(self, section, option):
         value = self.config.get(section, option)
-        if six.PY3:
+        if not six.PY2:
             value = value.encode('ASCII')
         value = codecs.decode(value, 'base64_codec')
-        if six.PY3:
+        if not six.PY2:
             return value.decode('ASCII')
         return value
 
