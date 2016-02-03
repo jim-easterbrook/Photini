@@ -38,7 +38,7 @@ Using aerial / satellite imagery (if it's available) can help with this.
 .. image:: ../images/screenshot_17.png
 
 Now you can drag and drop your photograph onto the map to set its location.
-To drag multiple images to the same location, select them all and then drag with the 'control' or 'shift' key held down.
+To set the same location on multiple images, select them all and then drag and drop any one of them.
 
 .. image:: ../images/screenshot_18.png
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -91,7 +91,18 @@ class Image(QtWidgets.QFrame):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_pos = event.pos()
-        self.image_list.thumb_mouse_press(self.path, event)
+        if event.modifiers() == Qt.ControlModifier:
+            self.image_list.select_image(self.path, multiple_selection=True)
+        elif event.modifiers() == Qt.ShiftModifier:
+            self.image_list.select_image(self.path, extend_selection=True)
+        elif not self.get_selected():
+            # don't clear selection in case we're about to drag
+            self.image_list.select_image(self.path)
+
+    def mouseReleaseEvent(self, event):
+        if event.modifiers() not in (Qt.ControlModifier, Qt.ShiftModifier):
+            # clear any multiple selection
+            self.image_list.select_image(self.path)
 
     def mouseMoveEvent(self, event):
         if not self.image_list.drag_icon:
@@ -523,14 +534,6 @@ class ImageList(QtWidgets.QWidget):
 
     def emit_selection(self):
         self.selection_changed.emit(self.get_selected_images())
-
-    def thumb_mouse_press(self, path, event):
-        if event.modifiers() == Qt.ControlModifier:
-            self.select_image(path, multiple_selection=True)
-        elif event.modifiers() == Qt.ShiftModifier:
-            self.select_image(path, extend_selection=True)
-        else:
-            self.select_image(path)
 
     def select_all(self):
         for path in self.path_list:
