@@ -39,11 +39,13 @@ try:
     import git
     repo = git.Repo()
     if repo.is_dirty():
-        # increment _dev_no when there's been a commit
+        dev_no = int(build.split()[0])
+        commit = build.split()[1][1:-1]
+        # increment dev_no when there's been a commit
         last_commit = str(repo.head.commit)[:7]
-        if last_commit != _commit:
-            _dev_no = str(int(_dev_no) + 1)
-            _commit = last_commit
+        if last_commit != commit:
+            dev_no += 1
+            commit = last_commit
         # get latest release tag
         latest = 0
         for tag in repo.tags:
@@ -64,10 +66,8 @@ try:
         new_text = """from __future__ import unicode_literals
 
 __version__ = '%s'
-build = '%s (%s)'
-_dev_no = '%s'
-_commit = '%s'
-""" % (__version__, _dev_no, _commit, _dev_no, _commit)
+build = '%d (%s)'
+""" % (__version__, dev_no, commit)
         with open('src/photini/__init__.py', 'r') as vf:
             old_text = vf.read()
         if new_text != old_text:
