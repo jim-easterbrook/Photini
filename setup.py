@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -35,12 +35,16 @@ command_options = {}
 
 # get GitHub repo information
 # requires GitPython - 'sudo pip install gitpython --pre'
-last_commit = _commit
-last_release = __version__
 try:
     import git
-    try:
-        repo = git.Repo()
+    repo = git.Repo()
+    if repo.is_dirty():
+        # increment _dev_no when there's been a commit
+        last_commit = str(repo.head.commit)[:7]
+        if last_commit != _commit:
+            _dev_no = str(int(_dev_no) + 1)
+            _commit = last_commit
+        # get latest release tag
         latest = 0
         for tag in repo.tags:
             tag_name = str(tag)
@@ -48,32 +52,29 @@ try:
                     tag.commit.committed_date > latest):
                 latest = tag.commit.committed_date
                 last_release = tag_name.split('-')[1]
-        last_commit = str(repo.head.commit)[:7]
-    except git.exc.InvalidGitRepositoryError:
-        pass
-except ImportError:
-    pass
+        # set current version number (calendar based)
+        major, minor, micro = last_release.split('.')
+        today = date.today()
+        if today.strftime('%Y%m') == major + minor:
+            micro = int(micro) + 1
+        else:
+            micro = 0
+        __version__ = today.strftime('%Y.%m') + '.%d' % micro
+        # update __init__.py if anything's changed
+        new_text = """from __future__ import unicode_literals
 
-# regenerate version file, if required
-if last_commit != _commit:
-    _dev_no = str(int(_dev_no) + 1)
-    _commit = last_commit
-next_build = '%s (%s)' % (_dev_no, _commit)
-if next_build != build:
-    build = next_build
-    major, minor, micro = last_release.split('.')
-    today = date.today()
-    if today.strftime('%Y%m') == major + minor:
-        micro = int(micro) + 1
-    else:
-        micro = 0
-    __version__ = today.strftime('%Y.%m') + '.%d' % micro
-    with open('src/photini/__init__.py', 'w') as vf:
-        vf.write("from __future__ import unicode_literals\n\n")
-        vf.write("__version__ = '%s'\n" % __version__)
-        vf.write("build = '%s'\n" % build)
-        vf.write("_dev_no = '%s'\n" % _dev_no)
-        vf.write("_commit = '%s'\n" % _commit)
+__version__ = '%s'
+build = '%s (%s)'
+_dev_no = '%s'
+_commit = '%s'
+""" % (__version__, _dev_no, _commit, _dev_no, _commit)
+        with open('src/photini/__init__.py', 'r') as vf:
+            old_text = vf.read()
+        if new_text != old_text:
+            with open('src/photini/__init__.py', 'w') as vf:
+                vf.write(new_text)
+except (ImportError, git.exc.InvalidGitRepositoryError):
+    pass
 
 # if sphinx is installed, add commands to build documentation and to
 # extract strings for translation
