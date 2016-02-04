@@ -73,7 +73,8 @@ build = '%d (%s)'
         if new_text != old_text:
             with open('src/photini/__init__.py', 'w') as vf:
                 vf.write(new_text)
-except (ImportError, git.exc.InvalidGitRepositoryError):
+except (ImportError,
+        git.exc.InvalidGitRepositoryError, git.exc.GitCommandNotFound):
     pass
 
 # if sphinx is installed, add commands to build documentation and to
