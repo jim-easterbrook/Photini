@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -308,9 +308,7 @@ details click the 'show details' button.</p>
         size = self.width(), self.height()
         self.config_store.set('main_window', 'size', str(size))
 
-def main(argv=None):
-    if argv:
-        sys.argv = argv
+if __name__ == "__main__":
     # let PyQt handle its options (need at least one argument after options)
     sys.argv.append('xxx')
     app = QtWidgets.QApplication(sys.argv)
@@ -354,7 +352,4 @@ def main(argv=None):
     # create GUI and run application event loop
     main = MainWindow(options.verbose)
     main.show()
-    return app.exec_()
-
-if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(app.exec_())
