@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -86,6 +86,11 @@ class ConfigStore(object):
             self.config.remove_option(section, option)
         self.config.remove_section(section)
         self.timer.start()
+
+    def shutdown(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.save()
 
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
