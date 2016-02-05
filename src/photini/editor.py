@@ -264,7 +264,8 @@ class MainWindow(QtWidgets.QMainWindow):
         text = self.tr("""
 <img src="{2}" style="float:right" />
 <h1 align="center">Photini</h1>
-<h3 align="center">version {0}, build {1}</h3>
+<h3 align="center">version {0}</h3>
+<h4 align="center">build {1}</h4>
 <p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
 jim@jim-easterbrook.me.uk</a><br /><br />
 An easy to use digital photograph metadata editor.<br />
@@ -308,7 +309,9 @@ details click the 'show details' button.</p>
         size = self.width(), self.height()
         self.config_store.set('main_window', 'size', str(size))
 
-if __name__ == "__main__":
+def main(argv=None):
+    if argv:
+        sys.argv = argv
     # let PyQt handle its options (need at least one argument after options)
     sys.argv.append('xxx')
     app = QtWidgets.QApplication(sys.argv)
@@ -352,4 +355,7 @@ if __name__ == "__main__":
     # create GUI and run application event loop
     main = MainWindow(options.verbose)
     main.show()
-    sys.exit(app.exec_())
+    return app.exec_()
+
+if __name__ == "__main__":
+    sys.exit(main())
