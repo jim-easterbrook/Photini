@@ -48,7 +48,7 @@ class WebPage(QtWebKitWidgets.QWebPage):
         # Nominatim requires the user agent to identify the application
         if 'nominatim' in host:
             return 'Photini/' + __version__
-        return QtWebKitWidgets.QWebPage.userAgentForUrl(self, url)
+        return super(WebPage, self).userAgentForUrl(url)
 
 
 class WebView(QtWebKitWidgets.QWebView):
@@ -91,7 +91,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.setLayout(layout)
         # map
         self.map = WebView()
-        self.map.setPage(WebPage())
+        self.map.setPage(WebPage(parent=self))
         self.map.setAcceptDrops(False)
         self.map.page().setLinkDelegationPolicy(
             QtWebKitWidgets.QWebPage.DelegateAllLinks)
