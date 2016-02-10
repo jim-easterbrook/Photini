@@ -28,7 +28,7 @@ Features
 *   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to Flickr_ and/or Picasa_ with reuse of metadata.
+*   Upload to Flickr_ and/or `Google Photos`_ and Picasa_ with reuse of metadata.
 
 .. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
@@ -95,7 +95,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -122,7 +122,7 @@ Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the
 Privacy statement
 ^^^^^^^^^^^^^^^^^
 
-Photini does not directly gather any information from its users, but the online services it uses (maps, Flickr and Picasa) may do so.
+Photini does not directly gather any information from its users, but the online services it uses (maps, Flickr and Google Photos/Picasa) may do so.
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
@@ -140,6 +140,7 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _Flickr:        http://www.flickr.com/
 .. _Google Maps Terms of Use:
                    http://www.google.com/help/terms_maps.html
+.. _Google Photos: https://photos.google.com/
 .. _Google Privacy Policy:
                    http://www.google.com/policies/privacy/
 .. _installation documentation:

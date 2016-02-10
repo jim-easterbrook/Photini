@@ -1,11 +1,12 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-16  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
-Google Picasa uploader
-======================
+Google Photos / Picasa uploader
+===============================
 
-The ``Picasa upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to `Google Picasa <https://picasaweb.google.com/>`_.
+The ``Picasa upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to `Google Photos <https://photos.google.com/>`_ and `Picasa Web Albums <https://picasaweb.google.com/>`_.
+Although it was written as a Picasa uploader, everything you upload also appears in your Google Photos account, if you have one.
 
 Unlike some other Picasa uploaders, Photini uses the descriptive metadata you've created to set the photo's title and tags.
 The description is added as a comment.
@@ -22,6 +23,7 @@ You then copy a verification code from your browser to Photini, as shown below.
 
 Every image uploaded to Picasa has to be stored in an "album".
 You can select one of your existing albums from the drop down list (next to the "title" label) or you can create a new album by clicking on the ``New album`` button.
+These albums appear as "collections" in Google Photos.
 
 .. image:: ../images/screenshot_26.png
 

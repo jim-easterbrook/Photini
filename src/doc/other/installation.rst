@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-16  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -206,10 +206,10 @@ These are easily installed with pip::
 
 .. _installation-picasa:
 
-Picasa
-""""""
+Google Photos / Picasa
+""""""""""""""""""""""
 
-The Google Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
+The Google Photos / Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
 These are also installed with pip::
 
    sudo pip install requests requests-oauthlib keyring
