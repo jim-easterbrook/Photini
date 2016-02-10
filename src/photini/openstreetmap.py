@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -29,12 +29,12 @@ class OpenStreetMap(PhotiniMap):
     def load_api(self):
         return """
     <link rel="stylesheet"
-      href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+      href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js">
+      src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js">
     </script>
 """
 
