@@ -97,7 +97,8 @@ class PhotiniMap(QtWidgets.QWidget):
             QtWebKitWidgets.QWebPage.DelegateAllLinks)
         self.map.page().linkClicked.connect(self.link_clicked)
         self.map.page().loadFinished.connect(self.load_finished)
-        self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
+        self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
+            self.java_script_window_object_cleared)
         self.map.drop_text.connect(self.drop_text)
         self.layout().addWidget(self.map, 0, 1, 8, 1)
         # search
@@ -127,6 +128,10 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().addWidget(self.load_map, 7, 0)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
+
+    @QtCore.pyqtSlot()
+    def java_script_window_object_cleared(self):
+        self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
 
     def link_clicked(self, url):
         webbrowser.open_new(url.toString())
