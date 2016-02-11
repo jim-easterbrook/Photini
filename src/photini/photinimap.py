@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@ import webbrowser
 import pkg_resources
 import six
 
+from .configstore import config_store
 from .imagelist import DRAG_MIMETYPE
 from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from . import __version__
@@ -71,9 +72,8 @@ class WebView(QtWebKitWidgets.QWebView):
 
 
 class PhotiniMap(QtWidgets.QWidget):
-    def __init__(self, config_store, image_list, parent=None):
+    def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
-        self.config_store = config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
         self.script_dir = pkg_resources.resource_filename(
@@ -91,7 +91,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.setLayout(layout)
         # map
         self.map = WebView()
-        self.map.setPage(WebPage(parent=self))
+        self.map.setPage(WebPage(parent=self.map))
         self.map.setAcceptDrops(False)
         self.map.page().setLinkDelegationPolicy(
             QtWebKitWidgets.QWebPage.DelegateAllLinks)
@@ -159,9 +159,8 @@ class PhotiniMap(QtWidgets.QWidget):
   </body>
 </html>
 """
-        lat, lng = eval(
-            self.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        zoom = eval(self.config_store.get('map', 'zoom', '11'))
+        lat, lng = eval(config_store.get('map', 'centre', '(51.0, 0.0)'))
+        zoom = eval(config_store.get('map', 'zoom', '11'))
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
             page_start + self.load_api() + page_end.format(lat, lng, zoom),
@@ -187,8 +186,8 @@ class PhotiniMap(QtWidgets.QWidget):
     def refresh(self):
         if not self.map_loaded:
             return
-        lat, lng = eval(self.config_store.get('map', 'centre'))
-        zoom = eval(self.config_store.get('map', 'zoom'))
+        lat, lng = eval(config_store.get('map', 'centre'))
+        zoom = eval(config_store.get('map', 'zoom'))
         self.JavaScript(
             'setView({0}, {1}, {2:d})'.format(repr(lat), repr(lng), zoom))
         self.new_images()
@@ -203,8 +202,8 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot(float, float, int)
     def new_bounds(self, centre_lat, centre_lng, zoom):
         self.map_centre = centre_lat, centre_lng
-        self.config_store.set('map', 'centre', str(self.map_centre))
-        self.config_store.set('map', 'zoom', str(zoom))
+        config_store.set('map', 'centre', str(self.map_centre))
+        config_store.set('map', 'zoom', str(zoom))
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):

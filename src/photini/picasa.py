@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@ import keyring
 import requests
 from requests_oauthlib import OAuth2Session
 
-from .configstore import key_store
+from .configstore import config_store, key_store
 from .descriptive import MultiLineEdit
 from .pyqt import Busy, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
@@ -480,7 +480,7 @@ Doing so will remove the album and its photos from all Google products."""
         self.changed_album(self.albums.currentIndex())
 
 
-def PicasaUploader(config_store, image_list, parent=None):
+def PicasaUploader(image_list, parent=None):
     config_store.remove_section('picasa')
     return PhotiniUploader(
         PicasaUploadConfig(), PicasaSession, image_list, parent)

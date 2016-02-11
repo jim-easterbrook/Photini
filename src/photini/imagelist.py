@@ -28,6 +28,7 @@ from six.moves.urllib.parse import unquote
 
 import appdirs
 
+from .configstore import config_store
 from .metadata import Metadata, MetadataHandler
 from .pyqt import (
     Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info)
@@ -310,17 +311,15 @@ class ImageList(QtWidgets.QWidget):
     selection_changed = QtCore.pyqtSignal(list)
     sort_order_changed = QtCore.pyqtSignal()
 
-    def __init__(self, config_store, parent=None):
+    def __init__(self, parent=None):
         super(ImageList, self).__init__(parent)
-        self.config_store = config_store
         self.app = QtWidgets.QApplication.instance()
         self.drag_icon = None
         self.path_list = list()
         self.image = dict()
         self.last_selected = None
         self.selection_anchor = None
-        self.thumb_size = int(self.config_store.get(
-            'controls', 'thumb_size', '80'))
+        self.thumb_size = int(config_store.get('controls', 'thumb_size', '80'))
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setRowStretch(0, 1)
@@ -352,7 +351,7 @@ class ImageList(QtWidgets.QWidget):
         self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
-        if eval(self.config_store.get('controls', 'sort_date', 'False')):
+        if eval(config_store.get('controls', 'sort_date', 'False')):
             self.sort_date.setChecked(True)
         else:
             self.sort_name.setChecked(True)
@@ -399,7 +398,7 @@ class ImageList(QtWidgets.QWidget):
     def open_files(self):
         types = ' '.join(['*.' + x for x in image_types()])
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
-            self, "Open files", self.config_store.get('paths', 'images', ''),
+            self, "Open files", config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;All files (*)").format(types))
         if qt_version_info >= (5, 0):
             path_list = path_list[0]
@@ -428,7 +427,7 @@ class ImageList(QtWidgets.QWidget):
         self.show_thumbnail(image)
 
     def done_opening(self, path):
-        self.config_store.set('paths', 'images', os.path.dirname(path))
+        config_store.set('paths', 'images', os.path.dirname(path))
         self._sort_thumbnails()
 
     def _date_key(self, idx):
@@ -448,7 +447,7 @@ class ImageList(QtWidgets.QWidget):
 
     def _sort_thumbnails(self):
         sort_date = self.sort_date.isChecked()
-        self.config_store.set('controls', 'sort_date', str(sort_date))
+        config_store.set('controls', 'sort_date', str(sort_date))
         with Busy():
             if sort_date:
                 self.path_list.sort(key=self._date_key)
@@ -487,9 +486,9 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def save_files(self):
-        if_mode = eval(self.config_store.get('files', 'image', 'True'))
-        sc_mode = self.config_store.get('files', 'sidecar', 'auto')
-        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
+        if_mode = eval(config_store.get('files', 'image', 'True'))
+        sc_mode = config_store.get('files', 'sidecar', 'auto')
+        force_iptc = eval(config_store.get('files', 'force_iptc', 'False'))
         unsaved = False
         for path in list(self.path_list):
             image = self.image[path]
@@ -567,7 +566,7 @@ class ImageList(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def _new_thumb_size(self):
         self.thumb_size = self.size_slider.value() * 20
-        self.config_store.set('controls', 'thumb_size', str(self.thumb_size))
+        config_store.set('controls', 'thumb_size', str(self.thumb_size))
         for path in self.path_list:
             self.image[path].set_thumb_size(self.thumb_size)
         if self.last_selected:

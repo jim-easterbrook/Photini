@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 from datetime import timedelta
 import re
 
+from .configstore import config_store
 from .metadata import DateTime, LensSpec
 from .pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
 
@@ -350,17 +351,16 @@ class DoubleValidator(QtGui.QDoubleValidator):
 
 
 class LensData(object):
-    def __init__(self, config_store):
-        self.config_store = config_store
-        self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
+    def __init__(self):
+        self.lenses = eval(config_store.get('technical', 'lenses', '[]'))
         self.lenses.sort()
 
     def delete_model(self, model):
         if model not in self.lenses:
             return
-        self.config_store.remove_section('lens ' + model)
+        config_store.remove_section('lens ' + model)
         self.lenses.remove(model)
-        self.config_store.set('technical', 'lenses', repr(self.lenses))
+        config_store.set('technical', 'lenses', repr(self.lenses))
 
     def save_to_image(self, model, image):
         image.metadata.lens_model = model
@@ -370,7 +370,7 @@ class LensData(object):
             return
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
-            value = self.config_store.get(section, item) or None
+            value = config_store.get(section, item) or None
             setattr(image.metadata, item, value)
 
     def load_from_image(self, model, image):
@@ -379,10 +379,10 @@ class LensData(object):
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
             if value:
-                self.config_store.set(section, item, str(value))
+                config_store.set(section, item, str(value))
         self.lenses.append(model)
         self.lenses.sort()
-        self.config_store.set('technical', 'lenses', repr(self.lenses))
+        config_store.set('technical', 'lenses', repr(self.lenses))
 
     def load_from_dialog(self, dialog):
         model = dialog.lens_model.text()
@@ -396,12 +396,12 @@ class LensData(object):
         max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
         lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
         section = 'lens ' + model
-        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
-        self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
-        self.config_store.set(section, 'lens_spec', str(lens_spec))
+        config_store.set(section, 'lens_make', dialog.lens_make.text())
+        config_store.set(section, 'lens_serial', dialog.lens_serial.text())
+        config_store.set(section, 'lens_spec', str(lens_spec))
         self.lenses.append(model)
         self.lenses.sort()
-        self.config_store.set('technical', 'lenses', repr(self.lenses))
+        config_store.set('technical', 'lenses', repr(self.lenses))
         return model
 
 
@@ -458,16 +458,15 @@ class NewLensDialog(QtWidgets.QDialog):
 
 
 class Technical(QtWidgets.QWidget):
-    def __init__(self, config_store, image_list, *arg, **kw):
+    def __init__(self, image_list, *arg, **kw):
         super(Technical, self).__init__(*arg, **kw)
-        self.config_store = config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.widgets = {}
         self.date_widget = {}
         self.link_widget = {}
         # store lens data in another object
-        self.lens_data = LensData(self.config_store)
+        self.lens_data = LensData()
         # date and time
         date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(QtWidgets.QFormLayout())

@@ -137,4 +137,6 @@ class KeyStore(object):
         return value
 
 
+# create single objects for entire application
+config_store = ConfigStore('editor')
 key_store = KeyStore()

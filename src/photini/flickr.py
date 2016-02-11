@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ import time
 import flickrapi
 import keyring
 
-from .configstore import key_store
+from .configstore import config_store, key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
 from .pyqt import Busy, QtCore, QtWidgets
 from .uploader import PhotiniUploader
@@ -298,7 +298,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         pass
 
 
-def FlickrUploader(config_store, image_list, parent=None):
+def FlickrUploader(image_list, parent=None):
     config_store.remove_section('flickr')
     return PhotiniUploader(
         FlickrUploadConfig(), FlickrSession, image_list, parent)

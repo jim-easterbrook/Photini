@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@ from datetime import datetime
 
 import six
 
+from .configstore import config_store
 from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
 from .spelling import SpellingHighlighter
 
@@ -154,9 +155,8 @@ class LineEditWithAuto(QtWidgets.QWidget):
 
 
 class Descriptive(QtWidgets.QWidget):
-    def __init__(self, config_store, image_list, *arg, **kw):
+    def __init__(self, image_list, *arg, **kw):
         super(Descriptive, self).__init__(*arg, **kw)
-        self.config_store = config_store
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
         self.setLayout(self.form)
@@ -215,14 +215,14 @@ class Descriptive(QtWidgets.QWidget):
         self._new_value('creator')
 
     def auto_copyright(self):
-        name = self.config_store.get('user', 'copyright_name')
+        name = config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('Photini: input name'),
                 self.tr("Please type in the copyright holder's name"),
-                text=self.config_store.get('user', 'creator_name', ''))
+                text=config_store.get('user', 'creator_name', ''))
             if OK and name:
-                self.config_store.set('user', 'copyright_name', name)
+                config_store.set('user', 'copyright_name', name)
             else:
                 name = ''
         for image in self.image_list.get_selected_images():
@@ -238,14 +238,14 @@ class Descriptive(QtWidgets.QWidget):
         self._update_widget('copyright')
 
     def auto_creator(self):
-        name = self.config_store.get('user', 'creator_name')
+        name = config_store.get('user', 'creator_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('Photini: input name'),
                 self.tr("Please type in the creator's name"),
-                text=self.config_store.get('user', 'copyright_name', ''))
+                text=config_store.get('user', 'copyright_name', ''))
             if OK and name:
-                self.config_store.set('user', 'creator_name', name)
+                config_store.set('user', 'creator_name', name)
             else:
                 name = ''
         for image in self.image_list.get_selected_images():

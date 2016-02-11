@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -58,6 +58,7 @@ if sys.platform == 'win32x':
                 enchant.set_param('enchant.myspell.dictionary.path', dict_path)
                 break
 
+from .configstore import config_store
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
 
 class SpellCheck(QtCore.QObject):
@@ -99,11 +100,10 @@ _spell_check = SpellCheck()
 
 class SpellingManager(QtCore.QObject):
     # configure the application's SpellCheck object
-    def __init__(self, config_store, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(SpellingManager, self).__init__(*arg, **kw)
-        self.config_store = config_store
-        self.enable(eval(self.config_store.get('spelling', 'enabled', 'True')))
-        self.set_dict(self.config_store.get('spelling', 'language'))
+        self.enable(eval(config_store.get('spelling', 'enabled', 'True')))
+        self.set_dict(config_store.get('spelling', 'language'))
         # adopt some SpellCheck methods
         self.available_languages = _spell_check.available_languages
 
@@ -116,7 +116,7 @@ class SpellingManager(QtCore.QObject):
     @QtCore.pyqtSlot(bool)
     def enable(self, enabled):
         _spell_check.set_enabled(enabled)
-        self.config_store.set('spelling', 'enabled', str(self.enabled()))
+        config_store.set('spelling', 'enabled', str(self.enabled()))
 
     @QtCore.pyqtSlot(QtWidgets.QAction)
     def set_language(self, action):
@@ -124,7 +124,7 @@ class SpellingManager(QtCore.QObject):
 
     def set_dict(self, tag):
         _spell_check.set_dict(tag)
-        self.config_store.set('spelling', 'language', self.current_language())
+        config_store.set('spelling', 'language', self.current_language())
 
 
 class SpellingHighlighter(QtGui.QSyntaxHighlighter):

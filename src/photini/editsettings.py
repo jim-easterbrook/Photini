@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -24,12 +24,12 @@ try:
 except (ImportError, RuntimeError):
     keyring = None
 
+from .configstore import config_store
 from .pyqt import Qt, QtCore, QtWidgets
 
 class EditSettings(QtWidgets.QDialog):
-    def __init__(self, parent, config_store):
+    def __init__(self, parent):
         QtWidgets.QDialog.__init__(self, parent)
-        self.config_store = config_store
         self.setWindowTitle(self.tr('Photini: settings'))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
@@ -45,13 +45,13 @@ class EditSettings(QtWidgets.QDialog):
         # copyright holder name
         self.copyright_name = QtWidgets.QLineEdit()
         self.copyright_name.setText(
-            self.config_store.get('user', 'copyright_name', ''))
+            config_store.get('user', 'copyright_name', ''))
         self.copyright_name.setMinimumWidth(200)
         panel.layout().addRow(self.tr('Copyright holder'), self.copyright_name)
         # creator name
         self.creator_name = QtWidgets.QLineEdit()
         self.creator_name.setText(
-            self.config_store.get('user', 'creator_name', ''))
+            config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
         self.reset_flickr = QtWidgets.QCheckBox()
@@ -66,13 +66,13 @@ class EditSettings(QtWidgets.QDialog):
             self.reset_picasa.setDisabled(True)
             panel.layout().labelForField(self.reset_picasa).setDisabled(True)
         # IPTC data
-        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
+        force_iptc = eval(config_store.get('files', 'force_iptc', 'False'))
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Write unconditionally'))
         self.write_iptc.setChecked(force_iptc)
         panel.layout().addRow(self.tr('IPTC metadata'), self.write_iptc)
         # sidecar files
-        if_mode = eval(self.config_store.get('files', 'image', 'True'))
-        sc_mode = self.config_store.get('files', 'sidecar', 'auto')
+        if_mode = eval(config_store.get('files', 'image', 'True'))
+        sc_mode = config_store.get('files', 'sidecar', 'auto')
         if not if_mode:
             sc_mode = 'always'
         self.sc_always = QtWidgets.QRadioButton(self.tr('Always create'))
@@ -105,15 +105,15 @@ class EditSettings(QtWidgets.QDialog):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()
         # change config
-        self.config_store.set('user', 'copyright_name', self.copyright_name.text())
-        self.config_store.set('user', 'creator_name', self.creator_name.text())
+        config_store.set('user', 'copyright_name', self.copyright_name.text())
+        config_store.set('user', 'creator_name', self.creator_name.text())
         if (self.reset_flickr.isChecked() and
                             keyring.get_password('photini', 'flickr')):
             keyring.delete_password('photini', 'flickr')
         if (self.reset_picasa.isChecked() and
                             keyring.get_password('photini', 'picasa')):
             keyring.delete_password('photini', 'picasa')
-        self.config_store.set(
+        config_store.set(
             'files', 'force_iptc', str(self.write_iptc.isChecked()))
         if self.sc_always.isChecked():
             sc_mode = 'always'
@@ -121,6 +121,6 @@ class EditSettings(QtWidgets.QDialog):
             sc_mode = 'auto'
         else:
             sc_mode = 'delete'
-        self.config_store.set('files', 'sidecar', sc_mode)
-        self.config_store.set('files', 'image', str(self.write_if.isChecked()))
+        config_store.set('files', 'sidecar', sc_mode)
+        config_store.set('files', 'image', str(self.write_if.isChecked()))
         return self.accept()
