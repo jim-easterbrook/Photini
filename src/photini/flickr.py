@@ -38,11 +38,11 @@ flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
 class FlickrSession(object):
     def __init__(self):
-        self.session = None
+        self.api = None
 
     def authorise(self, auth_dialog=None):
         token = keyring.get_password('photini', 'flickr')
-        if token and self.session:
+        if token and self.api:
             return True
         logger.info('using %s', keyring.get_keyring().__module__)
         if token:
@@ -53,43 +53,30 @@ class FlickrSession(object):
         api_secret = key_store.get('flickr', 'api_secret')
         with Busy():
             token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
-            self.session = flickrapi.FlickrAPI(
+            self.api = flickrapi.FlickrAPI(
                 api_key, api_secret, token=token, store_token=False)
-            if self.session.token_valid(perms='write'):
+            if self.api.token_valid(perms='write'):
                 return True
             if not auth_dialog:
-                self.session = None
+                self.api = None
                 return False
-            self.session.get_request_token(oauth_callback='oob')
-            auth_url = self.session.auth_url(perms='write')
+            self.api.get_request_token(oauth_callback='oob')
+            auth_url = self.api.auth_url(perms='write')
         auth_code = auth_dialog(auth_url)
         if not auth_code:
-            self.session = None
+            self.api = None
             return False
         with Busy():
             try:
-                self.session.get_access_token(auth_code)
+                self.api.get_access_token(auth_code)
             except flickrapi.FlickrError as ex:
                 logger.error(str(ex))
-                self.session = None
+                self.api = None
                 return False
-        token = self.session.token_cache.token
+        token = self.api.token_cache.token
         keyring.set_password(
             'photini', 'flickr', token.token + '&' + token.token_secret)
         return True
-
-    def photosets_create(self, title, description, primary_photo_id):
-        rsp = self.session.photosets_create(
-            title=title, description=description,
-            primary_photo_id=primary_photo_id)
-        if rsp.attrib['stat'] == 'ok':
-            return rsp.find('photoset').attrib['id']
-        logger.error('Create photoset %s failed: %s', title, rsp.attrib['stat'])
-        return None
-
-    def photosets_addPhoto(self, photo_id, photoset_id):
-        self.session.photosets_addPhoto(
-            photo_id=photo_id, photoset_id=photoset_id)
 
     def do_upload(self, fileobj, image_type, image, params):
         # collect metadata
@@ -105,7 +92,7 @@ class FlickrSession(object):
             kwargs['tags'] = ' '.join(['"' + x + '"' for x in keywords.value])
         # upload photo
         try:
-            rsp = self.session.upload(image.path, fileobj=fileobj, **kwargs)
+            rsp = self.api.upload(image.path, fileobj=fileobj, **kwargs)
         except Exception as ex:
             return str(ex)
         status = rsp.attrib['stat']
@@ -118,7 +105,7 @@ class FlickrSession(object):
             granularity = 8 - (date_taken.precision * 2)
             for attempt in range(3):
                 try:
-                    rsp = self.session.photos_setDates(
+                    rsp = self.api.photos_setDates(
                         photo_id=photo_id,
                         date_taken_granularity=granularity)
                     status = rsp.attrib['stat']
@@ -131,11 +118,24 @@ class FlickrSession(object):
         # add to sets
         for p_set in params[1]:
             if p_set['id']:
-                self.photosets_addPhoto(photo_id, p_set['id'])
+                # add to existing set
+                self.api.photosets_addPhoto(
+                    photo_id=photo_id, photoset_id=p_set['id'])
             else:
-                p_set['id'] = self.photosets_create(
-                    p_set['title'], p_set['description'], photo_id)
+                # create new set
+                rsp = self.api.photosets_create(
+                    title=p_set['title'], description=p_set['description'],
+                    primary_photo_id=photo_id)
+                if rsp.attrib['stat'] == 'ok':
+                    p_set['id'] = rsp.find('photoset').attrib['id']
+                else:
+                    logger.error('Create photoset %s failed: %s',
+                                 p_set['title'], rsp.attrib['stat'])
         return ''
+
+    # delegate all other attributes to api object
+    def __getattr__(self, name):
+        return getattr(self.api, name)
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
@@ -263,7 +263,7 @@ class FlickrUploader(PhotiniUploader):
 
     def load_sets(self):
         with Busy():
-            sets = self.session.session.photosets_getList()
+            sets = self.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text
                 widget = self.upload_config.add_set(title)
