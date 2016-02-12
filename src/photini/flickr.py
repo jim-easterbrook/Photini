@@ -139,8 +139,9 @@ class FlickrSession(object):
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
-    def __init__(self, logic, *arg, **kw):
-        self.logic = logic
+    new_set = QtCore.pyqtSignal()
+
+    def __init__(self, *arg, **kw):
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QGridLayout())
         # privacy settings
@@ -180,16 +181,21 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.layout().addWidget(content_group, 0, 1)
         # create new set
         new_set_button = QtWidgets.QPushButton(self.tr('New set'))
-        new_set_button.clicked.connect(self.logic.new_set)
+        new_set_button.clicked.connect(self.new_set)
         self.layout().addWidget(new_set_button, 1, 1)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(self.tr('Add to sets'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
-        self.scrollarea = QtWidgets.QScrollArea()
-        self.scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
-        self.scrollarea.setStyleSheet(
-            "QScrollArea { background-color: transparent }")
-        sets_group.layout().addWidget(self.scrollarea)
+        scrollarea = QtWidgets.QScrollArea()
+        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
+        self.sets_widget = QtWidgets.QWidget()
+        self.sets_widget.setLayout(QtWidgets.QVBoxLayout())
+        self.sets_widget.layout().setSizeConstraint(
+            QtWidgets.QLayout.SetMinAndMaxSize)
+        scrollarea.setWidget(self.sets_widget)
+        self.sets_widget.setAutoFillBackground(False)
+        sets_group.layout().addWidget(scrollarea)
         self.layout().addWidget(sets_group, 0, 2, 2, 1)
 
     @QtCore.pyqtSlot(bool)
@@ -218,11 +224,26 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             'hidden'       : hidden,
             }
 
+    def clear_sets(self):
+        for child in self.sets_widget.children():
+            if child.isWidgetType():
+                self.sets_widget.layout().removeWidget(child)
+                child.setParent(None)
+
+    def add_set(self, title, index=-1):
+        widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
+        if index >= 0:
+            self.sets_widget.layout().insertWidget(index, widget)
+        else:
+            self.sets_widget.layout().addWidget(widget)
+        return widget
+
 
 class FlickrUploader(PhotiniUploader):
     def __init__(self, *arg, **kw):
         config_store.remove_section('flickr')
-        self.upload_config = FlickrUploadConfig(self)
+        self.upload_config = FlickrUploadConfig()
+        self.upload_config.new_set.connect(self.new_set)
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Flickr')
         self.convert = {
@@ -238,25 +259,19 @@ class FlickrUploader(PhotiniUploader):
 
     def clear_sets(self):
         self.photosets = []
-        self.upload_config.scrollarea.setWidget(QtWidgets.QWidget())
+        self.upload_config.clear_sets()
 
     def load_sets(self):
-        sets_widget = QtWidgets.QWidget()
-        sets_widget.setLayout(QtWidgets.QVBoxLayout())
         with Busy():
-            self.photosets = []
             sets = self.session.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text
-                widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
+                widget = self.upload_config.add_set(title)
                 self.photosets.append({
                     'id'    : item.attrib['id'],
                     'title' : title,
                     'widget': widget,
                     })
-                sets_widget.layout().addWidget(widget)
-        self.upload_config.scrollarea.setWidget(sets_widget)
-        sets_widget.setAutoFillBackground(False)
 
     def get_upload_params(self):
         # get config params that apply to all photos
@@ -296,13 +311,11 @@ class FlickrUploader(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        check_box = QtWidgets.QCheckBox(title.replace('&', '&&'))
-        check_box.setChecked(True)
-        self.upload_config.scrollarea.widget().layout().insertWidget(
-            0, check_box)
+        widget = self.upload_config.add_set(title, index=0)
+        widget.setChecked(True)
         self.photosets.insert(0, {
             'id'          : None,
             'title'       : title,
             'description' : description,
-            'widget'      : check_box,
+            'widget'      : widget,
             })
