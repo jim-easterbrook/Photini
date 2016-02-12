@@ -180,7 +180,7 @@ class Image(QtWidgets.QFrame):
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def as_jpeg(self):
-        im = QtWidgets.QImage(self.path)
+        im = QtGui.QImage(self.path)
         temp_dir = appdirs.user_cache_dir('photini')
         if not os.path.isdir(temp_dir):
             os.makedirs(temp_dir)
