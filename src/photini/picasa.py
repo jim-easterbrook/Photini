@@ -232,16 +232,8 @@ class PicasaSession(object):
 
 
 class PicasaUploadConfig(QtWidgets.QGroupBox):
-    def __init__(self, parent=None):
-        super(PicasaUploadConfig, self).__init__(parent)
-        self.service_name = self.tr('Picasa')
-        self.convert = {
-            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Picasa does not' +
-                ' accept. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
-            }
+    def __init__(self, *arg, **kw):
+        super(PicasaUploadConfig, self).__init__(*arg, **kw)
         self.setTitle(self.tr('Album'))
         self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
@@ -480,7 +472,20 @@ Doing so will remove the album and its photos from all Google products."""
         self.changed_album(self.albums.currentIndex())
 
 
-def PicasaUploader(image_list, parent=None):
-    config_store.remove_section('picasa')
-    return PhotiniUploader(
-        PicasaUploadConfig(), PicasaSession, image_list, parent)
+class PicasaUploader(PhotiniUploader):
+    def __init__(self, *arg, **kw):
+        config_store.remove_section('picasa')
+        self.upload_config = PicasaUploadConfig()
+        super(PicasaUploader, self).__init__(*arg, **kw)
+        self.service_name = self.tr('Picasa')
+        self.convert = {
+            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
+            'msg'     : self.tr(
+                'File "{0}" is of type "{1}", which Picasa does not' +
+                ' accept. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
+            }
+
+    def new_session(self):
+        self.session = PicasaSession()
+        self.upload_config.set_session(self.session)

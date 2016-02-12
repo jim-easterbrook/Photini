@@ -149,16 +149,8 @@ class FlickrSession(object):
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
-    def __init__(self, parent=None):
-        super(FlickrUploadConfig, self).__init__(parent)
-        self.service_name = self.tr('Flickr')
-        self.convert = {
-            'types'   : ('gif', 'jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Flickr may not' +
-                ' handle correctly. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            }
+    def __init__(self, *arg, **kw):
+        super(FlickrUploadConfig, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QGridLayout())
         # privacy settings
         self.privacy = {}
@@ -298,7 +290,20 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         pass
 
 
-def FlickrUploader(image_list, parent=None):
-    config_store.remove_section('flickr')
-    return PhotiniUploader(
-        FlickrUploadConfig(), FlickrSession, image_list, parent)
+class FlickrUploader(PhotiniUploader):
+    def __init__(self, *arg, **kw):
+        config_store.remove_section('flickr')
+        self.upload_config = FlickrUploadConfig()
+        super(FlickrUploader, self).__init__(*arg, **kw)
+        self.service_name = self.tr('Flickr')
+        self.convert = {
+            'types'   : ('gif', 'jpeg', 'png'),
+            'msg'     : self.tr(
+                'File "{0}" is of type "{1}", which Flickr may not' +
+                ' handle correctly. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            }
+
+    def new_session(self):
+        self.session = FlickrSession()
+        self.upload_config.set_session(self.session)

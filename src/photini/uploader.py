@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -56,7 +56,7 @@ class FileObjWithCallback(object):
 
 class UploadWorker(QtCore.QObject):
     upload_progress = QtCore.pyqtSignal(float)
-    upload_finished = QtCore.pyqtSignal(object, str)
+    upload_file_done = QtCore.pyqtSignal(object, str)
 
     def __init__(self, session, params):
         super(UploadWorker, self).__init__()
@@ -86,20 +86,17 @@ class UploadWorker(QtCore.QObject):
         if self.fileobj:
             self.fileobj = None
             # upload wasn't aborted
-            self.upload_finished.emit(image, error)
+            self.upload_file_done.emit(image, error)
 
 
 class PhotiniUploader(QtWidgets.QWidget):
     upload_file = QtCore.pyqtSignal(object, bool)
 
-    def __init__(self, upload_config, session_factory, image_list, parent):
-        super(PhotiniUploader, self).__init__(parent)
-        self.upload_config = upload_config
-        self.session_factory = session_factory
+    def __init__(self, image_list, *arg, **kw):
+        super(PhotiniUploader, self).__init__(*arg, **kw)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
-        self.session = self.session_factory()
-        self.upload_config.set_session(self.session)
+        self.new_session()
         self.initialised = False
         self.upload_worker = None
         # 'service' specific widget
@@ -143,7 +140,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: upload in progress'))
         dialog.setText(self.tr('<h3>Upload to {} has not finished.</h3>').format(
-            self.upload_config.service_name))
+            self.service_name))
         dialog.setInformativeText(
             self.tr('Closing now will terminate the upload.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
@@ -159,7 +156,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # invoke worker method in this thread as worker thread is busy
             self.upload_worker.abort_upload()
             # reset GUI
-            self.upload_finished(None, '')
+            self.upload_file_done(None, '')
 
     @QtCore.pyqtSlot()
     def start_upload(self):
@@ -170,16 +167,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_list = []
         for image in self.image_list.get_selected_images():
             image_type = imghdr.what(image.path)
-            if image_type in self.upload_config.convert['types']:
+            if image_type in self.convert['types']:
                 convert = False
             else:
                 dialog = QtWidgets.QMessageBox()
                 dialog.setWindowTitle(self.tr('Photini: incompatible type'))
                 dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
-                dialog.setInformativeText(self.upload_config.convert['msg'].format(
+                dialog.setInformativeText(self.convert['msg'].format(
                         os.path.basename(image.path), image_type))
                 dialog.setIcon(QtWidgets.QMessageBox.Warning)
-                dialog.setStandardButtons(self.upload_config.convert['buttons'])
+                dialog.setStandardButtons(self.convert['buttons'])
                 dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
                 result = dialog.exec_()
                 if result == QtWidgets.QMessageBox.Ignore:
@@ -194,14 +191,14 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.session, self.upload_config.get_upload_params())
         self.upload_file.connect(self.upload_worker.upload_file)
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
-        self.upload_worker.upload_finished.connect(self.upload_finished)
+        self.upload_worker.upload_file_done.connect(self.upload_file_done)
         self.upload_worker.thread.start()
         self.upload_config.upload_started()
         self.uploads_done = 0
         self.next_upload()
         # we've passed the session object to a separate thread, so
         # create a new one for safety
-        self.session = self.session_factory()
+        self.new_session()
         self.session.authorise(self.auth_dialog)
         self.upload_config.set_session(self.session)
 
@@ -215,7 +212,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_file.emit(image, convert)
 
     @QtCore.pyqtSlot(object, str)
-    def upload_finished(self, image, error):
+    def upload_file_done(self, image, error):
         if error:
             dialog = QtWidgets.QMessageBox()
             dialog.setWindowTitle(self.tr('Photini: upload error'))
@@ -241,7 +238,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_config.upload_finished()
         self.upload_file.disconnect()
         self.upload_worker.upload_progress.disconnect()
-        self.upload_worker.upload_finished.disconnect()
+        self.upload_worker.upload_file_done.disconnect()
         self.upload_worker.thread.quit()
         self.upload_worker.thread.wait()
         self.upload_worker = None
@@ -255,7 +252,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             info_text = self.tr('open "{0}" in a web browser').format(auth_url)
         auth_code, OK = QtWidgets.QInputDialog.getText(
             self,
-            self.tr('Photini: authorise {}').format(self.upload_config.service_name),
+            self.tr('Photini: authorise {}').format(self.service_name),
             self.tr("""Please {0} to grant access to Photini,
 then enter the verification code:""").format(info_text))
         if OK:
