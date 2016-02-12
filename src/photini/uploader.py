@@ -92,7 +92,7 @@ class UploadWorker(QtCore.QObject):
 class PhotiniUploader(QtWidgets.QWidget):
     upload_file = QtCore.pyqtSignal(object, bool)
 
-    def __init__(self, image_list, *arg, **kw):
+    def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
@@ -100,7 +100,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.initialised = False
         self.upload_worker = None
         # 'service' specific widget
-        self.layout().addWidget(self.upload_config, 0, 0, 1, 3)
+        self.layout().addWidget(upload_config_widget, 0, 0, 1, 3)
         # upload button
         self.upload_button = StartStopButton(self.tr('Start upload'),
                                              self.tr('Stop upload'))
@@ -125,13 +125,13 @@ class PhotiniUploader(QtWidgets.QWidget):
     def refresh(self):
         if self.initialised and self.authorise():
             return
-        self.upload_config.clear_sets()
+        self.clear_sets()
         QtWidgets.QApplication.processEvents()
         if not self.authorise(interactive=True):
             self.setEnabled(False)
             return
         self.setEnabled(True)
-        self.upload_config.load_sets()
+        self.load_sets()
         self.initialised = True
 
     def do_not_close(self):
@@ -187,13 +187,12 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(
-            self.session, self.upload_config.get_upload_params())
+        self.upload_worker = UploadWorker(self.session, self.get_upload_params())
         self.upload_file.connect(self.upload_worker.upload_file)
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
         self.upload_worker.thread.start()
-        self.upload_config.upload_started()
+        self.upload_started()
         self.uploads_done = 0
         self.next_upload()
         # we've passed the session object to a separate thread, so
@@ -234,7 +233,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.setChecked(False)
         self.total_progress.setValue(0)
         self.total_progress.setFormat('%p%')
-        self.upload_config.upload_finished()
+        self.upload_finished()
         self.upload_file.disconnect()
         self.upload_worker.upload_progress.disconnect()
         self.upload_worker.upload_file_done.disconnect()

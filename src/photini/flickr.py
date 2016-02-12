@@ -180,7 +180,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.layout().addWidget(content_group, 0, 1)
         # create new set
         new_set_button = QtWidgets.QPushButton(self.tr('New set'))
-        new_set_button.clicked.connect(self.new_set)
+        new_set_button.clicked.connect(self.logic.new_set)
         self.layout().addWidget(new_set_button, 1, 1)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(self.tr('Add to sets'))
@@ -196,6 +196,83 @@ class FlickrUploadConfig(QtWidgets.QWidget):
     def enable_ff(self, value):
         self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
         self.privacy['family'].setEnabled(self.privacy['private'].isChecked())
+
+    def get_upload_params(self):
+        is_public = ('0', '1')[self.privacy['public'].isChecked()]
+        is_family = ('0', '1')[self.privacy['private'].isChecked() and
+                               self.privacy['family'].isChecked()]
+        is_friend = ('0', '1')[self.privacy['private'].isChecked() and
+                               self.privacy['friends'].isChecked()]
+        if self.content_type['photo'].isChecked():
+            content_type = '1'
+        elif self.content_type['screenshot'].isChecked():
+            content_type = '2'
+        else:
+            content_type = '3'
+        hidden = ('1', '2')[self.hidden.isChecked()]
+        return {
+            'is_public'    : is_public,
+            'is_friend'    : is_friend,
+            'is_family'    : is_family,
+            'content_type' : content_type,
+            'hidden'       : hidden,
+            }
+
+
+class FlickrUploader(PhotiniUploader):
+    def __init__(self, *arg, **kw):
+        config_store.remove_section('flickr')
+        self.upload_config = FlickrUploadConfig(self)
+        super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
+        self.service_name = self.tr('Flickr')
+        self.convert = {
+            'types'   : ('gif', 'jpeg', 'png'),
+            'msg'     : self.tr(
+                'File "{0}" is of type "{1}", which Flickr may not' +
+                ' handle correctly. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            }
+
+    def new_session(self):
+        self.session = FlickrSession()
+
+    def clear_sets(self):
+        self.photosets = []
+        self.upload_config.scrollarea.setWidget(QtWidgets.QWidget())
+
+    def load_sets(self):
+        sets_widget = QtWidgets.QWidget()
+        sets_widget.setLayout(QtWidgets.QVBoxLayout())
+        with Busy():
+            self.photosets = []
+            sets = self.session.session.photosets_getList()
+            for item in sets.find('photosets').findall('photoset'):
+                title = item.find('title').text
+                widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
+                self.photosets.append({
+                    'id'    : item.attrib['id'],
+                    'title' : title,
+                    'widget': widget,
+                    })
+                sets_widget.layout().addWidget(widget)
+        self.upload_config.scrollarea.setWidget(sets_widget)
+        sets_widget.setAutoFillBackground(False)
+
+    def get_upload_params(self):
+        # get config params that apply to all photos
+        fixed_params = self.upload_config.get_upload_params()
+        # make list of sets to add photos to
+        add_to_sets = []
+        for item in self.photosets:
+            if item['widget'].isChecked():
+                add_to_sets.append(item)
+        return fixed_params, add_to_sets
+
+    def upload_started(self):
+        pass
+
+    def upload_finished(self):
+        pass
 
     @QtCore.pyqtSlot()
     def new_set(self):
@@ -221,86 +298,11 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         description = description.toPlainText()
         check_box = QtWidgets.QCheckBox(title.replace('&', '&&'))
         check_box.setChecked(True)
-        self.scrollarea.widget().layout().insertWidget(0, check_box)
+        self.upload_config.scrollarea.widget().layout().insertWidget(
+            0, check_box)
         self.photosets.insert(0, {
             'id'          : None,
             'title'       : title,
             'description' : description,
             'widget'      : check_box,
             })
-
-    def clear_sets(self):
-        self.photosets = []
-        self.scrollarea.setWidget(QtWidgets.QWidget())
-
-    def load_sets(self):
-        with Busy():
-            self.photosets = self.logic.get_albums()
-        sets_widget = QtWidgets.QWidget()
-        sets_widget.setLayout(QtWidgets.QVBoxLayout())
-        for item in self.photosets:
-            item['widget'] = QtWidgets.QCheckBox(item['title'].replace('&', '&&'))
-            sets_widget.layout().addWidget(item['widget'])
-        self.scrollarea.setWidget(sets_widget)
-        sets_widget.setAutoFillBackground(False)
-
-    def get_upload_params(self):
-        is_public = ('0', '1')[self.privacy['public'].isChecked()]
-        is_family = ('0', '1')[self.privacy['private'].isChecked() and
-                               self.privacy['family'].isChecked()]
-        is_friend = ('0', '1')[self.privacy['private'].isChecked() and
-                               self.privacy['friends'].isChecked()]
-        if self.content_type['photo'].isChecked():
-            content_type = '1'
-        elif self.content_type['screenshot'].isChecked():
-            content_type = '2'
-        else:
-            content_type = '3'
-        hidden = ('1', '2')[self.hidden.isChecked()]
-        fixed_params = {
-            'is_public'    : is_public,
-            'is_friend'    : is_friend,
-            'is_family'    : is_family,
-            'content_type' : content_type,
-            'hidden'       : hidden,
-            }
-        # make list of sets to add photos to
-        add_to_sets = []
-        for item in self.photosets:
-            if item['widget'].isChecked():
-                add_to_sets.append(item)
-        return fixed_params, add_to_sets
-
-    def upload_started(self):
-        pass
-
-    def upload_finished(self):
-        pass
-
-
-class FlickrUploader(PhotiniUploader):
-    def __init__(self, *arg, **kw):
-        config_store.remove_section('flickr')
-        self.upload_config = FlickrUploadConfig(self)
-        super(FlickrUploader, self).__init__(*arg, **kw)
-        self.service_name = self.tr('Flickr')
-        self.convert = {
-            'types'   : ('gif', 'jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Flickr may not' +
-                ' handle correctly. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            }
-
-    def new_session(self):
-        self.session = FlickrSession()
-
-    def get_albums(self):
-        result = []
-        sets = self.session.session.photosets_getList()
-        for item in sets.find('photosets').findall('photoset'):
-            result.append({
-                'id'    : item.attrib['id'],
-                'title' : item.find('title').text,
-                })
-        return result

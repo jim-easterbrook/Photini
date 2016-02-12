@@ -441,33 +441,12 @@ Doing so will remove the album and its photos from all Google products."""
         self.widgets['access'].setCurrentIndex(
             self.widgets['access'].findData(self.current_album.access.text))
 
-    def clear_sets(self):
-        self.albums.clear()
-
-    def load_sets(self):
-        with Busy():
-            for album in self.logic.get_albums():
-                self.albums.addItem(album.title.text, album.id.text)
-            if self.albums.count() == 0:
-                self.new_album()
-
-    def get_upload_params(self):
-        return self.current_album
-
-    def upload_started(self):
-        self.setEnabled(False)
-
-    def upload_finished(self):
-        self.setEnabled(True)
-        # reload current album
-        self.changed_album(self.albums.currentIndex())
-
 
 class PicasaUploader(PhotiniUploader):
     def __init__(self, *arg, **kw):
         config_store.remove_section('picasa')
         self.upload_config = PicasaUploadConfig(self)
-        super(PicasaUploader, self).__init__(*arg, **kw)
+        super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Picasa')
         self.convert = {
             'types'   : ('bmp', 'gif', 'jpeg', 'png'),
@@ -486,6 +465,27 @@ class PicasaUploader(PhotiniUploader):
                 # ignore 'system' albums
                 continue
             yield album
+
+    def clear_sets(self):
+        self.upload_config.albums.clear()
+
+    def load_sets(self):
+        with Busy():
+            for album in self.get_albums():
+                self.upload_config.albums.addItem(album.title.text, album.id.text)
+            if self.upload_config.albums.count() == 0:
+                self.upload_config.new_album()
+
+    def get_upload_params(self):
+        return self.upload_config.current_album
+
+    def upload_started(self):
+        self.upload_config.setEnabled(False)
+
+    def upload_finished(self):
+        self.upload_config.setEnabled(True)
+        # reload current album
+        self.upload_config.changed_album(self.upload_config.albums.currentIndex())
 
     def new_album(self, title):
         album = PicasaNode()
