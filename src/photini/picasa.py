@@ -174,11 +174,7 @@ class PicasaSession(object):
         resp = self._check_response(self.session.get(self.album_feed))
         return PicasaNode(text=resp.text).entry
 
-    def new_album(self, title):
-        album = PicasaNode()
-        album.title.text = title
-        album.category.set('scheme', nsmap['gd'] + '#kind')
-        album.category.set('term', nsmap['gphoto'] + '#album')
+    def new_album(self, album):
         resp = self._check_response(self.session.post(
             self.album_feed, album.to_string(),
             headers={'Content-Type' : 'application/atom+xml'}))
@@ -232,7 +228,8 @@ class PicasaSession(object):
 
 
 class PicasaUploadConfig(QtWidgets.QGroupBox):
-    def __init__(self, *arg, **kw):
+    def __init__(self, logic, *arg, **kw):
+        self.logic = logic
         super(PicasaUploadConfig, self).__init__(*arg, **kw)
         self.setTitle(self.tr('Album'))
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -299,9 +296,6 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
 
-    def set_session(self, session):
-        self.session = session
-
     def clear_changes(self):
         self.changed_title = None
         self.changed_description = None
@@ -360,7 +354,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
     def new_album(self):
         self.save_changes()
         with Busy():
-            self.current_album = self.session.new_album(self.tr('New album'))
+            self.current_album = self.logic.new_album(self.tr('New album'))
         self.albums.insertItem(
             0, self.current_album.title.text, self.current_album.id.text)
         self.albums.setCurrentIndex(0)
@@ -379,7 +373,7 @@ Doing so will remove the album and its photos from all Google products."""
                 return
         self.clear_changes()
         with Busy():
-            self.session.delete_album(self.current_album)
+            self.logic.delete_album(self.current_album)
         self.albums.removeItem(self.albums.currentIndex())
         if self.albums.count() == 0:
             self.new_album()
@@ -411,7 +405,7 @@ Doing so will remove the album and its photos from all Google products."""
         if no_change:
             return
         with Busy():
-            self.current_album = self.session.edit_node(self.current_album)
+            self.current_album = self.logic.edit_node(self.current_album)
 
     @QtCore.pyqtSlot(int)
     def changed_album(self, index):
@@ -421,11 +415,11 @@ Doing so will remove the album and its photos from all Google products."""
         self.widgets['description'].set_value(None)
         self.widgets['location'].clear()
         self.widgets['timestamp'].clear()
-        if not self.session.authorise():
+        if not self.logic.authorise():
             return
         album_id = self.albums.itemData(index)
         with Busy():
-            for album in self.session.get_albums():
+            for album in self.logic.get_albums():
                 if album.id.text == album_id:
                     self.current_album = album
                     break
@@ -452,10 +446,7 @@ Doing so will remove the album and its photos from all Google products."""
 
     def load_sets(self):
         with Busy():
-            for album in self.session.get_albums():
-                if not album.get_link('edit'):
-                    # ignore 'system' albums
-                    continue
+            for album in self.logic.get_albums():
                 self.albums.addItem(album.title.text, album.id.text)
             if self.albums.count() == 0:
                 self.new_album()
@@ -475,7 +466,7 @@ Doing so will remove the album and its photos from all Google products."""
 class PicasaUploader(PhotiniUploader):
     def __init__(self, *arg, **kw):
         config_store.remove_section('picasa')
-        self.upload_config = PicasaUploadConfig()
+        self.upload_config = PicasaUploadConfig(self)
         super(PicasaUploader, self).__init__(*arg, **kw)
         self.service_name = self.tr('Picasa')
         self.convert = {
@@ -488,4 +479,23 @@ class PicasaUploader(PhotiniUploader):
 
     def new_session(self):
         self.session = PicasaSession()
-        self.upload_config.set_session(self.session)
+
+    def get_albums(self):
+        for album in self.session.get_albums():
+            if not album.get_link('edit'):
+                # ignore 'system' albums
+                continue
+            yield album
+
+    def new_album(self, title):
+        album = PicasaNode()
+        album.title.text = title
+        album.category.set('scheme', nsmap['gd'] + '#kind')
+        album.category.set('term', nsmap['gphoto'] + '#album')
+        return self.session.new_album(album)
+
+    def delete_album(self, album):
+        return self.session.delete_album(album)
+
+    def edit_node(self, node):
+        return self.session.edit_node(node)

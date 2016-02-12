@@ -78,16 +78,6 @@ class FlickrSession(object):
             'photini', 'flickr', token.token + '&' + token.token_secret)
         return True
 
-    def get_photosets(self):
-        result = []
-        sets = self.session.photosets_getList()
-        for item in sets.find('photosets').findall('photoset'):
-            result.append({
-                'id'    : item.attrib['id'],
-                'title' : item.find('title').text,
-                })
-        return result
-
     def photosets_create(self, title, description, primary_photo_id):
         rsp = self.session.photosets_create(
             title=title, description=description,
@@ -149,7 +139,8 @@ class FlickrSession(object):
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
+    def __init__(self, logic, *arg, **kw):
+        self.logic = logic
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QGridLayout())
         # privacy settings
@@ -201,9 +192,6 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         sets_group.layout().addWidget(self.scrollarea)
         self.layout().addWidget(sets_group, 0, 2, 2, 1)
 
-    def set_session(self, session):
-        self.session = session
-
     @QtCore.pyqtSlot(bool)
     def enable_ff(self, value):
         self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
@@ -211,7 +199,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_set(self):
-        dialog = QtWidgets.QDialog()
+        dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Flickr set'))
         dialog.setLayout(QtWidgets.QFormLayout())
         title = SingleLineEdit(spell_check=True)
@@ -247,7 +235,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
 
     def load_sets(self):
         with Busy():
-            self.photosets = self.session.get_photosets()
+            self.photosets = self.logic.get_albums()
         sets_widget = QtWidgets.QWidget()
         sets_widget.setLayout(QtWidgets.QVBoxLayout())
         for item in self.photosets:
@@ -293,7 +281,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
 class FlickrUploader(PhotiniUploader):
     def __init__(self, *arg, **kw):
         config_store.remove_section('flickr')
-        self.upload_config = FlickrUploadConfig()
+        self.upload_config = FlickrUploadConfig(self)
         super(FlickrUploader, self).__init__(*arg, **kw)
         self.service_name = self.tr('Flickr')
         self.convert = {
@@ -306,4 +294,13 @@ class FlickrUploader(PhotiniUploader):
 
     def new_session(self):
         self.session = FlickrSession()
-        self.upload_config.set_session(self.session)
+
+    def get_albums(self):
+        result = []
+        sets = self.session.session.photosets_getList()
+        for item in sets.find('photosets').findall('photoset'):
+            result.append({
+                'id'    : item.attrib['id'],
+                'title' : item.find('title').text,
+                })
+        return result

@@ -123,11 +123,11 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_worker.thread.wait()
 
     def refresh(self):
-        if self.initialised and self.session.authorise():
+        if self.initialised and self.authorise():
             return
         self.upload_config.clear_sets()
         QtWidgets.QApplication.processEvents()
-        if not self.session.authorise(self.auth_dialog):
+        if not self.authorise(interactive=True):
             self.setEnabled(False)
             return
         self.setEnabled(True)
@@ -170,7 +170,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             if image_type in self.convert['types']:
                 convert = False
             else:
-                dialog = QtWidgets.QMessageBox()
+                dialog = QtWidgets.QMessageBox(parent=self)
                 dialog.setWindowTitle(self.tr('Photini: incompatible type'))
                 dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
                 dialog.setInformativeText(self.convert['msg'].format(
@@ -183,7 +183,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     continue
                 convert = result == QtWidgets.QMessageBox.Yes
             self.upload_list.append((image, convert))
-        if not self.upload_list or not self.session.authorise(self.auth_dialog):
+        if not self.upload_list or not self.authorise(interactive=True):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
@@ -199,8 +199,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         # we've passed the session object to a separate thread, so
         # create a new one for safety
         self.new_session()
-        self.session.authorise(self.auth_dialog)
-        self.upload_config.set_session(self.session)
+        self.authorise(interactive=True)
 
     def next_upload(self):
         image, convert = self.upload_list[self.uploads_done]
@@ -259,8 +258,11 @@ then enter the verification code:""").format(info_text))
             return six.text_type(auth_code).strip()
         return None
 
+    def authorise(self, interactive=False):
+        return self.session.authorise((None, self.auth_dialog)[interactive])
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
             self.upload_button.isChecked() or (
-                len(selection) > 0 and self.session.authorise()))
+                len(selection) > 0 and self.authorise()))
