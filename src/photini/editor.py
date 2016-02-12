@@ -253,7 +253,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).closeEvent(event)
 
     def edit_settings(self):
-        dialog = EditSettings(self, config_store)
+        dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
 
