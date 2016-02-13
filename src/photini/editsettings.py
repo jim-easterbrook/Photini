@@ -61,7 +61,7 @@ class EditSettings(QtWidgets.QDialog):
             panel.layout().labelForField(self.reset_flickr).setDisabled(True)
         # reset picasa
         self.reset_picasa = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Reset Picasa'), self.reset_picasa)
+        panel.layout().addRow(self.tr('Reset Google Photos'), self.reset_picasa)
         if not keyring or keyring.get_password('photini', 'picasa') is None:
             self.reset_picasa.setDisabled(True)
             panel.layout().labelForField(self.reset_picasa).setDisabled(True)

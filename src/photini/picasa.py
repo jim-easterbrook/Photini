@@ -234,7 +234,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
 
     def __init__(self, *arg, **kw):
         super(PicasaUploadConfig, self).__init__(*arg, **kw)
-        self.setTitle(self.tr('Album'))
+        self.setTitle(self.tr('Collection / Album'))
         self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
         ## album details, left hand side
@@ -268,15 +268,16 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         album_form_left.addRow(self.tr('Visibility'), self.widgets['access'])
         ## album buttons
         buttons = QtWidgets.QHBoxLayout()
-        album_form_left.addRow('', buttons)
+        buttons.addStretch(stretch=60)
+        album_form_left.addRow(buttons)
         # new album
         new_album_button = QtWidgets.QPushButton(self.tr('New album'))
         new_album_button.clicked.connect(self.new_album)
-        buttons.addWidget(new_album_button)
+        buttons.addWidget(new_album_button, stretch=20)
         # delete album
         delete_album_button = QtWidgets.QPushButton(self.tr('Delete album'))
         delete_album_button.clicked.connect(self.delete_album)
-        buttons.addWidget(delete_album_button)
+        buttons.addWidget(delete_album_button, stretch=20)
         ## album details, right hand side
         album_form_right = QtWidgets.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
@@ -352,11 +353,11 @@ class PicasaUploader(PhotiniUploader):
         self.upload_config.select_album.connect(self.select_album)
         self.upload_config.update_album.connect(self.update_album)
         super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
-        self.service_name = self.tr('Picasa')
+        self.service_name = self.tr('Google Photos')
         self.convert = {
             'types'   : ('bmp', 'gif', 'jpeg', 'png'),
             'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Picasa does not' +
+                'File "{0}" is of type "{1}", which Google Photos does not' +
                 ' accept. Would you like to convert it to JPEG?'),
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
             }
@@ -463,13 +464,6 @@ Doing so will remove the album and its photos from all Google products."""
     def update_album(self, new_values):
         if not self.current_album:
             return
-        old_values = {
-            'title' : self.current_album.title.text,
-            'description' : self.current_album.summary.text or '',
-            'location' : self.current_album.location.text or '',
-            'access' : self.current_album.access.text,
-            'timestamp' : self.current_album.timestamp.text,
-            }
         if new_values['title'] != self.current_album.title.text:
             self.current_album.title.text = new_values['title']
             self.album_changed = True
@@ -502,8 +496,9 @@ Doing so will remove the album and its photos from all Google products."""
                 return
         self.upload_config.show_album(None)
 
-    def edit_node(self, node):
-        return self.session.edit_node(node)
+    def shutdown(self):
+        self.save_changes()
+        super(PicasaUploader, self).shutdown()
 
     def save_changes(self):
         self.timer.stop()
@@ -511,5 +506,5 @@ Doing so will remove the album and its photos from all Google products."""
             return
         self.album_changed = False
         with Busy():
-            self.edit_node(self.current_album)
+            self.session.edit_node(self.current_album)
             self.set_current_album(self.current_album.id.text)

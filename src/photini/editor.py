@@ -112,7 +112,7 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('&Flickr upload'),
              'key'   : 'flickr_upload',
              'class' : FlickrUploader},
-            {'name'  : self.tr('&Picasa upload'),
+            {'name'  : self.tr('Google &Photos upload'),
              'key'   : 'picasa_upload',
              'class' : PicasaUploader},
             {'name'  : self.tr('&Import photos'),

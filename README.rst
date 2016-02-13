@@ -127,7 +127,7 @@ You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
 This file can be found in ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
-OAuth_ access tokens for Flickr & Picasa are securely stored on the user's computer using `Python keyring`_.
+OAuth_ access tokens for Flickr & Google Photos are securely stored on the user's computer using `Python keyring`_.
 
 
 Documentation licence
