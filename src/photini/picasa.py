@@ -108,8 +108,8 @@ class PicasaNode(object):
 
 
 class PicasaSession(object):
-    auth_base_url = 'https://accounts.google.com/o/oauth2/auth'
-    token_url     = 'https://www.googleapis.com/oauth2/v3/token'
+    auth_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
+    token_url     = 'https://www.googleapis.com/oauth2/v4/token'
     auth_scope    = 'https://picasaweb.google.com/data/'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
 
@@ -147,7 +147,8 @@ class PicasaSession(object):
             # https://github.com/requests/requests-oauthlib/issues/157
             os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
             token = oauth.fetch_token(
-                self.token_url, code=auth_code, client_secret=client_secret)
+                self.token_url, code=auth_code,
+                auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
             self._save_token(token)
         self.session = OAuth2Session(
             client_id, token=token, token_updater=self._save_token,
