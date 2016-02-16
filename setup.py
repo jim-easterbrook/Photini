@@ -37,45 +37,48 @@ command_options = {}
 # requires GitPython - 'sudo pip install gitpython --pre'
 try:
     import git
-    repo = git.Repo()
-    if repo.is_dirty():
-        dev_no = int(build.split()[0])
-        commit = build.split()[1][1:-1]
-        # increment dev_no when there's been a commit
-        last_commit = str(repo.head.commit)[:7]
-        if last_commit != commit:
-            dev_no += 1
-            commit = last_commit
-        # get latest release tag
-        latest = 0
-        for tag in repo.tags:
-            tag_name = str(tag)
-            if (tag_name.startswith('Photini-') and
-                    tag.commit.committed_date > latest):
-                latest = tag.commit.committed_date
-                last_release = tag_name.split('-')[1]
-        # set current version number (calendar based)
-        major, minor, micro = last_release.split('.')
-        today = date.today()
-        if today.strftime('%Y%m') == major + minor:
-            micro = int(micro) + 1
-        else:
-            micro = 0
-        __version__ = today.strftime('%Y.%m') + '.%d' % micro
-        # update __init__.py if anything's changed
-        new_text = """from __future__ import unicode_literals
+except ImportError:
+    git = None
+if git:
+    try:
+        repo = git.Repo()
+        if repo.is_dirty():
+            dev_no = int(build.split()[0])
+            commit = build.split()[1][1:-1]
+            # increment dev_no when there's been a commit
+            last_commit = str(repo.head.commit)[:7]
+            if last_commit != commit:
+                dev_no += 1
+                commit = last_commit
+            # get latest release tag
+            latest = 0
+            for tag in repo.tags:
+                tag_name = str(tag)
+                if (tag_name.startswith('Photini-') and
+                        tag.commit.committed_date > latest):
+                    latest = tag.commit.committed_date
+                    last_release = tag_name.split('-')[1]
+            # set current version number (calendar based)
+            major, minor, micro = last_release.split('.')
+            today = date.today()
+            if today.strftime('%Y%m') == major + minor:
+                micro = int(micro) + 1
+            else:
+                micro = 0
+            __version__ = today.strftime('%Y.%m') + '.%d' % micro
+            # update __init__.py if anything's changed
+            new_text = """from __future__ import unicode_literals
 
 __version__ = '%s'
 build = '%d (%s)'
 """ % (__version__, dev_no, commit)
-        with open('src/photini/__init__.py', 'r') as vf:
-            old_text = vf.read()
-        if new_text != old_text:
-            with open('src/photini/__init__.py', 'w') as vf:
-                vf.write(new_text)
-except (ImportError,
-        git.exc.InvalidGitRepositoryError, git.exc.GitCommandNotFound):
-    pass
+            with open('src/photini/__init__.py', 'r') as vf:
+                old_text = vf.read()
+            if new_text != old_text:
+                with open('src/photini/__init__.py', 'w') as vf:
+                    vf.write(new_text)
+    except (git.exc.InvalidGitRepositoryError, git.exc.GitCommandNotFound):
+        pass
 
 # if sphinx is installed, add commands to build documentation and to
 # extract strings for translation
