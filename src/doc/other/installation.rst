@@ -43,7 +43,8 @@ You can download the certificate file ``jim_easterbrook_CA.cer`` from the `GitHu
    certutil -user -addstore Root jim_easterbrook_CA.cer
 
 If you want to check the validity of the certificate file, you can do so using GnuPG.
-The file ``jim_easterbrook_CA.cer.asc`` contains a digital signature that can be checked with my public keys ``959AF9B6`` or ``4748AD59``.
+The file ``jim_easterbrook_CA.cer.asc`` contains a digital signature that can be checked with my public keys ``0x959AF9B6`` or ``0x4748AD59`` (a subkey of ``0x2036BBF6``).
+These keys' fingerprints are ``05A7 0CD9 380D 8EAA 97AE FD3F 56D7 01F5 959A F9B6`` and ``45A2 B27B AC1D 12B2 5C33 655C 7CF4 E704 2036 BBF6``.
 
 If the above means nothing to you, don't worry about it.
 The security warnings when you install Photini can safely be ignored.
