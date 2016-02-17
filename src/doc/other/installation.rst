@@ -272,6 +272,6 @@ Photini documentation
 If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and use setup.py to "compile" the documentation::
 
    sudo pip install sphinx
-   python setup.py build_sphinx
+   python -B setup.py build_sphinx
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
