@@ -117,9 +117,23 @@ class Image(QtWidgets.QFrame):
         if not paths:
             return
         drag = QtGui.QDrag(self)
-        drag.setPixmap(self.image_list.drag_icon)
-        drag.setHotSpot(QtCore.QPoint(
-            drag.pixmap().width() // 2, drag.pixmap().height()))
+        # construct icon
+        count = min(len(paths), 8)
+        src_icon = self.image_list.drag_icon
+        src_w = src_icon.width()
+        src_h = src_icon.height()
+        margin = (count - 1) * 4
+        if count == 1:
+            icon = src_icon
+        else:
+            icon = QtGui.QPixmap(src_w + margin, src_h + margin)
+            icon.fill(Qt.transparent)
+            with QtGui.QPainter(icon) as paint:
+                for i in range(count):
+                    paint.drawPixmap(
+                        QtCore.QPoint(margin - (i * 4), i * 4), src_icon)
+        drag.setPixmap(icon)
+        drag.setHotSpot(QtCore.QPoint(src_w // 2, src_h + margin))
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
