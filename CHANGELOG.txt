@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,14 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2016.02.0:
+  1/ Made 'year' part of version number 4 digits.
+  2/ Made it easier to drag multiple photos to map.
+  3/ Changed 'Picasa' to 'Google Photos'.
+  4/ Fixed problem with Picasa authentication.
+  5/ Fixed some Python 3 incompatibilities.
+  6/ Fixed several minor bugs and annoyances.
 
 Changes in v15.11.0:
   1/ Added time zone to 'technical' tab.
