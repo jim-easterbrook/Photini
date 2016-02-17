@@ -578,8 +578,10 @@ class ImageList(QtWidgets.QWidget):
         image = self.image[path]
         self.scroll_area.ensureWidgetVisible(image)
         if extend_selection and self.selection_anchor:
-            self._clear_selection()
             idx1 = self.path_list.index(self.selection_anchor)
+            idx2 = self.path_list.index(self.last_selected)
+            for i in range(min(idx1, idx2), max(idx1, idx2) + 1):
+                self.image[self.path_list[i]].set_selected(False)
             idx2 = self.path_list.index(path)
             for i in range(min(idx1, idx2), max(idx1, idx2) + 1):
                 self.image[self.path_list[i]].set_selected(True)
