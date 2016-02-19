@@ -58,6 +58,9 @@ if git:
                         tag.commit.committed_date > latest):
                     latest = tag.commit.committed_date
                     last_release = tag_name.split('-')[1]
+                if tag_name[0] == 'v' and tag.commit.committed_date > latest:
+                    latest = tag.commit.committed_date
+                    last_release = tag_name[1:]
             # set current version number (calendar based)
             major, minor, micro = last_release.split('.')
             today = date.today()
@@ -111,8 +114,8 @@ command_options['upload_docs'] = {
 class upload_and_tag(upload):
     def run(self):
         import git
-        tag_path = 'Photini-%s' % __version__
-        message = '%s\n\n' % tag_path
+        tag_path = 'v' + __version__
+        message = 'Photini-' + __version__ + '\n\n'
         with open('CHANGELOG.txt') as cl:
             while not cl.readline().startswith('Changes'):
                 pass
@@ -237,7 +240,7 @@ setup(name = 'Photini',
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
       url = url,
-      download_url = url + '/archive/Photini-' + __version__ + '.tar.gz',
+      download_url = url + '/archive/v' + __version__ + '.tar.gz',
       description = 'Simple photo metadata editor',
       long_description = long_description,
       classifiers = [
