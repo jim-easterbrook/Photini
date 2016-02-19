@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -16,11 +16,13 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+var grey_marker;
 var map;
 var markers = {};
 
-function initialize(lat, lng, zoom)
+function initialize(lat, lng, zoom, grey_marker_file)
 {
+  grey_marker = grey_marker_file;
   map = L.map("mapDiv", {
     center: [lat, lng],
     zoom: zoom,
@@ -104,7 +106,7 @@ function enableMarker(id, active)
     {
       marker.setZIndexOffset(0);
       marker.setIcon(new L.Icon({
-        iconUrl: 'grey_marker.png',
+        iconUrl: grey_marker,
         iconSize: [25, 40],
         iconAnchor: [13, 40],
       }));
