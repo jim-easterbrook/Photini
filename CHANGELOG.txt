@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2016.02.1:
+  1/ Replace accidentally invalidated Google maps API key.
+
 Changes in v2016.02.0:
   1/ Made 'year' part of version number 4 digits.
   2/ Made it easier to drag multiple photos to map.
