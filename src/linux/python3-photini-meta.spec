@@ -32,6 +32,7 @@ Requires:	python3-qt5
 Requires:	typelib-1_0-GExiv2-0_4
 Requires:	python3-gobject
 Requires:	libgphoto2-devel
+Requires:	dbus-1-python3
 Requires:	python3-pip
 
 %description
