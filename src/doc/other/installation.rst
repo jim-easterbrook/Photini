@@ -7,7 +7,7 @@ Installation
 
 There are three ways to install Photini.
 On Windows you can use an all-in-one installer.
-On some Linux distributions you might be able to use your package manager.
+On some Linux distributions you might be able to use your package manager to install everything, or you may be able to use the package manager to install Photini's dependencies and pip_ to install Photini.
 On other platforms you need to install several dependencies before installing Photini.
 
 All-in-one installer (Windows)
@@ -70,10 +70,31 @@ OpenSUSE and Fedora
 Togan Muftuoglu (https://build.opensuse.org/user/show/toganm) has created a python-photini package.
 See https://build.opensuse.org/package/show/home:toganm:photography/python-photini for more information.
 
+Dependencies package (some Linux distributions)
+-----------------------------------------------
+
+This is the easiest way to install Photini's dependencies and the latest release of Photini.
+You use your package manager to install the non-Python dependencies, then use pip_ to install the latest versions of all the Python packages.
+
+OpenSUSE (and other Red Hat derived distributions?)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Photini project includes a ``.spec`` file that lists the required dependencies.
+Download the ``.spec`` file and use it to build a ``.rpm`` file::
+
+   wget https://raw.githubusercontent.com/jim-easterbrook/Photini/master/src/linux/python3-photini-meta.spec
+   rpmbuild -ba python3-photini-meta.spec
+
+Note where ``rpmbuild`` wrote its output file, then install that file. For example::
+
+   sudo zypper install /home/jim/rpmbuild/RPMS/noarch/python3-photini-meta-1-0.noarch.rpm
+
+Now you can :ref:`install Photini <installation-photini>` using pip_ as described below.
+
 Piecemeal installation
 ----------------------
 
-Photini is not as simple to install as I would like, mainly because of the libraries required to access photographs' metadata.
+This is the hardest way to install Photini, mainly because of the libraries required to access photographs' metadata.
 The installation process is different for Windows, Linux and MacOS, and there are variations with different versions of those operating systems.
 If you run into problems, please let me know (email jim@jim-easterbrook.me.uk) and once we've worked out what needs to be done I'll be able to improve these instructions.
 
@@ -153,7 +174,7 @@ All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.htm
 Installing Photini
 ------------------
 
-The easiest way to install the latest release of Photini is with the pip command::
+The easiest way to install the latest release of Photini is with the pip_ command::
 
    sudo pip install photini
 
@@ -191,7 +212,7 @@ Spelling
 
 `PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the `Enchant <http://www.abisource.com/projects/enchant/>`_ spell-checking library.
 If it is installed then spell checking is available for some of Photini's text entry fields.
-Use pip to install it::
+Use pip_ to install it::
 
    sudo pip install pyenchant
 
