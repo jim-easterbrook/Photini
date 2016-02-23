@@ -17,13 +17,11 @@
 //  <http://www.gnu.org/licenses/>.
 
 var geocoder;
-var grey_marker;
 var map;
 var markers = {};
 
-function initialize(lat, lng, zoom, grey_marker_file)
+function initialize(lat, lng, zoom)
 {
-  grey_marker = grey_marker_file;
   var mapOptions =
   {
     center: new google.maps.LatLng(lat, lng),
@@ -104,7 +102,7 @@ function enableMarker(id, active)
       });
     else
       marker.setOptions({
-        icon: grey_marker,
+        icon: 'grey_marker.png',
         zIndex: 0
       });
   }

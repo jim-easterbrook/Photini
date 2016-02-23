@@ -16,13 +16,11 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-var grey_marker;
 var map;
 var markers = {};
 
-function initialize(lat, lng, zoom, grey_marker_file)
+function initialize(lat, lng, zoom)
 {
-  grey_marker = grey_marker_file;
   map = L.map("mapDiv", {
     center: [lat, lng],
     zoom: zoom,
@@ -106,7 +104,7 @@ function enableMarker(id, active)
     {
       marker.setZIndexOffset(0);
       marker.setIcon(new L.Icon({
-        iconUrl: grey_marker,
+        iconUrl: 'grey_marker.png',
         iconSize: [25, 40],
         iconAnchor: [13, 40],
       }));

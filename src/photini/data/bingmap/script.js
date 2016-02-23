@@ -17,14 +17,12 @@
 //  <http://www.gnu.org/licenses/>.
 
 var defaultPushpinIcon;
-var grey_marker;
 var map;
 var markers = {};
 var searchManager;
 
-function initialize(lat, lng, zoom, grey_marker_file)
+function initialize(lat, lng, zoom)
 {
-  grey_marker = grey_marker_file;
   var mapOptions = {
     credentials: api_key,
     center: new Microsoft.Maps.Location(lat, lng),
@@ -118,7 +116,7 @@ function enableMarker(id, active)
       });
     else
       marker.setOptions({
-        icon: grey_marker,
+        icon: 'grey_marker.png',
         zIndex: 0
       });
   }
