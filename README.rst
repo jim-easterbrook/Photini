@@ -97,6 +97,10 @@ Licence
 | http://github.com/jim-easterbrook/Photini
 | Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
+| German translation by Jan Rimmek
+| Spanish translation by Esteban Martinena & Cristos Ruiz
+| Polish translation by "itdawid"
+
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation, either version 3 of the
