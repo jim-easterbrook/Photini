@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015  Jim Easterbrook.
+   Copyright (C)  2015-16  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -35,8 +35,8 @@ Translating Photini
 
 Transifex is quite easy to use, but there are a few things to be aware of when working on the Photini project.
 On the Transifex site there are several "resources" for Photini.
-The one called ``photini`` is the text used by the Photini program.
-The others, beginning with ``doc``, are the Photini documentation.
+The one called ``photini`` contains the text strings used by the Photini program.
+The others, beginning with ``doc``, contain the Photini documentation.
 
 ``photini`` resource
 ^^^^^^^^^^^^^^^^^^^^
@@ -92,20 +92,32 @@ You will also need to install the Transifex client program::
 
    sudo pip install transifex-client
 
-The client is used to download your translated strings.
+The Transifex client is used to download your translated strings.
 For example, if you've been working on a Dutch translation with the language code ``nl``::
 
    tx pull -l nl
 
-This will download a ``.ts`` file, which needs to be "compiled" before it can be used by the Photini program, and several ``.po`` files that are used when building the documentation.
+This will download several files.
+``src/lang/photini.nl.ts`` is the Dutch translation of the Photini program strings.
+``src/lang/doc/nl/LC_MESSAGES/xxx.po`` are the Dutch translations of the Photini documentation.
+(Replace ``nl`` with the language code you are translating for.)
+
 
 Testing the ``photini`` resource
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The ``src/lang/photini.nl.ts`` file needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease`` program, which is part of the ``libqt4-linguist`` package on some Linux systems.
-Compilation and installation is done with setup.py::
+The ``lrelease`` command can be used directly to compile a single language file::
+
+   lrelease src/lang/photini.nl.ts -qm src/photini/data/lang/photini.nl.qm
+
+Or you can easily compile all the language files with setup.py::
 
    python setup.py build_messages
+
+Now you can install Photini with your new translation(s)::
+
    python setup.py build
    sudo python setup.py install
 
