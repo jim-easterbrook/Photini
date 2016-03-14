@@ -25,6 +25,7 @@ from fractions import Fraction
 import locale
 import logging
 import os
+import warnings
 
 try:
     import pgi
@@ -33,7 +34,9 @@ try:
 except ImportError:
     using_pgi = False
 import gi
-from gi.repository import GObject, GExiv2
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore')
+    from gi.repository import GObject, GExiv2
 import six
 
 from .pyqt import QtCore
