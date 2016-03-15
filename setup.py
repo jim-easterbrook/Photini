@@ -34,7 +34,7 @@ cmdclass = {}
 command_options = {}
 
 # get GitHub repo information
-# requires GitPython - 'sudo pip install gitpython --pre'
+# requires GitPython - 'sudo pip install gitpython'
 try:
     import git
 except ImportError:
@@ -54,10 +54,6 @@ if git:
             latest = 0
             for tag in repo.tags:
                 tag_name = str(tag)
-                if (tag_name.startswith('Photini-') and
-                        tag.commit.committed_date > latest):
-                    latest = tag.commit.committed_date
-                    last_release = tag_name.split('-')[1]
                 if tag_name[0] == 'v' and tag.commit.committed_date > latest:
                     latest = tag.commit.committed_date
                     last_release = tag_name[1:]
@@ -110,7 +106,7 @@ command_options['upload_docs'] = {
     }
 
 # modify upload class to add appropriate tag
-# requires GitPython - 'sudo pip install gitpython --pre'
+# requires GitPython - 'sudo pip install gitpython'
 class upload_and_tag(upload):
     def run(self):
         import git
