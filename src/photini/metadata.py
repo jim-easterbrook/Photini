@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@ from fractions import Fraction
 import locale
 import logging
 import os
-import warnings
 
 try:
     import pgi
@@ -34,9 +33,13 @@ try:
 except ImportError:
     using_pgi = False
 import gi
-with warnings.catch_warnings():
-    warnings.simplefilter('ignore')
-    from gi.repository import GObject, GExiv2
+for gexiv2_vsn in ('0.10', '0.4'):
+    try:
+        gi.require_version('GExiv2', gexiv2_vsn)
+        break
+    except ValueError:
+        pass
+from gi.repository import GObject, GExiv2
 import six
 
 from .pyqt import QtCore
