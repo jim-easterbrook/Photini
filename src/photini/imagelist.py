@@ -40,7 +40,7 @@ class Image(QtWidgets.QFrame):
         super(Image, self).__init__(*arg, **kw)
         self.path = path
         self.image_list = image_list
-        self.name = os.path.splitext(os.path.basename(self.path))[0]
+        self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         self.thumb_size = thumb_size
         # read image
@@ -57,6 +57,21 @@ class Image(QtWidgets.QFrame):
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            if ext.lower() in ('.cr2', ):
+                # loading preview which is already re-oriented
+                orientation = self.metadata.orientation
+                if orientation and orientation.value > 1:
+                    # need to unrotate and or unreflect image
+                    transform = QtGui.QTransform()
+                    if orientation.value in (3, 4):
+                        transform = transform.rotate(180.0)
+                    elif orientation.value in (5, 6):
+                        transform = transform.rotate(-90.0)
+                    elif orientation.value in (7, 8):
+                        transform = transform.rotate(90.0)
+                    if orientation.value in (2, 4, 5, 7):
+                        transform = transform.scale(-1.0, 1.0)
+                    self.pixmap = self.pixmap.transformed(transform)
         # sub widgets
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
