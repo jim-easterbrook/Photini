@@ -504,10 +504,11 @@ class ImageList(QtWidgets.QWidget):
         sc_mode = config_store.get('files', 'sidecar', 'auto')
         force_iptc = eval(config_store.get('files', 'force_iptc', 'False'))
         unsaved = False
-        for path in list(self.path_list):
-            image = self.image[path]
-            image.metadata.save(if_mode, sc_mode, force_iptc)
-            unsaved = unsaved or image.metadata.changed()
+        with Busy():
+            for path in list(self.path_list):
+                image = self.image[path]
+                image.metadata.save(if_mode, sc_mode, force_iptc)
+                unsaved = unsaved or image.metadata.changed()
         self.new_metadata.emit(unsaved)
 
     def unsaved_files_dialog(

@@ -533,7 +533,7 @@ class Importer(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def copy_selected(self):
         if self.import_worker:
-            # user has clicked while upload is still cancelling
+            # user has clicked while import is still cancelling
             self.copy_button.setChecked(False)
             return
         copy_list = []
@@ -551,33 +551,34 @@ class Importer(QtWidgets.QWidget):
         last_transfer = datetime.min
         last_path = None
         with self.source.session():
-            self.import_file.emit(copy_list.pop(0))
-            while self.copy_button.isChecked():
-                QtWidgets.QApplication.processEvents()
-                if not self.import_worker.thread.isRunning():
-                    # user has closed program
-                    return
-                if item_queue.empty():
-                    continue
-                item, camera_file = item_queue.get()
-                if item is None:
-                    # import failed
-                    self._fail()
-                    break
-                timestamp = item['timestamp']
-                dest_path = item['dest_path']
-                if last_transfer < timestamp:
-                    last_transfer = timestamp
-                    last_path = dest_path
-                if copy_list:
-                    # start fetching next file
-                    self.import_file.emit(copy_list[0])
-                if camera_file:
-                    camera_file.save(dest_path)
-                self.image_list.open_file(dest_path)
-                if not copy_list:
-                    break
-                copy_list.pop(0)
+            with Busy():
+                self.import_file.emit(copy_list.pop(0))
+                while self.copy_button.isChecked():
+                    QtWidgets.QApplication.processEvents()
+                    if not self.import_worker.thread.isRunning():
+                        # user has closed program
+                        return
+                    if item_queue.empty():
+                        continue
+                    item, camera_file = item_queue.get()
+                    if item is None:
+                        # import failed
+                        self._fail()
+                        break
+                    timestamp = item['timestamp']
+                    dest_path = item['dest_path']
+                    if last_transfer < timestamp:
+                        last_transfer = timestamp
+                        last_path = dest_path
+                    if copy_list:
+                        # start fetching next file
+                        self.import_file.emit(copy_list[0])
+                    if camera_file:
+                        camera_file.save(dest_path)
+                    self.image_list.open_file(dest_path)
+                    if not copy_list:
+                        break
+                    copy_list.pop(0)
         if last_path:
             config_store.set(self.source.config_section, 'last_transfer',
                              last_transfer.isoformat(' '))
