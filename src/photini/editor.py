@@ -64,7 +64,7 @@ from .technical import Technical
 from . import __version__, build
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, verbose):
+    def __init__(self, verbose, initial_files):
         super(MainWindow, self).__init__()
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
@@ -212,6 +212,14 @@ class MainWindow(QtWidgets.QMainWindow):
             config_store.get('main_window', 'split', str(size))))
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
+        # open files given on command line, after GUI is displayed
+        self.initial_files = initial_files
+        if self.initial_files:
+            QtCore.QTimer.singleShot(0, self.open_initial_files)
+
+    @QtCore.pyqtSlot()
+    def open_initial_files(self):
+        self.image_list.open_file_list(self.initial_files)
 
     def add_tabs(self):
         was_blocked = self.tabs.blockSignals(True)
@@ -339,6 +347,8 @@ def main(argv=None):
         from .flickr import flickr_version
         version += '\n  ' + flickr_version
     parser = OptionParser(
+        usage=six.text_type(QtCore.QCoreApplication.translate(
+            'main', 'Usage: %prog [options] [file_name, ...]')),
         version=version,
         description=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Photini photo metadata editor')))
@@ -347,11 +357,8 @@ def main(argv=None):
         help=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'increase number of logging messages')))
     options, args = parser.parse_args()
-    if len(args) != 0:
-        parser.error(six.text_type(QtCore.QCoreApplication.translate(
-            'main', 'incorrect number of arguments')))
     # create GUI and run application event loop
-    main = MainWindow(options.verbose)
+    main = MainWindow(options.verbose, args)
     main.show()
     return app.exec_()
 
