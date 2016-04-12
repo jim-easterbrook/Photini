@@ -61,15 +61,24 @@ class MetadataValue(object):
         self.value = value
 
     @classmethod
-    def from_exif(cls, value):
+    def from_exif(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string(tag)
+        if not value:
+            return None
         return cls(value)
 
     @classmethod
-    def from_iptc(cls, value):
+    def from_iptc(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_multiple_unicode(tag)
+        if not value:
+            return None
         return cls(value)
 
     @classmethod
-    def from_xmp(cls, value):
+    def from_xmp(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string(tag)
+        if not value:
+            return None
         return cls(value)
 
     def __nonzero__(self):
@@ -136,8 +145,11 @@ class LatLon(MetadataDictValue):
         return result
 
     @classmethod
-    def from_exif(cls, value_list):
-        lat_string, lat_ref, lon_string, lon_ref = value_list
+    def from_exif(cls, metadata_handler, tag):
+        lat_string = metadata_handler.get_tag_string(tag)
+        lat_ref    = metadata_handler.get_tag_string(_sub_tags[tag][0])
+        lon_string = metadata_handler.get_tag_string(_sub_tags[tag][1])
+        lon_ref    = metadata_handler.get_tag_string(_sub_tags[tag][2])
         if lat_string and lat_ref and lon_string and lon_ref:
             return cls((cls.from_exif_part(lat_string, lat_ref),
                         cls.from_exif_part(lon_string, lon_ref)))
@@ -172,8 +184,9 @@ class LatLon(MetadataDictValue):
         return value
 
     @classmethod
-    def from_xmp(cls, value_list):
-        lat_string, lon_string = value_list
+    def from_xmp(cls, metadata_handler, tag):
+        lat_string = metadata_handler.get_tag_string(tag)
+        lon_string = metadata_handler.get_tag_string(_sub_tags[tag][0])
         if lat_string and lon_string:
             return cls((cls.from_xmp_part(lat_string),
                         cls.from_xmp_part(lon_string)))
@@ -302,8 +315,9 @@ class DateTime(MetadataDictValue):
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
     @classmethod
-    def from_exif(cls, value_list):
-        datetime_string, sub_sec_string = value_list
+    def from_exif(cls, metadata_handler, tag):
+        datetime_string = metadata_handler.get_tag_string(tag)
+        sub_sec_string  = metadata_handler.get_tag_string(_sub_tags[tag][0])
         if not datetime_string:
             return None
         # separate date & time and remove separators
@@ -335,8 +349,9 @@ class DateTime(MetadataDictValue):
     # according to
     # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
-    def from_iptc(cls, value_list):
-        date_string, time_string = value_list
+    def from_iptc(cls, metadata_handler, tag):
+        date_string = metadata_handler.get_tag_string(tag)
+        time_string = metadata_handler.get_tag_string(_sub_tags[tag][0])
         if not date_string:
             return None
         # remove separators (that shouldn't be there)
@@ -375,7 +390,10 @@ class DateTime(MetadataDictValue):
     # processed. It also says the XMP standard has been revised to make
     # time zone information optional.
     @classmethod
-    def from_xmp(cls, datetime_string):
+    def from_xmp(cls, metadata_handler, tag):
+        datetime_string = metadata_handler.get_tag_string(tag)
+        if not datetime_string:
+            return None
         date_string, sep, time_string = datetime_string.partition('T')
         return cls.from_ISO_8601(
             date_string.replace('-', ''), time_string.replace(':', ''))
@@ -420,6 +438,13 @@ class MultiString(MetadataValue):
         value = list(filter(bool, [x.strip() for x in value]))
         super(MultiString, self).__init__(value)
 
+    @classmethod
+    def from_exif(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string_unicode(tag)
+        if not value:
+            return None
+        return cls(value)
+
     def to_exif(self):
         result = ';'.join(self.value)
         if six.PY2:
@@ -434,6 +459,16 @@ class MultiString(MetadataValue):
                 item = item.decode('utf_8')
             result.append(item)
         return result
+
+    @classmethod
+    def from_xmp(cls, metadata_handler, tag):
+        if tag.startswith('Xmp.tiff'):
+            value = metadata_handler.get_tag_string_unicode(tag)
+        else:
+            value = metadata_handler.get_tag_multiple_unicode(tag)
+        if not value:
+            return None
+        return cls(value)
 
     def to_xmp(self):
         if six.PY2:
@@ -459,6 +494,13 @@ class String(MetadataValue):
             value = value[0]
         super(String, self).__init__(six.text_type(value).strip())
 
+    @classmethod
+    def from_exif(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string_unicode(tag)
+        if not value:
+            return None
+        return cls(value)
+
     def to_exif(self):
         if six.PY2:
             return self.value.encode('utf_8')
@@ -469,6 +511,13 @@ class String(MetadataValue):
         if not six.PY2:
             result = result.decode('utf_8')
         return result
+
+    @classmethod
+    def from_xmp(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_multiple_unicode(tag)
+        if not value:
+            return None
+        return cls(value)
 
     def to_xmp(self):
         if six.PY2:
@@ -493,10 +542,10 @@ class CharacterSet(String):
         }
 
     @classmethod
-    def from_iptc(cls, value):
+    def from_iptc(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string(tag)
         if not value:
             return None
-        value = value[0]
         for charset, encoding in cls.known_encodings.items():
             if encoding == value:
                 return cls(charset)
@@ -507,15 +556,6 @@ class CharacterSet(String):
 
 
 class Software(String):
-    @classmethod
-    def from_iptc(cls, value_list):
-        program, version = value_list
-        if not program:
-            return None
-        if version:
-            program += ' v' + version
-        return cls(version)
-
     def to_iptc(self, tag):
         program, version = self.value.split(' v')
         program = program[:_max_bytes[tag]]
@@ -715,43 +755,19 @@ class MetadataHandler(GExiv2.Metadata):
         return value.decode('utf_8')
 
     def get_value(self, tag):
-        # get value as our preferred data type
-        if tag in _sub_tags:
-            # multi-tag value
-            file_value = []
-            for sub_tag in [tag] + list(_sub_tags[tag]):
-                if sub_tag:
-                    file_value.append(self.get_tag_string(sub_tag))
-                else:
-                    file_value.append(None)
-        else:
-            # single tag value
-            exiv_type = MetadataHandler.get_tag_type(tag)
-            if exiv_type in ('Ascii', 'XmpText'):
-                file_value = self.get_tag_string_unicode(tag)
-            elif exiv_type in ('Rational', 'Short'):
-                file_value = self.get_tag_string(tag)
-            elif exiv_type in ('LangAlt', 'String', 'XmpBag', 'XmpSeq'):
-                file_value = self.get_tag_multiple_unicode(tag)
-            else:
-                raise RuntimeError('Unknown tag type ' + exiv_type)
-        if not file_value:
-            return None
         if MetadataHandler.is_exif_tag(tag):
-            return _data_type[tag].from_exif(file_value)
+            return _data_type[tag].from_exif(self, tag)
         if MetadataHandler.is_iptc_tag(tag):
-            return _data_type[tag].from_iptc(file_value)
-        return _data_type[tag].from_xmp(file_value)
+            return _data_type[tag].from_iptc(self, tag)
+        return _data_type[tag].from_xmp(self, tag)
 
     def set_value(self, tag, value):
         # clear tag(s) if no value
         if not value:
             if tag in _sub_tags:
-                for sub_tag in [tag] + list(_sub_tags[tag]):
-                    if sub_tag:
-                        self.clear_tag(sub_tag)
-            else:
-                self.clear_tag(tag)
+                for sub_tag in _sub_tags[tag]:
+                    self.clear_tag(sub_tag)
+            self.clear_tag(tag)
             return
         # get output formatted value(s)
         if MetadataHandler.is_exif_tag(tag):
@@ -764,11 +780,10 @@ class MetadataHandler(GExiv2.Metadata):
         if tag in _sub_tags:
             tag_list = [tag] + list(_sub_tags[tag])
             for sub_tag, value_string in zip(tag_list, file_value):
-                if sub_tag:
-                    if value_string:
-                        self.set_tag_string(sub_tag, value_string)
-                    else:
-                        self.clear_tag(sub_tag)
+                if value_string:
+                    self.set_tag_string(sub_tag, value_string)
+                else:
+                    self.clear_tag(sub_tag)
             return
         # do single tag items
         if isinstance(file_value, six.string_types):
