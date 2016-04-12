@@ -68,6 +68,11 @@ class MetadataValue(object):
         return cls(value)
 
     @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        assert(value is None, 'setting ' + tag)
+        metadata_handler.clear_tag(tag)
+
+    @classmethod
     def from_iptc(cls, metadata_handler, tag):
         value = metadata_handler.get_tag_multiple_unicode(tag)
         if not value:
@@ -75,11 +80,21 @@ class MetadataValue(object):
         return cls(value)
 
     @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        assert(value is None, 'setting ' + tag)
+        metadata_handler.clear_tag(tag)
+
+    @classmethod
     def from_xmp(cls, metadata_handler, tag):
         value = metadata_handler.get_tag_string(tag)
         if not value:
             return None
         return cls(value)
+
+    @classmethod
+    def to_xmp(cls, metadata_handler, tag, value):
+        assert(value is None, 'setting ' + tag)
+        metadata_handler.clear_tag(tag)
 
     def __nonzero__(self):
         return bool(self.value)
@@ -155,23 +170,37 @@ class LatLon(MetadataDictValue):
                         cls.from_exif_part(lon_string, lon_ref)))
         return None
 
-    def to_exif(self):
-        result = []
-        for value, sign_char in zip((self.lat, self.lon), ('NS', 'EW')):
-            if value >= 0.0:
-                ref = sign_char[0]
-            else:
-                ref = sign_char[1]
-                value = -value
-            degrees = int(value)
-            value = (value - degrees) * 60.0
-            minutes = int(value)
-            seconds = (value - minutes) * 60.0
-            seconds = Fraction(seconds).limit_denominator(1000000)
-            result.append('{:d}/1 {:d}/1 {:d}/{:d}'.format(
-                degrees, minutes, seconds.numerator, seconds.denominator))
-            result.append(ref)
-        return result
+    @staticmethod
+    def to_exif_part(value):
+        if value >= 0.0:
+            negative = False
+        else:
+            negative = True
+            value = -value
+        degrees = int(value)
+        value = (value - degrees) * 60.0
+        minutes = int(value)
+        seconds = (value - minutes) * 60.0
+        seconds = Fraction(seconds).limit_denominator(1000000)
+        return '{:d}/1 {:d}/1 {:d}/{:d}'.format(
+            degrees, minutes, seconds.numerator, seconds.denominator), negative
+
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            metadata_handler.clear_tag(_sub_tags[tag][0])
+            metadata_handler.clear_tag(_sub_tags[tag][1])
+            metadata_handler.clear_tag(_sub_tags[tag][2])
+            return
+        lat_string, negative = cls.to_exif_part(value.lat)
+        lat_ref = 'NS'[negative]
+        lon_string, negative = cls.to_exif_part(value.lon)
+        lon_ref = 'EW'[negative]
+        metadata_handler.set_tag_string(tag, lat_string)
+        metadata_handler.set_tag_string(_sub_tags[tag][0], lat_ref)
+        metadata_handler.set_tag_string(_sub_tags[tag][1], lon_string)
+        metadata_handler.set_tag_string(_sub_tags[tag][2], lon_ref)
 
     @staticmethod
     def from_xmp_part(value):
@@ -217,10 +246,15 @@ class LensSpec(MetadataDictValue):
             float(self.min_fl),    float(self.max_fl),
             float(self.min_fl_fn), float(self.max_fl_fn))
 
-    def to_exif(self):
-        return ' '.join(
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        value = ' '.join(
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
-                self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
+                value.min_fl, value.max_fl, value.min_fl_fn, value.max_fl_fn)])
+        metadata_handler.set_tag_string(tag, value)
 
 
 class DateTime(MetadataDictValue):
@@ -330,16 +364,23 @@ class DateTime(MetadataDictValue):
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
-    def to_exif(self):
-        datetime_string, sep, sub_sec_string = self.to_ISO_8601(
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            metadata_handler.clear_tag(_sub_tags[tag][0])
+            return
+        datetime_string, sep, sub_sec_string = value.to_ISO_8601(
             time_zone=False).partition('.')
-        if sub_sec_string == '':
-            sub_sec_string = None
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
         # pad out any missing values
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
-        return datetime_string, sub_sec_string
+        metadata_handler.set_tag_string(tag, datetime_string)
+        if sub_sec_string:
+            metadata_handler.set_tag_string(_sub_tags[tag][0], sub_sec_string)
+        else:
+            metadata_handler.clear_tag(_sub_tags[tag][0])
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
@@ -372,14 +413,26 @@ class DateTime(MetadataDictValue):
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
-    def to_iptc(self, tag):
-        if self.precision <= 3:
-            date_string = self.to_ISO_8601()
+    @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            metadata_handler.clear_tag(_sub_tags[tag][0])
+            return
+        if value.precision <= 3:
+            date_string = value.to_ISO_8601()
             #               YYYY mm dd
             date_string += '0000-00-00'[len(date_string):]
-            return date_string, None
-        datetime_string = self.to_ISO_8601(precision=6)
-        return datetime_string[:10], datetime_string[11:]
+            time_string = ''
+        else:
+            datetime_string = value.to_ISO_8601(precision=6)
+            date_string = datetime_string[:10]
+            time_string = datetime_string[11:]
+        metadata_handler.set_tag_string(tag, date_string)
+        if time_string:
+            metadata_handler.set_tag_string(_sub_tags[tag][0], time_string)
+        else:
+            metadata_handler.clear_tag(_sub_tags[tag][0])
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of
@@ -398,11 +451,16 @@ class DateTime(MetadataDictValue):
         return cls.from_ISO_8601(
             date_string.replace('-', ''), time_string.replace(':', ''))
 
-    def to_xmp(self):
-        precision = self.precision
+    @classmethod
+    def to_xmp(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        precision = value.precision
         if precision == 4:
             precision = 5
-        return self.to_ISO_8601(precision=precision)
+        datetime_string = value.to_ISO_8601(precision=precision)
+        metadata_handler.set_tag_string(tag, datetime_string)
 
     def __str__(self):
         return self.to_ISO_8601()
@@ -445,20 +503,28 @@ class MultiString(MetadataValue):
             return None
         return cls(value)
 
-    def to_exif(self):
-        result = ';'.join(self.value)
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = ';'.join(value.value)
         if six.PY2:
-            result = result.encode('utf_8')
-        return result
+            string_value = string_value.encode('utf_8')
+        metadata_handler.set_tag_string(tag, string_value)
 
-    def to_iptc(self, tag):
-        result = []
-        for item in self.value:
+    @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_list = []
+        for item in value.value:
             item = item.encode('utf_8')[:_max_bytes[tag]]
             if not six.PY2:
                 item = item.decode('utf_8')
-            result.append(item)
-        return result
+            string_list.append(item)
+        metadata_handler.set_tag_multiple(tag, string_list)
 
     @classmethod
     def from_xmp(cls, metadata_handler, tag):
@@ -470,10 +536,15 @@ class MultiString(MetadataValue):
             return None
         return cls(value)
 
-    def to_xmp(self):
+    @classmethod
+    def to_xmp(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = value.value
         if six.PY2:
-            return [x.encode('utf_8') for x in self.value]
-        return self.value
+            string_value = [x.encode('utf_8') for x in string_value]
+        metadata_handler.set_tag_multiple(tag, string_value)
 
     def __str__(self):
         return '; '.join(self.value)
@@ -501,16 +572,25 @@ class String(MetadataValue):
             return None
         return cls(value)
 
-    def to_exif(self):
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = value.value
         if six.PY2:
-            return self.value.encode('utf_8')
-        return self.value
+            string_value = string_value.encode('utf_8')
+        metadata_handler.set_tag_string(tag, string_value)
 
-    def to_iptc(self, tag):
-        result = self.value.encode('utf_8')[:_max_bytes[tag]]
+    @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = value.value.encode('utf_8')[:_max_bytes[tag]]
         if not six.PY2:
-            result = result.decode('utf_8')
-        return result
+            string_value = string_value.decode('utf_8')
+        metadata_handler.set_tag_string(tag, string_value)
 
     @classmethod
     def from_xmp(cls, metadata_handler, tag):
@@ -519,10 +599,15 @@ class String(MetadataValue):
             return None
         return cls(value)
 
-    def to_xmp(self):
+    @classmethod
+    def to_xmp(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = value.value
         if six.PY2:
-            return self.value.encode('utf_8')
-        return self.value
+            string_value = string_value.encode('utf_8')
+        metadata_handler.set_tag_string(tag, string_value)
 
     def __str__(self):
         return self.value
@@ -551,22 +636,33 @@ class CharacterSet(String):
                 return cls(charset)
         return None
 
-    def to_iptc(self, tag):
-        return self.known_encodings[self.value]
+    @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        string_value = cls.known_encodings[value.value]
+        metadata_handler.set_tag_string(tag, string_value)
 
 
 class Software(String):
-    def to_iptc(self, tag):
-        program, version = self.value.split(' v')
+    @classmethod
+    def to_iptc(cls, metadata_handler, tag, value):
+        program, version = value.value.split(' v')
         program = program[:_max_bytes[tag]]
         version = version[:_max_bytes[tag + 'Version']]
-        return program, version
+        metadata_handler.set_tag_string(tag, program)
+        metadata_handler.set_tag_string(tag + 'Version', version)
 
 
 class Int(MetadataValue):
     def __init__(self, value):
         super(Int, self).__init__(int(value))
-        self.to_exif = self.__str__
+
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = '{:d}'.format(value.value)
+        metadata_handler.set_tag_string(tag, string_value)
 
     def __nonzero__(self):
         return self.value is not None
@@ -579,11 +675,17 @@ class Rational(MetadataValue):
     def __init__(self, value):
         super(Rational, self).__init__(Fraction(value))
 
+    @classmethod
+    def to_exif(cls, metadata_handler, tag, value):
+        if not value:
+            metadata_handler.clear_tag(tag)
+            return
+        string_value = '{:d}/{:d}'.format(
+            value.value.numerator, value.value.denominator)
+        metadata_handler.set_tag_string(tag, string_value)
+
     def __nonzero__(self):
         return self.value is not None
-
-    def to_exif(self):
-        return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
 
     def __str__(self):
         return '{:g}'.format(float(self.value))
@@ -762,34 +864,12 @@ class MetadataHandler(GExiv2.Metadata):
         return _data_type[tag].from_xmp(self, tag)
 
     def set_value(self, tag, value):
-        # clear tag(s) if no value
-        if not value:
-            if tag in _sub_tags:
-                for sub_tag in _sub_tags[tag]:
-                    self.clear_tag(sub_tag)
-            self.clear_tag(tag)
-            return
-        # get output formatted value(s)
         if MetadataHandler.is_exif_tag(tag):
-            file_value = value.to_exif()
+            _data_type[tag].to_exif(self, tag, value)
         elif MetadataHandler.is_iptc_tag(tag):
-            file_value = value.to_iptc(tag)
+            _data_type[tag].to_iptc(self, tag, value)
         else:
-            file_value = value.to_xmp()
-        # do multi-tag items
-        if tag in _sub_tags:
-            tag_list = [tag] + list(_sub_tags[tag])
-            for sub_tag, value_string in zip(tag_list, file_value):
-                if value_string:
-                    self.set_tag_string(sub_tag, value_string)
-                else:
-                    self.clear_tag(sub_tag)
-            return
-        # do single tag items
-        if isinstance(file_value, six.string_types):
-            self.set_tag_string(tag, file_value)
-        else:
-            self.set_tag_multiple(tag, file_value)
+            _data_type[tag].to_xmp(self, tag, value)
 
     def get_tag_string_unicode(self, tag):
         try:
