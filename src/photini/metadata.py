@@ -521,6 +521,7 @@ class MultiString(MetadataValue):
             return None
         if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPKeywords'):
             value = bytearray(map(int, value.split())).decode('utf_16')
+            value = value.strip('\x00')
         return cls(value)
 
     @classmethod
@@ -593,6 +594,7 @@ class String(MetadataValue):
         if tag in ('Exif.Image.XPComment', 'Exif.Image.XPSubject',
                    'Exif.Image.XPTitle'):
             value = bytearray(map(int, value.split())).decode('utf_16')
+            value = value.strip('\x00')
         return cls(value)
 
     @classmethod
