@@ -519,9 +519,6 @@ class MultiString(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
-        if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPKeywords'):
-            value = bytearray(map(int, value.split())).decode('utf_16')
-            value = value.strip('\x00')
         return cls(value)
 
     @classmethod
@@ -579,6 +576,12 @@ class MultiString(MetadataValue):
         return True
 
 
+class UCS2MultiString(MultiString):
+    def __init__(self, value):
+        super(UCS2MultiString, self).__init__(
+            bytearray(map(int, value.split())).decode('utf_16').strip('\x00'))
+
+
 @six.python_2_unicode_compatible
 class String(MetadataValue):
     def __init__(self, value):
@@ -591,10 +594,6 @@ class String(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
-        if tag in ('Exif.Image.XPComment', 'Exif.Image.XPSubject',
-                   'Exif.Image.XPTitle'):
-            value = bytearray(map(int, value.split())).decode('utf_16')
-            value = value.strip('\x00')
         return cls(value)
 
     @classmethod
@@ -643,6 +642,12 @@ class String(MetadataValue):
     def merge(self, other, family=None):
         self.value += ' // ' + other.value
         return True
+
+
+class UCS2String(String):
+    def __init__(self, value):
+        super(UCS2String, self).__init__(
+            bytearray(map(int, value.split())).decode('utf_16').strip('\x00'))
 
 
 class CharacterSet(String):
@@ -764,11 +769,11 @@ _data_type = {
     'Exif.Image.Orientation'             : Int,
     'Exif.Image.ProcessingSoftware'      : Software,
     'Exif.Image.UniqueCameraModel'       : String,
-    'Exif.Image.XPAuthor'                : MultiString,
-    'Exif.Image.XPComment'               : String,
-    'Exif.Image.XPKeywords'              : MultiString,
-    'Exif.Image.XPSubject'               : String,
-    'Exif.Image.XPTitle'                 : String,
+    'Exif.Image.XPAuthor'                : UCS2MultiString,
+    'Exif.Image.XPComment'               : UCS2String,
+    'Exif.Image.XPKeywords'              : UCS2MultiString,
+    'Exif.Image.XPSubject'               : UCS2String,
+    'Exif.Image.XPTitle'                 : UCS2String,
     'Exif.Photo.ApertureValue'           : APEXAperture,
     'Exif.Photo.DateTimeDigitized'       : DateTime,
     'Exif.Photo.DateTimeOriginal'        : DateTime,
