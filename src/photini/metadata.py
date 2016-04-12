@@ -519,6 +519,8 @@ class MultiString(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
+        if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPKeywords'):
+            value = bytearray(map(int, value.split())).decode('utf_16')
         return cls(value)
 
     @classmethod
@@ -588,6 +590,9 @@ class String(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
+        if tag in ('Exif.Image.XPComment', 'Exif.Image.XPSubject',
+                   'Exif.Image.XPTitle'):
+            value = bytearray(map(int, value.split())).decode('utf_16')
         return cls(value)
 
     @classmethod
@@ -757,6 +762,11 @@ _data_type = {
     'Exif.Image.Orientation'             : Int,
     'Exif.Image.ProcessingSoftware'      : Software,
     'Exif.Image.UniqueCameraModel'       : String,
+    'Exif.Image.XPAuthor'                : MultiString,
+    'Exif.Image.XPComment'               : String,
+    'Exif.Image.XPKeywords'              : MultiString,
+    'Exif.Image.XPSubject'               : String,
+    'Exif.Image.XPTitle'                 : String,
     'Exif.Photo.ApertureValue'           : APEXAperture,
     'Exif.Photo.DateTimeDigitized'       : DateTime,
     'Exif.Photo.DateTimeOriginal'        : DateTime,
@@ -984,17 +994,20 @@ class Metadata(QtCore.QObject):
         'character_set'  : {},
         'camera_model'   : {'Exif' : ('Exif.Image.UniqueCameraModel',)},
         'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
-        'creator'        : {'Xmp'  : ('Xmp.tiff.Artist',)},
+        'creator'        : {'Exif' : ('Exif.Image.XPAuthor',),
+                            'Xmp'  : ('Xmp.tiff.Artist',)},
         'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
         'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
         'date_taken'     : {'Exif' : ('Exif.Image.DateTimeOriginal',),
                             'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
-        'description'    : {'Xmp'  : ('Xmp.tiff.ImageDescription',)},
+        'description'    : {'Exif' : ('Exif.Image.XPComment',
+                                      'Exif.Image.XPSubject'),
+                            'Xmp'  : ('Xmp.tiff.ImageDescription',)},
         'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',
                                       'Exif.Photo.FocalLengthIn35mmFilm',),
                             'Xmp'  : ('Xmp.exif.FocalLength',
                                       'Xmp.exif.FocalLengthIn35mmFilm',)},
-        'keywords'       : {},
+        'keywords'       : {'Exif' : ('Exif.Image.XPKeywords',)},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
         'lens_make'      : {},
         'lens_model'     : {'Exif' : ('Exif.Canon.LensModel',
@@ -1006,7 +1019,8 @@ class Metadata(QtCore.QObject):
                                       'Exif.CanonCs.ShortFocal')},
         'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
         'software'       : {},
-        'title'          : {'Iptc' : ('Iptc.Application2.Headline',)},
+        'title'          : {'Exif' : ('Exif.Image.XPTitle',),
+                            'Iptc' : ('Iptc.Application2.Headline',)},
         }
     def __init__(self, path, image_data, parent=None):
         super(Metadata, self).__init__(parent)

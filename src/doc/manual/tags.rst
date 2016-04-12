@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-16  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Tag reference
@@ -54,11 +54,12 @@ These tags are deleted when the corresponding primary tags are saved.
 =======================  ===========================  ==========================  ==================
 Photini field            Exif tag                     XMP tag                     IPTC tag
 =======================  ===========================  ==========================  ==================
-Title / Object Name                                                               Iptc.Application2.Headline
-Description / Caption                                 Xmp.tiff.ImageDescription
-Keywords                 
+Title / Object Name      Exif.Image.XPTitle                                       Iptc.Application2.Headline
+Description / Caption    | Exif.Image.XPComment       Xmp.tiff.ImageDescription
+                         | Exif.Image.XPSubject
+Keywords                 Exif.Image.XPKeywords
 Copyright                                             Xmp.tiff.Copyright
-Creator / Artist                                      Xmp.tiff.Artist
+Creator / Artist         Exif.Image.XPAuthor          Xmp.tiff.Artist
 Date / time Taken        Exif.Image.DateTimeOriginal  Xmp.exif.DateTimeOriginal
 Date / time Digitised                                 Xmp.exif.DateTimeDigitized
 Date / time Modified                                  Xmp.tiff.DateTime
