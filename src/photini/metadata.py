@@ -138,6 +138,10 @@ class MetadataDictValue(MetadataValue):
 
 class LatLon(MetadataDictValue):
     # simple class to store latitude and longitude
+    exif_tags = ('Exif.GPSInfo.GPSLatitude',  'Exif.GPSInfo.GPSLatitudeRef',
+                 'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef')
+    xmp_tags = ('Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude')
+
     def __init__(self, value):
         if isinstance(value, six.string_types):
             value = value.split(',')
@@ -161,10 +165,9 @@ class LatLon(MetadataDictValue):
 
     @classmethod
     def from_exif(cls, metadata_handler, tag):
-        lat_string = metadata_handler.get_tag_string(tag)
-        lat_ref    = metadata_handler.get_tag_string(_sub_tags[tag][0])
-        lon_string = metadata_handler.get_tag_string(_sub_tags[tag][1])
-        lon_ref    = metadata_handler.get_tag_string(_sub_tags[tag][2])
+        assert(tag == cls.exif_tags[0])
+        (lat_string, lat_ref,
+         lon_string, lon_ref) = metadata_handler.get_tags_string(cls.exif_tags)
         if lat_string and lat_ref and lon_string and lon_ref:
             return cls((cls.from_exif_part(lat_string, lat_ref),
                         cls.from_exif_part(lon_string, lon_ref)))
@@ -187,20 +190,16 @@ class LatLon(MetadataDictValue):
 
     @classmethod
     def to_exif(cls, metadata_handler, tag, value):
+        assert(tag == cls.exif_tags[0])
         if not value:
-            metadata_handler.clear_tag(tag)
-            metadata_handler.clear_tag(_sub_tags[tag][0])
-            metadata_handler.clear_tag(_sub_tags[tag][1])
-            metadata_handler.clear_tag(_sub_tags[tag][2])
+            metadata_handler.clear_tags(cls.exif_tags)
             return
         lat_string, negative = cls.to_exif_part(value.lat)
         lat_ref = 'NS'[negative]
         lon_string, negative = cls.to_exif_part(value.lon)
         lon_ref = 'EW'[negative]
-        metadata_handler.set_tag_string(tag, lat_string)
-        metadata_handler.set_tag_string(_sub_tags[tag][0], lat_ref)
-        metadata_handler.set_tag_string(_sub_tags[tag][1], lon_string)
-        metadata_handler.set_tag_string(_sub_tags[tag][2], lon_ref)
+        metadata_handler.set_tags_string(
+            cls.exif_tags, (lat_string, lat_ref, lon_string, lon_ref))
 
     @staticmethod
     def from_xmp_part(value):
@@ -214,12 +213,18 @@ class LatLon(MetadataDictValue):
 
     @classmethod
     def from_xmp(cls, metadata_handler, tag):
-        lat_string = metadata_handler.get_tag_string(tag)
-        lon_string = metadata_handler.get_tag_string(_sub_tags[tag][0])
+        assert(tag == cls.xmp_tags[0])
+        lat_string, lon_string = metadata_handler.get_tags_string(cls.xmp_tags)
         if lat_string and lon_string:
             return cls((cls.from_xmp_part(lat_string),
                         cls.from_xmp_part(lon_string)))
         return None
+
+    @classmethod
+    def to_xmp(cls, metadata_handler, tag, value):
+        assert(value is None, 'setting ' + tag)
+        assert(tag == cls.xmp_tags[0])
+        metadata_handler.clear_tags(cls.xmp_tags)
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
@@ -260,6 +265,12 @@ class LensSpec(MetadataDictValue):
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
+    exif_subsec = {
+        'Exif.Image.DateTime'          : 'Exif.Photo.SubSecTime',
+        'Exif.Photo.DateTimeDigitized' : 'Exif.Photo.SubSecTimeDigitized',
+        'Exif.Photo.DateTimeOriginal'  : 'Exif.Photo.SubSecTimeOriginal',
+        }
+
     def __init__(self, value):
         date_time, precision, tz_offset = value
         if date_time is None:
@@ -351,7 +362,11 @@ class DateTime(MetadataDictValue):
     @classmethod
     def from_exif(cls, metadata_handler, tag):
         datetime_string = metadata_handler.get_tag_string(tag)
-        sub_sec_string  = metadata_handler.get_tag_string(_sub_tags[tag][0])
+        if tag in cls.exif_subsec:
+            sub_sec_string  = metadata_handler.get_tag_string(
+                cls.exif_subsec[tag])
+        else:
+            sub_sec_string = ''
         if not datetime_string:
             return None
         # separate date & time and remove separators
@@ -368,7 +383,8 @@ class DateTime(MetadataDictValue):
     def to_exif(cls, metadata_handler, tag, value):
         if not value:
             metadata_handler.clear_tag(tag)
-            metadata_handler.clear_tag(_sub_tags[tag][0])
+            if tag in cls.exif_subsec:
+                metadata_handler.clear_tag(cls.exif_subsec[tag])
             return
         datetime_string, sep, sub_sec_string = value.to_ISO_8601(
             time_zone=False).partition('.')
@@ -378,9 +394,9 @@ class DateTime(MetadataDictValue):
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
         metadata_handler.set_tag_string(tag, datetime_string)
         if sub_sec_string:
-            metadata_handler.set_tag_string(_sub_tags[tag][0], sub_sec_string)
+            metadata_handler.set_tag_string(cls.exif_subsec[tag], sub_sec_string)
         else:
-            metadata_handler.clear_tag(_sub_tags[tag][0])
+            metadata_handler.clear_tag(cls.exif_subsec[tag])
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
@@ -391,8 +407,9 @@ class DateTime(MetadataDictValue):
     # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
     def from_iptc(cls, metadata_handler, tag):
+        time_tag = tag.replace('Date', 'Time')
         date_string = metadata_handler.get_tag_string(tag)
-        time_string = metadata_handler.get_tag_string(_sub_tags[tag][0])
+        time_string = metadata_handler.get_tag_string(time_tag)
         if not date_string:
             return None
         # remove separators (that shouldn't be there)
@@ -415,9 +432,10 @@ class DateTime(MetadataDictValue):
 
     @classmethod
     def to_iptc(cls, metadata_handler, tag, value):
+        time_tag = tag.replace('Date', 'Time')
         if not value:
             metadata_handler.clear_tag(tag)
-            metadata_handler.clear_tag(_sub_tags[tag][0])
+            metadata_handler.clear_tag(time_tag)
             return
         if value.precision <= 3:
             date_string = value.to_ISO_8601()
@@ -430,9 +448,9 @@ class DateTime(MetadataDictValue):
             time_string = datetime_string[11:]
         metadata_handler.set_tag_string(tag, date_string)
         if time_string:
-            metadata_handler.set_tag_string(_sub_tags[tag][0], time_string)
+            metadata_handler.set_tag_string(time_tag, time_string)
         else:
-            metadata_handler.clear_tag(_sub_tags[tag][0])
+            metadata_handler.clear_tag(time_tag)
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of
@@ -643,13 +661,15 @@ class CharacterSet(String):
 
 
 class Software(String):
+    iptc_tags = ('Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion')
+
     @classmethod
     def to_iptc(cls, metadata_handler, tag, value):
+        assert(tag == cls.iptc_tags[0])
         program, version = value.value.split(' v')
-        program = program[:_max_bytes[tag]]
-        version = version[:_max_bytes[tag + 'Version']]
-        metadata_handler.set_tag_string(tag, program)
-        metadata_handler.set_tag_string(tag + 'Version', version)
+        program = program[:_max_bytes[cls.iptc_tags[0]]]
+        version = version[:_max_bytes[cls.iptc_tags[1]]]
+        metadata_handler.set_tags_string(cls.iptc_tags, (program, version))
 
 
 class Int(MetadataValue):
@@ -790,20 +810,6 @@ _max_bytes = {
     'Iptc.Application2.ProgramVersion'   :   10,
     'Iptc.Envelope.CharacterSet'         :   32,
     }
-# some data is stored in more than one tag
-_sub_tags = {
-    'Exif.GPSInfo.GPSLatitude'           : ('Exif.GPSInfo.GPSLatitudeRef',
-                                            'Exif.GPSInfo.GPSLongitude',
-                                            'Exif.GPSInfo.GPSLongitudeRef', ),
-    'Exif.Image.DateTime'                : ('Exif.Photo.SubSecTime', ),
-    'Exif.Image.DateTimeOriginal'        : ('None', ),
-    'Exif.Photo.DateTimeDigitized'       : ('Exif.Photo.SubSecTimeDigitized', ),
-    'Exif.Photo.DateTimeOriginal'        : ('Exif.Photo.SubSecTimeOriginal', ),
-    'Iptc.Application2.DateCreated'      : ('Iptc.Application2.TimeCreated', ),
-    'Iptc.Application2.DigitizationDate' : ('Iptc.Application2.DigitizationTime', ),
-    'Iptc.Application2.Program'          : ('Iptc.Application2.ProgramVersion', ),
-    'Xmp.exif.GPSLatitude'               : ('Xmp.exif.GPSLongitude', ),
-    }
 
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path, image_data=None):
@@ -870,6 +876,20 @@ class MetadataHandler(GExiv2.Metadata):
             _data_type[tag].to_iptc(self, tag, value)
         else:
             _data_type[tag].to_xmp(self, tag, value)
+
+    def get_tags_string(self, tags):
+        result = []
+        for tag in tags:
+            result.append(self.get_tag_string(tag))
+        return result
+
+    def clear_tags(self, tags):
+        for tag in tags:
+            self.clear_tag(tag)
+
+    def set_tags_string(self, tags, values):
+        for tag, value in zip(tags, values):
+            self.set_tag_string(tag, value)
 
     def get_tag_string_unicode(self, tag):
         try:
