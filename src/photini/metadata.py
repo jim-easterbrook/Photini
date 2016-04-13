@@ -45,6 +45,8 @@ import six
 from .pyqt import QtCore
 from . import __version__
 
+logger = logging.getLogger(__name__)
+
 gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
     ('PyGI', 'pgi')[using_pgi], gi.__version__,
     GExiv2._version, GObject._version)
@@ -53,6 +55,7 @@ gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
 
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
+@six.python_2_unicode_compatible
 class MetadataValue(object):
     # base for classes that store a metadata value, e.g. a string, int
     # or float
@@ -61,40 +64,28 @@ class MetadataValue(object):
         self.value = value
 
     @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string(tag)
-        if not value:
-            return None
-        return cls(value)
+    def from_exif(cls, file_value):
+        return cls(file_value)
+
+    def to_exif(self):
+        return self.value
 
     @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        assert(value is None, 'setting ' + tag)
-        metadata_handler.clear_tag(tag)
+    def from_iptc(cls, file_value):
+        return cls(file_value)
+
+    def to_iptc(self):
+        return self.value
 
     @classmethod
-    def from_iptc(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_multiple_unicode(tag)
-        if not value:
-            return None
-        return cls(value)
+    def from_xmp(cls, file_value):
+        return cls(file_value)
 
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        assert(value is None, 'setting ' + tag)
-        metadata_handler.clear_tag(tag)
+    def to_xmp(self):
+        return self.value
 
-    @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string(tag)
-        if not value:
-            return None
-        return cls(value)
-
-    @classmethod
-    def to_xmp(cls, metadata_handler, tag, value):
-        assert(value is None, 'setting ' + tag)
-        metadata_handler.clear_tag(tag)
+    def __str__(self):
+        return self.value
 
     def __nonzero__(self):
         return bool(self.value)
@@ -134,10 +125,6 @@ class MetadataDictValue(MetadataValue):
 
 class LatLon(MetadataDictValue):
     # simple class to store latitude and longitude
-    exif_tags = ('Exif.GPSInfo.GPSLatitude',  'Exif.GPSInfo.GPSLatitudeRef',
-                 'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef')
-    xmp_tags = ('Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude')
-
     def __init__(self, value):
         if isinstance(value, six.string_types):
             value = value.split(',')
@@ -160,10 +147,8 @@ class LatLon(MetadataDictValue):
         return result
 
     @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        assert(tag == cls.exif_tags[0])
-        (lat_string, lat_ref,
-         lon_string, lon_ref) = metadata_handler.get_tags_string(cls.exif_tags)
+    def from_exif(cls, file_value):
+        lat_string, lat_ref, lon_string, lon_ref = file_value
         if lat_string and lat_ref and lon_string and lon_ref:
             return cls((cls.from_exif_part(lat_string, lat_ref),
                         cls.from_exif_part(lon_string, lon_ref)))
@@ -184,18 +169,12 @@ class LatLon(MetadataDictValue):
         return '{:d}/1 {:d}/1 {:d}/{:d}'.format(
             degrees, minutes, seconds.numerator, seconds.denominator), negative
 
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        assert(tag == cls.exif_tags[0])
-        if not value:
-            metadata_handler.clear_tags(cls.exif_tags)
-            return
-        lat_string, negative = cls.to_exif_part(value.lat)
+    def to_exif(self):
+        lat_string, negative = self.to_exif_part(self.lat)
         lat_ref = 'NS'[negative]
-        lon_string, negative = cls.to_exif_part(value.lon)
+        lon_string, negative = self.to_exif_part(self.lon)
         lon_ref = 'EW'[negative]
-        metadata_handler.set_tags_string(
-            cls.exif_tags, (lat_string, lat_ref, lon_string, lon_ref))
+        return lat_string, lat_ref, lon_string, lon_ref
 
     @staticmethod
     def from_xmp_part(value):
@@ -208,19 +187,12 @@ class LatLon(MetadataDictValue):
         return value
 
     @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        assert(tag == cls.xmp_tags[0])
-        lat_string, lon_string = metadata_handler.get_tags_string(cls.xmp_tags)
+    def from_xmp(cls, file_value):
+        lat_string, lon_string = file_value
         if lat_string and lon_string:
             return cls((cls.from_xmp_part(lat_string),
                         cls.from_xmp_part(lon_string)))
         return None
-
-    @classmethod
-    def to_xmp(cls, metadata_handler, tag, value):
-        assert(value is None, 'setting ' + tag)
-        assert(tag == cls.xmp_tags[0])
-        metadata_handler.clear_tags(cls.xmp_tags)
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
@@ -247,26 +219,15 @@ class LensSpec(MetadataDictValue):
             float(self.min_fl),    float(self.max_fl),
             float(self.min_fl_fn), float(self.max_fl_fn))
 
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        value = ' '.join(
+    def to_exif(self):
+        return ' '.join(
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
-                value.min_fl, value.max_fl, value.min_fl_fn, value.max_fl_fn)])
-        metadata_handler.set_tag_string(tag, value)
+                self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
 
 
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
-    exif_subsec = {
-        'Exif.Image.DateTime'          : 'Exif.Photo.SubSecTime',
-        'Exif.Photo.DateTimeDigitized' : 'Exif.Photo.SubSecTimeDigitized',
-        'Exif.Photo.DateTimeOriginal'  : 'Exif.Photo.SubSecTimeOriginal',
-        }
-
     def __init__(self, value):
         date_time, precision, tz_offset = value
         if date_time is None:
@@ -356,13 +317,8 @@ class DateTime(MetadataDictValue):
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
     @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        datetime_string = metadata_handler.get_tag_string(tag)
-        if tag in cls.exif_subsec:
-            sub_sec_string  = metadata_handler.get_tag_string(
-                cls.exif_subsec[tag])
-        else:
-            sub_sec_string = ''
+    def from_exif(cls, file_value):
+        datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
         # separate date & time and remove separators
@@ -375,24 +331,14 @@ class DateTime(MetadataDictValue):
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            if tag in cls.exif_subsec:
-                metadata_handler.clear_tag(cls.exif_subsec[tag])
-            return
-        datetime_string, sep, sub_sec_string = value.to_ISO_8601(
+    def to_exif(self):
+        datetime_string, sep, sub_sec_string = self.to_ISO_8601(
             time_zone=False).partition('.')
         datetime_string = datetime_string.replace('-', ':').replace('T', ' ')
         # pad out any missing values
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
-        metadata_handler.set_tag_string(tag, datetime_string)
-        if sub_sec_string:
-            metadata_handler.set_tag_string(cls.exif_subsec[tag], sub_sec_string)
-        else:
-            metadata_handler.clear_tag(cls.exif_subsec[tag])
+        return datetime_string, sub_sec_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
@@ -402,10 +348,8 @@ class DateTime(MetadataDictValue):
     # according to
     # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
     @classmethod
-    def from_iptc(cls, metadata_handler, tag):
-        time_tag = tag.replace('Date', 'Time')
-        date_string = metadata_handler.get_tag_string(tag)
-        time_string = metadata_handler.get_tag_string(time_tag)
+    def from_iptc(cls, file_value):
+        date_string, time_string = file_value
         if not date_string:
             return None
         # remove separators (that shouldn't be there)
@@ -426,27 +370,17 @@ class DateTime(MetadataDictValue):
             time_string = ''
         return cls.from_ISO_8601(date_string, time_string)
 
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        time_tag = tag.replace('Date', 'Time')
-        if not value:
-            metadata_handler.clear_tag(tag)
-            metadata_handler.clear_tag(time_tag)
-            return
-        if value.precision <= 3:
-            date_string = value.to_ISO_8601()
+    def to_iptc(self):
+        if self.precision <= 3:
+            date_string = self.to_ISO_8601()
             #               YYYY mm dd
             date_string += '0000-00-00'[len(date_string):]
-            time_string = ''
+            time_string = None
         else:
-            datetime_string = value.to_ISO_8601(precision=6)
+            datetime_string = self.to_ISO_8601(precision=6)
             date_string = datetime_string[:10]
             time_string = datetime_string[11:]
-        metadata_handler.set_tag_string(tag, date_string)
-        if time_string:
-            metadata_handler.set_tag_string(time_tag, time_string)
-        else:
-            metadata_handler.clear_tag(time_tag)
+        return date_string, time_string
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of
@@ -457,24 +391,16 @@ class DateTime(MetadataDictValue):
     # processed. It also says the XMP standard has been revised to make
     # time zone information optional.
     @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        datetime_string = metadata_handler.get_tag_string(tag)
-        if not datetime_string:
-            return None
-        date_string, sep, time_string = datetime_string.partition('T')
+    def from_xmp(cls, file_value):
+        date_string, sep, time_string = file_value.partition('T')
         return cls.from_ISO_8601(
             date_string.replace('-', ''), time_string.replace(':', ''))
 
-    @classmethod
-    def to_xmp(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        precision = value.precision
+    def to_xmp(self):
+        precision = self.precision
         if precision == 4:
             precision = 5
-        datetime_string = value.to_ISO_8601(precision=precision)
-        metadata_handler.set_tag_string(tag, datetime_string)
+        return self.to_ISO_8601(precision=precision)
 
     def __str__(self):
         return self.to_ISO_8601()
@@ -510,59 +436,8 @@ class MultiString(MetadataValue):
         value = list(filter(bool, [x.strip() for x in value]))
         super(MultiString, self).__init__(value)
 
-    @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string_unicode(tag)
-        if not value:
-            return None
-        # decode UCS2 string
-        if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPKeywords'):
-            value = bytearray(map(int, value.split()))
-            value = value.decode('utf_16').strip('\x00')
-        return cls(value)
-
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = ';'.join(value.value)
-        if six.PY2:
-            string_value = string_value.encode('utf_8')
-        metadata_handler.set_tag_string(tag, string_value)
-
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_list = []
-        for item in value.value:
-            item = item.encode('utf_8')[:_max_bytes[tag]]
-            if not six.PY2:
-                item = item.decode('utf_8')
-            string_list.append(item)
-        metadata_handler.set_tag_multiple(tag, string_list)
-
-    @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        if tag.startswith('Xmp.tiff'):
-            value = metadata_handler.get_tag_string_unicode(tag)
-        else:
-            value = metadata_handler.get_tag_multiple_unicode(tag)
-        if not value:
-            return None
-        return cls(value)
-
-    @classmethod
-    def to_xmp(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = value.value
-        if six.PY2:
-            string_value = [x.encode('utf_8') for x in string_value]
-        metadata_handler.set_tag_multiple(tag, string_value)
+    def to_exif(self):
+        return ';'.join(self.value)
 
     def __str__(self):
         return '; '.join(self.value)
@@ -576,64 +451,11 @@ class MultiString(MetadataValue):
         return True
 
 
-@six.python_2_unicode_compatible
 class String(MetadataValue):
     def __init__(self, value):
         if isinstance(value, list):
             value = value[0]
         super(String, self).__init__(six.text_type(value).strip())
-
-    @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string_unicode(tag)
-        if not value:
-            return None
-        # decode UCS2 string
-        if tag in ('Exif.Image.XPComment', 'Exif.Image.XPSubject',
-                   'Exif.Image.XPTitle'):
-            value = bytearray(map(int, value.split()))
-            value = value.decode('utf_16').strip('\x00')
-        return cls(value)
-
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = value.value
-        if six.PY2:
-            string_value = string_value.encode('utf_8')
-        metadata_handler.set_tag_string(tag, string_value)
-
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = value.value.encode('utf_8')[:_max_bytes[tag]]
-        if not six.PY2:
-            string_value = string_value.decode('utf_8')
-        metadata_handler.set_tag_string(tag, string_value)
-
-    @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_multiple_unicode(tag)
-        if not value:
-            return None
-        return cls(value)
-
-    @classmethod
-    def to_xmp(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = value.value
-        if six.PY2:
-            string_value = string_value.encode('utf_8')
-        metadata_handler.set_tag_string(tag, string_value)
-
-    def __str__(self):
-        return self.value
 
     def contains(self, other):
         return (not other) or (other.value in self.value)
@@ -650,44 +472,28 @@ class CharacterSet(String):
         }
 
     @classmethod
-    def from_iptc(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string(tag)
-        if not value:
-            return None
+    def from_iptc(cls, file_value):
         for charset, encoding in cls.known_encodings.items():
-            if encoding == value:
+            if encoding == file_value:
                 return cls(charset)
+        logger.warning('Unknown character encoding "%s"', repr(file_value))
         return None
 
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        string_value = cls.known_encodings[value.value]
-        metadata_handler.set_tag_string(tag, string_value)
+    def to_iptc(self):
+        return self.known_encodings[self.value]
 
 
 class Software(String):
-    iptc_tags = ('Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion')
-
-    @classmethod
-    def to_iptc(cls, metadata_handler, tag, value):
-        assert(tag == cls.iptc_tags[0])
-        program, version = value.value.split(' v')
-        program = program[:_max_bytes[cls.iptc_tags[0]]]
-        version = version[:_max_bytes[cls.iptc_tags[1]]]
-        metadata_handler.set_tags_string(cls.iptc_tags, (program, version))
+    def to_iptc(self):
+        return self.value.split(' v')
 
 
 class Int(MetadataValue):
     def __init__(self, value):
         super(Int, self).__init__(int(value))
 
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = '{:d}'.format(value.value)
-        metadata_handler.set_tag_string(tag, string_value)
+    def to_exif(self):
+        return '{:d}'.format(self.value)
 
     def __nonzero__(self):
         return self.value is not None
@@ -700,32 +506,8 @@ class Rational(MetadataValue):
     def __init__(self, value):
         super(Rational, self).__init__(Fraction(value))
 
-    @classmethod
-    def from_exif(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string(tag)
-        if not value:
-            return None
-        if tag in ('Exif.Image.ApertureValue', 'Exif.Photo.ApertureValue'):
-            value = 2.0 ** (Fraction(value) / 2.0)
-        return cls(value)
-
-    @classmethod
-    def to_exif(cls, metadata_handler, tag, value):
-        if not value:
-            metadata_handler.clear_tag(tag)
-            return
-        string_value = '{:d}/{:d}'.format(
-            value.value.numerator, value.value.denominator)
-        metadata_handler.set_tag_string(tag, string_value)
-
-    @classmethod
-    def from_xmp(cls, metadata_handler, tag):
-        value = metadata_handler.get_tag_string(tag)
-        if not value:
-            return None
-        if tag in ('Xmp.exif.ApertureValue',):
-            value = 2.0 ** (Fraction(value) / 2.0)
-        return cls(value)
+    def to_exif(self):
+        return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
 
     def __nonzero__(self):
         return self.value is not None
@@ -739,11 +521,15 @@ _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
     'Iptc.Application2.Caption'          : 2000,
     'Iptc.Application2.Copyright'        :  128,
+    'Iptc.Application2.DateCreated'      : None,
+    'Iptc.Application2.DigitizationDate' : None,
+    'Iptc.Application2.DigitizationTime' : None,
     'Iptc.Application2.Headline'         :  256,
     'Iptc.Application2.Keywords'         :   64,
     'Iptc.Application2.ObjectName'       :   64,
     'Iptc.Application2.Program'          :   32,
     'Iptc.Application2.ProgramVersion'   :   10,
+    'Iptc.Application2.TimeCreated'      : None,
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
@@ -784,9 +570,7 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         for tag in self.get_iptc_tags():
-            value_list = self.get_tag_multiple_unicode(tag)
-            if six.PY2:
-                value_list = [x.encode('utf_8') for x in value_list]
+            value_list = self.get_tag_multiple(tag)
             self.set_tag_multiple(tag, value_list)
 
     def _decode_string(self, value):
@@ -800,37 +584,66 @@ class MetadataHandler(GExiv2.Metadata):
         return value.decode('utf_8')
 
     def get_value(self, data_type, tag):
-        if MetadataHandler.is_exif_tag(tag):
-            return data_type.from_exif(self, tag)
-        if MetadataHandler.is_iptc_tag(tag):
-            return data_type.from_iptc(self, tag)
-        return data_type.from_xmp(self, tag)
-
-    def set_value(self, data_type, tag, value):
-        if MetadataHandler.is_exif_tag(tag):
-            data_type.to_exif(self, tag, value)
-        elif MetadataHandler.is_iptc_tag(tag):
-            data_type.to_iptc(self, tag, value)
+        # get string or multiple strings
+        if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
+                   'Xmp.dc.creator', 'Xmp.dc.subject'):
+            file_value = self.get_tag_multiple(tag)
+        elif tag in ('Xmp.dc.description', 'Xmp.dc.rights', 'Xmp.dc.title',
+                     'Xmp.tiff.Copyright'):
+            file_value = self.get_tag_multiple(tag)
+            if file_value:
+                file_value = file_value[0]
         else:
-            data_type.to_xmp(self, tag, value)
+            file_value = self.get_tag_string(tag)
+        if not file_value:
+            return None
+        # manipulate some tags' data
+        if tag in ('Exif.Image.ApertureValue',
+                   'Exif.Photo.ApertureValue'):
+            file_value = 2.0 ** (Fraction(file_value) / 2.0)
+        elif tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPComment',
+                     'Exif.Image.XPKeywords', 'Exif.Image.XPSubject',
+                     'Exif.Image.XPTitle'):
+            # decode UCS2 string
+            file_value = bytearray(map(int, file_value.split()))
+            file_value = file_value.decode('utf_16').strip('\x00')
+        # convert to Photini data type
+        if MetadataHandler.is_exif_tag(tag):
+            return data_type.from_exif(file_value)
+        if MetadataHandler.is_iptc_tag(tag):
+            return data_type.from_iptc(file_value)
+        return data_type.from_xmp(file_value)
 
-    def get_tags_string(self, tags):
-        result = []
-        for tag in tags:
-            result.append(self.get_tag_string(tag))
-        return result
+    def clear_tag(self, tag):
+        if isinstance(tag, tuple):
+            for sub_tag in tag:
+                super(MetadataHandler, self).clear_tag(sub_tag)
+            return
+        super(MetadataHandler, self).clear_tag(tag)
 
-    def clear_tags(self, tags):
-        for tag in tags:
+    def set_value(self, tag, value):
+        if not value:
             self.clear_tag(tag)
+            return
+        # convert from Photini data type to string or multiple string
+        if MetadataHandler.is_exif_tag(tag):
+            file_value = value.to_exif()
+        elif MetadataHandler.is_iptc_tag(tag):
+            file_value = value.to_iptc()
+        else:
+            file_value = value.to_xmp()
+        # write to file
+        if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
+                   'Xmp.dc.creator', 'Xmp.dc.subject'):
+            self.set_tag_multiple(tag, file_value)
+        else:
+            self.set_tag_string(tag, file_value)
 
-    def set_tags_string(self, tags, values):
-        for tag, value in zip(tags, values):
-            self.set_tag_string(tag, value)
-
-    def get_tag_string_unicode(self, tag):
+    def get_tag_string(self, tag):
+        if isinstance(tag, tuple):
+            return map(self.get_tag_string, tag)
         try:
-            result = self.get_tag_string(tag)
+            result = super(MetadataHandler, self).get_tag_string(tag)
             if six.PY2:
                 result = self._decode_string(result)
         except UnicodeDecodeError as ex:
@@ -838,15 +651,61 @@ class MetadataHandler(GExiv2.Metadata):
             return ''
         return result
 
-    def get_tag_multiple_unicode(self, tag):
+    def get_tag_multiple(self, tag):
+        if isinstance(tag, tuple):
+            return map(self.get_tag_multiple, tag)
         try:
-            result = self.get_tag_multiple(tag)
+            result = super(MetadataHandler, self).get_tag_multiple(tag)
             if six.PY2:
-                result = [self._decode_string(x) for x in result]
+                result = map(self._decode_string, result)
         except UnicodeDecodeError as ex:
             self._logger.error(str(ex))
             return []
         return result
+
+    def set_tag_string(self, tag, value):
+        if isinstance(tag, tuple):
+            for sub_tag, sub_value in zip(tag, value):
+                self.set_tag_string(sub_tag, sub_value)
+            return
+        if value in (None, ''):
+            super(MetadataHandler, self).clear_tag(tag)
+        else:
+            if MetadataHandler.is_iptc_tag(tag):
+                value = value.encode('utf_8')[:_max_bytes[tag]]
+                if not six.PY2:
+                    value = value.decode('utf_8')
+            elif six.PY2:
+                value = value.encode('utf_8')
+            super(MetadataHandler, self).set_tag_string(tag, value)
+
+    def set_tag_multiple(self, tag, value):
+        if isinstance(tag, tuple):
+            for sub_tag, sub_value in zip(tag, value):
+                self.set_tag_multiple(sub_tag, sub_value)
+            return
+        if value in (None, '', []):
+            super(MetadataHandler, self).clear_tag(tag)
+        else:
+            if MetadataHandler.is_iptc_tag(tag):
+                value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
+                if not six.PY2:
+                    value = [x.decode('utf_8') for x in value]
+            elif six.PY2:
+                value = [x.encode('utf_8') for x in value]
+            super(MetadataHandler, self).set_tag_multiple(tag, value)
+
+    @staticmethod
+    def is_exif_tag(tag):
+        if isinstance(tag, tuple):
+            tag = tag[0]
+        return GExiv2.Metadata.is_exif_tag(tag)
+
+    @staticmethod
+    def is_iptc_tag(tag):
+        if isinstance(tag, tuple):
+            tag = tag[0]
+        return GExiv2.Metadata.is_iptc_tag(tag)
 
     def save(self):
         try:
@@ -906,28 +765,37 @@ class Metadata(QtCore.QObject):
         'creator'        : {'Exif' : 'Exif.Image.Artist',
                             'Xmp'  : 'Xmp.dc.creator',
                             'Iptc' : 'Iptc.Application2.Byline'},
-        'date_digitised' : {'Exif' : 'Exif.Photo.DateTimeDigitized',
+        'date_digitised' : {'Exif' : ('Exif.Photo.DateTimeDigitized',
+                                      'Exif.Photo.SubSecTimeDigitized'),
                             'Xmp'  : 'Xmp.xmp.CreateDate',
-                            'Iptc' : 'Iptc.Application2.DigitizationDate'},
-        'date_modified'  : {'Exif' : 'Exif.Image.DateTime',
+                            'Iptc' : ('Iptc.Application2.DigitizationDate',
+                                      'Iptc.Application2.DigitizationTime')},
+        'date_modified'  : {'Exif' : ('Exif.Image.DateTime',
+                                      'Exif.Photo.SubSecTime'),
                             'Xmp'  : 'Xmp.xmp.ModifyDate'},
-        'date_taken'     : {'Exif' : 'Exif.Photo.DateTimeOriginal',
+        'date_taken'     : {'Exif' : ('Exif.Photo.DateTimeOriginal',
+                                      'Exif.Photo.SubSecTimeOriginal'),
                             'Xmp'  : 'Xmp.photoshop.DateCreated',
-                            'Iptc' : 'Iptc.Application2.DateCreated'},
+                            'Iptc' : ('Iptc.Application2.DateCreated',
+                                      'Iptc.Application2.TimeCreated')},
         'description'    : {'Exif' : 'Exif.Image.ImageDescription',
                             'Xmp'  : 'Xmp.dc.description',
                             'Iptc' : 'Iptc.Application2.Caption'},
         'focal_length'   : {'Exif' : 'Exif.Photo.FocalLength'},
         'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
                             'Iptc' : 'Iptc.Application2.Keywords'},
-        'latlong'        : {'Exif' : 'Exif.GPSInfo.GPSLatitude'},
+        'latlong'        : {'Exif' : ('Exif.GPSInfo.GPSLatitude',
+                                      'Exif.GPSInfo.GPSLatitudeRef',
+                                      'Exif.GPSInfo.GPSLongitude',
+                                      'Exif.GPSInfo.GPSLongitudeRef')},
         'lens_make'      : {'Exif' : 'Exif.Photo.LensMake'},
         'lens_model'     : {'Exif' : 'Exif.Photo.LensModel'},
         'lens_serial'    : {'Exif' : 'Exif.Photo.LensSerialNumber'},
         'lens_spec'      : {'Exif' : 'Exif.Photo.LensSpecification'},
         'orientation'    : {'Exif' : 'Exif.Image.Orientation'},
         'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware',
-                            'Iptc' : 'Iptc.Application2.Program'},
+                            'Iptc' : ('Iptc.Application2.Program',
+                                      'Iptc.Application2.ProgramVersion')},
         'title'          : {'Xmp'  : 'Xmp.dc.title',
                             'Iptc' : 'Iptc.Application2.ObjectName'},
         }
@@ -947,7 +815,8 @@ class Metadata(QtCore.QObject):
                             'Xmp'  : ('Xmp.tiff.Artist',)},
         'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
         'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
-        'date_taken'     : {'Exif' : ('Exif.Image.DateTimeOriginal',),
+        'date_taken'     : {'Exif' : (('Exif.Image.DateTimeOriginal',
+                                       'NoData'),),
                             'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
         'description'    : {'Exif' : ('Exif.Image.XPComment',
                                       'Exif.Image.XPSubject'),
@@ -955,7 +824,8 @@ class Metadata(QtCore.QObject):
         'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',),
                             'Xmp'  : ('Xmp.exif.FocalLength',)},
         'keywords'       : {'Exif' : ('Exif.Image.XPKeywords',)},
-        'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
+        'latlong'        : {'Xmp'  : (('Xmp.exif.GPSLatitude',
+                                       'Xmp.exif.GPSLongitude'),)},
         'lens_make'      : {},
         'lens_model'     : {},
         'lens_serial'    : {},
@@ -1080,9 +950,9 @@ class Metadata(QtCore.QObject):
     # setters: set in both sidecar and image file
     def set_value(self, data_type, tag, value):
         if self._sc:
-            self._sc.set_value(data_type, tag, value)
+            self._sc.set_value(tag, value)
         if self._if:
-            self._if.set_value(data_type, tag, value)
+            self._if.set_value(tag, value)
 
     def __getattr__(self, name):
         if name not in self._primary_tags:
