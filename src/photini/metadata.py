@@ -115,10 +115,6 @@ class MetadataValue(object):
         return False
 
 
-class Ignore(MetadataValue):
-    pass
-
-
 class MetadataDictValue(MetadataValue):
     # base for classes that store a dictionary of metadata values, e.g.
     # latitude & longitude
@@ -750,12 +746,6 @@ _data_type = {
     'software'                           : Software,
     'title'                              : String,
 
-    'Exif.Canon.LensModel'               : Ignore,
-    'Exif.CanonCs.Lens'                  : Ignore,
-    'Exif.CanonCs.LensType'              : Ignore,
-    'Exif.CanonCs.MaxAperture'           : Ignore,
-    'Exif.CanonCs.MinAperture'           : Ignore,
-    'Exif.CanonCs.ShortFocal'            : Ignore,
     'Exif.GPSInfo.GPSLatitude'           : LatLon,
     'Exif.Image.ApertureValue'           : APEXAperture,
     'Exif.Image.Artist'                  : MultiString,
@@ -779,7 +769,6 @@ _data_type = {
     'Exif.Photo.DateTimeOriginal'        : DateTime,
     'Exif.Photo.FNumber'                 : Rational,
     'Exif.Photo.FocalLength'             : Rational,
-    'Exif.Photo.FocalLengthIn35mmFilm'   : Ignore,
     'Exif.Photo.LensMake'                : String,
     'Exif.Photo.LensModel'               : String,
     'Exif.Photo.LensSerialNumber'        : String,
@@ -805,7 +794,6 @@ _data_type = {
     'Xmp.exif.DateTimeOriginal'          : DateTime,
     'Xmp.exif.FNumber'                   : Rational,
     'Xmp.exif.FocalLength'               : Rational,
-    'Xmp.exif.FocalLengthIn35mmFilm'     : Ignore,
     'Xmp.exif.GPSLatitude'               : LatLon,
     'Xmp.tiff.Artist'                    : MultiString,
     'Xmp.tiff.Copyright'                 : String,
@@ -1010,24 +998,42 @@ class Metadata(QtCore.QObject):
         'description'    : {'Exif' : ('Exif.Image.XPComment',
                                       'Exif.Image.XPSubject'),
                             'Xmp'  : ('Xmp.tiff.ImageDescription',)},
-        'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm',),
-                            'Xmp'  : ('Xmp.exif.FocalLength',
-                                      'Xmp.exif.FocalLengthIn35mmFilm',)},
+        'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',),
+                            'Xmp'  : ('Xmp.exif.FocalLength',)},
         'keywords'       : {'Exif' : ('Exif.Image.XPKeywords',)},
         'latlong'        : {'Xmp'  : ('Xmp.exif.GPSLatitude',)},
         'lens_make'      : {},
-        'lens_model'     : {'Exif' : ('Exif.Canon.LensModel',
-                                      'Exif.CanonCs.LensType',)},
+        'lens_model'     : {},
         'lens_serial'    : {},
-        'lens_spec'      : {'Exif' : ('Exif.CanonCs.Lens',
-                                      'Exif.CanonCs.MaxAperture',
-                                      'Exif.CanonCs.MinAperture',
-                                      'Exif.CanonCs.ShortFocal')},
+        'lens_spec'      : {},
         'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
         'software'       : {},
         'title'          : {'Exif' : ('Exif.Image.XPTitle',),
                             'Iptc' : ('Iptc.Application2.Headline',)},
+        }
+    # tags that aren't read but are cleared when Photini data is written
+    _clear_tags = {
+        'aperture'       : (),
+        'character_set'  : (),
+        'camera_model'   : (),
+        'copyright'      : (),
+        'creator'        : (),
+        'date_digitised' : (),
+        'date_modified'  : (),
+        'date_taken'     : (),
+        'description'    : (),
+        'focal_length'   : ('Exif.Photo.FocalLengthIn35mmFilm',
+                            'Xmp.exif.FocalLengthIn35mmFilm'),
+        'keywords'       : (),
+        'latlong'        : (),
+        'lens_make'      : (),
+        'lens_model'     : ('Exif.Canon.LensModel', 'Exif.CanonCs.LensType'),
+        'lens_serial'    : (),
+        'lens_spec'      : ('Exif.CanonCs.Lens', 'Exif.CanonCs.MaxAperture',
+                            'Exif.CanonCs.MinAperture', 'Exif.CanonCs.ShortFocal'),
+        'orientation'    : (),
+        'software'       : (),
+        'title'          : (),
         }
     def __init__(self, path, image_data, parent=None):
         super(Metadata, self).__init__(parent)
@@ -1082,6 +1088,9 @@ class Metadata(QtCore.QObject):
             for family in self._secondary_tags[name]:
                 for tag in self._secondary_tags[name][family]:
                     self.set_value(tag, None)
+            # clear duplicated but unreadable data
+            for tag in self._clear_tags[name]:
+                self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc)
         OK = False
@@ -1101,8 +1110,6 @@ class Metadata(QtCore.QObject):
     # getters: use sidecar if tag is present, otherwise use image file
     def get_value(self, tag):
         assert(tag in _data_type)
-        if _data_type[tag] == Ignore:
-            return None
         result = None
         if self._sc:
             result = self._sc.get_value(tag)
