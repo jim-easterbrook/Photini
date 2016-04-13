@@ -515,6 +515,10 @@ class MultiString(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
+        # decode UCS2 string
+        if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPKeywords'):
+            value = bytearray(map(int, value.split()))
+            value = value.decode('utf_16').strip('\x00')
         return cls(value)
 
     @classmethod
@@ -572,12 +576,6 @@ class MultiString(MetadataValue):
         return True
 
 
-class UCS2MultiString(MultiString):
-    def __init__(self, value):
-        super(UCS2MultiString, self).__init__(
-            bytearray(map(int, value.split())).decode('utf_16').strip('\x00'))
-
-
 @six.python_2_unicode_compatible
 class String(MetadataValue):
     def __init__(self, value):
@@ -590,6 +588,11 @@ class String(MetadataValue):
         value = metadata_handler.get_tag_string_unicode(tag)
         if not value:
             return None
+        # decode UCS2 string
+        if tag in ('Exif.Image.XPComment', 'Exif.Image.XPSubject',
+                   'Exif.Image.XPTitle'):
+            value = bytearray(map(int, value.split()))
+            value = value.decode('utf_16').strip('\x00')
         return cls(value)
 
     @classmethod
@@ -638,12 +641,6 @@ class String(MetadataValue):
     def merge(self, other, family=None):
         self.value += ' // ' + other.value
         return True
-
-
-class UCS2String(String):
-    def __init__(self, value):
-        super(UCS2String, self).__init__(
-            bytearray(map(int, value.split())).decode('utf_16').strip('\x00'))
 
 
 class CharacterSet(String):
@@ -704,6 +701,15 @@ class Rational(MetadataValue):
         super(Rational, self).__init__(Fraction(value))
 
     @classmethod
+    def from_exif(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string(tag)
+        if not value:
+            return None
+        if tag in ('Exif.Image.ApertureValue', 'Exif.Photo.ApertureValue'):
+            value = 2.0 ** (Fraction(value) / 2.0)
+        return cls(value)
+
+    @classmethod
     def to_exif(cls, metadata_handler, tag, value):
         if not value:
             metadata_handler.clear_tag(tag)
@@ -712,6 +718,15 @@ class Rational(MetadataValue):
             value.value.numerator, value.value.denominator)
         metadata_handler.set_tag_string(tag, string_value)
 
+    @classmethod
+    def from_xmp(cls, metadata_handler, tag):
+        value = metadata_handler.get_tag_string(tag)
+        if not value:
+            return None
+        if tag in ('Xmp.exif.ApertureValue',):
+            value = 2.0 ** (Fraction(value) / 2.0)
+        return cls(value)
+
     def __nonzero__(self):
         return self.value is not None
 
@@ -719,90 +734,6 @@ class Rational(MetadataValue):
         return '{:g}'.format(float(self.value))
 
 
-class APEXAperture(Rational):
-    def __init__(self, value):
-        super(APEXAperture, self).__init__(2.0 ** (Fraction(value) / 2.0))
-
-
-# type of each tag's data
-_data_type = {
-    'aperture'                           : Rational,
-    'camera_model'                       : String,
-    'character_set'                      : CharacterSet,
-    'copyright'                          : String,
-    'creator'                            : MultiString,
-    'date_digitised'                     : DateTime,
-    'date_modified'                      : DateTime,
-    'date_taken'                         : DateTime,
-    'description'                        : String,
-    'focal_length'                       : Rational,
-    'keywords'                           : MultiString,
-    'latlong'                            : LatLon,
-    'lens_make'                          : String,
-    'lens_model'                         : String,
-    'lens_serial'                        : String,
-    'lens_spec'                          : LensSpec,
-    'orientation'                        : Int,
-    'software'                           : Software,
-    'title'                              : String,
-
-    'Exif.GPSInfo.GPSLatitude'           : LatLon,
-    'Exif.Image.ApertureValue'           : APEXAperture,
-    'Exif.Image.Artist'                  : MultiString,
-    'Exif.Image.Copyright'               : String,
-    'Exif.Image.DateTime'                : DateTime,
-    'Exif.Image.DateTimeOriginal'        : DateTime,
-    'Exif.Image.FNumber'                 : Rational,
-    'Exif.Image.FocalLength'             : Rational,
-    'Exif.Image.ImageDescription'        : String,
-    'Exif.Image.Model'                   : String,
-    'Exif.Image.Orientation'             : Int,
-    'Exif.Image.ProcessingSoftware'      : Software,
-    'Exif.Image.UniqueCameraModel'       : String,
-    'Exif.Image.XPAuthor'                : UCS2MultiString,
-    'Exif.Image.XPComment'               : UCS2String,
-    'Exif.Image.XPKeywords'              : UCS2MultiString,
-    'Exif.Image.XPSubject'               : UCS2String,
-    'Exif.Image.XPTitle'                 : UCS2String,
-    'Exif.Photo.ApertureValue'           : APEXAperture,
-    'Exif.Photo.DateTimeDigitized'       : DateTime,
-    'Exif.Photo.DateTimeOriginal'        : DateTime,
-    'Exif.Photo.FNumber'                 : Rational,
-    'Exif.Photo.FocalLength'             : Rational,
-    'Exif.Photo.LensMake'                : String,
-    'Exif.Photo.LensModel'               : String,
-    'Exif.Photo.LensSerialNumber'        : String,
-    'Exif.Photo.LensSpecification'       : LensSpec,
-    'Iptc.Application2.Byline'           : MultiString,
-    'Iptc.Application2.Caption'          : String,
-    'Iptc.Application2.Copyright'        : String,
-    'Iptc.Application2.DateCreated'      : DateTime,
-    'Iptc.Application2.DigitizationDate' : DateTime,
-    'Iptc.Application2.Headline'         : String,
-    'Iptc.Application2.Keywords'         : MultiString,
-    'Iptc.Application2.ObjectName'       : String,
-    'Iptc.Application2.Program'          : Software,
-    'Iptc.Envelope.CharacterSet'         : CharacterSet,
-    'Xmp.dc.creator'                     : MultiString,
-    'Xmp.dc.description'                 : String,
-    'Xmp.dc.rights'                      : String,
-    'Xmp.dc.subject'                     : MultiString,
-    'Xmp.dc.title'                       : String,
-    'Xmp.photoshop.DateCreated'          : DateTime,
-    'Xmp.exif.ApertureValue'             : APEXAperture,
-    'Xmp.exif.DateTimeDigitized'         : DateTime,
-    'Xmp.exif.DateTimeOriginal'          : DateTime,
-    'Xmp.exif.FNumber'                   : Rational,
-    'Xmp.exif.FocalLength'               : Rational,
-    'Xmp.exif.GPSLatitude'               : LatLon,
-    'Xmp.tiff.Artist'                    : MultiString,
-    'Xmp.tiff.Copyright'                 : String,
-    'Xmp.tiff.DateTime'                  : DateTime,
-    'Xmp.tiff.ImageDescription'          : String,
-    'Xmp.tiff.Orientation'               : Int,
-    'Xmp.xmp.CreateDate'                 : DateTime,
-    'Xmp.xmp.ModifyDate'                 : DateTime,
-    }
 # maximum length of Iptc data
 _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
@@ -841,7 +772,8 @@ class MetadataHandler(GExiv2.Metadata):
         # convert IPTC data to UTF-8
         if not self.has_iptc():
             return
-        current_encoding = self.get_value('Iptc.Envelope.CharacterSet')
+        current_encoding = self.get_value(
+            CharacterSet, 'Iptc.Envelope.CharacterSet')
         if current_encoding:
             if current_encoding.value == 'utf_8':
                 return
@@ -867,20 +799,20 @@ class MetadataHandler(GExiv2.Metadata):
                 continue
         return value.decode('utf_8')
 
-    def get_value(self, tag):
+    def get_value(self, data_type, tag):
         if MetadataHandler.is_exif_tag(tag):
-            return _data_type[tag].from_exif(self, tag)
+            return data_type.from_exif(self, tag)
         if MetadataHandler.is_iptc_tag(tag):
-            return _data_type[tag].from_iptc(self, tag)
-        return _data_type[tag].from_xmp(self, tag)
+            return data_type.from_iptc(self, tag)
+        return data_type.from_xmp(self, tag)
 
-    def set_value(self, tag, value):
+    def set_value(self, data_type, tag, value):
         if MetadataHandler.is_exif_tag(tag):
-            _data_type[tag].to_exif(self, tag, value)
+            data_type.to_exif(self, tag, value)
         elif MetadataHandler.is_iptc_tag(tag):
-            _data_type[tag].to_iptc(self, tag, value)
+            data_type.to_iptc(self, tag, value)
         else:
-            _data_type[tag].to_xmp(self, tag, value)
+            data_type.to_xmp(self, tag, value)
 
     def get_tags_string(self, tags):
         result = []
@@ -941,6 +873,28 @@ class MetadataHandler(GExiv2.Metadata):
 
 
 class Metadata(QtCore.QObject):
+    # type of each Photini data field's data
+    _data_type = {
+        'aperture'       : Rational,
+        'camera_model'   : String,
+        'character_set'  : CharacterSet,
+        'copyright'      : String,
+        'creator'        : MultiString,
+        'date_digitised' : DateTime,
+        'date_modified'  : DateTime,
+        'date_taken'     : DateTime,
+        'description'    : String,
+        'focal_length'   : Rational,
+        'keywords'       : MultiString,
+        'latlong'        : LatLon,
+        'lens_make'      : String,
+        'lens_model'     : String,
+        'lens_serial'    : String,
+        'lens_spec'      : LensSpec,
+        'orientation'    : Int,
+        'software'       : Software,
+        'title'          : String,
+        }
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
         'aperture'       : {'Exif' : 'Exif.Photo.FNumber'},
@@ -1083,14 +1037,14 @@ class Metadata(QtCore.QObject):
             for family in self._primary_tags[name]:
                 if save_iptc or family != 'Iptc':
                     tag = self._primary_tags[name][family]
-                    self.set_value(tag, value)
+                    self.set_value(self._data_type[name], tag, value)
             # delete secondary tags
             for family in self._secondary_tags[name]:
                 for tag in self._secondary_tags[name][family]:
-                    self.set_value(tag, None)
+                    self.set_value(self._data_type[name], tag, None)
             # clear duplicated but unreadable data
             for tag in self._clear_tags[name]:
-                self.set_value(tag, None)
+                self.set_value(self._data_type[name], tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc)
         OK = False
@@ -1108,13 +1062,12 @@ class Metadata(QtCore.QObject):
         self._set_unsaved(not OK)
 
     # getters: use sidecar if tag is present, otherwise use image file
-    def get_value(self, tag):
-        assert(tag in _data_type)
+    def get_value(self, data_type, tag):
         result = None
         if self._sc:
-            result = self._sc.get_value(tag)
+            result = self._sc.get_value(data_type, tag)
         if self._if and not result:
-            result = self._if.get_value(tag)
+            result = self._if.get_value(data_type, tag)
         return result
 
     def has_iptc(self):
@@ -1125,12 +1078,11 @@ class Metadata(QtCore.QObject):
         return False
 
     # setters: set in both sidecar and image file
-    def set_value(self, tag, value):
-        assert(tag in _data_type)
+    def set_value(self, data_type, tag, value):
         if self._sc:
-            self._sc.set_value(tag, value)
+            self._sc.set_value(data_type, tag, value)
         if self._if:
-            self._if.set_value(tag, value)
+            self._if.set_value(data_type, tag, value)
 
     def __getattr__(self, name):
         if name not in self._primary_tags:
@@ -1141,7 +1093,7 @@ class Metadata(QtCore.QObject):
         for family in self._primary_tags[name]:
             tag = self._primary_tags[name][family]
             try:
-                value[family] = self.get_value(tag)
+                value[family] = self.get_value(self._data_type[name], tag)
                 used_tag[family] = tag
             except Exception as ex:
                 self.logger.exception(ex)
@@ -1149,7 +1101,7 @@ class Metadata(QtCore.QObject):
         for family in self._secondary_tags[name]:
             for tag in self._secondary_tags[name][family]:
                 try:
-                    new_value = self.get_value(tag)
+                    new_value = self.get_value(self._data_type[name], tag)
                 except Exception as ex:
                     self.logger.exception(ex)
                     continue
@@ -1203,8 +1155,8 @@ class Metadata(QtCore.QObject):
             return super(Metadata, self).__setattr__(name, value)
         if value in (None, '', [], {}):
             value = None
-        elif not isinstance(value, _data_type[name]):
-            value = _data_type[name](value)
+        elif not isinstance(value, self._data_type[name]):
+            value = self._data_type[name](value)
             if not value:
                 value = None
         if getattr(self, name) == value:
