@@ -511,15 +511,11 @@ _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
     'Iptc.Application2.Caption'          : 2000,
     'Iptc.Application2.Copyright'        :  128,
-    'Iptc.Application2.DateCreated'      : None,
-    'Iptc.Application2.DigitizationDate' : None,
-    'Iptc.Application2.DigitizationTime' : None,
     'Iptc.Application2.Headline'         :  256,
     'Iptc.Application2.Keywords'         :   64,
     'Iptc.Application2.ObjectName'       :   64,
     'Iptc.Application2.Program'          :   32,
     'Iptc.Application2.ProgramVersion'   :   10,
-    'Iptc.Application2.TimeCreated'      : None,
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
@@ -560,8 +556,11 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         for tag in self.get_iptc_tags():
-            value_list = self.get_tag_multiple(tag)
-            self.set_tag_multiple(tag, value_list)
+            try:
+                value_list = self.get_tag_multiple(tag)
+                self.set_tag_multiple(tag, value_list)
+            except Exception as ex:
+                self._logger.exception(ex)
 
     def _decode_string(self, value):
         if not value:
@@ -631,7 +630,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_tag_string(self, tag):
         if isinstance(tag, tuple):
-            return map(self.get_tag_string, tag)
+            return list(map(self.get_tag_string, tag))
         try:
             result = super(MetadataHandler, self).get_tag_string(tag)
             if six.PY2:
@@ -643,11 +642,11 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_tag_multiple(self, tag):
         if isinstance(tag, tuple):
-            return map(self.get_tag_multiple, tag)
+            return list(map(self.get_tag_multiple, tag))
         try:
             result = super(MetadataHandler, self).get_tag_multiple(tag)
             if six.PY2:
-                result = map(self._decode_string, result)
+                result = list(map(self._decode_string, result))
         except UnicodeDecodeError as ex:
             self._logger.error(str(ex))
             return []
@@ -661,7 +660,7 @@ class MetadataHandler(GExiv2.Metadata):
         if not value:
             super(MetadataHandler, self).clear_tag(tag)
             return
-        if MetadataHandler.is_iptc_tag(tag):
+        if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
             value = value.encode('utf_8')[:_max_bytes[tag]]
             if not six.PY2:
                 value = value.decode('utf_8')
@@ -677,7 +676,7 @@ class MetadataHandler(GExiv2.Metadata):
         if not value:
             super(MetadataHandler, self).clear_tag(tag)
             return
-        if MetadataHandler.is_iptc_tag(tag):
+        if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
             value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
             if not six.PY2:
                 value = [x.decode('utf_8') for x in value]
