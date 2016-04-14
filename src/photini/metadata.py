@@ -257,24 +257,23 @@ class DateTime(MetadataDictValue):
             if time_string[-1] == 'Z':
                 # time zone designator of Z
                 time_string = time_string[:-1]
-                zone_string = '0000'
-                zone_sign = '+'
-            elif '+' in time_string:
-                time_string, zone_sign, zone_string = time_string.partition('+')
+                tz_offset = 0
             else:
-                time_string, zone_sign, zone_string = time_string.partition('-')
-            # compute tz_offset
-            if zone_string:
-                zone_string += '  00'[len(zone_string):]
-                tz_offset = (int(zone_string[:2]) * 60) + int(zone_string[2:])
-                if zone_sign == '-':
-                    tz_offset = -tz_offset
+                if '+' in time_string:
+                    time_string, zone_sign, zone_string = time_string.partition('+')
+                else:
+                    time_string, zone_sign, zone_string = time_string.partition('-')
+                # compute tz_offset
+                if zone_string:
+                    tz_offset = int(zone_string[:2]) * 60
+                    if len(zone_string) > 2:
+                        tz_offset += int(zone_string[2:])
+                    if zone_sign == '-':
+                        tz_offset = -tz_offset
         datetime_string = date_string + time_string
-        precision = min((len(datetime_string) - 2) // 2, 6)
+        precision = min((len(datetime_string) - 2) // 2, 7)
         if precision <= 0:
             return None
-        if precision == 6 and datetime_string.count('.') > 0:
-            precision = 7
         fmt = ''.join(cls.basic_fmt[:precision])
         return cls(
             (datetime.strptime(datetime_string, fmt), precision, tz_offset))
