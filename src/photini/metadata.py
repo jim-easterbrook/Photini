@@ -85,7 +85,7 @@ class MetadataValue(object):
         return self.value
 
     def __str__(self):
-        return self.value
+        return six.text_type(self.value)
 
     def __nonzero__(self):
         return bool(self.value)
@@ -136,12 +136,8 @@ class LatLon(MetadataDictValue):
 
     @staticmethod
     def from_exif_part(value, ref):
-        parts = [float(Fraction(x)) for x in value.split()]
-        result = parts[0]
-        if len(parts) > 1:
-            result += parts[1] / 60.0
-        if len(parts) > 2:
-            result += parts[2] / 3600.0
+        parts = [float(Fraction(x)) for x in value.split()] + [0.0, 0.0]
+        result = parts[0] + (parts[1] / 60.0) + (parts[2] / 3600.0)
         if ref in ('S', 'W'):
             result = -result
         return result
@@ -178,9 +174,8 @@ class LatLon(MetadataDictValue):
 
     @staticmethod
     def from_xmp_part(value):
-        degrees, residue = value.split(',')
-        minutes = residue[:-1]
-        ref = residue[-1]
+        degrees, minutes = value[:-1].split(',')
+        ref = value[-1]
         value = float(degrees) + (float(minutes) / 60.0)
         if ref in ('S', 'W'):
             value = -value
@@ -264,10 +259,10 @@ class DateTime(MetadataDictValue):
                 time_string = time_string[:-1]
                 zone_string = '0000'
                 zone_sign = '+'
-            else:
+            elif '+' in time_string:
                 time_string, zone_sign, zone_string = time_string.partition('+')
-                if not zone_string:
-                    time_string, zone_sign, zone_string = time_string.partition('-')
+            else:
+                time_string, zone_sign, zone_string = time_string.partition('-')
             # compute tz_offset
             if zone_string:
                 zone_string += '  00'[len(zone_string):]
@@ -296,23 +291,18 @@ class DateTime(MetadataDictValue):
             fmt = ''.join(self.extended_fmt[:precision])
         datetime_string = self.datetime.strftime(fmt)
         if precision > 3 and time_zone and self.tz_offset is not None:
-            return datetime_string + self.tz_string(basic=basic)
+            # add time zone
+            minutes = self.tz_offset
+            if minutes >= 0:
+                datetime_string += '+'
+            else:
+                datetime_string += '-'
+                minutes = -minutes
+            datetime_string += '{:02d}'.format(minutes // 60)
+            if not basic:
+                datetime_string += ':'
+            datetime_string += '{:02d}'.format(minutes % 60)
         return datetime_string
-
-    def tz_string(self, basic=False):
-        if self.tz_offset is None:
-            return ''
-        minutes = self.tz_offset
-        if minutes >= 0:
-            sign_string = '+'
-        else:
-            sign_string = '-'
-            minutes = -minutes
-        if basic:
-            fmt = '{}{:02d}{:02d}'
-        else:
-            fmt = '{}{:02d}:{:02d}'
-        return fmt.format(sign_string, minutes // 60, minutes % 60)
 
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
@@ -668,32 +658,32 @@ class MetadataHandler(GExiv2.Metadata):
             for sub_tag, sub_value in zip(tag, value):
                 self.set_tag_string(sub_tag, sub_value)
             return
-        if value in (None, ''):
+        if not value:
             super(MetadataHandler, self).clear_tag(tag)
-        else:
-            if MetadataHandler.is_iptc_tag(tag):
-                value = value.encode('utf_8')[:_max_bytes[tag]]
-                if not six.PY2:
-                    value = value.decode('utf_8')
-            elif six.PY2:
-                value = value.encode('utf_8')
-            super(MetadataHandler, self).set_tag_string(tag, value)
+            return
+        if MetadataHandler.is_iptc_tag(tag):
+            value = value.encode('utf_8')[:_max_bytes[tag]]
+            if not six.PY2:
+                value = value.decode('utf_8')
+        elif six.PY2:
+            value = value.encode('utf_8')
+        super(MetadataHandler, self).set_tag_string(tag, value)
 
     def set_tag_multiple(self, tag, value):
         if isinstance(tag, tuple):
             for sub_tag, sub_value in zip(tag, value):
                 self.set_tag_multiple(sub_tag, sub_value)
             return
-        if value in (None, '', []):
+        if not value:
             super(MetadataHandler, self).clear_tag(tag)
-        else:
-            if MetadataHandler.is_iptc_tag(tag):
-                value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
-                if not six.PY2:
-                    value = [x.decode('utf_8') for x in value]
-            elif six.PY2:
-                value = [x.encode('utf_8') for x in value]
-            super(MetadataHandler, self).set_tag_multiple(tag, value)
+            return
+        if MetadataHandler.is_iptc_tag(tag):
+            value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
+            if not six.PY2:
+                value = [x.decode('utf_8') for x in value]
+        elif six.PY2:
+            value = [x.encode('utf_8') for x in value]
+        super(MetadataHandler, self).set_tag_multiple(tag, value)
 
     @staticmethod
     def is_exif_tag(tag):
@@ -719,16 +709,13 @@ class MetadataHandler(GExiv2.Metadata):
         # copy from other to self
         if exif:
             for tag in other.get_exif_tags():
-                self.set_tag_string(
-                    tag, other.get_tag_string(tag))
+                self.set_tag_string(tag, other.get_tag_string(tag))
         if iptc:
             for tag in other.get_iptc_tags():
-                self.set_tag_multiple(
-                    tag, other.get_tag_multiple(tag))
+                self.set_tag_multiple(tag, other.get_tag_multiple(tag))
         if xmp:
             for tag in other.get_xmp_tags():
-                self.set_tag_multiple(
-                    tag, other.get_tag_multiple(tag))
+                self.set_tag_multiple(tag, other.get_tag_multiple(tag))
 
 
 class Metadata(QtCore.QObject):
@@ -907,14 +894,14 @@ class Metadata(QtCore.QObject):
             for family in self._primary_tags[name]:
                 if save_iptc or family != 'Iptc':
                     tag = self._primary_tags[name][family]
-                    self.set_value(self._data_type[name], tag, value)
+                    self.set_value(tag, value)
             # delete secondary tags
             for family in self._secondary_tags[name]:
                 for tag in self._secondary_tags[name][family]:
-                    self.set_value(self._data_type[name], tag, None)
+                    self.set_value(tag, None)
             # clear duplicated but unreadable data
             for tag in self._clear_tags[name]:
-                self.set_value(self._data_type[name], tag, None)
+                self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc)
         OK = False
@@ -948,7 +935,7 @@ class Metadata(QtCore.QObject):
         return False
 
     # setters: set in both sidecar and image file
-    def set_value(self, data_type, tag, value):
+    def set_value(self, tag, value):
         if self._sc:
             self._sc.set_value(tag, value)
         if self._if:
