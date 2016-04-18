@@ -79,8 +79,39 @@ class DropdownEdit(QtWidgets.QComboBox):
 class FloatEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(FloatEdit, self).__init__(*arg, **kw)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.multiple = multiple()
         self.setValidator(DoubleValidator())
+        self._is_multiple = False
+
+    def set_value(self, value):
+        self._is_multiple = False
+        if not value:
+            self.clear()
+            self.setPlaceholderText('')
+        else:
+            self.setText(str(value))
+
+    def get_value(self):
+        return self.text()
+
+    def set_multiple(self):
+        self._is_multiple = True
+        self.setPlaceholderText(self.multiple)
+        self.clear()
+
+    def is_multiple(self):
+        return self._is_multiple and not bool(self.get_value())
+
+
+class IntEdit(QtWidgets.QLineEdit):
+    def __init__(self, *arg, **kw):
+        super(IntEdit, self).__init__(*arg, **kw)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
+        self.multiple = multiple()
+        self.setValidator(IntValidator())
         self._is_multiple = False
 
     def set_value(self, value):
@@ -350,6 +381,14 @@ class DoubleValidator(QtGui.QDoubleValidator):
         return super(DoubleValidator, self).validate(input_, pos)
 
 
+class IntValidator(QtGui.QIntValidator):
+    def validate(self, input_, pos):
+        # accept empty string as valid, to allow metadata to be cleared
+        if input_ == '':
+            return QtGui.QValidator.Acceptable, input_, pos
+        return super(IntValidator, self).validate(input_, pos)
+
+
 class LensData(object):
     def __init__(self):
         self.lenses = eval(config_store.get('technical', 'lenses', '[]'))
@@ -537,16 +576,18 @@ class Technical(QtWidgets.QWidget):
         # focal length
         self.widgets['focal_length'] = FloatEdit()
         self.widgets['focal_length'].validator().setBottom(0.1)
-        self.widgets['focal_length'].setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.widgets['focal_length'].editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.widgets['focal_length'])
+        # 35mm equivalent focal length
+        self.widgets['focal_length_35'] = IntEdit()
+        self.widgets['focal_length_35'].validator().setBottom(1)
+        self.widgets['focal_length_35'].editingFinished.connect(self.new_focal_length_35)
+        other_group.layout().addRow(
+            self.tr('35mm equiv (mm)'), self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = FloatEdit()
         self.widgets['aperture'].validator().setBottom(0.1)
-        self.widgets['aperture'].setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.widgets['aperture'].editingFinished.connect(self.new_aperture)
         other_group.layout().addRow(
             self.tr('Aperture f/'), self.widgets['aperture'])
@@ -669,9 +710,9 @@ class Technical(QtWidgets.QWidget):
             if not image.metadata.aperture:
                 image.metadata.aperture = 0
             if not image.metadata.focal_length:
-                image.metadata.focal_length = 0
+                image.metadata.focal_length = 0, None
             aperture = image.metadata.aperture.value
-            focal_length = image.metadata.focal_length.value
+            focal_length = image.metadata.focal_length.fl
             if focal_length <= spec.min_fl:
                 focal_length = spec.min_fl
                 aperture = max(aperture, spec.min_fl_fn)
@@ -681,7 +722,8 @@ class Technical(QtWidgets.QWidget):
             else:
                 aperture = max(aperture, min(spec.min_fl_fn, spec.max_fl_fn))
             image.metadata.aperture = aperture
-            image.metadata.focal_length = focal_length
+            image.metadata.focal_length = (
+                focal_length, image.metadata.focal_length.to_35(focal_length))
         self._update_aperture()
         self._update_focal_length()
 
@@ -704,9 +746,26 @@ class Technical(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def new_focal_length(self):
         if not self.widgets['focal_length'].is_multiple():
-            value = self.widgets['focal_length'].get_value()
+            fl = self.widgets['focal_length'].get_value()
             for image in self.image_list.get_selected_images():
-                image.metadata.focal_length = value
+                if image.metadata.focal_length:
+                    fl_35 = image.metadata.focal_length.to_35(fl)
+                else:
+                    fl_35 = None
+                image.metadata.focal_length = fl, fl_35
+            self._update_focal_length()
+
+    @QtCore.pyqtSlot()
+    def new_focal_length_35(self):
+        if not self.widgets['focal_length_35'].is_multiple():
+            fl_35 = self.widgets['focal_length_35'].get_value()
+            for image in self.image_list.get_selected_images():
+                if image.metadata.focal_length:
+                    fl = image.metadata.focal_length.from_35(fl_35)
+                else:
+                    fl = None
+                image.metadata.focal_length = fl, fl_35
+            self._update_focal_length()
 
     def _new_date_value(self, key, value):
         date_time, precision, tz_offset = value
@@ -798,8 +857,8 @@ class Technical(QtWidgets.QWidget):
                 if not spec:
                     continue
                 focal_length = image.metadata.focal_length
-                if focal_length and (focal_length.value < spec.min_fl or
-                                     focal_length.value > spec.max_fl):
+                if focal_length and (focal_length.fl < spec.min_fl or
+                                     focal_length.fl > spec.max_fl):
                     self.link_lens.setChecked(False)
                     break
                 aperture = image.metadata.aperture
@@ -832,8 +891,20 @@ class Technical(QtWidgets.QWidget):
         for image in images[1:]:
             if image.metadata.focal_length != value:
                 self.widgets['focal_length'].set_multiple()
+                self.widgets['focal_length_fl'].set_multiple()
                 return
-        self.widgets['focal_length'].set_value(value)
+        if not value:
+            self.widgets['focal_length'].set_value(None)
+            self.widgets['focal_length_fl'].set_value(None)
+            return
+        fl = value.fl
+        if fl:
+            fl = '{:g}'.format(float(fl))
+        self.widgets['focal_length'].set_value(fl)
+        fl_35 = value.fl_35
+        if fl_35:
+            fl_35 = '{:d}'.format(fl_35)
+        self.widgets['focal_length_35'].set_value(fl_35)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

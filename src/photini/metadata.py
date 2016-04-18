@@ -123,6 +123,62 @@ class MetadataDictValue(MetadataValue):
         super(MetadataDictValue, self).__setattr__(name, value)
 
 
+class FocalLength(MetadataDictValue):
+    # store actual focal length and 35mm film equivalent
+    def __init__(self, value):
+        if isinstance(value, six.string_types):
+            value = value.split(',')
+        fl, fl_35 = value
+        if fl in (None, ''):
+            fl = None
+        else:
+            fl = Fraction(fl).limit_denominator(1000000)
+        if fl_35 in (None, ''):
+            fl_35 = None
+        else:
+            fl_35 = int(fl_35)
+        super(FocalLength, self).__init__({'fl': fl, 'fl_35': fl_35})
+
+    @classmethod
+    def from_exif(cls, file_value):
+        focal_length, focal_length_35mm = file_value
+        if focal_length or focal_length_35mm:
+            return cls((focal_length, focal_length_35mm))
+        return None
+
+    def to_exif(self):
+        if self.fl is None:
+            focal_length = None
+        else:
+            focal_length = '{:d}/{:d}'.format(
+                self.fl.numerator, self.fl.denominator)
+        if self.fl_35 is None:
+            focal_length_35mm = None
+        else:
+            focal_length_35mm = '{:d}'.format(self.fl_35)
+        return focal_length, focal_length_35mm
+
+    @classmethod
+    def from_xmp(cls, file_value):
+        focal_length, focal_length_35mm = file_value
+        if focal_length or focal_length_35mm:
+            return cls(focal_length, focal_length_35mm)
+        return None
+
+    def to_35(self, value):
+        if self.fl and self.fl_35:
+            return int((float(value) * self.fl_35 / self.fl) + 0.5)
+        return None
+
+    def from_35(self, value):
+        if self.fl and self.fl_35:
+            return round(float(value) * self.fl / self.fl_35, 2)
+        return None
+
+    def __nonzero__(self):
+        return (self.fl is not None) or (self.fl_35 is not None)
+
+
 class LatLon(MetadataDictValue):
     # simple class to store latitude and longitude
     def __init__(self, value):
@@ -728,7 +784,7 @@ class Metadata(QtCore.QObject):
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
         'description'    : String,
-        'focal_length'   : Rational,
+        'focal_length'   : FocalLength,
         'keywords'       : MultiString,
         'latlong'        : LatLon,
         'lens_make'      : String,
@@ -766,7 +822,8 @@ class Metadata(QtCore.QObject):
         'description'    : {'Exif' : 'Exif.Image.ImageDescription',
                             'Xmp'  : 'Xmp.dc.description',
                             'Iptc' : 'Iptc.Application2.Caption'},
-        'focal_length'   : {'Exif' : 'Exif.Photo.FocalLength'},
+        'focal_length'   : {'Exif' : ('Exif.Photo.FocalLength',
+                                      'Exif.Photo.FocalLengthIn35mmFilm')},
         'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
                             'Iptc' : 'Iptc.Application2.Keywords'},
         'latlong'        : {'Exif' : ('Exif.GPSInfo.GPSLatitude',
@@ -806,8 +863,10 @@ class Metadata(QtCore.QObject):
         'description'    : {'Exif' : ('Exif.Image.XPComment',
                                       'Exif.Image.XPSubject'),
                             'Xmp'  : ('Xmp.tiff.ImageDescription',)},
-        'focal_length'   : {'Exif' : ('Exif.Image.FocalLength',),
-                            'Xmp'  : ('Xmp.exif.FocalLength',)},
+        'focal_length'   : {'Exif' : (('Exif.Image.FocalLength',
+                                       'Exif.Photo.FocalLengthIn35mmFilm'),),
+                            'Xmp'  : (('Xmp.exif.FocalLength',
+                                       'Xmp.exif.FocalLengthIn35mmFilm'),)},
         'keywords'       : {'Exif' : ('Exif.Image.XPKeywords',)},
         'latlong'        : {'Xmp'  : (('Xmp.exif.GPSLatitude',
                                        'Xmp.exif.GPSLongitude'),)},
@@ -831,8 +890,7 @@ class Metadata(QtCore.QObject):
         'date_modified'  : (),
         'date_taken'     : (),
         'description'    : (),
-        'focal_length'   : ('Exif.Photo.FocalLengthIn35mmFilm',
-                            'Xmp.exif.FocalLengthIn35mmFilm'),
+        'focal_length'   : (),
         'keywords'       : (),
         'latlong'        : (),
         'lens_make'      : (),
