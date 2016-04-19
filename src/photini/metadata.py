@@ -625,7 +625,7 @@ class MetadataHandler(GExiv2.Metadata):
                 return value.decode(encoding)
             except UnicodeDecodeError:
                 continue
-        return value.decode('utf_8')
+        return value.decode('utf_8', 'replace')
 
     def get_value(self, data_type, tag):
         # get string or multiple strings
