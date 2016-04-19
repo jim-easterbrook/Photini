@@ -506,7 +506,9 @@ class String(MetadataValue):
 
 class CharacterSet(String):
     known_encodings = {
+        'ascii'   : '\x1b(B',
         'latin_1' : '\x1b/A',
+        'latin1'  : '\x1b.A',
         'utf_8'   : '\x1b%G',
         }
 
