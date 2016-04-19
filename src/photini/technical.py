@@ -891,11 +891,11 @@ class Technical(QtWidgets.QWidget):
         for image in images[1:]:
             if image.metadata.focal_length != value:
                 self.widgets['focal_length'].set_multiple()
-                self.widgets['focal_length_fl'].set_multiple()
+                self.widgets['focal_length_35'].set_multiple()
                 return
         if not value:
             self.widgets['focal_length'].set_value(None)
-            self.widgets['focal_length_fl'].set_value(None)
+            self.widgets['focal_length_35'].set_value(None)
             return
         fl = value.fl
         if fl:
