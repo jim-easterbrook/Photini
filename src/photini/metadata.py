@@ -162,7 +162,7 @@ class FocalLength(MetadataDictValue):
     def from_xmp(cls, file_value):
         focal_length, focal_length_35mm = file_value
         if focal_length or focal_length_35mm:
-            return cls(focal_length, focal_length_35mm)
+            return cls((focal_length, focal_length_35mm))
         return None
 
     def to_35(self, value):
@@ -177,6 +177,17 @@ class FocalLength(MetadataDictValue):
 
     def __nonzero__(self):
         return (self.fl is not None) or (self.fl_35 is not None)
+
+    def contains(self, other):
+        return (not other) or ((other.fl in (None, self.fl)) and
+                               (other.fl_35 in (None, self.fl_35)))
+
+    def merge(self, other, family=None):
+        if self.fl is None:
+            self.fl = other.fl
+        if self.fl_35 is None:
+            self.fl_35 = other.fl_35
+        return True
 
 
 class LatLon(MetadataDictValue):
@@ -247,6 +258,10 @@ class LatLon(MetadataDictValue):
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
+
+    def contains(self, other):
+        return (not other) or ((abs(other.lat - self.lat) < 0.000001) and
+                               (abs(other.lon - self.lon) < 0.000001))
 
 
 class LensSpec(MetadataDictValue):
@@ -398,6 +413,7 @@ class DateTime(MetadataDictValue):
             time_string = time_string[:6]
         else:
             tz_string = ''
+            time_string = ''
         return cls.from_ISO_8601(date_string, time_string, tz_string)
 
     def to_iptc(self):
@@ -543,9 +559,9 @@ class Int(MetadataValue):
         return '{:d}'.format(self.value)
 
 
-class Rational(MetadataValue):
+class Aperture(MetadataValue):
     def __init__(self, value):
-        super(Rational, self).__init__(Fraction(value))
+        super(Aperture, self).__init__(Fraction(value))
 
     def to_exif(self):
         return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
@@ -555,6 +571,10 @@ class Rational(MetadataValue):
 
     def __str__(self):
         return '{:g}'.format(float(self.value))
+
+    def contains(self, other):
+        return (not other) or ((min(other.value, self.value) /
+                                max(other.value, self.value)) > 0.95)
 
 
 # maximum length of Iptc data
@@ -640,6 +660,7 @@ class MetadataHandler(GExiv2.Metadata):
         # manipulate some tags' data
         if tag in ('Exif.Image.ApertureValue',
                    'Exif.Photo.ApertureValue'):
+            # convert APEX aperture value
             file_value = 2.0 ** (Fraction(file_value) / 2.0)
         elif tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPComment',
                      'Exif.Image.XPKeywords', 'Exif.Image.XPSubject',
@@ -771,7 +792,7 @@ class MetadataHandler(GExiv2.Metadata):
 class Metadata(QtCore.QObject):
     # type of each Photini data field's data
     _data_type = {
-        'aperture'       : Rational,
+        'aperture'       : Aperture,
         'camera_model'   : String,
         'character_set'  : CharacterSet,
         'copyright'      : String,
