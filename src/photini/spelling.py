@@ -120,7 +120,7 @@ class SpellingManager(QtCore.QObject):
 
     @QtCore.pyqtSlot(QtWidgets.QAction)
     def set_language(self, action):
-        self.set_dict(action.text())
+        self.set_dict(action.text().replace('&', ''))
 
     def set_dict(self, tag):
         _spell_check.set_dict(tag)
