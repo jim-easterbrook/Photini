@@ -541,6 +541,15 @@ class CharacterSet(String):
 
 
 class Software(String):
+    @classmethod
+    def from_iptc(cls, file_value):
+        program, version = file_value
+        if program and version:
+            program += ' v' + version
+        if program:
+            return cls(program)
+        return None
+
     def to_iptc(self):
         return self.value.split(' v')
 
