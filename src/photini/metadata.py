@@ -142,9 +142,7 @@ class FocalLength(MetadataDictValue):
     @classmethod
     def from_exif(cls, file_value):
         focal_length, focal_length_35mm = file_value
-        if focal_length or focal_length_35mm:
-            return cls((focal_length, focal_length_35mm))
-        return None
+        return cls((focal_length, focal_length_35mm))
 
     def to_exif(self):
         if self.fl is None:
@@ -161,9 +159,7 @@ class FocalLength(MetadataDictValue):
     @classmethod
     def from_xmp(cls, file_value):
         focal_length, focal_length_35mm = file_value
-        if focal_length or focal_length_35mm:
-            return cls((focal_length, focal_length_35mm))
-        return None
+        return cls((focal_length, focal_length_35mm))
 
     def to_35(self, value):
         if self.fl and self.fl_35:
@@ -211,11 +207,11 @@ class LatLon(MetadataDictValue):
 
     @classmethod
     def from_exif(cls, file_value):
+        if not all(file_value):
+            return None
         lat_string, lat_ref, lon_string, lon_ref = file_value
-        if lat_string and lat_ref and lon_string and lon_ref:
-            return cls((cls.from_exif_part(lat_string, lat_ref),
-                        cls.from_exif_part(lon_string, lon_ref)))
-        return None
+        return cls((cls.from_exif_part(lat_string, lat_ref),
+                    cls.from_exif_part(lon_string, lon_ref)))
 
     @staticmethod
     def to_exif_part(value):
@@ -250,11 +246,10 @@ class LatLon(MetadataDictValue):
 
     @classmethod
     def from_xmp(cls, file_value):
+        if not all(file_value):
+            return None
         lat_string, lon_string = file_value
-        if lat_string and lon_string:
-            return cls((cls.from_xmp_part(lat_string),
-                        cls.from_xmp_part(lon_string)))
-        return None
+        return cls((cls.from_xmp_part(lat_string), cls.from_xmp_part(lon_string)))
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
@@ -544,11 +539,11 @@ class Software(String):
     @classmethod
     def from_iptc(cls, file_value):
         program, version = file_value
-        if program and version:
+        if not program:
+            return None
+        if version:
             program += ' v' + version
-        if program:
-            return cls(program)
-        return None
+        return cls(program)
 
     def to_iptc(self):
         return self.value.split(' v')
@@ -664,7 +659,7 @@ class MetadataHandler(GExiv2.Metadata):
                 file_value = file_value[0]
         else:
             file_value = self.get_tag_string(tag)
-        if not file_value:
+        if file_value is None or not any(file_value):
             return None
         # manipulate some tags' data
         if tag in ('Exif.Image.ApertureValue',
