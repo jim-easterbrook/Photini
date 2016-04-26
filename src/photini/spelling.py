@@ -21,10 +21,13 @@
 
 from __future__ import unicode_literals
 
+import logging
 import os
 import re
 import site
 import sys
+
+logger = logging.getLogger(__name__)
 
 # avoid "dll Hell" on Windows by getting PyEnchant to use PyGObject's
 # copy of libenchant and associated libraries
@@ -74,6 +77,8 @@ class SpellCheck(QtCore.QObject):
         self.new_dict.emit()
 
     def set_dict(self, tag):
+        if tag:
+            logger.info('Setting dictionary %s', tag)
         if not bool(enchant):
             self.dict = None
         elif tag and enchant.dict_exists(tag):
@@ -83,6 +88,8 @@ class SpellCheck(QtCore.QObject):
         if self.dict:
             self.tag = self.dict.tag
         else:
+            if tag:
+                logger.warning('Failed to set dictionary %s', tag)
             self.tag = ''
         self.new_dict.emit()
 
