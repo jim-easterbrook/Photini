@@ -111,7 +111,8 @@ class PicasaSession(object):
     token_url     = 'https://www.googleapis.com/oauth2/v4/token'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
 
-    def __init__(self):
+    def __init__(self, auto_refresh=True):
+        self.auto_refresh = auto_refresh
         self.session = None
         self.token = None
 
@@ -133,13 +134,20 @@ class PicasaSession(object):
             # create new session
             client_id     = key_store.get('picasa', 'client_id')
             client_secret = key_store.get('picasa', 'client_secret')
-            self.session = OAuth2Session(
-                client_id, token=self.token, token_updater=self._save_token,
-                auto_refresh_kwargs={
-                    'client_id'     : client_id,
-                    'client_secret' : client_secret},
-                auto_refresh_url=self.token_url,
-                )
+            auto_refresh_kwargs = {
+                'client_id'    : client_id,
+                'client_secret': client_secret,
+                }
+            if self.auto_refresh:
+                self.session = OAuth2Session(
+                    client_id, token=self.token, token_updater=self._save_token,
+                    auto_refresh_kwargs=auto_refresh_kwargs,
+                    auto_refresh_url=self.token_url,
+                    )
+            else:
+                self.session = OAuth2Session(client_id, token=self.token)
+                self.token = self.session.refresh_token(
+                    self.token_url, **auto_refresh_kwargs)
             self.session.headers.update({'GData-Version': 2})
         return True
 
@@ -165,7 +173,8 @@ class PicasaSession(object):
         self.session = None
 
     def _save_token(self, token):
-        keyring.set_password('photini', 'picasa', token['refresh_token'])
+        if self.auto_refresh:
+            keyring.set_password('photini', 'picasa', token['refresh_token'])
 
     def edit_node(self, node):
         resp = self._check_response(self.session.put(
@@ -350,6 +359,8 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
 
 
 class PicasaUploader(PhotiniUploader):
+    session_factory = PicasaSession
+
     def __init__(self, *arg, **kw):
         config_store.remove_section('picasa')
         self.upload_config = PicasaUploadConfig()
@@ -372,9 +383,6 @@ class PicasaUploader(PhotiniUploader):
         self.timer.setSingleShot(True)
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
-
-    def new_session(self):
-        self.session = PicasaSession()
 
     def get_albums(self):
         for album in self.session.get_albums():

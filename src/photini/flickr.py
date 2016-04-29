@@ -37,7 +37,8 @@ logger = logging.getLogger(__name__)
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
 class FlickrSession(object):
-    def __init__(self):
+    def __init__(self, auto_refresh=True):
+        self.auto_refresh = auto_refresh
         self.api = None
 
     def permitted(self, perms='write'):
@@ -45,16 +46,15 @@ class FlickrSession(object):
         if not stored_token:
             self.api = None
             return False
-        with Busy():
-            if not self.api:
-                api_key    = key_store.get('flickr', 'api_key')
-                api_secret = key_store.get('flickr', 'api_secret')
-                token, token_secret = stored_token.split('&')
-                token = flickrapi.auth.FlickrAccessToken(
-                    token, token_secret, perms)
-                self.api = flickrapi.FlickrAPI(
-                    api_key, api_secret, token=token, store_token=False)
-            return self.api.token_valid(perms=perms)
+        if not self.api:
+            api_key    = key_store.get('flickr', 'api_key')
+            api_secret = key_store.get('flickr', 'api_secret')
+            token, token_secret = stored_token.split('&')
+            token = flickrapi.auth.FlickrAccessToken(
+                token, token_secret, perms)
+            self.api = flickrapi.FlickrAPI(
+                api_key, api_secret, token=token, store_token=False)
+        return self.api.token_valid(perms=perms)
 
     def get_auth_url(self, perms='write'):
         logger.info('using %s', keyring.get_keyring().__module__)
@@ -74,8 +74,9 @@ class FlickrSession(object):
             self.api = None
             return False
         token = self.api.token_cache.token
-        keyring.set_password(
-            'photini', 'flickr', token.token + '&' + token.token_secret)
+        if self.auto_refresh:
+            keyring.set_password(
+                'photini', 'flickr', token.token + '&' + token.token_secret)
         self.api = None
 
     def do_upload(self, fileobj, image_type, image, params):
@@ -240,6 +241,8 @@ class FlickrUploadConfig(QtWidgets.QWidget):
 
 
 class FlickrUploader(PhotiniUploader):
+    session_factory = FlickrSession
+
     def __init__(self, *arg, **kw):
         config_store.remove_section('flickr')
         self.upload_config = FlickrUploadConfig()
@@ -253,9 +256,6 @@ class FlickrUploader(PhotiniUploader):
                 ' handle correctly. Would you like to convert it to JPEG?'),
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             }
-
-    def new_session(self):
-        self.session = FlickrSession()
 
     def clear_sets(self):
         self.photosets = []

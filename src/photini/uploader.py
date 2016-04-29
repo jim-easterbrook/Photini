@@ -58,9 +58,9 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtCore.pyqtSignal(float)
     upload_file_done = QtCore.pyqtSignal(object, str)
 
-    def __init__(self, session, params):
+    def __init__(self, session_factory, params):
         super(UploadWorker, self).__init__()
-        self.session = session
+        self.session = session_factory(auto_refresh=False)
         self.params = params
         self.fileobj = None
         self.thread = QtCore.QThread()
@@ -73,6 +73,9 @@ class UploadWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot(object, bool)
     def upload_file(self, image, convert):
+        if not self.session.permitted():
+            self.upload_file_done.emit(image, 'not permitted')
+            return
         if convert:
             path = image.as_jpeg()
         else:
@@ -96,7 +99,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
-        self.new_session()
+        self.session = self.session_factory()
         self.initialised = False
         self.upload_worker = None
         # 'service' specific widget
@@ -123,8 +126,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_worker.thread.wait()
 
     def refresh(self):
-        if self.initialised and self.session.permitted():
-            return
+        with Busy():
+            if self.initialised and self.session.permitted():
+                return
         self.clear_sets()
         QtWidgets.QApplication.processEvents()
         if not self.authorise():
@@ -187,7 +191,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(self.session, self.get_upload_params())
+        self.upload_worker = UploadWorker(self.session_factory, self.get_upload_params())
         self.upload_file.connect(self.upload_worker.upload_file)
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
@@ -195,10 +199,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_started()
         self.uploads_done = 0
         self.next_upload()
-        # we've passed the session object to a separate thread, so
-        # create a new one for safety
-        self.new_session()
-        self.authorise()
 
     def next_upload(self):
         image, convert = self.upload_list[self.uploads_done]
@@ -258,10 +258,10 @@ then enter the verification code:""").format(info_text))
         return None
 
     def authorise(self, **kw):
-        if self.session.permitted(**kw):
-            return True
-        # do full authentication procedure
         with Busy():
+            if self.session.permitted(**kw):
+                return True
+            # do full authentication procedure
             auth_url = self.session.get_auth_url(**kw)
         auth_code = self.auth_dialog(auth_url)
         if not auth_code:
@@ -272,6 +272,7 @@ then enter the verification code:""").format(info_text))
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
-        self.upload_button.setEnabled(
-            self.upload_button.isChecked() or (
-                len(selection) > 0 and self.session.permitted()))
+        with Busy():
+            self.upload_button.setEnabled(
+                self.upload_button.isChecked() or (
+                    len(selection) > 0 and self.session.permitted()))
