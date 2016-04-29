@@ -26,7 +26,7 @@ import webbrowser
 
 import six
 
-from .pyqt import QtCore, QtWidgets, StartStopButton
+from .pyqt import Busy, QtCore, QtWidgets, StartStopButton
 
 class FileObjWithCallback(object):
     def __init__(self, fileobj, callback):
@@ -258,7 +258,17 @@ then enter the verification code:""").format(info_text))
         return None
 
     def authorise(self, **kw):
-        return self.session.authorise(self.auth_dialog, **kw)
+        if self.session.permitted(**kw):
+            return True
+        # do full authentication procedure
+        with Busy():
+            auth_url = self.session.get_auth_url(**kw)
+        auth_code = self.auth_dialog(auth_url)
+        if not auth_code:
+            return False
+        with Busy():
+            self.session.get_access_token(auth_code)
+            return self.session.permitted(**kw)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

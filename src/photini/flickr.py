@@ -56,33 +56,27 @@ class FlickrSession(object):
                     api_key, api_secret, token=token, store_token=False)
             return self.api.token_valid(perms=perms)
 
-    def authorise(self, auth_dialog, perms='write'):
-        if self.permitted(perms=perms):
-            return True
-        with Busy():
-            logger.info('using %s', keyring.get_keyring().__module__)
-            api_key    = key_store.get('flickr', 'api_key')
-            api_secret = key_store.get('flickr', 'api_secret')
-            token = flickrapi.auth.FlickrAccessToken('', '', perms)
-            self.api = flickrapi.FlickrAPI(
-                api_key, api_secret, token=token, store_token=False)
-            self.api.get_request_token(oauth_callback='oob')
-            auth_url = self.api.auth_url(perms=perms)
-        auth_code = auth_dialog(auth_url)
-        if not auth_code:
+    def get_auth_url(self, perms='write'):
+        logger.info('using %s', keyring.get_keyring().__module__)
+        api_key    = key_store.get('flickr', 'api_key')
+        api_secret = key_store.get('flickr', 'api_secret')
+        token = flickrapi.auth.FlickrAccessToken('', '', perms)
+        self.api = flickrapi.FlickrAPI(
+            api_key, api_secret, token=token, store_token=False)
+        self.api.get_request_token(oauth_callback='oob')
+        return self.api.auth_url(perms=perms)
+
+    def get_access_token(self, auth_code):
+        try:
+            self.api.get_access_token(auth_code)
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
             self.api = None
             return False
-        with Busy():
-            try:
-                self.api.get_access_token(auth_code)
-            except flickrapi.FlickrError as ex:
-                logger.error(str(ex))
-                self.api = None
-                return False
         token = self.api.token_cache.token
         keyring.set_password(
             'photini', 'flickr', token.token + '&' + token.token_secret)
-        return self.permitted(perms=perms)
+        self.api = None
 
     def do_upload(self, fileobj, image_type, image, params):
         # collect metadata

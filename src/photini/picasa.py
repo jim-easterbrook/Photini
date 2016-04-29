@@ -108,32 +108,33 @@ class PicasaNode(object):
 
 
 class PicasaSession(object):
-    auth_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
     token_url     = 'https://www.googleapis.com/oauth2/v4/token'
-    auth_scope    = 'https://picasaweb.google.com/data/'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
 
     def __init__(self):
         self.session = None
+        self.token = None
 
-    def permitted(self, token=None):
+    def permitted(self):
         refresh_token = keyring.get_password('photini', 'picasa')
         if not refresh_token:
             self.session = None
+            self.token = None
             return False
+        if not self.token:
+            # create expired token
+            self.token = {
+                'access_token'  : 'xxx',
+                'refresh_token' : refresh_token,
+                'expires_in'    : -30,
+                }
+            self.session = None
         if not self.session:
-            if not token:
-                # create expired token
-                token = {
-                    'access_token'  : 'xxx',
-                    'refresh_token' : refresh_token,
-                    'expires_in'    : -30,
-                    }
             # create new session
             client_id     = key_store.get('picasa', 'client_id')
             client_secret = key_store.get('picasa', 'client_secret')
             self.session = OAuth2Session(
-                client_id, token=token, token_updater=self._save_token,
+                client_id, token=self.token, token_updater=self._save_token,
                 auto_refresh_kwargs={
                     'client_id'     : client_id,
                     'client_secret' : client_secret},
@@ -142,29 +143,26 @@ class PicasaSession(object):
             self.session.headers.update({'GData-Version': 2})
         return True
 
-    def authorise(self, auth_dialog):
-        if self.permitted():
-            return True
-        # do full authentication procedure
+    def get_auth_url(self, scope='https://picasaweb.google.com/data/'):
         logger.info('using %s', keyring.get_keyring().__module__)
         client_id = key_store.get('picasa', 'client_id')
-        oauth = OAuth2Session(
-            client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
-            scope=self.auth_scope)
-        auth_url, state = oauth.authorization_url(self.auth_base_url)
-        auth_code = auth_dialog(auth_url)
-        if not auth_code:
-            self.session = None
-            return False
+        self.session = OAuth2Session(
+            client_id, scope=scope,
+            redirect_uri='urn:ietf:wg:oauth:2.0:oob')
+        return self.session.authorization_url(
+            'https://accounts.google.com/o/oauth2/v2/auth')[0]
+
+    def get_access_token(self, auth_code):
         # Fix for requests-oauthlib bug #157
         # https://github.com/requests/requests-oauthlib/issues/157
         os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
+        client_id = key_store.get('picasa', 'client_id')
         client_secret = key_store.get('picasa', 'client_secret')
-        token = oauth.fetch_token(
+        self.token = self.session.fetch_token(
             self.token_url, code=auth_code,
             auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
-        self._save_token(token)
-        return self.permitted(token=token)
+        self._save_token(self.token)
+        self.session = None
 
     def _save_token(self, token):
         keyring.set_password('photini', 'picasa', token['refresh_token'])
