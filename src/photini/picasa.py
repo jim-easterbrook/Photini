@@ -116,49 +116,55 @@ class PicasaSession(object):
     def __init__(self):
         self.session = None
 
-    def authorise(self, auth_dialog=None):
+    def permitted(self, token=None):
         refresh_token = keyring.get_password('photini', 'picasa')
-        if refresh_token and self.session:
-            return True
-        logger.info('using %s', keyring.get_keyring().__module__)
-        client_id     = key_store.get('picasa', 'client_id')
-        client_secret = key_store.get('picasa', 'client_secret')
-        if refresh_token:
-            # create expired token
-            token = {
-                'access_token'  : 'xxx',
-                'refresh_token' : refresh_token,
-                'expires_in'    : -30,
-                }
-        elif not auth_dialog:
+        if not refresh_token:
             self.session = None
             return False
-        else:
-            # do full authentication procedure
-            oauth = OAuth2Session(
-                client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
-                scope=self.auth_scope)
-            auth_url, state = oauth.authorization_url(self.auth_base_url)
-            auth_code = auth_dialog(auth_url)
-            if not auth_code:
-                self.session = None
-                return False
-            # Fix for requests-oauthlib bug #157
-            # https://github.com/requests/requests-oauthlib/issues/157
-            os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
-            token = oauth.fetch_token(
-                self.token_url, code=auth_code,
-                auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
-            self._save_token(token)
-        self.session = OAuth2Session(
-            client_id, token=token, token_updater=self._save_token,
-            auto_refresh_kwargs={
-                'client_id'     : client_id,
-                'client_secret' : client_secret},
-            auto_refresh_url=self.token_url,
-            )
-        self.session.headers.update({'GData-Version': 2})
+        if not self.session:
+            if not token:
+                # create expired token
+                token = {
+                    'access_token'  : 'xxx',
+                    'refresh_token' : refresh_token,
+                    'expires_in'    : -30,
+                    }
+            # create new session
+            client_id     = key_store.get('picasa', 'client_id')
+            client_secret = key_store.get('picasa', 'client_secret')
+            self.session = OAuth2Session(
+                client_id, token=token, token_updater=self._save_token,
+                auto_refresh_kwargs={
+                    'client_id'     : client_id,
+                    'client_secret' : client_secret},
+                auto_refresh_url=self.token_url,
+                )
+            self.session.headers.update({'GData-Version': 2})
         return True
+
+    def authorise(self, auth_dialog):
+        if self.permitted():
+            return True
+        # do full authentication procedure
+        logger.info('using %s', keyring.get_keyring().__module__)
+        client_id = key_store.get('picasa', 'client_id')
+        oauth = OAuth2Session(
+            client_id, redirect_uri='urn:ietf:wg:oauth:2.0:oob',
+            scope=self.auth_scope)
+        auth_url, state = oauth.authorization_url(self.auth_base_url)
+        auth_code = auth_dialog(auth_url)
+        if not auth_code:
+            self.session = None
+            return False
+        # Fix for requests-oauthlib bug #157
+        # https://github.com/requests/requests-oauthlib/issues/157
+        os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
+        client_secret = key_store.get('picasa', 'client_secret')
+        token = oauth.fetch_token(
+            self.token_url, code=auth_code,
+            auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
+        self._save_token(token)
+        return self.permitted(token=token)
 
     def _save_token(self, token):
         keyring.set_password('photini', 'picasa', token['refresh_token'])
@@ -408,7 +414,7 @@ class PicasaUploader(PhotiniUploader):
     def new_album(self):
         with Busy():
             self.save_changes()
-            if not self.authorise():
+            if not self.session.permitted():
                 self.clear_sets()
                 return
             self.current_album = None
@@ -438,7 +444,7 @@ Doing so will remove the album and its photos from all Google products."""
         with Busy():
             self.timer.stop()
             self.album_changed = False
-            if not self.authorise():
+            if not self.session.permitted():
                 self.clear_sets()
                 return
             self.current_album = None
@@ -453,7 +459,7 @@ Doing so will remove the album and its photos from all Google products."""
     def select_album(self, album_id):
         with Busy():
             self.save_changes()
-            if not self.authorise():
+            if not self.session.permitted():
                 self.clear_sets()
                 return
             self.current_album = None

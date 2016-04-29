@@ -40,28 +40,34 @@ class FlickrSession(object):
     def __init__(self):
         self.api = None
 
-    def authorise(self, auth_dialog=None):
-        token = keyring.get_password('photini', 'flickr')
-        if token and self.api:
-            return True
-        logger.info('using %s', keyring.get_keyring().__module__)
-        if token:
-            token, token_secret = token.split('&')
-        else:
-            token, token_secret = '', ''
-        api_key    = key_store.get('flickr', 'api_key')
-        api_secret = key_store.get('flickr', 'api_secret')
+    def permitted(self, perms='write'):
+        stored_token = keyring.get_password('photini', 'flickr')
+        if not stored_token:
+            self.api = None
+            return False
         with Busy():
-            token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
+            if not self.api:
+                api_key    = key_store.get('flickr', 'api_key')
+                api_secret = key_store.get('flickr', 'api_secret')
+                token, token_secret = stored_token.split('&')
+                token = flickrapi.auth.FlickrAccessToken(
+                    token, token_secret, perms)
+                self.api = flickrapi.FlickrAPI(
+                    api_key, api_secret, token=token, store_token=False)
+            return self.api.token_valid(perms=perms)
+
+    def authorise(self, auth_dialog, perms='write'):
+        if self.permitted(perms=perms):
+            return True
+        with Busy():
+            logger.info('using %s', keyring.get_keyring().__module__)
+            api_key    = key_store.get('flickr', 'api_key')
+            api_secret = key_store.get('flickr', 'api_secret')
+            token = flickrapi.auth.FlickrAccessToken('', '', perms)
             self.api = flickrapi.FlickrAPI(
                 api_key, api_secret, token=token, store_token=False)
-            if self.api.token_valid(perms='write'):
-                return True
-            if not auth_dialog:
-                self.api = None
-                return False
             self.api.get_request_token(oauth_callback='oob')
-            auth_url = self.api.auth_url(perms='write')
+            auth_url = self.api.auth_url(perms=perms)
         auth_code = auth_dialog(auth_url)
         if not auth_code:
             self.api = None
@@ -76,7 +82,7 @@ class FlickrSession(object):
         token = self.api.token_cache.token
         keyring.set_password(
             'photini', 'flickr', token.token + '&' + token.token_secret)
-        return True
+        return self.permitted(perms=perms)
 
     def do_upload(self, fileobj, image_type, image, params):
         # collect metadata
