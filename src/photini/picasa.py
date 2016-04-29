@@ -31,7 +31,7 @@ from requests_oauthlib import OAuth2Session
 
 from .configstore import config_store, key_store
 from .descriptive import MultiLineEdit
-from .pyqt import Busy, QtCore, QtGui, QtWidgets
+from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
@@ -50,12 +50,13 @@ for prefix, uri in nsmap.items():
         prefix = ''
     ET.register_namespace(prefix, uri)
 
+
+# general node, can be any kind of element
 class PicasaNode(object):
     _elements = {
         # name         namespace repeat node
         'access'    : ('gphoto', False, False),
         'category'  : ('atom',   False, False),
-        'entry'     : ('atom',   True,  True),
         'group'     : ('media',  False, True),
         'id'        : ('gphoto', False, False),
         'keywords'  : ('media',  False, False),
@@ -105,6 +106,16 @@ class PicasaNode(object):
             if child.get('rel').endswith(link_type):
                 return child.get('href')
         return None
+
+
+# special node for the album feed, to disambiguate 'thumbnail'
+class FeedNode(PicasaNode):
+    _elements = {
+        # name         namespace repeat node
+        'entry'     : ('atom',   True,  True),
+        'thumbnail' : ('gphoto', False, False),
+        'nickname'  : ('gphoto', False, False),
+        }
 
 
 class PicasaSession(object):
@@ -190,9 +201,10 @@ class PicasaSession(object):
                      'Content-Type' : 'application/atom+xml'}))
         return PicasaNode(text=resp.text)
 
-    def get_albums(self):
-        resp = self._check_response(self.session.get(self.album_feed))
-        return PicasaNode(text=resp.text).entry
+    def get_feed(self):
+        resp = self._check_response(self.session.get(
+            self.album_feed, params={'kind': 'album'}))
+        return FeedNode(text=resp.text)
 
     def new_album(self, album):
         resp = self._check_response(self.session.post(
@@ -247,7 +259,7 @@ class PicasaSession(object):
         return resp
 
 
-class PicasaUploadConfig(QtWidgets.QGroupBox):
+class PicasaUploadConfig(QtWidgets.QWidget):
     delete_album = QtCore.pyqtSignal()
     new_album = QtCore.pyqtSignal()
     select_album = QtCore.pyqtSignal(six.text_type)
@@ -255,14 +267,28 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
 
     def __init__(self, *arg, **kw):
         super(PicasaUploadConfig, self).__init__(*arg, **kw)
-        self.setTitle(self.tr('Collection / Album'))
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.widgets = {}
+        ## user details
+        user_group = QtWidgets.QGroupBox(self.tr('User'))
+        user_group.setLayout(QtWidgets.QVBoxLayout())
+        self.widgets['user_photo'] = QtWidgets.QLabel()
+        self.widgets['user_photo'].setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        user_group.layout().addWidget(self.widgets['user_photo'])
+        self.widgets['user_name'] = QtWidgets.QLabel()
+        self.widgets['user_name'].setWordWrap(True)
+        self.widgets['user_name'].setFixedWidth(80)
+        user_group.layout().addWidget(self.widgets['user_name'])
+        user_group.layout().addStretch(1)
+        self.layout().addWidget(user_group)
         ## album details, left hand side
+        album_group = QtWidgets.QGroupBox(self.tr('Collection / Album'))
+        album_group.setLayout(QtWidgets.QHBoxLayout())
         album_form_left = QtWidgets.QFormLayout()
         album_form_left.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        self.layout().addLayout(album_form_left)
+        album_group.layout().addLayout(album_form_left)
         # album title / selector
         self.albums = QtWidgets.QComboBox()
         self.albums.setEditable(True)
@@ -303,7 +329,7 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         album_form_right = QtWidgets.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        self.layout().addLayout(album_form_right)
+        album_group.layout().addLayout(album_form_right)
         # album date
         self.widgets['timestamp'] = QtWidgets.QDateEdit()
         self.widgets['timestamp'].setMinimumDateTime(
@@ -314,6 +340,19 @@ class PicasaUploadConfig(QtWidgets.QGroupBox):
         # album thumbnail
         self.album_thumb = QtWidgets.QLabel()
         album_form_right.addRow(self.album_thumb)
+        self.layout().addWidget(album_group)
+
+    def show_user(self, name, picture):
+        if name:
+            self.widgets['user_name'].setText(self.tr(
+                'Connected to {} on Google Photos').format(name))
+        else:
+            self.widgets['user_name'].setText(
+                self.tr('Not connected to Google Photos'))
+        pixmap = QtGui.QPixmap()
+        if picture:
+            pixmap.loadFromData(urlopen(picture).read())
+        self.widgets['user_photo'].setPixmap(pixmap)
 
     @QtCore.pyqtSlot()
     def new_title(self):
@@ -391,8 +430,10 @@ class PicasaUploader(PhotiniUploader):
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
 
-    def get_albums(self):
-        for album in self.session.get_albums():
+    def get_albums(self, feed=None):
+        if not feed:
+            feed = self.session.get_feed()
+        for album in feed.entry:
             if not album.get_link('edit'):
                 # ignore 'system' albums
                 continue
@@ -405,8 +446,11 @@ class PicasaUploader(PhotiniUploader):
 
     def load_sets(self):
         with Busy():
+            feed = self.session.get_feed()
+            self.upload_config.show_user(
+                feed.nickname.text, feed.thumbnail.text)
             self.current_album = None
-            for album in self.get_albums():
+            for album in self.get_albums(feed):
                 self.upload_config.albums.addItem(
                     album.title.text, album.id.text)
             self.set_current_album()
