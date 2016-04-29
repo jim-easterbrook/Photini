@@ -116,7 +116,7 @@ class PicasaSession(object):
         self.session = None
         self.token = None
 
-    def permitted(self):
+    def permitted(self, scope='https://picasaweb.google.com/data/'):
         refresh_token = keyring.get_password('photini', 'picasa')
         if not refresh_token:
             self.session = None
@@ -146,9 +146,16 @@ class PicasaSession(object):
                     )
             else:
                 self.session = OAuth2Session(client_id, token=self.token)
-                self.token = self.session.refresh_token(
-                    self.token_url, **auto_refresh_kwargs)
+            # refresh manually to get a valid token now
+            self.token = self.session.refresh_token(
+                self.token_url, **auto_refresh_kwargs)
             self.session.headers.update({'GData-Version': 2})
+            # verify the token
+            resp = self._check_response(self.session.get(
+                'https://www.googleapis.com/oauth2/v3/tokeninfo',
+                params={'access_token': self.token['access_token']})).json()
+            if resp['scope'] != scope or resp['aud'] != client_id:
+                return False
         return True
 
     def get_auth_url(self, scope='https://picasaweb.google.com/data/'):
