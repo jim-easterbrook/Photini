@@ -20,10 +20,12 @@
 from __future__ import unicode_literals
 
 import imghdr
+import logging
 import os
 import six
 import threading
 from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import URLError
 import webbrowser
 
 import six
@@ -99,6 +101,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
@@ -147,16 +150,21 @@ class PhotiniUploader(QtWidgets.QWidget):
     def refresh(self, force=False):
         with Busy():
             connected = self.user_connect.isChecked() and self.session.permitted()
-            self.user_connect.setChecked(connected)
             if connected:
                 self.user_connect.setText(self.tr('Log out'))
                 if force:
                     # load_user_data can be slow, so only do it when forced
-                    self.load_user_data(True)
-            else:
+                    try:
+                        self.load_user_data(True)
+                    except Exception as ex:
+                        self.logger.error(ex)
+                        connected = False
+            if not connected:
                 self.user_connect.setText(self.tr('Connect'))
                 # clearing user data is quick so do it anyway
                 self.load_user_data(False)
+            self.user_connect.setChecked(connected)
+            self.upload_config.setEnabled(connected)
 
     @QtCore.pyqtSlot(bool)
     def connect_user(self, connect):
@@ -191,7 +199,10 @@ class PhotiniUploader(QtWidgets.QWidget):
                 'Not connected to {}').format(self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
-            pixmap.loadFromData(urlopen(picture).read())
+            try:
+                pixmap.loadFromData(urlopen(picture).read())
+            except URLError as ex:
+                self.logger.error('cannot read %s: %s', picture, str(ex))
         self.user_photo.setPixmap(pixmap)
 
     @QtCore.pyqtSlot()
@@ -305,10 +316,14 @@ then enter the verification code:""").format(info_text))
             auth_url = self.session.get_auth_url(**kw)
         auth_code = self.auth_dialog(auth_url)
         if not auth_code:
+            self.refresh()
             return False
         with Busy():
             self.session.get_access_token(auth_code)
-            return self.session.permitted(**kw)
+            if not self.session.permitted(**kw):
+                self.refresh()
+                return False
+        return True
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
