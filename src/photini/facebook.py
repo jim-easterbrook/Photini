@@ -61,7 +61,7 @@ class FacebookSession(object):
         try:
             permissions = self.get('https://graph.facebook.com/me/permissions')
         except Exception:
-            permissions = False
+            permissions = None
         if not permissions:
             return False
         for required in self.scope[level].split(','):
@@ -90,7 +90,6 @@ class FacebookSession(object):
         return self.session.authorization_url(
             'https://www.facebook.com/dialog/oauth',
             auth_type='rerequest')[0]
-##            'https://www.facebook.com/dialog/oauth', display='popup')[0]
 
     def get_access_token(self, url):
         token = self.session.token_from_fragment(url)
@@ -340,16 +339,18 @@ class FacebookUploader(PhotiniUploader):
                 ' accept. Would you like to convert it to JPEG?'),
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
             }
+        self.login_popup = None
 
     def auth_dialog(self, auth_url):
-        # create dialog with embedded browser
-        dlg = FacebookLoginPopup(self)
-        dlg.setWindowTitle(
-            self.tr('Photini: login to {}').format(self.service_name))
-        dlg.load_url(auth_url)
-        if dlg.exec_() != QtWidgets.QDialog.Accepted:
+        if not self.login_popup:
+            # create dialog with embedded browser
+            self.login_popup = FacebookLoginPopup(self)
+            self.login_popup.setWindowTitle(
+                self.tr('Photini: login to {}').format(self.service_name))
+        self.login_popup.load_url(auth_url)
+        if self.login_popup.exec_() != QtWidgets.QDialog.Accepted:
             return None
-        return dlg.result
+        return self.login_popup.result
 
     def load_user_data(self):
         self.upload_config.widgets['album_choose'].clear()
@@ -423,7 +424,12 @@ class FacebookUploader(PhotiniUploader):
         if location:
             data['location'] = location
         data['privacy'] = privacy.itemData(privacy.currentIndex())
-        self.session.post('https://graph.facebook.com/me/albums', data=data)
+        try:
+            self.session.post('https://graph.facebook.com/me/albums', data=data)
+        except Exception as ex:
+            self.logger.error(str(ex))
+            self.refresh(force=True)
+            return
         self.load_user_data()
             
     @QtCore.pyqtSlot(six.text_type)
