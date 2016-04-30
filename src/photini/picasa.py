@@ -127,6 +127,10 @@ class PicasaSession(object):
         self.session = None
         self.token = None
 
+    def log_out(self):
+        keyring.delete_password('photini', 'picasa')
+        self.session = None
+
     def permitted(self, scope='https://picasaweb.google.com/data/'):
         refresh_token = keyring.get_password('photini', 'picasa')
         if not refresh_token:
@@ -270,18 +274,6 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.widgets = {}
-        ## user details
-        user_group = QtWidgets.QGroupBox(self.tr('User'))
-        user_group.setLayout(QtWidgets.QVBoxLayout())
-        self.widgets['user_photo'] = QtWidgets.QLabel()
-        self.widgets['user_photo'].setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-        user_group.layout().addWidget(self.widgets['user_photo'])
-        self.widgets['user_name'] = QtWidgets.QLabel()
-        self.widgets['user_name'].setWordWrap(True)
-        self.widgets['user_name'].setFixedWidth(80)
-        user_group.layout().addWidget(self.widgets['user_name'])
-        user_group.layout().addStretch(1)
-        self.layout().addWidget(user_group)
         ## album details, left hand side
         album_group = QtWidgets.QGroupBox(self.tr('Collection / Album'))
         album_group.setLayout(QtWidgets.QHBoxLayout())
@@ -341,18 +333,6 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         self.album_thumb = QtWidgets.QLabel()
         album_form_right.addRow(self.album_thumb)
         self.layout().addWidget(album_group)
-
-    def show_user(self, name, picture):
-        if name:
-            self.widgets['user_name'].setText(self.tr(
-                'Connected to {} on Google Photos').format(name))
-        else:
-            self.widgets['user_name'].setText(
-                self.tr('Not connected to Google Photos'))
-        pixmap = QtGui.QPixmap()
-        if picture:
-            pixmap.loadFromData(urlopen(picture).read())
-        self.widgets['user_photo'].setPixmap(pixmap)
 
     @QtCore.pyqtSlot()
     def new_title(self):
@@ -439,21 +419,19 @@ class PicasaUploader(PhotiniUploader):
                 continue
             yield album
 
-    def clear_sets(self):
+    def load_user_data(self, connected):
         self.current_album = None
-        self.upload_config.show_album(None)
         self.upload_config.albums.clear()
-
-    def load_sets(self):
-        with Busy():
+        if connected:
             feed = self.session.get_feed()
-            self.upload_config.show_user(
-                feed.nickname.text, feed.thumbnail.text)
-            self.current_album = None
+            self.show_user(feed.nickname.text, feed.thumbnail.text)
             for album in self.get_albums(feed):
                 self.upload_config.albums.addItem(
                     album.title.text, album.id.text)
             self.set_current_album()
+        else:
+            self.show_user(None, None)
+            self.upload_config.show_album(None)
 
     def get_upload_params(self):
         return self.current_album
@@ -472,7 +450,7 @@ class PicasaUploader(PhotiniUploader):
         with Busy():
             self.save_changes()
             if not self.session.permitted():
-                self.clear_sets()
+                self.refresh()
                 return
             self.current_album = None
             self.upload_config.show_album(None)
@@ -502,7 +480,7 @@ Doing so will remove the album and its photos from all Google products."""
             self.timer.stop()
             self.album_changed = False
             if not self.session.permitted():
-                self.clear_sets()
+                self.refresh()
                 return
             self.current_album = None
             self.upload_config.show_album(None)
@@ -517,7 +495,7 @@ Doing so will remove the album and its photos from all Google products."""
         with Busy():
             self.save_changes()
             if not self.session.permitted():
-                self.clear_sets()
+                self.refresh()
                 return
             self.current_album = None
             self.upload_config.show_album(None)

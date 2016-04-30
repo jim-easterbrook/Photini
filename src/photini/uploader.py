@@ -21,12 +21,14 @@ from __future__ import unicode_literals
 
 import imghdr
 import os
+import six
 import threading
+from six.moves.urllib.request import urlopen
 import webbrowser
 
 import six
 
-from .pyqt import Busy, QtCore, QtWidgets, StartStopButton
+from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
 class FileObjWithCallback(object):
     def __init__(self, fileobj, callback):
@@ -100,23 +102,40 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
-        self.initialised = False
         self.upload_worker = None
+        # user details
+        self.user = {}
+        user_group = QtWidgets.QGroupBox(self.tr('User'))
+        user_group.setLayout(QtWidgets.QVBoxLayout())
+        self.user_photo = QtWidgets.QLabel()
+        self.user_photo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        user_group.layout().addWidget(self.user_photo)
+        self.user_name = QtWidgets.QLabel()
+        self.user_name.setWordWrap(True)
+        self.user_name.setFixedWidth(80)
+        user_group.layout().addWidget(self.user_name)
+        user_group.layout().addStretch(1)
+        self.layout().addWidget(user_group, 0, 0, 1, 2)
+        # connect / disconnect button
+        self.user_connect = QtWidgets.QPushButton()
+        self.user_connect.setCheckable(True)
+        self.user_connect.clicked.connect(self.connect_user)
+        self.layout().addWidget(self.user_connect, 1, 0, 1, 2)
         # 'service' specific widget
-        self.layout().addWidget(upload_config_widget, 0, 0, 1, 3)
+        self.layout().addWidget(upload_config_widget, 0, 2, 2, 2)
         # upload button
         self.upload_button = StartStopButton(self.tr('Start upload'),
                                              self.tr('Stop upload'))
         self.upload_button.setEnabled(False)
         self.upload_button.click_start.connect(self.start_upload)
         self.upload_button.click_stop.connect(self.stop_upload)
-        self.layout().addWidget(self.upload_button, 1, 2)
+        self.layout().addWidget(self.upload_button, 2, 3)
         # progress bar
-        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 1, 0)
+        self.layout().addWidget(QtWidgets.QLabel(self.tr('Progress')), 2, 0)
         self.total_progress = QtWidgets.QProgressBar()
-        self.layout().addWidget(self.total_progress, 1, 1)
+        self.layout().addWidget(self.total_progress, 2, 1, 1, 2)
         # adjust spacing
-        self.layout().setColumnStretch(1, 1)
+        self.layout().setColumnStretch(2, 1)
         self.layout().setRowStretch(0, 1)
 
     def shutdown(self):
@@ -125,18 +144,27 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_worker.thread.quit()
             self.upload_worker.thread.wait()
 
-    def refresh(self):
+    def refresh(self, force=False):
         with Busy():
-            if self.initialised and self.session.permitted():
-                return
-        self.clear_sets()
-        QtWidgets.QApplication.processEvents()
-        if not self.authorise():
-            self.setEnabled(False)
-            return
-        self.setEnabled(True)
-        self.load_sets()
-        self.initialised = True
+            connected = self.user_connect.isChecked() and self.session.permitted()
+            self.user_connect.setChecked(connected)
+            if connected:
+                self.user_connect.setText(self.tr('Log out'))
+                if force:
+                    # load_user_data can be slow, so only do it when forced
+                    self.load_user_data(True)
+            else:
+                self.user_connect.setText(self.tr('Connect'))
+                # clearing user data is quick so do it anyway
+                self.load_user_data(False)
+
+    @QtCore.pyqtSlot(bool)
+    def connect_user(self, connect):
+        if connect:
+            self.authorise()
+        else:
+            self.session.log_out()
+        self.refresh(force=True)
 
     def do_not_close(self):
         if not self.upload_worker:
@@ -153,6 +181,18 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
         result = dialog.exec_()
         return result == QtWidgets.QMessageBox.Cancel
+
+    def show_user(self, name, picture):
+        if name:
+            self.user_name.setText(self.tr(
+                'Connected to {0} on {1}').format(name, self.service_name))
+        else:
+            self.user_name.setText(self.tr(
+                'Not connected to {}').format(self.service_name))
+        pixmap = QtGui.QPixmap()
+        if picture:
+            pixmap.loadFromData(urlopen(picture).read())
+        self.user_photo.setPixmap(pixmap)
 
     @QtCore.pyqtSlot()
     def stop_upload(self):

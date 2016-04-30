@@ -42,6 +42,10 @@ class FlickrSession(object):
         self.auto_refresh = auto_refresh
         self.api = None
 
+    def log_out(self):
+        keyring.delete_password('photini', 'flickr')
+        self.api = None
+
     def permitted(self, perms='write'):
         stored_token = keyring.get_password('photini', 'flickr')
         if not stored_token:
@@ -94,10 +98,7 @@ class FlickrSession(object):
         person = rsp['person']
         icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
             person['iconfarm'], person['iconserver'], person['nsid'])
-        rsp = requests.get(icon_url)
-        if rsp.status_code != 200:
-            return result
-        return user['fullname'], rsp.content
+        return user['fullname'], icon_url
 
     def do_upload(self, fileobj, image_type, image, params):
         # collect metadata
@@ -165,19 +166,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
     def __init__(self, *arg, **kw):
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QGridLayout())
-        # user details
-        self.user = {}
-        user_group = QtWidgets.QGroupBox(self.tr('User'))
-        user_group.setLayout(QtWidgets.QVBoxLayout())
-        self.user['photo'] = QtWidgets.QLabel()
-        self.user['photo'].setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-        user_group.layout().addWidget(self.user['photo'])
-        self.user['name'] = QtWidgets.QLabel()
-        self.user['name'].setWordWrap(True)
-        self.user['name'].setFixedWidth(80)
-        user_group.layout().addWidget(self.user['name'])
-        user_group.layout().addStretch(1)
-        self.layout().addWidget(user_group, 0, 0, 2, 1)
+        self.layout().setContentsMargins(0, 0, 0, 0)
         # privacy settings
         self.privacy = {}
         privacy_group = QtWidgets.QGroupBox(self.tr('Who can see the photos?'))
@@ -187,6 +176,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         ff_group = QtWidgets.QGroupBox()
         ff_group.setFlat(True)
         ff_group.setLayout(QtWidgets.QVBoxLayout())
+        ff_group.layout().setContentsMargins(10, 0, 0, 0)
         self.privacy['friends'] = QtWidgets.QCheckBox(self.tr('Your friends'))
         ff_group.layout().addWidget(self.privacy['friends'])
         self.privacy['family'] = QtWidgets.QCheckBox(self.tr('Your family'))
@@ -199,7 +189,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.hidden = QtWidgets.QCheckBox(self.tr('Hidden from search'))
         privacy_group.layout().addWidget(self.hidden)
         privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 1, 2, 1)
+        self.layout().addWidget(privacy_group, 0, 0, 2, 1)
         # content type
         self.content_type = {}
         content_group = QtWidgets.QGroupBox(self.tr('Content type'))
@@ -212,11 +202,11 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.content_type['other'] = QtWidgets.QRadioButton(self.tr('Art/Illustration'))
         content_group.layout().addWidget(self.content_type['other'])
         content_group.layout().addStretch(1)
-        self.layout().addWidget(content_group, 0, 2)
+        self.layout().addWidget(content_group, 0, 1)
         # create new set
         new_set_button = QtWidgets.QPushButton(self.tr('New set'))
         new_set_button.clicked.connect(self.new_set)
-        self.layout().addWidget(new_set_button, 1, 2)
+        self.layout().addWidget(new_set_button, 1, 1)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(self.tr('Add to sets'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
@@ -231,8 +221,8 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.sets_widget)
         self.sets_widget.setAutoFillBackground(False)
         sets_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(sets_group, 0, 3, 2, 1)
-        self.layout().setColumnStretch(3, 1)
+        self.layout().addWidget(sets_group, 0, 2, 2, 1)
+        self.layout().setColumnStretch(2, 1)
 
     @QtCore.pyqtSlot(bool)
     def enable_ff(self, value):
@@ -274,17 +264,6 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             self.sets_widget.layout().addWidget(widget)
         return widget
 
-    def show_user(self, name, picture):
-        if name:
-            self.user['name'].setText(self.tr(
-                'Connected to {} on Flickr').format(name))
-        else:
-            self.user['name'].setText(self.tr('Not connected to Flickr'))
-        pixmap = QtGui.QPixmap()
-        if picture:
-            pixmap.loadFromData(picture)
-        self.user['photo'].setPixmap(pixmap)
-
 
 class FlickrUploader(PhotiniUploader):
     session_factory = FlickrSession
@@ -303,15 +282,12 @@ class FlickrUploader(PhotiniUploader):
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             }
 
-    def clear_sets(self):
+    def load_user_data(self, connected):
         self.photosets = []
-        self.upload_config.show_user(None, None)
         self.upload_config.clear_sets()
-
-    def load_sets(self):
-        with Busy():
+        if connected:
             name, picture = self.session.get_user()
-            self.upload_config.show_user(name, picture)
+            self.show_user(name, picture)
             sets = self.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text
@@ -321,6 +297,8 @@ class FlickrUploader(PhotiniUploader):
                     'title' : title,
                     'widget': widget,
                     })
+        else:
+            self.show_user(None, None)
 
     def get_upload_params(self):
         # get config params that apply to all photos
