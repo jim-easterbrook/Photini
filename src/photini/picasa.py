@@ -121,6 +121,10 @@ class FeedNode(PicasaNode):
 class PicasaSession(object):
     token_url     = 'https://www.googleapis.com/oauth2/v4/token'
     album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
+    scope = {
+        'read' : 'https://picasaweb.google.com/data/',
+        'write': 'https://picasaweb.google.com/data/',
+        }
 
     def __init__(self, auto_refresh=True):
         self.auto_refresh = auto_refresh
@@ -131,7 +135,7 @@ class PicasaSession(object):
         keyring.delete_password('photini', 'picasa')
         self.session = None
 
-    def permitted(self, scope='https://picasaweb.google.com/data/'):
+    def permitted(self, level):
         refresh_token = keyring.get_password('photini', 'picasa')
         if not refresh_token:
             self.session = None
@@ -169,15 +173,15 @@ class PicasaSession(object):
             resp = self._check_response(self.session.get(
                 'https://www.googleapis.com/oauth2/v3/tokeninfo',
                 params={'access_token': self.token['access_token']})).json()
-            if resp['scope'] != scope or resp['aud'] != client_id:
+            if resp['scope'] != self.scope[level] or resp['aud'] != client_id:
                 return False
         return True
 
-    def get_auth_url(self, scope='https://picasaweb.google.com/data/'):
+    def get_auth_url(self, level):
         logger.info('using %s', keyring.get_keyring().__module__)
         client_id = key_store.get('picasa', 'client_id')
         self.session = OAuth2Session(
-            client_id, scope=scope,
+            client_id, scope=self.scope[level],
             redirect_uri='urn:ietf:wg:oauth:2.0:oob')
         return self.session.authorization_url(
             'https://accounts.google.com/o/oauth2/v2/auth')[0]
@@ -419,10 +423,10 @@ class PicasaUploader(PhotiniUploader):
                 continue
             yield album
 
-    def load_user_data(self, connected):
+    def load_user_data(self):
         self.current_album = None
         self.upload_config.albums.clear()
-        if connected:
+        if self.connected:
             feed = self.session.get_feed()
             self.show_user(feed.nickname.text, feed.thumbnail.text)
             for album in self.get_albums(feed):
@@ -445,7 +449,7 @@ class PicasaUploader(PhotiniUploader):
     def new_album(self):
         with Busy():
             self.save_changes()
-            if not self.session.permitted():
+            if not self.session.permitted('write'):
                 self.refresh()
                 return
             self.current_album = None
@@ -475,7 +479,7 @@ Doing so will remove the album and its photos from all Google products."""
         with Busy():
             self.timer.stop()
             self.album_changed = False
-            if not self.session.permitted():
+            if not self.session.permitted('write'):
                 self.refresh()
                 return
             self.current_album = None
@@ -490,7 +494,7 @@ Doing so will remove the album and its photos from all Google products."""
     def select_album(self, album_id):
         with Busy():
             self.save_changes()
-            if not self.session.permitted():
+            if not self.session.permitted('read'):
                 self.refresh()
                 return
             self.current_album = None

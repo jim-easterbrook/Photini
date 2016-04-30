@@ -38,6 +38,10 @@ logger = logging.getLogger(__name__)
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
 class FlickrSession(object):
+    perms = {
+        'read' : 'write',
+        'write': 'write',
+        }
     def __init__(self, auto_refresh=True):
         self.auto_refresh = auto_refresh
         self.api = None
@@ -46,7 +50,7 @@ class FlickrSession(object):
         keyring.delete_password('photini', 'flickr')
         self.api = None
 
-    def permitted(self, perms='write'):
+    def permitted(self, level):
         stored_token = keyring.get_password('photini', 'flickr')
         if not stored_token:
             self.api = None
@@ -56,20 +60,20 @@ class FlickrSession(object):
             api_secret = key_store.get('flickr', 'api_secret')
             token, token_secret = stored_token.split('&')
             token = flickrapi.auth.FlickrAccessToken(
-                token, token_secret, perms)
+                token, token_secret, self.perms[level])
             self.api = flickrapi.FlickrAPI(
                 api_key, api_secret, token=token, store_token=False)
-        return self.api.token_valid(perms=perms)
+        return self.api.token_valid(perms=self.perms[level])
 
-    def get_auth_url(self, perms='write'):
+    def get_auth_url(self, level):
         logger.info('using %s', keyring.get_keyring().__module__)
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
-        token = flickrapi.auth.FlickrAccessToken('', '', perms)
+        token = flickrapi.auth.FlickrAccessToken('', '', self.perms[level])
         self.api = flickrapi.FlickrAPI(
             api_key, api_secret, token=token, store_token=False)
         self.api.get_request_token(oauth_callback='oob')
-        return self.api.auth_url(perms=perms)
+        return self.api.auth_url(perms=self.perms[level])
 
     def get_access_token(self, auth_code):
         try:
@@ -282,10 +286,10 @@ class FlickrUploader(PhotiniUploader):
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             }
 
-    def load_user_data(self, connected):
+    def load_user_data(self):
         self.photosets = []
         self.upload_config.clear_sets()
-        if connected:
+        if self.connected:
             name, picture = self.session.get_user()
             self.show_user(name, picture)
             sets = self.session.photosets_getList()

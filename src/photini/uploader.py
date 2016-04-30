@@ -77,7 +77,7 @@ class UploadWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot(object, bool)
     def upload_file(self, image, convert):
-        if not self.session.permitted():
+        if not self.session.permitted('write'):
             self.upload_file_done.emit(image, 'not permitted')
             return
         if convert:
@@ -106,6 +106,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
         self.upload_worker = None
+        self.connected = False
         # user details
         self.user = {}
         user_group = QtWidgets.QGroupBox(self.tr('User'))
@@ -149,27 +150,30 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def refresh(self, force=False):
         with Busy():
-            connected = self.user_connect.isChecked() and self.session.permitted()
-            if connected:
+            self.connected = (self.user_connect.isChecked() and
+                              self.session.permitted('read'))
+            if self.connected:
                 self.user_connect.setText(self.tr('Log out'))
                 if force:
                     # load_user_data can be slow, so only do it when forced
                     try:
-                        self.load_user_data(True)
+                        self.load_user_data()
                     except Exception as ex:
                         self.logger.error(ex)
-                        connected = False
-            if not connected:
+                        self.connected = False
+            if not self.connected:
                 self.user_connect.setText(self.tr('Connect'))
                 # clearing user data is quick so do it anyway
-                self.load_user_data(False)
-            self.user_connect.setChecked(connected)
-            self.upload_config.setEnabled(connected and not self.upload_worker)
+                self.load_user_data()
+            self.user_connect.setChecked(self.connected)
+            self.upload_config.setEnabled(self.connected and not self.upload_worker)
+            # enable or disable upload button
+            self.new_selection(self.image_list.get_selected_images())
 
     @QtCore.pyqtSlot(bool)
     def connect_user(self, connect):
         if connect:
-            self.authorise()
+            self.authorise('read')
         else:
             self.session.log_out()
         self.refresh(force=True)
@@ -238,7 +242,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     continue
                 convert = result == QtWidgets.QMessageBox.Yes
             self.upload_list.append((image, convert))
-        if not self.upload_list or not self.authorise():
+        if not self.upload_list or not self.authorise('write'):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
@@ -263,7 +267,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot(object, str)
     def upload_file_done(self, image, error):
         if error:
-            dialog = QtWidgets.QMessageBox()
+            dialog = QtWidgets.QMessageBox(self)
             dialog.setWindowTitle(self.tr('Photini: upload error'))
             dialog.setText(self.tr('<h3>File "{}" upload failed.</h3>').format(
                 os.path.basename(image.path)))
@@ -309,26 +313,25 @@ then enter the verification code:""").format(info_text))
             return six.text_type(auth_code).strip()
         return None
 
-    def authorise(self, **kw):
+    def authorise(self, level):
         with Busy():
-            if self.session.permitted(**kw):
+            if self.session.permitted(level):
                 return True
             # do full authentication procedure
-            auth_url = self.session.get_auth_url(**kw)
+            auth_url = self.session.get_auth_url(level)
         auth_code = self.auth_dialog(auth_url)
         if not auth_code:
             self.refresh()
             return False
         with Busy():
             self.session.get_access_token(auth_code)
-            if not self.session.permitted(**kw):
+            if not self.session.permitted(level):
                 self.refresh()
                 return False
         return True
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
-        with Busy():
-            self.upload_button.setEnabled(
-                self.upload_button.isChecked() or (
-                    len(selection) > 0 and self.session.permitted()))
+        self.upload_button.setEnabled(
+            self.upload_button.isChecked() or (
+                len(selection) > 0 and self.connected))
