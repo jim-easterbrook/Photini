@@ -25,6 +25,7 @@ from six.moves.urllib.request import urlopen
 
 import keyring
 import oauthlib
+import pkg_resources
 import requests
 from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder
@@ -340,6 +341,10 @@ class FacebookUploader(PhotiniUploader):
             'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
             }
         self.login_popup = None
+        # add Facebook icon to connect button
+        icon_file = pkg_resources.resource_filename(
+            'photini', 'data/facebook_logo.png')
+        self.user_connect.setIcon(QtGui.QIcon(QtGui.QPixmap(icon_file)))
 
     def auth_dialog(self, auth_url):
         if not self.login_popup:
