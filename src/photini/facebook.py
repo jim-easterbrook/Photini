@@ -1,0 +1,445 @@
+##  Photini - a simple photo metadata editor.
+##  http://github.com/jim-easterbrook/Photini
+##  Copyright (C) 2016  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##
+##  This program is free software: you can redistribute it and/or
+##  modify it under the terms of the GNU General Public License as
+##  published by the Free Software Foundation, either version 3 of the
+##  License, or (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+##  General Public License for more details.
+##
+##  You should have received a copy of the GNU General Public License
+##  along with this program.  If not, see
+##  <http://www.gnu.org/licenses/>.
+
+from __future__ import unicode_literals
+
+import six
+import logging
+import os
+from six.moves.urllib.request import urlopen
+
+import keyring
+import oauthlib
+import requests
+from requests_oauthlib import OAuth2Session
+from requests_toolbelt import MultipartEncoder
+
+from .configstore import config_store, key_store
+from .descriptive import MultiLineEdit, SingleLineEdit
+from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
+from .uploader import PhotiniUploader
+
+logger = logging.getLogger(__name__)
+
+class FacebookSession(object):
+    scope = {
+        'read' : 'user_photos',
+        'write': 'user_photos,publish_actions',
+        }
+
+    def __init__(self, auto_refresh=True):
+        self.auto_refresh = auto_refresh
+        self.session = None
+
+    def log_out(self):
+        keyring.delete_password('photini', 'facebook')
+        self.session = None
+
+    def permitted(self, level):
+        access_token = keyring.get_password('photini', 'facebook')
+        if not access_token:
+            self.session = None
+            return False
+        if not self.session:
+            token = {'access_token': access_token}
+            self.session = OAuth2Session(token=token)
+        try:
+            permissions = self.get('https://graph.facebook.com/me/permissions')
+        except Exception:
+            permissions = False
+        if not permissions:
+            return False
+        for required in self.scope[level].split(','):
+            required = required.strip()
+            if not required:
+                continue
+            found = False
+            for permission in permissions['data']:
+                if permission['permission'] != required:
+                    continue
+                if permission['status'] != 'granted':
+                    return False
+                break
+            else:
+                return False
+        return True
+
+    def get_auth_url(self, level):
+        logger.info('using %s', keyring.get_keyring().__module__)
+        app_id = key_store.get('facebook', 'app_id')
+        client = oauthlib.oauth2.MobileApplicationClient(app_id)
+        self.session = OAuth2Session(
+            client=client, scope=self.scope[level],
+            redirect_uri='https://www.facebook.com/connect/login_success.html',
+            )
+        return self.session.authorization_url(
+            'https://www.facebook.com/dialog/oauth',
+            auth_type='rerequest')[0]
+##            'https://www.facebook.com/dialog/oauth', display='popup')[0]
+
+    def get_access_token(self, url):
+        token = self.session.token_from_fragment(url)
+        self._save_token(token)
+        self.session = None
+
+    def get_user(self):
+        rsp = self.get('https://graph.facebook.com/me',
+                       params={'fields': 'name,picture'})
+        if not rsp:
+            return None, None
+        if not rsp['picture']:
+            return rsp['name'], None
+        return rsp['name'], rsp['picture']['data']['url']
+
+    def get_album(self, album_id, fields):
+        picture = None
+        album = self.get(
+            'https://graph.facebook.com/v2.6/' + album_id,
+            params={'fields': fields})
+        if not album:
+            return {}, picture
+        if 'cover_photo' in album:
+            picture = self.get(
+                'https://graph.facebook.com/v2.6/' + album['cover_photo']['id'],
+                params={'fields': 'picture'})
+        if picture:
+            picture = picture['picture']
+        return album, picture
+
+    def get_albums(self, fields):
+        albums = self.get(
+            'https://graph.facebook.com/me/albums', params={'fields': fields})
+        while True:
+            if not albums:
+                return
+            for album in albums['data']:
+                yield album
+            if 'next' not in albums['paging']:
+                return
+            albums = self.get(albums['paging']['next'])
+
+    def get_cities(self, latlong):
+        places = self.get(
+            'https://graph.facebook.com/search',
+            params={'q'       : 'city',
+                    'type'    : 'place',
+                    'center'  : str(latlong),
+                    'distance': 10000,
+                    })
+        while True:
+            if not places:
+                return
+            for place in places['data']:
+                if (place['category'].lower() == 'city' and
+                        'latitude' in place['location'] and
+                        'longitude' in place['location']):
+                    yield place
+            if 'paging' not in places or 'next' not in places['paging']:
+                return
+            places = self.get(places['paging']['next'])
+
+    def do_upload(self, fileobj, image_type, image, params):
+        fields = {
+            'photo'   : ('source', fileobj),
+            'no_story': str(params['no_story']),
+            }
+        title = image.metadata.title
+        description = image.metadata.description
+        if title and description:
+            caption = title.value + '\n\n' + description.value
+        elif title:
+            caption = title.value
+        elif description:
+            caption = description.value
+        else:
+            caption = ''
+        if caption:
+            fields['caption'] = caption
+        date_taken = image.metadata.date_taken
+        if date_taken:
+            fields['backdated_time'] = date_taken.datetime.isoformat()
+            if date_taken.precision <= 5:
+                fields['backdated_time_granularity'] = (
+                    'year', 'month', 'day', 'hour', 'min')[date_taken.precision - 1]
+        latlong = image.metadata.latlong
+        if latlong and params['geo_tag']:
+            nearest = None, 1.0
+            for place in self.get_cities(latlong):
+                dist2 = ((latlong.lat - place['location']['latitude']) ** 2 +
+                         (latlong.lon - place['location']['longitude']) ** 2)
+                if dist2 < nearest[1]:
+                    nearest = place, dist2
+            nearest = nearest[0]
+            if nearest:
+                fields['place'] = place['id']
+        data = MultipartEncoder(fields=fields)
+        headers = {'Content-Type' : data.content_type}
+        url = 'https://graph.facebook.com/v2.6/'
+        if 'album_id' in params:
+            url += params['album_id'] + '/photos'
+        else:
+            url += 'me/photos'
+        try:
+            self.post(url, data=data, headers=headers)
+        except Exception as ex:
+            return str(ex)
+        return ''
+
+    def get(self, *arg, decode=True, **kw):
+        rsp = self.session.get(*arg, **kw)
+        rsp.raise_for_status()
+        if decode:
+            return rsp.json()
+        return rsp.content
+
+    def post(self, *arg, **kw):
+        rsp = self.session.post(*arg, **kw)
+        rsp.raise_for_status()
+
+    def _save_token(self, token):
+        if self.auto_refresh:
+            keyring.set_password('photini', 'facebook', token['access_token'])
+
+
+class FacebookLoginPopup(QtWidgets.QDialog):
+    def __init__(self, *arg, **kw):
+        super(FacebookLoginPopup, self).__init__(*arg, **kw)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.browser = QtWebKitWidgets.QWebView()
+        self.browser.urlChanged.connect(self.auth_url_changed)
+        self.layout().addWidget(self.browser)
+        buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Cancel)
+        buttons.rejected.connect(self.reject)
+        self.layout().addWidget(buttons)
+
+    def load_url(self, auth_url):
+        self.browser.load(QtCore.QUrl(auth_url))
+
+    def auth_url_changed(self, url):
+        if url.path() != '/connect/login_success.html':
+            return
+        self.result = url.toString()
+        if 'access_token' in url.fragment():
+            return self.accept()
+        self.reject()
+
+
+class FacebookUploadConfig(QtWidgets.QWidget):
+    new_album = QtCore.pyqtSignal()
+    select_album = QtCore.pyqtSignal(six.text_type)
+
+    def __init__(self, *arg, **kw):
+        super(FacebookUploadConfig, self).__init__(*arg, **kw)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.widgets = {}
+        ## upload config
+        config_group = QtWidgets.QGroupBox(self.tr('Options'))
+        config_group.setLayout(QtWidgets.QFormLayout())
+        self.layout().addWidget(config_group)
+        # suppress feed story
+        self.widgets['no_story'] = QtWidgets.QCheckBox()
+        config_group.layout().addRow(
+            self.tr('Suppress news feed story'), self.widgets['no_story'])
+        label = config_group.layout().labelForField(self.widgets['no_story'])
+        label.setWordWrap(True)
+        label.setFixedWidth(90)
+        # geotagging
+        self.widgets['geo_tag'] = QtWidgets.QCheckBox()
+        config_group.layout().addRow(
+            self.tr('Set "city" from map coordinates'), self.widgets['geo_tag'])
+        self.widgets['geo_tag'].setChecked(True)
+        label = config_group.layout().labelForField(self.widgets['geo_tag'])
+        label.setWordWrap(True)
+        label.setFixedWidth(90)
+        ## album details
+        album_group = QtWidgets.QGroupBox(self.tr('Album'))
+        album_group.setLayout(QtWidgets.QHBoxLayout())
+        # left hand side
+        album_form_left = QtWidgets.QFormLayout()
+        album_form_left.setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        album_group.layout().addLayout(album_form_left)
+        # album title / selector
+        self.widgets['album_choose'] = QtWidgets.QComboBox()
+        self.widgets['album_choose'].activated.connect(self.switch_album)
+        album_form_left.addRow(self.tr('Title'), self.widgets['album_choose'])
+        # album description
+        self.widgets['album_description'] = QtWidgets.QPlainTextEdit()
+        self.widgets['album_description'].setReadOnly(True)
+        album_form_left.addRow(self.tr('Description'), self.widgets['album_description'])
+        # album location
+        self.widgets['album_location'] = QtWidgets.QLineEdit()
+        self.widgets['album_location'].setReadOnly(True)
+        album_form_left.addRow(self.tr('Location'), self.widgets['album_location'])
+        # right hand side
+        album_form_right = QtWidgets.QVBoxLayout()
+        album_group.layout().addLayout(album_form_right)
+        # album thumbnail
+        self.widgets['album_thumb'] = QtWidgets.QLabel()
+        self.widgets['album_thumb'].setFixedSize(150, 150)
+        self.widgets['album_thumb'].setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        album_form_right.addWidget(self.widgets['album_thumb'])
+        album_form_right.addStretch(1)
+        # new album
+        new_album_button = QtWidgets.QPushButton(self.tr('New album'))
+        new_album_button.clicked.connect(self.new_album)
+        album_form_right.addWidget(new_album_button)
+        self.layout().addWidget(album_group, stretch=1)
+
+    @QtCore.pyqtSlot(int)
+    def switch_album(self, index):
+        self.select_album.emit(self.widgets['album_choose'].itemData(index))
+
+    def show_album(self, album, picture):
+        if 'description' in album:
+            self.widgets['album_description'].setPlainText(album['description'])
+        else:
+            self.widgets['album_description'].clear()
+        if 'location' in album:
+            self.widgets['album_location'].setText(album['location'])
+        else:
+            self.widgets['album_location'].clear()
+        pixmap = QtGui.QPixmap()
+        if picture:
+            try:
+                pixmap.loadFromData(urlopen(picture).read())
+            except URLError as ex:
+                self.logger.error('cannot read %s: %s', picture, str(ex))
+        self.widgets['album_thumb'].setPixmap(pixmap)
+
+
+class FacebookUploader(PhotiniUploader):
+    session_factory = FacebookSession
+
+    def __init__(self, *arg, **kw):
+        self.upload_config = FacebookUploadConfig()
+        self.upload_config.new_album.connect(self.new_album)
+        self.upload_config.select_album.connect(self.select_album)
+        super(FacebookUploader, self).__init__(self.upload_config, *arg, **kw)
+        self.service_name = self.tr('Facebook')
+        self.convert = {
+            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
+            'msg'     : self.tr(
+                'File "{0}" is of type "{1}", which Facebook does not' +
+                ' accept. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
+            }
+
+    def auth_dialog(self, auth_url):
+        # create dialog with embedded browser
+        dlg = FacebookLoginPopup(self)
+        dlg.setWindowTitle(
+            self.tr('Photini: login to {}').format(self.service_name))
+        dlg.load_url(auth_url)
+        if dlg.exec_() != QtWidgets.QDialog.Accepted:
+            return None
+        return dlg.result
+
+    def load_user_data(self):
+        self.upload_config.widgets['album_choose'].clear()
+        if self.connected:
+            name, picture = self.session.get_user()
+            self.show_user(name, picture)
+            for album in self.session.get_albums('id,can_upload,name'):
+                if album['can_upload']:
+                    self.upload_config.widgets['album_choose'].addItem(
+                        album['name'], album['id'])
+            self.set_current_album()
+        else:
+            self.show_user(None, None)
+            self.upload_config.show_album({}, None)
+
+    def get_upload_params(self):
+        params = {
+            'no_story': self.upload_config.widgets['no_story'].isChecked(),
+            'geo_tag' : self.upload_config.widgets['geo_tag'].isChecked(),
+            }
+        idx = self.upload_config.widgets['album_choose'].currentIndex()
+        if idx >= 0:
+            params['album_id'] = self.upload_config.widgets['album_choose'].itemData(idx)
+        return params
+
+    def upload_finished(self):
+        # reload current album metadata (to update thumbnail)
+        with Busy():
+            idx = self.upload_config.widgets['album_choose'].currentIndex()
+            album_id = self.upload_config.widgets['album_choose'].itemData(idx)
+            self.set_current_album(album_id)
+
+    @QtCore.pyqtSlot()
+    def new_album(self):
+        if not self.authorise('write'):
+            return
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(self.tr('Create new Facebook album'))
+        dialog.setLayout(QtWidgets.QFormLayout())
+        name = SingleLineEdit(spell_check=True)
+        dialog.layout().addRow(self.tr('Title'), name)
+        message = MultiLineEdit(spell_check=True)
+        dialog.layout().addRow(self.tr('Description'), message)
+        location = SingleLineEdit(spell_check=True)
+        dialog.layout().addRow(self.tr('Location'), location)
+        privacy = QtWidgets.QComboBox()
+        for display_name, value in (
+                (self.tr('Only me'),            '{value: "SELF"}'),
+                (self.tr('All friends'),        '{value: "ALL_FRIENDS"}'),
+                (self.tr('Friends of friends'), '{value: "FRIENDS_OF_FRIENDS"}'),
+                (self.tr('Friends + networks'), '{value: "NETWORKS_FRIENDS"}'),
+                (self.tr('Everyone'),           '{value: "EVERYONE"}'),
+                ):
+            privacy.addItem(display_name, value)
+        dialog.layout().addRow(self.tr('Privacy'), privacy)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+        name = name.toPlainText().strip()
+        if not name:
+            return
+        data = {'name': name}
+        message = message.toPlainText().strip()
+        if message:
+            data['message'] = message
+        location = location.toPlainText().strip()
+        if location:
+            data['location'] = location
+        data['privacy'] = privacy.itemData(privacy.currentIndex())
+        self.session.post('https://graph.facebook.com/me/albums', data=data)
+        self.load_user_data()
+            
+    @QtCore.pyqtSlot(six.text_type)
+    def select_album(self, album_id):
+        print('select_album', album_id)
+        if not self.authorise('read'):
+            self.refresh()
+            return
+        with Busy():
+            self.set_current_album(album_id)
+
+    def set_current_album(self, album_id=None):
+        if self.upload_config.widgets['album_choose'].count() == 0:
+            return
+        if album_id is None:
+            album_id = self.upload_config.widgets['album_choose'].itemData(0)
+        album, picture = self.session.get_album(
+            album_id, 'cover_photo,description,location,name')
+        self.upload_config.show_album(album, picture)

@@ -55,16 +55,22 @@ class EditSettings(QtWidgets.QDialog):
         panel.layout().addRow(self.tr('Creator'), self.creator_name)
         # reset flickr
         self.reset_flickr = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Reset Flickr'), self.reset_flickr)
+        panel.layout().addRow(self.tr('Disconnect from Flickr'), self.reset_flickr)
         if not keyring or keyring.get_password('photini', 'flickr') is None:
             self.reset_flickr.setDisabled(True)
             panel.layout().labelForField(self.reset_flickr).setDisabled(True)
         # reset picasa
         self.reset_picasa = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Reset Google Photos'), self.reset_picasa)
+        panel.layout().addRow(self.tr('Disconnect from Google Photos'), self.reset_picasa)
         if not keyring or keyring.get_password('photini', 'picasa') is None:
             self.reset_picasa.setDisabled(True)
             panel.layout().labelForField(self.reset_picasa).setDisabled(True)
+        # reset facebook
+        self.reset_facebook = QtWidgets.QCheckBox()
+        panel.layout().addRow(self.tr('Disconnect from Facebook'), self.reset_facebook)
+        if not keyring or keyring.get_password('photini', 'facebook') is None:
+            self.reset_facebook.setDisabled(True)
+            panel.layout().labelForField(self.reset_facebook).setDisabled(True)
         # IPTC data
         force_iptc = eval(config_store.get('files', 'force_iptc', 'False'))
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Write unconditionally'))
@@ -113,6 +119,9 @@ class EditSettings(QtWidgets.QDialog):
         if (self.reset_picasa.isChecked() and
                             keyring.get_password('photini', 'picasa')):
             keyring.delete_password('photini', 'picasa')
+        if (self.reset_facebook.isChecked() and
+                            keyring.get_password('photini', 'facebook')):
+            keyring.delete_password('photini', 'facebook')
         config_store.set(
             'files', 'force_iptc', str(self.write_iptc.isChecked()))
         if self.sc_always.isChecked():

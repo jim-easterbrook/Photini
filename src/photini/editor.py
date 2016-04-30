@@ -44,6 +44,10 @@ from .configstore import config_store
 from .bingmap import BingMap
 from .descriptive import Descriptive
 try:
+    from .facebook import FacebookUploader
+except ImportError:
+    FacebookUploader = None
+try:
     from .flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
@@ -94,10 +98,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spelling_manager = SpellingManager()
         # prepare list of tabs and associated stuff
         self.tab_list = (
-            {'name'  : self.tr('&Descriptive metadata'),
+            {'name'  : self.tr('&Descriptive'),
              'key'   : 'descriptive_metadata',
              'class' : Descriptive},
-            {'name'  : self.tr('&Technical metadata'),
+            {'name'  : self.tr('&Technical'),
              'key'   : 'technical_metadata',
              'class' : Technical},
             {'name'  : self.tr('Map (&Google)'),
@@ -109,12 +113,15 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('Map (&OSM)'),
              'key'   : 'map_osm',
              'class' : OpenStreetMap},
-            {'name'  : self.tr('&Flickr upload'),
+            {'name'  : self.tr('&Flickr'),
              'key'   : 'flickr_upload',
              'class' : FlickrUploader},
-            {'name'  : self.tr('Google &Photos upload'),
+            {'name'  : self.tr('Google &Photos'),
              'key'   : 'picasa_upload',
              'class' : PicasaUploader},
+            {'name'  : self.tr('Faceboo&k'),
+             'key'   : 'facebook_upload',
+             'class' : FacebookUploader},
             {'name'  : self.tr('&Import photos'),
              'key'   : 'import_photos',
              'class' : Importer},
