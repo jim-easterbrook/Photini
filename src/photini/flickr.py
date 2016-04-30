@@ -310,9 +310,6 @@ class FlickrUploader(PhotiniUploader):
                 add_to_sets.append(item)
         return fixed_params, add_to_sets
 
-    def upload_started(self):
-        pass
-
     def upload_finished(self):
         pass
 

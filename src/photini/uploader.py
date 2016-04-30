@@ -164,7 +164,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 # clearing user data is quick so do it anyway
                 self.load_user_data(False)
             self.user_connect.setChecked(connected)
-            self.upload_config.setEnabled(connected)
+            self.upload_config.setEnabled(connected and not self.upload_worker)
 
     @QtCore.pyqtSlot(bool)
     def connect_user(self, connect):
@@ -247,7 +247,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
         self.upload_worker.thread.start()
-        self.upload_started()
+        self.upload_config.setEnabled(False)
         self.uploads_done = 0
         self.next_upload()
 
@@ -284,6 +284,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.setChecked(False)
         self.total_progress.setValue(0)
         self.total_progress.setFormat('%p%')
+        self.upload_config.setEnabled(True)
         self.upload_finished()
         self.upload_file.disconnect()
         self.upload_worker.upload_progress.disconnect()

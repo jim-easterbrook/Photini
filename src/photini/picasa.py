@@ -436,11 +436,7 @@ class PicasaUploader(PhotiniUploader):
     def get_upload_params(self):
         return self.current_album
 
-    def upload_started(self):
-        self.upload_config.setEnabled(False)
-
     def upload_finished(self):
-        self.upload_config.setEnabled(True)
         # reload current album metadata (to update thumbnail)
         with Busy():
             self.set_current_album(self.current_album.id.text)
