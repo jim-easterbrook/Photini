@@ -177,7 +177,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.authorise('read')
         else:
             self.session.log_out()
-        self.refresh(force=True)
+            self.refresh(force=True)
 
     def do_not_close(self):
         if not self.upload_worker:
@@ -331,6 +331,7 @@ then enter the verification code:""").format(info_text))
             if not self.session.permitted(level):
                 self.refresh()
                 return False
+        self.refresh(force=True)
         return True
 
     @QtCore.pyqtSlot(list)
