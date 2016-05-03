@@ -278,6 +278,9 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         # album description
         self.widgets['album_description'] = QtWidgets.QPlainTextEdit()
         self.widgets['album_description'].setReadOnly(True)
+        policy = self.widgets['album_description'].sizePolicy()
+        policy.setVerticalStretch(1)
+        self.widgets['album_description'].setSizePolicy(policy)
         album_form_left.addRow(self.tr('Description'), self.widgets['album_description'])
         # album location
         self.widgets['album_location'] = QtWidgets.QLineEdit()
