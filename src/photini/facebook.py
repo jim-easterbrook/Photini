@@ -351,20 +351,18 @@ class FacebookUploader(PhotiniUploader):
 
     def load_user_data(self):
         self.upload_config.widgets['album_choose'].clear()
+        self.upload_config.widgets['album_choose'].addItem(
+            self.tr('<default>'), 'me')
         if self.connected:
             name, picture = self.session.get_user()
             self.show_user(name, picture)
-            usable = -1
             for album in self.session.get_albums('id,can_upload,name'):
                 self.upload_config.widgets['album_choose'].addItem(
                     album['name'], album['id'])
-                idx = self.upload_config.widgets['album_choose'].count() - 1
                 if not album['can_upload']:
+                    idx = self.upload_config.widgets['album_choose'].count() - 1
                     self.upload_config.widgets['album_choose'].setItemData(
                         idx, 0, Qt.UserRole - 1)
-                elif usable < 0:
-                    usable = idx
-            self.upload_config.widgets['album_choose'].setCurrentIndex(usable)
             self.select_album()
         else:
             self.show_user(None, None)
@@ -384,8 +382,6 @@ class FacebookUploader(PhotiniUploader):
 
     @QtCore.pyqtSlot()
     def new_album(self):
-        if not self.authorise('write'):
-            return
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Facebook album'))
         dialog.setLayout(QtWidgets.QFormLayout())
@@ -412,6 +408,8 @@ class FacebookUploader(PhotiniUploader):
         dialog.layout().addRow(button_box)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
+        if not self.authorise('write'):
+            return
         name = name.toPlainText().strip()
         if not name:
             return
@@ -430,7 +428,7 @@ class FacebookUploader(PhotiniUploader):
             self.refresh(force=True)
             return
         self.load_user_data()
-            
+
     @QtCore.pyqtSlot(int)
     def select_album(self, index=None):
         if not self.authorise('read'):
@@ -438,15 +436,11 @@ class FacebookUploader(PhotiniUploader):
             return
         if index is None:
             index = self.upload_config.widgets['album_choose'].currentIndex()
-        if index < 0:
+        album_id = self.upload_config.widgets['album_choose'].itemData(index)
+        if album_id == 'me':
             self.upload_config.show_album({}, None)
             return
-        album_id = self.upload_config.widgets['album_choose'].itemData(index)
         with Busy():
             album, picture = self.session.get_album(
                 album_id, 'cover_photo,description,location,name')
             self.upload_config.show_album(album, picture)
-
-    def can_upload(self):
-        return (self.connected and
-                self.upload_config.widgets['album_choose'].currentIndex() >= 0)

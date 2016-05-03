@@ -336,11 +336,8 @@ then enter the verification code:""").format(info_text))
         self.refresh(force=True)
         return True
 
-    def can_upload(self):
-        return self.connected
-
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
             self.upload_button.isChecked() or (
-                len(selection) > 0 and self.can_upload()))
+                len(selection) > 0 and self.connected))
