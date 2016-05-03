@@ -167,6 +167,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 self.load_user_data()
             self.user_connect.setChecked(self.connected)
             self.upload_config.setEnabled(self.connected and not self.upload_worker)
+            self.user_connect.setEnabled(not self.upload_worker)
             # enable or disable upload button
             self.new_selection(self.image_list.get_selected_images())
 
@@ -252,6 +253,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
         self.upload_worker.thread.start()
         self.upload_config.setEnabled(False)
+        self.user_connect.setEnabled(False)
         self.uploads_done = 0
         self.next_upload()
 
@@ -289,6 +291,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.total_progress.setValue(0)
         self.total_progress.setFormat('%p%')
         self.upload_config.setEnabled(True)
+        self.user_connect.setEnabled(True)
         self.upload_finished()
         self.upload_file.disconnect()
         self.upload_worker.upload_progress.disconnect()
