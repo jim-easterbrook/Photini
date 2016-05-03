@@ -189,11 +189,7 @@ class FacebookSession(object):
                 fields['place'] = place['id']
         data = MultipartEncoder(fields=fields)
         headers = {'Content-Type' : data.content_type}
-        url = 'https://graph.facebook.com/v2.6/'
-        if 'album_id' in params:
-            url += params['album_id'] + '/photos'
-        else:
-            url += 'me/photos'
+        url = 'https://graph.facebook.com/v2.6/' + params['album_id'] + '/photos'
         try:
             self.post(url, data=data, headers=headers)
         except Exception as ex:
@@ -241,7 +237,7 @@ class FacebookLoginPopup(QtWidgets.QDialog):
 
 class FacebookUploadConfig(QtWidgets.QWidget):
     new_album = QtCore.pyqtSignal()
-    select_album = QtCore.pyqtSignal(six.text_type)
+    select_album = QtCore.pyqtSignal(int)
 
     def __init__(self, *arg, **kw):
         super(FacebookUploadConfig, self).__init__(*arg, **kw)
@@ -277,7 +273,7 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         album_group.layout().addLayout(album_form_left)
         # album title / selector
         self.widgets['album_choose'] = QtWidgets.QComboBox()
-        self.widgets['album_choose'].activated.connect(self.switch_album)
+        self.widgets['album_choose'].activated.connect(self.select_album)
         album_form_left.addRow(self.tr('Title'), self.widgets['album_choose'])
         # album description
         self.widgets['album_description'] = QtWidgets.QPlainTextEdit()
@@ -301,10 +297,6 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         new_album_button.clicked.connect(self.new_album)
         album_form_right.addWidget(new_album_button)
         self.layout().addWidget(album_group, stretch=1)
-
-    @QtCore.pyqtSlot(int)
-    def switch_album(self, index):
-        self.select_album.emit(self.widgets['album_choose'].itemData(index))
 
     def show_album(self, album, picture):
         if 'description' in album:
@@ -351,7 +343,7 @@ class FacebookUploader(PhotiniUploader):
             # create dialog with embedded browser
             self.login_popup = FacebookLoginPopup(self)
             self.login_popup.setWindowTitle(
-                self.tr('Photini: login to {}').format(self.service_name))
+                self.tr('Photini: authorise {}').format(self.service_name))
         self.login_popup.load_url(auth_url)
         if self.login_popup.exec_() != QtWidgets.QDialog.Accepted:
             return None
@@ -362,34 +354,33 @@ class FacebookUploader(PhotiniUploader):
         if self.connected:
             name, picture = self.session.get_user()
             self.show_user(name, picture)
+            usable = -1
             for album in self.session.get_albums('id,can_upload,name'):
                 self.upload_config.widgets['album_choose'].addItem(
                     album['name'], album['id'])
+                idx = self.upload_config.widgets['album_choose'].count() - 1
                 if not album['can_upload']:
-                    idx = self.upload_config.widgets['album_choose'].count() - 1
                     self.upload_config.widgets['album_choose'].setItemData(
                         idx, 0, Qt.UserRole - 1)
-            self.set_current_album()
+                elif usable < 0:
+                    usable = idx
+            self.upload_config.widgets['album_choose'].setCurrentIndex(usable)
+            self.select_album()
         else:
             self.show_user(None, None)
             self.upload_config.show_album({}, None)
 
     def get_upload_params(self):
-        params = {
+        idx = self.upload_config.widgets['album_choose'].currentIndex()
+        return {
+            'album_id': self.upload_config.widgets['album_choose'].itemData(idx),
             'no_story': self.upload_config.widgets['no_story'].isChecked(),
             'geo_tag' : self.upload_config.widgets['geo_tag'].isChecked(),
             }
-        idx = self.upload_config.widgets['album_choose'].currentIndex()
-        if idx >= 0:
-            params['album_id'] = self.upload_config.widgets['album_choose'].itemData(idx)
-        return params
 
     def upload_finished(self):
         # reload current album metadata (to update thumbnail)
-        with Busy():
-            idx = self.upload_config.widgets['album_choose'].currentIndex()
-            album_id = self.upload_config.widgets['album_choose'].itemData(idx)
-            self.set_current_album(album_id)
+        self.select_album()
 
     @QtCore.pyqtSlot()
     def new_album(self):
@@ -440,20 +431,22 @@ class FacebookUploader(PhotiniUploader):
             return
         self.load_user_data()
             
-    @QtCore.pyqtSlot(six.text_type)
-    def select_album(self, album_id):
-        print('select_album', album_id)
+    @QtCore.pyqtSlot(int)
+    def select_album(self, index=None):
         if not self.authorise('read'):
             self.refresh()
             return
-        with Busy():
-            self.set_current_album(album_id)
-
-    def set_current_album(self, album_id=None):
-        if self.upload_config.widgets['album_choose'].count() == 0:
+        if index is None:
+            index = self.upload_config.widgets['album_choose'].currentIndex()
+        if index < 0:
+            self.upload_config.show_album({}, None)
             return
-        if album_id is None:
-            album_id = self.upload_config.widgets['album_choose'].itemData(0)
-        album, picture = self.session.get_album(
-            album_id, 'cover_photo,description,location,name')
-        self.upload_config.show_album(album, picture)
+        album_id = self.upload_config.widgets['album_choose'].itemData(index)
+        with Busy():
+            album, picture = self.session.get_album(
+                album_id, 'cover_photo,description,location,name')
+            self.upload_config.show_album(album, picture)
+
+    def can_upload(self):
+        return (self.connected and
+                self.upload_config.widgets['album_choose'].currentIndex() >= 0)

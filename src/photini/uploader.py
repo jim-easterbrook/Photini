@@ -174,10 +174,12 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot(bool)
     def connect_user(self, connect):
         if connect:
-            self.authorise('read')
+            if not self.session.permitted('read'):
+                self.authorise('read')
+                return
         else:
             self.session.log_out()
-            self.refresh(force=True)
+        self.refresh(force=True)
 
     def do_not_close(self):
         if not self.upload_worker:
@@ -334,8 +336,11 @@ then enter the verification code:""").format(info_text))
         self.refresh(force=True)
         return True
 
+    def can_upload(self):
+        return self.connected
+
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
             self.upload_button.isChecked() or (
-                len(selection) > 0 and self.connected))
+                len(selection) > 0 and self.can_upload()))
