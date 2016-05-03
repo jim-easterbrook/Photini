@@ -363,9 +363,12 @@ class FacebookUploader(PhotiniUploader):
             name, picture = self.session.get_user()
             self.show_user(name, picture)
             for album in self.session.get_albums('id,can_upload,name'):
-                if album['can_upload']:
-                    self.upload_config.widgets['album_choose'].addItem(
-                        album['name'], album['id'])
+                self.upload_config.widgets['album_choose'].addItem(
+                    album['name'], album['id'])
+                if not album['can_upload']:
+                    idx = self.upload_config.widgets['album_choose'].count() - 1
+                    self.upload_config.widgets['album_choose'].setItemData(
+                        idx, 0, Qt.UserRole - 1)
             self.set_current_album()
         else:
             self.show_user(None, None)
