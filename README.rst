@@ -17,7 +17,7 @@ Read my `blog post`_ on how I chose a name.
 Features
 --------
 
-.. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_11.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_11.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
@@ -30,7 +30,7 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ and/or Facebook_ and/or `Google Photos`_ and Picasa_ with reuse of metadata.
 
-.. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_19.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
@@ -70,7 +70,7 @@ Documentation
    It is already usable but, like all other software, it has bugs.
    Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
-Photini's documentation is a long way from complete, but you can read what's been written so far at http://photini.readthedocs.org/.
+Photini's documentation is a long way from complete, but you can read what's been written so far at http://photini.readthedocs.io/.
 
 .. _readme-getting_help:
 
@@ -149,11 +149,11 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _Google Privacy Policy:
                    http://www.google.com/policies/privacy/
 .. _installation documentation:
-                   http://photini.readthedocs.org/en/latest/other/installation.html
+                   http://photini.readthedocs.io/en/latest/other/installation.html
 .. _"issues" page: https://github.com/jim-easterbrook/Photini/issues
 .. _Linux Format:  http://www.linuxformat.com/archives?issue=166
 .. _localisation documentation:
-                   http://photini.readthedocs.org/en/latest/other/localisation.html
+                   http://photini.readthedocs.io/en/latest/other/localisation.html
 .. _MapQuest Terms of Use:
                    http://hello.mapquest.com/terms-of-use
 .. _Microsoft Bing Maps Terms of Use:
