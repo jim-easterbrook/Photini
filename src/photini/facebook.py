@@ -229,6 +229,7 @@ class FacebookLoginPopup(QtWidgets.QDialog):
     def auth_url_changed(self, url):
         if url.path() != '/connect/login_success.html':
             return
+        self.browser.setHtml('<p></p>')
         self.result = url.toString()
         if 'access_token' in url.fragment():
             return self.accept()
