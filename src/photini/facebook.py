@@ -413,6 +413,7 @@ class FacebookUploader(PhotiniUploader):
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
         if not self.authorise('write'):
+            self.refresh(force=True)
             return
         name = name.toPlainText().strip()
         if not name:
@@ -436,7 +437,7 @@ class FacebookUploader(PhotiniUploader):
     @QtCore.pyqtSlot(int)
     def select_album(self, index=None):
         if not self.authorise('read'):
-            self.refresh()
+            self.refresh(force=True)
             return
         if index is None:
             index = self.upload_config.widgets['album_choose'].currentIndex()

@@ -174,9 +174,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot(bool)
     def connect_user(self, connect):
         if connect:
-            if not self.session.permitted('read'):
-                self.authorise('read')
-                return
+            self.authorise('read')
         else:
             self.session.log_out()
         self.refresh(force=True)
@@ -245,7 +243,11 @@ class PhotiniUploader(QtWidgets.QWidget):
                     continue
                 convert = result == QtWidgets.QMessageBox.Yes
             self.upload_list.append((image, convert))
-        if not self.upload_list or not self.authorise('write'):
+        if not self.upload_list:
+            self.upload_button.setChecked(False)
+            return
+        if not self.authorise('write'):
+            self.refresh(force=True)
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
@@ -326,15 +328,10 @@ then enter the verification code:""").format(info_text))
             auth_url = self.session.get_auth_url(level)
         auth_code = self.auth_dialog(auth_url)
         if not auth_code:
-            self.refresh()
             return False
         with Busy():
             self.session.get_access_token(auth_code)
-            if not self.session.permitted(level):
-                self.refresh()
-                return False
-        self.refresh(force=True)
-        return True
+            return self.session.permitted(level)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
