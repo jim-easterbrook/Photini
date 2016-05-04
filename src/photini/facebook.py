@@ -129,7 +129,7 @@ class FacebookSession(object):
                 return
             for album in albums['data']:
                 yield album
-            if 'next' not in albums['paging']:
+            if 'paging' not in albums or 'next' not in albums['paging']:
                 return
             albums = self.get(albums['paging']['next'])
 
