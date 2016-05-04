@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-16  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 User manual
@@ -17,6 +17,7 @@ I suggest you read the :doc:`image_selector` section first, then read other sect
    map
    flickr
    picasa
+   facebook
    importer
    configuration
    tags

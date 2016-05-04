@@ -236,6 +236,16 @@ These are also installed with pip::
 
    sudo pip install requests requests-oauthlib keyring
 
+.. _installation-facebook:
+
+Facebook
+""""""""
+
+The Facebook uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_, `requests-toolbelt <https://toolbelt.readthedocs.io/>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
+These are also installed with pip::
+
+   sudo pip install requests requests-oauthlib requests-toolbelt keyring
+
 .. _installation-importer:
 
 Importer

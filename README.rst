@@ -28,7 +28,7 @@ Features
 *   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to Flickr_ and/or `Google Photos`_ and Picasa_ with reuse of metadata.
+*   Upload to Flickr_ and/or Facebook_ and/or `Google Photos`_ and Picasa_ with reuse of metadata.
 
 .. image:: http://photini.readthedocs.org/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
@@ -126,12 +126,12 @@ Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the
 Privacy statement
 ^^^^^^^^^^^^^^^^^
 
-Photini does not directly gather any information from its users, but the online services it uses (maps, Flickr and Google Photos/Picasa) may do so.
+Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, Facebook and Google Photos/Picasa) may do so.
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
 This file can be found in ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
-OAuth_ access tokens for Flickr & Google Photos are securely stored on the user's computer using `Python keyring`_.
+OAuth_ access tokens for Flickr, Facebook & Google Photos are securely stored on the user's computer using `Python keyring`_.
 
 
 Documentation licence
@@ -141,6 +141,7 @@ Permission is granted to copy, distribute and/or modify the Photini documentatio
 A copy of the license is included in the documentation section entitled "GNU Free Documentation License".
 
 .. _blog post:     http://jim-jotting.blogspot.co.uk/2012/10/photini-whats-in-name.html
+.. _Facebook:      https://www.facebook.com/
 .. _Flickr:        http://www.flickr.com/
 .. _Google Maps Terms of Use:
                    http://www.google.com/help/terms_maps.html
