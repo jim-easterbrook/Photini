@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2016  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Facebook uploader
 =================
@@ -32,7 +32,7 @@ You won't need to login via the pop-up window again for up to two months unless 
 .. image:: ../images/screenshot_41.png
 
 The album title widget shows a drop-down list of all your albums.
-(Those that Photini is not yet authorised to upload photos to are disabled.)
+(Those that Photini is not yet authorised to upload to are disabled.)
 The special title ``<default>`` is always available.
 It corresponds to an application specific album called "Photini Photos".
 
@@ -53,7 +53,7 @@ The first time you create an album or upload a photo a pop-up browser window ope
 
 .. image:: ../images/screenshot_45.png
 
-You should allow Photini to share things publicly as you can always specify a narrower visibility when you create an album.
+You should allow Photini to share things publicly as you can always specify a more restricted visibility when you create an album.
 
 .. image:: ../images/screenshot_46.png
 
