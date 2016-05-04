@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 import six
+from collections import defaultdict
 import logging
 import os
 from six.moves.urllib.request import urlopen
@@ -133,25 +134,51 @@ class FacebookSession(object):
                 return
             albums = self.get(albums['paging']['next'])
 
-    def get_cities(self, latlong):
+    def get_places(self, latlong, distance, query):
         places = self.get(
             'https://graph.facebook.com/search',
-            params={'q'       : 'city',
+            params={'q'       : query,
                     'type'    : 'place',
                     'center'  : str(latlong),
-                    'distance': 10000,
+                    'distance': distance,
                     })
-        while True:
-            if not places:
-                return
+        while places:
             for place in places['data']:
-                if (place['category'].lower() == 'city' and
-                        'latitude' in place['location'] and
-                        'longitude' in place['location']):
                     yield place
             if 'paging' not in places or 'next' not in places['paging']:
                 return
             places = self.get(places['paging']['next'])
+
+    def get_cities(self, latlong):
+        # get a list of possible place names by searching for anything nearby
+        hist = defaultdict(int)
+        for place in self.get_places(latlong, 1000, ''):
+            for word in place['name'].split() + place['location']['city'].split():
+                if word and word[0] in (',', '('):
+                    word = word[1:]
+                if word and word[-1] in (',', ')'):
+                    word = word[:-1]
+                if len(word) > 2:
+                    hist[word.lower()] += 1
+        if not hist:
+            hist['city'] = 1
+        words = list(hist.keys())
+        words.sort(key=lambda x: -hist[x])
+        # search for cities, regions etc. using possible place names
+        threshold = hist[words[0]] // 4
+        result = []
+        for word in words[:5]:
+            if hist[word] < threshold:
+                break
+            for place in self.get_places(latlong, 10000, word):
+                if place in result:
+                    continue
+                if (place['category'] in ('City', 'Neighborhood', 'Country',
+                                          'State/province/region') and
+                        'latitude' in place['location'] and
+                        'longitude' in place['location']):
+                    result.append(place)
+        return result
 
     def do_upload(self, fileobj, image_type, image, params):
         fields = {
@@ -186,7 +213,7 @@ class FacebookSession(object):
                     nearest = place, dist2
             nearest = nearest[0]
             if nearest:
-                fields['place'] = place['id']
+                fields['place'] = nearest['id']
         data = MultipartEncoder(fields=fields)
         headers = {'Content-Type' : data.content_type}
         url = 'https://graph.facebook.com/v2.6/' + params['album_id'] + '/photos'
