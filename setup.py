@@ -266,6 +266,8 @@ setup(name = 'Photini',
           },
       install_requires = ['appdirs >= 1.3', 'six >= 1.9'],
       extras_require = {
+          'facebook' : ['requests >= 2.5', 'requests-oauthlib >= 0.4',
+                        'requests-toolbelt >= 0.4', 'keyring >= 4.0'],
           'flickr'   : ['flickrapi >= 2.0', 'keyring >= 4.0'],
           'google'   : ['requests >= 2.5', 'requests-oauthlib >= 0.4',
                         'keyring >= 4.0'],
