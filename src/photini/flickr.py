@@ -209,11 +209,11 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         content_group.layout().addStretch(1)
         self.layout().addWidget(content_group, 0, 1)
         # create new set
-        new_set_button = QtWidgets.QPushButton(self.tr('New set'))
+        new_set_button = QtWidgets.QPushButton(self.tr('New album'))
         new_set_button.clicked.connect(self.new_set)
         self.layout().addWidget(new_set_button, 1, 1)
         # list of sets widget
-        sets_group = QtWidgets.QGroupBox(self.tr('Add to sets'))
+        sets_group = QtWidgets.QGroupBox(self.tr('Add to albums'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
@@ -325,14 +325,14 @@ class FlickrUploader(PhotiniUploader):
     @QtCore.pyqtSlot()
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Create new Flickr set'))
+        dialog.setWindowTitle(self.tr('Create new Flickr album'))
         dialog.setLayout(QtWidgets.QFormLayout())
         title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(self.tr('Title'), title)
         description = MultiLineEdit(spell_check=True)
         dialog.layout().addRow(self.tr('Description'), description)
         dialog.layout().addRow(QtWidgets.QLabel(
-            self.tr('Set will be created when photos are uploaded')))
+            self.tr('Album will be created when photos are uploaded')))
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
