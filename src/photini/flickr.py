@@ -23,6 +23,7 @@ import logging
 import os
 import requests
 import six
+from six.moves.html_parser import HTMLParser
 import time
 
 import flickrapi
@@ -260,8 +261,11 @@ class FlickrUploadConfig(QtWidgets.QWidget):
                 self.sets_widget.layout().removeWidget(child)
                 child.setParent(None)
 
-    def add_set(self, title, index=-1):
+    def add_set(self, title, description, index=-1):
         widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
+        if description:
+            h = HTMLParser()
+            widget.setToolTip(h.unescape(description))
         if index >= 0:
             self.sets_widget.layout().insertWidget(index, widget)
         else:
@@ -295,7 +299,8 @@ class FlickrUploader(PhotiniUploader):
             sets = self.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text
-                widget = self.upload_config.add_set(title)
+                description = item.find('description').text
+                widget = self.upload_config.add_set(title, description)
                 self.photosets.append({
                     'id'    : item.attrib['id'],
                     'title' : title,
@@ -339,7 +344,7 @@ class FlickrUploader(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        widget = self.upload_config.add_set(title, index=0)
+        widget = self.upload_config.add_set(title, description, index=0)
         widget.setChecked(True)
         self.photosets.insert(0, {
             'id'          : None,
