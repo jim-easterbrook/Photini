@@ -67,6 +67,13 @@ from .spelling import enchant_version, SpellingManager
 from .technical import Technical
 from . import __version__, build
 
+class QTabBar(QtWidgets.QTabBar):
+    def tabSizeHint(self, index):
+        size = super(QTabBar, self).tabSizeHint(index)
+        size.setWidth(max(size.width(), 90))
+        return size
+
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, verbose, initial_files):
         super(MainWindow, self).__init__()
@@ -98,10 +105,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.spelling_manager = SpellingManager()
         # prepare list of tabs and associated stuff
         self.tab_list = (
-            {'name'  : self.tr('&Descriptive'),
+            {'name'  : self.tr('&Descriptive metadata'),
              'key'   : 'descriptive_metadata',
              'class' : Descriptive},
-            {'name'  : self.tr('&Technical'),
+            {'name'  : self.tr('&Technical metadata'),
              'key'   : 'technical_metadata',
              'class' : Technical},
             {'name'  : self.tr('Map (&Google)'),
@@ -113,13 +120,13 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('Map (&OSM)'),
              'key'   : 'map_osm',
              'class' : OpenStreetMap},
-            {'name'  : self.tr('&Flickr'),
+            {'name'  : self.tr('&Flickr upload'),
              'key'   : 'flickr_upload',
              'class' : FlickrUploader},
-            {'name'  : self.tr('Google &Photos'),
+            {'name'  : self.tr('Google &Photos upload'),
              'key'   : 'picasa_upload',
              'class' : PicasaUploader},
-            {'name'  : self.tr('Faceboo&k'),
+            {'name'  : self.tr('Faceboo&k upload'),
              'key'   : 'facebook_upload',
              'class' : FacebookUploader},
             {'name'  : self.tr('&Import photos'),
@@ -210,6 +217,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setOrientation(Qt.Vertical)
         self.central_widget.setChildrenCollapsible(False)
         self.tabs = QtWidgets.QTabWidget()
+        self.tabs.setTabBar(QTabBar())
+        self.tabs.setElideMode(Qt.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
@@ -244,7 +253,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def open_docs(self):
         webbrowser.open_new('http://photini.readthedocs.io/')
-    
+
     def close_files(self):
         self._close_files(False)
 
@@ -275,10 +284,14 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def about(self):
         text = self.tr("""
-<img src="{2}" style="float:right" />
-<h1 align="center">Photini</h1>
-<h3 align="center">version {0}</h3>
-<h4 align="center">build {1}</h4>
+<table width="100%"><tr>
+<td align="center" width="70%">
+<h1>Photini</h1>
+<h3>version {0}</h3>
+<h4>build {1}</h4>
+</td>
+<td align="center"><img src="{2}" /></td>
+</tr></table>
 <p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
 jim@jim-easterbrook.me.uk</a><br /><br />
 An easy to use digital photograph metadata editor.<br />
