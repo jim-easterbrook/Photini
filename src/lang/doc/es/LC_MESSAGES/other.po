@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-15, Jim Easterbrook
+# Copyright (C) 2012-16, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
 # 
 # Translators:
@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-27 08:51+0100\n"
-"PO-Revision-Date: 2015-08-27 07:51+0000\n"
+"POT-Creation-Date: 2016-04-18 13:36+0100\n"
+"PO-Revision-Date: 2016-04-18 12:36+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language-Team: Spanish (http://www.transifex.com/jim-easterbrook/photini/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -25,8 +25,10 @@ msgstr ""
 msgid ""
 "There are three ways to install Photini. On Windows you can use an all-in-"
 "one installer. On some Linux distributions you might be able to use your "
-"package manager. On other platforms you need to install several dependencies"
-" before installing Photini."
+"package manager to install everything, or you may be able to use the package"
+" manager to install Photini's dependencies and pip_ to install Photini. On "
+"other platforms you need to install several dependencies before installing "
+"Photini."
 msgstr ""
 
 #: ../../../doc/other/installation.rst:14
@@ -55,14 +57,14 @@ msgstr ""
 msgid ""
 "The installer should finish by running the Photini program. If this works "
 "then you have successfully installed Photini and can ignore the rest of "
-"these instructions."
+"these instructions. If not, see the troubleshooting_ section below."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:27
+#: ../../../doc/other/installation.rst:28
 msgid "Upgrading all-in-one installation"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:29
+#: ../../../doc/other/installation.rst:30
 msgid ""
 "The Windows installer adds an \"upgrade Photini\" command to the start menu."
 " This needs to be run as administrator. Click on the \"Start\" icon, then "
@@ -70,18 +72,18 @@ msgid ""
 "Photini\" and choose \"Run as administrator\" from the context menu."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:33
+#: ../../../doc/other/installation.rst:34
 msgid ""
 "Alternatively, you can use the \"Programs and Features\" control panel item "
 "to uninstall Photini before running the installer again to install the "
 "latest version."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:36
+#: ../../../doc/other/installation.rst:37
 msgid "Verifying the Windows installer"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:38
+#: ../../../doc/other/installation.rst:39
 msgid ""
 "The Windows installer is digitally signed using a \"self-signed Certificate "
 "Authority\". If you add my certificate to your computer you will get fewer "
@@ -91,36 +93,38 @@ msgid ""
 "by running ``cmd.exe`` and issuing the following command::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:44
+#: ../../../doc/other/installation.rst:45
 msgid ""
 "If you want to check the validity of the certificate file, you can do so "
 "using GnuPG. The file ``jim_easterbrook_CA.cer.asc`` contains a digital "
-"signature that can be checked with my public keys ``959AF9B6`` or "
-"``4748AD59``."
+"signature that can be checked with my public keys ``0x959AF9B6`` or "
+"``0x4748AD59`` (a subkey of ``0x2036BBF6``). These keys' fingerprints are "
+"``05A7 0CD9 380D 8EAA 97AE FD3F 56D7 01F5 959A F9B6`` and ``45A2 B27B AC1D "
+"12B2 5C33 655C 7CF4 E704 2036 BBF6``."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:47
+#: ../../../doc/other/installation.rst:49
 msgid ""
 "If the above means nothing to you, don't worry about it. The security "
 "warnings when you install Photini can safely be ignored."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:51
+#: ../../../doc/other/installation.rst:53
 msgid "Package manager (some Linux distributions)"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:53
+#: ../../../doc/other/installation.rst:55
 msgid ""
 "These Linux packages are maintained by other people and may not install the "
 "latest version of Photini. You may also need to install missing "
 "dependencies, as described below."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:57
+#: ../../../doc/other/installation.rst:59
 msgid "Ubuntu and derived systems"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:59
+#: ../../../doc/other/installation.rst:61
 msgid ""
 "Dariusz Duma (https://launchpad.net/~dhor) has added Photini to his PPA "
 "(personal package archive). See the instructions at http://linuxg.net/how-"
@@ -128,11 +132,18 @@ msgid ""
 "systems/."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:63
+#: ../../../doc/other/installation.rst:64
+msgid ""
+"Pascal Mons (https://launchpad.net/~anton+) also has a PPA with many photo "
+"applications, including Photini. See "
+"https://launchpad.net/~anton+/+archive/ubuntu/photo-video-apps/."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:68
 msgid "OpenSUSE and Fedora"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:65
+#: ../../../doc/other/installation.rst:70
 msgid ""
 "Togan Muftuoglu (https://build.opensuse.org/user/show/toganm) has created a "
 "python-photini package. See "
@@ -140,50 +151,85 @@ msgid ""
 "photini for more information."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:69
+#: ../../../doc/other/installation.rst:74
+msgid "Dependencies package (some Linux distributions)"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:76
+msgid ""
+"This is the easiest way to install Photini's dependencies and the latest "
+"release of Photini. You use your package manager to install the non-Python "
+"dependencies, then use pip_ to install the latest versions of all the Python"
+" packages."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:80
+msgid "OpenSUSE (and other Red Hat derived distributions?)"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:82
+msgid ""
+"The Photini project includes a ``.spec`` file that lists the required "
+"dependencies. Download the ``.spec`` file and use it to build a ``.rpm`` "
+"file::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:88
+msgid ""
+"Note where ``rpmbuild`` wrote its output file, then install that file. For "
+"example::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:92
+msgid ""
+"Now you can :ref:`install Photini <installation-photini>` using pip_ as "
+"described below."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:95
 msgid "Piecemeal installation"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:71
+#: ../../../doc/other/installation.rst:97
 msgid ""
-"Photini is not as simple to install as I would like, mainly because of the "
-"libraries required to access photographs' metadata. The installation process"
-" is different for Windows, Linux and MacOS, and there are variations with "
+"This is the hardest way to install Photini, mainly because of the libraries "
+"required to access photographs' metadata. The installation process is "
+"different for Windows, Linux and MacOS, and there are variations with "
 "different versions of those operating systems. If you run into problems, "
 "please let me know (email jim@jim-easterbrook.me.uk) and once we've worked "
 "out what needs to be done I'll be able to improve these instructions."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:76
+#: ../../../doc/other/installation.rst:102
 msgid "Essential dependencies"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:78
+#: ../../../doc/other/installation.rst:104
 msgid "These are all required for Photini to be usable."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:81
+#: ../../../doc/other/installation.rst:107
 msgid "Python"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:83
+#: ../../../doc/other/installation.rst:109
 msgid ""
 "Photini should work with all versions of `Python <https://www.python.org/>`_"
 " from 2.6 onwards."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:85
+#: ../../../doc/other/installation.rst:111
 msgid ""
 "Python may already be installed on your computer. To find out, open a "
 "terminal window (Windows users run ``cmd.exe``) and try running python by "
 "typing this command::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:90
+#: ../../../doc/other/installation.rst:116
 msgid "If Python is installed this should show you the version number."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:92
+#: ../../../doc/other/installation.rst:118
 msgid ""
 "Linux users should use their system's package manager to install Python. "
 "Windows and MacOS users can download an installer from "
@@ -192,33 +238,33 @@ msgid ""
 "required libraries are not available in 64 bit builds."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:98
+#: ../../../doc/other/installation.rst:124
 msgid "PyQt"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:100
+#: ../../../doc/other/installation.rst:126
 msgid ""
 "The `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ application"
 " framework provides the graphical user interface elements used by Photini. "
 "Version 4 or 5 is required."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:103
+#: ../../../doc/other/installation.rst:129
 msgid ""
 "You can check if PyQt is already installed with one of these commands::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:107
+#: ../../../doc/other/installation.rst:133
 msgid "or ::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:111
+#: ../../../doc/other/installation.rst:137
 msgid ""
 "If PyQt is installed then one of these will run without generating any error"
 " message."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:113
+#: ../../../doc/other/installation.rst:139
 msgid ""
 "Linux users should use their package manager to install ``python-qt4`` or "
 "``python-qt5``. Windows users can download a binary installer from "
@@ -226,176 +272,77 @@ msgid ""
 "choose the installer for your version of Python)."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:117
-msgid "six"
+#: ../../../doc/other/installation.rst:143
+msgid "gexiv2"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:119
+#: ../../../doc/other/installation.rst:145
 msgid ""
-"`six <https://pypi.python.org/pypi/six/>`_ is a small module that makes it "
-"easier to write Python code that works with versions 2 & 3. The best way to "
-"install it is with `pip <https://pip.pypa.io/en/latest/>`_. Linux users "
-"should use their package manager to install ``python-pip``. Windows and "
-"MacOS users can use the installer from "
+"Several libraries are needed to access photograph metadata from Python. "
+"`Exiv2 <http://www.exiv2.org/>`_ is the core \"C\" library. `gexiv2 "
+"<https://wiki.gnome.org/Projects/gexiv2>`_ is a GObject wrapper around the "
+"Exiv2 library. It has extra \"introspection bindings\" that allow it to be "
+"used by other languages. `PyGObject "
+"<https://wiki.gnome.org/Projects/PyGObject>`_ (also known as PyGI) provides "
+"a Python interface to the introspection bindings of the GObject wrapper "
+"around the Exiv2 library. Got that?"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:152
+msgid ""
+"Linux users should use their package manager to install these, but note that"
+" the package names may not be obvious. The core gexiv2 wrapper is probably "
+"called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection"
+" bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems "
+"they are called ``gir1.2-gexiv2-0.4``. The PyGObject interface probably "
+"appears in the package manager as ``python-gobject`` or ``python-gi``."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:156
+msgid ""
+"Windows users should download and run the latest \"pygi-aio\" (PyGI all-in-"
+"one) installer from http://sourceforge.net/projects/pygobjectwin32/files/. "
+"You should install the \"Base packages\" & \"GExiv2\" packages, and the "
+"\"Enchant-extra-dicts\" non-GNOME library."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:160
+msgid "pip"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:162
+msgid ""
+"The remaining dependencies are Python packages that are easily installed "
+"with `pip <https://pip.pypa.io/en/latest/>`_. You may already have pip "
+"installed on your computer. You can check with the ``pip list`` command::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:168
+msgid ""
+"Linux users should use their package manager to install ``python-pip``. "
+"Windows and MacOS users can use the installer from "
 "https://pip.pypa.io/en/latest/installing.html#install-pip. All users should "
 "then `upgrade pip <https://pip.pypa.io/en/latest/installing.html#upgrade-"
 "pip>`_."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:125
-msgid "Once pip is installed, installing six is easy::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:129
-msgid ""
-"Note that ``sudo`` is not required on Windows, or if you have root "
-"privileges. In this case you just run ``pip install six``."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:133
-msgid "appdirs"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:135
-msgid ""
-"`appdirs <https://pypi.python.org/pypi/appdirs/>`_ is a small Python module "
-"that makes cross-platform programming easier. It is also easily installed "
-"with pip::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:141
-msgid "gexiv2 (preferred)"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:143
-msgid ""
-"The latest Python bindings to `Exiv2 <http://www.exiv2.org/>`_ use the "
-"\"introspection bindings\" to `gexiv2 "
-"<https://wiki.gnome.org/Projects/gexiv2>`_, which is a GObject wrapper "
-"around Exiv2."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:145
-msgid ""
-"Linux users should use their package manager to install these bindings, but "
-"note that the package name is not obvious. The core gexiv2 wrapper is "
-"probably called ``libgexiv2`` or similar, but on my OpenSUSE system the "
-"introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on "
-"Ubuntu systems they are called ``gir1.2-gexiv2-0.4``."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:148
-msgid ""
-"Windows users should download and run the latest \"pygi-aio\" (PyGI all-in-"
-"one) installer from http://sourceforge.net/projects/pygobjectwin32/files/. "
-"You should install the \"Base packages\" and \"GExiv2\" libraries, but "
-"nothing else is needed."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:151
-msgid ""
-"Linux users have a choice of library to provide Python bindings to gexiv2. "
-"`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ can be used, but "
-"`pgi <https://pypi.python.org/pypi/pgi/>`_ may be more reliable. Linux users"
-" can use their package manager to install ``python-gobject`` or pip can be "
-"used to install pgi::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:158
-msgid "pyexiv2 (if gexiv2 cannot be installed)"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:160
-msgid ""
-"`pyexiv2 <http://tilloy.net/dev/pyexiv2/>`_ is an older Python binding to "
-"Exiv2. If you are unable to install gexiv2 then it can be used instead. "
-"Windows users can download a binary installer from "
-"http://tilloy.net/dev/pyexiv2/download.html (once again, make sure you "
-"choose the installer for your version of Python). Linux users can use their "
-"package manager to install ``python-pyexiv2``."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:166
-msgid "Optional dependencies"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:168
-msgid ""
-"Some of Photini's features are optional - if you don't install these "
-"libraries Photini will work but the relevant feature will not be available."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:173
-msgid "python-flickrapi"
-msgstr ""
-
 #: ../../../doc/other/installation.rst:175
-msgid ""
-"Photini's Flickr uploader requires `python-flickrapi "
-"<https://pypi.python.org/pypi/flickrapi/>`_. This is easily installed with "
-"pip::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:183
-msgid "requests and requests-oauthlib"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:185
-msgid ""
-"The Google Picasa uploader requires `requests "
-"<https://github.com/kennethreitz/requests>`_ and `requests-oauthlib "
-"<https://github.com/requests/requests-oauthlib>`_. These are also installed "
-"with pip::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:191
-msgid "python-keyring"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:193
-msgid ""
-"The Flickr and Picasa uploaders both use `python-keyring "
-"<https://pypi.python.org/pypi/keyring/>`_ to store your authorisation "
-"credentials. This is easily installed with pip::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:201
-msgid "python-gphoto2"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:203
-msgid ""
-"Photini can import pictures from many types of digital camera using "
-"`libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_. This is often "
-"already installed on Linux systems, but you still need its `python-gphoto2 "
-"<https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or "
-"greater::"
-msgstr ""
-
-#: ../../../doc/other/installation.rst:208
-msgid ""
-"Installation of python-gphoto2 will require the \"development headers\" "
-"versions of Python and libgphoto2. You should be able to install these with "
-"your system package manager."
-msgstr ""
-
-#: ../../../doc/other/installation.rst:214
 msgid "Installing Photini"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:216
+#: ../../../doc/other/installation.rst:177
 msgid ""
-"The easiest way to install the latest release of Photini is with the pip "
+"The easiest way to install the latest release of Photini is with the pip_ "
 "command::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:220
+#: ../../../doc/other/installation.rst:181
 msgid ""
-"You can also use pip to install the optional dependencies when you install "
-"Photini::"
+"This will install Photini and any Python packages it requires. You can also "
+"use pip to install the optional dependencies when you install Photini::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:224
+#: ../../../doc/other/installation.rst:186
 msgid ""
 "If you prefer to install the development version you can use git to clone "
 "the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or "
@@ -403,23 +350,154 @@ msgid ""
 "build and install Photini::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:231
+#: ../../../doc/other/installation.rst:192
+msgid "You will also need to install the remaining Python packages."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:195
+msgid "Essential Python packages"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:197
+msgid ""
+"There are two small Python packages needed to run Photini. They can be "
+"installed with one command::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:202
+msgid ""
+"Note that ``sudo`` is not required on Windows, or if you have root "
+"privileges. In this case you just run ``pip install six appdirs``."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:206
+msgid "Optional Python packages"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:208
+msgid ""
+"Some of Photini's features are optional - if you don't install these "
+"libraries Photini will work but the relevant feature will not be available."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:211
+msgid "Spelling"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:213
+msgid ""
+"`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to "
+"the `Enchant <http://www.abisource.com/projects/enchant/>`_ spell-checking "
+"library. If it is installed then spell checking is available for some of "
+"Photini's text entry fields. Use pip_ to install it::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:222
+msgid "Flickr"
+msgstr "Flickr"
+
+#: ../../../doc/other/installation.rst:224
+msgid ""
+"Photini's Flickr uploader requires `python-flickrapi "
+"<https://pypi.python.org/pypi/flickrapi/>`_ and `python-keyring "
+"<https://pypi.python.org/pypi/keyring/>`_. These are easily installed with "
+"pip::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:232
+msgid "Google Photos / Picasa"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:234
+msgid ""
+"The Google Photos / Picasa uploader requires `requests "
+"<https://github.com/kennethreitz/requests>`_, `requests-oauthlib "
+"<https://github.com/requests/requests-oauthlib>`_ and `python-keyring "
+"<https://pypi.python.org/pypi/keyring/>`_. These are also installed with "
+"pip::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:242
+msgid "Importer"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:244
+msgid ""
+"Photini can import pictures from any directory on your computer (e.g. a "
+"memory card) but on Linux amd MacOS systems it can also import directly from"
+" a camera. This requires `libgphoto2 "
+"<http://www.gphoto.org/proj/libgphoto2/>`_, which is often already "
+"installed, and its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_"
+" Python bindings, version 0.10 or greater::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:249
+msgid ""
+"Installation of python-gphoto2 will require the \"development headers\" "
+"versions of Python and libgphoto2. You should be able to install these with "
+"your system package manager."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:253
+msgid "pgi"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:255
+msgid ""
+"If you find the PyGObject bindings to be unreliable (I found they sometimes "
+"crash when using Python 3) you can use `pgi "
+"<https://pypi.python.org/pypi/pgi/>`_ instead::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:259
+msgid ""
+"Note that pgi may also have problems. If you need to go back to using "
+"PyGObject you should uninstall pgi::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:265
 msgid "Running Photini"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:233
+#: ../../../doc/other/installation.rst:267
 msgid ""
 "If the installation has been successful you should be able to run Photini "
-"from the \"Start\" menu (Windows) or application launcher (Linux). If that "
-"fails, you may get more helpful error messages by opening a command window "
-"and running the Photini editor module directly::"
+"from the \"Start\" menu (Windows) or application launcher (Linux)."
 msgstr ""
 
-#: ../../../doc/other/installation.rst:241
+#: ../../../doc/other/installation.rst:270
+msgid "Troubleshooting"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:272
+msgid ""
+"If Photini fails to run for some reason you may be able to find out why by "
+"trying to run it in a command window. On Windows you need to open the folder"
+" where Photini is installed (probably ``C:\\Program Files (x86)\\Photini``) "
+"and run the ``WinPython Command Prompt.exe`` program. On Linux you can run "
+"any terminal or console program."
+msgstr ""
+
+#: ../../../doc/other/installation.rst:276
+msgid ""
+"Start the Photini program as follows. If it fails to run you should get some"
+" diagnostic information::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:281
+msgid ""
+"If you need more help, please email jim@jim-easterbrook.me.uk. It would "
+"probably be helpful to copy any diagnostic messages into your email. If "
+"Photini runs but you have some other problem with it then I would find it "
+"useful to know what version you are running. You can find out with the "
+"``--version`` option::"
+msgstr ""
+
+#: ../../../doc/other/installation.rst:291
 msgid "Photini documentation"
 msgstr "Documentación de Photini"
 
-#: ../../../doc/other/installation.rst:243
+#: ../../../doc/other/installation.rst:293
 msgid ""
 "If you would like to have a local copy of the Photini documentation, and "
 "have downloaded or cloned the source files, you can install `Sphinx <http"
@@ -427,7 +505,7 @@ msgid ""
 "documentation::"
 msgstr ""
 
-#: ../../../doc/other/installation.rst:248
+#: ../../../doc/other/installation.rst:298
 msgid ""
 "Open ``doc/html/index.html`` with a web browser to read the local "
 "documentation."
@@ -435,6 +513,40 @@ msgstr ""
 
 #: ../../../doc/other/introduction.rst:6
 msgid "Introduction"
+msgstr ""
+
+#: ../../../../README.rst:2
+msgid ""
+"A free, easy to use, digital photograph metadata (EXIF, IPTC, XMP) editing "
+"application."
+msgstr ""
+
+#: ../../../../README.rst:4
+msgid ""
+"\"Metadata\" is said to mean \"data about data\". In the context of digital "
+"photographs this means information that isn't essential in order to display "
+"the image, but tells you something about it. For example a title and "
+"description of the scene or the date & time and the GPS coordinates of the "
+"camera's position when the picture was taken."
+msgstr ""
+
+#: ../../../../README.rst:8
+msgid ""
+"\"It doesn't try to be an all-singing, all-dancing image management "
+"powerhouse - it just lets you add information to photos, quickly and "
+"easily.\""
+msgstr ""
+
+#: ../../../../README.rst:13
+msgid "`Linux Format`_ magazine, January 2013"
+msgstr ""
+
+#: ../../../../README.rst:12
+msgid "Why is it called Photini? Read my `blog post`_ on how I chose a name."
+msgstr ""
+
+#: ../../../../README.rst:16
+msgid "Features"
 msgstr ""
 
 #: ../../../../README.rst:3
@@ -446,31 +558,35 @@ msgid "Set photo title, description, keywords, copyright and creator fields."
 msgstr ""
 
 #: ../../../../README.rst:5
-msgid "Can set metadata for multiple images simultaneously."
+msgid "Spell checking of some fields (optional)."
 msgstr ""
 
 #: ../../../../README.rst:6
-msgid "Can adjust picture date & time."
+msgid "Can set metadata for multiple images simultaneously."
 msgstr ""
 
 #: ../../../../README.rst:7
+msgid "Can adjust picture date & time."
+msgstr ""
+
+#: ../../../../README.rst:8
 msgid ""
 "Reads EXIF, IPTC and XMP metadata, writes all three to maximise "
 "compatibility with other software."
 msgstr ""
 
-#: ../../../../README.rst:8
+#: ../../../../README.rst:9
 msgid "Writes metadata to image files or to XMP \"sidecar\" files."
 msgstr ""
 
-#: ../../../../README.rst:9
+#: ../../../../README.rst:10
 msgid "Can import photographs from many digital cameras."
 msgstr ""
 
-#: ../../../../README.rst:10
+#: ../../../../README.rst:11
 msgid ""
-"Upload to `Flickr <http://www.flickr.com/>`_ and/or `Picasa "
-"<http://picasaweb.google.com/>`_ with reuse of metadata."
+"Upload to Flickr_ and/or `Google Photos`_ and Picasa_ with reuse of "
+"metadata."
 msgstr ""
 
 #: ../../../../README.rst:3
@@ -515,7 +631,7 @@ msgid ""
 msgstr ""
 
 #: ../../../../README.rst:17
-msgid "six, version 1.5+: https://pypi.python.org/pypi/six/"
+msgid "six, version 1.9+: https://pypi.python.org/pypi/six/"
 msgstr ""
 
 #: ../../../../README.rst:18
@@ -541,54 +657,93 @@ msgid "pgi: https://pypi.python.org/pypi/pgi/"
 msgstr ""
 
 #: ../../../../README.rst:24
+msgid "PyEnchant (optional): http://pythonhosted.org/pyenchant/"
+msgstr ""
+
+#: ../../../../README.rst:25
 msgid ""
 "python-keyring (optional), version 4.0+: "
 "https://pypi.python.org/pypi/keyring"
 msgstr ""
 
-#: ../../../../README.rst:25
+#: ../../../../README.rst:26
 msgid ""
 "python-flickrapi (optional), version 2.0+: "
 "https://pypi.python.org/pypi/flickrapi/"
 msgstr ""
 
-#: ../../../../README.rst:26
+#: ../../../../README.rst:27
 msgid ""
 "requests & requests-oauthlib (optional): "
 "https://github.com/kennethreitz/requests & https://github.com/requests"
 "/requests-oauthlib"
 msgstr ""
 
-#: ../../../../README.rst:27
+#: ../../../../README.rst:28
 msgid ""
 "python-gphoto2 (optional), version 0.10+: "
 "https://pypi.python.org/pypi/gphoto2/"
 msgstr ""
 
-#: ../../../../README.rst:29
+#: ../../../../README.rst:30
 msgid ""
 "For details of how to download and install these, please see the "
-"`documentation "
-"<http://photini.readthedocs.org/en/latest/other/installation.html>`_."
+"`installation documentation`_."
 msgstr ""
 
 #: ../../../../README.rst:4
-msgid "Licence"
+msgid "Getting help"
 msgstr ""
 
 #: ../../../../README.rst:6
-msgid "Photini - a simple photo metadata editor."
-msgstr ""
-
-#: ../../../../README.rst:7
-msgid "http://github.com/jim-easterbrook/Photini"
-msgstr ""
-
-#: ../../../../README.rst:8
-msgid "Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgid ""
+"If you encounter any problems installing or running Photini, please email "
+"jim@jim-easterbrook.me.uk and I'll respond as soon as I can. If you discover"
+" a bug and have a GitHub account then please file a bug report on the GitHub"
+" `\"issues\" page`_."
 msgstr ""
 
 #: ../../../../README.rst:10
+msgid "Internationalisation"
+msgstr ""
+
+#: ../../../../README.rst:12
+msgid ""
+"Work has begun on providing Photini in multiple languages. I rely on users "
+"to do the translation, as I am not fluent in any language other than "
+"English. If you'd like to help, please join the `Photini team on "
+"Transifex`_. For more details, see the `localisation documentation`_."
+msgstr ""
+
+#: ../../../../README.rst:20
+msgid "Licence"
+msgstr ""
+
+#: ../../../../README.rst:22
+msgid "Photini - a simple photo metadata editor."
+msgstr ""
+
+#: ../../../../README.rst:23
+msgid "http://github.com/jim-easterbrook/Photini"
+msgstr ""
+
+#: ../../../../README.rst:24
+msgid "Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk"
+msgstr ""
+
+#: ../../../../README.rst:26
+msgid "German translation by Jan Rimmek"
+msgstr ""
+
+#: ../../../../README.rst:27
+msgid "Spanish translation by Esteban Martinena & Cristos Ruiz"
+msgstr ""
+
+#: ../../../../README.rst:28
+msgid "Polish translation by \"itdawid\""
+msgstr ""
+
+#: ../../../../README.rst:30
 msgid ""
 "This program is free software: you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the Free "
@@ -596,7 +751,7 @@ msgid ""
 "any later version."
 msgstr ""
 
-#: ../../../../README.rst:15
+#: ../../../../README.rst:35
 msgid ""
 "This program is distributed in the hope that it will be useful, but WITHOUT "
 "ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or "
@@ -604,41 +759,59 @@ msgid ""
 "more details."
 msgstr ""
 
-#: ../../../../README.rst:20
+#: ../../../../README.rst:40
 msgid ""
 "You should have received a copy of the GNU General Public License along with"
 " this program.  If not, see http://www.gnu.org/licenses/."
 msgstr ""
 
-#: ../../../../README.rst:24
+#: ../../../../README.rst:44
 msgid "Map terms and conditions"
 msgstr ""
 
-#: ../../../../README.rst:26
+#: ../../../../README.rst:46
 msgid ""
-"Use of the Google map tab is subject to the `Google Maps Terms of Use "
-"<http://www.google.com/help/terms_maps.html>`_."
+"Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and "
+"`Google Privacy Policy`_."
 msgstr ""
 
-#: ../../../../README.rst:28
+#: ../../../../README.rst:48
 msgid ""
-"Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use "
-"<http://www.microsoft.com/maps/assets/docs/terms.aspx>`_."
+"Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of "
+"Use`_ and `Microsoft Privacy Statement`_."
 msgstr ""
 
-#: ../../../../README.rst:30
+#: ../../../../README.rst:50
 msgid ""
-"Use of the OpenStreetMap tab is subject to the `Nominatim usage policy "
-"<http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy>`_ and the "
-"`MapQuest Terms and Conditions <http://developer.mapquest.com/web/info"
-"/terms-of-use>`_."
+"Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and"
+" the `MapQuest Terms of Use`_."
 msgstr ""
 
-#: ../../../../README.rst:33
+#: ../../../../README.rst:53
+msgid "Privacy statement"
+msgstr ""
+
+#: ../../../../README.rst:55
+msgid ""
+"Photini does not directly gather any information from its users, but the "
+"online services it uses (maps, Flickr and Google Photos/Picasa) may do so. "
+"You should read these services' privacy policies before using them."
+msgstr ""
+
+#: ../../../../README.rst:58
+msgid ""
+"Photini stores user preferences in a text file on the user's computer. This "
+"file can be found in ``$HOME/.config/photini/`` (Linux) or "
+"``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows). OAuth_ access tokens"
+" for Flickr & Google Photos are securely stored on the user's computer using"
+" `Python keyring`_."
+msgstr ""
+
+#: ../../../../README.rst:64
 msgid "Documentation licence"
 msgstr ""
 
-#: ../../../../README.rst:35
+#: ../../../../README.rst:66
 msgid ""
 "Permission is granted to copy, distribute and/or modify the Photini "
 "documentation under the terms of the GNU Free Documentation License, Version"
@@ -708,9 +881,9 @@ msgstr ""
 msgid ""
 "Transifex is quite easy to use, but there are a few things to be aware of "
 "when working on the Photini project. On the Transifex site there are several"
-" \"resources\" for Photini. The one called ``photini`` is the text used by "
-"the Photini program. The others, beginning with ``doc``, are the Photini "
-"documentation."
+" \"resources\" for Photini. The one called ``photini`` contains the text "
+"strings used by the Photini program. The others, beginning with ``doc``, "
+"contain the Photini documentation."
 msgstr ""
 
 #: ../../../doc/other/localisation.rst:42
@@ -728,7 +901,7 @@ msgstr ""
 #: ../../../doc/other/localisation.rst:47
 msgid ""
 "Some of Photini's GUI elements such as ``Title / Object Name`` are named "
-"after the metadata items in the EXIF, XMP or IPTC specifications. If "
+"after the metadata items in the Exif, XMP or IPTC specifications. If "
 "information about these standards is available in your language it may help "
 "with translating these words."
 msgstr ""
@@ -844,47 +1017,60 @@ msgstr ""
 
 #: ../../../doc/other/localisation.rst:95
 msgid ""
-"The client is used to download your translated strings. For example, if "
-"you've been working on a Dutch translation with the language code ``nl``::"
+"The Transifex client is used to download your translated strings. For "
+"example, if you've been working on a Dutch translation with the language "
+"code ``nl``::"
 msgstr ""
 
 #: ../../../doc/other/localisation.rst:100
 msgid ""
-"This will download a ``.ts`` file, which needs to be \"compiled\" before it "
-"can be used by the Photini program, and several ``.po`` files that are used "
-"when building the documentation."
+"This will download several files. ``src/lang/photini.nl.ts`` is the Dutch "
+"translation of the Photini program strings. "
+"``src/lang/doc/nl/LC_MESSAGES/xxx.po`` are the Dutch translations of the "
+"Photini documentation. (Replace ``nl`` with the language code you are "
+"translating for.)"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:103
+#: ../../../doc/other/localisation.rst:107
 msgid "Testing the ``photini`` resource"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:105
+#: ../../../doc/other/localisation.rst:109
 msgid ""
-"This requires the ``lrelease`` program, which is part of the "
-"``libqt4-linguist`` package on some Linux systems. Compilation and "
-"installation is done with setup.py::"
+"The ``src/lang/photini.nl.ts`` file needs to be \"compiled\" (converted from"
+" ``.ts`` format to ``.qm`` format) before it can be used by the Photini "
+"program. This requires the ``lrelease`` program, which is part of the "
+"``libqt4-linguist`` package on some Linux systems. The ``lrelease`` command "
+"can be used directly to compile a single language file::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:112
+#: ../../../doc/other/localisation.rst:115
+msgid "Or you can easily compile all the language files with setup.py::"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:119
+msgid "Now you can install Photini with your new translation(s)::"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:124
 msgid ""
 "Photini should use your new language if your computer's ``LANG`` environment"
 " variable is set appropriately. You can force this when running Photini from"
 " the command line::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:117
+#: ../../../doc/other/localisation.rst:129
 msgid ""
 "Photini should now be using your translations. If all is well, please email "
 "jim@jim-easterbrook.me.uk with the good news that another language can be "
 "added to the next Photini release."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:121
+#: ../../../doc/other/localisation.rst:133
 msgid "Testing the ``doc.xxx`` resources"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:123
+#: ../../../doc/other/localisation.rst:135
 msgid ""
 "If you install `Sphinx <http://sphinx-doc.org/index.html>`_ (See "
 ":ref:`installation <installation-documentation>`) you can build a local copy"
@@ -892,7 +1078,7 @@ msgid ""
 "documentation::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:128
+#: ../../../doc/other/localisation.rst:140
 msgid ""
 "Open ``doc/html/index.html`` with a web browser to read the translated "
 "documentation."

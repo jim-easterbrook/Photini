@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-16  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Flickr uploader
@@ -14,18 +14,38 @@ This means you don't have to retype all that information!
 Note that the Flickr upload tab is only enabled if you have installed python-flickrapi.
 See :ref:`installation <installation-flickr>` for more detail.
 
-The first time you select Photini's Flickr upload tab it will ask you to authorise Photini to access Flickr.
-It does this by connecting your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
-You then copy a verification code from your browser to Photini, as shown below.
+Initially most of the Flickr uploader tab is disabled, as shown below.
+It's only usable after you've authorised Photini to access your Flickr account by clicking the ``Connect`` button.
 
 .. image:: ../images/screenshot_22.png
 
-To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your sets (or albums) to add them to and set any of the other attributes, then click on the ``Start upload`` button.
-You can create a new set before uploading with the ``New set`` button.
+The first time you click ``Connect`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
+You then copy a verification code from your browser to Photini, as shown below.
+
+.. image:: ../images/screenshot_22a.png
+
+If the authorisation is successful Photini displays your Flickr user name and profile picture.
+You should not need to redo this authorisation process unless you click the ``Log out`` button.
+
+.. image:: ../images/screenshot_22b.png
+
+Your current Flickr albums are shown on the right hand side of the Flickr uploader tab.
+You can add a new album with the ``New set`` button.
+This opens a pop-up dialog as shown below.
+
+.. image:: ../images/screenshot_22c.png
+
+Type in the album details and click ``OK``.
+Note that the album will not be created on Flickr until you upload a photo to it.
+
+.. image:: ../images/screenshot_22d.png
+
+To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your albums to add them to and set any of the other attributes, then click on the ``Start upload`` button.
 
 .. image:: ../images/screenshot_23.png
 
 During uploading Photini displays a progress bar.
 Uploading takes place in the background, so you can continue to use other tabs while the upload is in progress.
+The upload can be stopped by clicking the ``Stop upload`` button.
 
 .. image:: ../images/screenshot_24.png

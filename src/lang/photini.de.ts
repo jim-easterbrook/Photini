@@ -10,7 +10,7 @@
 <context>
     <name>DateAndTimeWidget</name>
     <message>
-        <location filename="technical.py" line="257"/>
+        <location filename="technical.py" line="288"/>
         <source>Precision:</source>
         <translation>Genauigkeit</translation>
     </message>
@@ -132,9 +132,6 @@
     </message>
 </context>
 <context>
-    <name>FacebookUploadConfig</name>
-</context>
-<context>
     <name>FlickrUploadConfig</name>
     <message>
         <location filename="flickr.py" line="151"/>
@@ -246,7 +243,7 @@
 <context>
     <name>Image</name>
     <message>
-        <location filename="imagelist.py" line="177"/>
+        <location filename="imagelist.py" line="192"/>
         <source>Can not
 load
 image</source>
@@ -257,42 +254,42 @@ nicht laden</translation>
 <context>
     <name>ImageList</name>
     <message>
-        <location filename="imagelist.py" line="362"/>
+        <location filename="imagelist.py" line="377"/>
         <source>sort by: </source>
         <translation>Sortieren nach:</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="363"/>
+        <location filename="imagelist.py" line="378"/>
         <source>file name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="366"/>
+        <location filename="imagelist.py" line="381"/>
         <source>date taken</source>
         <translation>Aufnahmedatum</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="374"/>
+        <location filename="imagelist.py" line="389"/>
         <source>thumbnail size: </source>
         <translation>Größe der Vorschau:</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="415"/>
+        <location filename="imagelist.py" line="430"/>
         <source>Images ({0});;All files (*)</source>
         <translation>Bilder ({0});;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="524"/>
+        <location filename="imagelist.py" line="540"/>
         <source>Photini: unsaved data</source>
         <translation>Photini: ungesicherte Metadaten</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="525"/>
+        <location filename="imagelist.py" line="541"/>
         <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Einige Bilder enthalten ungesicherte Metadaten.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="526"/>
+        <location filename="imagelist.py" line="542"/>
         <source>Do you want to save your changes?</source>
         <translation>Möchten Sie ihre Änderungen speichern?</translation>
     </message>
@@ -497,7 +494,7 @@ beenden</translation>
         <translation>Dokumentation zu Photini</translation>
     </message>
     <message>
-        <location filename="editor.py" line="278"/>
+        <location filename="editor.py" line="286"/>
         <source>Photini: about</source>
         <translation>Photini: über</translation>
     </message>
@@ -517,7 +514,7 @@ beenden</translation>
         <translation>Sprache wählen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="262"/>
+        <location filename="editor.py" line="270"/>
         <source>
 &lt;img src=&quot;{2}&quot; style=&quot;float:right&quot; /&gt;
 &lt;h1 align=&quot;center&quot;&gt;Photini&lt;/h1&gt;
@@ -568,42 +565,42 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 <context>
     <name>NewLensDialog</name>
     <message>
-        <location filename="technical.py" line="411"/>
+        <location filename="technical.py" line="450"/>
         <source>Photini: define lens</source>
         <translation>Photini: Linse definieren</translation>
     </message>
     <message>
-        <location filename="technical.py" line="427"/>
+        <location filename="technical.py" line="466"/>
         <source>Model name</source>
         <translation>Modellname</translation>
     </message>
     <message>
-        <location filename="technical.py" line="430"/>
+        <location filename="technical.py" line="469"/>
         <source>Maker&apos;s name</source>
         <translation>Herstellername</translation>
     </message>
     <message>
-        <location filename="technical.py" line="433"/>
+        <location filename="technical.py" line="472"/>
         <source>Serial number</source>
         <translation>Serien-Nummer</translation>
     </message>
     <message>
-        <location filename="technical.py" line="439"/>
+        <location filename="technical.py" line="478"/>
         <source>Minimum focal length (mm)</source>
         <translation>Minimale Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="444"/>
+        <location filename="technical.py" line="483"/>
         <source>Aperture at min. focal length f/</source>
         <translation>Blende bei min. Brennweite f/</translation>
     </message>
     <message>
-        <location filename="technical.py" line="449"/>
+        <location filename="technical.py" line="488"/>
         <source>Maximum focal length (mm)</source>
         <translation>Maximale Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="454"/>
+        <location filename="technical.py" line="493"/>
         <source>Aperture at max. focal length f/</source>
         <translation>Blende bei max. Brennweite f/</translation>
     </message>
@@ -846,139 +843,144 @@ Album und alle enthaltenen Fotos werden aus allen Google-Produkten entfernt.</tr
 <context>
     <name>Technical</name>
     <message>
-        <location filename="technical.py" line="471"/>
+        <location filename="technical.py" line="510"/>
         <source>Date and time</source>
         <translation>Datum und Uhrzeit</translation>
     </message>
     <message>
-        <location filename="technical.py" line="476"/>
+        <location filename="technical.py" line="515"/>
         <source>Taken</source>
         <translation>Aufgenommen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="478"/>
+        <location filename="technical.py" line="517"/>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
         <translation>Aufgenommen und Digitalisiert koppeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="486"/>
+        <location filename="technical.py" line="525"/>
         <source>Digitised</source>
         <translation>Digitalisiert</translation>
     </message>
     <message>
-        <location filename="technical.py" line="489"/>
+        <location filename="technical.py" line="528"/>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
         <translation>Digitalisiert und Verändert koppeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="497"/>
+        <location filename="technical.py" line="536"/>
         <source>Modified</source>
         <translation>Verändert</translation>
     </message>
     <message>
-        <location filename="technical.py" line="502"/>
+        <location filename="technical.py" line="541"/>
         <source>Adjust times</source>
         <translation>Uhrzeiten anpassen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="505"/>
+        <location filename="technical.py" line="544"/>
         <source>Other</source>
         <translation>Andere</translation>
     </message>
     <message>
-        <location filename="technical.py" line="509"/>
+        <location filename="technical.py" line="548"/>
         <source>normal</source>
         <translation>normal</translation>
     </message>
     <message>
-        <location filename="technical.py" line="510"/>
+        <location filename="technical.py" line="549"/>
         <source>rotate -90</source>
         <translation>90 Grad gegen Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="511"/>
+        <location filename="technical.py" line="550"/>
         <source>rotate +90</source>
         <translation>90 Grad im Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="512"/>
+        <location filename="technical.py" line="551"/>
         <source>rotate 180</source>
         <translation>180 Grad im Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="513"/>
+        <location filename="technical.py" line="552"/>
         <source>reflect left-right</source>
         <translation>links-rechts spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="514"/>
+        <location filename="technical.py" line="553"/>
         <source>reflect top-bottom</source>
         <translation>oben-unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="515"/>
+        <location filename="technical.py" line="554"/>
         <source>reflect tr-bl</source>
         <translation>rechts oben-links unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="516"/>
+        <location filename="technical.py" line="555"/>
         <source>reflect tl-br</source>
         <translation>links oben-rechts unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="518"/>
+        <location filename="technical.py" line="557"/>
         <source>Orientation</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="technical.py" line="523"/>
+        <location filename="technical.py" line="562"/>
         <source>&lt;define new lens&gt;</source>
         <translation>&lt;Neue Linse definieren&gt;</translation>
     </message>
     <message>
-        <location filename="technical.py" line="530"/>
+        <location filename="technical.py" line="569"/>
         <source>Lens model</source>
         <translation>Linsenmodell</translation>
     </message>
     <message>
-        <location filename="technical.py" line="533"/>
+        <location filename="technical.py" line="572"/>
         <source>Link lens model to
 focal length &amp;&amp; aperture</source>
         <translation>Linsenmodell mit Brennweite
 und Blende verknüpfen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="543"/>
+        <location filename="technical.py" line="580"/>
         <source>Focal length (mm)</source>
         <translation>Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="551"/>
+        <location filename="technical.py" line="592"/>
         <source>Aperture f/</source>
         <translation>Blende f/</translation>
     </message>
     <message>
-        <location filename="technical.py" line="637"/>
+        <location filename="technical.py" line="678"/>
         <source>Remove lens &quot;{}&quot;</source>
         <translation>Linse &quot;{}&quot; entfernen</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="586"/>
+        <source>35mm equiv (mm)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="editor.py" line="341"/>
+        <location filename="editor.py" line="349"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini Metadateneditor</translation>
     </message>
     <message>
-        <location filename="editor.py" line="345"/>
+        <location filename="editor.py" line="355"/>
         <source>increase number of logging messages</source>
         <translation>Anzahl der Einträge im Fehlerprotokoll erhöhen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="351"/>
-        <source>incorrect number of arguments</source>
-        <translation>Falsche Anzahl von Argumenten</translation>
+        <location filename="editor.py" line="349"/>
+        <source>Usage: %prog [options] [file_name, ...]</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 </TS>
