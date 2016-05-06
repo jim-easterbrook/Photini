@@ -223,12 +223,10 @@ class FacebookSession(object):
             return str(ex)
         return ''
 
-    def get(self, *arg, decode=True, **kw):
+    def get(self, *arg, **kw):
         rsp = self.session.get(*arg, **kw)
         rsp.raise_for_status()
-        if decode:
-            return rsp.json()
-        return rsp.content
+        return rsp.json()
 
     def post(self, *arg, **kw):
         rsp = self.session.post(*arg, **kw)
