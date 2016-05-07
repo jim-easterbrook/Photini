@@ -16,6 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2016.05.0:
+  1/ Added a Facebook uploader tab.
+  2/ Display logged in user details on uploader tabs.
+  3/ Added 35mm equivalent focal length to 'technical' tab.
+  4/ Added German translation of program strings.
+  5/ Allow image file names to be given when running from command line.
+  6/ Fixed several minor bugs and annoyances.
+
 Changes in v2016.02.1:
   1/ Replace accidentally invalidated Google maps API key.
 
