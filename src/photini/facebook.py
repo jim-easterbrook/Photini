@@ -24,8 +24,13 @@ import logging
 import os
 from six.moves.urllib.request import urlopen
 
+import appdirs
 import keyring
 import oauthlib
+try:
+    import PIL.Image as PIL
+except ImportError:
+    PIL = None
 import pkg_resources
 import requests
 from requests_oauthlib import OAuth2Session
@@ -289,6 +294,18 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         label = config_group.layout().labelForField(self.widgets['geo_tag'])
         label.setWordWrap(True)
         label.setFixedWidth(90)
+        # optimise
+        self.widgets['optimise'] = QtWidgets.QCheckBox()
+        config_group.layout().addRow(
+            self.tr('Optimise image size'), self.widgets['optimise'])
+        label = config_group.layout().labelForField(self.widgets['optimise'])
+        label.setWordWrap(True)
+        label.setFixedWidth(90)
+        if PIL:
+            self.widgets['optimise'].setChecked(True)
+        else:
+            self.widgets['optimise'].setEnabled(False)
+            label.setEnabled(False)
         ## album details
         album_group = QtWidgets.QGroupBox(self.tr('Album'))
         album_group.setLayout(QtWidgets.QHBoxLayout())
@@ -355,11 +372,11 @@ class FacebookUploader(PhotiniUploader):
         super(FacebookUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Facebook')
         self.convert = {
-            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
+            'types'   : ('jpeg', 'png'),
             'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Facebook does not' +
-                ' accept. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
+                'File "{0}" is of type "{1}", which Facebook may not' +
+                ' handle correctly. Would you like to convert it to JPEG?'),
+            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             }
         self.login_popup = None
         # add Facebook icon to connect button
@@ -396,6 +413,42 @@ class FacebookUploader(PhotiniUploader):
         else:
             self.show_user(None, None)
             self.upload_config.show_album({}, None)
+
+    def optimise(self, image):
+        im = PIL.open(image.path)
+        # scale to one of Facebook's preferred sizes
+        w, h = im.size
+        for size in (2048, 960, 720):
+            if max(w, h) > size:
+                if w >= h:
+                    h = int((float(size * h) / float(w)) + 0.5)
+                    w = size
+                else:
+                    w = int((float(size * w) / float(h)) + 0.5)
+                    h = size
+                im = im.resize((w, h), PIL.LANCZOS)
+                break
+        # save as temporary jpeg file
+        temp_dir = appdirs.user_cache_dir('photini')
+        if not os.path.isdir(temp_dir):
+            os.makedirs(temp_dir)
+        path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
+        im.save(path, format='jpeg', quality=95)
+        # copy metadata
+        try:
+            src_md = MetadataHandler(image.path)
+        except Exception:
+            pass
+        else:
+            dst_md = MetadataHandler(path)
+            dst_md.copy(src_md)
+            dst_md.save()
+        return path
+
+    def get_conversion_function(self, image):
+        if PIL and self.upload_config.widgets['optimise'].isChecked():
+            return self.optimise
+        return super(FacebookUploader, self).get_conversion_function(image)
 
     def get_upload_params(self):
         idx = self.upload_config.widgets['album_choose'].currentIndex()
