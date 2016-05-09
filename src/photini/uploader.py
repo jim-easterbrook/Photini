@@ -75,13 +75,13 @@ class UploadWorker(QtCore.QObject):
             self.fileobj.close()
             self.fileobj = None
 
-    @QtCore.pyqtSlot(object, bool)
+    @QtCore.pyqtSlot(object, object)
     def upload_file(self, image, convert):
         if not self.session.permitted('write'):
             self.upload_file_done.emit(image, 'not permitted')
             return
         if convert:
-            path = image.as_jpeg()
+            path = convert(image)
         else:
             path = image.path
         with open(path, 'rb') as f:
@@ -97,7 +97,7 @@ class UploadWorker(QtCore.QObject):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    upload_file = QtCore.pyqtSignal(object, bool)
+    upload_file = QtCore.pyqtSignal(object, object)
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
@@ -210,6 +210,28 @@ class PhotiniUploader(QtWidgets.QWidget):
                 self.logger.error('cannot read %s: %s', picture, str(ex))
         self.user_photo.setPixmap(pixmap)
 
+    def convert_to_jpeg(self, image):
+        return image.as_jpeg()
+
+    def get_conversion_function(self, image):
+        image_type = imghdr.what(image.path)
+        if image_type in self.convert['types']:
+            return None
+        dialog = QtWidgets.QMessageBox(parent=self)
+        dialog.setWindowTitle(self.tr('Photini: incompatible type'))
+        dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
+        dialog.setInformativeText(
+            self.convert['msg'].format(os.path.basename(image.path), image_type))
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setStandardButtons(self.convert['buttons'])
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
+        result = dialog.exec_()
+        if result == QtWidgets.QMessageBox.Ignore:
+            return 'omit'
+        if result == QtWidgets.QMessageBox.Yes:
+            return self.convert_to_jpeg
+        return None
+
     @QtCore.pyqtSlot()
     def stop_upload(self):
         if self.upload_worker:
@@ -226,22 +248,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         # make list of items to upload
         self.upload_list = []
         for image in self.image_list.get_selected_images():
-            image_type = imghdr.what(image.path)
-            if image_type in self.convert['types']:
-                convert = False
-            else:
-                dialog = QtWidgets.QMessageBox(parent=self)
-                dialog.setWindowTitle(self.tr('Photini: incompatible type'))
-                dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
-                dialog.setInformativeText(self.convert['msg'].format(
-                        os.path.basename(image.path), image_type))
-                dialog.setIcon(QtWidgets.QMessageBox.Warning)
-                dialog.setStandardButtons(self.convert['buttons'])
-                dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
-                result = dialog.exec_()
-                if result == QtWidgets.QMessageBox.Ignore:
-                    continue
-                convert = result == QtWidgets.QMessageBox.Yes
+            convert = self.get_conversion_function(image)
+            if convert == 'omit':
+                continue
             self.upload_list.append((image, convert))
         if not self.upload_list:
             self.upload_button.setChecked(False)
