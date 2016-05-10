@@ -38,6 +38,7 @@ from requests_toolbelt import MultipartEncoder
 
 from .configstore import config_store, key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
+from .metadata import MetadataHandler
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from .uploader import PhotiniUploader
 
@@ -431,15 +432,11 @@ class FacebookUploader(PhotiniUploader):
             os.makedirs(temp_dir)
         path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
         im.save(path, format='jpeg', quality=95)
-        # copy metadata
-        try:
-            src_md = MetadataHandler(image.path)
-        except Exception:
-            pass
-        else:
-            dst_md = MetadataHandler(path)
-            dst_md.copy(src_md)
-            dst_md.save()
+        # set some metadata - Facebook wipes all but IPTC byline and copyright
+        md = MetadataHandler(path)
+        md.set_value('Iptc.Application2.Byline', image.metadata.creator)
+        md.set_value('Iptc.Application2.Copyright', image.metadata.copyright)
+        md.save()
         return path
 
     def get_conversion_function(self, image):
