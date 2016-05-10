@@ -416,16 +416,24 @@ class FacebookUploader(PhotiniUploader):
         im = PIL.open(image.path)
         # scale to one of Facebook's preferred sizes
         w, h = im.size
-        for size in (2048, 960, 720):
-            if max(w, h) > size:
-                if w >= h:
-                    h = int((float(size * h) / float(w)) + 0.5)
-                    w = size
-                else:
-                    w = int((float(size * w) / float(h)) + 0.5)
-                    h = size
-                im = im.resize((w, h), PIL.LANCZOS)
-                break
+        old_size = max(w, h)
+        new_size = None
+        if old_size in (2048, 960, 720):
+            pass
+        elif old_size > 960:
+            new_size = 2048
+        elif old_size > 720:
+            new_size = 960
+        elif old_size > 360:
+            new_size = 720
+        if new_size:
+            if w >= h:
+                h = int((float(new_size * h) / float(w)) + 0.5)
+                w = new_size
+            else:
+                w = int((float(new_size * w) / float(h)) + 0.5)
+                h = new_size
+            im = im.resize((w, h), PIL.LANCZOS)
         # save as temporary jpeg file
         temp_dir = appdirs.user_cache_dir('photini')
         if not os.path.isdir(temp_dir):
