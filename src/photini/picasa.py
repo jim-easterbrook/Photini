@@ -400,12 +400,9 @@ class PicasaUploader(PhotiniUploader):
         self.upload_config.update_album.connect(self.update_album)
         super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Google Photos')
-        self.convert = {
-            'types'   : ('bmp', 'gif', 'jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Google Photos does not' +
-                ' accept. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore,
+        self.image_types = {
+            'accepted': ('bmp', 'gif', 'jpeg', 'png'),
+            'rejected': '*',
             }
         # timer to store album data after it's edited
         self.album_changed = False

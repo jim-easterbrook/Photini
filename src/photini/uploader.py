@@ -214,16 +214,31 @@ class PhotiniUploader(QtWidgets.QWidget):
         return image.as_jpeg()
 
     def get_conversion_function(self, image):
-        image_type = imghdr.what(image.path)
-        if image_type in self.convert['types']:
+        file_ext = os.path.splitext(image.path)[1].lower()
+        if file_ext in ('.cr2', '.nef'):
+            image_type = 'raw-' + file_ext[1:]
+        else:
+            image_type = imghdr.what(image.path) or 'unknown'
+        if image_type in self.image_types['accepted']:
             return None
+        if (self.image_types['rejected'] == '*' or
+                    image_type in self.image_types['rejected']):
+            msg = self.tr(
+                'File "{0}" is of type "{1}", which {2} does not' +
+                ' accept. Would you like to convert it to JPEG?')
+            buttons = QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore
+        else:
+            msg = self.tr(
+                'File "{0}" is of type "{1}", which {2} may not' +
+                ' handle correctly. Would you like to convert it to JPEG?')
+            buttons = QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(self.tr('Photini: incompatible type'))
         dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
-        dialog.setInformativeText(
-            self.convert['msg'].format(os.path.basename(image.path), image_type))
+        dialog.setInformativeText(msg.format(os.path.basename(image.path),
+                                             image_type, self.service_name))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
-        dialog.setStandardButtons(self.convert['buttons'])
+        dialog.setStandardButtons(buttons)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
         result = dialog.exec_()
         if result == QtWidgets.QMessageBox.Ignore:

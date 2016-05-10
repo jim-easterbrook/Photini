@@ -282,12 +282,9 @@ class FlickrUploader(PhotiniUploader):
         self.upload_config.new_set.connect(self.new_set)
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Flickr')
-        self.convert = {
-            'types'   : ('gif', 'jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Flickr may not' +
-                ' handle correctly. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+        self.image_types = {
+            'accepted': ('gif', 'jpeg', 'png'),
+            'rejected': ('raw-cr2',),
             }
 
     def load_user_data(self):

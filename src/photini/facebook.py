@@ -371,12 +371,9 @@ class FacebookUploader(PhotiniUploader):
         self.upload_config.select_album.connect(self.select_album)
         super(FacebookUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Facebook')
-        self.convert = {
-            'types'   : ('jpeg', 'png'),
-            'msg'     : self.tr(
-                'File "{0}" is of type "{1}", which Facebook may not' +
-                ' handle correctly. Would you like to convert it to JPEG?'),
-            'buttons' : QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+        self.image_types = {
+            'accepted': ('jpeg', 'png'),
+            'rejected': ('raw-cr2',),
             }
         self.login_popup = None
         # add Facebook icon to connect button
