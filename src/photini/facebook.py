@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import six
 from collections import defaultdict
 import logging
+import math
 import os
 from six.moves.urllib.request import urlopen
 
@@ -43,6 +44,7 @@ from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from .uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
+cities_cache = []
 
 class FacebookSession(object):
     scope = {
@@ -147,15 +149,36 @@ class FacebookSession(object):
                     'type'    : 'place',
                     'center'  : str(latlong),
                     'distance': distance,
+                    'fields'  : 'category,location,name',
                     })
         while places:
             for place in places['data']:
-                    yield place
+                yield place
             if 'paging' not in places or 'next' not in places['paging']:
                 return
             places = self.get(places['paging']['next'])
 
+    def distance(self, a, b):
+        # calculate approximate separation in metres of two nearby
+        # lat/long values
+        dx = (a.lon - b['longitude']) * 111320.0
+        dy = (a.lat - b['latitude']) * 111320.0 * math.cos(math.radians(a.lat))
+        return math.sqrt((dx * dx) + (dy * dy))
+
     def get_cities(self, latlong):
+        # check cache for similar latlong
+        nearest = None, 1.0e12
+        for cache in cities_cache:
+            dist = self.distance(latlong, cache['location'])
+            if dist < nearest[1]:
+                nearest = cache['cities_list'], dist
+        if nearest[1] < 500:
+            return nearest[0]
+        elif nearest[1] < 1000:
+            # initialise result to include nearby places
+            result = list(nearest[0])
+        else:
+            result = []
         # get a list of possible place names by searching for anything nearby
         hist = defaultdict(int)
         for place in self.get_places(latlong, 1000, ''):
@@ -172,7 +195,6 @@ class FacebookSession(object):
         words.sort(key=lambda x: -hist[x])
         # search for cities, regions etc. using possible place names
         threshold = hist[words[0]] // 4
-        result = []
         for word in words[:5]:
             if hist[word] < threshold:
                 break
@@ -184,6 +206,10 @@ class FacebookSession(object):
                         'latitude' in place['location'] and
                         'longitude' in place['location']):
                     result.append(place)
+        cities_cache.append({
+            'location'   : {'latitude': latlong.lat, 'longitude': latlong.lon},
+            'cities_list': result,
+            })
         return result
 
     def do_upload(self, fileobj, image_type, image, params):
@@ -211,12 +237,11 @@ class FacebookSession(object):
                     'year', 'month', 'day', 'hour', 'min')[date_taken.precision - 1]
         latlong = image.metadata.latlong
         if latlong and params['geo_tag']:
-            nearest = None, 1.0
+            nearest = None, 1.0e12
             for place in self.get_cities(latlong):
-                dist2 = ((latlong.lat - place['location']['latitude']) ** 2 +
-                         (latlong.lon - place['location']['longitude']) ** 2)
-                if dist2 < nearest[1]:
-                    nearest = place, dist2
+                dist = self.distance(latlong, place['location'])
+                if dist < nearest[1]:
+                    nearest = place, dist
             nearest = nearest[0]
             if nearest:
                 fields['place'] = nearest['id']
