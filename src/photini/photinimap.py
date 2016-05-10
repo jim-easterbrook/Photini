@@ -369,7 +369,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot(six.text_type)
     def marker_click(self, marker_id):
         image = self.marker_images[marker_id][0]
-        self.image_list.select_image(image.path)
+        self.image_list.select_image(image)
 
     @QtCore.pyqtSlot(float, float, six.text_type)
     def marker_drag(self, lat, lng, marker_id):

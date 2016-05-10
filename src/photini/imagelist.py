@@ -108,17 +108,17 @@ class Image(QtWidgets.QFrame):
         if event.button() == Qt.LeftButton:
             self.drag_start_pos = event.pos()
         if event.modifiers() == Qt.ControlModifier:
-            self.image_list.select_image(self.path, multiple_selection=True)
+            self.image_list.select_image(self, multiple_selection=True)
         elif event.modifiers() == Qt.ShiftModifier:
-            self.image_list.select_image(self.path, extend_selection=True)
+            self.image_list.select_image(self, extend_selection=True)
         elif not self.get_selected():
             # don't clear selection in case we're about to drag
-            self.image_list.select_image(self.path)
+            self.image_list.select_image(self)
 
     def mouseReleaseEvent(self, event):
         if event.modifiers() not in (Qt.ControlModifier, Qt.ShiftModifier):
             # clear any multiple selection
-            self.image_list.select_image(self.path)
+            self.image_list.select_image(self)
 
     def mouseMoveEvent(self, event):
         if not self.image_list.drag_icon:
@@ -344,8 +344,7 @@ class ImageList(QtWidgets.QWidget):
         super(ImageList, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.drag_icon = None
-        self.path_list = list()
-        self.image = dict()
+        self.images = []
         self.last_selected = None
         self.selection_anchor = None
         self.thumb_size = int(config_store.get('controls', 'thumb_size', '80'))
@@ -400,21 +399,13 @@ class ImageList(QtWidgets.QWidget):
         self.drag_icon = icon
 
     def get_image(self, path):
-        if path not in self.path_list:
-            return None
-        return self.image[path]
+        for image in self.images:
+            if image.path == path:
+                return image
+        return None
 
     def get_images(self):
-        for path in self.path_list:
-            yield self.image[path]
-
-    def get_selected_images(self):
-        selection = list()
-        for path in self.path_list:
-            image = self.image[path]
-            if image.get_selected():
-                selection.append(image)
-        return selection
+        return self.images
 
     def mousePressEvent(self, event):
         if self.scroll_area.underMouse():
@@ -448,26 +439,26 @@ class ImageList(QtWidgets.QWidget):
 
     def open_file(self, path):
         path = os.path.normpath(path)
-        if path in self.path_list:
+        if self.get_image(path):
+            # already opened this path
             return
-        self.path_list.append(path)
         image = Image(path, self, thumb_size=self.thumb_size)
-        self.image[path] = image
+        self.images.append(image)
         self.show_thumbnail(image)
 
     def done_opening(self, path):
         config_store.set('paths', 'images', os.path.dirname(path))
         self._sort_thumbnails()
 
-    def _date_key(self, idx):
-        result = self.image[idx].metadata.date_taken
+    def _date_key(self, image):
+        result = image.metadata.date_taken
         if result is None:
-            result = self.image[idx].metadata.date_digitised
+            result = image.metadata.date_digitised
         if result is None:
-            result = self.image[idx].metadata.date_modified
+            result = image.metadata.date_modified
         if result is None:
             # use file date as last resort
-            return datetime.fromtimestamp(os.path.getmtime(self.image[idx].path))
+            return datetime.fromtimestamp(os.path.getmtime(image.path))
         return result.datetime
 
     def _new_sort_order(self):
@@ -479,14 +470,14 @@ class ImageList(QtWidgets.QWidget):
         config_store.set('controls', 'sort_date', str(sort_date))
         with Busy():
             if sort_date:
-                self.path_list.sort(key=self._date_key)
+                self.images.sort(key=self._date_key)
             else:
-                self.path_list.sort()
-            for path in self.path_list:
-                self.show_thumbnail(self.image[path], False)
+                self.images.sort(key=lambda x: x.path)
+            for image in self.images:
+                self.show_thumbnail(image, False)
         if self.last_selected:
             self.app.processEvents()
-            self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
+            self.scroll_area.ensureWidgetVisible(self.last_selected)
         self.image_list_changed.emit()
 
     def show_thumbnail(self, image, live=True):
@@ -501,11 +492,9 @@ class ImageList(QtWidgets.QWidget):
 
     def close_files(self, all_files):
         layout = self.thumbnails.layout()
-        for path in list(self.path_list):
-            image = self.image[path]
+        for image in list(self.images):
             if all_files or image.get_selected():
-                self.path_list.remove(path)
-                del self.image[path]
+                self.images.remove(image)
                 layout.removeWidget(image)
                 image.setParent(None)
         self.last_selected = None
@@ -520,8 +509,7 @@ class ImageList(QtWidgets.QWidget):
         force_iptc = eval(config_store.get('files', 'force_iptc', 'False'))
         unsaved = False
         with Busy():
-            for path in list(self.path_list):
-                image = self.image[path]
+            for image in self.images:
                 image.metadata.save(if_mode, sc_mode, force_iptc)
                 unsaved = unsaved or image.metadata.changed()
         self.new_metadata.emit(unsaved)
@@ -529,8 +517,7 @@ class ImageList(QtWidgets.QWidget):
     def unsaved_files_dialog(
             self, all_files=False, with_cancel=True, with_discard=True):
         """Return true if OK to continue with close or quit or whatever"""
-        for path in self.path_list:
-            image = self.image[path]
+        for image in self.images:
             if image.metadata.changed() and (all_files or image.selected):
                 break
         else:
@@ -554,9 +541,8 @@ class ImageList(QtWidgets.QWidget):
         return result == QtWidgets.QMessageBox.Discard
 
     def get_selected_images(self):
-        selection = list()
-        for path in self.path_list:
-            image = self.image[path]
+        selection = []
+        for image in self.images:
             if image.get_selected():
                 selection.append(image)
         return selection
@@ -565,8 +551,7 @@ class ImageList(QtWidgets.QWidget):
         self.selection_changed.emit(self.get_selected_images())
 
     def select_all(self):
-        for path in self.path_list:
-            image = self.image[path]
+        for image in self.images:
             image.set_selected(True)
         self.selection_anchor = None
         self.last_selected = None
@@ -586,47 +571,44 @@ class ImageList(QtWidgets.QWidget):
 
     def _inc_selection(self, inc, extend_selection=False):
         if self.last_selected:
-            idx = self.path_list.index(self.last_selected)
-            idx = (idx + inc) % len(self.path_list)
+            idx = self.images.index(self.last_selected)
+            idx = (idx + inc) % len(self.images)
         else:
             idx = 0
-        path = self.path_list[idx]
-        self.select_image(path, extend_selection=extend_selection)
+        self.select_image(self.images[idx], extend_selection=extend_selection)
 
     @QtCore.pyqtSlot()
     def _new_thumb_size(self):
         self.thumb_size = self.size_slider.value() * 20
         config_store.set('controls', 'thumb_size', str(self.thumb_size))
-        for path in self.path_list:
-            self.image[path].set_thumb_size(self.thumb_size)
+        for image in self.images:
+            image.set_thumb_size(self.thumb_size)
         if self.last_selected:
             self.app.processEvents()
-            self.scroll_area.ensureWidgetVisible(self.image[self.last_selected])
+            self.scroll_area.ensureWidgetVisible(self.last_selected)
 
     def select_image(
-            self, path, extend_selection=False, multiple_selection=False):
-        image = self.image[path]
+            self, image, extend_selection=False, multiple_selection=False):
         self.scroll_area.ensureWidgetVisible(image)
         if extend_selection and self.selection_anchor:
-            idx1 = self.path_list.index(self.selection_anchor)
-            idx2 = self.path_list.index(self.last_selected)
+            idx1 = self.images.index(self.selection_anchor)
+            idx2 = self.images.index(self.last_selected)
             for i in range(min(idx1, idx2), max(idx1, idx2) + 1):
-                self.image[self.path_list[i]].set_selected(False)
-            idx2 = self.path_list.index(path)
+                self.images[i].set_selected(False)
+            idx2 = self.images.index(image)
             for i in range(min(idx1, idx2), max(idx1, idx2) + 1):
-                self.image[self.path_list[i]].set_selected(True)
+                self.images[i].set_selected(True)
         elif multiple_selection:
             image.set_selected(not image.get_selected())
-            self.selection_anchor = path
+            self.selection_anchor = image
         else:
             self._clear_selection()
             image.set_selected(True)
-            self.selection_anchor = path
-        self.last_selected = path
+            self.selection_anchor = image
+        self.last_selected = image
         self.emit_selection()
 
     def _clear_selection(self):
-        for path in self.path_list:
-            image = self.image[path]
+        for image in self.images:
             if image.get_selected():
                 image.set_selected(False)
