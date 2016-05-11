@@ -149,7 +149,7 @@ class FacebookSession(object):
                     'type'    : 'place',
                     'center'  : str(latlong),
                     'distance': distance,
-                    'fields'  : 'category,location,name',
+                    'fields'  : 'category,id,location,name',
                     })
         while places:
             for place in places['data']:
@@ -164,6 +164,12 @@ class FacebookSession(object):
         dx = (a.lon - b['longitude']) * 111320.0
         dy = (a.lat - b['latitude']) * 111320.0 * math.cos(math.radians(a.lat))
         return math.sqrt((dx * dx) + (dy * dy))
+
+    def is_city(self, place):
+        return (place['category'] in ('City', 'Neighborhood', 'Country',
+                                      'State/province/region') and
+                'latitude' in place['location'] and
+                'longitude' in place['location'])
 
     def get_cities(self, latlong):
         # check cache for similar latlong
@@ -189,22 +195,19 @@ class FacebookSession(object):
                     word = word[:-1]
                 if len(word) > 2:
                     hist[word.lower()] += 1
+            if place not in result and self.is_city(place):
+                result.append(place)
         if not hist:
             hist['city'] = 1
         words = list(hist.keys())
         words.sort(key=lambda x: -hist[x])
         # search for cities, regions etc. using possible place names
-        threshold = hist[words[0]] // 4
+        threshold = hist[words[len(words) // 2]]
         for word in words[:5]:
-            if hist[word] < threshold:
+            if hist[word] <= threshold:
                 break
             for place in self.get_places(latlong, 10000, word):
-                if place in result:
-                    continue
-                if (place['category'] in ('City', 'Neighborhood', 'Country',
-                                          'State/province/region') and
-                        'latitude' in place['location'] and
-                        'longitude' in place['location']):
+                if place not in result and self.is_city(place):
                     result.append(place)
         cities_cache.append({
             'location'   : {'latitude': latlong.lat, 'longitude': latlong.lon},
