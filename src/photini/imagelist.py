@@ -438,7 +438,7 @@ class ImageList(QtWidgets.QWidget):
         self.done_opening(path_list[-1])
 
     def open_file(self, path):
-        path = os.path.normpath(path)
+        path = os.path.abspath(path)
         if self.get_image(path):
             # already opened this path
             return
