@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-13  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ import logging.handlers
 import os
 import sys
 
-from .pyqt import QtCore, QtWidgets
+from .pyqt import qt_version_info, QtCore, QtWidgets
 
 class OutputInterceptor(object):
     def __init__(self, name, stream):
@@ -41,23 +41,26 @@ class OutputInterceptor(object):
         elif msg:
             self.logger.info(msg)
 
+
+class StreamProxy(QtCore.QObject):
+    # only the GUI thread is allowed to write messages in the
+    # LoggerWindow, so this class acts as a proxy, passing messages
+    # over Qt signal/slot for thread safety
+    flush_text = QtCore.pyqtSignal()
+    write_text = QtCore.pyqtSignal(str)
+
+    def write(self, msg):
+        msg = msg.strip()
+        if msg:
+            self.write_text.emit(msg)
+
+    def flush(self):
+        self.flush_text.emit()
+
+
 class LoggerWindow(QtWidgets.QWidget):
-    class StreamProxy(QtCore.QObject):
-        # only the GUI thread is allowed to write messages in the
-        # LoggerWindow, so this class acts as a proxy, passing messages
-        # over Qt signal/slot for thread safety
-        write_text = QtCore.pyqtSignal(str)
-        def write(self, msg):
-            msg = msg.strip()
-            if msg:
-                self.write_text.emit(msg)
-
-        flush_text = QtCore.pyqtSignal()
-        def flush(self):
-            self.flush_text.emit()
-
-    def __init__(self, verbose, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, verbose, *arg, **kw):
+        super(LoggerWindow, self).__init__(*arg, **kw)
         self.setWindowTitle(self.tr("Photini error logging"))
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setRowStretch(0, 1)
@@ -66,17 +69,21 @@ class LoggerWindow(QtWidgets.QWidget):
         self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
         self.text.setMinimumWidth(500)
-        self.layout().addWidget(self.text, 0, 0, 1, 2)
+        self.layout().addWidget(self.text, 0, 0, 1, 3)
+        # save button
+        save_button = QtWidgets.QPushButton(self.tr('Save'))
+        save_button.clicked.connect(self.save)
+        self.layout().addWidget(save_button, 1, 1)
         # dismiss button
         dismiss_button = QtWidgets.QPushButton(self.tr('Dismiss'))
         dismiss_button.clicked.connect(self.hide)
-        self.layout().addWidget(dismiss_button, 1, 1)
+        self.layout().addWidget(dismiss_button, 1, 2)
         # Python logger
         logger = logging.getLogger('')
         for handler in logger.handlers:
             logger.removeHandler(handler)
         logger.setLevel(max(logging.ERROR - (verbose * 10), 1))
-        stream_proxy = self.StreamProxy(self)
+        stream_proxy = StreamProxy(self)
         stream_proxy.write_text.connect(self.write)
         stream_proxy.flush_text.connect(self.flush)
         handler = logging.StreamHandler(stream_proxy)
@@ -94,6 +101,15 @@ class LoggerWindow(QtWidgets.QWidget):
         logger = logging.getLogger('')
         for handler in logger.handlers:
             logger.removeHandler(handler)
+
+    def save(self):
+        file_name = QtWidgets.QFileDialog.getSaveFileName(
+            self, self.tr('Save log file'),
+            os.path.expanduser('~/photini_log.txt'))
+        if qt_version_info >= (5, 0):
+            file_name = file_name[0]
+        with open(file_name, 'w') as of:
+            of.write(self.text.toPlainText())
 
     @QtCore.pyqtSlot(str)
     def write(self, msg):
