@@ -482,6 +482,7 @@ class FacebookUploader(PhotiniUploader):
         im.save(path, format='jpeg', quality=95)
         # set some metadata - Facebook wipes all but IPTC byline and copyright
         md = MetadataHandler(path)
+        md.set_value('Exif.Image.Orientation', image.metadata.orientation)
         md.set_value('Iptc.Application2.Byline', image.metadata.creator)
         md.set_value('Iptc.Application2.Copyright', image.metadata.copyright)
         md.save()
