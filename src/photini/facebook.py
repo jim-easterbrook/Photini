@@ -265,6 +265,7 @@ class FacebookSession(object):
     def post(self, *arg, **kw):
         rsp = self.session.post(*arg, **kw)
         rsp.raise_for_status()
+        return rsp.json()
 
     def _save_token(self, token):
         if self.auto_refresh:
@@ -428,21 +429,25 @@ class FacebookUploader(PhotiniUploader):
             return None
         return self.login_popup.result
 
-    def load_user_data(self):
+    def load_user_data(self, album_id=None):
         self.upload_config.widgets['album_choose'].clear()
         self.upload_config.widgets['album_choose'].addItem(
             self.tr('<default>'), 'me')
         if self.connected:
             name, picture = self.session.get_user()
             self.show_user(name, picture)
+            selected = 0
             for album in self.session.get_albums('id,can_upload,name'):
                 self.upload_config.widgets['album_choose'].addItem(
                     album['name'], album['id'])
+                idx = self.upload_config.widgets['album_choose'].count() - 1
                 if not album['can_upload']:
-                    idx = self.upload_config.widgets['album_choose'].count() - 1
                     self.upload_config.widgets['album_choose'].setItemData(
                         idx, 0, Qt.UserRole - 1)
-            self.select_album()
+                elif album['id'] == album_id or not selected:
+                    selected = idx
+            self.upload_config.widgets['album_choose'].setCurrentIndex(selected)
+            self.select_album(selected)
         else:
             self.show_user(None, None)
             self.upload_config.show_album({}, None)
@@ -497,7 +502,8 @@ class FacebookUploader(PhotiniUploader):
 
     def upload_finished(self):
         # reload current album metadata (to update thumbnail)
-        self.select_album()
+        self.select_album(
+            self.upload_config.widgets['album_choose'].currentIndex())
 
     @QtCore.pyqtSlot()
     def new_album(self):
@@ -542,20 +548,19 @@ class FacebookUploader(PhotiniUploader):
             data['location'] = location
         data['privacy'] = privacy.itemData(privacy.currentIndex())
         try:
-            self.session.post('https://graph.facebook.com/me/albums', data=data)
+            album = self.session.post(
+                'https://graph.facebook.com/me/albums', data=data)
         except Exception as ex:
             self.logger.error(str(ex))
             self.refresh(force=True)
             return
-        self.load_user_data()
+        self.load_user_data(album_id=album['id'])
 
     @QtCore.pyqtSlot(int)
-    def select_album(self, index=None):
+    def select_album(self, index):
         if not self.authorise('read'):
             self.refresh(force=True)
             return
-        if index is None:
-            index = self.upload_config.widgets['album_choose'].currentIndex()
         album_id = self.upload_config.widgets['album_choose'].itemData(index)
         if album_id == 'me':
             self.upload_config.show_album({}, None)

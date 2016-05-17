@@ -1,4 +1,4 @@
 from __future__ import unicode_literals
 
 __version__ = '2016.05.1'
-build = '595 (b5f0bfc)'
+build = '596 (e976f0a)'
