@@ -99,7 +99,7 @@ class FacebookSession(object):
             )
         return self.session.authorization_url(
             'https://www.facebook.com/dialog/oauth',
-            auth_type='rerequest')[0]
+            display='popup', auth_type='rerequest')[0]
 
     def get_access_token(self, url):
         token = self.session.token_from_fragment(url)
@@ -271,11 +271,18 @@ class FacebookSession(object):
             keyring.set_password('photini', 'facebook', token['access_token'])
 
 
+class WebView(QtWebKitWidgets.QWebView):
+    def sizeHint(self):
+        return QtCore.QSize(580, 490)
+
+
 class FacebookLoginPopup(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
         super(FacebookLoginPopup, self).__init__(*arg, **kw)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.browser = QtWebKitWidgets.QWebView()
+        self.browser = WebView()
         self.browser.urlChanged.connect(self.auth_url_changed)
         self.layout().addWidget(self.browser)
         buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Cancel)
