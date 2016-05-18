@@ -97,7 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
-        self.app.spell_check = spell_check = SpellCheck(parent=self)
+        self.app.spell_check = SpellCheck(parent=self)
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
@@ -186,25 +186,25 @@ class MainWindow(QtWidgets.QMainWindow):
             tab['action'].triggered.connect(self.add_tabs)
             options_menu.addAction(tab['action'])
         # spelling menu
-        languages = spell_check.available_languages()
+        languages = self.app.spell_check.available_languages()
         spelling_menu = self.menuBar().addMenu(self.tr('Spelling'))
         enable_action = QtWidgets.QAction(self.tr('Enable spell check'), self)
         enable_action.setEnabled(bool(languages))
         enable_action.setCheckable(True)
-        enable_action.setChecked(spell_check.enabled)
-        enable_action.toggled.connect(spell_check.enable)
+        enable_action.setChecked(self.app.spell_check.enabled)
+        enable_action.toggled.connect(self.app.spell_check.enable)
         spelling_menu.addAction(enable_action)
         language_menu = QtWidgets.QMenu(self.tr('Choose language'), self)
         language_menu.setEnabled(bool(languages))
         language_group = QtWidgets.QActionGroup(self)
-        current_language = spell_check.current_language()
+        current_language = self.app.spell_check.current_language()
         for tag in languages:
             language_action = QtWidgets.QAction(tag, self)
             language_action.setCheckable(True)
             language_action.setChecked(tag == current_language)
             language_action.setActionGroup(language_group)
             language_menu.addAction(language_action)
-        language_group.triggered.connect(spell_check.set_language)
+        language_group.triggered.connect(self.app.spell_check.set_language)
         spelling_menu.addMenu(language_menu)
         # help menu
         help_menu = self.menuBar().addMenu(self.tr('Help'))
@@ -349,11 +349,11 @@ def main(argv=None):
     if qt_version_info < (5, 0):
         QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     locale = QtCore.QLocale.system()
-    translator = QtCore.QTranslator()
+    translator = QtCore.QTranslator(parent=app)
     translator.load(locale, 'photini', '.', pkg_resources.resource_filename(
         'photini', 'data/lang'), '.qm')
     app.installTranslator(translator)
-    qt_translator = QtCore.QTranslator()
+    qt_translator = QtCore.QTranslator(parent=app)
     qt_translator.load(
         locale, 'qt', '_',
         QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
