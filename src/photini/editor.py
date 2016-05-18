@@ -40,7 +40,7 @@ import webbrowser
 
 import pkg_resources
 
-from .configstore import config_store
+from .configstore import ConfigStore
 from .bingmap import BingMap
 from .descriptive import Descriptive
 try:
@@ -94,15 +94,18 @@ class MainWindow(QtWidgets.QMainWindow):
             parsed = urlparse(proxies['http'])
             QNetworkProxy.setApplicationProxy(QNetworkProxy(
                 QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
+        # create shared global objects
+        self.app = QtWidgets.QApplication.instance()
+        self.app.config_store = ConfigStore('editor', parent=self)
+        self.app.spell_check = spell_check = SpellCheck(parent=self)
         # restore size
         size = self.width(), self.height()
-        self.resize(*eval(config_store.get('main_window', 'size', str(size))))
+        self.resize(*eval(
+            self.app.config_store.get('main_window', 'size', str(size))))
         # image selector
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
-        # spelling checker
-        spell_check = SpellCheck(parent=self)
         # prepare list of tabs and associated stuff
         self.tab_list = (
             {'name'  : self.tr('&Descriptive metadata'),
@@ -177,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
             tab['action'].setCheckable(True)
             if tab['class']:
                 tab['action'].setChecked(
-                    eval(config_store.get('tabs', tab['key'], 'True')))
+                    eval(self.app.config_store.get('tabs', tab['key'], 'True')))
             else:
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
@@ -225,7 +228,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.addWidget(self.image_list)
         size = self.central_widget.sizes()
         self.central_widget.setSizes(eval(
-            config_store.get('main_window', 'split', str(size))))
+            self.app.config_store.get('main_window', 'split', str(size))))
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
         # open files given on command line, after GUI is displayed
@@ -243,7 +246,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.clear()
         for tab in self.tab_list:
             use_tab = tab['action'].isChecked()
-            config_store.set('tabs', tab['key'], str(use_tab))
+            self.app.config_store.set('tabs', tab['key'], str(use_tab))
             if tab['object'] and use_tab:
                 self.tabs.addTab(tab['object'], tab['name'])
         self.tabs.blockSignals(was_blocked)
@@ -272,7 +275,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         for n in range(self.tabs.count()):
             self.tabs.widget(n).shutdown()
-        config_store.shutdown()
+        self.app.config_store.shutdown()
         self.loggerwindow.shutdown()
         super(MainWindow, self).closeEvent(event)
 
@@ -311,7 +314,7 @@ details click the 'show details' button.</p>
 
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):
-        config_store.set(
+        self.app.config_store.set(
             'main_window', 'split', str(self.central_widget.sizes()))
 
     @QtCore.pyqtSlot(int)
@@ -333,7 +336,7 @@ details click the 'show details' button.</p>
 
     def resizeEvent(self, event):
         size = self.width(), self.height()
-        config_store.set('main_window', 'size', str(size))
+        self.app.config_store.set('main_window', 'size', str(size))
 
 def main(argv=None):
     if argv:

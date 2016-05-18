@@ -29,7 +29,7 @@ import keyring
 import requests
 from requests_oauthlib import OAuth2Session
 
-from .configstore import config_store, key_store
+from .configstore import key_store
 from .descriptive import MultiLineEdit
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
@@ -392,7 +392,6 @@ class PicasaUploader(PhotiniUploader):
     session_factory = PicasaSession
 
     def __init__(self, *arg, **kw):
-        config_store.remove_section('picasa')
         self.upload_config = PicasaUploadConfig()
         self.upload_config.delete_album.connect(self.delete_album)
         self.upload_config.new_album.connect(self.new_album)

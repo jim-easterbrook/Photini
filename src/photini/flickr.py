@@ -29,7 +29,7 @@ import time
 import flickrapi
 import keyring
 
-from .configstore import config_store, key_store
+from .configstore import key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
 from .uploader import PhotiniUploader
@@ -277,7 +277,6 @@ class FlickrUploader(PhotiniUploader):
     session_factory = FlickrSession
 
     def __init__(self, *arg, **kw):
-        config_store.remove_section('flickr')
         self.upload_config = FlickrUploadConfig()
         self.upload_config.new_set.connect(self.new_set)
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)

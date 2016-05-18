@@ -35,7 +35,6 @@ try:
 except ImportError:
     gp = None
 
-from .configstore import config_store
 from .metadata import Metadata
 from .pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
@@ -246,6 +245,7 @@ class Importer(QtWidgets.QWidget):
 
     def __init__(self, image_list, parent=None):
         super(Importer, self).__init__(parent)
+        self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         form = QtWidgets.QFormLayout()
@@ -328,7 +328,7 @@ class Importer(QtWidgets.QWidget):
             self._fail()
             return
         path_format = self.path_format.text()
-        path_format = config_store.get(
+        path_format = self.config_store.get(
             self.source.config_section, 'path_format', path_format)
         self.path_format.setText(path_format)
         self.file_list_widget.clear()
@@ -336,7 +336,7 @@ class Importer(QtWidgets.QWidget):
         QtCore.QTimer.singleShot(100, self.list_files)
 
     def add_folder(self):
-        folders = eval(config_store.get('importer', 'folders', '[]'))
+        folders = eval(self.config_store.get('importer', 'folders', '[]'))
         if folders:
             directory = folders[0]
         else:
@@ -351,7 +351,7 @@ class Importer(QtWidgets.QWidget):
         folders.insert(0, root)
         if len(folders) > 5:
             del folders[-1]
-        config_store.set('importer', 'folders', repr(folders))
+        self.config_store.set('importer', 'folders', repr(folders))
         self.refresh()
         idx = self.source_selector.count() - (1 + len(folders))
         self.source_selector.setCurrentIndex(idx)
@@ -359,7 +359,7 @@ class Importer(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def path_format_finished(self):
         if self.source:
-            config_store.set(
+            self.config_store.set(
                 self.source.config_section, 'path_format', self.nm.format_string)
         self.show_file_list()
 
@@ -380,7 +380,7 @@ class Importer(QtWidgets.QWidget):
             self.source_selector.addItem(
                 self.tr('camera: {0}').format(model),
                 (CameraSource, (model, port_name)))
-        for root in eval(config_store.get('importer', 'folders', '[]')):
+        for root in eval(self.config_store.get('importer', 'folders', '[]')):
             if os.path.isdir(root):
                 self.source_selector.addItem(
                     self.tr('folder: {0}').format(root), (FolderSource, (root,)))
@@ -452,7 +452,7 @@ class Importer(QtWidgets.QWidget):
         self.sort_file_list()
 
     def sort_file_list(self):
-        if eval(config_store.get('controls', 'sort_date', 'False')):
+        if eval(self.config_store.get('controls', 'sort_date', 'False')):
             self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
         else:
             self.file_list.sort()
@@ -501,7 +501,7 @@ class Importer(QtWidgets.QWidget):
     def select_new(self):
         since = datetime.min
         if self.source:
-            since = config_store.get(
+            since = self.config_store.get(
                 self.source.config_section, 'last_transfer', since.isoformat(' '))
             if len(since) > 19:
                 since = datetime.strptime(since, '%Y-%m-%d %H:%M:%S.%f')
@@ -580,7 +580,7 @@ class Importer(QtWidgets.QWidget):
                         break
                     copy_list.pop(0)
         if last_path:
-            config_store.set(self.source.config_section, 'last_transfer',
+            self.config_store.set(self.source.config_section, 'last_transfer',
                              last_transfer.isoformat(' '))
             self.image_list.done_opening(last_path)
         self.show_file_list()

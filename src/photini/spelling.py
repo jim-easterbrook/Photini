@@ -61,7 +61,6 @@ if sys.platform == 'win32x':
                 enchant.set_param('enchant.myspell.dictionary.path', dict_path)
                 break
 
-from .configstore import config_store
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
 
 
@@ -70,11 +69,9 @@ class SpellCheck(QtCore.QObject):
 
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
-        self.enable(eval(config_store.get('spelling', 'enabled', 'True')))
-        self.set_dict(config_store.get('spelling', 'language'))
-        # make self available via global app pointer
-        app = QtWidgets.QApplication.instance()
-        app.spell_check = self
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.enable(eval(self.config_store.get('spelling', 'enabled', 'True')))
+        self.set_dict(self.config_store.get('spelling', 'language'))
 
     @staticmethod
     def available_languages():
@@ -92,7 +89,7 @@ class SpellCheck(QtCore.QObject):
     @QtCore.pyqtSlot(bool)
     def enable(self, enabled):
         self.enabled = bool(enchant) and enabled
-        config_store.set('spelling', 'enabled', str(self.enabled))
+        self.config_store.set('spelling', 'enabled', str(self.enabled))
         self.new_dict.emit()
 
     @QtCore.pyqtSlot(QtWidgets.QAction)
@@ -108,7 +105,7 @@ class SpellCheck(QtCore.QObject):
             if tag:
                 logger.warning('Failed to set dictionary %s', tag)
             self.dict = None
-        config_store.set('spelling', 'language', self.current_language())
+        self.config_store.set('spelling', 'language', self.current_language())
         self.new_dict.emit()
 
 

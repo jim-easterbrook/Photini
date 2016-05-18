@@ -22,7 +22,6 @@ from __future__ import unicode_literals
 from datetime import timedelta
 import re
 
-from .configstore import config_store
 from .metadata import DateTime, LensSpec
 from .pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
 
@@ -391,15 +390,16 @@ class IntValidator(QtGui.QIntValidator):
 
 class LensData(object):
     def __init__(self):
-        self.lenses = eval(config_store.get('technical', 'lenses', '[]'))
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
         self.lenses.sort()
 
     def delete_model(self, model):
         if model not in self.lenses:
             return
-        config_store.remove_section('lens ' + model)
+        self.config_store.remove_section('lens ' + model)
         self.lenses.remove(model)
-        config_store.set('technical', 'lenses', repr(self.lenses))
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
 
     def save_to_image(self, model, image):
         image.metadata.lens_model = model
@@ -409,7 +409,7 @@ class LensData(object):
             return
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
-            value = config_store.get(section, item) or None
+            value = self.config_store.get(section, item) or None
             setattr(image.metadata, item, value)
 
     def load_from_image(self, model, image):
@@ -418,10 +418,10 @@ class LensData(object):
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
             if value:
-                config_store.set(section, item, str(value))
+                self.config_store.set(section, item, str(value))
         self.lenses.append(model)
         self.lenses.sort()
-        config_store.set('technical', 'lenses', repr(self.lenses))
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
 
     def load_from_dialog(self, dialog):
         model = dialog.lens_model.text()
@@ -435,12 +435,12 @@ class LensData(object):
         max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
         lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
         section = 'lens ' + model
-        config_store.set(section, 'lens_make', dialog.lens_make.text())
-        config_store.set(section, 'lens_serial', dialog.lens_serial.text())
-        config_store.set(section, 'lens_spec', str(lens_spec))
+        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
+        self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
+        self.config_store.set(section, 'lens_spec', str(lens_spec))
         self.lenses.append(model)
         self.lenses.sort()
-        config_store.set('technical', 'lenses', repr(self.lenses))
+        self.config_store.set('technical', 'lenses', repr(self.lenses))
         return model
 
 

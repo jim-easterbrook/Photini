@@ -31,8 +31,9 @@ import pkg_resources
 
 from .pyqt import QtCore
 
-class ConfigStore(object):
-    def __init__(self, name):
+class ConfigStore(QtCore.QObject):
+    def __init__(self, name, *arg, **kw):
+        super(ConfigStore, self).__init__(*arg, **kw)
         self.config = RawConfigParser()
         self.file_opts = {}
         if not six.PY2:
@@ -137,6 +138,5 @@ class KeyStore(object):
         return value
 
 
-# create single objects for entire application
-config_store = ConfigStore('editor')
+# create single object for entire application
 key_store = KeyStore()

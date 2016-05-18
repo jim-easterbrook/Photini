@@ -37,7 +37,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder
 
-from .configstore import config_store, key_store
+from .configstore import key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
 from .metadata import MetadataHandler
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
