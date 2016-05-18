@@ -79,18 +79,18 @@ class LoggerWindow(QtWidgets.QWidget):
         dismiss_button.clicked.connect(self.hide)
         self.layout().addWidget(dismiss_button, 1, 2)
         # Python logger
-        logger = logging.getLogger('')
-        for handler in logger.handlers:
-            logger.removeHandler(handler)
-        logger.setLevel(max(logging.ERROR - (verbose * 10), 1))
-        stream_proxy = StreamProxy(self)
-        stream_proxy.write_text.connect(self.write)
-        stream_proxy.flush_text.connect(self.flush)
-        handler = logging.StreamHandler(stream_proxy)
+        self.logger = logging.getLogger('')
+        for handler in list(self.logger.handlers):
+            self.logger.removeHandler(handler)
+        self.logger.setLevel(max(logging.ERROR - (verbose * 10), 1))
+        self.stream_proxy = StreamProxy(self)
+        self.stream_proxy.write_text.connect(self.write)
+        self.stream_proxy.flush_text.connect(self.flush)
+        handler = logging.StreamHandler(self.stream_proxy)
         handler.setFormatter(logging.Formatter(
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
-        logger.addHandler(handler)
+        self.logger.addHandler(handler)
         # intercept stdout and stderr, if they exist
         if sys.stderr:
             sys.stderr = OutputInterceptor('stderr', sys.stderr)
@@ -98,9 +98,10 @@ class LoggerWindow(QtWidgets.QWidget):
             sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
     def shutdown(self):
-        logger = logging.getLogger('')
-        for handler in logger.handlers:
-            logger.removeHandler(handler)
+        self.stream_proxy.write_text.disconnect()
+        self.stream_proxy.flush_text.disconnect()
+        for handler in list(self.logger.handlers):
+            self.logger.removeHandler(handler)
 
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(

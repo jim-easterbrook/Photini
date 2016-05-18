@@ -182,7 +182,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     def do_not_close(self):
         if not self.upload_worker:
             return False
-        dialog = QtWidgets.QMessageBox()
+        dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(self.tr('Photini: upload in progress'))
         dialog.setText(self.tr('<h3>Upload to {} has not finished.</h3>').format(
             self.service_name))
