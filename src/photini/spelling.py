@@ -64,97 +64,77 @@ if sys.platform == 'win32x':
 from .configstore import config_store
 from .pyqt import Qt, QtCore, QtGui, QtWidgets
 
+
 class SpellCheck(QtCore.QObject):
     new_dict = QtCore.pyqtSignal()
 
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
-        self.set_dict(None)
-        self.enabled = False
+        self.enable(eval(config_store.get('spelling', 'enabled', 'True')))
+        self.set_dict(config_store.get('spelling', 'language'))
+        # make self available via global app pointer
+        app = QtWidgets.QApplication.instance()
+        app.spell_check = self
 
-    def set_enabled(self, enabled):
-        self.enabled = bool(enchant) and enabled
-        self.new_dict.emit()
-
-    def set_dict(self, tag):
-        if tag:
-            logger.info('Setting dictionary %s', tag)
-        if not bool(enchant):
-            self.dict = None
-        elif tag and enchant.dict_exists(tag):
-            self.dict = enchant.Dict(tag)
-        else:
-            self.dict = None
-        if self.dict:
-            self.tag = self.dict.tag
-        else:
-            if tag:
-                logger.warning('Failed to set dictionary %s', tag)
-            self.tag = ''
-        self.new_dict.emit()
-
-    def available_languages(self):
-        if not bool(enchant):
+    @staticmethod
+    def available_languages():
+        if not enchant:
             return []
         result = enchant.list_languages()
         result.sort()
         return result
 
-
-# one SpellCheck object for the entire application
-_spell_check = SpellCheck()
-
-
-class SpellingManager(QtCore.QObject):
-    # configure the application's SpellCheck object
-    def __init__(self, *arg, **kw):
-        super(SpellingManager, self).__init__(*arg, **kw)
-        self.enable(eval(config_store.get('spelling', 'enabled', 'True')))
-        self.set_dict(config_store.get('spelling', 'language'))
-        # adopt some SpellCheck methods
-        self.available_languages = _spell_check.available_languages
-
     def current_language(self):
-        return _spell_check.tag
-
-    def enabled(self):
-        return _spell_check.enabled
+        if self.dict:
+            return self.dict.tag
+        return ''
 
     @QtCore.pyqtSlot(bool)
     def enable(self, enabled):
-        _spell_check.set_enabled(enabled)
-        config_store.set('spelling', 'enabled', str(self.enabled()))
+        self.enabled = bool(enchant) and enabled
+        config_store.set('spelling', 'enabled', str(self.enabled))
+        self.new_dict.emit()
 
     @QtCore.pyqtSlot(QtWidgets.QAction)
     def set_language(self, action):
         self.set_dict(action.text().replace('&', ''))
 
     def set_dict(self, tag):
-        _spell_check.set_dict(tag)
+        if tag:
+            logger.info('Setting dictionary %s', tag)
+        if tag and enchant and enchant.dict_exists(tag):
+            self.dict = enchant.Dict(tag)
+        else:
+            if tag:
+                logger.warning('Failed to set dictionary %s', tag)
+            self.dict = None
         config_store.set('spelling', 'language', self.current_language())
+        self.new_dict.emit()
 
 
 class SpellingHighlighter(QtGui.QSyntaxHighlighter):
+    words = re.compile('[\w]+', flags=re.IGNORECASE | re.UNICODE)
+
     def __init__(self, *arg, **kw):
         super(SpellingHighlighter, self).__init__(*arg, **kw)
-        self.words = re.compile('[\w]+', flags=re.IGNORECASE | re.UNICODE)
-        _spell_check.new_dict.connect(self.rehighlight)
+        self.spell_check = QtWidgets.QApplication.instance().spell_check
+        self.spell_check.new_dict.connect(self.rehighlight)
 
     def highlightBlock(self, text):
-        if not (_spell_check.enabled and _spell_check.dict):
+        if not (self.spell_check.enabled and self.spell_check.dict):
             return
         formatter = QtGui.QTextCharFormat()
         formatter.setUnderlineColor(Qt.red)
         formatter.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
         for word in self.words.finditer(text):
-            if not _spell_check.dict.check(word.group()):
+            if not self.spell_check.dict.check(word.group()):
                 self.setFormat(
                     word.start(), word.end() - word.start(), formatter)
 
     def suggestions(self, word):
-        if not (_spell_check.enabled and _spell_check.dict):
+        if not (self.spell_check.enabled and self.spell_check.dict):
             return []
-        if _spell_check.dict.check(word):
+        if self.spell_check.dict.check(word):
             return []
-        return _spell_check.dict.suggest(word)
+        return self.spell_check.dict.suggest(word)
 
