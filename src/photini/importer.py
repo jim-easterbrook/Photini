@@ -223,7 +223,7 @@ class ImportWorker(QtCore.QObject):
         super(ImportWorker, self).__init__()
         self.source = source
         self.out_q = out_q
-        self.thread = QtCore.QThread()
+        self.thread = QtCore.QThread(self)
         self.moveToThread(self.thread)
 
     @QtCore.pyqtSlot(object)

@@ -53,7 +53,7 @@ class ConfigStore(QtCore.QObject):
                     self.save()
                     os.unlink(old_file_name)
         self.config.read(self.file_name, **self.file_opts)
-        self.timer = QtCore.QTimer()
+        self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
         self.timer.timeout.connect(self.save)

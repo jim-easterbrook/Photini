@@ -67,7 +67,7 @@ class UploadWorker(QtCore.QObject):
         self.session = session_factory(auto_refresh=False)
         self.params = params
         self.fileobj = None
-        self.thread = QtCore.QThread()
+        self.thread = QtCore.QThread(self)
         self.moveToThread(self.thread)
 
     def abort_upload(self):

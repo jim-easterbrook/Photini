@@ -405,7 +405,7 @@ class PicasaUploader(PhotiniUploader):
             }
         # timer to store album data after it's edited
         self.album_changed = False
-        self.timer = QtCore.QTimer()
+        self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
