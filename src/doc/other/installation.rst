@@ -246,6 +246,10 @@ These are also installed with pip::
 
    sudo pip install requests requests-oauthlib requests-toolbelt keyring
 
+The ``Optimise image size`` option requires the `Python Imaging Library <http://pillow.readthedocs.io/>`_, which is also installed with pip::
+
+   sudo pip install Pillow
+
 .. _installation-importer:
 
 Importer
