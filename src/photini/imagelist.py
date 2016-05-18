@@ -47,8 +47,8 @@ class Image(QtWidgets.QFrame):
         with open(self.path, 'rb') as pf:
             image_data = pf.read()
         # read metadata
-        self.metadata = Metadata(self.path, image_data)
-        self.metadata.new_status.connect(self.show_status)
+        self.metadata = Metadata(
+            self.path, image_data, new_status=self.show_status)
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
         self.pixmap.loadFromData(image_data)
@@ -162,7 +162,6 @@ class Image(QtWidgets.QFrame):
         elif sys.platform.startswith('win'):
             subprocess.call(['start', self.path], shell=True)
 
-    @QtCore.pyqtSlot(bool)
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status

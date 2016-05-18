@@ -42,7 +42,6 @@ for gexiv2_vsn in ('0.10', '0.4'):
 from gi.repository import GObject, GExiv2
 import six
 
-from .pyqt import QtCore
 from . import __version__
 
 logger = logging.getLogger(__name__)
@@ -793,7 +792,7 @@ class MetadataHandler(GExiv2.Metadata):
                 self.set_tag_multiple(tag, other.get_tag_multiple(tag))
 
 
-class Metadata(QtCore.QObject):
+class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
         'aperture'       : Aperture,
@@ -923,9 +922,10 @@ class Metadata(QtCore.QObject):
         'software'       : (),
         'title'          : (),
         }
-    def __init__(self, path, image_data, parent=None):
-        super(Metadata, self).__init__(parent)
+    def __init__(self, path, image_data, new_status=None):
+        super(Metadata, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
+        self._new_status = new_status
         # create metadata handlers for image file and/or sidecar
         self._path = path
         self._sc_path = self._find_side_car(path)
@@ -1098,10 +1098,10 @@ class Metadata(QtCore.QObject):
         super(Metadata, self).__setattr__(name, value)
         self._set_unsaved(True)
 
-    new_status = QtCore.pyqtSignal(bool)
     def _set_unsaved(self, status):
         self._unsaved = status
-        self.new_status.emit(self._unsaved)
+        if self._new_status:
+            self._new_status(self._unsaved)
 
     def changed(self):
         return self._unsaved
