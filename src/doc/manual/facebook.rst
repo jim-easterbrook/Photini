@@ -20,7 +20,7 @@ You may need to enlarge or maximise this window.
 
 .. image:: ../images/screenshot_39.png
 
-Photini requests permission to see "your photos".
+Photini requests permission to see your photos.
 It needs this to get details of your current photo albums -- title, description, location and cover photo.
 
 .. image:: ../images/screenshot_40.png
@@ -58,13 +58,17 @@ You should allow Photini to share things publicly as you can always specify a mo
 .. image:: ../images/screenshot_46.png
 
 The newly created album is added to your album list and can be selected as the upload destination.
-There are two more options to set before uploading any photos.
+There are three more options to set before uploading any photos.
 
 The ``Suppress news feed story`` option allows you to upload photos without generating a "Jim has uploaded 10 photos to the album Holiday 2012/07" type announcement on your Facebook timeline.
 You will receive a notification that Photini has uploaded photos but this will not be visible to your friends.
 
-The ``Set "city" from map coordinates`` option uses your photos' location data (if present) to choose a "city" from Facebook's places directory.
+The ``Set "city" from map coordinates`` option uses your photos' location data (if present) to choose a "city" (or region, neighbourhood or country) from Facebook's places directory.
 It may not always give the results you expect, so if you use this option you should check your photos after upload and change their location if necessary.
+
+The ``Optimise image size`` option is only available if you have installed the `Python Imaging Library <http://pillow.readthedocs.io/>`_.
+It resizes images to one of Facebook's preferred sizes, usually the maximum permitted 2048 pixels.
+Doing this before upload may result in better image quality and makes uploading faster.
 
 .. image:: ../images/screenshot_47.png
 
