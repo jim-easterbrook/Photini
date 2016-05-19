@@ -36,9 +36,6 @@ class ConfigStore(QtCore.QObject):
         super(ConfigStore, self).__init__(*arg, **kw)
         QtCore.QCoreApplication.instance().aboutToQuit.connect(self.shutdown)
         self.config = RawConfigParser()
-        self.file_opts = {}
-        if not six.PY2:
-            self.file_opts['encoding'] = 'utf-8'
         if hasattr(appdirs, 'user_config_dir'):
             config_dir = appdirs.user_config_dir('photini')
         else:
@@ -46,14 +43,10 @@ class ConfigStore(QtCore.QObject):
         if not os.path.isdir(config_dir):
             os.makedirs(config_dir, mode=stat.S_IRWXU)
         self.file_name = os.path.join(config_dir, name + '.ini')
-        if name == 'editor':
-            for old_file_name in (os.path.expanduser('~/photini.ini'),
-                                  os.path.join(config_dir, 'photini.ini')):
-                if os.path.exists(old_file_name):
-                    self.config.read(old_file_name, **self.file_opts)
-                    self.save()
-                    os.unlink(old_file_name)
-        self.config.read(self.file_name, **self.file_opts)
+        if six.PY2:
+            self.config.readfp(open(self.file_name, 'r'))
+        else:
+            self.config.readfp(open(self.file_name, 'r', encoding='utf-8'))
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
@@ -71,13 +64,12 @@ class ConfigStore(QtCore.QObject):
         return default
 
     def set(self, section, option, value):
-        if not self.config.has_section(section):
-            self.config.add_section(section)
-        if (self.config.has_option(section, option) and
-                self.config.get(section, option) == value):
-            return
         if six.PY2:
             value = value.encode('utf-8')
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+        elif self.config.get(section, option) == value:
+            return
         self.config.set(section, option, value)
         self.timer.start()
 
@@ -97,7 +89,10 @@ class ConfigStore(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def save(self):
-        self.config.write(open(self.file_name, 'w', **self.file_opts))
+        if six.PY2:
+            self.config.write(open(self.file_name, 'w'))
+        else:
+            self.config.write(open(self.file_name, 'w', encoding='utf-8'))
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
 
 
