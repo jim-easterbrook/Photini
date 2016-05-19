@@ -199,21 +199,27 @@ class Descriptive(QtWidgets.QWidget):
     def shutdown(self):
         pass
 
+    @QtCore.pyqtSlot()
     def new_title(self):
         self._new_value('title')
 
+    @QtCore.pyqtSlot()
     def new_description(self):
         self._new_value('description')
 
+    @QtCore.pyqtSlot()
     def new_keywords(self):
         self._new_value('keywords')
 
+    @QtCore.pyqtSlot()
     def new_copyright(self):
         self._new_value('copyright')
 
+    @QtCore.pyqtSlot()
     def new_creator(self):
         self._new_value('creator')
 
+    @QtCore.pyqtSlot()
     def auto_copyright(self):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
@@ -237,6 +243,7 @@ class Descriptive(QtWidgets.QWidget):
             image.metadata.copyright = value
         self._update_widget('copyright')
 
+    @QtCore.pyqtSlot()
     def auto_creator(self):
         name = self.config_store.get('user', 'creator_name')
         if not name:

@@ -26,7 +26,7 @@ import webbrowser
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
-from .pyqt import QtWidgets
+from .pyqt import QtCore, QtWidgets
 
 class GoogleMap(PhotiniMap):
     def load_api(self):
@@ -52,5 +52,6 @@ class GoogleMap(PhotiniMap):
         load_tou.clicked.connect(self.load_tou)
         yield load_tou
 
+    @QtCore.pyqtSlot()
     def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')

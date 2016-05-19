@@ -93,6 +93,7 @@ class ConfigStore(QtCore.QObject):
             self.timer.stop()
             self.save()
 
+    @QtCore.pyqtSlot()
     def save(self):
         self.config.write(open(self.file_name, 'w', **self.file_opts))
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)

@@ -103,6 +103,7 @@ class LoggerWindow(QtWidgets.QWidget):
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
 
+    @QtCore.pyqtSlot()
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, self.tr('Save log file'),

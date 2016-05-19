@@ -240,6 +240,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
+    @QtCore.pyqtSlot()
     def add_tabs(self):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
@@ -254,12 +255,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
+    @QtCore.pyqtSlot()
     def open_docs(self):
         webbrowser.open_new('http://photini.readthedocs.io/')
 
+    @QtCore.pyqtSlot()
     def close_files(self):
         self._close_files(False)
 
+    @QtCore.pyqtSlot()
     def close_all_files(self):
         self._close_files(True)
 
@@ -279,6 +283,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loggerwindow.shutdown()
         super(MainWindow, self).closeEvent(event)
 
+    @QtCore.pyqtSlot()
     def edit_settings(self):
         dialog = EditSettings(self)
         dialog.exec_()

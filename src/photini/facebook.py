@@ -293,6 +293,7 @@ class FacebookLoginPopup(QtWidgets.QDialog):
     def load_url(self, auth_url):
         self.browser.load(QtCore.QUrl(auth_url))
 
+    @QtCore.pyqtSlot(QtCore.QUrl)
     def auth_url_changed(self, url):
         if url.path() != '/connect/login_success.html':
             return

@@ -23,7 +23,7 @@ import os
 import webbrowser
 
 from .photinimap import PhotiniMap
-from .pyqt import QtWidgets, qt_version_info
+from .pyqt import QtCore, QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
     def load_api(self):
@@ -56,15 +56,19 @@ class OpenStreetMap(PhotiniMap):
         load_tou.clicked.connect(self.load_tou_tiles)
         yield load_tou
 
+    @QtCore.pyqtSlot()
     def load_tou_nominatim(self):
         webbrowser.open_new(
             'http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy')
 
+    @QtCore.pyqtSlot()
     def load_tou_leaflet(self):
         webbrowser.open_new('http://leafletjs.com/')
 
+    @QtCore.pyqtSlot()
     def load_tou_osm(self):
         webbrowser.open_new('http://www.openstreetmap.org/copyright')
 
+    @QtCore.pyqtSlot()
     def load_tou_tiles(self):
         webbrowser.open_new('http://www.mapquest.com/')

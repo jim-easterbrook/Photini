@@ -460,6 +460,7 @@ class ImageList(QtWidgets.QWidget):
             return datetime.fromtimestamp(os.path.getmtime(image.path))
         return result.datetime
 
+    @QtCore.pyqtSlot()
     def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()

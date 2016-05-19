@@ -451,6 +451,7 @@ class Importer(QtWidgets.QWidget):
         self.file_data = file_data
         self.sort_file_list()
 
+    @QtCore.pyqtSlot()
     def sort_file_list(self):
         if eval(self.config_store.get('controls', 'sort_date', 'False')):
             self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])

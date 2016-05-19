@@ -63,6 +63,7 @@ class BingMap(PhotiniMap):
     def new_copyright(self, text):
         self.copyright_widget.setText(text)
 
+    @QtCore.pyqtSlot()
     def load_tou(self):
         webbrowser.open_new(
             'http://www.microsoft.com/maps/assets/docs/terms.aspx')

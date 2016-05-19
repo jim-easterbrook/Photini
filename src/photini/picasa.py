@@ -538,6 +538,7 @@ Doing so will remove the album and its photos from all Google products."""
         self.save_changes()
         super(PicasaUploader, self).shutdown()
 
+    @QtCore.pyqtSlot()
     def save_changes(self):
         self.timer.stop()
         if not self.album_changed:

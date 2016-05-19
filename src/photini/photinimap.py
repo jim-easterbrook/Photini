@@ -133,6 +133,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def java_script_window_object_cleared(self):
         self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
 
+    @QtCore.pyqtSlot(QtCore.QUrl)
     def link_clicked(self, url):
         webbrowser.open_new(url.toString())
 
@@ -141,6 +142,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.new_images()
         self.see_all()
 
+    @QtCore.pyqtSlot()
     def initialise(self):
         page_start = """
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -227,6 +229,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 return marker_id
         return None
 
+    @QtCore.pyqtSlot()
     def new_coords(self):
         text = self.coords.text().strip()
         if not text:
@@ -328,6 +331,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 marker_id,
                 any([image.selected for image in self.marker_images[marker_id]])))
 
+    @QtCore.pyqtSlot(str)
     def search(self, search_string=None):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
