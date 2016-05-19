@@ -34,6 +34,7 @@ from .pyqt import QtCore
 class ConfigStore(QtCore.QObject):
     def __init__(self, name, *arg, **kw):
         super(ConfigStore, self).__init__(*arg, **kw)
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.shutdown)
         self.config = RawConfigParser()
         self.file_opts = {}
         if not six.PY2:
@@ -88,6 +89,7 @@ class ConfigStore(QtCore.QObject):
         self.config.remove_section(section)
         self.timer.start()
 
+    @QtCore.pyqtSlot()
     def shutdown(self):
         if self.timer.isActive():
             self.timer.stop()

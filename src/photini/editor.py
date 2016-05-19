@@ -277,10 +277,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 event.ignore()
                 return
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
-        for n in range(self.tabs.count()):
-            self.tabs.widget(n).shutdown()
-        self.app.config_store.shutdown()
-        self.loggerwindow.shutdown()
         super(MainWindow, self).closeEvent(event)
 
     @QtCore.pyqtSlot()

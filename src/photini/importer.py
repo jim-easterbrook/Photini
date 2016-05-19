@@ -245,7 +245,9 @@ class Importer(QtWidgets.QWidget):
 
     def __init__(self, image_list, parent=None):
         super(Importer, self).__init__(parent)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        app = QtWidgets.QApplication.instance()
+        app.aboutToQuit.connect(self.shutdown)
+        self.config_store = app.config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         form = QtWidgets.QFormLayout()
@@ -412,6 +414,7 @@ class Importer(QtWidgets.QWidget):
         result = dialog.exec_()
         return result == QtWidgets.QMessageBox.Cancel
 
+    @QtCore.pyqtSlot()
     def shutdown(self):
         if self.import_worker:
             self.import_file.disconnect()

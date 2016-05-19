@@ -203,9 +203,6 @@ class PhotiniMap(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    def shutdown(self):
-        pass
-
     @QtCore.pyqtSlot(float, float, int)
     def new_bounds(self, centre_lat, centre_lng, zoom):
         self.map_centre = centre_lat, centre_lng

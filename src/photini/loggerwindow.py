@@ -61,6 +61,7 @@ class StreamProxy(QtCore.QObject):
 class LoggerWindow(QtWidgets.QWidget):
     def __init__(self, verbose, *arg, **kw):
         super(LoggerWindow, self).__init__(*arg, **kw)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setWindowTitle(self.tr("Photini error logging"))
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setRowStretch(0, 1)
@@ -97,6 +98,7 @@ class LoggerWindow(QtWidgets.QWidget):
         if sys.stdout:
             sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
+    @QtCore.pyqtSlot()
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()

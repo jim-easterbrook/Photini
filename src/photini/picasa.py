@@ -398,6 +398,7 @@ class PicasaUploader(PhotiniUploader):
         self.upload_config.select_album.connect(self.select_album)
         self.upload_config.update_album.connect(self.update_album)
         super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.save_changes)
         self.service_name = self.tr('Google Photos')
         self.image_types = {
             'accepted': ('bmp', 'gif', 'jpeg', 'png'),
@@ -533,10 +534,6 @@ Doing so will remove the album and its photos from all Google products."""
                 self.current_album = album
                 return
         self.upload_config.show_album(None)
-
-    def shutdown(self):
-        self.save_changes()
-        super(PicasaUploader, self).shutdown()
 
     @QtCore.pyqtSlot()
     def save_changes(self):

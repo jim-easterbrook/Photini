@@ -603,9 +603,6 @@ class Technical(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    def shutdown(self):
-        pass
-
     @QtCore.pyqtSlot(object)
     def new_date_taken(self, value):
         self._new_date_value('taken', value)

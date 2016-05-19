@@ -196,9 +196,6 @@ class Descriptive(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    def shutdown(self):
-        pass
-
     @QtCore.pyqtSlot()
     def new_title(self):
         self._new_value('title')

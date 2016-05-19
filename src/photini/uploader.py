@@ -101,6 +101,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.logger = logging.getLogger(self.__class__.__name__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
@@ -142,6 +143,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.layout().setColumnStretch(2, 1)
         self.layout().setRowStretch(0, 1)
 
+    @QtCore.pyqtSlot()
     def shutdown(self):
         if self.upload_worker:
             self.upload_worker.abort_upload()
