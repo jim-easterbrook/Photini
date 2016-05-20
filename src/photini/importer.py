@@ -43,11 +43,18 @@ class FolderSource(object):
         self.image_types = ['.' + x for x in image_types()]
         self.config_section = 'importer folder ' + root
 
-    @contextmanager
-    def session(self):
+    def open_session(self):
         if not os.path.isdir(self.root):
             raise RuntimeError('Folder not readable')
+
+    def close_session(self):
+        pass
+
+    @contextmanager
+    def session(self):
+        self.open_session()
         yield
+        self.close_session()
 
     def list_files(self):
         result = []
@@ -90,8 +97,7 @@ class CameraSource(object):
         self.config_section = 'importer ' + model
         self.camera = None
 
-    @contextmanager
-    def session(self):
+    def open_session(self):
         self.context = gp.Context()
         # initialise camera
         self.camera = gp.Camera()
@@ -104,11 +110,17 @@ class CameraSource(object):
         # check camera is the right model
         if self.camera.get_abilities().model != self.model:
             raise RuntimeError('Camera model mismatch')
-        # do what's in the "with CameraSource.session()" block
-        yield
+
+    def close_session(self):
         # free camera
         self.camera.exit(self.context)
         self.camera = None
+
+    @contextmanager
+    def session(self):
+        self.open_session()
+        yield
+        self.close_session()
 
     def list_files(self, path='/'):
         result = []
@@ -220,44 +232,45 @@ class PathFormatValidator(QtGui.QValidator):
 class ImportWorker(QtCore.QObject):
     file_done = QtCore.pyqtSignal(object, object)
 
-    def __init__(self, source, copy_list):
+    def __init__(self, source):
         super(ImportWorker, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self.source = source
-        self.copy_list = copy_list
         self.thread = QtCore.QThread(self)
         self.moveToThread(self.thread)
-        self.thread.started.connect(self.do_work)
+        self.thread.started.connect(self.open_session)
+        self.thread.finished.connect(self.close_session)
 
     @QtCore.pyqtSlot()
-    def abort(self):
-        self.copy_list = []
+    def open_session(self):
+        self.source.open_session()
 
     @QtCore.pyqtSlot()
-    def do_work(self):
-        with self.source.session():
-            while self.copy_list:
-                item = self.copy_list.pop(0)
-                dest_path = item['dest_path']
-                dest_dir = os.path.dirname(dest_path)
-                if not os.path.isdir(dest_dir):
-                    os.makedirs(dest_dir)
-                try:
-                    camera_file = self.source.copy_file(item, dest_path)
-                except gp.GPhoto2Error as ex:
-                    self.logger.error(str(ex))
-                    self.file_done.emit(None, None)
-                    break
-                self.file_done.emit(item, camera_file)
-                QtCore.QCoreApplication.processEvents()
-        self.thread.quit()
+    def close_session(self):
+        self.source.close_session()
+
+    @QtCore.pyqtSlot(object)
+    def do_file(self, item):
+        dest_path = item['dest_path']
+        dest_dir = os.path.dirname(dest_path)
+        if not os.path.isdir(dest_dir):
+            os.makedirs(dest_dir)
+        try:
+            camera_file = self.source.copy_file(item, dest_path)
+        except gp.GPhoto2Error as ex:
+            self.logger.error(str(ex))
+            self.file_done.emit(None, None)
+            return
+        self.file_done.emit(item, camera_file)
 
 
 class Importer(QtWidgets.QWidget):
+    do_file = QtCore.pyqtSignal(object)
+
     def __init__(self, image_list, parent=None):
         super(Importer, self).__init__(parent)
         app = QtWidgets.QApplication.instance()
-        app.aboutToQuit.connect(self.shutdown)
+        app.aboutToQuit.connect(self.shutdown_worker)
         self.config_store = app.config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
@@ -426,11 +439,11 @@ class Importer(QtWidgets.QWidget):
         return result == QtWidgets.QMessageBox.Cancel
 
     @QtCore.pyqtSlot()
-    def shutdown(self):
+    def shutdown_worker(self):
         if self.import_worker:
+            self.do_file.disconnect()
             self.import_worker.file_done.disconnect()
-            self.import_worker.thread.finished.disconnect()
-            self.import_worker.abort()
+            self.import_worker.thread.quit()
             self.import_worker.thread.wait()
 
     @QtCore.pyqtSlot(list)
@@ -552,46 +565,50 @@ class Importer(QtWidgets.QWidget):
             # user has clicked while import is still cancelling
             self.copy_button.setChecked(False)
             return
-        copy_list = []
+        self.copy_list = []
         for item in self.file_list_widget.selectedItems():
             name = item.text().split()[0]
-            copy_list.append(self.file_data[name])
-        if not copy_list:
+            self.copy_list.append(self.file_data[name])
+        if not self.copy_list:
             self.copy_button.setChecked(False)
             return
         Busy.start()
         # create separate thread to import images
         self.last_item = None, datetime.min
-        self.import_worker = ImportWorker(self.source, copy_list)
-        self.copy_button.click_stop.connect(self.import_worker.abort)
+        self.import_worker = ImportWorker(self.source)
+        self.do_file.connect(self.import_worker.do_file)
         self.import_worker.file_done.connect(self.file_done)
-        self.import_worker.thread.finished.connect(self.import_done)
         self.import_worker.thread.start()
+        self.next_file()
+
+    def next_file(self):
+        self.do_file.emit(self.copy_list.pop(0))
 
     @QtCore.pyqtSlot(object, object)
     def file_done(self, item, camera_file):
         if item is None:
             # import failed
             self._fail()
+            self.copy_list = []
+        not_finished = self.copy_list and self.copy_button.isChecked()
+        if not_finished:
+            self.next_file()
+        if item:
+            timestamp = item['timestamp']
+            dest_path = item['dest_path']
+            if self.last_item[1] < timestamp:
+                self.last_item = dest_path, timestamp
+            if camera_file:
+                camera_file.save(dest_path)
+            self.image_list.open_file(dest_path)
+        if not_finished:
             return
-        timestamp = item['timestamp']
-        dest_path = item['dest_path']
-        if self.last_item[1] < timestamp:
-            self.last_item = dest_path, timestamp
-        if camera_file:
-            camera_file.save(dest_path)
-        self.image_list.open_file(dest_path)
-
-    @QtCore.pyqtSlot()
-    def import_done(self):
         if self.last_item[0]:
             self.config_store.set(self.source.config_section, 'last_transfer',
                                   self.last_item[1].isoformat(' '))
             self.image_list.done_opening(self.last_item[0])
         self.show_file_list()
-        self.copy_button.click_stop.disconnect()
-        self.import_worker.file_done.disconnect()
-        self.import_worker.thread.finished.disconnect()
+        self.shutdown_worker()
         self.import_worker = None
         self.copy_button.setChecked(False)
         Busy.stop()
