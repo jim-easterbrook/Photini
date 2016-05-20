@@ -68,7 +68,8 @@ class ConfigStore(QtCore.QObject):
             value = value.encode('utf-8')
         if not self.config.has_section(section):
             self.config.add_section(section)
-        elif self.config.get(section, option) == value:
+        elif (self.config.has_option(section, option) and
+              self.config.get(section, option) == value):
             return
         self.config.set(section, option, value)
         self.timer.start()
