@@ -235,22 +235,21 @@ class ImportWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def do_work(self):
-        with Busy():
-            with self.source.session():
-                while self.copy_list:
-                    item = self.copy_list.pop(0)
-                    dest_path = item['dest_path']
-                    dest_dir = os.path.dirname(dest_path)
-                    if not os.path.isdir(dest_dir):
-                        os.makedirs(dest_dir)
-                    try:
-                        camera_file = self.source.copy_file(item, dest_path)
-                    except gp.GPhoto2Error as ex:
-                        self.logger.error(str(ex))
-                        self.file_done.emit(None, None)
-                        break
-                    self.file_done.emit(item, camera_file)
-                    QtCore.QCoreApplication.processEvents()
+        with self.source.session():
+            while self.copy_list:
+                item = self.copy_list.pop(0)
+                dest_path = item['dest_path']
+                dest_dir = os.path.dirname(dest_path)
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir)
+                try:
+                    camera_file = self.source.copy_file(item, dest_path)
+                except gp.GPhoto2Error as ex:
+                    self.logger.error(str(ex))
+                    self.file_done.emit(None, None)
+                    break
+                self.file_done.emit(item, camera_file)
+                QtCore.QCoreApplication.processEvents()
         self.thread.quit()
 
 
@@ -560,6 +559,7 @@ class Importer(QtWidgets.QWidget):
         if not copy_list:
             self.copy_button.setChecked(False)
             return
+        Busy.start()
         # create separate thread to import images
         self.last_item = None, datetime.min
         self.import_worker = ImportWorker(self.source, copy_list)
@@ -594,3 +594,4 @@ class Importer(QtWidgets.QWidget):
         self.import_worker.thread.finished.disconnect()
         self.import_worker = None
         self.copy_button.setChecked(False)
+        Busy.stop()
