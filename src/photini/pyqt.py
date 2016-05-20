@@ -59,12 +59,20 @@ def multiple_values():
     return QtCore.QCoreApplication.translate('Multiple', '<multiple values>')
 
 class Busy(object):
-    def __enter__(self):
+    @staticmethod
+    def start():
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+
+    @staticmethod
+    def stop():
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+    def __enter__(self):
+        Busy.start()
         return self
 
     def __exit__(self, type, value, traceback):
-        QtWidgets.QApplication.restoreOverrideCursor()
+        Busy.stop()
 
 
 class StartStopButton(QtWidgets.QPushButton):
