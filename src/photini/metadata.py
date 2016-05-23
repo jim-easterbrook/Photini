@@ -774,7 +774,7 @@ class MetadataHandler(GExiv2.Metadata):
     def save(self):
         try:
             self.save_file(self._path)
-        except GObject.GError as ex:
+        except Exception as ex:
             self._logger.exception(ex)
             return False
         return True
@@ -987,7 +987,7 @@ class Metadata(object):
         if sc_mode == 'delete' and self._sc and OK:
             os.unlink(self._sc_path)
             self._sc = None
-        if sc_mode == 'auto' and not self._sc and not OK:
+        if sc_mode in ('auto', 'delete') and not self._sc and not OK:
             self.create_side_car()
         if sc_mode == 'always' and not self._sc:
             self.create_side_car()
