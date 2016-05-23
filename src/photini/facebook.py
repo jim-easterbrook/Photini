@@ -411,7 +411,7 @@ class FacebookUploader(PhotiniUploader):
         self.service_name = self.tr('Facebook')
         self.image_types = {
             'accepted': ('jpeg', 'png'),
-            'rejected': ('raw-cr2',),
+            'rejected': ('pgm', 'raw'),
             }
         self.login_popup = None
         # add Facebook icon to connect button
@@ -490,7 +490,8 @@ class FacebookUploader(PhotiniUploader):
         return path
 
     def get_conversion_function(self, image):
-        if PIL and self.upload_config.widgets['optimise'].isChecked():
+        if (PIL and self.upload_config.widgets['optimise'].isChecked() and
+                    self.is_convertible(image)):
             return self.optimise
         return super(FacebookUploader, self).get_conversion_function(image)
 

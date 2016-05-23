@@ -215,16 +215,26 @@ class PhotiniUploader(QtWidgets.QWidget):
     def convert_to_jpeg(self, image):
         return image.as_jpeg()
 
+    def is_convertible(self, image):
+        return True
+        if image.file_type == 'raw':
+            # can't convert raw files
+            return False
+        if image.pixmap.isNull():
+            # if Qt can't read it, we can't convert it
+            return False
+        return True
+
     def get_conversion_function(self, image):
-        file_ext = os.path.splitext(image.path)[1].lower()
-        if file_ext in ('.cr2', '.nef'):
-            image_type = 'raw-' + file_ext[1:]
-        else:
-            image_type = imghdr.what(image.path) or 'unknown'
-        if image_type in self.image_types['accepted']:
+        if image.file_type in self.image_types['accepted']:
             return None
-        if (self.image_types['rejected'] == '*' or
-                    image_type in self.image_types['rejected']):
+        if not self.is_convertible(image):
+            msg = self.tr(
+                'File "{0}" is of type "{1}", which {2} does not' +
+                ' accept and Photini cannot convert to JPEG.')
+            buttons = QtWidgets.QMessageBox.Ignore
+        elif (self.image_types['rejected'] == '*' or
+              image.file_type in self.image_types['rejected']):
             msg = self.tr(
                 'File "{0}" is of type "{1}", which {2} does not' +
                 ' accept. Would you like to convert it to JPEG?')
@@ -238,7 +248,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(self.tr('Photini: incompatible type'))
         dialog.setText(self.tr('<h3>Incompatible image type.</h3>'))
         dialog.setInformativeText(msg.format(os.path.basename(image.path),
-                                             image_type, self.service_name))
+                                             image.file_type, self.service_name))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(buttons)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)

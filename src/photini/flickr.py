@@ -283,7 +283,7 @@ class FlickrUploader(PhotiniUploader):
         self.service_name = self.tr('Flickr')
         self.image_types = {
             'accepted': ('gif', 'jpeg', 'png'),
-            'rejected': ('raw-cr2',),
+            'rejected': ('raw',),
             }
 
     def load_user_data(self):
