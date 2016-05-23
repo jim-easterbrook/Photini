@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 import six
 from datetime import datetime
+import imghdr
 import os
 import subprocess
 import sys
@@ -48,15 +49,20 @@ class Image(QtWidgets.QFrame):
         # read metadata
         self.metadata = Metadata(
             self.path, image_data, new_status=self.show_status)
+        # set file type
+        ext = ext.lower()
+        self.file_type = imghdr.what(self.path) or 'raw'
+        if self.file_type == 'tiff' and ext not in ('.tif', '.tiff'):
+            self.file_type = 'raw'
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
         self.pixmap.loadFromData(image_data)
         if not self.pixmap.isNull():
-            if max(self.pixmap.width(), self.pixmap.height()) > 300:
+            if max(self.pixmap.width(), self.pixmap.height()) > 450:
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            if ext.lower() in ('.cr2', ):
+            if self.file_type == 'raw':
                 # loading preview which is already re-oriented
                 orientation = self.metadata.orientation
                 if orientation and orientation.value > 1:
