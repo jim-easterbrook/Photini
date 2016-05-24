@@ -1011,6 +1011,27 @@ class Metadata(object):
             return True
         return False
 
+    def get_exif_thumbnail(self):
+        if using_pgi:
+            if self._sc:
+                OK, thumb = self._sc.get_exif_thumbnail()
+                if OK:
+                    return bytearray(thumb)
+            if self._if:
+                OK, thumb = self._if.get_exif_thumbnail()
+                if OK:
+                    return bytearray(thumb)
+        else:
+            if self._sc:
+                thumb = self._sc.get_exif_thumbnail()
+                if thumb:
+                    return thumb
+            if self._if:
+                thumb = self._if.get_exif_thumbnail()
+                if thumb:
+                    return thumb
+        return None
+
     # setters: set in both sidecar and image file
     def set_value(self, tag, value):
         if self._sc:

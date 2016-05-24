@@ -57,12 +57,19 @@ class Image(QtWidgets.QFrame):
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
         self.pixmap.loadFromData(image_data)
+        unrotate = self.file_type == 'raw'
+        if self.pixmap.isNull():
+            # image read failed so attempt to use exif thumbnail
+            thumb = self.metadata.get_exif_thumbnail()
+            if thumb:
+                self.pixmap.loadFromData(bytearray(thumb))
+                unrotate = False
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 450:
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            if self.file_type == 'raw':
+            if unrotate:
                 # loading preview which is already re-oriented
                 orientation = self.metadata.orientation
                 if orientation and orientation.value > 1:
