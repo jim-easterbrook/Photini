@@ -1039,6 +1039,20 @@ class Metadata(object):
         if self._if:
             self._if.set_value(tag, value)
 
+    def copy(self, other):
+        # copy from other to self, sidecar over-rides image
+        if self._sc:
+            if other._if:
+                self._sc.copy(other._if)
+            if other._sc:
+                self._sc.copy(other._sc)
+        if self._if:
+            if other._if:
+                self._if.copy(other._if)
+            if other._sc:
+                self._if.copy(other._sc)
+        self._set_unsaved(True)
+
     def __getattr__(self, name):
         if name not in self._primary_tags:
             return super(Metadata, self).__getattr__(name)

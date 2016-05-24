@@ -30,6 +30,7 @@ import webbrowser
 
 import appdirs
 
+from .metadata import Metadata
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
 class FileObjWithCallback(object):
@@ -219,15 +220,10 @@ class PhotiniUploader(QtWidgets.QWidget):
             os.makedirs(temp_dir)
         path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
         im.save(path, format='jpeg', quality=95)
-        # copy metadata
-        try:
-            src_md = MetadataHandler(image.path)
-        except Exception:
-            pass
-        else:
-            dst_md = MetadataHandler(path)
-            dst_md.copy(src_md)
-            dst_md.save()
+        # copy metadata, forcing IPTC creation
+        md = Metadata(path, None)
+        md.copy(image.metadata)
+        md.save(True, 'none', True)
         return path
 
     def is_convertible(self, image):
