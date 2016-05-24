@@ -357,15 +357,17 @@ class DateTime(MetadataDictValue):
     # of 00:00:00 is a none value though.
     @classmethod
     def from_exif(cls, file_value):
-        datetime_string, sub_sec_string = file_value
+        datetime_string = file_value[0]
         if not datetime_string:
             return None
         # separate date & time and remove separators
         date_string = datetime_string[:10].replace(':', '')
         time_string = datetime_string[11:].replace(':', '')
         # append sub seconds
-        if sub_sec_string:
-            time_string += '.' + sub_sec_string
+        if len(file_value) > 1:
+            sub_sec_string = file_value[1]
+            if sub_sec_string:
+                time_string += '.' + sub_sec_string
         return cls.from_ISO_8601(date_string, time_string, '')
 
     def to_exif(self):
@@ -877,8 +879,7 @@ class Metadata(object):
                             'Xmp'  : ('Xmp.tiff.Artist',)},
         'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
         'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
-        'date_taken'     : {'Exif' : (('Exif.Image.DateTimeOriginal',
-                                       'NoData'),),
+        'date_taken'     : {'Exif' : (('Exif.Image.DateTimeOriginal',),),
                             'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
         'description'    : {'Exif' : ('Exif.Image.XPComment',
                                       'Exif.Image.XPSubject'),
