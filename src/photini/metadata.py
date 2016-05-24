@@ -368,7 +368,13 @@ class DateTime(MetadataDictValue):
             sub_sec_string = file_value[1]
             if sub_sec_string:
                 time_string += '.' + sub_sec_string
-        return cls.from_ISO_8601(date_string, time_string, '')
+        result = cls.from_ISO_8601(date_string, time_string, '')
+        # set time zone
+        if result.precision > 3 and len(file_value) > 2:
+            tz_string = file_value[2]
+            if tz_string:
+                result.tz_offset = int(tz_string) * 60
+        return result
 
     def to_exif(self):
         datetime_string, sep, sub_sec_string = self.to_ISO_8601(
@@ -377,7 +383,11 @@ class DateTime(MetadataDictValue):
         # pad out any missing values
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
-        return datetime_string, sub_sec_string
+        if self.precision > 3 and self.tz_offset is not None:
+            tz_string = str(int(round(float(self.tz_offset / 60.0))))
+        else:
+            tz_string = ''
+        return datetime_string, sub_sec_string, tz_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
@@ -837,7 +847,8 @@ class Metadata(object):
                                       'Exif.Photo.SubSecTime'),
                             'Xmp'  : 'Xmp.xmp.ModifyDate'},
         'date_taken'     : {'Exif' : ('Exif.Photo.DateTimeOriginal',
-                                      'Exif.Photo.SubSecTimeOriginal'),
+                                      'Exif.Photo.SubSecTimeOriginal',
+                                      'Exif.Image.TimeZoneOffset'),
                             'Xmp'  : 'Xmp.photoshop.DateCreated',
                             'Iptc' : ('Iptc.Application2.DateCreated',
                                       'Iptc.Application2.TimeCreated')},
