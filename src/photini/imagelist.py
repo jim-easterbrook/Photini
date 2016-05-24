@@ -95,15 +95,13 @@ class Image(QtWidgets.QFrame):
         self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
-        self.label = QtWidgets.QLabel(self.name)
+        self.label = QtWidgets.QLabel()
         self.label.setAlignment(Qt.AlignRight)
         self.label.setStyleSheet("QLabel { font-size: 12px }")
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtWidgets.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
-        self.status.setSizePolicy(
-            QtWidgets.QSizePolicy.Fixed, self.status.sizePolicy().verticalPolicy())
         self.status.setStyleSheet("QLabel { font-size: 12px }")
         self.status.setFont(QtGui.QFont("Dejavu Sans"))
         if not self.status.fontInfo().exactMatch():
@@ -183,15 +181,20 @@ class Image(QtWidgets.QFrame):
         if changed:
             status += six.unichr(0x26A1)
         self.status.setText(status)
+        self._elide_name()
         if changed:
             self.image_list.new_metadata.emit(True)
+
+    def _elide_name(self):
+        self.status.adjustSize()
+        elided_name = self.label.fontMetrics().elidedText(
+            self.name, Qt.ElideLeft, self.thumb_size - self.status.width())
+        self.label.setText(elided_name)
 
     def _set_thumb_size(self, thumb_size):
         self.thumb_size = thumb_size
         self.image.setFixedSize(self.thumb_size, self.thumb_size)
-        margins = self.layout().contentsMargins()
-        self.setFixedWidth(self.thumb_size + margins.left() + margins.right() +
-                           (self.frameWidth() * 2))
+        self._elide_name()
 
     def set_thumb_size(self, thumb_size):
         self._set_thumb_size(thumb_size)
