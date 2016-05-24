@@ -27,8 +27,6 @@ import subprocess
 import sys
 from six.moves.urllib.parse import unquote
 
-import appdirs
-
 from .metadata import Metadata, MetadataHandler
 from .pyqt import (
     Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info)
@@ -221,24 +219,6 @@ class Image(QtWidgets.QFrame):
             self.image.setPixmap(pixmap.scaled(
                 self.thumb_size, self.thumb_size,
                 Qt.KeepAspectRatio, Qt.SmoothTransformation))
-
-    def as_jpeg(self):
-        im = QtGui.QImage(self.path)
-        temp_dir = appdirs.user_cache_dir('photini')
-        if not os.path.isdir(temp_dir):
-            os.makedirs(temp_dir)
-        path = os.path.join(temp_dir, os.path.basename(self.path) + '.jpg')
-        im.save(path, format='jpeg', quality=95)
-        # copy metadata
-        try:
-            src_md = MetadataHandler(self.path)
-        except Exception:
-            pass
-        else:
-            dst_md = MetadataHandler(path)
-            dst_md.copy(src_md)
-            dst_md.save()
-        return path
 
     def set_selected(self, value):
         self.selected = value

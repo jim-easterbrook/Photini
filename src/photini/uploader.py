@@ -28,7 +28,7 @@ from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import URLError
 import webbrowser
 
-import six
+import appdirs
 
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
@@ -213,7 +213,22 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_photo.setPixmap(pixmap)
 
     def convert_to_jpeg(self, image):
-        return image.as_jpeg()
+        im = QtGui.QImage(image.path)
+        temp_dir = appdirs.user_cache_dir('photini')
+        if not os.path.isdir(temp_dir):
+            os.makedirs(temp_dir)
+        path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
+        im.save(path, format='jpeg', quality=95)
+        # copy metadata
+        try:
+            src_md = MetadataHandler(image.path)
+        except Exception:
+            pass
+        else:
+            dst_md = MetadataHandler(path)
+            dst_md.copy(src_md)
+            dst_md.save()
+        return path
 
     def is_convertible(self, image):
         return True
