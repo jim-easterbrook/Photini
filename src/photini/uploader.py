@@ -23,6 +23,7 @@ import imghdr
 import logging
 import os
 import six
+import shutil
 import threading
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import URLError
@@ -213,17 +214,29 @@ class PhotiniUploader(QtWidgets.QWidget):
                 self.logger.error('cannot read %s: %s', picture, str(ex))
         self.user_photo.setPixmap(pixmap)
 
-    def convert_to_jpeg(self, image):
-        im = QtGui.QImage(image.path)
+    def get_temp_filename(self, image, ext='.jpg'):
         temp_dir = appdirs.user_cache_dir('photini')
         if not os.path.isdir(temp_dir):
             os.makedirs(temp_dir)
-        path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
-        im.save(path, format='jpeg', quality=95)
+        return os.path.join(temp_dir, os.path.basename(image.path) + ext)
+
+    def copy_metadata(self, image, path):
         # copy metadata, forcing IPTC creation
         md = Metadata(path, None)
         md.copy(image.metadata)
         md.save(True, 'none', True)
+
+    def convert_to_jpeg(self, image):
+        im = QtGui.QImage(image.path)
+        path = self.get_temp_filename(image)
+        im.save(path, format='jpeg', quality=95)
+        self.copy_metadata(image, path)
+        return path
+
+    def copy_file_and_metadata(self, image):
+        path = self.get_temp_filename(image, ext='')
+        shutil.copyfile(image.path, path)
+        self.copy_metadata(image, path)
         return path
 
     def is_convertible(self, image):
@@ -238,6 +251,9 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def get_conversion_function(self, image):
         if image.file_type in self.image_types['accepted']:
+            if image.metadata._sc or not image.metadata.has_iptc():
+                # need to create file without sidecar and with IPTC
+                return self.copy_file_and_metadata
             return None
         if not self.is_convertible(image):
             msg = self.tr(

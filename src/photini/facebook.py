@@ -25,7 +25,6 @@ import math
 import os
 from six.moves.urllib.request import urlopen
 
-import appdirs
 import keyring
 import oauthlib
 try:
@@ -39,7 +38,6 @@ from requests_toolbelt import MultipartEncoder
 
 from .configstore import key_store
 from .descriptive import MultiLineEdit, SingleLineEdit
-from .metadata import MetadataHandler
 from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
 from .uploader import PhotiniUploader
 
@@ -476,17 +474,10 @@ class FacebookUploader(PhotiniUploader):
                 h = new_size
             im = im.resize((w, h), PIL.LANCZOS)
         # save as temporary jpeg file
-        temp_dir = appdirs.user_cache_dir('photini')
-        if not os.path.isdir(temp_dir):
-            os.makedirs(temp_dir)
-        path = os.path.join(temp_dir, os.path.basename(image.path) + '.jpg')
+        path = self.get_temp_filename(image)
         im.save(path, format='jpeg', quality=95)
-        # set some metadata - Facebook wipes all but IPTC byline and copyright
-        md = MetadataHandler(path)
-        md.set_value('Exif.Image.Orientation', image.metadata.orientation)
-        md.set_value('Iptc.Application2.Byline', image.metadata.creator)
-        md.set_value('Iptc.Application2.Copyright', image.metadata.copyright)
-        md.save()
+        # copy metadata although Facebook wipes most of it at present
+        self.copy_metadata(image, path)
         return path
 
     def get_conversion_function(self, image):
