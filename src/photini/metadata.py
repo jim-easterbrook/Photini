@@ -878,61 +878,38 @@ class Metadata(object):
     # data in these is merged in when data is read
     # they get deleted when data is written
     _secondary_tags = {
-        'aperture'       : {'Exif' : ('Exif.Image.FNumber',
-                                      'Exif.Image.ApertureValue',
-                                      'Exif.Photo.ApertureValue',),
-                            'Xmp'  : ('Xmp.exif.FNumber',
-                                      'Xmp.exif.ApertureValue')},
-        'character_set'  : {},
-        'camera_model'   : {'Exif' : ('Exif.Image.UniqueCameraModel',)},
-        'copyright'      : {'Xmp'  : ('Xmp.tiff.Copyright',)},
-        'creator'        : {'Exif' : ('Exif.Image.XPAuthor',),
-                            'Xmp'  : ('Xmp.tiff.Artist',)},
-        'date_digitised' : {'Xmp'  : ('Xmp.exif.DateTimeDigitized',)},
-        'date_modified'  : {'Xmp'  : ('Xmp.tiff.DateTime',)},
-        'date_taken'     : {'Exif' : (('Exif.Image.DateTimeOriginal',),),
-                            'Xmp'  : ('Xmp.exif.DateTimeOriginal',)},
-        'description'    : {'Exif' : ('Exif.Image.XPComment',
-                                      'Exif.Image.XPSubject'),
-                            'Xmp'  : ('Xmp.tiff.ImageDescription',)},
-        'focal_length'   : {'Exif' : (('Exif.Image.FocalLength',
-                                       'Exif.Photo.FocalLengthIn35mmFilm'),),
-                            'Xmp'  : (('Xmp.exif.FocalLength',
-                                       'Xmp.exif.FocalLengthIn35mmFilm'),)},
-        'keywords'       : {'Exif' : ('Exif.Image.XPKeywords',)},
-        'latlong'        : {'Xmp'  : (('Xmp.exif.GPSLatitude',
-                                       'Xmp.exif.GPSLongitude'),)},
-        'lens_make'      : {},
-        'lens_model'     : {},
-        'lens_serial'    : {},
-        'lens_spec'      : {},
-        'orientation'    : {'Xmp'  : ('Xmp.tiff.Orientation',)},
-        'software'       : {},
-        'title'          : {'Exif' : ('Exif.Image.XPTitle',),
-                            'Iptc' : ('Iptc.Application2.Headline',)},
+        'aperture'       : (('Exif', 'Exif.Image.FNumber'),
+                            ('Exif', 'Exif.Image.ApertureValue'),
+                            ('Exif', 'Exif.Photo.ApertureValue'),
+                            ('Xmp', 'Xmp.exif.FNumber'),
+                            ('Xmp', 'Xmp.exif.ApertureValue')),
+        'camera_model'   : (('Exif', 'Exif.Image.UniqueCameraModel'),),
+        'copyright'      : (('Xmp', 'Xmp.tiff.Copyright'),),
+        'creator'        : (('Exif', 'Exif.Image.XPAuthor'),
+                            ('Xmp', 'Xmp.tiff.Artist')),
+        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),),
+        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),),
+        'date_taken'     : (('Exif', ('Exif.Image.DateTimeOriginal',)),
+                            ('Xmp', 'Xmp.exif.DateTimeOriginal')),
+        'description'    : (('Exif', 'Exif.Image.XPComment'),
+                            ('Exif', 'Exif.Image.XPSubject'),
+                            ('Xmp', 'Xmp.tiff.ImageDescription')),
+        'focal_length'   : (('Exif', ('Exif.Image.FocalLength',
+                                      'Exif.Photo.FocalLengthIn35mmFilm')),
+                            ('Xmp', ('Xmp.exif.FocalLength',
+                                     'Xmp.exif.FocalLengthIn35mmFilm'))),
+        'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
+        'latlong'        : (('Xmp', ('Xmp.exif.GPSLatitude',
+                                     'Xmp.exif.GPSLongitude')),),
+        'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
+        'title'          : (('Exif', 'Exif.Image.XPTitle'),
+                            ('Iptc', 'Iptc.Application2.Headline')),
         }
     # tags that aren't read but are cleared when Photini data is written
     _clear_tags = {
-        'aperture'       : (),
-        'character_set'  : (),
-        'camera_model'   : (),
-        'copyright'      : (),
-        'creator'        : (),
-        'date_digitised' : (),
-        'date_modified'  : (),
-        'date_taken'     : (),
-        'description'    : (),
-        'focal_length'   : (),
-        'keywords'       : (),
-        'latlong'        : (),
-        'lens_make'      : (),
         'lens_model'     : ('Exif.Canon.LensModel', 'Exif.CanonCs.LensType'),
-        'lens_serial'    : (),
         'lens_spec'      : ('Exif.CanonCs.Lens', 'Exif.CanonCs.MaxAperture',
                             'Exif.CanonCs.MinAperture', 'Exif.CanonCs.ShortFocal'),
-        'orientation'    : (),
-        'software'       : (),
-        'title'          : (),
         }
     def __init__(self, path, image_data, new_status=None):
         super(Metadata, self).__init__()
@@ -985,12 +962,13 @@ class Metadata(object):
                     tag = self._primary_tags[name][family]
                     self.set_value(tag, value)
             # delete secondary tags
-            for family in self._secondary_tags[name]:
-                for tag in self._secondary_tags[name][family]:
+            if name in self._secondary_tags:
+                for family, tag in self._secondary_tags[name]:
                     self.set_value(tag, None)
             # clear duplicated but unreadable data
-            for tag in self._clear_tags[name]:
-                self.set_value(tag, None)
+            if name in self._clear_tags:
+                for tag in self._clear_tags[name]:
+                    self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
             self._if.copy(self._sc)
         OK = False
@@ -1079,8 +1057,8 @@ class Metadata(object):
             except Exception as ex:
                 self.logger.exception(ex)
         # merge conflicting data from secondary tags
-        for family in self._secondary_tags[name]:
-            for tag in self._secondary_tags[name][family]:
+        if name in self._secondary_tags:
+            for family, tag in self._secondary_tags[name]:
                 try:
                     new_value = self.get_value(self._data_type[name], tag)
                 except Exception as ex:
