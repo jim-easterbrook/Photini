@@ -829,50 +829,50 @@ class Metadata(object):
         }
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
-        'aperture'       : {'Exif' : 'Exif.Photo.FNumber'},
-        'camera_model'   : {'Exif' : 'Exif.Image.Model'},
-        'character_set'  : {'Iptc' : 'Iptc.Envelope.CharacterSet'},
-        'copyright'      : {'Exif' : 'Exif.Image.Copyright',
-                            'Xmp'  : 'Xmp.dc.rights',
-                            'Iptc' : 'Iptc.Application2.Copyright'},
-        'creator'        : {'Exif' : 'Exif.Image.Artist',
-                            'Xmp'  : 'Xmp.dc.creator',
-                            'Iptc' : 'Iptc.Application2.Byline'},
-        'date_digitised' : {'Exif' : ('Exif.Photo.DateTimeDigitized',
-                                      'Exif.Photo.SubSecTimeDigitized'),
-                            'Xmp'  : 'Xmp.xmp.CreateDate',
-                            'Iptc' : ('Iptc.Application2.DigitizationDate',
-                                      'Iptc.Application2.DigitizationTime')},
-        'date_modified'  : {'Exif' : ('Exif.Image.DateTime',
-                                      'Exif.Photo.SubSecTime'),
-                            'Xmp'  : 'Xmp.xmp.ModifyDate'},
-        'date_taken'     : {'Exif' : ('Exif.Photo.DateTimeOriginal',
+        'aperture'       : (('Exif', 'Exif.Photo.FNumber'),),
+        'camera_model'   : (('Exif', 'Exif.Image.Model'),),
+        'character_set'  : (('Iptc', 'Iptc.Envelope.CharacterSet'),),
+        'copyright'      : (('Exif', 'Exif.Image.Copyright'),
+                            ('Xmp',  'Xmp.dc.rights'),
+                            ('Iptc', 'Iptc.Application2.Copyright')),
+        'creator'        : (('Exif', 'Exif.Image.Artist'),
+                            ('Xmp',  'Xmp.dc.creator'),
+                            ('Iptc', 'Iptc.Application2.Byline')),
+        'date_digitised' : (('Exif', ('Exif.Photo.DateTimeDigitized',
+                                      'Exif.Photo.SubSecTimeDigitized')),
+                            ('Xmp',  'Xmp.xmp.CreateDate'),
+                            ('Iptc', ('Iptc.Application2.DigitizationDate',
+                                      'Iptc.Application2.DigitizationTime'))),
+        'date_modified'  : (('Exif', ('Exif.Image.DateTime',
+                                      'Exif.Photo.SubSecTime')),
+                            ('Xmp',  'Xmp.xmp.ModifyDate')),
+        'date_taken'     : (('Exif', ('Exif.Photo.DateTimeOriginal',
                                       'Exif.Photo.SubSecTimeOriginal',
-                                      'Exif.Image.TimeZoneOffset'),
-                            'Xmp'  : 'Xmp.photoshop.DateCreated',
-                            'Iptc' : ('Iptc.Application2.DateCreated',
-                                      'Iptc.Application2.TimeCreated')},
-        'description'    : {'Exif' : 'Exif.Image.ImageDescription',
-                            'Xmp'  : 'Xmp.dc.description',
-                            'Iptc' : 'Iptc.Application2.Caption'},
-        'focal_length'   : {'Exif' : ('Exif.Photo.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm')},
-        'keywords'       : {'Xmp'  : 'Xmp.dc.subject',
-                            'Iptc' : 'Iptc.Application2.Keywords'},
-        'latlong'        : {'Exif' : ('Exif.GPSInfo.GPSLatitude',
+                                      'Exif.Image.TimeZoneOffset')),
+                            ('Xmp',  'Xmp.photoshop.DateCreated'),
+                            ('Iptc', ('Iptc.Application2.DateCreated',
+                                      'Iptc.Application2.TimeCreated'))),
+        'description'    : (('Exif', 'Exif.Image.ImageDescription'),
+                            ('Xmp',  'Xmp.dc.description'),
+                            ('Iptc', 'Iptc.Application2.Caption')),
+        'focal_length'   : (('Exif', ('Exif.Photo.FocalLength',
+                                      'Exif.Photo.FocalLengthIn35mmFilm')),),
+        'keywords'       : (('Xmp',  'Xmp.dc.subject'),
+                            ('Iptc', 'Iptc.Application2.Keywords')),
+        'latlong'        : (('Exif', ('Exif.GPSInfo.GPSLatitude',
                                       'Exif.GPSInfo.GPSLatitudeRef',
                                       'Exif.GPSInfo.GPSLongitude',
-                                      'Exif.GPSInfo.GPSLongitudeRef')},
-        'lens_make'      : {'Exif' : 'Exif.Photo.LensMake'},
-        'lens_model'     : {'Exif' : 'Exif.Photo.LensModel'},
-        'lens_serial'    : {'Exif' : 'Exif.Photo.LensSerialNumber'},
-        'lens_spec'      : {'Exif' : 'Exif.Photo.LensSpecification'},
-        'orientation'    : {'Exif' : 'Exif.Image.Orientation'},
-        'software'       : {'Exif' : 'Exif.Image.ProcessingSoftware',
-                            'Iptc' : ('Iptc.Application2.Program',
-                                      'Iptc.Application2.ProgramVersion')},
-        'title'          : {'Xmp'  : 'Xmp.dc.title',
-                            'Iptc' : 'Iptc.Application2.ObjectName'},
+                                      'Exif.GPSInfo.GPSLongitudeRef')),),
+        'lens_make'      : (('Exif', 'Exif.Photo.LensMake'),),
+        'lens_model'     : (('Exif', 'Exif.Photo.LensModel'),),
+        'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
+        'lens_spec'      : (('Exif', 'Exif.Photo.LensSpecification'),),
+        'orientation'    : (('Exif', 'Exif.Image.Orientation'),),
+        'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
+                            ('Iptc', ('Iptc.Application2.Program',
+                                      'Iptc.Application2.ProgramVersion'))),
+        'title'          : (('Xmp',  'Xmp.dc.title'),
+                            ('Iptc', 'Iptc.Application2.ObjectName')),
         }
     # mapping of duplicate tags to Photini data fields
     # data in these is merged in when data is read
@@ -957,9 +957,8 @@ class Metadata(object):
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
-            for family in self._primary_tags[name]:
+            for family, tag in self._primary_tags[name]:
                 if save_iptc or family != 'Iptc':
-                    tag = self._primary_tags[name][family]
                     self.set_value(tag, value)
             # delete secondary tags
             if name in self._secondary_tags:
@@ -1049,8 +1048,7 @@ class Metadata(object):
         # get values from all 3 families
         value = {'Exif': None, 'Iptc': None, 'Xmp': None}
         used_tag = {'Exif': None, 'Iptc': None, 'Xmp': None}
-        for family in self._primary_tags[name]:
-            tag = self._primary_tags[name][family]
+        for family, tag in self._primary_tags[name]:
             try:
                 value[family] = self.get_value(self._data_type[name], tag)
                 used_tag[family] = tag
