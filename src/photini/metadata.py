@@ -1120,6 +1120,13 @@ class Metadata(object):
                         '%s: using %s value "%s", ignoring %s value "%s"',
                         os.path.basename(self._path), used_tag[preference],
                         str(result), used_tag[family], str(other))
+        # merge in camera timezone if needed
+        if (result and name.startswith('date_') and
+                            result.tz_offset is None and self.timezone):
+            result.tz_offset = self.timezone.value
+            self.logger.warning(
+                '%s: merged camera timezone offset into %s',
+                os.path.basename(self._path), used_tag[preference])
         # add value to object attributes so __getattr__ doesn't get
         # called again
         super(Metadata, self).__setattr__(name, result)
