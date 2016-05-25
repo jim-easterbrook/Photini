@@ -33,8 +33,11 @@ class DropdownEdit(QtWidgets.QComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
+        self.addItem(self.tr('<clear>'), '<clear>')
         self.addItem('', None)
+        self.setItemData(1, 0, Qt.UserRole - 1)
         self.addItem(multiple(), None)
+        self.setItemData(2, 0, Qt.UserRole - 1)
         self.currentIndexChanged.connect(self._new_value)
 
     @QtCore.pyqtSlot(int)
@@ -42,16 +45,14 @@ class DropdownEdit(QtWidgets.QComboBox):
         if index >= 0:
             self.new_value.emit()
 
-    def add_item(self, text, data=None):
-        if data is None:
-            data = text
+    def add_item(self, text, data):
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 2, str(text), str(data))
+        self.insertItem(self.count() - 3, text, str(data))
         self.blockSignals(blocked)
 
     def remove_item(self, data):
         blocked = self.blockSignals(True)
-        self.removeItem(self.findData(data))
+        self.removeItem(self.findData(str(data)))
         self.blockSignals(blocked)
 
     def known_value(self, value):
@@ -562,7 +563,7 @@ class Technical(QtWidgets.QWidget):
         self.widgets['lens_model'].add_item(
             self.tr('<define new lens>'), '<add lens>')
         for model in self.lens_data.lenses:
-            self.widgets['lens_model'].add_item(model)
+            self.widgets['lens_model'].add_item(model, model)
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
         self.widgets['lens_model'].customContextMenuRequested.connect(
             self.remove_lens_model)
@@ -655,15 +656,19 @@ class Technical(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_orientation(self):
-        if self.widgets['orientation'].is_multiple():
+        value = self.widgets['orientation'].get_value()
+        if value is None:
+            # multiple or blank value
             self._update_orientation()
             return
-        value = self.widgets['orientation'].get_value()
-        if value is not None:
+        if value == '<clear>':
+            value = None
+        else:
             value = int(value)
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
+        self._update_orientation()
 
     @QtCore.pyqtSlot(QtCore.QPoint)
     def remove_lens_model(self, pos):
@@ -688,16 +693,20 @@ class Technical(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_lens_model(self):
-        if self.widgets['lens_model'].is_multiple():
+        value = self.widgets['lens_model'].get_value()
+        if value is None:
+            # multiple or blank value
             self._update_lens_model()
             return
-        value = self.widgets['lens_model'].get_value()
         if value == '<add lens>':
             self._add_lens_model()
             self._update_lens_model()
             return
+        if value == '<clear>':
+            value = None
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
+        self._update_lens_model()
         if not self.link_lens.isChecked():
             return
         for image in self.image_list.get_selected_images():
@@ -731,7 +740,7 @@ class Technical(QtWidgets.QWidget):
         model = self.lens_data.load_from_dialog(dialog)
         if not model:
             return
-        self.widgets['lens_model'].add_item(model)
+        self.widgets['lens_model'].add_item(model, model)
 
     @QtCore.pyqtSlot()
     def new_aperture(self):
@@ -866,7 +875,7 @@ class Technical(QtWidgets.QWidget):
         if not self.widgets['lens_model'].known_value(value):
             # new lens
             self.lens_data.load_from_image(value, images[0])
-            self.widgets['lens_model'].add_item(value)
+            self.widgets['lens_model'].add_item(value, value)
         self.widgets['lens_model'].set_value(value)
 
     def _update_aperture(self):
