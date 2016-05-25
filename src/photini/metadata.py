@@ -294,12 +294,7 @@ class DateTime(MetadataDictValue):
             # use a well known 'zero'
             date_time = datetime(1970, 1, 1)
         else:
-            parts = [date_time.year, date_time.month, date_time.day,
-                     date_time.hour, date_time.minute, date_time.second,
-                     date_time.microsecond][:precision]
-            while len(parts) < 3:
-                parts.append(1)
-            date_time = datetime(*parts)
+            date_time = self.truncate_date_time(date_time, precision)
         if precision <= 3:
             tz_offset = None
         super(DateTime, self).__init__({
@@ -307,6 +302,14 @@ class DateTime(MetadataDictValue):
             'precision' : precision,
             'tz_offset' : tz_offset,
             })
+
+    @staticmethod
+    def truncate_date_time(date_time, precision):
+        parts = [date_time.year, date_time.month, date_time.day,
+                 date_time.hour, date_time.minute, date_time.second,
+                 date_time.microsecond][:precision]
+        parts.extend((1, 1, 1)[len(parts):])
+        return datetime(*parts)
 
     @classmethod
     def from_ISO_8601(cls, date_string, time_string, tz_string):
@@ -469,16 +472,18 @@ class DateTime(MetadataDictValue):
     def contains(self, other):
         if (not other) or (other.value == self.value):
             return True
-        if other.datetime != self.datetime:
+        precision = min(self.precision, other.precision)
+        if (self.truncate_date_time(other.datetime, precision) !=
+                self.truncate_date_time(self.datetime, precision)):
             return False
-        if other.precision < self.precision:
+        if self.precision < 7 and other.precision < self.precision:
             return False
         return bool(other.tz_offset) == bool(self.tz_offset)
 
     def merge(self, other, family=None):
         result = False
-        # some formats default to a higher precision
-        if self.precision < 7 and self.precision > other.precision:
+        # some formats default to a higher precision than wanted
+        if self.precision < 7 and other.precision < self.precision:
             self.precision = other.precision
             self.datetime = other.datetime
             result = True
