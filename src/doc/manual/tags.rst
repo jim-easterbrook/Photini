@@ -31,6 +31,7 @@ Copyright              Exif.Image.Copyright                Xmp.dc.rights        
 Creator / Artist       Exif.Image.Artist                   Xmp.dc.creator             Iptc.Application2.Byline
 Date / time Taken      | Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated  | Iptc.Application2.DateCreated
                        | Exif.Photo.SubSecTimeOriginal                                | Iptc.Application2.TimeCreated
+                       | Exif.Image.TimeZoneOffset
 Date / time Digitised  | Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate         | Iptc.Application2.DigitizationDate
                        | Exif.Photo.SubSecTimeDigitized                               | Iptc.Application2.DigitizationTime
 Date / time Modified   | Exif.Image.DateTime               Xmp.xmp.ModifyDate
@@ -83,5 +84,37 @@ Lens specification     | Exif.CanonCs.Lens
                        | Exif.CanonCs.ShortFocal
 Latitude, longitude                                 | Xmp.exif.GPSLatitude
                                                     | Xmp.exif.GPSLongitude
+=====================  ===========================  ================================  ==================
+
+Read only tags
+--------------
+
+Photini may read information from these tags and merge it with information from the primary tags.
+These tags are not deleted when the corresponding primary tags are saved.
+
+=====================  ===========================  ================================  ==================
+Photini field          Exif tag                     XMP tag                           IPTC tag
+=====================  ===========================  ================================  ==================
+Time zone offset[1]    | Exif.Image.TimeZoneOffset
+                       | Exif.NikonWt.Timezone
+=====================  ===========================  ================================  ==================
+
+[1] The time zone offset is not directly presented to the user.
+It is applied to the Date / time Taken, Date / time Digitised and Date / time Modified fields if no other time zone information is available.
+
+Delete only tags
+----------------
+
+These tags are not read but are deleted when the corresponding primary tags are saved.
+
+=====================  ===========================  ================================  ==================
+Photini field          Exif tag                     XMP tag                           IPTC tag
+=====================  ===========================  ================================  ==================
+Lens model name        | Exif.Canon.LensModel
+                       | Exif.CanonCs.LensType
+Lens specification     | Exif.CanonCs.Lens
+                       | Exif.CanonCs.MaxAperture
+                       | Exif.CanonCs.MinAperture
+                       | Exif.CanonCs.ShortFocal
 =====================  ===========================  ================================  ==================
 
