@@ -373,7 +373,7 @@ class DateTime(MetadataDictValue):
         if result.precision > 3 and len(file_value) > 2:
             tz_string = file_value[2]
             if tz_string:
-                result.tz_offset = int(tz_string) * 60
+                result.tz_offset = int(tz_string)
         return result
 
     def to_exif(self):
@@ -384,7 +384,7 @@ class DateTime(MetadataDictValue):
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
         if self.precision > 3 and self.tz_offset is not None:
-            tz_string = str(int(round(float(self.tz_offset / 60.0))))
+            tz_string = str(self.tz_offset)
         else:
             tz_string = ''
         return datetime_string, sub_sec_string, tz_string
@@ -683,6 +683,9 @@ class MetadataHandler(GExiv2.Metadata):
             # decode UCS2 string
             file_value = bytearray(map(int, file_value.split()))
             file_value = file_value.decode('utf_16').strip('\x00')
+        elif tag == 'Exif.Image.TimeZoneOffset':
+            # convert hours to minutes
+            file_value = str(int(file_value) * 60)
         # convert to Photini data type
         if MetadataHandler.is_exif_tag(tag):
             return data_type.from_exif(file_value)
@@ -708,6 +711,10 @@ class MetadataHandler(GExiv2.Metadata):
             file_value = value.to_iptc()
         else:
             file_value = value.to_xmp()
+        # manipulate some tags' data
+        if tag == 'Exif.Image.TimeZoneOffset':
+            # convert minutes to hours
+            file_value = str(int(round(float(file_value) / 60.0)))
         # write to file
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
@@ -825,6 +832,7 @@ class Metadata(object):
         'lens_spec'      : LensSpec,
         'orientation'    : Int,
         'software'       : Software,
+        'timezone'       : Int,
         'title'          : String,
         }
     # mapping of preferred tags to Photini data fields
@@ -871,6 +879,7 @@ class Metadata(object):
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
                                       'Iptc.Application2.ProgramVersion'))),
+        'timezone'       : (),
         'title'          : (('Xmp',  'Xmp.dc.title'),
                             ('Iptc', 'Iptc.Application2.ObjectName')),
         }
@@ -904,6 +913,11 @@ class Metadata(object):
         'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
+        }
+    # tags that are read and merged but not deleted
+    _read_tags = {
+        'timezone'       : (('Exif', 'Exif.Image.TimeZoneOffset'),
+                            ('Exif', 'Exif.NikonWt.Timezone')),
         }
     # tags that aren't read but are cleared when Photini data is written
     _clear_tags = {
@@ -1054,30 +1068,34 @@ class Metadata(object):
                 used_tag[family] = tag
             except Exception as ex:
                 self.logger.exception(ex)
-        # merge conflicting data from secondary tags
+        # merge conflicting data from secondary and read-only tags
+        tag_list = []
         if name in self._secondary_tags:
-            for family, tag in self._secondary_tags[name]:
-                try:
-                    new_value = self.get_value(self._data_type[name], tag)
-                except Exception as ex:
-                    self.logger.exception(ex)
-                    continue
-                if not new_value:
-                    continue
-                elif not value[family]:
-                    value[family] = new_value
-                    used_tag[family] = tag
-                elif value[family].contains(new_value):
-                    continue
-                elif value[family].merge(new_value):
-                    self.logger.warning(
-                        '%s: merged %s into %s',
-                        os.path.basename(self._path), tag, used_tag[family])
-                else:
-                    self.logger.warning(
-                        '%s: using %s value "%s", ignoring %s value "%s"',
-                        os.path.basename(self._path), used_tag[family],
-                        str(value[family]), tag, str(new_value))
+            tag_list.extend(self._secondary_tags[name])
+        if name in self._read_tags:
+            tag_list.extend(self._read_tags[name])
+        for family, tag in tag_list:
+            try:
+                new_value = self.get_value(self._data_type[name], tag)
+            except Exception as ex:
+                self.logger.exception(ex)
+                continue
+            if not new_value:
+                continue
+            elif not value[family]:
+                value[family] = new_value
+                used_tag[family] = tag
+            elif value[family].contains(new_value):
+                continue
+            elif value[family].merge(new_value):
+                self.logger.warning(
+                    '%s: merged %s into %s',
+                    os.path.basename(self._path), tag, used_tag[family])
+            else:
+                self.logger.warning(
+                    '%s: using %s value "%s", ignoring %s value "%s"',
+                    os.path.basename(self._path), used_tag[family],
+                    str(value[family]), tag, str(new_value))
         # choose preferred family
         if value['Exif']:
             preference = 'Exif'
