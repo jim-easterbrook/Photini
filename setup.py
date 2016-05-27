@@ -23,7 +23,6 @@ from distutils.command.upload import upload
 from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
 from setuptools import setup
-from setuptools.command.install import install as _install
 import sys
 
 # read current version info without importing package
@@ -133,25 +132,6 @@ command_options['sdist'] = {
     'force_manifest' : ('setup.py', '1'),
     }
 
-# extend install command to add menu shortcut
-class install(_install):
-    def run(self):
-        _install.run(self)
-        if self.dry_run:
-            return
-        if sys.platform.startswith('linux'):
-            icon_path = os.path.join(
-                self.install_purelib, 'photini/data/icons/48/photini.png')
-            temp_file = os.path.join(
-                self.install_purelib, 'photini/photini.desktop')
-            with open(temp_file, 'w') as of:
-                for line in open('src/linux/photini.desktop').readlines():
-                    of.write(line)
-                of.write('Icon=%s' % icon_path)
-            self.spawn(['desktop-file-install', '--delete-original', temp_file])
-
-cmdclass['install'] = install
-
 # add command to extract strings for translation
 class extract_messages(Command):
     description = 'extract localizable strings from the project code'
@@ -227,6 +207,17 @@ command_options['build_messages'] = {
     'input_dir'  : ('setup.py', 'src/lang'),
     }
 
+data_files = []
+if sys.platform.startswith('linux'):
+    # install application menu shortcut
+    data_files.append(('share/icons/hicolor/48x48/apps',
+                       ['src/photini/data/icons/48/photini.png']))
+    data_files.append(('share/applications', ['src/linux/photini.desktop']))
+    command_options['install'] = {
+        'single_version_externally_managed' : ('setup.py', '1'),
+        'record'                            : ('setup.py', 'install.txt'),
+        }
+
 with open('README.rst') as ldf:
     long_description = ldf.read()
 url = 'https://github.com/jim-easterbrook/Photini'
@@ -257,6 +248,7 @@ setup(name = 'Photini',
                        'data/*map/grey_marker.png', 'data/*map/script.js',
                        'data/lang/*.qm'],
           },
+      data_files = data_files,
       cmdclass = cmdclass,
       command_options = command_options,
       entry_points = {
