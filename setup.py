@@ -141,7 +141,7 @@ class install(_install):
             return
         if sys.platform.startswith('linux'):
             icon_path = os.path.join(
-                self.install_purelib, 'photini/data/icon_48.png')
+                self.install_purelib, 'photini/data/icons/48/photini.png')
             temp_file = os.path.join(
                 self.install_purelib, 'photini/photini.desktop')
             with open(temp_file, 'w') as of:

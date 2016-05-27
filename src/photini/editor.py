@@ -79,8 +79,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(
-            pkg_resources.resource_string('photini', 'data/icon_48.png'))
+        pixmap.loadFromData(pkg_resources.resource_string(
+            'photini', 'data/icons/48/photini.png'))
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
