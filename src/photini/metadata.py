@@ -478,7 +478,9 @@ class DateTime(MetadataDictValue):
             return False
         if self.precision < 7 and other.precision < self.precision:
             return False
-        return bool(other.tz_offset) == bool(self.tz_offset)
+        if other.tz_offset in (None, self.tz_offset):
+            return True
+        return False
 
     def merge(self, other, family=None):
         result = False
@@ -487,10 +489,15 @@ class DateTime(MetadataDictValue):
             self.precision = other.precision
             self.datetime = other.datetime
             result = True
-        # don't trust IPTC time zone
-        if self.tz_offset is None and family != 'Iptc':
-            self.tz_offset = other.tz_offset
-            result = True
+        # don't trust IPTC time zone and Exif time zone is quantised to
+        # whole hours, unlike Xmp
+        if other.tz_offset is not None and family != 'Iptc':
+            if self.tz_offset is None:
+                self.tz_offset = other.tz_offset
+                result = True
+            elif self.tz_offset != other.tz_offset and family == 'Xmp':
+                self.tz_offset = other.tz_offset
+                result = True
         return result
 
 
