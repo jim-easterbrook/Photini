@@ -305,7 +305,8 @@ github.com/jim-easterbrook/Photini</a>.</p>
 <p>This program is released with a GNU General Public License. For
 details click the 'show details' button.</p>
 """).format(__version__, build,
-            pkg_resources.resource_filename('photini', 'data/icon_120.png'))
+            pkg_resources.resource_filename(
+                'photini', 'data/icons/128/photini.png'))
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(self.tr('Photini: about'))
         dialog.setText(text)

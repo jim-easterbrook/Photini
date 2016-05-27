@@ -1,6 +1,6 @@
 all : \
 	../doc/images/photini_logo.png \
-	../photini/data/icon_120.png \
+	../photini/data/icons/128/photini.png \
 	../photini/data/icon_48.png \
 	../windows/icon.ico \
 
@@ -11,6 +11,10 @@ icon_%.pam : icon_master.png
 
 # create linux icons
 ../doc/images/photini_logo.png : icon_200.pam
+	pamrgbatopng $< >$@
+
+../photini/data/icons/%/photini.png : icon_%.pam
+	mkdir -p $(dir $@)
 	pamrgbatopng $< >$@
 
 ../photini/data/icon_%.png : icon_%.pam
