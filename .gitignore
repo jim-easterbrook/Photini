@@ -36,6 +36,7 @@ MANIFEST
 /src/lang/doc/doctrees/
 /src/lang/doc/en/
 /src/lang/doc/gettext/
+/src/misc/*.pam
 /src/photini/data/lang
 /src/windows/installers
 /src/windows/WinPython

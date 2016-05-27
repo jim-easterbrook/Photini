@@ -1,5 +1,5 @@
 all : \
-	../photini/data/icon_200.png \
+	../doc/images/photini_logo.png \
 	../photini/data/icon_120.png \
 	../photini/data/icon_48.png \
 	../windows/icon.ico \
@@ -9,7 +9,10 @@ icon_%.pam : icon_master.png
 	pngtopam -alphapam $< | \
 	pamscale -width $* -height $* >$@
 
-# create linux icon
+# create linux icons
+../doc/images/photini_logo.png : icon_200.pam
+	pamrgbatopng $< >$@
+
 ../photini/data/icon_%.png : icon_%.pam
 	pamrgbatopng $< >$@
 
