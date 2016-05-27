@@ -6,7 +6,7 @@ User manual
 ===========
 
 This manual attempts to cover every part of Photini in detail, but still be usable as a tutorial.
-I suggest you read the :doc:`image_selector` section first, then read other sections when you start using the relevant features.
+I suggest you read the :doc:`image selector <image_selector>` and :doc:`descriptive metadata <descriptive_metadata>` sections first, then read other sections when you start using the relevant features.
 
 .. toctree::
    :maxdepth: 2

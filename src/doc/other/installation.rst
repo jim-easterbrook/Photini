@@ -255,7 +255,7 @@ The ``Optimise image size`` option requires the `Python Imaging Library <http://
 Importer
 """"""""
 
-Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux amd MacOS systems it can also import directly from a camera.
+Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera.
 This requires `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_, which is often already installed, and its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
 
    sudo pip install -v gphoto2

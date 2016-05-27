@@ -7,7 +7,7 @@ A free, easy to use, digital photograph metadata (EXIF, IPTC, XMP) editing appli
 In the context of digital photographs this means information that isn't essential in order to display the image, but tells you something about it.
 For example a title and description of the scene or the date & time and the GPS coordinates of the camera's position when the picture was taken.
 
-   "It doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily."
+   "[Photini] doesn't try to be an all-singing, all-dancing image management powerhouse - it just lets you add information to photos, quickly and easily."
    
    -- `Linux Format`_ magazine, January 2013
 
@@ -24,7 +24,7 @@ Features
 *   Set photo title, description, keywords, copyright and creator fields.
 *   Spell checking of some fields (optional).
 *   Can set metadata for multiple images simultaneously.
-*   Can adjust picture date & time.
+*   Can adjust picture date & time and time zone (of multiple images simultaneously).
 *   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
@@ -54,11 +54,6 @@ Users of other operating systems will need to install the following:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**
     *   pgi: https://pypi.python.org/pypi/pgi/
-*   PyEnchant (optional): http://pythonhosted.org/pyenchant/
-*   python-keyring (optional), version 7.0+: https://pypi.python.org/pypi/keyring
-*   python-flickrapi (optional), version 2.0+: https://pypi.python.org/pypi/flickrapi/
-*   requests & requests-oauthlib (optional): https://github.com/kennethreitz/requests & https://github.com/requests/requests-oauthlib
-*   python-gphoto2 (optional), version 0.10+: https://pypi.python.org/pypi/gphoto2/
 
 For details of how to download and install these, please see the `installation documentation`_.
 
@@ -70,7 +65,7 @@ Documentation
    It is already usable but, like all other software, it has bugs.
    Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
-Photini's documentation is a long way from complete, but you can read what's been written so far at http://photini.readthedocs.io/.
+Photini's documentation is a work in progress, but you can read what's been written so far at http://photini.readthedocs.io/.
 
 .. _readme-getting_help:
 
@@ -126,12 +121,12 @@ Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the
 Privacy statement
 ^^^^^^^^^^^^^^^^^
 
-Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, Facebook and Google Photos/Picasa) may do so.
+Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, Facebook, and Google Photos/Picasa) may do so.
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
 This file can be found in ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
-OAuth_ access tokens for Flickr, Facebook & Google Photos are securely stored on the user's computer using `Python keyring`_.
+OAuth_ access tokens for Flickr, Facebook, and Google Photos are securely stored on the user's computer using `Python keyring`_.
 
 
 Documentation licence
