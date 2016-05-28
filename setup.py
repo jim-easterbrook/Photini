@@ -99,11 +99,6 @@ try:
 except ImportError:
     pass
 
-# set options for uploading documentation to PyPI
-command_options['upload_docs'] = {
-    'upload_dir' : ('setup.py', 'doc/html'),
-    }
-
 # modify upload class to add appropriate tag
 # requires GitPython - 'sudo pip install gitpython'
 class upload_and_tag(upload):
@@ -133,6 +128,9 @@ command_options['sdist'] = {
     }
 
 # add command to extract strings for translation
+# NB the "babel" package provides an extract_messages command, but it is
+# an alternative to xgettext, generating .pot files. This uses Qt's
+# pylupdate5 (or pylupdate4) command to generate a .ts file
 class extract_messages(Command):
     description = 'extract localizable strings from the project code'
     user_options = [
@@ -176,7 +174,7 @@ command_options['extract_messages'] = {
 
 # add command to 'compile' translated messages
 class build_messages(Command):
-    description = 'compile translated strings'
+    description = 'compile translated strings (.ts) to binary .qm files'
     user_options = [
         ('output-dir=', 'o', 'location of output .qm files'),
         ('input-dir=', 'i', 'location of input .ts files'),
