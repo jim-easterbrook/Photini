@@ -453,8 +453,13 @@ class ImageList(QtWidgets.QWidget):
             result = image.metadata.date_modified
         if result is None:
             # use file date as last resort
-            return datetime.fromtimestamp(os.path.getmtime(image.path))
-        return result.datetime
+            result = datetime.fromtimestamp(os.path.getmtime(image.path))
+        else:
+            result = result.datetime
+        # convert result to string and append path so photos with same
+        # time stamp get sorted consistently
+        result = result.isoformat() + image.path
+        return result
 
     @QtCore.pyqtSlot()
     def _new_sort_order(self):
