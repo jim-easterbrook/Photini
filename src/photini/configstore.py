@@ -43,10 +43,11 @@ class ConfigStore(QtCore.QObject):
         if not os.path.isdir(config_dir):
             os.makedirs(config_dir, mode=stat.S_IRWXU)
         self.file_name = os.path.join(config_dir, name + '.ini')
-        if six.PY2:
-            self.config.readfp(open(self.file_name, 'r'))
-        else:
-            self.config.readfp(open(self.file_name, 'r', encoding='utf-8'))
+        if os.path.isfile(self.file_name):
+            if six.PY2:
+                self.config.readfp(open(self.file_name, 'r'))
+            else:
+                self.config.readfp(open(self.file_name, 'r', encoding='utf-8'))
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.setInterval(3000)
