@@ -414,7 +414,6 @@ class LensData(object):
             setattr(image.metadata, item, value)
 
     def load_from_image(self, model, image):
-        model = str(model)
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
@@ -706,8 +705,8 @@ class Technical(QtWidgets.QWidget):
             value = None
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
-        self._update_lens_model()
         if not self.link_lens.isChecked():
+            self._update_lens_model()
             return
         for image in self.image_list.get_selected_images():
             spec = image.metadata.lens_spec
@@ -732,6 +731,7 @@ class Technical(QtWidgets.QWidget):
                 focal_length, image.metadata.focal_length.to_35(focal_length))
         self._update_aperture()
         self._update_focal_length()
+        self._update_lens_model()
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
@@ -851,9 +851,9 @@ class Technical(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
-        value = images[0].metadata.lens_model
+        model = images[0].metadata.lens_model
         for image in images[1:]:
-            if image.metadata.lens_model != value:
+            if image.metadata.lens_model != model:
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
@@ -872,11 +872,11 @@ class Technical(QtWidgets.QWidget):
                                         spec.min_fl_fn, spec.max_fl_fn):
                     self.link_lens.setChecked(False)
                     break
-        if not self.widgets['lens_model'].known_value(value):
+        if not self.widgets['lens_model'].known_value(model):
             # new lens
-            self.lens_data.load_from_image(value, images[0])
-            self.widgets['lens_model'].add_item(value, value)
-        self.widgets['lens_model'].set_value(value)
+            self.lens_data.load_from_image(model.value, images[0])
+            self.widgets['lens_model'].add_item(model.value, model.value)
+        self.widgets['lens_model'].set_value(model)
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()
