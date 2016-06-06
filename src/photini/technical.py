@@ -568,11 +568,6 @@ class Technical(QtWidgets.QWidget):
             self.remove_lens_model)
         other_group.layout().addRow(
             self.tr('Lens model'), self.widgets['lens_model'])
-        # link lens to aperture & focal length
-        self.link_lens = QtWidgets.QCheckBox(
-            self.tr("Link lens model to\nfocal length && aperture"))
-        self.link_lens.setChecked(True)
-        other_group.layout().addRow('', self.link_lens)
         # focal length
         self.widgets['focal_length'] = FloatEdit()
         self.widgets['focal_length'].validator().setBottom(0.1)
@@ -705,32 +700,6 @@ class Technical(QtWidgets.QWidget):
             value = None
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
-        if not self.link_lens.isChecked():
-            self._update_lens_model()
-            return
-        for image in self.image_list.get_selected_images():
-            spec = image.metadata.lens_spec
-            if not spec:
-                continue
-            if not image.metadata.aperture:
-                image.metadata.aperture = 0
-            if not image.metadata.focal_length:
-                image.metadata.focal_length = 0, None
-            aperture = image.metadata.aperture.value
-            focal_length = image.metadata.focal_length.fl
-            if focal_length <= spec.min_fl:
-                focal_length = spec.min_fl
-                aperture = max(aperture, spec.min_fl_fn)
-            elif focal_length >= spec.max_fl:
-                focal_length = spec.max_fl
-                aperture = max(aperture, spec.max_fl_fn)
-            else:
-                aperture = max(aperture, min(spec.min_fl_fn, spec.max_fl_fn))
-            image.metadata.aperture = aperture
-            image.metadata.focal_length = (
-                focal_length, image.metadata.focal_length.to_35(focal_length))
-        self._update_aperture()
-        self._update_focal_length()
         self._update_lens_model()
 
     def _add_lens_model(self):
@@ -857,26 +826,60 @@ class Technical(QtWidgets.QWidget):
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
-        if self.link_lens.isChecked():
-            for image in images:
-                spec = image.metadata.lens_spec
-                if not spec:
-                    continue
-                focal_length = image.metadata.focal_length
-                if focal_length and (focal_length.fl < spec.min_fl or
-                                     focal_length.fl > spec.max_fl):
-                    self.link_lens.setChecked(False)
-                    break
-                aperture = image.metadata.aperture
-                if aperture and aperture.value < min(
-                                        spec.min_fl_fn, spec.max_fl_fn):
-                    self.link_lens.setChecked(False)
-                    break
         if not self.widgets['lens_model'].known_value(model):
             # new lens
             self.lens_data.load_from_image(model.value, images[0])
             self.widgets['lens_model'].add_item(model.value, model.value)
+        blocked = self.widgets['lens_model'].blockSignals(True)
         self.widgets['lens_model'].set_value(model)
+        self.widgets['lens_model'].blockSignals(blocked)
+        make_changes = False
+        for image in images:
+            spec = image.metadata.lens_spec
+            if not spec:
+                continue
+            if image.metadata.aperture:
+                new_aperture = image.metadata.aperture.value
+            else:
+                new_aperture = 0
+            if image.metadata.focal_length:
+                new_fl = image.metadata.focal_length.fl or 0
+            else:
+                new_fl = 0
+            if new_fl <= spec.min_fl:
+                new_fl = spec.min_fl
+                new_aperture = max(new_aperture, spec.min_fl_fn)
+            elif new_fl >= spec.max_fl:
+                new_fl = spec.max_fl
+                new_aperture = max(new_aperture, spec.max_fl_fn)
+            else:
+                new_aperture = max(new_aperture,
+                                   min(spec.min_fl_fn, spec.max_fl_fn))
+            if (image.metadata.aperture and
+                    new_aperture == image.metadata.aperture.value and
+                    image.metadata.focal_length and
+                    new_fl == image.metadata.focal_length.fl):
+                continue
+            if make_changes:
+                pass
+            elif QtWidgets.QMessageBox.question(
+                    self, self.tr('Update aperture & focal length'),
+                    self.tr('Adjust image aperture and focal length to' +
+                            ' agree with lens specification?'),
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                    QtWidgets.QMessageBox.No
+                    ) == QtWidgets.QMessageBox.No:
+                return
+            make_changes = True
+            image.metadata.aperture = new_aperture
+            if image.metadata.focal_length:
+                image.metadata.focal_length = (
+                    new_fl, image.metadata.focal_length.to_35(new_fl))
+            else:
+                image.metadata.focal_length = new_fl, None
+        if make_changes:
+            self._update_aperture()
+            self._update_focal_length()
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()
