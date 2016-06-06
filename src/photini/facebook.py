@@ -472,7 +472,7 @@ class FacebookUploader(PhotiniUploader):
             else:
                 w = int((float(new_size * w) / float(h)) + 0.5)
                 h = new_size
-            im = im.resize((w, h), PIL.LANCZOS)
+            im = im.resize((w, h), PIL.ANTIALIAS)
         # save as temporary jpeg file
         path = self.get_temp_filename(image)
         im.save(path, format='jpeg', quality=95)
