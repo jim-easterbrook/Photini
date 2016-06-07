@@ -373,6 +373,51 @@ class OffsetWidget(QtWidgets.QWidget):
         self.apply_offset.emit(-offset)
 
 
+class LensSpecWidget(QtWidgets.QGridLayout):
+    def __init__(self, *arg, **kw):
+        super(LensSpecWidget, self).__init__(*arg, **kw)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setVerticalSpacing(0)
+        for text, col in (self.tr('min'), 1), (self.tr('max'), 2):
+            label = QtWidgets.QLabel(text)
+            label.setMinimumWidth(50)
+            label.setAlignment(Qt.AlignHCenter)
+            self.addWidget(label, 0, col)
+        self.addWidget(QtWidgets.QLabel(self.tr('Focal length')), 1, 0)
+        self.addWidget(QtWidgets.QLabel(self.tr('Max aperture')), 2, 0)
+        self.multiple = QtWidgets.QLabel(multiple_values())
+        self.addWidget(self.multiple, 1, 1, 2, 2)
+        self.multiple.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.multiple.hide()
+        self.values = {
+            'min_fl'    : QtWidgets.QLabel(),
+            'max_fl'    : QtWidgets.QLabel(),
+            'min_fl_fn' : QtWidgets.QLabel(),
+            'max_fl_fn' : QtWidgets.QLabel(),
+            }
+        for key in self.values:
+            self.values[key].setAlignment(Qt.AlignHCenter)
+        self.addWidget(self.values['min_fl'], 1, 1)
+        self.addWidget(self.values['max_fl'], 1, 2)
+        self.addWidget(self.values['min_fl_fn'], 2, 1)
+        self.addWidget(self.values['max_fl_fn'], 2, 2)
+
+    def set_value(self, value):
+        self.multiple.hide()
+        for key in self.values:
+            sub_val = getattr(value, key, None)
+            if sub_val:
+                self.values[key].setText('{:g}'.format(float(sub_val)))
+            else:
+                self.values[key].clear()
+            self.values[key].show()
+
+    def set_multiple(self):
+        for key in self.values:
+            self.values[key].hide()
+        self.multiple.show()
+
+
 class DoubleValidator(QtGui.QDoubleValidator):
     def validate(self, input_, pos):
         # accept empty string as valid, to allow metadata to be cleared
@@ -568,6 +613,10 @@ class Technical(QtWidgets.QWidget):
             self.remove_lens_model)
         other_group.layout().addRow(
             self.tr('Lens model'), self.widgets['lens_model'])
+        # lens specification
+        self.widgets['lens_spec'] = LensSpecWidget()
+        other_group.layout().addRow(
+            self.tr('Lens details'), self.widgets['lens_spec'])
         # focal length
         self.widgets['focal_length'] = FloatEdit()
         self.widgets['focal_length'].validator().setBottom(0.1)
@@ -701,6 +750,7 @@ class Technical(QtWidgets.QWidget):
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
         self._update_lens_model()
+        self._update_lens_spec()
 
     def _add_lens_model(self):
         dialog = NewLensDialog(self)
@@ -833,11 +883,22 @@ class Technical(QtWidgets.QWidget):
         blocked = self.widgets['lens_model'].blockSignals(True)
         self.widgets['lens_model'].set_value(model)
         self.widgets['lens_model'].blockSignals(blocked)
+
+    def _update_lens_spec(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            return
+        spec = images[0].metadata.lens_spec
+        for image in images[1:]:
+            if image.metadata.lens_spec != spec:
+                # multiple values
+                self.widgets['lens_spec'].set_multiple()
+                return
+        self.widgets['lens_spec'].set_value(spec)
+        if not spec:
+            return
         make_changes = False
         for image in images:
-            spec = image.metadata.lens_spec
-            if not spec:
-                continue
             if image.metadata.aperture:
                 new_aperture = image.metadata.aperture.value
             else:
@@ -855,6 +916,8 @@ class Technical(QtWidgets.QWidget):
             else:
                 new_aperture = max(new_aperture,
                                    min(spec.min_fl_fn, spec.max_fl_fn))
+            if new_aperture == 0 and new_fl == 0:
+                continue
             if (image.metadata.aperture and
                     new_aperture == image.metadata.aperture.value and
                     image.metadata.focal_length and
@@ -871,12 +934,14 @@ class Technical(QtWidgets.QWidget):
                     ) == QtWidgets.QMessageBox.No:
                 return
             make_changes = True
-            image.metadata.aperture = new_aperture
-            if image.metadata.focal_length:
-                image.metadata.focal_length = (
-                    new_fl, image.metadata.focal_length.to_35(new_fl))
-            else:
-                image.metadata.focal_length = new_fl, None
+            if new_aperture:
+                image.metadata.aperture = new_aperture
+            if new_fl:
+                if image.metadata.focal_length:
+                    image.metadata.focal_length = (
+                        new_fl, image.metadata.focal_length.to_35(new_fl))
+                else:
+                    image.metadata.focal_length = new_fl, None
         if make_changes:
             self._update_aperture()
             self._update_focal_length()
@@ -938,4 +1003,5 @@ class Technical(QtWidgets.QWidget):
         self._update_lens_model()
         self._update_aperture()
         self._update_focal_length()
+        self._update_lens_spec()
         self.setEnabled(True)
