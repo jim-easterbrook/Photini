@@ -922,6 +922,7 @@ class Metadata(object):
         'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
         'latlong'        : (('Xmp', ('Xmp.exif.GPSLatitude',
                                      'Xmp.exif.GPSLongitude')),),
+        'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),),
         'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
