@@ -151,7 +151,6 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         return self.minimum_size
 
     def focusInEvent(self, event):
-        self.set_precision(7)
         if self.dateTime() == self.minimumDateTime():
             self.setDateTime(self.date_time)
         super(DateTimeEdit, self).focusInEvent(event)
@@ -320,9 +319,6 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
 
     @QtCore.pyqtSlot()
     def new_datetime(self):
-        blocked = self.precision.blockSignals(True)
-        self.precision.setValue(7)
-        self.precision.blockSignals(blocked)
         self.new_value.emit(self.get_value())
 
     @QtCore.pyqtSlot()
