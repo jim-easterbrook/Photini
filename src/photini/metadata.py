@@ -698,6 +698,11 @@ class MetadataHandler(GExiv2.Metadata):
         elif tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
             file_value = str(int(file_value) * 60)
+        elif tag == 'Exif.CanonCs.Lens':
+            long_focal, short_focal, focal_units = file_value.split()
+            file_value = ('{}/{}'.format(short_focal, focal_units),
+                          '{}/{}'.format(long_focal, focal_units),
+                          0, 0)
         # convert to Photini data type
         if MetadataHandler.is_exif_tag(tag):
             return data_type.from_exif(file_value)
@@ -922,7 +927,9 @@ class Metadata(object):
         'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
         'latlong'        : (('Xmp', ('Xmp.exif.GPSLatitude',
                                      'Xmp.exif.GPSLongitude')),),
-        'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),),
+        'lens_model'     : (('Exif', 'Exif.Canon.LensModel'),),
+        'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),
+                            ('Exif', 'Exif.CanonCs.Lens')),
         'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
@@ -934,9 +941,10 @@ class Metadata(object):
         }
     # tags that aren't read but are cleared when Photini data is written
     _clear_tags = {
-        'lens_model'     : ('Exif.Canon.LensModel', 'Exif.CanonCs.LensType'),
-        'lens_spec'      : ('Exif.CanonCs.Lens', 'Exif.CanonCs.MaxAperture',
-                            'Exif.CanonCs.MinAperture', 'Exif.CanonCs.ShortFocal'),
+        'lens_model'     : ('Exif.CanonCs.LensType',),
+        'lens_spec'      : ('Exif.CanonCs.ShortFocal',
+                            'Exif.CanonCs.MaxAperture',
+                            'Exif.CanonCs.MinAperture'),
         }
     def __init__(self, path, image_data, new_status=None):
         super(Metadata, self).__init__()
