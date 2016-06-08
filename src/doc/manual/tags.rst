@@ -56,35 +56,34 @@ Secondary tags
 Photini may read information from these tags and merge it with information from the primary tags.
 These tags are deleted when the corresponding primary tags are saved.
 
-=====================  ===========================  ================================  ==================
-Photini field          Exif tag                     XMP tag                           IPTC tag
-=====================  ===========================  ================================  ==================
-Title / Object Name    Exif.Image.XPTitle                                             Iptc.Application2.Headline
-Description / Caption  | Exif.Image.XPComment       Xmp.tiff.ImageDescription
+=====================  ===============================  ================================  ==================
+Photini field          Exif tag                         XMP tag                           IPTC tag
+=====================  ===============================  ================================  ==================
+Title / Object Name    Exif.Image.XPTitle                                                 Iptc.Application2.Headline
+Description / Caption  | Exif.Image.XPComment           Xmp.tiff.ImageDescription
                        | Exif.Image.XPSubject
 Keywords               Exif.Image.XPKeywords
-Copyright                                           Xmp.tiff.Copyright
-Creator / Artist       Exif.Image.XPAuthor          Xmp.tiff.Artist
-Date / time Taken      Exif.Image.DateTimeOriginal  Xmp.exif.DateTimeOriginal
-Date / time Digitised                               Xmp.exif.DateTimeDigitized
-Date / time Modified                                Xmp.tiff.DateTime
-Orientation                                         Xmp.tiff.Orientation
-Aperture               | Exif.Image.FNumber         | Xmp.exif.FNumber
-                       | Exif.Image.ApertureValue   | Xmp.exif.ApertureValue
+Copyright                                               Xmp.tiff.Copyright
+Creator / Artist       Exif.Image.XPAuthor              Xmp.tiff.Artist
+Date / time Taken      Exif.Image.DateTimeOriginal      Xmp.exif.DateTimeOriginal
+Date / time Digitised                                   Xmp.exif.DateTimeDigitized
+Date / time Modified                                    Xmp.tiff.DateTime
+Orientation                                             Xmp.tiff.Orientation
+Aperture               | Exif.Image.FNumber             | Xmp.exif.FNumber
+                       | Exif.Image.ApertureValue       | Xmp.exif.ApertureValue
                        | Exif.Photo.ApertureValue
-Focal length           Exif.Image.FocalLength       | Xmp.exif.FocalLength
-                                                    | Xmp.exif.FocalLengthIn35mmFilm
+Focal length           Exif.Image.FocalLength           | Xmp.exif.FocalLength
+                                                        | Xmp.exif.FocalLengthIn35mmFilm
 Lens maker name
 Lens model name        | Exif.Canon.LensModel
-                       | Exif.CanonCs.LensType
-Lens serial number
-Lens specification     | Exif.CanonCs.Lens
-                       | Exif.CanonCs.MaxAperture
-                       | Exif.CanonCs.MinAperture
-                       | Exif.CanonCs.ShortFocal
-Latitude, longitude                                 | Xmp.exif.GPSLatitude
-                                                    | Xmp.exif.GPSLongitude
-=====================  ===========================  ================================  ==================
+                       | Exif.OlympusEq.LensModel
+Lens serial number     Exif.OlympusEq.LensSerialNumber
+Lens specification     | Exif.Image.LensInfo
+                       | Exif.CanonCs.Lens
+                       | Exif.Nikon3.Lens
+Latitude, longitude                                     | Xmp.exif.GPSLatitude
+                                                        | Xmp.exif.GPSLongitude
+=====================  ===============================  ================================  ==================
 
 Read only tags
 --------------
@@ -110,11 +109,9 @@ These tags are not read but are deleted when the corresponding primary tags are 
 =====================  ===========================  ================================  ==================
 Photini field          Exif tag                     XMP tag                           IPTC tag
 =====================  ===========================  ================================  ==================
-Lens model name        | Exif.Canon.LensModel
-                       | Exif.CanonCs.LensType
-Lens specification     | Exif.CanonCs.Lens
+Lens model name        Exif.CanonCs.LensType
+Lens specification     | Exif.CanonCs.ShortFocal
                        | Exif.CanonCs.MaxAperture
                        | Exif.CanonCs.MinAperture
-                       | Exif.CanonCs.ShortFocal
 =====================  ===========================  ================================  ==================
 
