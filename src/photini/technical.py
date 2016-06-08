@@ -490,7 +490,7 @@ class LensData(object):
 
 
 class NewLensDialog(QtWidgets.QDialog):
-    def __init__(self, *arg, **kw):
+    def __init__(self, images, *arg, **kw):
         super(NewLensDialog, self).__init__(*arg, **kw)
         self.setWindowTitle(self.tr('Photini: define lens'))
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -508,6 +508,7 @@ class NewLensDialog(QtWidgets.QDialog):
         self.layout().addWidget(button_box)
         # model
         self.lens_model = QtWidgets.QLineEdit()
+        self.lens_model.setMinimumWidth(250)
         panel.layout().addRow(self.tr('Model name'), self.lens_model)
         # maker
         self.lens_make = QtWidgets.QLineEdit()
@@ -539,6 +540,19 @@ class NewLensDialog(QtWidgets.QDialog):
                               self.lens_spec['max_fl_fn'])
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
+        # fill in any values we can from existing metadata
+        for image in images:
+            if image.metadata.lens_model:
+                self.lens_model.setValue(image.metadata.lens_model.value)
+            if image.metadata.lens_make:
+                self.lens_make.setValue(image.metadata.lens_make.value)
+            if image.metadata.lens_serial:
+                self.lens_serial.setValue(image.metadata.lens_serial.value)
+            spec = image.metadata.lens_spec
+            for key in self.lens_spec:
+                if spec and spec.value[key]:
+                    self.lens_spec[key].setText(
+                        '{:g}'.format(float(spec.value[key])))
 
 
 class Technical(QtWidgets.QWidget):
@@ -753,7 +767,8 @@ class Technical(QtWidgets.QWidget):
         self._update_lens_spec()
 
     def _add_lens_model(self):
-        dialog = NewLensDialog(self)
+        dialog = NewLensDialog(
+            self.image_list.get_selected_images(), parent=self)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
         model = self.lens_data.load_from_dialog(dialog)
