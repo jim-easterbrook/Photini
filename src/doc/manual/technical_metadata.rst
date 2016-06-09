@@ -65,3 +65,17 @@ Only the ``Model name`` and ``Minimum focal length`` are required.
 The data you enter is stored in the Photini configuration file so you can easily apply it to images in future by selecting the lens you have defined from the dropdown list.
 To remove a lens from the list right-click on it to bring up its context menu.
 This includes options to delete any lens but the one currently in use.
+
+.. image:: ../images/screenshot_56.png
+
+Adjusting the lens metadata is useful if, like me, you use your camera with 3rd party lenses and/or telescopes via a T-thread adaptor.
+My adaptor identifies itself to the camera as a 50mm f/1.8 lens.
+Here I've used it with my 500mm mirror lens to take some pictures of the moon.
+
+.. image:: ../images/screenshot_57.png
+
+When I set the lens model via the drop down list Photini offers the option to adjust the focal length and aperture used for each image, if the current values are inconsistent with the new lens.
+In this case I definitely do want to update these parameters so I click on ``Yes``.
+
+.. image:: ../images/screenshot_58.png
+
