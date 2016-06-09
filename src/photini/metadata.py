@@ -54,6 +54,15 @@ gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
 
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
+def safe_fraction(value):
+    # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
+    if isinstance(value, six.string_types):
+        numerator, sep, denominator = value.partition('/')
+        if denominator and int(denominator) == 0:
+            return Fraction(0.0)
+    return Fraction(value).limit_denominator(1000000)
+
+
 @six.python_2_unicode_compatible
 class MetadataValue(object):
     # base for classes that store a metadata value, e.g. a string, int
@@ -131,7 +140,7 @@ class FocalLength(MetadataDictValue):
         if fl in (None, ''):
             fl = None
         else:
-            fl = Fraction(fl).limit_denominator(1000000)
+            fl = safe_fraction(fl)
         if fl_35 in (None, ''):
             fl_35 = None
         else:
@@ -223,7 +232,7 @@ class LatLon(MetadataDictValue):
         value = (value - degrees) * 60.0
         minutes = int(value)
         seconds = (value - minutes) * 60.0
-        seconds = Fraction(seconds).limit_denominator(1000000)
+        seconds = safe_fraction(seconds)
         return '{:d}/1 {:d}/1 {:d}/{:d}'.format(
             degrees, minutes, seconds.numerator, seconds.denominator), negative
 
@@ -257,7 +266,6 @@ class LatLon(MetadataDictValue):
         return (not other) or ((abs(other.lat - self.lat) < 0.000001) and
                                (abs(other.lon - self.lon) < 0.000001))
 
-
 class LensSpec(MetadataDictValue):
     # simple class to store lens "specificaton"
     def __init__(self, value):
@@ -268,10 +276,10 @@ class LensSpec(MetadataDictValue):
             value = value.split(sep)
         min_fl, max_fl, min_fl_fn, max_fl_fn = value
         super(LensSpec, self).__init__({
-            'min_fl'    : Fraction(min_fl).limit_denominator(1000000),
-            'max_fl'    : Fraction(max_fl).limit_denominator(1000000),
-            'min_fl_fn' : Fraction(min_fl_fn).limit_denominator(1000000),
-            'max_fl_fn' : Fraction(max_fl_fn).limit_denominator(1000000),
+            'min_fl'    : safe_fraction(min_fl),
+            'max_fl'    : safe_fraction(max_fl),
+            'min_fl_fn' : safe_fraction(min_fl_fn),
+            'max_fl_fn' : safe_fraction(max_fl_fn),
             })
 
     def __str__(self):
