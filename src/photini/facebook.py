@@ -24,6 +24,7 @@ import logging
 import math
 import os
 from six.moves.urllib.request import urlopen
+from six.moves.urllib.parse import unquote
 
 import keyring
 import oauthlib
@@ -95,9 +96,12 @@ class FacebookSession(object):
             client=client, scope=self.scope[level],
             redirect_uri='https://www.facebook.com/connect/login_success.html',
             )
-        return self.session.authorization_url(
+        result = self.session.authorization_url(
             'https://www.facebook.com/dialog/oauth',
             display='popup', auth_type='rerequest')[0]
+        # use unquote to prevent "redirect_uri URL is not properly
+        # formatted" error on Windows
+        return unquote(result)
 
     def get_access_token(self, url):
         token = self.session.token_from_fragment(url)
