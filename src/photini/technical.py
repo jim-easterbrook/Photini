@@ -886,6 +886,7 @@ class Technical(QtWidgets.QWidget):
             if image.metadata.lens_model != model:
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
+                self.widgets['lens_model'].setToolTip('')
                 return
         if not self.widgets['lens_model'].known_value(model):
             # new lens
@@ -894,6 +895,14 @@ class Technical(QtWidgets.QWidget):
         blocked = self.widgets['lens_model'].blockSignals(True)
         self.widgets['lens_model'].set_value(model)
         self.widgets['lens_model'].blockSignals(blocked)
+        tool_tip = ''
+        if images[0].metadata.lens_make:
+            tool_tip = images[0].metadata.lens_make.value + ' '
+        if images[0].metadata.lens_model:
+            tool_tip += images[0].metadata.lens_model.value + ' '
+        if images[0].metadata.lens_serial:
+            tool_tip += '(' + images[0].metadata.lens_serial.value + ')'
+        self.widgets['lens_model'].setToolTip(tool_tip)
 
     def _update_lens_spec(self):
         images = self.image_list.get_selected_images()
