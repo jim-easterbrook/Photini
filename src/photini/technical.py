@@ -460,7 +460,8 @@ class LensData(object):
             value = getattr(image.metadata, item)
             if value:
                 self.config_store.set(section, item, str(value))
-        self.lenses.append(model)
+        if model not in self.lenses:
+            self.lenses.append(model)
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
 
@@ -479,7 +480,8 @@ class LensData(object):
         self.config_store.set(section, 'lens_make', dialog.lens_make.text())
         self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
         self.config_store.set(section, 'lens_spec', str(lens_spec))
-        self.lenses.append(model)
+        if model not in self.lenses:
+            self.lenses.append(model)
         self.lenses.sort()
         self.config_store.set('technical', 'lenses', repr(self.lenses))
         return model
@@ -770,7 +772,8 @@ class Technical(QtWidgets.QWidget):
         model = self.lens_data.load_from_dialog(dialog)
         if not model:
             return
-        self.widgets['lens_model'].add_item(model, model)
+        if self.widgets['lens_model'].findText(model) < 0:
+            self.widgets['lens_model'].add_item(model, model)
 
     @QtCore.pyqtSlot()
     def new_aperture(self):
