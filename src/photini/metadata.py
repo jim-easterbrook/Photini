@@ -292,6 +292,15 @@ class LensSpec(MetadataDictValue):
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
                 self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
 
+    def contains(self, other):
+        if (not other) or (other.value == self.value):
+            return True
+        # only interested in non-zero values
+        for key in self.value:
+            if other.value[key] and other.value[key] != self.value[key]:
+                return False
+        return True
+
 
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
