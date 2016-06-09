@@ -264,4 +264,5 @@ setup(name = 'Photini',
           'picasa'   : ['requests-oauthlib >= 0.4', 'keyring >= 7.0'],
           'spelling' : ['pyenchant >= 1.6'],
           },
+      zip_safe = False,
       )
