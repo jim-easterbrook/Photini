@@ -539,11 +539,11 @@ class NewLensDialog(QtWidgets.QDialog):
         # fill in any values we can from existing metadata
         for image in images:
             if image.metadata.lens_model:
-                self.lens_model.setValue(image.metadata.lens_model.value)
+                self.lens_model.setText(image.metadata.lens_model.value)
             if image.metadata.lens_make:
-                self.lens_make.setValue(image.metadata.lens_make.value)
+                self.lens_make.setText(image.metadata.lens_make.value)
             if image.metadata.lens_serial:
-                self.lens_serial.setValue(image.metadata.lens_serial.value)
+                self.lens_serial.setText(image.metadata.lens_serial.value)
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
                 if spec and spec.value[key]:
