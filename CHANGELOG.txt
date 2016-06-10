@@ -16,6 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2016.06.0:
+  1/ Added option to resize photos for Facebook upload.
+  2/ Improved handling of various 'raw' image formats.
+  3/ Store time zone offset in Exif data.
+  4/ Read time zone offset from some cameras.
+  5/ Improved reading and display of lens specification.
+  6/ Fixed several minor bugs and annoyances.
+
 Changes in v2016.05.0:
   1/ Added a Facebook uploader tab.
   2/ Display logged in user details on uploader tabs.
