@@ -1129,7 +1129,7 @@ class Metadata(object):
             elif value[family].contains(new_value):
                 continue
             elif value[family].merge(new_value):
-                self.logger.warning(
+                self.logger.info(
                     '%s: merged %s into %s',
                     os.path.basename(self._path), tag, used_tag[family])
             else:
@@ -1152,7 +1152,7 @@ class Metadata(object):
                 if result.contains(other):
                     continue
                 elif result.merge(other, family):
-                    self.logger.warning(
+                    self.logger.info(
                         '%s: merged %s data into %s',
                         os.path.basename(self._path),
                         used_tag[family], used_tag[preference])
@@ -1165,7 +1165,7 @@ class Metadata(object):
         if (result and name.startswith('date_') and
                             result.tz_offset is None and self.timezone):
             result.tz_offset = self.timezone.value
-            self.logger.warning(
+            self.logger.info(
                 '%s: merged camera timezone offset into %s',
                 os.path.basename(self._path), used_tag[preference])
         # add value to object attributes so __getattr__ doesn't get
