@@ -63,7 +63,6 @@ def safe_fraction(value):
     return Fraction(value).limit_denominator(1000000)
 
 
-@six.python_2_unicode_compatible
 class MetadataValue(object):
     # base for classes that store a metadata value, e.g. a string, int
     # or float
@@ -518,7 +517,6 @@ class DateTime(MetadataDictValue):
         return result
 
 
-@six.python_2_unicode_compatible
 class MultiString(MetadataValue):
     def __init__(self, value):
         if isinstance(value, six.string_types):
