@@ -37,7 +37,7 @@ class BingMap(PhotiniMap):
 
     def load_api(self):
         src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
-        api_key = key_store.get('bing', 'api_key')
+        self.setProperty('api_key', key_store.get('bing', 'api_key'))
         lang, encoding = locale.getdefaultlocale()
         if lang:
             src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
@@ -47,10 +47,7 @@ class BingMap(PhotiniMap):
     <script charset="UTF-8" type="text/javascript"
       src="{0}">
     </script>
-    <script type="text/javascript">
-      var api_key = "{1}";
-    </script>
-""".format(src, api_key)
+""".format(src)
 
     def show_terms(self):
         # return widgets to display map terms and conditions

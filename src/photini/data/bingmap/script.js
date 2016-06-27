@@ -24,7 +24,7 @@ var searchManager;
 function initialize(lat, lng, zoom)
 {
   var mapOptions = {
-    credentials: api_key,
+    credentials: python.api_key,
     center: new Microsoft.Maps.Location(lat, lng),
     zoom: zoom,
     mapTypeId: Microsoft.Maps.MapTypeId.road,
