@@ -21,12 +21,12 @@ var map;
 var markers = {};
 var searchManager;
 
-function initialize(lat, lng, zoom)
+function initialize()
 {
   var mapOptions = {
     credentials: python.api_key,
-    center: new Microsoft.Maps.Location(lat, lng),
-    zoom: zoom,
+    center: new Microsoft.Maps.Location(python.lat, python.lng),
+    zoom: python.zoom,
     mapTypeId: Microsoft.Maps.MapTypeId.road,
     disableBirdseye: true,
     enableClickableLogo: false,

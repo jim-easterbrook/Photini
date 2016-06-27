@@ -166,16 +166,19 @@ class PhotiniMap(QtWidgets.QWidget):
     <script type="text/javascript" src="script.js">
     </script>
   </head>
-  <body ondragstart="return false" onload="initialize({:f}, {:f}, {:d})">
+  <body ondragstart="return false" onload="initialize()">
     <div id="mapDiv" style="width:100%; height:100%"></div>
   </body>
 </html>
 """
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
+        self.setProperty('lat', lat)
+        self.setProperty('lng', lng)
+        self.setProperty('zoom', zoom)
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
-            page_start + self.load_api() + page_end.format(lat, lng, zoom),
+            page_start + self.load_api() + page_end,
             QtCore.QUrl.fromLocalFile(self.script_dir))
 
     @QtCore.pyqtSlot(bool)

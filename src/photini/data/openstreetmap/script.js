@@ -19,11 +19,11 @@
 var map;
 var markers = {};
 
-function initialize(lat, lng, zoom)
+function initialize()
 {
   map = L.map("mapDiv", {
-    center: [lat, lng],
-    zoom: zoom,
+    center: [python.lat, python.lng],
+    zoom: python.zoom,
     attributionControl: false
   });
   L.tileLayer(

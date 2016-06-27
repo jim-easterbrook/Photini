@@ -20,14 +20,14 @@ var geocoder;
 var map;
 var markers = {};
 
-function initialize(lat, lng, zoom)
+function initialize()
 {
   var mapOptions =
   {
-    center: new google.maps.LatLng(lat, lng),
+    center: new google.maps.LatLng(python.lat, python.lng),
     panControl: true,
     streetViewControl: false,
-    zoom: zoom,
+    zoom: python.zoom,
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
