@@ -73,6 +73,7 @@ class WebView(QtWebKitWidgets.QWebView):
 class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
@@ -128,6 +129,10 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().addWidget(self.load_map, 7, 0)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
+
+    @QtCore.pyqtSlot(int, six.text_type)
+    def log(self, level, message):
+        self.logger.log(level, message)
 
     @QtCore.pyqtSlot()
     def java_script_window_object_cleared(self):
