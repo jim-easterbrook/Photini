@@ -184,19 +184,21 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):
         QtWidgets.QApplication.restoreOverrideCursor()
-        if success:
-            self.map_loaded = True
-            self.layout().removeWidget(self.load_map)
-            self.load_map.setParent(None)
-            show_terms = QtWidgets.QVBoxLayout()
-            for widget in self.show_terms():
-                widget.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
-                show_terms.addWidget(widget)
-            self.layout().addLayout(show_terms, 7, 0)
-            self.edit_box.setEnabled(True)
-            self.map.setAcceptDrops(True)
-            self.new_images()
-            self.image_list.set_drag_to_map(self.drag_icon)
+
+    @QtCore.pyqtSlot()
+    def initialize_finished(self):
+        self.map_loaded = True
+        self.layout().removeWidget(self.load_map)
+        self.load_map.setParent(None)
+        show_terms = QtWidgets.QVBoxLayout()
+        for widget in self.show_terms():
+            widget.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
+            show_terms.addWidget(widget)
+        self.layout().addLayout(show_terms, 7, 0)
+        self.edit_box.setEnabled(True)
+        self.map.setAcceptDrops(True)
+        self.new_images()
+        self.image_list.set_drag_to_map(self.drag_icon)
 
     def refresh(self):
         if not self.map_loaded:

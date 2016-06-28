@@ -34,6 +34,7 @@ function initialize()
     }
     ).addTo(map);
   map.on('moveend zoomend', newBounds);
+  python.initialize_finished();
 }
 
 function newBounds(event)

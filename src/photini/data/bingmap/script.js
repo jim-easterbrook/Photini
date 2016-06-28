@@ -38,6 +38,7 @@ function initialize()
   Microsoft.Maps.Events.addHandler(map, 'copyrightchanged', newCopyright);
   Microsoft.Maps.loadModule(
     'Microsoft.Maps.Search', {callback: searchModuleLoaded});
+  python.initialize_finished();
 }
 
 function newCopyright()

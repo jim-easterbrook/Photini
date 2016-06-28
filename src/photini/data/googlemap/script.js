@@ -33,6 +33,7 @@ function initialize()
   map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
   geocoder = new google.maps.Geocoder();
   google.maps.event.addListener(map, 'idle', newBounds);
+  python.initialize_finished();
 }
 
 function newBounds()
