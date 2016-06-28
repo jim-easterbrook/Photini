@@ -145,7 +145,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def image_list_changed(self):
         self.new_images()
-        self.see_all()
+        self._see_markers(self.image_list.get_images())
 
     @QtCore.pyqtSlot()
     def initialise(self):
@@ -197,7 +197,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().addLayout(show_terms, 7, 0)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        self.new_images()
+        self.image_list_changed()
         self.image_list.set_drag_to_map(self.drag_icon)
 
     def refresh(self):
@@ -255,9 +255,6 @@ class PhotiniMap(QtWidgets.QWidget):
             self._add_image(image)
         self.display_coords()
         self.see_selection()
-
-    def see_all(self):
-        self._see_markers(self.image_list.get_images())
 
     def see_selection(self):
         self._see_markers(self.image_list.get_selected_images())
