@@ -20,7 +20,7 @@
 from collections import namedtuple
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWebKitWidgets, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
 except ImportError:
@@ -29,7 +29,8 @@ except ImportError:
     sip.setapi('QVariant', 2)
     from PyQt4 import QtCore, QtGui
     QtWidgets = QtGui
-    from PyQt4 import QtWebKit as QtWebKitWidgets
+    from PyQt4 import QtWebKit
+    QtWebKitWidgets = QtWebKit
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
 
