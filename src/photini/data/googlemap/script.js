@@ -48,23 +48,9 @@ function setView(lat, lng, zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function seeMarkers(ids)
+function seeBox(lat0, lng0, lat1, lng1)
 {
-  var bounds;
-  for (var i = 0; i < ids.length; i++)
-  {
-    var marker = markers[ids[i]];
-    if (marker)
-    {
-      var position = marker.getPosition();
-      if (bounds)
-        bounds.extend(position);
-      else
-        bounds = new google.maps.LatLngBounds(position, position);
-    }
-  }
-  if (!bounds)
-    return;
+  bounds = new google.maps.LatLngBounds({lat: lat0, lng: lng0}, {lat: lat1, lng: lng1});
   var map_span = map.getBounds().toSpan();
   var map_height = map_span.lat();
   var map_width = map_span.lng();

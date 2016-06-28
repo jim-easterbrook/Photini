@@ -260,15 +260,24 @@ class PhotiniMap(QtWidgets.QWidget):
         self._see_markers(self.image_list.get_selected_images())
 
     def _see_markers(self, images):
-        marker_ids = []
+        bounds = None
         for image in images:
-            marker_id = self._marker_lookup(image)
-            if marker_id and marker_id not in marker_ids:
-                marker_ids.append(marker_id)
-        if not marker_ids:
+            latlong = image.metadata.latlong
+            if not latlong:
+                continue
+            if not bounds:
+                bounds = latlong.lat, latlong.lon, latlong.lat, latlong.lon
+            else:
+                lat, lon = latlong.lat, latlong.lon
+                if lon > bounds[1] + 180.0:
+                    lon -= 360.0
+                elif lon < bounds[1] - 180.0:
+                    lon += 360.0
+                bounds = (min(bounds[0], lat), min(bounds[1], lon),
+                          max(bounds[2], lat), max(bounds[3], lon))
+        if not bounds:
             return
-        marker_ids = '","'.join(marker_ids)
-        self.JavaScript('seeMarkers(["{}"])'.format(marker_ids))
+        self.JavaScript('seeBox({:f},{:f},{:f},{:f})'.format(*bounds))
 
     def display_coords(self):
         images = self.image_list.get_selected_images()

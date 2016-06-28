@@ -62,18 +62,11 @@ function setView(lat, lng, zoom)
   map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function seeMarkers(ids)
+function seeBox(lat0, lng0, lat1, lng1)
 {
-  var locations = [];
-  for (var i = 0; i < ids.length; i++)
-  {
-    var marker = markers[ids[i]];
-    if (marker)
-      locations.push(marker.getLocation());
-  }
-  if (locations.length == 0)
-    return;
-  var bounds = Microsoft.Maps.LocationRect.fromLocations(locations);
+
+  var bounds = Microsoft.Maps.LocationRect.fromCorners(
+      new Microsoft.Maps.Location(lat0, lng0), new Microsoft.Maps.Location(lat1, lng1));
   var map_bounds = map.getBounds();
   // expand bounds to allow a margin
   var bounds = new Microsoft.Maps.LocationRect(bounds.center,

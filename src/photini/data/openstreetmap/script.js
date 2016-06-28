@@ -48,18 +48,9 @@ function setView(lat, lng, zoom)
   map.setView(new L.LatLng(lat, lng), zoom);
 }
 
-function seeMarkers(ids)
+function seeBox(lat0, lng0, lat1, lng1)
 {
-  var locations = [];
-  for (var i = 0; i < ids.length; i++)
-  {
-    var marker = markers[ids[i]];
-    if (marker)
-      locations.push(marker.getLatLng());
-  }
-  if (locations.length == 0)
-    return;
-  var bounds = new L.LatLngBounds(locations);
+  var bounds = new L.LatLngBounds([lat0, lng0], [lat1, lng1]);
   var map_bounds = map.getBounds();
   var sw = bounds.getSouthWest();
   var ne = bounds.getNorthEast();
