@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 import six
 import logging
 import os
+from six.moves.urllib.error import HTTPError
 from six.moves.urllib.request import urlopen
 import xml.etree.ElementTree as ET
 
@@ -335,6 +336,7 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         album_form_right.addRow(self.tr('Date'), self.widgets['timestamp'])
         # album thumbnail
         self.album_thumb = QtWidgets.QLabel()
+        self.album_thumb.setFixedWidth(160)
         album_form_right.addRow(self.album_thumb)
         self.layout().addWidget(album_group)
 
@@ -378,8 +380,16 @@ class PicasaUploadConfig(QtWidgets.QWidget):
                 QtWidgets.QApplication.processEvents()
                 with Busy():
                     url = album.group.thumbnail[0].get('url')
-                    image = QtGui.QPixmap()
-                    image.loadFromData(urlopen(url).read())
+                    image = QtGui.QPixmap(160, 160)
+                    try:
+                        image.loadFromData(urlopen(url).read())
+                    except HTTPError as ex:
+                        paint = QtGui.QPainter(image)
+                        paint.fillRect(image.rect(), Qt.black)
+                        paint.setPen(Qt.white)
+                        paint.drawText(image.rect(),
+                                       Qt.AlignLeft | Qt.TextWordWrap, str(ex))
+                        paint.end()
                     self.album_thumb.setPixmap(image)
         else:
             self.widgets['description'].set_value(None)
