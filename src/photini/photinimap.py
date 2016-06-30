@@ -377,26 +377,17 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(six.text_type)
     def marker_click(self, marker_id):
-        image = self.marker_images[marker_id][0]
-        self.image_list.select_image(image)
+        multiple_selection = False
+        for image in self.marker_images[marker_id]:
+            self.image_list.select_image(
+                image, multiple_selection=multiple_selection)
+            multiple_selection = True
 
     @QtCore.pyqtSlot(float, float, six.text_type)
     def marker_drag(self, lat, lng, marker_id):
-        self._set_metadata(self.marker_images[marker_id][0], lat, lng)
+        for image in self.marker_images[marker_id]:
+            self._set_metadata(image, lat, lng)
         self.display_coords()
-        if len(self.marker_images[marker_id]) > 1:
-            latlong = self.marker_images[marker_id][1].metadata.latlong
-            self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
-                'temp_id', latlong.lat, latlong.lon, False))
-            self.marker_images['temp_id'] = self.marker_images[marker_id][1:]
-            del self.marker_images[marker_id][1:]
-
-    @QtCore.pyqtSlot(float, float, six.text_type)
-    def marker_drag_end(self, lat, lng, marker_id):
-        self._set_metadata(self.marker_images[marker_id][0], lat, lng)
-        self.display_coords()
-        self.redraw_markers()
-        self.see_selection()
 
     def _set_metadata(self, image, lat, lng):
         image.metadata.latlong = lat, lng

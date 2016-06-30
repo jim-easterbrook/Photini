@@ -138,7 +138,7 @@ function markerDrag(event)
 function markerDragEnd(event)
 {
   var loc = this.getLatLng();
-  python.marker_drag_end(loc.lat, loc.lng, this._id);
+  python.marker_drag(loc.lat, loc.lng, this._id);
 }
 
 function delMarker(id)

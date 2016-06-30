@@ -132,7 +132,7 @@ function addMarker(id, lat, lng, active)
   Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
   Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
   Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
-  Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
+  Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
   enableMarker(id, active);
 }
 
@@ -153,13 +153,6 @@ function markerDrag(event)
   var marker = event.entity;
   var loc = marker.getLocation();
   python.marker_drag(loc.latitude, loc.longitude, marker._id);
-}
-
-function markerDragEnd(event)
-{
-  var marker = event.entity;
-  var loc = marker.getLocation();
-  python.marker_drag_end(loc.latitude, loc.longitude, marker._id);
 }
 
 function delMarker(id)
