@@ -144,7 +144,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def image_list_changed(self):
-        self.new_images()
+        self.redraw_markers()
         self._see_markers(self.image_list.get_images())
 
     @QtCore.pyqtSlot()
@@ -207,7 +207,6 @@ class PhotiniMap(QtWidgets.QWidget):
         zoom = eval(self.config_store.get('map', 'zoom'))
         self.JavaScript(
             'setView({0}, {1}, {2:d})'.format(repr(lat), repr(lng), zoom))
-        self.new_images()
         self.image_list.set_drag_to_map(self.drag_icon)
 
     def do_not_close(self):
@@ -229,12 +228,6 @@ class PhotiniMap(QtWidgets.QWidget):
             self._add_image(image)
         self.display_coords()
         self.see_selection()
-
-    def _marker_lookup(self, image):
-        for marker_id in self.marker_images:
-            if image in self.marker_images[marker_id]:
-                return marker_id
-        return None
 
     @QtCore.pyqtSlot()
     def new_coords(self):
@@ -300,14 +293,13 @@ class PhotiniMap(QtWidgets.QWidget):
             self.coords.setEnabled(True)
         else:
             self.coords.setEnabled(False)
-        for marker_id in self.marker_images:
+        for marker_id, images in self.marker_images.items():
             self.JavaScript('enableMarker("{}", {:d})'.format(
-                marker_id,
-                any([image.selected for image in self.marker_images[marker_id]])))
+                marker_id, any([image.selected for image in images])))
         self.display_coords()
         self.see_selection()
 
-    def new_images(self):
+    def redraw_markers(self):
         self.JavaScript('removeMarkers()')
         self.marker_images = {}
         for image in self.image_list.get_images():
@@ -332,17 +324,17 @@ class PhotiniMap(QtWidgets.QWidget):
                 image.selected))
 
     def _remove_image(self, image):
-        marker_id = self._marker_lookup(image)
-        if not marker_id:
+        marker_id = str(image.metadata.latlong)
+        if marker_id not in self.marker_images:
             return
         self.marker_images[marker_id].remove(image)
-        if len(self.marker_images[marker_id]) < 1:
-            self.JavaScript('delMarker("{}")'.format(marker_id))
-            del self.marker_images[marker_id]
-        else:
+        if self.marker_images[marker_id]:
             self.JavaScript('enableMarker("{}", {:d})'.format(
                 marker_id,
                 any([image.selected for image in self.marker_images[marker_id]])))
+        else:
+            self.JavaScript('delMarker("{}")'.format(marker_id))
+            del self.marker_images[marker_id]
 
     @QtCore.pyqtSlot(str)
     def search(self, search_string=None):
@@ -403,7 +395,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def marker_drag_end(self, lat, lng, marker_id):
         self._set_metadata(self.marker_images[marker_id][0], lat, lng)
         self.display_coords()
-        self.new_images()
+        self.redraw_markers()
         self.see_selection()
 
     def _set_metadata(self, image, lat, lng):
