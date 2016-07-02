@@ -48,32 +48,18 @@ function setView(lat, lng, zoom)
   map.setView(new L.LatLng(lat, lng), zoom);
 }
 
-function seeBox(lat0, lng0, lat1, lng1)
+function getMapBounds()
 {
-  var bounds = new L.LatLngBounds([lat0, lng0], [lat1, lng1]);
   var map_bounds = map.getBounds();
-  var sw = bounds.getSouthWest();
-  var ne = bounds.getNorthEast();
   var map_sw = map_bounds.getSouthWest();
   var map_ne = map_bounds.getNorthEast();
-  var map_height = map_ne.lat - map_sw.lat;
-  var map_width = map_ne.lng - map_sw.lng;
-  map_ne = new L.LatLng(map_ne.lat - (map_height / 10.0), map_ne.lng - (map_width / 10.0));
-  map_sw = new L.LatLng(map_sw.lat + (map_height / 10.0), map_sw.lng + (map_width / 10.0));
-  if ((ne.lat - sw.lat > map_ne.lat - map_sw.lat) |
-      (ne.lng - sw.lng > map_ne.lng - map_sw.lng))
-  {
-    map.fitBounds(bounds);
-    return;
-  }
-  var lat_shift = 0;
-  lat_shift = Math.max(lat_shift, ne.lat - map_ne.lat);
-  lat_shift = Math.min(lat_shift, sw.lat - map_sw.lat);
-  var lng_shift = 0;
-  lng_shift = Math.max(lng_shift, ne.lng - map_ne.lng);
-  lng_shift = Math.min(lng_shift, sw.lng - map_sw.lng);
-  var centre = map.getCenter();
-  map.panTo([centre.lat + lat_shift, centre.lng + lng_shift]);
+  return [map_sw.lat, map_sw.lng, map_ne.lat, map_ne.lng];
+}
+
+function adjustBounds(lat0, lng0, lat1, lng1)
+{
+  var bounds = new L.LatLngBounds([lat0, lng0], [lat1, lng1]);
+  map.fitBounds(bounds);
 }
 
 function goTo(lat, lng)

@@ -62,32 +62,18 @@ function setView(lat, lng, zoom)
   map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function seeBox(lat0, lng0, lat1, lng1)
+function getMapBounds()
 {
+  var map_bounds = map.getBounds();
+  return [map_bounds.getSouth(), map_bounds.getWest(),
+          map_bounds.getNorth(), map_bounds.getEast()];
+}
 
+function adjustBounds(lat0, lng0, lat1, lng1)
+{
   var bounds = Microsoft.Maps.LocationRect.fromCorners(
       new Microsoft.Maps.Location(lat0, lng0), new Microsoft.Maps.Location(lat1, lng1));
-  var map_bounds = map.getBounds();
-  // expand bounds to allow a margin
-  var bounds = new Microsoft.Maps.LocationRect(bounds.center,
-    bounds.width + (map_bounds.width * 0.4),
-    bounds.height + (map_bounds.height * 0.4))
-  if (bounds.width > map_bounds.width | bounds.height > map_bounds.height)
-  {
-    map.setView({bounds: bounds});
-    return;
-  }
-  var lat_shift = 0;
-  lat_shift = Math.max(lat_shift, bounds.getNorth() - map_bounds.getNorth());
-  lat_shift = Math.min(lat_shift, bounds.getSouth() - map_bounds.getSouth());
-  var lng_shift = 0;
-  lng_shift = Math.max(lng_shift, bounds.getEast() - map_bounds.getEast());
-  lng_shift = Math.min(lng_shift, bounds.getWest() - map_bounds.getWest());
-  var centre = map.getCenter();
-  map.setView({
-    center: new Microsoft.Maps.Location(
-      centre.latitude + lat_shift, centre.longitude + lng_shift)
-  });
+  map.setView({bounds: bounds});
 }
 
 function goTo(lat, lng)

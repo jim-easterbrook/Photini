@@ -48,23 +48,18 @@ function setView(lat, lng, zoom)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function seeBox(lat0, lng0, lat1, lng1)
+function getMapBounds()
+{
+  var map_bounds = map.getBounds();
+  var map_sw = map_bounds.getSouthWest();
+  var map_ne = map_bounds.getNorthEast();
+  return [map_sw.lat(), map_sw.lng(), map_ne.lat(), map_ne.lng()];
+}
+
+function adjustBounds(lat0, lng0, lat1, lng1)
 {
   bounds = new google.maps.LatLngBounds({lat: lat0, lng: lng0}, {lat: lat1, lng: lng1});
-  var map_span = map.getBounds().toSpan();
-  var map_height = map_span.lat();
-  var map_width = map_span.lng();
-  var ne = bounds.getNorthEast();
-  var sw = bounds.getSouthWest();
-  bounds.extend((new google.maps.LatLng(ne.lat() + (map_height / 20.0),
-					ne.lng() + (map_width / 20.0))));
-  bounds.extend((new google.maps.LatLng(sw.lat() - (map_height / 20.0),
-					sw.lng() - (map_width / 20.0))));
-  var span = bounds.toSpan();
-  if ((span.lat() > map_height) | (span.lng() > map_width))
-    map.fitBounds(bounds);
-  else
-    map.panToBounds(bounds);
+  map.fitBounds(bounds);
 }
 
 function goTo(lat, lng)

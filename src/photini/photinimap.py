@@ -270,7 +270,30 @@ class PhotiniMap(QtWidgets.QWidget):
                           max(bounds[2], lat), max(bounds[3], lon))
         if not bounds:
             return
-        self.JavaScript('seeBox({:f},{:f},{:f},{:f})'.format(*bounds))
+        map_bounds = self.JavaScript('getMapBounds()')
+        if not map_bounds:
+            return
+        map_height = map_bounds[2] - map_bounds[0]
+        map_width = map_bounds[3] - map_bounds[1]
+        bounds = (bounds[0] - (map_height * 0.04),
+                  bounds[1] - (map_width  * 0.04),
+                  bounds[2] + (map_height * 0.13),
+                  bounds[3] + (map_width  * 0.04))
+        if ((bounds[2] - bounds[0]) <= map_height and
+            (bounds[3] - bounds[1]) <= map_width):
+            # pan map
+            lat_shift = 0.0
+            lat_shift = min(lat_shift, bounds[0] - map_bounds[0])
+            lat_shift = max(lat_shift, bounds[2] - map_bounds[2])
+            lng_shift = 0.0
+            lng_shift = min(lng_shift, bounds[1] - map_bounds[1])
+            lng_shift = max(lng_shift, bounds[3] - map_bounds[3])
+            lat = ((map_bounds[0] + map_bounds[2]) / 2.0) + lat_shift
+            lng = ((map_bounds[1] + map_bounds[3]) / 2.0) + lng_shift
+            self.JavaScript('goTo({:f},{:f})'.format(lat, lng))
+            return
+        self.JavaScript(
+            'adjustBounds({:f},{:f},{:f},{:f})'.format(*bounds))
 
     def display_coords(self):
         images = self.image_list.get_selected_images()
