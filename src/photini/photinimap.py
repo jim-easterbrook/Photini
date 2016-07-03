@@ -145,7 +145,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def image_list_changed(self):
         self.redraw_markers()
-        self._see_markers(self.image_list.get_images())
+        self.see_selection()
 
     @QtCore.pyqtSlot()
     def initialise(self):
@@ -250,11 +250,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.see_selection()
 
     def see_selection(self):
-        self._see_markers(self.image_list.get_selected_images())
-
-    def _see_markers(self, images):
         bounds = None
-        for image in images:
+        for image in self.image_list.get_selected_images():
             latlong = image.metadata.latlong
             if not latlong:
                 continue
@@ -290,7 +287,7 @@ class PhotiniMap(QtWidgets.QWidget):
             lng_shift = max(lng_shift, bounds[3] - map_bounds[3])
             lat = ((map_bounds[0] + map_bounds[2]) / 2.0) + lat_shift
             lng = ((map_bounds[1] + map_bounds[3]) / 2.0) + lng_shift
-            self.JavaScript('goTo({:f},{:f})'.format(lat, lng))
+            self.JavaScript('panTo({:f},{:f})'.format(lat, lng))
             return
         self.JavaScript(
             'adjustBounds({:f},{:f},{:f},{:f})'.format(*bounds))

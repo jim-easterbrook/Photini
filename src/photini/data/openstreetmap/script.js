@@ -68,6 +68,11 @@ function goTo(lat, lng)
     new L.LatLng(lat, lng), Math.min(Math.max(map.getZoom(), 11), 16));
 }
 
+function panTo(lat, lng)
+{
+  map.setView(new L.LatLng(lat, lng));
+}
+
 function enableMarker(id, active)
 {
   var marker = markers[id];

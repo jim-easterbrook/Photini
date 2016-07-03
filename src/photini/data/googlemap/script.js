@@ -72,6 +72,11 @@ function goTo(lat, lng)
   map.panTo(new google.maps.LatLng(lat, lng));
 }
 
+function panTo(lat, lng)
+{
+  map.panTo(new google.maps.LatLng(lat, lng));
+}
+
 function enableMarker(id, active)
 {
   var marker = markers[id];

@@ -84,6 +84,11 @@ function goTo(lat, lng)
   });
 }
 
+function panTo(lat, lng)
+{
+  map.setView({center: new Microsoft.Maps.Location(lat, lng)});
+}
+
 function enableMarker(id, active)
 {
   var marker = markers[id];
