@@ -356,7 +356,7 @@ class PhotiniMap(QtWidgets.QWidget):
             self.JavaScript('delMarker("{}")'.format(marker_id))
             del self.marker_images[marker_id]
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.pyqtSlot()
     def search(self, search_string=None):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
