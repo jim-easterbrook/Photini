@@ -23,6 +23,8 @@ try:
     from PyQt5 import QtCore, QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
+    import sip
+    sip.setdestroyonexit(True)
 except ImportError:
     import sip
     sip.setapi('QString', 2)
