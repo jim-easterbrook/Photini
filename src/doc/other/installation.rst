@@ -137,6 +137,7 @@ or ::
 If PyQt is installed then one of these will run without generating any error message.
 
 Linux users should use their package manager to install ``python-qt4`` or ``python-qt5``.
+On some Linux systems you may also need to install the Qt WebKit package, e.g. ``qt5-webkit``.
 Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
 
 gexiv2
