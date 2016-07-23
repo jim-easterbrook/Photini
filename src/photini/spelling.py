@@ -110,7 +110,7 @@ class SpellCheck(QtCore.QObject):
 
 
 class SpellingHighlighter(QtGui.QSyntaxHighlighter):
-    words = re.compile('[\w]+', flags=re.IGNORECASE | re.UNICODE)
+    words = re.compile("[-'\w]+", flags=re.IGNORECASE | re.UNICODE)
 
     def __init__(self, *arg, **kw):
         super(SpellingHighlighter, self).__init__(*arg, **kw)
