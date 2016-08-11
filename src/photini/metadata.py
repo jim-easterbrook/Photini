@@ -543,7 +543,14 @@ class String(MetadataValue):
     def __init__(self, value):
         if isinstance(value, list):
             value = value[0]
-        super(String, self).__init__(six.text_type(value).strip())
+        super(String, self).__init__(value)
+
+    @classmethod
+    def from_exif(cls, file_value):
+        value = six.text_type(file_value).strip()
+        if not value:
+            return None
+        return cls(value)
 
     def contains(self, other):
         return (not other) or (other.value in self.value)
