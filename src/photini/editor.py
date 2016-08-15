@@ -19,14 +19,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-"""
-usage: editor.py [options]
-options are:
-  -h       | --help        display this help
-  -v       | --verbose     increase number of logging messages
-  -V       | --version     display version information and exit
-"""
-
 from __future__ import unicode_literals
 
 import six
@@ -75,7 +67,7 @@ class QTabBar(QtWidgets.QTabBar):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, verbose, initial_files):
+    def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
         self.setWindowTitle(self.tr("Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
@@ -85,7 +77,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(icon)
         self.selection = list()
         # logger window
-        self.loggerwindow = LoggerWindow(verbose)
+        self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
         self.logger = logging.getLogger(self.__class__.__name__)
         # set network proxy
@@ -98,6 +90,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
+        self.app.test_mode = options.test
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
@@ -378,12 +371,16 @@ def main(argv=None):
         description=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Photini photo metadata editor')))
     parser.add_option(
+        '-t', '--test', action='store_true',
+        help=six.text_type(QtCore.QCoreApplication.translate(
+            'main', 'test new features or API versions')))
+    parser.add_option(
         '-v', '--verbose', action='count', default=0,
         help=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'increase number of logging messages')))
     options, args = parser.parse_args()
     # create GUI and run application event loop
-    main = MainWindow(options.verbose, args)
+    main = MainWindow(options, args)
     main.show()
     return app.exec_()
 
