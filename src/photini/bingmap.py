@@ -27,22 +27,31 @@ import six
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtWidgets
+from .pyqt import QtCore, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         self.copyright_widget = QtWidgets.QLabel()
         self.copyright_widget.setWordWrap(True)
         super(BingMap, self).__init__(*arg, **kw)
+        self.map.settings().setAttribute(
+            QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+        self.map.settings().setAttribute(
+            QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
 
     def load_api(self):
-        src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
-        self.setProperty('api_key', key_store.get('bing', 'api_key'))
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
+        if self.app.test_mode:
+            src = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
+            src += '&branch=experimental'
         else:
-            src += '&mkt=ngt'
+            src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
+        self.setProperty('api_key', key_store.get('bing', 'api_key'))
+        if not self.app.test_mode:
+            lang, encoding = locale.getdefaultlocale()
+            if lang:
+                src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
+            else:
+                src += '&mkt=ngt'
         return """
     <script charset="UTF-8" type="text/javascript"
       src="{0}">

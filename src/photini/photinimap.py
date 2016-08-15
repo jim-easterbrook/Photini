@@ -74,7 +74,8 @@ class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.app = QtWidgets.QApplication.instance()
+        self.config_store = self.app.config_store
         self.image_list = image_list
         self.multiple_values = multiple_values()
         self.script_dir = pkg_resources.resource_filename(

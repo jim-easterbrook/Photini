@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,6 +31,8 @@ from .pyqt import QtCore, QtWidgets
 class GoogleMap(PhotiniMap):
     def load_api(self):
         url = 'http://maps.googleapis.com/maps/api/js?v=3'
+        if self.app.test_mode:
+            url += '.exp'
         url += '&key=' + key_store.get('google', 'api_key')
         lang, encoding = locale.getdefaultlocale()
         if lang:
