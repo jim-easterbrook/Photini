@@ -141,6 +141,8 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def link_clicked(self, url):
+        if url.isLocalFile():
+            url.setScheme('http')
         webbrowser.open_new(url.toString())
 
     @QtCore.pyqtSlot()
