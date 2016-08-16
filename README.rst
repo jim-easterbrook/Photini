@@ -116,7 +116,7 @@ Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Goo
 
 Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
 
-Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `MapQuest Terms of Use`_.
+Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `OpenStreetMap licence`_.
 
 Privacy statement
 ^^^^^^^^^^^^^^^^^
@@ -149,8 +149,6 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _Linux Format:  http://www.linuxformat.com/archives?issue=166
 .. _localisation documentation:
                    http://photini.readthedocs.io/en/latest/other/localisation.html
-.. _MapQuest Terms of Use:
-                   http://hello.mapquest.com/terms-of-use
 .. _Microsoft Bing Maps Terms of Use:
                    http://www.microsoft.com/maps/assets/docs/terms.aspx
 .. _Microsoft Privacy Statement:
@@ -158,6 +156,8 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _Nominatim usage policy:
                    http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
 .. _OAuth:         http://oauth.net/
+.. _OpenStreetMap licence:
+                   http://www.openstreetmap.org/copyright
 .. _Photini team on Transifex:
                    https://www.transifex.com/projects/p/photini/
 .. _Picasa:        http://picasaweb.google.com/

@@ -52,11 +52,11 @@ class OpenStreetMap(PhotiniMap):
         if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
         load_tou = QtWidgets.QPushButton(
-            self.tr('Map data by OpenStreetMap\nunder ODbL'))
+            self.trUtf8('Map data ©OpenStreetMap contributors\nlicensed under ODbL'))
         load_tou.clicked.connect(self.load_tou_osm)
         yield load_tou
         load_tou = QtWidgets.QPushButton(
-            self.tr('Map tiles by Stamen Design\nunder CC BY 3.0'))
+            self.tr('Map tiles by Stamen Design\nlicensed under CC BY 3.0'))
         load_tou.clicked.connect(self.load_tou_tiles)
         yield load_tou
 
