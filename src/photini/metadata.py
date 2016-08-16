@@ -42,7 +42,7 @@ for gexiv2_vsn in ('0.10', '0.4'):
 from gi.repository import GObject, GExiv2
 import six
 
-from . import __version__
+from photini import __version__
 
 logger = logging.getLogger(__name__)
 

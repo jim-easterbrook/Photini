@@ -37,10 +37,10 @@ import requests
 from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder
 
-from .configstore import key_store
-from .descriptive import MultiLineEdit, SingleLineEdit
-from .pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
-from .uploader import PhotiniUploader
+from photini.configstore import key_store
+from photini.descriptive import MultiLineEdit, SingleLineEdit
+from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
+from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
 cities_cache = []

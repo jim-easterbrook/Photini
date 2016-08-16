@@ -24,9 +24,9 @@ import os
 import re
 import webbrowser
 
-from .configstore import key_store
-from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtWidgets
+from photini.configstore import key_store
+from photini.photinimap import PhotiniMap
+from photini.pyqt import QtCore, QtWidgets
 
 class GoogleMap(PhotiniMap):
     def load_api(self):

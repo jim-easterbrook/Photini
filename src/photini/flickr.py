@@ -29,10 +29,10 @@ import time
 import flickrapi
 import keyring
 
-from .configstore import key_store
-from .descriptive import MultiLineEdit, SingleLineEdit
-from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
-from .uploader import PhotiniUploader
+from photini.configstore import key_store
+from photini.descriptive import MultiLineEdit, SingleLineEdit
+from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
+from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
 

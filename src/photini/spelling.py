@@ -61,7 +61,7 @@ if sys.platform == 'win32x':
                 enchant.set_param('enchant.myspell.dictionary.path', dict_path)
                 break
 
-from .pyqt import Qt, QtCore, QtGui, QtWidgets
+from photini.pyqt import Qt, QtCore, QtGui, QtWidgets
 
 
 class SpellCheck(QtCore.QObject):

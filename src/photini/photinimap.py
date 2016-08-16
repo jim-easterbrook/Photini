@@ -27,9 +27,9 @@ import webbrowser
 import pkg_resources
 import six
 
-from .imagelist import DRAG_MIMETYPE
-from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
-from . import __version__
+from photini.imagelist import DRAG_MIMETYPE
+from photini.pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
+from photini import __version__
 
 translate = QtCore.QCoreApplication.translate
 

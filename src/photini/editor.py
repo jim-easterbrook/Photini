@@ -32,32 +32,32 @@ import webbrowser
 
 import pkg_resources
 
-from .configstore import ConfigStore
-from .bingmap import BingMap
-from .descriptive import Descriptive
+from photini.configstore import ConfigStore
+from photini.bingmap import BingMap
+from photini.descriptive import Descriptive
 try:
-    from .facebook import FacebookUploader
+    from photini.facebook import FacebookUploader
 except ImportError:
     FacebookUploader = None
 try:
-    from .flickr import FlickrUploader
+    from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
-from .editsettings import EditSettings
-from .googlemap import GoogleMap
-from .importer import Importer
-from .metadata import gexiv2_version
-from .openstreetmap import OpenStreetMap
-from .imagelist import ImageList
-from .loggerwindow import LoggerWindow
+from photini.editsettings import EditSettings
+from photini.googlemap import GoogleMap
+from photini.importer import Importer
+from photini.metadata import gexiv2_version
+from photini.openstreetmap import OpenStreetMap
+from photini.imagelist import ImageList
+from photini.loggerwindow import LoggerWindow
 try:
-    from .picasa import PicasaUploader
+    from photini.picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
-from .pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
-from .spelling import enchant_version, SpellCheck
-from .technical import Technical
-from . import __version__, build
+from photini.pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
+from photini.spelling import enchant_version, SpellCheck
+from photini.technical import Technical
+from photini import __version__, build
 
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
@@ -362,7 +362,7 @@ def main(argv=None):
     if enchant_version:
         version += '\n  ' + enchant_version
     if FlickrUploader:
-        from .flickr import flickr_version
+        from photini.flickr import flickr_version
         version += '\n  ' + flickr_version
     parser = OptionParser(
         usage=six.text_type(QtCore.QCoreApplication.translate(

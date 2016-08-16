@@ -33,8 +33,8 @@ try:
 except ImportError:
     gp = None
 
-from .metadata import Metadata
-from .pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets, StartStopButton
+from photini.metadata import Metadata
+from photini.pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
 class FolderSource(object):
     def __init__(self, root):

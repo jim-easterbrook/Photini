@@ -30,10 +30,10 @@ import keyring
 import requests
 from requests_oauthlib import OAuth2Session
 
-from .configstore import key_store
-from .descriptive import MultiLineEdit
-from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
-from .uploader import PhotiniUploader
+from photini.configstore import key_store
+from photini.descriptive import MultiLineEdit
+from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
+from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
 

@@ -29,7 +29,7 @@ import sys
 import appdirs
 import pkg_resources
 
-from .pyqt import QtCore
+from photini.pyqt import QtCore
 
 class ConfigStore(QtCore.QObject):
     def __init__(self, name, *arg, **kw):

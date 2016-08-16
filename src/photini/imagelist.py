@@ -27,8 +27,8 @@ import subprocess
 import sys
 from six.moves.urllib.parse import unquote
 
-from .metadata import Metadata
-from .pyqt import (
+from photini.metadata import Metadata
+from photini.pyqt import (
     Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info)
 
 DRAG_MIMETYPE = 'application/x-photini-image'

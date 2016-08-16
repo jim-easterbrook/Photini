@@ -25,9 +25,9 @@ import webbrowser
 
 import six
 
-from .configstore import key_store
-from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtGui, QtWebKit, QtWidgets
+from photini.configstore import key_store
+from photini.photinimap import PhotiniMap
+from photini.pyqt import QtCore, QtGui, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):

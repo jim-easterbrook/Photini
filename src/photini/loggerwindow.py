@@ -24,7 +24,7 @@ import logging.handlers
 import os
 import sys
 
-from .pyqt import qt_version_info, QtCore, QtWidgets
+from photini.pyqt import qt_version_info, QtCore, QtWidgets
 
 class OutputInterceptor(object):
     def __init__(self, name, stream):

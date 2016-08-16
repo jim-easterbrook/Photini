@@ -24,7 +24,7 @@ try:
 except (ImportError, RuntimeError):
     keyring = None
 
-from .pyqt import Qt, QtCore, QtWidgets
+from photini.pyqt import Qt, QtCore, QtWidgets
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, parent):

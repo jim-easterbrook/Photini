@@ -22,8 +22,8 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 
-from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtWidgets, qt_version_info
+from photini.photinimap import PhotiniMap
+from photini.pyqt import QtCore, QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
     def load_api(self):

@@ -31,8 +31,8 @@ import webbrowser
 
 import appdirs
 
-from .metadata import Metadata
-from .pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
+from photini.metadata import Metadata
+from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
 class FileObjWithCallback(object):
     def __init__(self, fileobj, callback):

@@ -23,8 +23,8 @@ from datetime import datetime
 
 import six
 
-from .pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
-from .spelling import SpellingHighlighter
+from photini.pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
+from photini.spelling import SpellingHighlighter
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtCore.pyqtSignal()

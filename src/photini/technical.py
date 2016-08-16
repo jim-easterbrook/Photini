@@ -22,8 +22,8 @@ from __future__ import unicode_literals
 from datetime import timedelta
 import re
 
-from .metadata import DateTime, LensSpec
-from .pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
+from photini.metadata import DateTime, LensSpec
+from photini.pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
 
 # 'constant' used by some widgets to indicate they've been set to '<multiple>'
 MULTI = 'multi'
