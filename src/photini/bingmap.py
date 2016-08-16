@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-15  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,8 +31,6 @@ from .pyqt import QtCore, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
-        self.copyright_widget = QtWidgets.QLabel()
-        self.copyright_widget.setWordWrap(True)
         super(BingMap, self).__init__(*arg, **kw)
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
@@ -60,14 +58,9 @@ class BingMap(PhotiniMap):
 
     def show_terms(self):
         # return widgets to display map terms and conditions
-        yield self.copyright_widget
         load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
         load_tou.clicked.connect(self.load_tou)
         yield load_tou
-
-    @QtCore.pyqtSlot(six.text_type)
-    def new_copyright(self, text):
-        self.copyright_widget.setText(text)
 
     @QtCore.pyqtSlot()
     def load_tou(self):
