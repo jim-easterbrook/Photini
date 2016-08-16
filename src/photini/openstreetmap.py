@@ -29,12 +29,15 @@ class OpenStreetMap(PhotiniMap):
     def load_api(self):
         return """
     <link rel="stylesheet"
-      href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+      href="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js">
+      src="https://npmcdn.com/leaflet@1.0.0-rc.3/dist/leaflet.js">
+    </script>
+    <script type="text/javascript"
+      src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0">
     </script>
 """
 
@@ -49,10 +52,11 @@ class OpenStreetMap(PhotiniMap):
         if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
         load_tou = QtWidgets.QPushButton(
-            self.trUtf8('Map data\n©OpenStreetMap contributors'))
+            self.tr('Map data by OpenStreetMap\nunder ODbL'))
         load_tou.clicked.connect(self.load_tou_osm)
         yield load_tou
-        load_tou = QtWidgets.QPushButton(self.tr('Tiles courtesy of MapQuest'))
+        load_tou = QtWidgets.QPushButton(
+            self.tr('Map tiles by Stamen Design\nunder CC BY 3.0'))
         load_tou.clicked.connect(self.load_tou_tiles)
         yield load_tou
 
@@ -71,4 +75,4 @@ class OpenStreetMap(PhotiniMap):
 
     @QtCore.pyqtSlot()
     def load_tou_tiles(self):
-        webbrowser.open_new('http://www.mapquest.com/')
+        webbrowser.open_new('http://www.stamen.com/')

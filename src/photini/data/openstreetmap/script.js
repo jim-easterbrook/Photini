@@ -26,13 +26,8 @@ function initialize()
     zoom: python.zoom,
     attributionControl: false
   });
-  L.tileLayer(
-    'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
-    {
-      maxZoom: 18,
-      subdomains: '1234'
-    }
-    ).addTo(map);
+  var tiles = new L.StamenTileLayer("terrain");
+  map.addLayer(tiles);
   map.on('moveend zoomend', newBounds);
   python.initialize_finished();
 }
