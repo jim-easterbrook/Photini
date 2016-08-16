@@ -2,7 +2,7 @@
 <context>
     <name>BingMap</name>
     <message>
-        <location filename="bingmap.py" line="59"/>
+        <location filename="bingmap.py" line="70"/>
         <source>Terms of Use</source>
         <translation>Nutzungsbedingungen</translation>
     </message>
@@ -10,7 +10,7 @@
 <context>
     <name>DateAndTimeWidget</name>
     <message>
-        <location filename="technical.py" line="288"/>
+        <location filename="technical.py" line="287"/>
         <source>Precision:</source>
         <translation>Genauigkeit</translation>
     </message>
@@ -43,24 +43,32 @@
         <translation>Photograf</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="244"/>
+        <location filename="descriptive.py" line="248"/>
         <source>Photini: input name</source>
         <translation>Photini: Eingabename</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="220"/>
+        <location filename="descriptive.py" line="223"/>
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Bitte den Inhaber der Urheberrechte eingeben</translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="descriptive.py" line="235"/>
+        <location filename="descriptive.py" line="238"/>
         <source>Copyright ©{0:d} {1}. All rights reserved.</source>
         <translation>Copyright ©{0:d} {1}. Alle Rechte vorbehalten.</translation>
     </message>
     <message>
-        <location filename="descriptive.py" line="244"/>
+        <location filename="descriptive.py" line="248"/>
         <source>Please type in the creator&apos;s name</source>
         <translation>Bitte den Namen der Fotografin eingeben</translation>
+    </message>
+</context>
+<context>
+    <name>DropdownEdit</name>
+    <message>
+        <location filename="technical.py" line="36"/>
+        <source>&lt;clear&gt;</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -79,11 +87,6 @@
         <location filename="editsettings.py" line="55"/>
         <source>Creator</source>
         <translation>Photograf</translation>
-    </message>
-    <message>
-        <location filename="editsettings.py" line="58"/>
-        <source>Reset Flickr</source>
-        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="editsettings.py" line="76"/>
@@ -126,140 +129,140 @@
         <translation>In Bild speichern</translation>
     </message>
     <message>
-        <location filename="editsettings.py" line="64"/>
-        <source>Reset Google Photos</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
         <location filename="editsettings.py" line="58"/>
         <source>Disconnect from Flickr</source>
-        <translation type="unfinished"/>
+        <translation>Verbindung mit Flickr trennen</translation>
     </message>
     <message>
         <location filename="editsettings.py" line="64"/>
         <source>Disconnect from Google Photos</source>
-        <translation type="unfinished"/>
+        <translation>Verbindung mit Google Photos trennen</translation>
     </message>
     <message>
         <location filename="editsettings.py" line="70"/>
         <source>Disconnect from Facebook</source>
-        <translation type="unfinished"/>
+        <translation>Verbindung mit Facebook trennen</translation>
     </message>
 </context>
 <context>
     <name>FacebookUploadConfig</name>
     <message>
-        <location filename="facebook.py" line="278"/>
+        <location filename="facebook.py" line="321"/>
         <source>Options</source>
         <translation>Optionen</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="283"/>
+        <location filename="facebook.py" line="326"/>
         <source>Suppress news feed story</source>
-        <translation type="unfinished"/>
+        <translation>Newsfeed ausblenden</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="290"/>
+        <location filename="facebook.py" line="333"/>
         <source>Set &quot;city&quot; from map coordinates</source>
-        <translation type="unfinished"/>
+        <translation>&quot;Stadt&quot; aus Kartendaten auslesen</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="297"/>
+        <location filename="facebook.py" line="352"/>
         <source>Album</source>
         <translation>Album</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="307"/>
+        <location filename="facebook.py" line="362"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="314"/>
+        <location filename="facebook.py" line="369"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="318"/>
+        <location filename="facebook.py" line="373"/>
         <source>Location</source>
-        <translation type="unfinished"/>
+        <translation>Ort</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="329"/>
+        <location filename="facebook.py" line="384"/>
         <source>New album</source>
         <translation>Neues Album</translation>
+    </message>
+    <message>
+        <location filename="facebook.py" line="341"/>
+        <source>Optimise image size</source>
+        <translation>Bildgröße optimieren</translation>
     </message>
 </context>
 <context>
     <name>FacebookUploader</name>
     <message>
-        <location filename="facebook.py" line="360"/>
+        <location filename="facebook.py" line="415"/>
         <source>Facebook</source>
         <translation>Facebook</translation>
     </message>
     <message>
         <location filename="facebook.py" line="363"/>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which Facebook does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das Facebook evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="facebook.py" line="378"/>
+        <location filename="facebook.py" line="430"/>
         <source>Photini: authorise {}</source>
         <translation>Photini: autorisieren {}</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="387"/>
+        <location filename="facebook.py" line="439"/>
         <source>&lt;default&gt;</source>
-        <translation type="unfinished"/>
+        <translation>&lt;Vorgabe&gt;</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="419"/>
+        <location filename="facebook.py" line="511"/>
         <source>Create new Facebook album</source>
-        <translation type="unfinished"/>
+        <translation>Neues Facebook-Album erstellen</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="422"/>
+        <location filename="facebook.py" line="514"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="424"/>
+        <location filename="facebook.py" line="516"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="426"/>
+        <location filename="facebook.py" line="518"/>
         <source>Location</source>
-        <translation type="unfinished"/>
+        <translation>Ort</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="428"/>
+        <location filename="facebook.py" line="520"/>
         <source>Only me</source>
-        <translation type="unfinished"/>
+        <translation>Nur ich selbst</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="428"/>
+        <location filename="facebook.py" line="520"/>
         <source>All friends</source>
-        <translation type="unfinished"/>
+        <translation>Alle Freunde</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="428"/>
+        <location filename="facebook.py" line="520"/>
         <source>Friends of friends</source>
-        <translation type="unfinished"/>
+        <translation>Freunde von Freunden</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="428"/>
+        <location filename="facebook.py" line="520"/>
         <source>Friends + networks</source>
-        <translation type="unfinished"/>
+        <translation>Freunde und Netzwerk</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="428"/>
+        <location filename="facebook.py" line="520"/>
         <source>Everyone</source>
-        <translation type="unfinished"/>
+        <translation>Jeder</translation>
     </message>
     <message>
-        <location filename="facebook.py" line="436"/>
+        <location filename="facebook.py" line="528"/>
         <source>Privacy</source>
-        <translation type="unfinished"/>
+        <translation>Privatsphäre</translation>
     </message>
 </context>
 <context>
@@ -312,61 +315,81 @@
     <message>
         <location filename="flickr.py" line="208"/>
         <source>Art/Illustration</source>
-        <translation type="unfinished"/>
+        <translation>Art/Illustration</translation>
     </message>
     <message>
         <location filename="flickr.py" line="213"/>
         <source>New set</source>
-        <translation>Neues Set</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="flickr.py" line="217"/>
         <source>Add to sets</source>
-        <translation>Zu Sets hinzufügen</translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="flickr.py" line="213"/>
+        <source>New album</source>
+        <translation>Neues Album</translation>
+    </message>
+    <message>
+        <location filename="flickr.py" line="217"/>
+        <source>Add to albums</source>
+        <translation>Zu Alben hinzufügen</translation>
     </message>
 </context>
 <context>
     <name>FlickrUploader</name>
     <message>
-        <location filename="flickr.py" line="285"/>
+        <location filename="flickr.py" line="284"/>
         <source>Flickr</source>
         <translation>Flickr</translation>
     </message>
     <message>
         <location filename="flickr.py" line="288"/>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which Flickr may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das Flickr evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="flickr.py" line="329"/>
         <source>Create new Flickr set</source>
-        <translation>Neue Flickr-Set erstellen</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="flickr.py" line="332"/>
+        <location filename="flickr.py" line="328"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="flickr.py" line="334"/>
+        <location filename="flickr.py" line="330"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
         <location filename="flickr.py" line="335"/>
         <source>Set will be created when photos are uploaded</source>
-        <translation>Set wird erstellt, wenn Bilder hochgeladen wurden</translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="flickr.py" line="325"/>
+        <source>Create new Flickr album</source>
+        <translation>Neue Flickr-Album erstellen</translation>
+    </message>
+    <message>
+        <location filename="flickr.py" line="331"/>
+        <source>Album will be created when photos are uploaded</source>
+        <translation>Album wird erstellt, wenn Bilder hochgeladen wurden</translation>
     </message>
 </context>
 <context>
     <name>GoogleMap</name>
     <message>
-        <location filename="googlemap.py" line="51"/>
+        <location filename="googlemap.py" line="53"/>
         <source>Search powered by Google</source>
         <translation>Suche durch Google</translation>
     </message>
     <message>
-        <location filename="googlemap.py" line="52"/>
+        <location filename="googlemap.py" line="54"/>
         <source>Terms of Use</source>
         <translation>Nutzungsbedingungen</translation>
     </message>
@@ -374,7 +397,7 @@
 <context>
     <name>Image</name>
     <message>
-        <location filename="imagelist.py" line="192"/>
+        <location filename="imagelist.py" line="208"/>
         <source>Can not
 load
 image</source>
@@ -385,42 +408,42 @@ nicht laden</translation>
 <context>
     <name>ImageList</name>
     <message>
-        <location filename="imagelist.py" line="377"/>
+        <location filename="imagelist.py" line="375"/>
         <source>sort by: </source>
         <translation>Sortieren nach:</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="378"/>
+        <location filename="imagelist.py" line="376"/>
         <source>file name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="381"/>
+        <location filename="imagelist.py" line="379"/>
         <source>date taken</source>
         <translation>Aufnahmedatum</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="389"/>
+        <location filename="imagelist.py" line="387"/>
         <source>thumbnail size: </source>
         <translation>Größe der Vorschau:</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="430"/>
+        <location filename="imagelist.py" line="420"/>
         <source>Images ({0});;All files (*)</source>
         <translation>Bilder ({0});;Alle Dateien (*)</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="540"/>
+        <location filename="imagelist.py" line="533"/>
         <source>Photini: unsaved data</source>
         <translation>Photini: ungesicherte Metadaten</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="541"/>
+        <location filename="imagelist.py" line="534"/>
         <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Einige Bilder enthalten ungesicherte Metadaten.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="imagelist.py" line="542"/>
+        <location filename="imagelist.py" line="535"/>
         <source>Do you want to save your changes?</source>
         <translation>Möchten Sie ihre Änderungen speichern?</translation>
     </message>
@@ -428,68 +451,68 @@ nicht laden</translation>
 <context>
     <name>Importer</name>
     <message>
-        <location filename="importer.py" line="266"/>
+        <location filename="importer.py" line="233"/>
         <source>refresh</source>
         <translation>Neu laden</translation>
     </message>
     <message>
-        <location filename="importer.py" line="270"/>
+        <location filename="importer.py" line="237"/>
         <source>Source</source>
         <translation>Quelle</translation>
     </message>
     <message>
-        <location filename="importer.py" line="276"/>
+        <location filename="importer.py" line="243"/>
         <source>Target format</source>
         <translation>Zielformat</translation>
     </message>
     <message>
-        <location filename="importer.py" line="294"/>
+        <location filename="importer.py" line="261"/>
         <source>Select
 all</source>
         <translation>Alle
 auswählen</translation>
     </message>
     <message>
-        <location filename="importer.py" line="297"/>
+        <location filename="importer.py" line="264"/>
         <source>Select
 new</source>
         <translation>Neu
 auswählen</translation>
     </message>
     <message>
-        <location filename="importer.py" line="300"/>
+        <location filename="importer.py" line="267"/>
         <source>Copy
 photos</source>
         <translation>Photos
 kopieren</translation>
     </message>
     <message>
-        <location filename="importer.py" line="347"/>
+        <location filename="importer.py" line="311"/>
         <source>Select root folder</source>
         <translation>Quellordner auswählen</translation>
     </message>
     <message>
-        <location filename="importer.py" line="380"/>
+        <location filename="importer.py" line="344"/>
         <source>&lt;select source&gt;</source>
         <translation>&lt;Quelle auswählen&gt;</translation>
     </message>
     <message>
-        <location filename="importer.py" line="383"/>
+        <location filename="importer.py" line="347"/>
         <source>camera: {0}</source>
         <translation>Kamera: {0}</translation>
     </message>
     <message>
-        <location filename="importer.py" line="388"/>
+        <location filename="importer.py" line="352"/>
         <source>folder: {0}</source>
         <translation>Ordner: {0}</translation>
     </message>
     <message>
-        <location filename="importer.py" line="390"/>
+        <location filename="importer.py" line="355"/>
         <source>&lt;add a folder&gt;</source>
         <translation>&lt;Ordner hinzufügen&gt;</translation>
     </message>
     <message numerus="yes">
-        <location filename="importer.py" line="497"/>
+        <location filename="importer.py" line="463"/>
         <source>%n file(s)
 selected</source>
         <translation><numerusform>%n Datei
@@ -497,183 +520,211 @@ ausgewählt</numerusform><numerusform>%n Dateien
 ausgewählt</numerusform></translation>
     </message>
     <message>
-        <location filename="importer.py" line="300"/>
+        <location filename="importer.py" line="267"/>
         <source>Stop
 import</source>
         <translation>Import
 beenden</translation>
     </message>
     <message>
-        <location filename="importer.py" line="407"/>
+        <location filename="importer.py" line="372"/>
         <source>Photini: import in progress</source>
         <translation>Photini: Import...</translation>
     </message>
     <message>
-        <location filename="importer.py" line="408"/>
+        <location filename="importer.py" line="373"/>
         <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Bilderimport nicht beendet.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="importer.py" line="409"/>
+        <location filename="importer.py" line="374"/>
         <source>Closing now will terminate the import.</source>
         <translation>Sofortiges Beenden des Imports.</translation>
     </message>
 </context>
 <context>
+    <name>LensSpecWidget</name>
+    <message>
+        <location filename="technical.py" line="377"/>
+        <source>min</source>
+        <translation>min</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="377"/>
+        <source>max</source>
+        <translation>max</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="382"/>
+        <source>Focal length</source>
+        <translation>Brennweite</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="383"/>
+        <source>Max aperture</source>
+        <translation>Max. Blende</translation>
+    </message>
+</context>
+<context>
     <name>LineEditWithAuto</name>
     <message>
-        <location filename="descriptive.py" line="146"/>
+        <location filename="descriptive.py" line="145"/>
         <source>Auto</source>
         <translation>Automatisch</translation>
     </message>
 </context>
 <context>
+    <name>LoggerWindow</name>
+    <message>
+        <location filename="loggerwindow.py" line="65"/>
+        <source>Photini error logging</source>
+        <translation>Photini Fehlerprotokollierung</translation>
+    </message>
+    <message>
+        <location filename="loggerwindow.py" line="75"/>
+        <source>Save</source>
+        <translation>Speichern</translation>
+    </message>
+    <message>
+        <location filename="loggerwindow.py" line="79"/>
+        <source>Dismiss</source>
+        <translation>Rückgängig</translation>
+    </message>
+    <message>
+        <location filename="loggerwindow.py" line="110"/>
+        <source>Save log file</source>
+        <translation>Protokolldatei speichern</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
-        <location filename="editor.py" line="80"/>
+        <location filename="editor.py" line="72"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini Metadateneditor</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>&amp;Descriptive metadata</source>
         <translation>Be&amp;schreibende Metadaten</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>&amp;Technical metadata</source>
         <translation>&amp;Technische Metadaten</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>Map (&amp;Google)</source>
         <translation>Karte (&amp;Google)</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>Map (&amp;Bing)</source>
         <translation>Karte (&amp;Bing)</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>Map (&amp;OSM)</source>
         <translation>Karte (&amp;OSM)</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>&amp;Flickr upload</source>
         <translation>&amp;Flickr hochladen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>&amp;Import photos</source>
         <translation>Bilder &amp;Importieren</translation>
     </message>
     <message>
-        <location filename="editor.py" line="142"/>
+        <location filename="editor.py" line="138"/>
         <source>File</source>
         <translation>Datei</translation>
     </message>
     <message>
-        <location filename="editor.py" line="143"/>
+        <location filename="editor.py" line="139"/>
         <source>Open images</source>
         <translation>Bilder öffnen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="147"/>
+        <location filename="editor.py" line="143"/>
         <source>Save images with new data</source>
         <translation>Bilder mit neuen Metadaten speichern</translation>
     </message>
     <message>
-        <location filename="editor.py" line="153"/>
+        <location filename="editor.py" line="149"/>
         <source>Close selected images</source>
         <translation>Ausgewählte Bilder schließen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="158"/>
+        <location filename="editor.py" line="154"/>
         <source>Close all images</source>
         <translation>Alle Bilder schließen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="162"/>
+        <location filename="editor.py" line="158"/>
         <source>Quit</source>
         <translation>Beenden</translation>
     </message>
     <message>
-        <location filename="editor.py" line="169"/>
+        <location filename="editor.py" line="165"/>
         <source>Options</source>
         <translation>Optionen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="170"/>
+        <location filename="editor.py" line="166"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="207"/>
+        <location filename="editor.py" line="203"/>
         <source>Help</source>
         <translation>Hilfe</translation>
     </message>
     <message>
-        <location filename="editor.py" line="208"/>
+        <location filename="editor.py" line="204"/>
         <source>About Photini</source>
         <translation>Über Photini</translation>
     </message>
     <message>
-        <location filename="editor.py" line="212"/>
+        <location filename="editor.py" line="208"/>
         <source>Photini documentation</source>
         <translation>Dokumentation zu Photini</translation>
     </message>
     <message>
-        <location filename="editor.py" line="306"/>
+        <location filename="editor.py" line="304"/>
         <source>Photini: about</source>
         <translation>Photini: über</translation>
     </message>
     <message>
-        <location filename="editor.py" line="187"/>
+        <location filename="editor.py" line="183"/>
         <source>Spelling</source>
         <translation>Rechtschreibung</translation>
     </message>
     <message>
-        <location filename="editor.py" line="188"/>
+        <location filename="editor.py" line="184"/>
         <source>Enable spell check</source>
         <translation>Rechtschreibprüfung aktivieren</translation>
     </message>
     <message>
-        <location filename="editor.py" line="194"/>
+        <location filename="editor.py" line="190"/>
         <source>Choose language</source>
         <translation>Sprache wählen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="270"/>
-        <source>
-&lt;img src=&quot;{2}&quot; style=&quot;float:right&quot; /&gt;
-&lt;h1 align=&quot;center&quot;&gt;Photini&lt;/h1&gt;
-&lt;h3 align=&quot;center&quot;&gt;version {0}&lt;/h3&gt;
-&lt;h4 align=&quot;center&quot;&gt;build {1}&lt;/h4&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-An easy to use digital photograph metadata editor.&lt;br /&gt;
-Open source package available from
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This program is released with a GNU General Public License. For
-details click the 'show details' button.&lt;/p&gt;
-</source>
-        <translation type="unfinished"/>
-    </message>
-    <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>Google &amp;Photos upload</source>
         <translation>Google &amp;Photos hochladen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="107"/>
+        <location filename="editor.py" line="103"/>
         <source>Faceboo&amp;k upload</source>
         <translation>Faceboo&amp;k hochladen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="286"/>
+        <location filename="editor.py" line="283"/>
         <source>
 &lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
 &lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
@@ -713,12 +764,12 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 <context>
     <name>Multiple</name>
     <message>
-        <location filename="pyqt.py" line="56"/>
+        <location filename="pyqt.py" line="59"/>
         <source>&lt;multiple&gt;</source>
         <translation>&lt;mehrfach&gt;</translation>
     </message>
     <message>
-        <location filename="pyqt.py" line="59"/>
+        <location filename="pyqt.py" line="62"/>
         <source>&lt;multiple values&gt;</source>
         <translation>&lt;Mehrfachwerte&gt;</translation>
     </message>
@@ -726,42 +777,42 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 <context>
     <name>NewLensDialog</name>
     <message>
-        <location filename="technical.py" line="450"/>
+        <location filename="technical.py" line="493"/>
         <source>Photini: define lens</source>
         <translation>Photini: Linse definieren</translation>
     </message>
     <message>
-        <location filename="technical.py" line="466"/>
+        <location filename="technical.py" line="510"/>
         <source>Model name</source>
         <translation>Modellname</translation>
     </message>
     <message>
-        <location filename="technical.py" line="469"/>
+        <location filename="technical.py" line="513"/>
         <source>Maker&apos;s name</source>
         <translation>Herstellername</translation>
     </message>
     <message>
-        <location filename="technical.py" line="472"/>
+        <location filename="technical.py" line="516"/>
         <source>Serial number</source>
         <translation>Serien-Nummer</translation>
     </message>
     <message>
-        <location filename="technical.py" line="478"/>
+        <location filename="technical.py" line="522"/>
         <source>Minimum focal length (mm)</source>
         <translation>Minimale Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="483"/>
+        <location filename="technical.py" line="527"/>
         <source>Aperture at min. focal length f/</source>
         <translation>Blende bei min. Brennweite f/</translation>
     </message>
     <message>
-        <location filename="technical.py" line="488"/>
+        <location filename="technical.py" line="532"/>
         <source>Maximum focal length (mm)</source>
         <translation>Maximale Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="493"/>
+        <location filename="technical.py" line="537"/>
         <source>Aperture at max. focal length f/</source>
         <translation>Blende bei max. Brennweite f/</translation>
     </message>
@@ -769,13 +820,13 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 <context encoding="UTF-8">
     <name>OpenStreetMap</name>
     <message>
-        <location filename="openstreetmap.py" line="45"/>
+        <location filename="openstreetmap.py" line="49"/>
         <source>Search powered by Nominatim</source>
         <translation>Suche durch ein
 System von Nominatim</translation>
     </message>
     <message>
-        <location filename="openstreetmap.py" line="48"/>
+        <location filename="openstreetmap.py" line="52"/>
         <source>Map powered by Leaflet</source>
         <translation>Kartenmaterial von Leaflet</translation>
     </message>
@@ -783,35 +834,45 @@ System von Nominatim</translation>
         <location filename="openstreetmap.py" line="53"/>
         <source>Map data
 ©OpenStreetMap contributors</source>
-        <translation>Kartenmaterial
-© Mitwirkende von OpenStreetMap</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="openstreetmap.py" line="57"/>
         <source>Tiles courtesy of MapQuest</source>
-        <translation>Kartenmaterial mit freundlicher
-Genehmigung von MapQuest</translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="openstreetmap.py" line="57"/>
+        <source>Map data by OpenStreetMap
+under ODbL</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <location filename="openstreetmap.py" line="61"/>
+        <source>Map tiles by Stamen Design
+under CC BY 3.0</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>PhotiniMap</name>
     <message>
-        <location filename="photinimap.py" line="105"/>
+        <location filename="photinimap.py" line="107"/>
         <source>Search:</source>
         <translation>Suchen:</translation>
     </message>
     <message>
-        <location filename="photinimap.py" line="111"/>
+        <location filename="photinimap.py" line="113"/>
         <source>&lt;new search&gt;</source>
         <translation>&lt;Neue Suche&gt;</translation>
     </message>
     <message>
-        <location filename="photinimap.py" line="119"/>
+        <location filename="photinimap.py" line="121"/>
         <source>Latitude, longitude:</source>
         <translation>Breiten- und Längengrad:</translation>
     </message>
     <message>
-        <location filename="photinimap.py" line="126"/>
+        <location filename="photinimap.py" line="128"/>
         <source>
 Load map
 </source>
@@ -820,7 +881,7 @@ Karte laden
 </translation>
     </message>
     <message>
-        <location filename="photinimap.py" line="347"/>
+        <location filename="photinimap.py" line="379"/>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;Suche wiederholen&gt;</translation>
     </message>
@@ -828,157 +889,172 @@ Karte laden
 <context>
     <name>PhotiniUploader</name>
     <message>
-        <location filename="uploader.py" line="131"/>
+        <location filename="uploader.py" line="134"/>
         <source>Start upload</source>
         <translation>Hochladen starten</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="131"/>
+        <location filename="uploader.py" line="134"/>
         <source>Stop upload</source>
         <translation>Hochladen abbrechen</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="138"/>
+        <location filename="uploader.py" line="141"/>
         <source>Progress</source>
         <translation>Fortschritt</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="186"/>
+        <location filename="uploader.py" line="190"/>
         <source>Photini: upload in progress</source>
         <translation>Photini: Hochladen...</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="187"/>
+        <location filename="uploader.py" line="191"/>
         <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Hochladen nach {} wurde nicht beendet.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="189"/>
+        <location filename="uploader.py" line="193"/>
         <source>Closing now will terminate the upload.</source>
         <translation>Beenden wird das Hochladen stoppen.</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="234"/>
+        <location filename="uploader.py" line="275"/>
         <source>Photini: incompatible type</source>
         <translation>Photini: inkompatibler Typ</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="235"/>
+        <location filename="uploader.py" line="276"/>
         <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Inkompatibles Bildformat.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="277"/>
+        <location filename="uploader.py" line="340"/>
         <source>Photini: upload error</source>
         <translation>Photini: Fehler beim Hochladen</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="278"/>
+        <location filename="uploader.py" line="341"/>
         <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Hochladen der Datei &quot;{}&quot; fehlgeschlagen.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="311"/>
+        <location filename="uploader.py" line="374"/>
         <source>use your web browser</source>
         <translation>Webbrowser benutzen</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="313"/>
+        <location filename="uploader.py" line="376"/>
         <source>open &quot;{0}&quot; in a web browser</source>
         <translation>&quot;{0}&quot; im Webbrowser öffnen</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="314"/>
+        <location filename="uploader.py" line="377"/>
         <source>Photini: authorise {}</source>
         <translation>Photini: autorisieren {}</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="314"/>
+        <location filename="uploader.py" line="377"/>
         <source>Please {0} to grant access to Photini,
 then enter the verification code:</source>
         <translation>Bitte {0} um Zugriff durch Photini zu gestatten,
 dann Verifizierungscode eingeben:</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="112"/>
+        <location filename="uploader.py" line="115"/>
         <source>User</source>
-        <translation type="unfinished"/>
+        <translation>Benutzer</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="156"/>
+        <location filename="uploader.py" line="160"/>
         <source>Log out</source>
-        <translation type="unfinished"/>
+        <translation>Abmelden</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="165"/>
+        <location filename="uploader.py" line="169"/>
         <source>Connect</source>
-        <translation type="unfinished"/>
+        <translation>Verbinden</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="200"/>
+        <location filename="uploader.py" line="204"/>
         <source>Connected to {0} on {1}</source>
-        <translation type="unfinished"/>
+        <translation>Verbunden mit {0} an {1}</translation>
     </message>
     <message>
-        <location filename="uploader.py" line="203"/>
+        <location filename="uploader.py" line="207"/>
         <source>Not connected to {}</source>
-        <translation type="unfinished"/>
+        <translation>Nicht verbunden mit {}</translation>
+    </message>
+    <message>
+        <location filename="uploader.py" line="265"/>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+    </message>
+    <message>
+        <location filename="uploader.py" line="270"/>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+    </message>
+    <message>
+        <location filename="uploader.py" line="259"/>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert to JPEG.</source>
+        <translation>Die Datei &quot;{0}&quot; ist vom Typ &quot;{1}&quot;, der von {2} nicht akzeptiert wird und Photini kann die Datei nicht nach JPEG konvertieren.</translation>
     </message>
 </context>
 <context>
     <name>PicasaUploadConfig</name>
     <message>
-        <location filename="picasa.py" line="296"/>
+        <location filename="picasa.py" line="297"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="300"/>
+        <location filename="picasa.py" line="301"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="305"/>
+        <location filename="picasa.py" line="306"/>
         <source>Place taken</source>
         <translation>Aufnahmeort</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="308"/>
+        <location filename="picasa.py" line="309"/>
         <source>Public on the web</source>
         <translation>Öffentlich im Internet</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="309"/>
+        <location filename="picasa.py" line="310"/>
         <source>Limited, anyone with the link</source>
         <translation>Auf Nutzer mit URL begrenzt</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="311"/>
+        <location filename="picasa.py" line="312"/>
         <source>Only you</source>
         <translation>Nur ich selbst</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="313"/>
+        <location filename="picasa.py" line="314"/>
         <source>Visibility</source>
         <translation>Sichtbarkeit</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="319"/>
+        <location filename="picasa.py" line="320"/>
         <source>New album</source>
         <translation>Neues Album</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="323"/>
+        <location filename="picasa.py" line="324"/>
         <source>Delete album</source>
         <translation>Album löschen</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="337"/>
+        <location filename="picasa.py" line="338"/>
         <source>Date</source>
         <translation>Datum</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="284"/>
+        <location filename="picasa.py" line="285"/>
         <source>Collection / Album</source>
         <translation>Collection / Album</translation>
     </message>
@@ -986,27 +1062,27 @@ dann Verifizierungscode eingeben:</translation>
 <context>
     <name>PicasaUploader</name>
     <message>
-        <location filename="picasa.py" line="404"/>
+        <location filename="picasa.py" line="414"/>
         <source>Google Photos</source>
         <translation>Google Photos</translation>
     </message>
     <message>
         <location filename="picasa.py" line="407"/>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which Google Photos does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das Google Photos evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="picasa.py" line="461"/>
+        <location filename="picasa.py" line="468"/>
         <source>New album</source>
         <translation>Neues Album</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="472"/>
+        <location filename="picasa.py" line="479"/>
         <source>Delete album</source>
         <translation>Album löschen</translation>
     </message>
     <message>
-        <location filename="picasa.py" line="472"/>
+        <location filename="picasa.py" line="479"/>
         <source>Are you sure you want to delete the album &quot;{0}&quot;?
 Doing so will remove the album and its photos from all Google products.</source>
         <translation>Das Album &quot;{0}&quot; wirklich löschen?
@@ -1018,154 +1094,173 @@ Album und alle enthaltenen Fotos werden aus allen Google-Produkten entfernt.</tr
     <message>
         <location filename="loggerwindow.py" line="61"/>
         <source>Photini error logging</source>
-        <translation>Photini Fehlerprotokollierung</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location filename="loggerwindow.py" line="71"/>
         <source>Dismiss</source>
-        <translation>Rückgängig</translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>Technical</name>
     <message>
-        <location filename="technical.py" line="510"/>
+        <location filename="technical.py" line="567"/>
         <source>Date and time</source>
         <translation>Datum und Uhrzeit</translation>
     </message>
     <message>
-        <location filename="technical.py" line="515"/>
+        <location filename="technical.py" line="572"/>
         <source>Taken</source>
         <translation>Aufgenommen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="517"/>
+        <location filename="technical.py" line="574"/>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
         <translation>Aufgenommen und Digitalisiert koppeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="525"/>
+        <location filename="technical.py" line="582"/>
         <source>Digitised</source>
         <translation>Digitalisiert</translation>
     </message>
     <message>
-        <location filename="technical.py" line="528"/>
+        <location filename="technical.py" line="585"/>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
         <translation>Digitalisiert und Verändert koppeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="536"/>
+        <location filename="technical.py" line="593"/>
         <source>Modified</source>
         <translation>Verändert</translation>
     </message>
     <message>
-        <location filename="technical.py" line="541"/>
+        <location filename="technical.py" line="598"/>
         <source>Adjust times</source>
         <translation>Uhrzeiten anpassen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="544"/>
+        <location filename="technical.py" line="601"/>
         <source>Other</source>
         <translation>Andere</translation>
     </message>
     <message>
-        <location filename="technical.py" line="548"/>
+        <location filename="technical.py" line="605"/>
         <source>normal</source>
         <translation>normal</translation>
     </message>
     <message>
-        <location filename="technical.py" line="549"/>
+        <location filename="technical.py" line="606"/>
         <source>rotate -90</source>
         <translation>90 Grad gegen Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="550"/>
+        <location filename="technical.py" line="607"/>
         <source>rotate +90</source>
         <translation>90 Grad im Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="551"/>
+        <location filename="technical.py" line="608"/>
         <source>rotate 180</source>
         <translation>180 Grad im Uhrzeigersinn</translation>
     </message>
     <message>
-        <location filename="technical.py" line="552"/>
+        <location filename="technical.py" line="609"/>
         <source>reflect left-right</source>
         <translation>links-rechts spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="553"/>
+        <location filename="technical.py" line="610"/>
         <source>reflect top-bottom</source>
         <translation>oben-unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="554"/>
+        <location filename="technical.py" line="611"/>
         <source>reflect tr-bl</source>
         <translation>rechts oben-links unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="555"/>
+        <location filename="technical.py" line="612"/>
         <source>reflect tl-br</source>
         <translation>links oben-rechts unten spiegeln</translation>
     </message>
     <message>
-        <location filename="technical.py" line="557"/>
+        <location filename="technical.py" line="614"/>
         <source>Orientation</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="technical.py" line="562"/>
+        <location filename="technical.py" line="619"/>
         <source>&lt;define new lens&gt;</source>
         <translation>&lt;Neue Linse definieren&gt;</translation>
     </message>
     <message>
-        <location filename="technical.py" line="569"/>
+        <location filename="technical.py" line="626"/>
         <source>Lens model</source>
         <translation>Linsenmodell</translation>
     </message>
     <message>
-        <location filename="technical.py" line="572"/>
+        <location filename="technical.py" line="573"/>
         <source>Link lens model to
 focal length &amp;&amp; aperture</source>
-        <translation>Linsenmodell mit Brennweite
-und Blende verknüpfen</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <location filename="technical.py" line="580"/>
+        <location filename="technical.py" line="636"/>
         <source>Focal length (mm)</source>
         <translation>Brennweite (mm)</translation>
     </message>
     <message>
-        <location filename="technical.py" line="592"/>
+        <location filename="technical.py" line="648"/>
         <source>Aperture f/</source>
         <translation>Blende f/</translation>
     </message>
     <message>
-        <location filename="technical.py" line="678"/>
+        <location filename="technical.py" line="735"/>
         <source>Remove lens &quot;{}&quot;</source>
         <translation>Linse &quot;{}&quot; entfernen</translation>
     </message>
     <message>
-        <location filename="technical.py" line="586"/>
+        <location filename="technical.py" line="642"/>
         <source>35mm equiv (mm)</source>
-        <translation type="unfinished"/>
+        <translation>35mm equiv (mm)</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="630"/>
+        <source>Lens details</source>
+        <translation>Objektivdetails</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="952"/>
+        <source>Update aperture &amp; focal length</source>
+        <translation>Blende und Brennweite aktualisieren</translation>
+    </message>
+    <message>
+        <location filename="technical.py" line="952"/>
+        <source>Adjust image aperture and focal length to agree with lens specification?</source>
+        <translation>Blende und Brennweite aus Objektivdaten übernehmen?</translation>
     </message>
 </context>
 <context>
     <name>main</name>
     <message>
-        <location filename="editor.py" line="369"/>
+        <location filename="editor.py" line="367"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini Metadateneditor</translation>
     </message>
     <message>
-        <location filename="editor.py" line="375"/>
+        <location filename="editor.py" line="377"/>
         <source>increase number of logging messages</source>
         <translation>Anzahl der Einträge im Fehlerprotokoll erhöhen</translation>
     </message>
     <message>
-        <location filename="editor.py" line="369"/>
+        <location filename="editor.py" line="367"/>
         <source>Usage: %prog [options] [file_name, ...]</source>
+        <translation>Verwendung: %prog [options] [file_name, ...]</translation>
+    </message>
+    <message>
+        <location filename="editor.py" line="373"/>
+        <source>test new features or API versions</source>
         <translation type="unfinished"/>
     </message>
 </context>
