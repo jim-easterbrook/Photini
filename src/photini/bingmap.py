@@ -27,11 +27,14 @@ import six
 
 from .configstore import key_store
 from .photinimap import PhotiniMap
-from .pyqt import QtCore, QtWebKit, QtWidgets
+from .pyqt import QtCore, QtGui, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         super(BingMap, self).__init__(*arg, **kw)
+        if self.app.test_mode:
+            self.drag_icon = QtGui.QPixmap(
+                os.path.join(self.script_dir, 'grey_marker_v8.png'))
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.map.settings().setAttribute(
@@ -41,8 +44,10 @@ class BingMap(PhotiniMap):
         if self.app.test_mode:
             src = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
             src += '&branch=experimental'
+            version_8 = 'true'
         else:
             src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
+            version_8 = 'false'
         self.setProperty('api_key', key_store.get('bing', 'api_key'))
         if not self.app.test_mode:
             lang, encoding = locale.getdefaultlocale()
@@ -51,10 +56,13 @@ class BingMap(PhotiniMap):
             else:
                 src += '&mkt=ngt'
         return """
+    <script type="text/javascript">
+      var VERSION_8 = {1};
+    </script>
     <script charset="UTF-8" type="text/javascript"
       src="{0}">
     </script>
-""".format(src)
+""".format(src, version_8)
 
     def show_terms(self):
         # return widgets to display map terms and conditions

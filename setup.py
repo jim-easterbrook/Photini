@@ -244,6 +244,7 @@ setup(name = 'Photini',
       package_data = {
           'photini' : ['data/*.txt', 'data/*.png', 'data/icons/*/photini.png',
                        'data/*map/grey_marker.png', 'data/*map/script.js',
+                       'data/bingmap/grey_marker_v8.png',
                        'data/lang/*.qm'],
           },
       data_files = data_files,

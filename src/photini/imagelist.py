@@ -156,7 +156,11 @@ class Image(QtWidgets.QFrame):
                     paint.drawPixmap(
                         QtCore.QPoint(margin - (i * 4), i * 4), src_icon)
         drag.setPixmap(icon)
-        drag.setHotSpot(QtCore.QPoint(src_w // 2, src_h + margin))
+        if src_h == src_w:
+            # round marker used in Bing maps version 8
+            drag.setHotSpot(QtCore.QPoint(src_w // 2, (src_h // 2) + margin))
+        else:
+            drag.setHotSpot(QtCore.QPoint(src_w // 2, src_h + margin))
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)

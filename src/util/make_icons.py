@@ -54,5 +54,6 @@ def draw_marker(width, height, offset, filename):
 path = os.path.normpath(os.path.join(
     os.path.dirname(__file__), '..', 'photini', 'data'))
 draw_marker(25, 37, 8.5, os.path.join(path, 'bingmap', 'grey_marker.png'))
+draw_marker(23, 23, 0.0, os.path.join(path, 'bingmap', 'grey_marker_v8.png'))
 draw_marker(25, 40, 12, os.path.join(path, 'openstreetmap', 'grey_marker.png'))
 draw_marker(21.5, 40, 10.0, os.path.join(path, 'googlemap', 'grey_marker.png'))
