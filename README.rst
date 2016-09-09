@@ -109,14 +109,16 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see http://www.gnu.org/licenses/.
 
-Map terms and conditions
-^^^^^^^^^^^^^^^^^^^^^^^^
+Service terms and conditions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Google Privacy Policy`_.
 
 Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
 
 Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `OpenStreetMap licence`_.
+
+The Flickr upload tab uses the Flickr API but is not endorsed or certified by Flickr.
 
 Privacy statement
 ^^^^^^^^^^^^^^^^^

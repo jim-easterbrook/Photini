@@ -7,6 +7,7 @@ Flickr uploader
 
 The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload your photographs to `Flickr <http://www.flickr.com/>`_.
 Flickr is a popular online photograph sharing service.
+The Flickr upload tab uses the Flickr API but is not endorsed or certified by Flickr.
 
 Unlike some other Flickr uploaders, Photini uses the descriptive metadata you've created to set Flickr's title, description and tags.
 This means you don't have to retype all that information!
