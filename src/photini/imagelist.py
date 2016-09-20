@@ -23,9 +23,8 @@ import six
 from datetime import datetime
 import imghdr
 import os
-import subprocess
-import sys
 from six.moves.urllib.parse import unquote
+import webbrowser
 
 from photini.metadata import Metadata
 from photini.pyqt import (
@@ -167,12 +166,7 @@ class Image(QtWidgets.QFrame):
         dropAction = drag.exec_(Qt.CopyAction)
 
     def mouseDoubleClickEvent(self, event):
-        if sys.platform.startswith('linux'):
-            subprocess.call(['xdg-open', self.path])
-        elif sys.platform.startswith('darwin'):
-            subprocess.call(['open', self.path])
-        elif sys.platform.startswith('win'):
-            subprocess.call(['start', self.path], shell=True)
+        webbrowser.open(self.path)
 
     def show_status(self, changed):
         status = ''
