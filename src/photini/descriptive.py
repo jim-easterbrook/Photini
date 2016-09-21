@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals
 
+from collections import defaultdict
 from datetime import datetime
 
 import six
@@ -74,6 +75,71 @@ class LineEditWithAuto(QtWidgets.QWidget):
         self.autoComplete = self.auto.clicked
 
 
+class KeywordsEditor(QtWidgets.QWidget):
+    def __init__(self, *arg, **kw):
+        super(KeywordsEditor, self).__init__(*arg, **kw)
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.league_table = defaultdict(int)
+        for keyword, score in eval(self.config_store.get(
+            'descriptive', 'keywords', '{}')).items():
+            self.league_table[keyword] = score
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        # line edit box
+        self.edit = SingleLineEdit(spell_check=True)
+        layout.addWidget(self.edit)
+        # favourites drop down
+        self.favourites = QtWidgets.QComboBox()
+        self.update_favourites()
+        self.favourites.currentIndexChanged.connect(self.add_favourite)
+        layout.addWidget(self.favourites)
+        # adopt child widget methods and signals
+        self.get_value = self.edit.get_value
+        self.set_multiple = self.edit.set_multiple
+        self.is_multiple = self.edit.is_multiple
+        self.editingFinished = self.edit.editingFinished
+
+    def update_favourites(self):
+        self.favourites.clear()
+        self.favourites.addItem(self.tr('<favourites>'))
+        keywords = list(self.league_table.keys())
+        keywords.sort(key=lambda x: self.league_table[x], reverse=True)
+        # limit size of league_table by deleting lowest scoring
+        if len(keywords) > 100:
+            threshold = self.league_table[keywords[100]]
+            for keyword in keywords:
+                if self.league_table[keyword] <= threshold:
+                    del self.league_table[keyword]
+        # select highest scoring for drop down
+        keywords = keywords[:25]
+        keywords.sort(key=lambda x: x.lower())
+        for keyword in keywords:
+            self.favourites.addItem(keyword)
+
+    def set_value(self, value):
+        self.edit.set_value(value)
+        if (not value) or isinstance(value, six.string_types):
+            return
+        for keyword in self.league_table:
+            self.league_table[keyword] = max(
+                self.league_table[keyword] - 1, 0)
+        for keyword in value.value:
+            self.league_table[keyword] = min(
+                self.league_table[keyword] + 10, 1000)
+        self.config_store.set(
+            'descriptive', 'keywords', dict(self.league_table))
+
+    @QtCore.pyqtSlot(int)
+    def add_favourite(self, idx):
+        if idx <= 0:
+            return
+        self.favourites.setCurrentIndex(0)
+        value = self.favourites.itemText(idx)
+        self.set_value(self.get_value() + '; ' + value)
+        self.editingFinished.emit()
+
+
 class Descriptive(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(Descriptive, self).__init__(*arg, **kw)
@@ -95,7 +161,7 @@ class Descriptive(QtWidgets.QWidget):
         self.form.addRow(
             self.tr('Description / Caption'), self.widgets['description'])
         # keywords
-        self.widgets['keywords'] = SingleLineEdit(spell_check=True)
+        self.widgets['keywords'] = KeywordsEditor()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         # copyright
