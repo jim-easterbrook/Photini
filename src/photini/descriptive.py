@@ -23,87 +23,8 @@ from datetime import datetime
 
 import six
 
-from photini.pyqt import multiple_values, Qt, QtCore, QtGui, QtWidgets, qt_version_info
-from photini.spelling import SpellingHighlighter
-
-class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    editingFinished = QtCore.pyqtSignal()
-
-    def __init__(self, spell_check=False, *arg, **kw):
-        super(MultiLineEdit, self).__init__(*arg, **kw)
-        self.multiple_values = multiple_values()
-        self.setTabChangesFocus(True)
-        self._is_multiple = False
-        if spell_check:
-            self.spell_check = SpellingHighlighter(self.document())
-        else:
-            self.spell_check = None
-
-    def focusOutEvent(self, event):
-        self.editingFinished.emit()
-        super(MultiLineEdit, self).focusOutEvent(event)
-
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        suggestion_group = QtWidgets.QActionGroup(menu)
-        if self.spell_check:
-            cursor = self.cursorForPosition(event.pos())
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            word = cursor.selectedText()
-            suggestions = self.spell_check.suggestions(word)
-            if suggestions:
-                sep = menu.insertSeparator(menu.actions()[0])
-                for suggestion in suggestions:
-                    action = QtWidgets.QAction(suggestion, suggestion_group)
-                    menu.insertAction(sep, action)
-        action = menu.exec_(event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            cursor = self.cursorForPosition(event.pos())
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            cursor.insertText(action.text())
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if not value:
-            self.clear()
-            if qt_version_info >= (5, 3):
-                self.setPlaceholderText('')
-        else:
-            self.setPlainText(six.text_type(value))
-
-    def get_value(self):
-        return self.toPlainText()
-
-    def set_multiple(self):
-        self._is_multiple = True
-        if qt_version_info >= (5, 3):
-            self.setPlaceholderText(self.multiple_values)
-            self.clear()
-        else:
-            self.setPlainText(self.multiple_values)
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-
-class SingleLineEdit(MultiLineEdit):
-    def __init__(self, *arg, **kw):
-        super(SingleLineEdit, self).__init__(*arg, **kw)
-        self.setFixedHeight(
-            self.fontMetrics().lineSpacing() + 8 + (self.frameWidth() * 2))
-        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return:
-            event.ignore()
-            return
-        super(MultiLineEdit, self).keyPressEvent(event)
-
-    def insertFromMimeData(self, source):
-        self.insertPlainText(source.text().replace('\n', ' '))
-
+from photini.pyqt import (multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
+                          QtWidgets, qt_version_info, SingleLineEdit)
 
 class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):

@@ -38,8 +38,8 @@ from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder
 
 from photini.configstore import key_store
-from photini.descriptive import MultiLineEdit, SingleLineEdit
-from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
+from photini.pyqt import (Busy, MultiLineEdit, Qt, QtCore, QtGui,
+                          QtWebKitWidgets, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)

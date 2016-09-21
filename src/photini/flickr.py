@@ -30,8 +30,8 @@ import flickrapi
 import keyring
 
 from photini.configstore import key_store
-from photini.descriptive import MultiLineEdit, SingleLineEdit
-from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets
+from photini.pyqt import (
+    Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
