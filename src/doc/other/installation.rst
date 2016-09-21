@@ -17,6 +17,7 @@ The Windows installer creates a standalone Python installation with all the depe
 The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
 You can download the latest Windows installer from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page.
+(Scroll down until you find the "Windows installer" release.)
 Don't worry if there are newer releases of Photini itself - the installer will download and install the latest release of Photini when it is run.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
