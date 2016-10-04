@@ -17,6 +17,8 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals
+
 from collections import namedtuple
 
 try:
@@ -127,7 +129,10 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             self.setPlainText(six.text_type(value))
 
     def get_value(self):
-        return self.toPlainText()
+        value = self.toPlainText()
+        if qt_version_info < (5, 3) and value == self.multiple_values:
+            return ''
+        return value
 
     def set_multiple(self):
         self._is_multiple = True
