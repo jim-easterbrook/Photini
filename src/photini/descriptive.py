@@ -96,6 +96,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.addWidget(self.favourites)
         # adopt child widget methods and signals
         self.get_value = self.edit.get_value
+        self.set_value = self.edit.set_value
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
         self.editingFinished = self.edit.editingFinished
@@ -111,32 +112,37 @@ class KeywordsEditor(QtWidgets.QWidget):
             for keyword in keywords:
                 if self.league_table[keyword] <= threshold:
                     del self.league_table[keyword]
-        # select highest scoring for drop down
-        keywords = keywords[:25]
+        # select highest scoring for drop down list
+        keywords = keywords[:20]
         keywords.sort(key=lambda x: x.lower())
         for keyword in keywords:
             self.favourites.addItem(keyword)
 
-    def set_value(self, value):
-        self.edit.set_value(value)
-        if (not value) or isinstance(value, six.string_types):
-            return
-        for keyword in self.league_table:
-            self.league_table[keyword] = max(
-                self.league_table[keyword] - 1, 0)
-        for keyword in value.value:
-            self.league_table[keyword] = min(
-                self.league_table[keyword] + 10, 1000)
+    def update_league_table(self, images):
+        for image in images:
+            value = image.metadata.keywords
+            if not value:
+                continue
+            for keyword in self.league_table:
+                self.league_table[keyword] = max(
+                    self.league_table[keyword] - 1, -5)
+            for keyword in value.value:
+                self.league_table[keyword] = min(
+                    self.league_table[keyword] + 10, 1000)
         self.config_store.set(
-            'descriptive', 'keywords', dict(self.league_table))
+            'descriptive', 'keywords', six.text_type(dict(self.league_table)))
+        self.update_favourites()
 
     @QtCore.pyqtSlot(int)
     def add_favourite(self, idx):
         if idx <= 0:
             return
         self.favourites.setCurrentIndex(0)
-        value = self.favourites.itemText(idx)
-        self.set_value(self.get_value() + '; ' + value)
+        new_value = self.favourites.itemText(idx)
+        current_value = self.get_value()
+        if current_value:
+            new_value = current_value + '; ' + new_value
+        self.set_value(new_value)
         self.editingFinished.emit()
 
 
@@ -164,6 +170,7 @@ class Descriptive(QtWidgets.QWidget):
         self.widgets['keywords'] = KeywordsEditor()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
+        self.image_list.image_list_changed.connect(self.image_list_changed)
         # copyright
         self.widgets['copyright'] = LineEditWithAuto()
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
@@ -184,6 +191,11 @@ class Descriptive(QtWidgets.QWidget):
         return False
 
     @QtCore.pyqtSlot()
+    def image_list_changed(self):
+        self.widgets['keywords'].update_league_table(
+            self.image_list.get_images())
+
+    @QtCore.pyqtSlot()
     def new_title(self):
         self._new_value('title')
 
@@ -194,6 +206,8 @@ class Descriptive(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def new_keywords(self):
         self._new_value('keywords')
+        self.widgets['keywords'].update_league_table(
+            self.image_list.get_selected_images())
 
     @QtCore.pyqtSlot()
     def new_copyright(self):
