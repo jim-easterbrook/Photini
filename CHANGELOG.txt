@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2016.10.0:
+  1/ Added a drop down list of favourite keywords.
+  2/ Improved spell checking of words with hyphens or apostrophes.
+  3/ Fix failure to open image viewer on some Windows versions.
+  4/ Fixed several minor bugs in map tabs.
+  5/ Fixed (I hope) segfault on exit bug.
+
 Changes in v2016.06.0:
   1/ Added option to resize photos for Facebook upload.
   2/ Improved handling of various 'raw' image formats.
