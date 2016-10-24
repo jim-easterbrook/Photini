@@ -210,6 +210,7 @@ class PhotiniMap(QtWidgets.QWidget):
         zoom = eval(self.config_store.get('map', 'zoom'))
         self.JavaScript(
             'setView({0}, {1}, {2:d})'.format(repr(lat), repr(lng), zoom))
+        self.redraw_markers()
         self.image_list.set_drag_to_map(self.drag_icon)
 
     def do_not_close(self):
@@ -237,8 +238,8 @@ class PhotiniMap(QtWidgets.QWidget):
         text = self.coords.text().strip()
         if not text:
             for image in self.image_list.get_selected_images():
-                image.metadata.latlong = None
                 self._remove_image(image)
+                image.metadata.latlong = None
             return
         try:
             lat, lng = map(float, text.split(','))
