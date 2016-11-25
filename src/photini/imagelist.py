@@ -22,6 +22,7 @@ from __future__ import unicode_literals
 import six
 from datetime import datetime
 import imghdr
+import mimetypes
 import os
 from six.moves.urllib.parse import unquote
 import webbrowser
@@ -48,13 +49,18 @@ class Image(QtWidgets.QFrame):
             self.path, image_data, new_status=self.show_status)
         # set file type
         ext = ext.lower()
-        self.file_type = imghdr.what(self.path) or 'raw'
-        if self.file_type == 'tiff' and ext not in ('.tif', '.tiff'):
-            self.file_type = 'raw'
+        self.file_type = mimetypes.guess_type(self.path)[0]
+        if not self.file_type:
+            self.file_type = imghdr.what(self.path, image_data)
+            if self.file_type:
+                self.file_type = 'image/' + self.file_type
+        # anything not recognised is assumed to be 'raw'
+        if not self.file_type:
+            self.file_type = 'image/raw'
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
         self.pixmap.loadFromData(image_data)
-        unrotate = self.file_type == 'raw'
+        unrotate = self.file_type == 'image/x-dcraw'
         if self.pixmap.isNull():
             # image read failed so attempt to use exif thumbnail
             thumb = self.metadata.get_exif_thumbnail()

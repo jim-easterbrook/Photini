@@ -410,7 +410,7 @@ class PicasaUploader(PhotiniUploader):
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.save_changes)
         self.service_name = self.tr('Google Photos')
         self.image_types = {
-            'accepted': ('bmp', 'gif', 'jpeg', 'png'),
+            'accepted': ('image/bmp', 'image/gif', 'image/jpeg', 'image/png'),
             'rejected': '*',
             }
         # timer to store album data after it's edited

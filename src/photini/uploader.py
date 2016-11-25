@@ -240,8 +240,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         return path
 
     def is_convertible(self, image):
-        return True
-        if image.file_type == 'raw':
+        file_type = image.file_type.split('/')
+        if file_type[0] != 'image':
+            # can only convert images
+            return False
+        if 'raw' in file_type[1]:
             # can't convert raw files
             return False
         if image.pixmap.isNull():
@@ -258,7 +261,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if not self.is_convertible(image):
             msg = self.tr(
                 'File "{0}" is of type "{1}", which {2} does not' +
-                ' accept and Photini cannot convert to JPEG.')
+                ' accept and Photini cannot convert.')
             buttons = QtWidgets.QMessageBox.Ignore
         elif (self.image_types['rejected'] == '*' or
               image.file_type in self.image_types['rejected']):

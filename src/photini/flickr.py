@@ -282,8 +282,9 @@ class FlickrUploader(PhotiniUploader):
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Flickr')
         self.image_types = {
-            'accepted': ('gif', 'jpeg', 'png'),
-            'rejected': ('raw',),
+            'accepted': ('image/gif', 'image/jpeg', 'image/png',
+                         'video/mp4', 'video/mpeg', 'video/quicktime'),
+            'rejected': ('image/x-dcraw', 'video/x-ms-wmv'),
             }
 
     def load_user_data(self):
