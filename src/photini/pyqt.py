@@ -22,18 +22,22 @@ from __future__ import unicode_literals
 from collections import namedtuple
 
 try:
-    from PyQt5 import QtCore, QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
+    from PyQt5 import QtCore
+    using_pyqt5 = True
+except ImportError:
+    using_pyqt5 = False
+
+import sip
+if using_pyqt5:
+    from PyQt5 import QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
-    import sip
     sip.setdestroyonexit(True)
-except ImportError:
-    import sip
+else:
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
-    from PyQt4 import QtCore, QtGui
+    from PyQt4 import QtCore, QtGui, QtWebKit
     QtWidgets = QtGui
-    from PyQt4 import QtWebKit
     QtWebKitWidgets = QtWebKit
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
