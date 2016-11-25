@@ -27,13 +27,14 @@ try:
 except ImportError:
     using_pyqt5 = False
 
-import sip
 if using_pyqt5:
     from PyQt5 import QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
+    import sip
     sip.setdestroyonexit(True)
 else:
+    import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     from PyQt4 import QtCore, QtGui, QtWebKit
