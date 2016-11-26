@@ -28,8 +28,8 @@ from six.moves.urllib.parse import unquote
 import webbrowser
 
 from photini.metadata import Metadata
-from photini.pyqt import (
-    Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info)
+from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
+                          qt_version_info, video_types)
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -204,7 +204,7 @@ class Image(QtWidgets.QFrame):
 
     def load_thumbnail(self):
         if self.pixmap.isNull():
-            self.image.setText(self.tr('Can not\nload\nimage'))
+            self.image.setText(self.tr('Can not\ncreate\nthumbnail'))
         else:
             pixmap = self.pixmap
             orientation = self.metadata.orientation
@@ -415,10 +415,11 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        types = ' '.join(['*.' + x for x in image_types()])
         path_list = QtWidgets.QFileDialog.getOpenFileNames(
             self, "Open files", self.app.config_store.get('paths', 'images', ''),
-            self.tr("Images ({0});;All files (*)").format(types))
+            self.tr("Images ({0});;Videos ({1});;All files (*)").format(
+                ' '.join(['*.' + x for x in image_types()]),
+                ' '.join(['*.' + x for x in video_types()])))
         if qt_version_info >= (5, 0):
             path_list = path_list[0]
         if not path_list:

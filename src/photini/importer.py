@@ -34,12 +34,13 @@ except ImportError:
     gp = None
 
 from photini.metadata import Metadata
-from photini.pyqt import Busy, image_types, Qt, QtCore, QtGui, QtWidgets, StartStopButton
+from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
+                          StartStopButton, video_types)
 
 class FolderSource(object):
     def __init__(self, root):
         self.root = root
-        self.image_types = ['.' + x for x in image_types()]
+        self.image_types = ['.' + x for x in image_types() + video_types()]
         if not os.path.isdir(self.root):
             raise RuntimeError('Folder not readable')
 
