@@ -493,9 +493,7 @@ class DateTime(MetadataDictValue):
     def contains(self, other):
         if (not other) or (other.value == self.value):
             return True
-        precision = min(self.precision, other.precision)
-        if (self.truncate_date_time(other.datetime, precision) !=
-                self.truncate_date_time(self.datetime, precision)):
+        if other.datetime != self.datetime:
             return False
         if self.precision < 7 and other.precision < self.precision:
             return False
@@ -505,10 +503,25 @@ class DateTime(MetadataDictValue):
 
     def merge(self, other, family=None):
         result = False
-        # some formats default to a higher precision than wanted
-        if self.precision < 7 and other.precision < self.precision:
-            self.precision = other.precision
+        # work out apparent precisions by stripping zeroes
+        self_precision = self.precision
+        while self_precision > 1 and self.truncate_date_time(
+                        self.datetime, self_precision - 1) == self.datetime:
+            self_precision -= 1
+        other_precision = other.precision
+        while other_precision > 1 and self.truncate_date_time(
+                        other.datetime, other_precision - 1) == other.datetime:
+            other_precision -= 1
+        # if datetime values differ, choose the one with more apparent precision
+        if other.datetime != self.datetime and other_precision > self_precision:
             self.datetime = other.datetime
+            self.precision = other.precision
+            self.tz_offset = other.tz_offset
+            return True
+        # some formats default to a higher precision than wanted
+        if (other.datetime == self.datetime and
+                    self.precision < 7 and other.precision < self.precision):
+            self.precision = other.precision
             result = True
         # don't trust IPTC time zone and Exif time zone is quantised to
         # whole hours, unlike Xmp
