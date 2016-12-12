@@ -244,9 +244,14 @@ class LatLon(MetadataDictValue):
 
     @staticmethod
     def from_xmp_part(value):
-        degrees, minutes = value[:-1].split(',')
         ref = value[-1]
-        value = float(degrees) + (float(minutes) / 60.0)
+        if ref in ('N', 'S', 'E', 'W'):
+            value = value[:-1]
+        if ',' in value:
+            degrees, minutes = value.split(',')
+            value = float(degrees) + (float(minutes) / 60.0)
+        else:
+            value = float(value)
         if ref in ('S', 'W'):
             value = -value
         return value
