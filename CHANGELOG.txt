@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2016.12.0:
+  1/ Started adding support for video files.
+  2/ Improved compatibility with files written by other software.
+  3/ Fixed several annoying bugs.
+
 Changes in v2016.10.0:
   1/ Added a drop down list of favourite keywords.
   2/ Improved spell checking of words with hyphens or apostrophes.
