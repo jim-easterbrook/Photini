@@ -38,7 +38,7 @@ Note that the title (and keywords) are stored in XMP but not in Exif, so may not
 You may prefer to leave the title and keywords fields blank.
 
 The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
-The word "Gontier" is not in the British English dictionary, as indicated by the red underlining.
+The word "Château-Gontier" is not in the British English dictionary, as indicated by the red underlining.
 Right-clicking on a misspelled word shows a list of suggested alternatives, one of which can be chosen by clicking on it.
 
 .. image:: ../images/screenshot_10.png
@@ -50,3 +50,6 @@ There are probably only one or two photographs that share the same description, 
 
 Finally you can set a list of keywords for the image by typing them in the ``Keywords`` box.
 Keywords should be separated by semi-colon (;) characters.
+The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
+
+.. image:: ../images/screenshot_12.png
