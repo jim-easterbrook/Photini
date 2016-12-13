@@ -108,6 +108,13 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         self.editingFinished.emit()
         super(MultiLineEdit, self).focusOutEvent(event)
 
+    def keyPressEvent(self, event):
+        if self._is_multiple:
+            self._is_multiple = False
+            if qt_version_info >= (5, 3):
+                self.setPlaceholderText('')
+        super(MultiLineEdit, self).keyPressEvent(event)
+
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
         suggestion_group = QtWidgets.QActionGroup(menu)
@@ -167,7 +174,7 @@ class SingleLineEdit(MultiLineEdit):
         if event.key() == Qt.Key_Return:
             event.ignore()
             return
-        super(MultiLineEdit, self).keyPressEvent(event)
+        super(SingleLineEdit, self).keyPressEvent(event)
 
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
