@@ -146,18 +146,28 @@ class FlickrSession(object):
         for p_set in params[1]:
             if p_set['id']:
                 # add to existing set
-                self.api.photosets_addPhoto(
-                    photo_id=photo_id, photoset_id=p_set['id'])
-            else:
-                # create new set
+                try:
+                    self.api.photosets_addPhoto(
+                        photo_id=photo_id, photoset_id=p_set['id'])
+                    continue
+                except flickrapi.FlickrError as ex:
+                    logger.error('Add to photoset "%s" failed: %s',
+                                 p_set['title'], str(ex))
+                    p_set['id'] = None
+            # create new set
+            try:
                 rsp = self.api.photosets_create(
                     title=p_set['title'], description=p_set['description'],
                     primary_photo_id=photo_id)
-                if rsp.attrib['stat'] == 'ok':
-                    p_set['id'] = rsp.find('photoset').attrib['id']
-                else:
-                    logger.error('Create photoset %s failed: %s',
-                                 p_set['title'], rsp.attrib['stat'])
+                except flickrapi.FlickrError as ex:
+                    logger.error('Create photoset "%s" failed: %s',
+                                 p_set['title'], str(ex))
+                    continue
+            if rsp.attrib['stat'] == 'ok':
+                p_set['id'] = rsp.find('photoset').attrib['id']
+            else:
+                logger.error('Create photoset "%s" failed: %s',
+                             p_set['title'], rsp.attrib['stat'])
         return ''
 
     # delegate all other attributes to api object
