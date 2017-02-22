@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -168,7 +168,7 @@ class PicasaSession(object):
             # refresh manually to get a valid token now
             self.token = self.session.refresh_token(
                 self.token_url, **auto_refresh_kwargs)
-            self.session.headers.update({'GData-Version': 2})
+            self.session.headers.update({'GData-Version': '2'})
             # verify the token
             resp = self._check_response(self.session.get(
                 'https://www.googleapis.com/oauth2/v3/tokeninfo',
