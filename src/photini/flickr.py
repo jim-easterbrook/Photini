@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -159,10 +159,10 @@ class FlickrSession(object):
                 rsp = self.api.photosets_create(
                     title=p_set['title'], description=p_set['description'],
                     primary_photo_id=photo_id)
-                except flickrapi.FlickrError as ex:
-                    logger.error('Create photoset "%s" failed: %s',
-                                 p_set['title'], str(ex))
-                    continue
+            except flickrapi.FlickrError as ex:
+                logger.error('Create photoset "%s" failed: %s',
+                             p_set['title'], str(ex))
+                continue
             if rsp.attrib['stat'] == 'ok':
                 p_set['id'] = rsp.find('photoset').attrib['id']
             else:
