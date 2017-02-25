@@ -22,8 +22,6 @@ from __future__ import unicode_literals
 import six
 import logging
 import os
-from six.moves.urllib.error import HTTPError
-from six.moves.urllib.request import urlopen
 import xml.etree.ElementTree as ET
 
 import keyring
@@ -242,6 +240,22 @@ class PicasaSession(object):
                 self.logger.error('cannot read %s: %s', url, str(ex))
         return name, picture
 
+    def get_album_thumb(self, album):
+        if album.group.thumbnail is None:
+            return None
+        image = QtGui.QPixmap(160, 160)
+        try:
+            resp = self._check_response(
+                self.session.get(album.group.thumbnail[0].get('url')))
+            image.loadFromData(resp.content)
+        except Exception as ex:
+            paint = QtGui.QPainter(image)
+            paint.fillRect(image.rect(), Qt.black)
+            paint.setPen(Qt.white)
+            paint.drawText(image.rect(), Qt.AlignLeft | Qt.TextWordWrap, str(ex))
+            paint.end()
+        return image
+
     def do_upload(self, fileobj, image_type, image, params):
         # upload photo
         title = os.path.basename(image.path)
@@ -378,7 +392,7 @@ class PicasaUploadConfig(QtWidgets.QWidget):
     def switch_album(self, index):
         self.select_album.emit(self.albums.itemData(index))
 
-    def show_album(self, album):
+    def show_album(self, album, get_thumb):
         if album:
             self.albums.setCurrentIndex(self.albums.findData(album.id.text))
             self.widgets['description'].set_value(album.summary.text)
@@ -387,21 +401,13 @@ class PicasaUploadConfig(QtWidgets.QWidget):
                 self.widgets['access'].findData(album.access.text))
             self.widgets['timestamp'].setDateTime(
                 QtCore.QDateTime.fromTime_t(int(album.timestamp.text) // 1000))
-            if album.group.thumbnail is not None:
-                QtWidgets.QApplication.processEvents()
-                with Busy():
-                    url = album.group.thumbnail[0].get('url')
-                    image = QtGui.QPixmap(160, 160)
-                    try:
-                        image.loadFromData(urlopen(url).read())
-                    except HTTPError as ex:
-                        paint = QtGui.QPainter(image)
-                        paint.fillRect(image.rect(), Qt.black)
-                        paint.setPen(Qt.white)
-                        paint.drawText(image.rect(),
-                                       Qt.AlignLeft | Qt.TextWordWrap, str(ex))
-                        paint.end()
+            QtWidgets.QApplication.processEvents()
+            with Busy():
+                image = get_thumb(album)
+                if image:
                     self.album_thumb.setPixmap(image)
+                else:
+                    self.album_thumb.clear()
         else:
             self.widgets['description'].set_value(None)
             self.widgets['location'].clear()
@@ -453,7 +459,7 @@ class PicasaUploader(PhotiniUploader):
             self.set_current_album()
         else:
             self.show_user(None, None)
-            self.upload_config.show_album(None)
+            self.upload_config.show_album(None, None)
 
     def get_upload_params(self):
         return self.current_album
@@ -471,7 +477,7 @@ class PicasaUploader(PhotiniUploader):
                 self.refresh()
                 return
             self.current_album = None
-            self.upload_config.show_album(None)
+            self.upload_config.show_album(None, None)
             QtWidgets.QApplication.processEvents()
             album = PicasaNode()
             album.title.text = self.tr('New album')
@@ -501,7 +507,7 @@ Doing so will remove the album and its photos from all Google products."""
                 self.refresh()
                 return
             self.current_album = None
-            self.upload_config.show_album(None)
+            self.upload_config.show_album(None, None)
             QtWidgets.QApplication.processEvents()
             self.session.delete_album(album)
             self.upload_config.albums.removeItem(
@@ -516,7 +522,7 @@ Doing so will remove the album and its photos from all Google products."""
                 self.refresh()
                 return
             self.current_album = None
-            self.upload_config.show_album(None)
+            self.upload_config.show_album(None, None)
             QtWidgets.QApplication.processEvents()
             self.set_current_album(album_id)
 
@@ -551,10 +557,10 @@ Doing so will remove the album and its photos from all Google products."""
         self.current_album = None
         for album in self.get_albums():
             if album.id.text == album_id:
-                self.upload_config.show_album(album)
+                self.upload_config.show_album(album, self.session.get_album_thumb)
                 self.current_album = album
                 return
-        self.upload_config.show_album(None)
+        self.upload_config.show_album(None, None)
 
     @QtCore.pyqtSlot()
     def save_changes(self):
