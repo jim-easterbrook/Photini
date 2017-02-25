@@ -25,6 +25,8 @@ import requests
 import six
 from six.moves.html_parser import HTMLParser
 import time
+from six.moves.urllib.request import urlopen
+from six.moves.urllib.error import URLError
 
 import flickrapi
 import keyring
@@ -96,14 +98,17 @@ class FlickrSession(object):
             return result
         user = rsp['oauth']['user']
         result = user['fullname'], None
-        rsp = self.api.people.getInfo(
-            user_id=user['nsid'], format='parsed-json')
+        rsp = self.api.people.getInfo(user_id=user['nsid'], format='parsed-json')
         if rsp['stat'] != 'ok':
             return result
         person = rsp['person']
         icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
             person['iconfarm'], person['iconserver'], person['nsid'])
-        return user['fullname'], icon_url
+        try:
+            result = user['fullname'], urlopen(icon_url).read()
+        except Exception as ex:
+            self.logger.error('cannot read %s: %s', icon_url, str(ex))
+        return result
 
     def do_upload(self, fileobj, image_type, image, params):
         # collect metadata
@@ -301,8 +306,7 @@ class FlickrUploader(PhotiniUploader):
         self.photosets = []
         self.upload_config.clear_sets()
         if self.connected:
-            name, picture = self.session.get_user()
-            self.show_user(name, picture)
+            self.show_user(*self.session.get_user())
             sets = self.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text

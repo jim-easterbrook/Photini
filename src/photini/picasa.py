@@ -230,6 +230,18 @@ class PicasaSession(object):
             headers={'Content-Type' : 'image/' + image_type, 'Slug' : title}))
         return PicasaNode(text=resp.text)
 
+    def get_user(self, feed):
+        name = feed.nickname.text
+        picture = None
+        url = feed.thumbnail.text
+        if url:
+            try:
+                resp = self._check_response(self.session.get(url))
+                picture = resp.content
+            except Exception as ex:
+                self.logger.error('cannot read %s: %s', url, str(ex))
+        return name, picture
+
     def do_upload(self, fileobj, image_type, image, params):
         # upload photo
         title = os.path.basename(image.path)
@@ -434,7 +446,7 @@ class PicasaUploader(PhotiniUploader):
         self.upload_config.albums.clear()
         if self.connected:
             feed = self.session.get_feed()
-            self.show_user(feed.nickname.text, feed.thumbnail.text)
+            self.show_user(*self.session.get_user(feed))
             for album in self.get_albums(feed):
                 self.upload_config.albums.addItem(
                     album.title.text, album.id.text)

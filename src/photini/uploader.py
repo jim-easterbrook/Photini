@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -25,8 +25,6 @@ import os
 import six
 import shutil
 import threading
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.error import URLError
 import webbrowser
 
 import appdirs
@@ -208,10 +206,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 'Not connected to {}').format(self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
-            try:
-                pixmap.loadFromData(urlopen(picture).read())
-            except URLError as ex:
-                self.logger.error('cannot read %s: %s', picture, str(ex))
+            pixmap.loadFromData(picture)
         self.user_photo.setPixmap(pixmap)
 
     def get_temp_filename(self, image, ext='.jpg'):

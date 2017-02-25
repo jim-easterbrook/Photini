@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2016  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2016-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -113,9 +113,15 @@ class FacebookSession(object):
                        params={'fields': 'name,picture'})
         if not rsp:
             return None, None
-        if not rsp['picture']:
-            return rsp['name'], None
-        return rsp['name'], rsp['picture']['data']['url']
+        if rsp['picture']:
+            url = rsp['picture']['data']['url']
+            try:
+                pic_rsp = self.session.get(url)
+                pic_rsp.raise_for_status()
+                return rsp['name'], pic_rsp.content
+            except Exception as ex:
+                self.logger.error('cannot read %s: %s', url, str(ex))
+        return rsp['name'], None
 
     def get_album(self, album_id, fields):
         picture = None
@@ -437,8 +443,7 @@ class FacebookUploader(PhotiniUploader):
         self.upload_config.widgets['album_choose'].addItem(
             self.tr('<default>'), 'me')
         if self.connected:
-            name, picture = self.session.get_user()
-            self.show_user(name, picture)
+            self.show_user(*self.session.get_user())
             selected = 0
             for album in self.session.get_albums('id,can_upload,name'):
                 self.upload_config.widgets['album_choose'].addItem(
