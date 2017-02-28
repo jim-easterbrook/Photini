@@ -215,15 +215,15 @@ class PicasaSession(object):
             self.album_feed, params={'kind': 'album'}))
         return FeedNode(text=resp.text)
 
-    def new_album(self, album):
-        resp = self._check_response(self.session.post(
-            self.album_feed, album.to_string(),
-            headers={'Content-Type' : 'application/atom+xml'}))
-        return PicasaNode(text=resp.text)
+##    def new_album(self, album):
+##        resp = self._check_response(self.session.post(
+##            self.album_feed, album.to_string(),
+##            headers={'Content-Type' : 'application/atom+xml'}))
+##        return PicasaNode(text=resp.text)
 
-    def delete_album(self, album):
-        self._check_response(self.session.delete(
-            album.get_link('edit'), headers={'If-Match' : album.etag}))
+##    def delete_album(self, album):
+##        self._check_response(self.session.delete(
+##            album.get_link('edit'), headers={'If-Match' : album.etag}))
 
     def new_photo(self, title, album, data, image_type):
         resp = self._check_response(self.session.post(
@@ -267,26 +267,26 @@ class PicasaSession(object):
         except Exception as ex:
             return str(ex)
         # set metadata
-        photo.title.text = title
-        title = image.metadata.title
-        description = image.metadata.description
-        if title and description:
-            photo.summary.text = title.value + '\n\n' + description.value
-        elif title:
-            photo.summary.text = title.value
-        elif description:
-            photo.summary.text = description.value
-        keywords = image.metadata.keywords
-        if keywords:
-            photo.group.keywords.text = ','.join(keywords.value)
-        latlong = image.metadata.latlong
-        if latlong:
-            photo.where.Point.pos.text = '{:.6f} {:.6f}'.format(
-                latlong.lat, latlong.lon)
-        try:
-            self.edit_node(photo)
-        except Exception as ex:
-            return str(ex)
+##        photo.title.text = title
+##        title = image.metadata.title
+##        description = image.metadata.description
+##        if title and description:
+##            photo.summary.text = title.value + '\n\n' + description.value
+##        elif title:
+##            photo.summary.text = title.value
+##        elif description:
+##            photo.summary.text = description.value
+##        keywords = image.metadata.keywords
+##        if keywords:
+##            photo.group.keywords.text = ','.join(keywords.value)
+##        latlong = image.metadata.latlong
+##        if latlong:
+##            photo.where.Point.pos.text = '{:.6f} {:.6f}'.format(
+##                latlong.lat, latlong.lon)
+##        try:
+##            self.edit_node(photo)
+##        except Exception as ex:
+##            return str(ex)
         return ''
 
     def _check_response(self, resp):
@@ -297,10 +297,10 @@ class PicasaSession(object):
 
 
 class PicasaUploadConfig(QtWidgets.QWidget):
-    delete_album = QtCore.pyqtSignal()
-    new_album = QtCore.pyqtSignal()
+##    delete_album = QtCore.pyqtSignal()
+##    new_album = QtCore.pyqtSignal()
     select_album = QtCore.pyqtSignal(six.text_type)
-    update_album = QtCore.pyqtSignal(dict)
+##    update_album = QtCore.pyqtSignal(dict)
 
     def __init__(self, *arg, **kw):
         super(PicasaUploadConfig, self).__init__(*arg, **kw)
@@ -339,17 +339,17 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         self.widgets['access'].currentIndexChanged.connect(self.new_access)
         album_form_left.addRow(self.tr('Visibility'), self.widgets['access'])
         ## album buttons
-        buttons = QtWidgets.QHBoxLayout()
-        buttons.addStretch(stretch=60)
-        album_form_left.addRow(buttons)
+##        buttons = QtWidgets.QHBoxLayout()
+##        buttons.addStretch(stretch=60)
+##        album_form_left.addRow(buttons)
         # new album
-        new_album_button = QtWidgets.QPushButton(self.tr('New album'))
-        new_album_button.clicked.connect(self.new_album)
-        buttons.addWidget(new_album_button, stretch=20)
+##        new_album_button = QtWidgets.QPushButton(self.tr('New album'))
+##        new_album_button.clicked.connect(self.new_album)
+##        buttons.addWidget(new_album_button, stretch=20)
         # delete album
-        delete_album_button = QtWidgets.QPushButton(self.tr('Delete album'))
-        delete_album_button.clicked.connect(self.delete_album)
-        buttons.addWidget(delete_album_button, stretch=20)
+##        delete_album_button = QtWidgets.QPushButton(self.tr('Delete album'))
+##        delete_album_button.clicked.connect(self.delete_album)
+##        buttons.addWidget(delete_album_button, stretch=20)
         ## album details, right hand side
         album_form_right = QtWidgets.QFormLayout()
         album_form_right.setFieldGrowthPolicy(
@@ -389,7 +389,7 @@ class PicasaUploadConfig(QtWidgets.QWidget):
             'timestamp'   : '{:d}'.format(
                 self.widgets['timestamp'].dateTime().toTime_t() * 1000),
             }
-        self.update_album.emit(new_values)
+##        self.update_album.emit(new_values)
 
     @QtCore.pyqtSlot(int)
     def switch_album(self, index):
@@ -423,10 +423,10 @@ class PicasaUploader(PhotiniUploader):
 
     def __init__(self, *arg, **kw):
         self.upload_config = PicasaUploadConfig()
-        self.upload_config.delete_album.connect(self.delete_album)
-        self.upload_config.new_album.connect(self.new_album)
+##        self.upload_config.delete_album.connect(self.delete_album)
+##        self.upload_config.new_album.connect(self.new_album)
         self.upload_config.select_album.connect(self.select_album)
-        self.upload_config.update_album.connect(self.update_album)
+##        self.upload_config.update_album.connect(self.update_album)
         super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.save_changes)
         self.service_name = self.tr('Google Photos')
@@ -472,50 +472,50 @@ class PicasaUploader(PhotiniUploader):
         with Busy():
             self.set_current_album(self.current_album.id.text)
 
-    @QtCore.pyqtSlot()
-    def new_album(self):
-        with Busy():
-            self.save_changes()
-            if not self.session.permitted('write'):
-                self.refresh()
-                return
-            self.current_album = None
-            self.upload_config.show_album(None, None)
-            QtWidgets.QApplication.processEvents()
-            album = PicasaNode()
-            album.title.text = self.tr('New album')
-            album.category.set('scheme', nsmap['gd'] + '#kind')
-            album.category.set('term', nsmap['gphoto'] + '#album')
-            album = self.session.new_album(album)
-            self.upload_config.albums.addItem(album.title.text, album.id.text)
-            self.set_current_album(album.id.text)
+##    @QtCore.pyqtSlot()
+##    def new_album(self):
+##        with Busy():
+##            self.save_changes()
+##            if not self.session.permitted('write'):
+##                self.refresh()
+##                return
+##            self.current_album = None
+##            self.upload_config.show_album(None, None)
+##            QtWidgets.QApplication.processEvents()
+##            album = PicasaNode()
+##            album.title.text = self.tr('New album')
+##            album.category.set('scheme', nsmap['gd'] + '#kind')
+##            album.category.set('term', nsmap['gphoto'] + '#album')
+##            album = self.session.new_album(album)
+##            self.upload_config.albums.addItem(album.title.text, album.id.text)
+##            self.set_current_album(album.id.text)
 
-    @QtCore.pyqtSlot()
-    def delete_album(self):
-        album = self.current_album
-        if int(album.numphotos.text) > 0:
-            if QtWidgets.QMessageBox.question(
-                self, self.tr('Delete album'),
-                self.tr("""Are you sure you want to delete the album "{0}"?
-Doing so will remove the album and its photos from all Google products."""
-                        ).format(album.title.text),
-                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
-                QtWidgets.QMessageBox.Cancel
-                ) == QtWidgets.QMessageBox.Cancel:
-                return
-        with Busy():
-            self.timer.stop()
-            self.album_changed = False
-            if not self.session.permitted('write'):
-                self.refresh()
-                return
-            self.current_album = None
-            self.upload_config.show_album(None, None)
-            QtWidgets.QApplication.processEvents()
-            self.session.delete_album(album)
-            self.upload_config.albums.removeItem(
-                self.upload_config.albums.findData(album.id.text))
-            self.set_current_album()
+##    @QtCore.pyqtSlot()
+##    def delete_album(self):
+##        album = self.current_album
+##        if int(album.numphotos.text) > 0:
+##            if QtWidgets.QMessageBox.question(
+##                self, self.tr('Delete album'),
+##                self.tr("""Are you sure you want to delete the album "{0}"?
+##Doing so will remove the album and its photos from all Google products."""
+##                        ).format(album.title.text),
+##                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+##                QtWidgets.QMessageBox.Cancel
+##                ) == QtWidgets.QMessageBox.Cancel:
+##                return
+##        with Busy():
+##            self.timer.stop()
+##            self.album_changed = False
+##            if not self.session.permitted('write'):
+##                self.refresh()
+##                return
+##            self.current_album = None
+##            self.upload_config.show_album(None, None)
+##            QtWidgets.QApplication.processEvents()
+##            self.session.delete_album(album)
+##            self.upload_config.albums.removeItem(
+##                self.upload_config.albums.findData(album.id.text))
+##            self.set_current_album()
 
     @QtCore.pyqtSlot(six.text_type)
     def select_album(self, album_id):
@@ -529,31 +529,31 @@ Doing so will remove the album and its photos from all Google products."""
             QtWidgets.QApplication.processEvents()
             self.set_current_album(album_id)
 
-    @QtCore.pyqtSlot(dict)
-    def update_album(self, new_values):
-        if not self.current_album:
-            return
-        if new_values['title'] != self.current_album.title.text:
-            self.current_album.title.text = new_values['title']
-            self.album_changed = True
-        if new_values['description'] != (self.current_album.summary.text or ''):
-            self.current_album.summary.text = new_values['description']
-            self.album_changed = True
-        if new_values['location'] != (self.current_album.location.text or ''):
-            self.current_album.location.text = new_values['location']
-            self.album_changed = True
-        if new_values['access'] != self.current_album.access.text:
-            self.current_album.access.text = new_values['access']
-            self.album_changed = True
-        if new_values['timestamp'] != self.current_album.timestamp.text:
-            self.current_album.timestamp.text = new_values['timestamp']
-            self.album_changed = True
-        if self.album_changed:
-            self.timer.start()
+##    @QtCore.pyqtSlot(dict)
+##    def update_album(self, new_values):
+##        if not self.current_album:
+##            return
+##        if new_values['title'] != self.current_album.title.text:
+##            self.current_album.title.text = new_values['title']
+##            self.album_changed = True
+##        if new_values['description'] != (self.current_album.summary.text or ''):
+##            self.current_album.summary.text = new_values['description']
+##            self.album_changed = True
+##        if new_values['location'] != (self.current_album.location.text or ''):
+##            self.current_album.location.text = new_values['location']
+##            self.album_changed = True
+##        if new_values['access'] != self.current_album.access.text:
+##            self.current_album.access.text = new_values['access']
+##            self.album_changed = True
+##        if new_values['timestamp'] != self.current_album.timestamp.text:
+##            self.current_album.timestamp.text = new_values['timestamp']
+##            self.album_changed = True
+##        if self.album_changed:
+##            self.timer.start()
 
     def set_current_album(self, album_id=None):
         if self.upload_config.albums.count() == 0:
-            self.new_album()
+##            self.new_album()
             return
         if album_id is None:
             album_id = self.upload_config.albums.itemData(0)
