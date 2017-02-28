@@ -24,6 +24,7 @@ import logging
 import os
 import xml.etree.ElementTree as ET
 
+import certifi
 import keyring
 import requests
 from requests_oauthlib import OAuth2Session
@@ -163,6 +164,7 @@ class PicasaSession(object):
                     )
             else:
                 self.session = OAuth2Session(client_id, token=self.token)
+            self.session.verify = certifi.old_where()
             # refresh manually to get a valid token now
             self.token = self.session.refresh_token(
                 self.token_url, **auto_refresh_kwargs)
@@ -181,6 +183,7 @@ class PicasaSession(object):
         self.session = OAuth2Session(
             client_id, scope=self.scope[level],
             redirect_uri='urn:ietf:wg:oauth:2.0:oob')
+        self.session.verify = certifi.old_where()
         return self.session.authorization_url(
             'https://accounts.google.com/o/oauth2/v2/auth')[0]
 
