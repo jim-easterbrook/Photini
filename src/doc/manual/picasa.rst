@@ -1,9 +1,17 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Google Photos / Picasa uploader
 ===============================
+
+.. attention::
+   In early 2017 Google disabled many of the API functions used by this uploader.
+   Creation and deletion of albums is no longer possible and the relevant GUI buttons have been removed.
+   Editing album details is also no longer possible.
+   You can still upload photos to an existing album though.
+
+   Further changes to the GUI will be made if and when Google release a new API with suitable functionality.
 
 The ``Google Photos upload`` tab (keyboard shortcut ``Alt+P``) allows you to upload your photographs to `Google Photos <https://photos.google.com/>`_ and `Picasa Web Albums <https://picasaweb.google.com/>`_.
 Although it was originally written as a Picasa uploader, it also uploads to Google Photos.
