@@ -316,22 +316,25 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         album_group.layout().addLayout(album_form_left)
         # album title / selector
         self.albums = QtWidgets.QComboBox()
-        self.albums.setEditable(True)
+##        self.albums.setEditable(True)
         self.albums.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.albums.activated.connect(self.switch_album)
-        self.albums.lineEdit().editingFinished.connect(self.new_title)
+##        self.albums.lineEdit().editingFinished.connect(self.new_title)
         album_form_left.addRow(self.tr('Title'), self.albums)
         # album description
         self.widgets['description'] = MultiLineEdit(spell_check=True)
+        self.widgets['description'].setEnabled(False)
         self.widgets['description'].editingFinished.connect(self.new_album_details)
         album_form_left.addRow(
             self.tr('Description'), self.widgets['description'])
         # album location
         self.widgets['location'] = QtWidgets.QLineEdit()
+        self.widgets['location'].setEnabled(False)
         self.widgets['location'].editingFinished.connect(self.new_album_details)
         album_form_left.addRow(self.tr('Place taken'), self.widgets['location'])
         # album visibility
         self.widgets['access'] = QtWidgets.QComboBox()
+        self.widgets['access'].setEnabled(False)
         self.widgets['access'].addItem(self.tr('Public on the web'), 'public')
         self.widgets['access'].addItem(
             self.tr('Limited, anyone with the link'), 'private')
@@ -357,6 +360,7 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         album_group.layout().addLayout(album_form_right)
         # album date
         self.widgets['timestamp'] = QtWidgets.QDateEdit()
+        self.widgets['timestamp'].setEnabled(False)
         self.widgets['timestamp'].setMinimumDateTime(
             QtCore.QDateTime.fromTime_t(0))
         self.widgets['timestamp'].setCalendarPopup(True)
