@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,11 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2017.03.0:
+  1/ Fix bugs in Google Photos uploader and remove disabled functionality.
+  2/ Improve error handling in Flickr uploader.
+  3/ Updated German translation.
 
 Changes in v2016.12.0:
   1/ Started adding support for video files.
