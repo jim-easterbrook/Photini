@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -32,37 +32,26 @@ from photini.pyqt import QtCore, QtGui, QtWebKit, QtWidgets
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         super(BingMap, self).__init__(*arg, **kw)
-        if self.app.test_mode:
-            self.drag_icon = QtGui.QPixmap(
-                os.path.join(self.script_dir, 'grey_marker_v8.png'))
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
 
     def load_api(self):
+        src = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         if self.app.test_mode:
-            src = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
             src += '&branch=experimental'
-            version_8 = 'true'
-        else:
-            src = 'http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0'
-            version_8 = 'false'
         self.setProperty('api_key', key_store.get('bing', 'api_key'))
-        if not self.app.test_mode:
-            lang, encoding = locale.getdefaultlocale()
-            if lang:
-                src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
-            else:
-                src += '&mkt=ngt'
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            src += '&mkt={0},ngt'.format(lang.replace('_', '-'))
+        else:
+            src += '&mkt=ngt'
         return """
-    <script type="text/javascript">
-      var VERSION_8 = {1};
-    </script>
     <script charset="UTF-8" type="text/javascript"
       src="{0}">
     </script>
-""".format(src, version_8)
+""".format(src)
 
     def show_terms(self):
         # return widgets to display map terms and conditions

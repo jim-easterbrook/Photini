@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -32,13 +32,10 @@ function initialize()
     enableClickableLogo: false,
     enableSearchLogo: false,
   };
-  if (VERSION_8)
-  {
-    mapOptions['showLocateMeButton'] = false;
-    mapOptions['showTermsLink'] = false;
-    mapOptions['navigationBarMode'] = Microsoft.Maps.NavigationBarMode.compact;
-    mapOptions['navigationBarOrientation'] = Microsoft.Maps.NavigationBarOrientation.vertical;
-  }
+  mapOptions['showLocateMeButton'] = false;
+  mapOptions['showTermsLink'] = false;
+  mapOptions['navigationBarMode'] = Microsoft.Maps.NavigationBarMode.compact;
+  mapOptions['navigationBarOrientation'] = Microsoft.Maps.NavigationBarOrientation.vertical;
   map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
   Microsoft.Maps.loadModule(
@@ -94,32 +91,16 @@ function enableMarker(id, active)
   var marker = markers[id];
   if (marker)
   {
-    if (VERSION_8)
-    {
-      if (active)
-        marker.setOptions({
-          color: 'Orchid',
-          zIndex: 1
-        });
-      else
-        marker.setOptions({
-          color: 'DimGrey',
-          zIndex: 0
-        });
-    }
+    if (active)
+      marker.setOptions({
+        color: 'Orchid',
+        zIndex: 1
+      });
     else
-    {
-      if (active)
-        marker.setOptions({
-          icon: defaultPushpinIcon,
-          zIndex: 1
-        });
-      else
-        marker.setOptions({
-          icon: 'grey_marker.png',
-          zIndex: 0
-        });
-    }
+      marker.setOptions({
+        color: 'DimGrey',
+        zIndex: 0
+      });
   }
 }
 
@@ -151,19 +132,13 @@ function markerClick(event)
 
 function markerDragStart(event)
 {
-  if (VERSION_8)
-    var marker = event.target;
-  else
-    var marker = event.entity;
+  var marker = event.target;
   python.marker_click(marker._id);
 }
 
 function markerDrag(event)
 {
-  if (VERSION_8)
-    var marker = event.target;
-  else
-    var marker = event.entity;
+  var marker = event.target;
   var loc = marker.getLocation();
   python.marker_drag(loc.latitude, loc.longitude, marker._id);
 }
