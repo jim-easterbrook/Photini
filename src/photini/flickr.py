@@ -25,8 +25,6 @@ import requests
 import six
 from six.moves.html_parser import HTMLParser
 import time
-from six.moves.urllib.request import urlopen
-from six.moves.urllib.error import URLError
 
 import flickrapi
 import keyring
@@ -105,7 +103,8 @@ class FlickrSession(object):
         icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
             person['iconfarm'], person['iconserver'], person['nsid'])
         try:
-            result = user['fullname'], urlopen(icon_url).read()
+            rsp = requests.get(icon_url)
+            result = user['fullname'], rsp.content
         except Exception as ex:
             self.logger.error('cannot read %s: %s', icon_url, str(ex))
         return result

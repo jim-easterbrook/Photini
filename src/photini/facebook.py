@@ -23,7 +23,6 @@ from collections import defaultdict
 import logging
 import math
 import os
-from six.moves.urllib.request import urlopen
 from six.moves.urllib.parse import unquote
 
 import keyring
@@ -402,8 +401,9 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         pixmap = QtGui.QPixmap()
         if picture:
             try:
-                pixmap.loadFromData(urlopen(picture).read())
-            except URLError as ex:
+                rsp = requests.get(picture)
+                pixmap.loadFromData(rsp.content)
+            except Exception as ex:
                 self.logger.error('cannot read %s: %s', picture, str(ex))
         self.widgets['album_thumb'].setPixmap(pixmap)
 
