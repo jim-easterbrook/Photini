@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -153,24 +153,22 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def initialise(self):
         page_start = """
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" http-equiv="Content-Type"
-      content="initial-scale=1.0, user-scalable=no" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
-      html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      #mapDiv { height: 100% }
+      html, body { height: 100%; margin: 0; padding: 0 }
+      #mapDiv { position: relative; width: 100%; height: 100% }
     </style>
+  </head>
+  <body ondragstart="return false" onload="initialize()">
+    <div id="mapDiv"></div>
 """
         page_end = """
     <script type="text/javascript" src="script.js">
     </script>
-  </head>
-  <body ondragstart="return false" onload="initialize()">
-    <div id="mapDiv" style="width:100%; height:100%"></div>
   </body>
 </html>
 """
