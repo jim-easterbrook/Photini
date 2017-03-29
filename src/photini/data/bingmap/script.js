@@ -31,11 +31,11 @@ function initialize()
     disableBirdseye: true,
     enableClickableLogo: false,
     enableSearchLogo: false,
+    showLocateMeButton: false,
+    showTermsLink: false,
+    navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
+    navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
   };
-  mapOptions['showLocateMeButton'] = false;
-  mapOptions['showTermsLink'] = false;
-  mapOptions['navigationBarMode'] = Microsoft.Maps.NavigationBarMode.compact;
-  mapOptions['navigationBarOrientation'] = Microsoft.Maps.NavigationBarOrientation.vertical;
   map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
   Microsoft.Maps.loadModule(
