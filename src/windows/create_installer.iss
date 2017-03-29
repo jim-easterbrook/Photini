@@ -1,15 +1,15 @@
-#define PyDir "{app}\python-3.4.3"
-#define SrcDir "WinPython\python-3.4.3"
+#define PyDir "{app}\python-3.4.4"
+#define SrcDir "WinPython\python-3.4.4"
 
 [Setup]
-VersionInfoVersion=15.10
+VersionInfoVersion=2017.03
 VersionInfoProductTextVersion=Latest release
 AppId={{55D6EC72-D14D-4A19-AE26-EECC1A6EF1EA}
 AppName=Photini
 AppVerName=Photini
 AppPublisher=Jim Easterbrook
 AppPublisherURL=https://github.com/jim-easterbrook/Photini
-AppCopyright=Copyright (C) 2012-15 Jim Easterbrook
+AppCopyright=Copyright (C) 2012-17 Jim Easterbrook
 DefaultDirName={pf}\Photini
 DefaultGroupName=Photini
 AllowNoIcons=yes
@@ -21,7 +21,7 @@ LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=8500000
+ExtraDiskSpaceRequired=18800000
 SignTool=normal
 
 [Languages]
@@ -36,9 +36,11 @@ Source: "{#SrcDir}\*"; DestDir: "{#PyDir}"; \
   Excludes: "*.pyc,\DLLs\t*86t.dll,\Lib\site-packages,\Lib\test,\Doc,\include,\Logs,\man,\share,\tcl,\Tools"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#SrcDir}\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; \
-  Excludes: "*.pyc,\gnome,\PyQt4"; \
+  Excludes: "*.pyc,\gnome,\PyQt5"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SrcDir}\Lib\site-packages\PyQt4\*"; DestDir: "{#PyDir}\Lib\site-packages\PyQt4"; \
+Source: "{#SrcDir}\Lib\site-packages\gnome\share\enchant\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome\share\enchant"; \
+  Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SrcDir}\Lib\site-packages\PyQt5\*"; DestDir: "{#PyDir}\Lib\site-packages\PyQt5"; \
   Excludes: "*.exe,\doc,\examples,\qsci,\sip,\uic"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome"; \
@@ -46,6 +48,7 @@ Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packa
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "WinPython\WinPython Command Prompt.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "WinPython\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
