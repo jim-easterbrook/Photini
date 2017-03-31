@@ -292,8 +292,8 @@ class FlickrUploader(PhotiniUploader):
 
     def __init__(self, *arg, **kw):
         self.upload_config = FlickrUploadConfig()
-        self.upload_config.new_set.connect(self.new_set)
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
+        self.upload_config.new_set.connect(self.new_set)
         self.service_name = self.tr('Flickr')
         self.image_types = {
             'accepted': ('image/gif', 'image/jpeg', 'image/png',

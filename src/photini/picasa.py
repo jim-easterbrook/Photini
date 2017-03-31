@@ -427,11 +427,11 @@ class PicasaUploader(PhotiniUploader):
 
     def __init__(self, *arg, **kw):
         self.upload_config = PicasaUploadConfig()
+        super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
 ##        self.upload_config.delete_album.connect(self.delete_album)
 ##        self.upload_config.new_album.connect(self.new_album)
         self.upload_config.select_album.connect(self.select_album)
 ##        self.upload_config.update_album.connect(self.update_album)
-        super(PicasaUploader, self).__init__(self.upload_config, *arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.save_changes)
         self.service_name = self.tr('Google Photos')
         self.image_types = {

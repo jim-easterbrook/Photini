@@ -413,9 +413,9 @@ class FacebookUploader(PhotiniUploader):
 
     def __init__(self, *arg, **kw):
         self.upload_config = FacebookUploadConfig()
+        super(FacebookUploader, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_album.connect(self.new_album)
         self.upload_config.select_album.connect(self.select_album)
-        super(FacebookUploader, self).__init__(self.upload_config, *arg, **kw)
         self.service_name = self.tr('Facebook')
         self.image_types = {
             'accepted': ('image/jpeg', 'image/png'),
