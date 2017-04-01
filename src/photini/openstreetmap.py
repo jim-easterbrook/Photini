@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -63,7 +63,7 @@ class OpenStreetMap(PhotiniMap):
     @QtCore.pyqtSlot()
     def load_tou_nominatim(self):
         webbrowser.open_new(
-            'http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy')
+            'https://operations.osmfoundation.org/policies/nominatim/')
 
     @QtCore.pyqtSlot()
     def load_tou_leaflet(self):
