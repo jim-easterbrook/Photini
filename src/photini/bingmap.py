@@ -36,10 +36,10 @@ class BingMap(PhotiniMap):
             QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+        self.init_data.update({'api_key': key_store.get('bing', 'api_key')})
 
     def load_api(self):
         src = 'http://www.bing.com/api/maps/mapcontrol'
-        self.setProperty('api_key', key_store.get('bing', 'api_key'))
         lang, encoding = locale.getdefaultlocale()
         if lang:
             src += '?mkt={0},ngt'.format(lang.replace('_', '-'))

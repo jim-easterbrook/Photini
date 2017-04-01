@@ -24,9 +24,9 @@ var searchManager;
 function initialize()
 {
   var mapOptions = {
-    credentials: python.api_key,
-    center: new Microsoft.Maps.Location(python.lat, python.lng),
-    zoom: python.zoom,
+    credentials: initData.api_key,
+    center: new Microsoft.Maps.Location(initData.lat, initData.lng),
+    zoom: initData.zoom,
     mapTypeId: Microsoft.Maps.MapTypeId.road,
     disableBirdseye: true,
     enableClickableLogo: false,
@@ -36,7 +36,7 @@ function initialize()
     navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
     navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
   };
-  map = new Microsoft.Maps.Map(document.getElementById("mapDiv"), mapOptions);
+  map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
   Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
   Microsoft.Maps.loadModule(
     'Microsoft.Maps.Search', {callback: searchModuleLoaded});

@@ -71,6 +71,8 @@ class WebView(QtWebKitWidgets.QWebView):
 
 
 class PhotiniMap(QtWidgets.QWidget):
+    init_data = {}
+
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -159,12 +161,15 @@ class PhotiniMap(QtWidgets.QWidget):
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
     <style type="text/css">
-      html, body { height: 100%; margin: 0; padding: 0 }
-      #mapDiv { position: relative; width: 100%; height: 100% }
+      html, body {{ height: 100%; margin: 0; padding: 0 }}
+      #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
   </head>
   <body ondragstart="return false" onload="initialize()">
     <div id="mapDiv"></div>
+    <script type="text/javascript">
+    var initData = {0:s};
+    </script>
 """
         page_end = """
     <script type="text/javascript" src="script.js">
@@ -174,9 +179,8 @@ class PhotiniMap(QtWidgets.QWidget):
 """
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        self.setProperty('lat', lat)
-        self.setProperty('lng', lng)
-        self.setProperty('zoom', zoom)
+        self.init_data.update({'lat': lat, 'lng': lng, 'zoom': zoom})
+        page_start = page_start.format(str(self.init_data))
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(
             page_start + self.load_api() + page_end,
