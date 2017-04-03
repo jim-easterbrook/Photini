@@ -58,8 +58,7 @@ function getMapBounds()
 
 function adjustBounds(lat0, lng0, lat1, lng1)
 {
-  bounds = new google.maps.LatLngBounds({lat: lat0, lng: lng0}, {lat: lat1, lng: lng1});
-  map.fitBounds(bounds);
+  map.fitBounds({north: lat0, east: lng0, south: lat1, west: lng1});
 }
 
 function goTo(lat, lng)
@@ -182,9 +181,10 @@ function search(search_string)
 	{
 	  for (i in results)
 	  {
-	    loc = results[i].geometry.location;
-	    python.search_result(
-	      loc.lat(), loc.lng(), results[i].formatted_address);
+            var ne = results[i].geometry.viewport.getNorthEast();
+            var sw = results[i].geometry.viewport.getSouthWest();
+	    python.search_result(ne.lat(), ne.lng(), sw.lat(), sw.lng(),
+                                 results[i].formatted_address);
 	  }
 	}
 	else

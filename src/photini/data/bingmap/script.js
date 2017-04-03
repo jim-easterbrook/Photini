@@ -180,9 +180,10 @@ function geocodeCallback(geocodeResult, userData)
 {
   for (var i = 0; i < geocodeResult.results.length; i++)
   {
-    var loc = geocodeResult.results[i].location;
+    var view = geocodeResult.results[i].bestView;
     python.search_result(
-      loc.latitude, loc.longitude, geocodeResult.results[i].name);
+      view.getNorth(), view.getEast(), view.getSouth(), view.getWest(),
+      geocodeResult.results[i].name);
   }
 }
 

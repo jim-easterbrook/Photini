@@ -76,7 +76,6 @@ class PhotiniMap(QtWidgets.QWidget):
             'photini', 'data/' + self.__class__.__name__.lower() + '/')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'grey_marker.png'))
-        self.location = {}
         self.search_string = None
         self.map_loaded = False
         self.marker_images = {}
@@ -363,7 +362,6 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         self.search_string = search_string
         self.clear_search()
-        self.location = dict()
         self.JavaScript('search("{0}")'.format(search_string))
 
     def clear_search(self):
@@ -372,10 +370,9 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.search_string:
             self.edit_box.addItem(translate('PhotiniMap', '<repeat search>'))
 
-    @QtCore.pyqtSlot(float, float, six.text_type)
-    def search_result(self, lat, lng, name):
-        self.edit_box.addItem(name)
-        self.location[name] = lat, lng
+    @QtCore.pyqtSlot(float, float, float, float, six.text_type)
+    def search_result(self, lat0, lng0, lat1, lng1, name):
+        self.edit_box.addItem(name, (lat0, lng0, lat1, lng1))
         self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
@@ -388,10 +385,8 @@ class PhotiniMap(QtWidgets.QWidget):
             # repeat search
             self.search(self.search_string)
             return
-        name = self.edit_box.itemText(idx)
-        if name in self.location:
-            lat, lng = self.location[name]
-            self.JavaScript('goTo({0!r}, {1!r})'.format(lat, lng))
+        view = self.edit_box.itemData(idx)
+        self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
     @QtCore.pyqtSlot(six.text_type)
     def marker_click(self, marker_id):

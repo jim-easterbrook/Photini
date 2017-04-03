@@ -89,7 +89,6 @@ class OpenStreetMap(PhotiniMap):
             return
         self.search_string = search_string
         self.clear_search()
-        self.location = dict()
         params = {
             'q': search_string,
             'format': 'json',
@@ -105,4 +104,6 @@ class OpenStreetMap(PhotiniMap):
             params=params, headers=headers)
         for result in rsp.json():
             self.search_result(
-                result['lat'], result['lon'], result['display_name'])
+                result['boundingbox'][0], result['boundingbox'][3],
+                result['boundingbox'][1], result['boundingbox'][2],
+                result['display_name'])
