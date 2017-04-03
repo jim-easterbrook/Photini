@@ -268,8 +268,8 @@ class PhotiniMap(QtWidgets.QWidget):
         map_bounds = self.JavaScript('getMapBounds()')
         if not map_bounds:
             return
-        map_height = map_bounds[2] - map_bounds[0]
-        map_width = map_bounds[3] - map_bounds[1]
+        map_height = map_bounds[1] - map_bounds[3]
+        map_width = map_bounds[2] - map_bounds[0]
         bounds = (bounds[0] - (map_height * 0.04),
                   bounds[1] - (map_width  * 0.04),
                   bounds[2] + (map_height * 0.13),
@@ -278,13 +278,13 @@ class PhotiniMap(QtWidgets.QWidget):
             (bounds[3] - bounds[1]) <= map_width):
             # pan map
             lat_shift = 0.0
-            lat_shift = min(lat_shift, bounds[0] - map_bounds[0])
-            lat_shift = max(lat_shift, bounds[2] - map_bounds[2])
+            lat_shift = min(lat_shift, bounds[0] - map_bounds[3])
+            lat_shift = max(lat_shift, bounds[2] - map_bounds[1])
             lng_shift = 0.0
-            lng_shift = min(lng_shift, bounds[1] - map_bounds[1])
-            lng_shift = max(lng_shift, bounds[3] - map_bounds[3])
-            lat = ((map_bounds[0] + map_bounds[2]) / 2.0) + lat_shift
-            lng = ((map_bounds[1] + map_bounds[3]) / 2.0) + lng_shift
+            lng_shift = min(lng_shift, bounds[1] - map_bounds[0])
+            lng_shift = max(lng_shift, bounds[3] - map_bounds[2])
+            lat = ((map_bounds[3] + map_bounds[1]) / 2.0) + lat_shift
+            lng = ((map_bounds[0] + map_bounds[2]) / 2.0) + lng_shift
             self.JavaScript('panTo({:f},{:f})'.format(lat, lng))
             return
         self.JavaScript(

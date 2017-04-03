@@ -62,8 +62,8 @@ function setView(lat, lng, zoom)
 function getMapBounds()
 {
   var map_bounds = map.getBounds();
-  return [map_bounds.getSouth(), map_bounds.getWest(),
-          map_bounds.getNorth(), map_bounds.getEast()];
+  return [map_bounds.getWest(), map_bounds.getNorth(),
+          map_bounds.getEast(), map_bounds.getSouth()];
 }
 
 function adjustBounds(lat0, lng0, lat1, lng1)
