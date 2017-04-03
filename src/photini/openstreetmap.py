@@ -22,6 +22,9 @@ from __future__ import unicode_literals
 import os
 import webbrowser
 
+import requests
+
+from photini import __version__
 from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore, QtWidgets, qt_version_info
 
@@ -76,3 +79,30 @@ class OpenStreetMap(PhotiniMap):
     @QtCore.pyqtSlot()
     def load_tou_tiles(self):
         webbrowser.open_new('http://www.stamen.com/')
+
+    @QtCore.pyqtSlot()
+    def search(self, search_string=None):
+        if not search_string:
+            search_string = self.edit_box.lineEdit().text()
+            self.edit_box.clearEditText()
+        if not search_string:
+            return
+        self.search_string = search_string
+        self.clear_search()
+        self.location = dict()
+        params = {
+            'q': search_string,
+            'format': 'json',
+            'polygon': '0',
+            'addressdetails': '0',
+            }
+        bounds = self.JavaScript('getMapBounds()')
+        if bounds:
+            params['viewbox'] = '{1:.8f},{2:.8f},{3:.8f},{0:.8f}'.format(*bounds)
+        headers = {'user-agent': 'Photini/' + __version__}
+        rsp = requests.get(
+            'http://nominatim.openstreetmap.org/search',
+            params=params, headers=headers)
+        for result in rsp.json():
+            self.search_result(
+                result['lat'], result['lon'], result['display_name'])

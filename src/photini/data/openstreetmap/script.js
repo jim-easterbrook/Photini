@@ -148,26 +148,3 @@ function latLngFromPixel(x, y)
   var position = map.containerPointToLatLng([x, y]);
   return [position.lat, position.lng];
 }
-
-function search(search_string)
-{
-  var xmlhttp = new XMLHttpRequest();
-  xmlhttp.onreadystatechange = function() {
-    if (xmlhttp.readyState == 4)
-    {
-      var results = JSON.parse(xmlhttp.responseText);
-      for (var i = 0; i < results.length; i++)
-      {
-        python.search_result(
-          parseFloat(results[i].lat), parseFloat(results[i].lon),
-          results[i].display_name);
-      }
-    }
-  }
-  var url = "http://nominatim.openstreetmap.org/search?q=" +
-            encodeURIComponent(search_string) +
-	    "&format=json&polygon=0&addressdetails=0&viewbox=" +
-	    map.getBounds().toBBoxString();
-  xmlhttp.open("GET", url, true);
-  xmlhttp.send(null);
-}

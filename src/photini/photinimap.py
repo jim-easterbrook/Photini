@@ -29,7 +29,6 @@ import six
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
-from photini import __version__
 
 translate = QtCore.QCoreApplication.translate
 
@@ -42,13 +41,6 @@ class WebPage(QtWebKitWidgets.QWebPage):
         if msg.startswith("Consider using 'dppx' units instead of 'dpi'"):
             return
         self.logger.error('%s line %d: %s', source, line, msg)
-
-    def userAgentForUrl(self, url):
-        host = url.host()
-        # Nominatim requires the user agent to identify the application
-        if 'nominatim' in host:
-            return 'Photini/' + __version__
-        return super(WebPage, self).userAgentForUrl(url)
 
 
 class WebView(QtWebKitWidgets.QWebView):
