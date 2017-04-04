@@ -18,6 +18,8 @@
 
 var map;
 var markers = {};
+var icon_on;
+var icon_off;
 
 function initialize()
 {
@@ -31,6 +33,9 @@ function initialize()
         {maxZoom: 18}).addTo(map);
     L.control.scale().addTo(map);
     map.on('moveend zoomend', newBounds);
+    icon_on = new L.Icon.Default();
+    icon_off = new L.Icon({
+        iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]});
     python.initialize_finished();
 }
 
@@ -76,13 +81,12 @@ function enableMarker(id, active)
     if (active)
     {
         marker.setZIndexOffset(1000);
-        marker.setIcon(new L.Icon.Default());
+        marker.setIcon(icon_on);
     }
     else
     {
         marker.setZIndexOffset(0);
-        marker.setIcon(new L.Icon({
-            iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]}));
+        marker.setIcon(icon_off);
     }
 }
 
