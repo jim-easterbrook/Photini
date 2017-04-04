@@ -73,17 +73,30 @@ function adjustBounds(lat0, lng0, lat1, lng1)
   map.setView({bounds: bounds});
 }
 
-function goTo(lat, lng)
+function fitPoints(points)
 {
-  map.setView({
-    center: new Microsoft.Maps.Location(lat, lng),
-    zoom: Math.min(Math.max(map.getZoom(), 11), 16)
-  });
-}
-
-function panTo(lat, lng)
-{
-  map.setView({center: new Microsoft.Maps.Location(lat, lng)});
+    var locations = [];
+    for (var i = 0; i < points.length; i++)
+    {
+        locations.push(new Microsoft.Maps.Location(points[i][0], points[i][1]));
+    }
+    var bounds = Microsoft.Maps.LocationRect.fromLocations(locations);
+    var mapBounds = map.getBounds();
+    var nw = bounds.getNorthwest();
+    var se = bounds.getSoutheast();
+    nw = new Microsoft.Maps.Location(nw.latitude + (mapBounds.height * 0.13),
+                                     nw.longitude - (mapBounds.width * 0.04));
+    se = new Microsoft.Maps.Location(se.latitude - (mapBounds.height * 0.04),
+                                     se.longitude + (mapBounds.width * 0.04));
+    if (mapBounds.contains(nw) && mapBounds.contains(se))
+        return;
+    bounds = Microsoft.Maps.LocationRect.fromCorners(nw, se);
+    if (bounds.height > mapBounds.height || bounds.width > mapBounds.width)
+        map.setView({bounds: bounds});
+    else if (mapBounds.intersects(bounds))
+        map.setView({bounds: bounds, zoom: map.getZoom()});
+    else
+        map.setView({center: bounds.center, zoom: map.getZoom()});
 }
 
 function enableMarker(id, active)

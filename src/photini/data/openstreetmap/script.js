@@ -53,19 +53,14 @@ function getMapBounds()
 
 function adjustBounds(lat0, lng0, lat1, lng1)
 {
-  var bounds = new L.LatLngBounds([lat0, lng0], [lat1, lng1]);
-  map.fitBounds(bounds);
+    map.fitBounds([[lat0, lng0], [lat1, lng1]]);
 }
 
-function goTo(lat, lng)
+function fitPoints(points)
 {
-  map.setView(
-    new L.LatLng(lat, lng), Math.min(Math.max(map.getZoom(), 11), 16));
-}
-
-function panTo(lat, lng)
-{
-  map.setView(new L.LatLng(lat, lng));
+    var bounds = L.latLngBounds(points);
+    map.fitBounds(bounds,
+        {paddingTopLeft: [15, 50], paddingBottomRight: [15, 10], maxZoom: map.getZoom()});
 }
 
 function enableMarker(id, active)

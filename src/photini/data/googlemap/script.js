@@ -61,19 +61,32 @@ function adjustBounds(lat0, lng0, lat1, lng1)
   map.fitBounds({north: lat0, east: lng0, south: lat1, west: lng1});
 }
 
-function goTo(lat, lng)
+function fitPoints(points)
 {
-  var zoom = map.getZoom();
-  if (zoom < 11)
-    map.setZoom(11);
-  if (zoom > 16)
-    map.setZoom(16)
-  map.panTo(new google.maps.LatLng(lat, lng));
-}
-
-function panTo(lat, lng)
-{
-  map.panTo(new google.maps.LatLng(lat, lng));
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0; i < points.length; i++)
+    {
+        bounds.extend({lat: points[i][0], lng: points[i][1]});
+    }
+    var mapBounds = map.getBounds();
+    var mapSpan = mapBounds.toSpan();
+    var ne = bounds.getNorthEast();
+    var sw = bounds.getSouthWest();
+    bounds.extend({lat: ne.lat() + (mapSpan.lat() * 0.13),
+                   lng: ne.lng() + (mapSpan.lng() * 0.04)});
+    bounds.extend({lat: sw.lat() - (mapSpan.lat() * 0.04),
+                   lng: sw.lng() - (mapSpan.lng() * 0.04)});
+    ne = bounds.getNorthEast();
+    sw = bounds.getSouthWest();
+    if (mapBounds.contains(ne) && mapBounds.contains(sw))
+        return;
+    var span = bounds.toSpan();
+    if (span.lat() > mapSpan.lat() || span.lng() > mapSpan.lng())
+        map.fitBounds(bounds);
+    else if (mapBounds.intersects(bounds))
+        map.panToBounds(bounds);
+    else
+        map.panTo(bounds.getCenter());
 }
 
 function enableMarker(id, active)
