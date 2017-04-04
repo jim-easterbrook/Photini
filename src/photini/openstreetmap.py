@@ -32,12 +32,12 @@ class OpenStreetMap(PhotiniMap):
     def load_api(self):
         return """
     <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
+      href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js">
+      src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js">
     </script>
     <script type="text/javascript"
       src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0">
