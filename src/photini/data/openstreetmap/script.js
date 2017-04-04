@@ -61,6 +61,8 @@ function adjustBounds(lat0, lng0, lat1, lng1)
 function fitPoints(points)
 {
     var bounds = L.latLngBounds(points);
+    if (map.getBounds().contains(bounds))
+        return;
     map.fitBounds(
         bounds,
         {paddingTopLeft: [15, 50], paddingBottomRight: [15, 10], maxZoom: map.getZoom()});
