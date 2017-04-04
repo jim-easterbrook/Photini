@@ -21,34 +21,34 @@ var markers = {};
 
 function initialize()
 {
-  map = L.map("mapDiv", {
-    center: [initData.lat, initData.lng],
-    zoom: initData.zoom,
-    attributionControl: false
-  });
-  var tiles = new L.StamenTileLayer("terrain");
-  map.addLayer(tiles);
-  map.on('moveend zoomend', newBounds);
-  python.initialize_finished();
+    map = L.map("mapDiv", {
+        center: [initData.lat, initData.lng],
+        zoom: initData.zoom,
+        attributionControl: false,
+        });
+    var tiles = L.StamenTileLayer("terrain");
+    map.addLayer(tiles);
+    map.on('moveend zoomend', newBounds);
+    python.initialize_finished();
 }
 
 function newBounds(event)
 {
-  var centre = map.getCenter();
-  python.new_bounds(centre.lat, centre.lng, map.getZoom());
+    var centre = map.getCenter();
+    python.new_bounds(centre.lat, centre.lng, map.getZoom());
 }
 
 function setView(lat, lng, zoom)
 {
-  map.setView(new L.LatLng(lat, lng), zoom);
+    map.setView([lat, lng], zoom);
 }
 
 function getMapBounds()
 {
-  var map_bounds = map.getBounds();
-  var map_sw = map_bounds.getSouthWest();
-  var map_ne = map_bounds.getNorthEast();
-  return [map_sw.lng, map_ne.lat, map_ne.lng, map_sw.lat];
+    var map_bounds = map.getBounds();
+    var map_sw = map_bounds.getSouthWest();
+    var map_ne = map_bounds.getNorthEast();
+    return [map_sw.lng, map_ne.lat, map_ne.lng, map_sw.lat];
 }
 
 function adjustBounds(lat0, lng0, lat1, lng1)
@@ -59,87 +59,82 @@ function adjustBounds(lat0, lng0, lat1, lng1)
 function fitPoints(points)
 {
     var bounds = L.latLngBounds(points);
-    map.fitBounds(bounds,
+    map.fitBounds(
+        bounds,
         {paddingTopLeft: [15, 50], paddingBottomRight: [15, 10], maxZoom: map.getZoom()});
 }
 
 function enableMarker(id, active)
 {
-  var marker = markers[id];
-  if (marker)
-  {
+    var marker = markers[id];
+    if (!marker)
+        return;
     if (active)
     {
-      marker.setZIndexOffset(1000);
-      marker.setIcon(new L.Icon.Default());
+        marker.setZIndexOffset(1000);
+        marker.setIcon(L.Icon.Default());
     }
     else
     {
-      marker.setZIndexOffset(0);
-      marker.setIcon(new L.Icon({
-        iconUrl: 'grey_marker.png',
-        iconSize: [25, 40],
-        iconAnchor: [13, 40],
-      }));
+        marker.setZIndexOffset(0);
+        marker.setIcon(L.Icon({
+            iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]}));
     }
-  }
 }
 
 function addMarker(id, lat, lng, active)
 {
-  if (markers[id])
-  {
-    markers[id].setLatLng([lat, lng]);
-    return;
-  }
-  var marker =  L.marker([lat, lng], {
-    draggable: true,
-  });
-  marker.addTo(map);
-  markers[id] = marker;
-  marker._id = id;
-  marker.on('click', markerClick);
-  marker.on('drag', markerDrag);
-  marker.on('dragend', markerDragEnd);
-  enableMarker(id, active)
+    if (markers[id])
+    {
+        markers[id].setLatLng([lat, lng]);
+        return;
+    }
+    var marker = L.marker([lat, lng], {draggable: true});
+    marker.addTo(map);
+    markers[id] = marker;
+    marker._id = id;
+    marker.on('click', markerClick);
+    marker.on('drag', markerDrag);
+    marker.on('dragend', markerDragEnd);
+    enableMarker(id, active)
 }
 
 function markerClick(event)
 {
-  python.marker_click(this._id);
+    python.marker_click(this._id);
 }
 
 function markerDrag(event)
 {
-  var loc = this.getLatLng();
-  python.marker_click(this._id);
-  python.marker_drag(loc.lat, loc.lng, this._id);
+    var loc = this.getLatLng();
+    python.marker_click(this._id);
+    python.marker_drag(loc.lat, loc.lng, this._id);
 }
 
 function markerDragEnd(event)
 {
-  var loc = this.getLatLng();
-  python.marker_drag(loc.lat, loc.lng, this._id);
+    var loc = this.getLatLng();
+    python.marker_drag(loc.lat, loc.lng, this._id);
 }
 
 function delMarker(id)
 {
-  if (markers[id])
-  {
-    map.removeLayer(markers[id]);
-    delete markers[id];
-  }
+    if (markers[id])
+    {
+        map.removeLayer(markers[id]);
+        delete markers[id];
+    }
 }
 
 function removeMarkers()
 {
-  for (var id in markers)
-    map.removeLayer(markers[id]);
-  markers = {};
+    for (var id in markers)
+        map.removeLayer(markers[id]);
+    markers = {};
 }
 
 function latLngFromPixel(x, y)
 {
-  var position = map.containerPointToLatLng([x, y]);
-  return [position.lat, position.lng];
+    var position = map.containerPointToLatLng([x, y]);
+    return [position.lat, position.lng];
 }

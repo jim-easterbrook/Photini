@@ -23,54 +23,54 @@ var searchManager;
 
 function initialize()
 {
-  var mapOptions = {
-    credentials: initData.api_key,
-    center: new Microsoft.Maps.Location(initData.lat, initData.lng),
-    zoom: initData.zoom,
-    mapTypeId: Microsoft.Maps.MapTypeId.road,
-    disableBirdseye: true,
-    enableClickableLogo: false,
-    enableSearchLogo: false,
-    showLocateMeButton: false,
-    showTermsLink: false,
-    navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
-    navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
-  };
-  map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
-  Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
-  Microsoft.Maps.loadModule(
-    'Microsoft.Maps.Search', {callback: searchModuleLoaded});
-  python.initialize_finished();
+    var mapOptions = {
+        credentials: initData.api_key,
+        center: new Microsoft.Maps.Location(initData.lat, initData.lng),
+        zoom: initData.zoom,
+        mapTypeId: Microsoft.Maps.MapTypeId.road,
+        disableBirdseye: true,
+        enableClickableLogo: false,
+        enableSearchLogo: false,
+        showLocateMeButton: false,
+        showTermsLink: false,
+        navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
+        navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
+        };
+    map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
+    Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
+    Microsoft.Maps.loadModule(
+        'Microsoft.Maps.Search', {callback: searchModuleLoaded});
+    python.initialize_finished();
 }
 
 function searchModuleLoaded()
 {
-  searchManager = new Microsoft.Maps.Search.SearchManager(map);
+    searchManager = new Microsoft.Maps.Search.SearchManager(map);
 }
 
 function newBounds()
 {
-  var centre = map.getCenter();
-  python.new_bounds(centre.latitude, centre.longitude, map.getZoom());
+    var centre = map.getCenter();
+    python.new_bounds(centre.latitude, centre.longitude, map.getZoom());
 }
 
 function setView(lat, lng, zoom)
 {
-  map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
+    map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
 function getMapBounds()
 {
-  var map_bounds = map.getBounds();
-  return [map_bounds.getWest(), map_bounds.getNorth(),
-          map_bounds.getEast(), map_bounds.getSouth()];
+    var map_bounds = map.getBounds();
+    return [map_bounds.getWest(), map_bounds.getNorth(),
+            map_bounds.getEast(), map_bounds.getSouth()];
 }
 
 function adjustBounds(lat0, lng0, lat1, lng1)
 {
-  var bounds = Microsoft.Maps.LocationRect.fromCorners(
-      new Microsoft.Maps.Location(lat0, lng0), new Microsoft.Maps.Location(lat1, lng1));
-  map.setView({bounds: bounds});
+    var bounds = Microsoft.Maps.LocationRect.fromCorners(
+        new Microsoft.Maps.Location(lat0, lng0), new Microsoft.Maps.Location(lat1, lng1));
+    map.setView({bounds: bounds});
 }
 
 function fitPoints(points)
@@ -101,106 +101,105 @@ function fitPoints(points)
 
 function enableMarker(id, active)
 {
-  var marker = markers[id];
-  if (marker)
-  {
+    var marker = markers[id];
+    if (!marker)
+        return;
     if (active)
-      marker.setOptions({
-        color: 'Orchid',
-        zIndex: 1
-      });
+        marker.setOptions({
+            color: 'Orchid',
+            zIndex: 1
+            });
     else
-      marker.setOptions({
-        color: 'DimGrey',
-        zIndex: 0
-      });
-  }
+        marker.setOptions({
+            color: 'DimGrey',
+            zIndex: 0
+            });
 }
 
 function addMarker(id, lat, lng, active)
 {
-  var position = new Microsoft.Maps.Location(lat, lng);
-  if (markers[id])
-  {
-    markers[id].setLocation(position);
-    return;
-  }
-  var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
-  defaultPushpinIcon = marker.getIcon();
-  map.entities.push(marker);
-  markers[id] = marker;
-  marker._id = id;
-  Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
-  Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
-  Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
-  Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
-  enableMarker(id, active);
+    var position = new Microsoft.Maps.Location(lat, lng);
+    if (markers[id])
+    {
+        markers[id].setLocation(position);
+        return;
+    }
+    var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
+    defaultPushpinIcon = marker.getIcon();
+    map.entities.push(marker);
+    markers[id] = marker;
+    marker._id = id;
+    Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
+    Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
+    Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
+    Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
+    enableMarker(id, active);
 }
 
 function markerClick(event)
 {
-  var marker = event.target;
-  python.marker_click(marker._id);
+    var marker = event.target;
+    python.marker_click(marker._id);
 }
 
 function markerDragStart(event)
 {
-  var marker = event.target;
-  python.marker_click(marker._id);
+    var marker = event.target;
+    python.marker_click(marker._id);
 }
 
 function markerDrag(event)
 {
-  var marker = event.target;
-  var loc = marker.getLocation();
-  python.marker_drag(loc.latitude, loc.longitude, marker._id);
+    var marker = event.target;
+    var loc = marker.getLocation();
+    python.marker_drag(loc.latitude, loc.longitude, marker._id);
 }
 
 function delMarker(id)
 {
-  if (markers[id])
-  {
-    map.entities.remove(markers[id]);
-    delete markers[id];
-  }
+    if (markers[id])
+    {
+        map.entities.remove(markers[id]);
+        delete markers[id];
+    }
 }
 
 function removeMarkers()
 {
-  map.entities.clear();
-  markers = {};
+    map.entities.clear();
+    markers = {};
 }
 
 function latLngFromPixel(x, y)
 {
-  var position = map.tryPixelToLocation(
-    new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
-  return [position.latitude, position.longitude];
+    var position = map.tryPixelToLocation(
+        new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
+    return [position.latitude, position.longitude];
 }
 
 function search(search_string)
 {
-  var geocodeRequest = {
-    where: search_string,
-    count: 20,
-    callback: geocodeCallback,
-    errorCallback: errCallback
-  };
-  searchManager.geocode(geocodeRequest);
+    var geocodeRequest = {
+        where: search_string,
+        count: 20,
+        callback: geocodeCallback,
+        errorCallback: errCallback
+        };
+    searchManager.geocode(geocodeRequest);
 }
 
 function geocodeCallback(geocodeResult, userData)
 {
-  for (var i = 0; i < geocodeResult.results.length; i++)
-  {
-    var view = geocodeResult.results[i].bestView;
-    python.search_result(
-      view.getNorth(), view.getEast(), view.getSouth(), view.getWest(),
-      geocodeResult.results[i].name);
-  }
+    for (var i = 0; i < geocodeResult.results.length; i++)
+    {
+        var view = geocodeResult.results[i].bestView;
+        python.search_result(
+            view.getNorth(), view.getEast(), view.getSouth(), view.getWest(),
+        geocodeResult.results[i].name);
+    }
 }
 
 function errCallback(geocodeRequest)
 {
-   alert("Search fail.");
+    alert("Search fail.");
 }
