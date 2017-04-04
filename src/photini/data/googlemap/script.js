@@ -136,6 +136,23 @@ function addMarker(id, lat, lng, active)
     enableMarker(id, active)
 }
 
+function markerDrop(x, y, text)
+{
+    // convert x, y to world coordinates
+    var scale = Math.pow(2, map.getZoom());
+    var nw = new google.maps.LatLng(
+        map.getBounds().getNorthEast().lat(),
+        map.getBounds().getSouthWest().lng()
+        );
+    var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
+    var worldX = worldCoordinateNW.x + (x / scale);
+    var worldY = worldCoordinateNW.y + (y / scale);
+    // convert world coordinates to lat & lng
+    var position = map.getProjection().fromPointToLatLng(
+        new google.maps.Point(worldX, worldY));
+    python.marker_drop(position.lat(), position.lng(), text);
+}
+
 function delMarker(id)
 {
     if (markers[id])
@@ -154,23 +171,6 @@ function removeMarkers()
         markers[id].setMap(null);
     }
     markers = {};
-}
-
-function latLngFromPixel(x, y)
-{
-    // convert x, y to world coordinates
-    var scale = Math.pow(2, map.getZoom());
-    var nw = new google.maps.LatLng(
-        map.getBounds().getNorthEast().lat(),
-        map.getBounds().getSouthWest().lng()
-        );
-    var worldCoordinateNW = map.getProjection().fromLatLngToPoint(nw);
-    var worldX = worldCoordinateNW.x + (x / scale);
-    var worldY = worldCoordinateNW.y + (y / scale);
-    // convert world coordinates to lat & lng
-    var position = map.getProjection().fromPointToLatLng(
-        new google.maps.Point(worldX, worldY));
-    return [position.lat(), position.lng()];
 }
 
 function search(search_string)

@@ -218,8 +218,11 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
-        lat, lng = self.JavaScript('latLngFromPixel({0:d}, {1:d})'.format(x, y))
-        for path in eval(text):
+        self.JavaScript('markerDrop({:d},{:d},{:s})'.format(x, y, text))
+
+    @QtCore.pyqtSlot(float, float, QtCore.QVariant)
+    def marker_drop(self, lat, lng, path_list):
+        for path in path_list:
             image = self.image_list.get_image(path)
             self._remove_image(image)
             self._set_metadata(image, lat, lng)

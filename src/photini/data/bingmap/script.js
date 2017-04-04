@@ -154,6 +154,13 @@ function markerDrag(event)
     python.marker_drag(loc.latitude, loc.longitude, marker._id);
 }
 
+function markerDrop(x, y, text)
+{
+    var position = map.tryPixelToLocation(
+        new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
+    python.marker_drop(position.latitude, position.longitude, text);
+}
+
 function delMarker(id)
 {
     if (markers[id])
@@ -167,13 +174,6 @@ function removeMarkers()
 {
     map.entities.clear();
     markers = {};
-}
-
-function latLngFromPixel(x, y)
-{
-    var position = map.tryPixelToLocation(
-        new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
-    return [position.latitude, position.longitude];
 }
 
 function search(search_string)

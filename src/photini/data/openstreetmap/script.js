@@ -124,6 +124,12 @@ function markerDragEnd(event)
     python.marker_click(this._id);
 }
 
+function markerDrop(x, y, text)
+{
+    var position = map.containerPointToLatLng([x, y]);
+    python.marker_drop(position.lat, position.lng, text);
+}
+
 function delMarker(id)
 {
     if (markers[id])
@@ -138,10 +144,4 @@ function removeMarkers()
     for (var id in markers)
         map.removeLayer(markers[id]);
     markers = {};
-}
-
-function latLngFromPixel(x, y)
-{
-    var position = map.containerPointToLatLng([x, y]);
-    return [position.lat, position.lng];
 }
