@@ -26,8 +26,9 @@ function initialize()
         zoom: initData.zoom,
         attributionControl: false,
         });
-    var tiles = L.StamenTileLayer("terrain");
-    map.addLayer(tiles);
+    L.tileLayer(
+        'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
+        {maxZoom: 18}).addTo(map);
     map.on('moveend zoomend', newBounds);
     python.initialize_finished();
 }
@@ -72,12 +73,12 @@ function enableMarker(id, active)
     if (active)
     {
         marker.setZIndexOffset(1000);
-        marker.setIcon(L.Icon.Default());
+        marker.setIcon(new L.Icon.Default());
     }
     else
     {
         marker.setZIndexOffset(0);
-        marker.setIcon(L.Icon({
+        marker.setIcon(new L.Icon({
             iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]}));
     }
 }

@@ -39,9 +39,6 @@ class OpenStreetMap(PhotiniMap):
     <script type="text/javascript"
       src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js">
     </script>
-    <script type="text/javascript"
-      src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0">
-    </script>
 """
 
     def show_terms(self):
@@ -59,7 +56,7 @@ class OpenStreetMap(PhotiniMap):
         load_tou.clicked.connect(self.load_tou_osm)
         yield load_tou
         load_tou = QtWidgets.QPushButton(
-            self.tr('Map tiles by Stamen Design\nlicensed under CC BY 3.0'))
+            self.tr('Map tiles by CARTO\nlicensed under CC BY 3.0'))
         load_tou.clicked.connect(self.load_tou_tiles)
         yield load_tou
 
@@ -78,7 +75,7 @@ class OpenStreetMap(PhotiniMap):
 
     @QtCore.pyqtSlot()
     def load_tou_tiles(self):
-        webbrowser.open_new('http://www.stamen.com/')
+        webbrowser.open_new('https://carto.com/attribution')
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):
