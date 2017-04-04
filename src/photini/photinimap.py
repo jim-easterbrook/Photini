@@ -79,6 +79,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.search_string = None
         self.map_loaded = False
         self.marker_images = {}
+        self.map_status = {}
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setRowStretch(6, 1)

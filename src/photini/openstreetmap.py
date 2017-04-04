@@ -92,9 +92,10 @@ class OpenStreetMap(PhotiniMap):
             'polygon': '0',
             'addressdetails': '0',
             }
-        bounds = self.JavaScript('getMapBounds()')
-        if bounds:
-            params['viewbox'] = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(*bounds)
+        if 'bounds' in self.map_status:
+            bounds = self.map_status['bounds']
+            params['viewbox'] = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(
+                bounds[3], bounds[0], bounds[1], bounds[2])
         headers = {'user-agent': 'Photini/' + __version__}
         rsp = requests.get(
             'http://nominatim.openstreetmap.org/search',
