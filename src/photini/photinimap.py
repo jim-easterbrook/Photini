@@ -209,11 +209,11 @@ class PhotiniMap(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(float, float, int)
-    def new_bounds(self, centre_lat, centre_lng, zoom):
-        self.map_centre = centre_lat, centre_lng
-        self.config_store.set('map', 'centre', str(self.map_centre))
-        self.config_store.set('map', 'zoom', str(zoom))
+    @QtCore.pyqtSlot(QtCore.QVariant)
+    def new_status(self, status):
+        self.map_status = status
+        self.config_store.set('map', 'centre', str(self.map_status['centre']))
+        self.config_store.set('map', 'zoom', str(int(self.map_status['zoom'])))
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):

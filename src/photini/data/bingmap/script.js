@@ -51,7 +51,13 @@ function searchModuleLoaded()
 function newBounds()
 {
     var centre = map.getCenter();
-    python.new_bounds(centre.latitude, centre.longitude, map.getZoom());
+    var bounds = map.getBounds();
+    python.new_status({
+        centre: [centre.latitude, centre.longitude],
+        bounds: [bounds.getNorth(), bounds.getEast(),
+                 bounds.getSouth(), bounds.getWest()],
+        zoom: map.getZoom(),
+        });
 }
 
 function setView(lat, lng, zoom)

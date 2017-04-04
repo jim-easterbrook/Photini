@@ -38,7 +38,14 @@ function initialize()
 function newBounds()
 {
     var centre = map.getCenter();
-    python.new_bounds(centre.lat(), centre.lng(), map.getZoom());
+    var bounds = map.getBounds();
+    var sw = bounds.getSouthWest();
+    var ne = bounds.getNorthEast();
+    python.new_status({
+        centre: [centre.lat(), centre.lng()],
+        bounds: [ne.lat(), ne.lng(), sw.lat(), sw.lng()],
+        zoom: map.getZoom(),
+        });
 }
 
 function setView(lat, lng, zoom)
