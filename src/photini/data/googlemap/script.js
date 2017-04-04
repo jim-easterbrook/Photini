@@ -24,7 +24,7 @@ function initialize()
 {
     var mapOptions = {
         center: new google.maps.LatLng(initData.lat, initData.lng),
-        panControl: true,
+        scaleControl: true,
         streetViewControl: false,
         zoom: initData.zoom,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
