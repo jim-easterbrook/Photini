@@ -92,7 +92,6 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map.page().setLinkDelegationPolicy(
             QtWebKitWidgets.QWebPage.DelegateAllLinks)
         self.map.page().linkClicked.connect(self.link_clicked)
-        self.map.page().loadFinished.connect(self.load_finished)
         self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
             self.java_script_window_object_cleared)
         self.map.drop_text.connect(self.drop_text)
@@ -175,12 +174,9 @@ class PhotiniMap(QtWidgets.QWidget):
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
-    @QtCore.pyqtSlot(bool)
-    def load_finished(self, success):
-        QtWidgets.QApplication.restoreOverrideCursor()
-
     @QtCore.pyqtSlot()
     def initialize_finished(self):
+        QtWidgets.QApplication.restoreOverrideCursor()
         self.map_loaded = True
         self.layout().removeWidget(self.load_map)
         self.load_map.setParent(None)
