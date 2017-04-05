@@ -36,7 +36,6 @@ class BingMap(PhotiniMap):
             QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.map.settings().setAttribute(
             QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
-        self.init_data.update({'api_key': key_store.get('bing', 'api_key')})
 
     def get_page_elements(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
@@ -49,10 +48,13 @@ class BingMap(PhotiniMap):
             url += '&branch=experimental'
         return {
             'head': '''
+    <script type="text/javascript">
+      var api_key = "{}";
+    </script>
     <script type="text/javascript"
       src="{}" async defer>
     </script>
-'''.format(url),
+'''.format(key_store.get('bing', 'api_key'), url),
             'body': '',
             }
 

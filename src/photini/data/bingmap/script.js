@@ -24,7 +24,7 @@ var searchManager;
 function initialize()
 {
     var mapOptions = {
-        credentials: initData.api_key,
+        credentials: api_key,
         center: new Microsoft.Maps.Location(initData.lat, initData.lng),
         zoom: initData.zoom,
         mapTypeId: Microsoft.Maps.MapTypeId.road,
