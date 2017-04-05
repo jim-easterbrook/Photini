@@ -146,7 +146,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def initialise(self):
-        page_start = """
+        page = '''
 <!DOCTYPE html>
 <html>
   <head>
@@ -156,27 +156,24 @@ class PhotiniMap(QtWidgets.QWidget):
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
+{head}
+    <script type="text/javascript" src="script.js"></script>
   </head>
-  <body ondragstart="return false" onload="initialize()">
+  <body ondragstart="return false">
     <div id="mapDiv"></div>
     <script type="text/javascript">
-    var initData = {0:s};
+      var initData = {data};
     </script>
-"""
-        page_end = """
-    <script type="text/javascript" src="script.js">
-    </script>
+{body}
   </body>
 </html>
-"""
+'''
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         self.init_data.update({'lat': lat, 'lng': lng, 'zoom': zoom})
-        page_start = page_start.format(str(self.init_data))
+        page = page.format(data=str(self.init_data), **self.get_page_elements())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
-        self.map.setHtml(
-            page_start + self.load_api() + page_end,
-            QtCore.QUrl.fromLocalFile(self.script_dir))
+        self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
     @QtCore.pyqtSlot(bool)
     def load_finished(self, success):

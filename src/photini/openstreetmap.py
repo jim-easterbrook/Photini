@@ -30,8 +30,9 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore, QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
-    def load_api(self):
-        return """
+    def get_page_elements(self):
+        return {
+            'head': '''
     <link rel="stylesheet"
       href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script type="text/javascript">
@@ -40,7 +41,13 @@ class OpenStreetMap(PhotiniMap):
     <script type="text/javascript"
       src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js">
     </script>
-"""
+''',
+            'body': '''
+    <script type="text/javascript">
+      initialize();
+    </script>
+''',
+            }
 
     def show_terms(self):
         # return widgets to display map terms and conditions

@@ -38,20 +38,23 @@ class BingMap(PhotiniMap):
             QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
         self.init_data.update({'api_key': key_store.get('bing', 'api_key')})
 
-    def load_api(self):
-        src = 'http://www.bing.com/api/maps/mapcontrol'
+    def get_page_elements(self):
+        url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()
         if lang:
-            src += '?mkt={0},ngt'.format(lang.replace('_', '-'))
+            url += '&mkt={0},ngt'.format(lang.replace('_', '-'))
         else:
-            src += '?mkt=ngt'
+            url += '&mkt=ngt'
         if self.app.test_mode:
-            src += '&branch=experimental'
-        return """
-    <script charset="UTF-8" type="text/javascript"
-      src="{0}">
+            url += '&branch=experimental'
+        return {
+            'head': '''
+    <script type="text/javascript"
+      src="{}" async defer>
     </script>
-""".format(src)
+'''.format(url),
+            'body': '',
+            }
 
     def show_terms(self):
         # return widgets to display map terms and conditions

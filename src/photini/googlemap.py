@@ -29,8 +29,8 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore, QtWidgets
 
 class GoogleMap(PhotiniMap):
-    def load_api(self):
-        url = 'http://maps.googleapis.com/maps/api/js?v=3'
+    def get_page_elements(self):
+        url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:
             url += '.exp'
         url += '&key=' + key_store.get('google', 'api_key')
@@ -41,11 +41,14 @@ class GoogleMap(PhotiniMap):
                 name = match.group(1)
                 if name:
                     url += '&region=' + name
-        return """
+        return {
+            'head': '',
+            'body': '''
     <script type="text/javascript"
-      src="{}">
+      src="{}" async defer>
     </script>
-""".format(url)
+'''.format(url),
+            }
 
     def show_terms(self):
         # return widgets to display map terms and conditions
