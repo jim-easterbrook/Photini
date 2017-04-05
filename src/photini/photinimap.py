@@ -280,10 +280,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
-        if selection:
-            self.coords.setEnabled(True)
-        else:
-            self.coords.setEnabled(False)
+        self.coords.setEnabled(bool(selection))
         for marker_id, images in self.marker_images.items():
             self.JavaScript('enableMarker("{}", {:d})'.format(
                 marker_id, any([image.selected for image in images])))
@@ -371,11 +368,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(six.text_type)
     def marker_click(self, marker_id):
-        multiple_selection = False
-        for image in self.marker_images[marker_id]:
-            self.image_list.select_image(
-                image, multiple_selection=multiple_selection)
-            multiple_selection = True
+        self.image_list.select_images(self.marker_images[marker_id])
 
     @QtCore.pyqtSlot(float, float, six.text_type)
     def marker_drag(self, lat, lng, marker_id):

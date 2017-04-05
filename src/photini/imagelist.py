@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -613,6 +613,20 @@ class ImageList(QtWidgets.QWidget):
             image.set_selected(True)
             self.selection_anchor = image
         self.last_selected = image
+        self.emit_selection()
+
+    def select_images(self, images):
+        self._clear_selection()
+        if not images:
+            self.last_selected = None
+            self.selection_anchor = None
+            self.emit_selection()
+            return
+        for image in images:
+            image.set_selected(True)
+            self.scroll_area.ensureWidgetVisible(image)
+        self.selection_anchor = images[0]
+        self.last_selected = images[-1]
         self.emit_selection()
 
     def _clear_selection(self):
