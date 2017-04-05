@@ -310,7 +310,10 @@ class PhotiniMap(QtWidgets.QWidget):
                         'enableMarker("{}", {:d})'.format(marker_id, True))
                 break
         else:
-            marker_id = str(latlong)
+            for i in range(len(self.marker_images) + 2):
+                marker_id = str(i)
+                if marker_id not in self.marker_images:
+                    break
             self.marker_images[marker_id] = [image]
             self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
                 marker_id, latlong.lat, latlong.lon,
