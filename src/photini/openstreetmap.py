@@ -23,6 +23,7 @@ import os
 import webbrowser
 
 import requests
+import six
 
 from photini import __version__
 from photini.photinimap import PhotiniMap
@@ -105,3 +106,15 @@ class OpenStreetMap(PhotiniMap):
                 result['boundingbox'][0], result['boundingbox'][3],
                 result['boundingbox'][1], result['boundingbox'][2],
                 result['display_name'])
+
+    @QtCore.pyqtSlot(six.text_type)
+    def marker_drag_start(self, marker_id):
+        blocked = self.image_list.blockSignals(True)
+        self.image_list.select_images(self.marker_images[marker_id])
+        self.image_list.blockSignals(blocked)
+        self.coords.setEnabled(True)
+        for other_id, images in self.marker_images.items():
+            if other_id != marker_id:
+                self.JavaScript('enableMarker("{}", {:d})'.format(
+                    other_id, False))
+        self.display_coords()

@@ -101,6 +101,7 @@ function addMarker(id, lat, lng, active)
     markers[id] = marker;
     marker._id = id;
     marker.on('click', markerClick);
+    marker.on('dragstart', markerDragStart);
     marker.on('drag', markerDrag);
     marker.on('dragend', markerDragEnd);
     enableMarker(id, active)
@@ -109,6 +110,11 @@ function addMarker(id, lat, lng, active)
 function markerClick(event)
 {
     python.marker_click(this._id);
+}
+
+function markerDragStart(event)
+{
+    python.marker_drag_start(this._id);
 }
 
 function markerDrag(event)
