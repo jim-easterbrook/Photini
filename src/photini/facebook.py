@@ -37,8 +37,9 @@ from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder
 
 from photini.configstore import key_store
-from photini.pyqt import (Busy, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtWebKitWidgets, QtWidgets, SingleLineEdit)
+from photini.pyqt import (
+    Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWebEngineWidgets,
+    QtWebKitWidgets, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader
 
 logger = logging.getLogger(__name__)
@@ -279,7 +280,12 @@ class FacebookSession(object):
             keyring.set_password('photini', 'facebook', token['access_token'])
 
 
-class WebView(QtWebKitWidgets.QWebView):
+if QtWebEngineWidgets:
+    WebViewBase = QtWebEngineWidgets.QWebEngineView
+else:
+    WebViewBase = QtWebKitWidgets.QWebView
+
+class WebView(WebViewBase):
     def sizeHint(self):
         return QtCore.QSize(580, 490)
 

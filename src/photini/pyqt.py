@@ -33,6 +33,8 @@ if using_pyqt5:
     from PyQt5.QtNetwork import QNetworkProxy
     try:
         from PyQt5 import QtWebChannel, QtWebEngineWidgets
+        QtWebKit = None
+        QtWebKitWidgets = None
     except ImportError:
         QtWebChannel = None
         QtWebEngineWidgets = None
