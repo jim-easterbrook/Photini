@@ -28,7 +28,7 @@ except ImportError:
     using_pyqt5 = False
 
 if using_pyqt5:
-    from PyQt5 import QtGui, QtWebKit, QtWebKitWidgets, QtWidgets
+    from PyQt5 import QtGui, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
     try:
@@ -36,6 +36,7 @@ if using_pyqt5:
         QtWebKit = None
         QtWebKitWidgets = None
     except ImportError:
+        from PyQt5 import QtWebKit, QtWebKitWidgets
         QtWebChannel = None
         QtWebEngineWidgets = None
     import sip
@@ -47,10 +48,10 @@ else:
     from PyQt4 import QtCore, QtGui, QtWebKit
     QtWidgets = QtGui
     QtWebKitWidgets = QtWebKit
-    from PyQt4.QtCore import Qt
-    from PyQt4.QtNetwork import QNetworkProxy
     QtWebChannel = None
     QtWebEngineWidgets = None
+    from PyQt4.QtCore import Qt
+    from PyQt4.QtNetwork import QNetworkProxy
 import six
 
 from photini.spelling import SpellingHighlighter

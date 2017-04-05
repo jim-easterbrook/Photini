@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -54,7 +54,8 @@ try:
     from photini.picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
-from photini.pyqt import Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info
+from photini.pyqt import (Qt, QtCore, QtGui, QNetworkProxy,
+                          QtWebEngineWidgets, QtWidgets, qt_version_info)
 from photini.spelling import enchant_version, SpellCheck
 from photini.technical import Technical
 from photini import __version__, build
@@ -359,6 +360,8 @@ def main(argv=None):
     version += '\n  ' + gexiv2_version
     version += '\n  PyQt {}, Qt {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+    if QtWebEngineWidgets:
+        version += ', using QtWebEngineWidgets'
     if enchant_version:
         version += '\n  ' + enchant_version
     if FlickrUploader:
