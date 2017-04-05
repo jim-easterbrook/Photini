@@ -21,7 +21,7 @@ var markers = {};
 var icon_on;
 var icon_off;
 
-function initialize()
+function loadMap()
 {
     map = L.map("mapDiv", {
         center: [initData.lat, initData.lng],

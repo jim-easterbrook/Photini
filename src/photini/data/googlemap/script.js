@@ -20,7 +20,7 @@ var geocoder;
 var map;
 var markers = {};
 
-function initialize()
+function loadMap()
 {
     var mapOptions = {
         center: new google.maps.LatLng(initData.lat, initData.lng),

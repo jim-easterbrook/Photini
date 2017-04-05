@@ -21,7 +21,7 @@ var map;
 var markers = {};
 var searchManager;
 
-function initialize()
+function loadMap()
 {
     var mapOptions = {
         credentials: api_key,

@@ -28,11 +28,20 @@ import pkg_resources
 import six
 
 from photini.imagelist import DRAG_MIMETYPE
-from photini.pyqt import multiple_values, Qt, QtCore, QtGui, QtWebKitWidgets, QtWidgets
+from photini.pyqt import (
+    multiple_values, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
+    QtWebKitWidgets, QtWidgets)
 
 translate = QtCore.QCoreApplication.translate
 
-class WebPage(QtWebKitWidgets.QWebPage):
+if QtWebEngineWidgets:
+    WebPageBase = QtWebEngineWidgets.QWebEnginePage
+    WebViewBase = QtWebEngineWidgets.QWebEngineView
+else:
+    WebPageBase = QtWebKitWidgets.QWebPage
+    WebViewBase = QtWebKitWidgets.QWebView
+
+class WebPage(WebPageBase):
     def __init__(self, parent=None):
         super(WebPage, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -43,8 +52,9 @@ class WebPage(QtWebKitWidgets.QWebPage):
         self.logger.error('%s line %d: %s', source, line, msg)
 
 
-class WebView(QtWebKitWidgets.QWebView):
+class WebView(WebViewBase):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
+
     def dragEnterEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(WebView, self).dragEnterEvent(event)
@@ -86,12 +96,17 @@ class PhotiniMap(QtWidgets.QWidget):
         # map
         self.map = WebView()
         self.map.setPage(WebPage(parent=self.map))
+        if QtWebEngineWidgets:
+            self.web_channel = QtWebChannel.QWebChannel()
+            self.map.page().setWebChannel(self.web_channel)
+            self.web_channel.registerObject('python', self)
+        else:
+            self.map.page().setLinkDelegationPolicy(
+                QtWebKitWidgets.QWebPage.DelegateAllLinks)
+            self.map.page().linkClicked.connect(self.link_clicked)
+            self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
+                self.java_script_window_object_cleared)
         self.map.setAcceptDrops(False)
-        self.map.page().setLinkDelegationPolicy(
-            QtWebKitWidgets.QWebPage.DelegateAllLinks)
-        self.map.page().linkClicked.connect(self.link_clicked)
-        self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
-            self.java_script_window_object_cleared)
         self.map.drop_text.connect(self.drop_text)
         self.layout().addWidget(self.map, 0, 1, 8, 1)
         # search
@@ -153,6 +168,7 @@ class PhotiniMap(QtWidgets.QWidget):
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
+{initialize}
 {head}
     <script type="text/javascript" src="script.js"></script>
   </head>
@@ -168,7 +184,33 @@ class PhotiniMap(QtWidgets.QWidget):
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
         data = {'lat': lat, 'lng': lng, 'zoom': zoom}
-        page = page.format(data=str(data), **self.get_page_elements())
+        if QtWebEngineWidgets:
+            initialize = '''
+    <script type="text/javascript"
+      src="qrc:///qtwebchannel/qwebchannel.js">
+    </script>
+    <script type="text/javascript">
+      var python;
+      function initialize()
+      {
+          new QWebChannel(qt.webChannelTransport, function (channel) {
+              python = channel.objects.python;
+              loadMap();
+              });
+      }
+    </script>
+'''
+        else:
+            initialize = '''
+    <script type="text/javascript">
+      function initialize()
+      {
+          loadMap();
+      }
+    </script>
+'''
+        page = page.format(
+            data=str(data), initialize=initialize, **self.get_page_elements())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
@@ -373,5 +415,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def JavaScript(self, command):
         if self.map_loaded:
             command = command.replace('\\', '\\\\')
-            return self.map.page().mainFrame().evaluateJavaScript(command)
-        return None
+            if QtWebEngineWidgets:
+                self.map.page().runJavaScript(command)
+            else:
+                self.map.page().mainFrame().evaluateJavaScript(command)

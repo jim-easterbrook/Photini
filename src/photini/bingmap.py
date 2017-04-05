@@ -27,15 +27,16 @@ import six
 
 from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
-from photini.pyqt import QtCore, QtGui, QtWebKit, QtWidgets
+from photini.pyqt import QtCore, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         super(BingMap, self).__init__(*arg, **kw)
-        self.map.settings().setAttribute(
-            QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-        self.map.settings().setAttribute(
-            QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+        if not QtWebEngineWidgets:
+            self.map.settings().setAttribute(
+                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+            self.map.settings().setAttribute(
+                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
 
     def get_page_elements(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
