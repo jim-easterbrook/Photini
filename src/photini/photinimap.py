@@ -63,8 +63,6 @@ class WebView(QtWebKitWidgets.QWebView):
 
 
 class PhotiniMap(QtWidgets.QWidget):
-    init_data = {}
-
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -169,8 +167,8 @@ class PhotiniMap(QtWidgets.QWidget):
 '''
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        self.init_data.update({'lat': lat, 'lng': lng, 'zoom': zoom})
-        page = page.format(data=str(self.init_data), **self.get_page_elements())
+        data = {'lat': lat, 'lng': lng, 'zoom': zoom}
+        page = page.format(data=str(data), **self.get_page_elements())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
