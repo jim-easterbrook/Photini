@@ -16,7 +16,6 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-var defaultPushpinIcon;
 var map;
 var markers = {};
 var searchManager;
@@ -40,12 +39,12 @@ function loadMap()
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     Microsoft.Maps.loadModule(
         'Microsoft.Maps.Search', {callback: searchModuleLoaded});
-    python.initialize_finished();
 }
 
 function searchModuleLoaded()
 {
     searchManager = new Microsoft.Maps.Search.SearchManager(map);
+    python.initialize_finished();
 }
 
 function newBounds()
@@ -76,9 +75,7 @@ function fitPoints(points)
 {
     var locations = [];
     for (var i = 0; i < points.length; i++)
-    {
         locations.push(new Microsoft.Maps.Location(points[i][0], points[i][1]));
-    }
     var bounds = Microsoft.Maps.LocationRect.fromLocations(locations);
     var mapBounds = map.getBounds();
     var nw = bounds.getNorthwest();
@@ -104,15 +101,9 @@ function enableMarker(id, active)
     if (!marker)
         return;
     if (active)
-        marker.setOptions({
-            color: 'Orchid',
-            zIndex: 1
-            });
+        marker.setOptions({color: 'Orchid', zIndex: 1});
     else
-        marker.setOptions({
-            color: 'DimGrey',
-            zIndex: 0
-            });
+        marker.setOptions({color: 'DimGrey', zIndex: 0});
 }
 
 function addMarker(id, lat, lng, active)
@@ -124,24 +115,17 @@ function addMarker(id, lat, lng, active)
         return;
     }
     var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
-    defaultPushpinIcon = marker.getIcon();
     map.entities.push(marker);
     markers[id] = marker;
     marker._id = id;
     Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
-    Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerDragStart);
+    Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
     enableMarker(id, active);
 }
 
 function markerClick(event)
-{
-    var marker = event.target;
-    python.marker_click(marker._id);
-}
-
-function markerDragStart(event)
 {
     var marker = event.target;
     python.marker_click(marker._id);
