@@ -130,11 +130,6 @@ class MainWindow(QtWidgets.QMainWindow):
              'key'   : 'import_photos',
              'class' : Importer},
             )
-        for tab in self.tab_list:
-            if tab['class']:
-                tab['object'] = tab['class'](self.image_list)
-            else:
-                tab['object'] = None
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
         open_action = QtWidgets.QAction(self.tr('Open images'), self)
@@ -240,10 +235,16 @@ class MainWindow(QtWidgets.QMainWindow):
         current = self.tabs.currentWidget()
         self.tabs.clear()
         for tab in self.tab_list:
+            if not tab['class']:
+                self.app.config_store.set('tabs', tab['key'], 'True')
+                continue
             use_tab = tab['action'].isChecked()
             self.app.config_store.set('tabs', tab['key'], str(use_tab))
-            if tab['object'] and use_tab:
-                self.tabs.addTab(tab['object'], tab['name'])
+            if not use_tab:
+                continue
+            if 'object' not in tab:
+                tab['object'] = tab['class'](self.image_list)
+            self.tabs.addTab(tab['object'], tab['name'])
         self.tabs.blockSignals(was_blocked)
         if current:
             self.tabs.setCurrentWidget(current)
