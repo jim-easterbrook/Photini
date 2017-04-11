@@ -339,6 +339,7 @@ class OffsetWidget(QtWidgets.QWidget):
 
     def __init__(self, *arg, **kw):
         super(OffsetWidget, self).__init__(*arg, **kw)
+        self.config_store = QtWidgets.QApplication.instance().config_store
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # offset value
@@ -358,6 +359,21 @@ class OffsetWidget(QtWidgets.QWidget):
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)
+        # restore stored values
+        value = eval(self.config_store.get('technical', 'offset', 'None'))
+        if value:
+            self.offset.setTime(QtCore.QTime(*value[0:3]))
+            self.time_zone.set_value(value[3])
+        # connections
+        self.offset.editingFinished.connect(self.new_value)
+        self.time_zone.editingFinished.connect(self.new_value)
+
+    @QtCore.pyqtSlot()
+    def new_value(self):
+        value = self.offset.time()
+        value = (value.hour(), value.minute(), value.second(),
+                 self.time_zone.get_value())
+        self.config_store.set('technical', 'offset', str(value))
 
     @QtCore.pyqtSlot()
     def add(self):
