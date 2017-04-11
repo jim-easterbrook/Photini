@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -329,12 +329,13 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
 class SquareButton(QtWidgets.QPushButton):
     def sizeHint(self):
         size = super(SquareButton, self).sizeHint()
+        size.setHeight(size.height() - 4)
         size.setWidth(size.height())
         return size
 
 
 class OffsetWidget(QtWidgets.QWidget):
-    apply_offset = QtCore.pyqtSignal(timedelta)
+    apply_offset = QtCore.pyqtSignal(timedelta, object)
 
     def __init__(self, *arg, **kw):
         super(OffsetWidget, self).__init__(*arg, **kw)
@@ -344,6 +345,10 @@ class OffsetWidget(QtWidgets.QWidget):
         self.offset = QtWidgets.QTimeEdit()
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
+        # time zone
+        self.time_zone = TimeZoneWidget()
+        self.time_zone.set_value(None)
+        self.layout().addWidget(self.time_zone)
         # add offset button
         add_button = SquareButton('+')
         add_button.clicked.connect(self.add)
@@ -359,14 +364,17 @@ class OffsetWidget(QtWidgets.QWidget):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
-        self.apply_offset.emit(offset)
+        self.apply_offset.emit(offset, self.time_zone.get_value())
 
     @QtCore.pyqtSlot()
     def sub(self):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
-        self.apply_offset.emit(-offset)
+        tz_offset = self.time_zone.get_value()
+        if isinstance(tz_offset, int):
+            tz_offset = -tz_offset
+        self.apply_offset.emit(-offset, tz_offset)
 
 
 class LensSpecWidget(QtWidgets.QGridLayout):
@@ -675,13 +683,19 @@ class Technical(QtWidgets.QWidget):
     def new_date_modified(self, value):
         self._new_date_value('modified', value)
 
-    @QtCore.pyqtSlot(timedelta)
-    def apply_offset(self, offset):
+    @QtCore.pyqtSlot(timedelta, object)
+    def apply_offset(self, offset, tz_offset):
         for image in self.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
             if not date_taken:
                 continue
             date_taken.datetime += offset
+            if isinstance(tz_offset, int):
+                if date_taken.tz_offset is None:
+                    date_taken.tz_offset = 0
+                date_taken.tz_offset += tz_offset
+                date_taken.tz_offset = min(date_taken.tz_offset, 15 * 60)
+                date_taken.tz_offset = max(date_taken.tz_offset, -14 * 60)
             image.metadata.date_taken = date_taken
             if self.link_widget['taken', 'digitised'].isChecked():
                 image.metadata.date_digitised = date_taken
