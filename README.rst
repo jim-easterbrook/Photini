@@ -28,7 +28,7 @@ Features
 *   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to Flickr_ and/or Facebook_ and/or `Google Photos`_ and Picasa_ with reuse of metadata.
+*   Upload to Flickr_ and/or Facebook_ and/or `Google Photos`_ with reuse of metadata.
 
 .. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_19.png
    :alt: Geotagging screenshot
@@ -61,11 +61,11 @@ Documentation
 -------------
 
 .. warning::
-   This program is still under development.
-   It is already usable but, like all other software, it has bugs.
+   This program is still under development and, like all other software, it has bugs.
    Before using it be sure to back up all your photographs (you do this anyway, right?) as I can't guarantee you won't accidentally damage them.
 
-Photini's documentation is a work in progress, but you can read what's been written so far at http://photini.readthedocs.io/.
+Photini's documentation is at http://photini.readthedocs.io/.
+It includes detailed installation instructions and a full user manual.
 
 .. _readme-getting_help:
 
@@ -90,7 +90,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz
@@ -123,7 +123,7 @@ The Flickr upload tab uses the Flickr API but is not endorsed or certified by Fl
 Privacy statement
 ^^^^^^^^^^^^^^^^^
 
-Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, Facebook, and Google Photos/Picasa) may do so.
+Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, Facebook, and Google Photos) may do so.
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
@@ -162,6 +162,5 @@ A copy of the license is included in the documentation section entitled "GNU Fre
                    http://www.openstreetmap.org/copyright
 .. _Photini team on Transifex:
                    https://www.transifex.com/projects/p/photini/
-.. _Picasa:        http://picasaweb.google.com/
 .. _Python keyring:
                    https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
