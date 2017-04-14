@@ -393,20 +393,21 @@ class OffsetWidget(QtWidgets.QWidget):
         self.apply_offset.emit(-offset, tz_offset)
 
 
-class LensSpecWidget(QtWidgets.QGridLayout):
+class LensSpecWidget(QtWidgets.QGroupBox):
     def __init__(self, *arg, **kw):
         super(LensSpecWidget, self).__init__(*arg, **kw)
-        self.setContentsMargins(0, 0, 0, 0)
-        self.setVerticalSpacing(0)
+        self.setLayout(QtWidgets.QGridLayout())
+        self.layout().setContentsMargins(6, 0, 6, 0)
+        self.layout().setVerticalSpacing(0)
         for text, col in (self.tr('min'), 1), (self.tr('max'), 2):
             label = QtWidgets.QLabel(text)
             label.setMinimumWidth(50)
             label.setAlignment(Qt.AlignHCenter)
-            self.addWidget(label, 0, col)
-        self.addWidget(QtWidgets.QLabel(self.tr('Focal length')), 1, 0)
-        self.addWidget(QtWidgets.QLabel(self.tr('Max aperture')), 2, 0)
+            self.layout().addWidget(label, 0, col)
+        self.layout().addWidget(QtWidgets.QLabel(self.tr('Focal length')), 1, 0)
+        self.layout().addWidget(QtWidgets.QLabel(self.tr('Max aperture')), 2, 0)
         self.multiple = QtWidgets.QLabel(multiple_values())
-        self.addWidget(self.multiple, 1, 1, 2, 2)
+        self.layout().addWidget(self.multiple, 1, 1, 2, 2)
         self.multiple.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.multiple.hide()
         self.values = {
@@ -417,10 +418,10 @@ class LensSpecWidget(QtWidgets.QGridLayout):
             }
         for key in self.values:
             self.values[key].setAlignment(Qt.AlignHCenter)
-        self.addWidget(self.values['min_fl'], 1, 1)
-        self.addWidget(self.values['max_fl'], 1, 2)
-        self.addWidget(self.values['min_fl_fn'], 2, 1)
-        self.addWidget(self.values['max_fl_fn'], 2, 2)
+        self.layout().addWidget(self.values['min_fl'], 1, 1)
+        self.layout().addWidget(self.values['max_fl'], 1, 2)
+        self.layout().addWidget(self.values['min_fl_fn'], 2, 1)
+        self.layout().addWidget(self.values['max_fl_fn'], 2, 2)
 
     def set_value(self, value):
         self.multiple.hide()
