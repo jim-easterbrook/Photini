@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Technical metadata
@@ -33,6 +33,13 @@ The time zone records how many hours & minutes offset from UTC (or GMT) the loca
 The ``Adjust times`` field allows a constant offset to be applied to the time stamps of several pictures at once.
 This can be useful if you are in a different time zone to your camera's setting or you forgot to set your camera's clock before a day's shooting!
 Set the required offset hours, minutes & seconds, then use the ``+`` or ``-`` button to add or subtract that amount from each selected picture's timestamp.
+
+.. image:: ../images/screenshot_53a.png
+
+You can also offset the time zone.
+In this example my camera clock was set to British Summer Time (+01:00) but records timestamps without zone information.
+I was on holiday in mainland Europe (+02:00) so I need to add 1 hour to each timestamp and 2 hours to the time zone.
+The ``Adjust times`` values are stored in Photini's configuration file, so each day's photos can be given the same offset with just one button click.
 
 .. image:: ../images/screenshot_52.png
 
