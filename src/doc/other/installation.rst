@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -64,6 +64,12 @@ See the instructions at http://linuxg.net/how-to-install-photini-15-01-1-on-ubun
 
 Pascal Mons (https://launchpad.net/~anton+) also has a PPA with many photo applications, including Photini.
 See https://launchpad.net/~anton+/+archive/ubuntu/photo-video-apps/.
+
+OpenSUSE 42.2 or newer
+^^^^^^^^^^^^^^^^^^^^^^
+
+Photini is available from the Packman community repository.
+It can be installed by clicking on this link: http://packman.links2linux.org/install/Photini
 
 OpenSUSE and Fedora
 ^^^^^^^^^^^^^^^^^^^
