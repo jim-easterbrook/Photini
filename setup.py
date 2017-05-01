@@ -57,13 +57,14 @@ if git:
                     latest = tag.commit.committed_date
                     last_release = tag_name[1:]
             # set current version number (calendar based)
-            major, minor, micro = last_release.split('.')
+            major, minor, micro = map(int, last_release.split('.'))
             today = date.today()
-            if today.strftime('%Y%m') == major + minor:
-                micro = int(micro) + 1
+            if today.year == major and today.month == minor:
+                micro += 1
             else:
                 micro = 0
-            __version__ = today.strftime('%Y.%m') + '.%d' % micro
+            __version__ = '{:4d}.{:d}.{:d}'.format(
+                today.year, today.month, micro)
             # update __init__.py if anything's changed
             new_text = """from __future__ import unicode_literals
 
