@@ -53,9 +53,14 @@ if git:
             latest = 0
             for tag in repo.tags:
                 tag_name = str(tag)
-                if tag_name[0] == 'v' and tag.commit.committed_date > latest:
-                    latest = tag.commit.committed_date
-                    last_release = tag_name[1:]
+                if tag.commit.committed_date < latest:
+                    continue
+                if tag_name[0] == 'v':
+                    tag_name = tag_name[1:]
+                if not tag_name.startswith('20'):
+                    continue
+                latest = tag.commit.committed_date
+                last_release = tag_name
             # set current version number (calendar based)
             major, minor, micro = map(int, last_release.split('.'))
             today = date.today()
@@ -105,7 +110,6 @@ except ImportError:
 class upload_and_tag(upload):
     def run(self):
         import git
-        tag_path = 'v' + __version__
         message = 'Photini-' + __version__ + '\n\n'
         with open('CHANGELOG.txt') as cl:
             while not cl.readline().startswith('Changes'):
@@ -116,7 +120,7 @@ class upload_and_tag(upload):
                     break
                 message += line + '\n'
         repo = git.Repo()
-        tag = repo.create_tag(tag_path, message=message)
+        tag = repo.create_tag(__version__, message=message)
         remote = repo.remotes.origin
         remote.push(tags=True)
         return upload.run(self)
@@ -226,7 +230,7 @@ setup(name = 'Photini',
       author = 'Jim Easterbrook',
       author_email = 'jim@jim-easterbrook.me.uk',
       url = url,
-      download_url = url + '/archive/v' + __version__ + '.tar.gz',
+      download_url = url + '/archive/' + __version__ + '.tar.gz',
       description = 'Simple photo metadata editor',
       long_description = long_description,
       classifiers = [
