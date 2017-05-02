@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2017.5.0:
+  1/ Migrate Bing map from v7 to v8 of Bing API.
+  2/ Many other map improvements.
+  3/ Time adjustment offset now includes time zone.
+
 Changes in v2017.03.0:
   1/ Fix bugs in Google Photos uploader and remove disabled functionality.
   2/ Improve error handling in Flickr uploader.
