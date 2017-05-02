@@ -17,8 +17,7 @@ The Windows installer creates a standalone Python installation with all the depe
 The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
 You can download the latest Windows installer from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page.
-(Scroll down until you find the "Windows installer" release.)
-Don't worry if there are newer releases of Photini itself - the installer will download and install the latest release of Photini when it is run.
+It's the file ``photini-win32-setup.exe`` included in the "downloads" section of the latest release.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
 The installer should finish by running the Photini program.
@@ -28,11 +27,12 @@ If not, see the troubleshooting_ section below.
 Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Windows installer adds an "upgrade Photini" command to the start menu.
+Before upgrading Photini you should check the `change log <https://github.com/jim-easterbrook/Photini/blob/master/CHANGELOG.txt>`_ to see if a new installer has been released since you last downloaded it.
+If it hasn't, then you can use the "upgrade Photini" command in the start menu.
 This needs to be run as administrator.
 Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
 
-Alternatively, you can use the "Programs and Features" control panel item to uninstall Photini before running the installer again to install the latest version.
+If there is a new installer available then you should download it and use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
 
 Verifying the Windows installer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
