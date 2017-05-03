@@ -274,6 +274,9 @@ class LatLon(MetadataDictValue):
 class Location(MetadataDictValue):
     # stores IPTC defined location heirarchy
     def __init__(self, value):
+        if isinstance(value, dict):
+            super(Location, self).__init__(value)
+            return
         if isinstance(value, six.string_types):
             value = value.split(',')
         super(Location, self).__init__({
@@ -294,6 +297,14 @@ class Location(MetadataDictValue):
         if len(file_value) == 5:
             return cls([None] + file_value)
         return cls(file_value)
+
+    def to_xmp(self):
+        return (self.value['world_region'],
+                self.value['country_code'],
+                self.value['country_name'],
+                self.value['province_state'],
+                self.value['city'],
+                self.value['sublocation'])
 
 
 class LensSpec(MetadataDictValue):
@@ -843,6 +854,14 @@ class MetadataHandler(GExiv2.Metadata):
                 value = value.decode('utf_8')
         elif six.PY2:
             value = value.encode('utf_8')
+        if MetadataHandler.is_xmp_tag(tag) and '/' in tag:
+            # create XMP structure/container
+            root_tag = tag.split('/')[0].partition('[')[0]
+            for t in self.get_xmp_tags():
+                if t.startswith(root_tag):
+                    break
+            else:
+                self.set_xmp_tag_struct(root_tag,  GExiv2.StructureType.BAG)
         super(MetadataHandler, self).set_tag_string(tag, value)
 
     def set_tag_multiple(self, tag, value):
@@ -961,19 +980,19 @@ class Metadata(object):
         'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
         'lens_spec'      : (('Exif', 'Exif.Photo.LensSpecification'),),
         'location_shown' : (
-            ('Xmp', ('Xmp.iptcExt.LocationShown/Iptc4xmpExt:WorldRegion',
-                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:Sublocation')),),
+            ('Xmp', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation')),),
         'location_taken' : (
-            ('Xmp', ('Xmp.iptcExt.LocationCreated/Iptc4xmpExt:WorldRegion',
-                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:Sublocation')),),
+            ('Xmp', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation')),),
         'orientation'    : (('Exif', 'Exif.Image.Orientation'),),
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
