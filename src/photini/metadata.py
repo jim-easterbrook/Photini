@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -269,6 +269,32 @@ class LatLon(MetadataDictValue):
     def contains(self, other):
         return (not other) or ((abs(other.lat - self.lat) < 0.000001) and
                                (abs(other.lon - self.lon) < 0.000001))
+
+
+class Location(MetadataDictValue):
+    # stores IPTC defined location heirarchy
+    def __init__(self, value):
+        if isinstance(value, six.string_types):
+            value = value.split(',')
+        super(Location, self).__init__({
+            'world_region'  : value[0],
+            'country_code'  : value[1],
+            'country_name'  : value[2],
+            'province_state': value[3],
+            'city'          : value[4],
+            'sublocation'   : value[5]
+            })
+
+    @classmethod
+    def from_iptc(cls, file_value):
+        return cls([None] + file_value)
+
+    @classmethod
+    def from_xmp(cls, file_value):
+        if len(file_value) == 5:
+            return cls([None] + file_value)
+        return cls(file_value)
+
 
 class LensSpec(MetadataDictValue):
     # simple class to store lens "specificaton"
@@ -887,6 +913,8 @@ class Metadata(object):
         'lens_model'     : String,
         'lens_serial'    : String,
         'lens_spec'      : LensSpec,
+        'location_shown' : Location,
+        'location_taken' : Location,
         'orientation'    : Int,
         'software'       : Software,
         'timezone'       : Int,
@@ -932,6 +960,20 @@ class Metadata(object):
         'lens_model'     : (('Exif', 'Exif.Photo.LensModel'),),
         'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
         'lens_spec'      : (('Exif', 'Exif.Photo.LensSpecification'),),
+        'location_shown' : (
+            ('Xmp', ('Xmp.iptcExt.LocationShown/Iptc4xmpExt:WorldRegion',
+                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationShown/Iptc4xmpExt:Sublocation')),),
+        'location_taken' : (
+            ('Xmp', ('Xmp.iptcExt.LocationCreated/Iptc4xmpExt:WorldRegion',
+                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationCreated/Iptc4xmpExt:Sublocation')),),
         'orientation'    : (('Exif', 'Exif.Image.Orientation'),),
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
@@ -973,6 +1015,16 @@ class Metadata(object):
         'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),
                             ('Exif', 'Exif.CanonCs.Lens'),
                             ('Exif', 'Exif.Nikon3.Lens')),
+        'location_taken' : (('Iptc', ('Iptc.Application2.CountryCode',
+                                      'Iptc.Application2.CountryName',
+                                      'Iptc.Application2.ProvinceState',
+                                      'Iptc.Application2.City',
+                                      'Iptc.Application2.SubLocation')),
+                            ('Xmp', ('Xmp.Iptc4xmpCore.CountryCode',
+                                     'Xmp.photoshop.Country',
+                                     'Xmp.photoshop.State',
+                                     'Xmp.photoshop.City',
+                                     'Xmp.Iptc4xmpCore.Location'))),
         'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
