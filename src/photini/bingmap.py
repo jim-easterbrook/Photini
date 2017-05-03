@@ -60,10 +60,13 @@ class BingMap(PhotiniMap):
             }
 
     def show_terms(self):
-        # return widgets to display map terms and conditions
-        load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
-        load_tou.clicked.connect(self.load_tou)
-        yield load_tou
+        # return widget to display map terms and conditions
+        layout = QtWidgets.QVBoxLayout()
+        widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
+        widget.clicked.connect(self.load_tou)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget)
+        return layout
 
     @QtCore.pyqtSlot()
     def load_tou(self):

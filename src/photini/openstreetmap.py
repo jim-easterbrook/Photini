@@ -50,23 +50,29 @@ class OpenStreetMap(PhotiniMap):
             }
 
     def show_terms(self):
-        # return widgets to display map terms and conditions
-        load_tou = QtWidgets.QPushButton(self.tr('Search powered by Nominatim'))
-        load_tou.clicked.connect(self.load_tou_nominatim)
-        yield load_tou
-        load_tou = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
-        load_tou.clicked.connect(self.load_tou_leaflet)
-        yield load_tou
+        # return widget to display map terms and conditions
+        layout = QtWidgets.QGridLayout()
+        widget = QtWidgets.QPushButton(self.tr('Search powered by Nominatim'))
+        widget.clicked.connect(self.load_tou_nominatim)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget, 0, 0)
+        widget = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
+        widget.clicked.connect(self.load_tou_leaflet)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget, 0, 1)
         if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
-        load_tou = QtWidgets.QPushButton(
+        widget = QtWidgets.QPushButton(
             self.trUtf8('Map data ©OpenStreetMap contributors\nlicensed under ODbL'))
-        load_tou.clicked.connect(self.load_tou_osm)
-        yield load_tou
-        load_tou = QtWidgets.QPushButton(
+        widget.clicked.connect(self.load_tou_osm)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget, 1, 0)
+        widget = QtWidgets.QPushButton(
             self.tr('Map tiles by CARTO\nlicensed under CC BY 3.0'))
-        load_tou.clicked.connect(self.load_tou_tiles)
-        yield load_tou
+        widget.clicked.connect(self.load_tou_tiles)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget, 1, 1)
+        return layout
 
     @QtCore.pyqtSlot()
     def load_tou_nominatim(self):

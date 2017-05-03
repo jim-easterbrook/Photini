@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -51,11 +51,16 @@ class GoogleMap(PhotiniMap):
             }
 
     def show_terms(self):
-        # return widgets to display map terms and conditions
-        yield QtWidgets.QLabel(self.tr('Search powered by Google'))
-        load_tou = QtWidgets.QPushButton(self.tr('Terms of Use'))
-        load_tou.clicked.connect(self.load_tou)
-        yield load_tou
+        # return widget to display map terms and conditions
+        layout = QtWidgets.QVBoxLayout()
+        widget = QtWidgets.QLabel(self.tr('Search powered by Google'))
+        widget.setStyleSheet('QLabel { font-size: 10px }')
+        layout.addWidget(widget)
+        widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
+        widget.clicked.connect(self.load_tou)
+        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        layout.addWidget(widget)
+        return layout
 
     @QtCore.pyqtSlot()
     def load_tou(self):

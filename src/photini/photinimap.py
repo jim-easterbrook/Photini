@@ -288,10 +288,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_loaded = True
         self.layout().removeWidget(self.load_map)
         self.load_map.setParent(None)
-        show_terms = QtWidgets.QVBoxLayout()
-        for widget in self.show_terms():
-            widget.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
-            show_terms.addWidget(widget)
+        show_terms = self.show_terms()
         self.layout().addLayout(show_terms, 7, 0, 1, 2)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
