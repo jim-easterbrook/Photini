@@ -29,8 +29,8 @@ import six
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    multiple_values, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets)
+    Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
+    QtWebKitWidgets, QtWidgets, SingleLineEdit)
 
 translate = QtCore.QCoreApplication.translate
 
@@ -76,14 +76,13 @@ class LocationWidgets(object):
     def __init__(self):
         super(LocationWidgets, self).__init__()
         self.members = {
-            'sublocation'   : QtWidgets.QLineEdit(),
-            'city'          : QtWidgets.QLineEdit(),
-            'province_state': QtWidgets.QLineEdit(),
-            'country_name'  : QtWidgets.QLineEdit(),
-            'country_code'  : QtWidgets.QLineEdit(),
-            'world_region'  : QtWidgets.QLineEdit(),
+            'sublocation'   : SingleLineEdit(),
+            'city'          : SingleLineEdit(),
+            'province_state': SingleLineEdit(),
+            'country_name'  : SingleLineEdit(),
+            'country_code'  : SingleLineEdit(),
+            'world_region'  : SingleLineEdit(),
             }
-        self.members['country_code'].setMaxLength(3)
         self.members['country_code'].setMaximumWidth(40)
 
     def __getitem__(self, key):
@@ -140,7 +139,6 @@ class PhotiniMap(QtWidgets.QWidget):
         self.app = QtWidgets.QApplication.instance()
         self.config_store = self.app.config_store
         self.image_list = image_list
-        self.multiple_values = multiple_values()
         self.script_dir = pkg_resources.resource_filename(
             'photini', 'data/' + self.__class__.__name__.lower() + '/')
         self.drag_icon = QtGui.QPixmap(
@@ -187,7 +185,7 @@ class PhotiniMap(QtWidgets.QWidget):
         # latitude & longitude
         self.layout().addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 1, 0)
-        self.coords = QtWidgets.QLineEdit()
+        self.coords = SingleLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
         self.layout().addWidget(self.coords, 1, 1)
@@ -335,7 +333,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def new_coords(self):
-        text = self.coords.text().strip()
+        text = self.coords.get_value().strip()
         if not text:
             for image in self.image_list.get_selected_images():
                 self._remove_image(image)
@@ -369,21 +367,17 @@ class PhotiniMap(QtWidgets.QWidget):
     def display_coords(self):
         images = self.image_list.get_selected_images()
         if not images:
-            self.coords.clear()
+            self.coords.set_value(None)
             self.auto_location.setEnabled(False)
             return
         latlong = images[0].metadata.latlong
         for image in images[1:]:
             if image.metadata.latlong != latlong:
-                self.coords.setText(self.multiple_values)
+                self.coords.set_multiple()
                 self.auto_location.setEnabled(False)
                 return
-        if latlong:
-            self.coords.setText(str(latlong))
-            self.auto_location.setEnabled(True)
-        else:
-            self.coords.clear()
-            self.auto_location.setEnabled(False)
+        self.coords.set_value(latlong)
+        self.auto_location.setEnabled(bool(latlong))
 
     def display_location(self):
         images = self.image_list.get_selected_images()
@@ -392,7 +386,7 @@ class PhotiniMap(QtWidgets.QWidget):
                                  self.location_info['shown']):
                 for attr in ('sublocation', 'city', 'province_state',
                              'country_name', 'country_code', 'world_region'):
-                    widget_group[attr].clear()
+                    widget_group[attr].set_value(None)
             return
         for taken_shown in 'taken', 'shown':
             widget_group = self.location_info[taken_shown]
@@ -406,13 +400,10 @@ class PhotiniMap(QtWidgets.QWidget):
                     if other:
                         other = other.value[attr]
                     if other != value:
-                        widget_group[attr].setText(self.multiple_values)
+                        widget_group[attr].set_multiple()
                         break
                 else:
-                    if value:
-                        widget_group[attr].setText(value)
-                    else:
-                        widget_group[attr].clear()
+                    widget_group[attr].set_value(value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
