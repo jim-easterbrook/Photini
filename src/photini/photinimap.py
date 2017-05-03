@@ -72,6 +72,67 @@ class WebView(WebViewBase):
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
 
 
+class LocationWidgets(object):
+    def __init__(self):
+        super(LocationWidgets, self).__init__()
+        self.members = {
+            'sublocation'   : QtWidgets.QLineEdit(),
+            'city'          : QtWidgets.QLineEdit(),
+            'province_state': QtWidgets.QLineEdit(),
+            'country_name'  : QtWidgets.QLineEdit(),
+            'country_code'  : QtWidgets.QLineEdit(),
+            'world_region'  : QtWidgets.QLineEdit(),
+            }
+        self.members['country_code'].setMaxLength(3)
+        self.members['country_code'].setMaximumWidth(40)
+
+    def __getitem__(self, key):
+        return self.members[key]
+
+
+class LocationInfo(QtWidgets.QWidget):
+    def __init__(self, *args, **kw):
+        super(LocationInfo, self).__init__(*args, **kw)
+        layout = QtWidgets.QGridLayout()
+        self.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.members = {
+            'taken': LocationWidgets(),
+            'shown': LocationWidgets()
+            }
+        label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label, 0, 1, 1, 2)
+        label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label, 0, 3, 1, 2)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('PhotiniMap', 'Location:')), 1, 0)
+        layout.addWidget(self.members['taken']['sublocation'], 1, 1, 1, 2)
+        layout.addWidget(self.members['shown']['sublocation'], 1, 3, 1, 2)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('PhotiniMap', 'City:')), 2, 0)
+        layout.addWidget(self.members['taken']['city'], 2, 1, 1, 2)
+        layout.addWidget(self.members['shown']['city'], 2, 3, 1, 2)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('PhotiniMap', 'Province:')), 3, 0)
+        layout.addWidget(self.members['taken']['province_state'], 3, 1, 1, 2)
+        layout.addWidget(self.members['shown']['province_state'], 3, 3, 1, 2)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('PhotiniMap', 'Country:')), 4, 0)
+        layout.addWidget(self.members['taken']['country_name'], 4, 1)
+        layout.addWidget(self.members['taken']['country_code'], 4, 2)
+        layout.addWidget(self.members['shown']['country_name'], 4, 3)
+        layout.addWidget(self.members['shown']['country_code'], 4, 4)
+        layout.addWidget(
+            QtWidgets.QLabel(translate('PhotiniMap', 'Region:')), 5, 0)
+        layout.addWidget(self.members['taken']['world_region'], 5, 1, 1, 2)
+        layout.addWidget(self.members['shown']['world_region'], 5, 3, 1, 2)
+
+    def __getitem__(self, key):
+        return self.members[key]
+
+
 class PhotiniMap(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
@@ -108,7 +169,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.java_script_window_object_cleared)
         self.map.setAcceptDrops(False)
         self.map.drop_text.connect(self.drop_text)
-        self.layout().addWidget(self.map, 0, 1, 8, 1)
+        self.layout().addWidget(self.map, 0, 2, 8, 1)
         # search
         self.layout().addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
@@ -122,18 +183,27 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.layout().addWidget(self.edit_box, 1, 0)
+        self.layout().addWidget(self.edit_box, 0, 1)
         # latitude & longitude
         self.layout().addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 2, 0)
+            QtWidgets.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 1, 0)
         self.coords = QtWidgets.QLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
-        self.layout().addWidget(self.coords, 3, 0)
+        self.layout().addWidget(self.coords, 1, 1)
+        # convert lat/lng to location info
+        self.auto_location = QtWidgets.QPushButton(
+            translate('PhotiniMap', 'Address lookup'))
+        self.auto_location.setEnabled(False)
+        layout.addWidget(self.auto_location, 2, 1)
+        # location info
+        self.location_info = LocationInfo()
+        self.location_info.setEnabled(False)
+        self.layout().addWidget(self.location_info, 3, 0, 1, 2)
         # load map button
         self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
         self.load_map.clicked.connect(self.initialise)
-        self.layout().addWidget(self.load_map, 7, 0)
+        self.layout().addWidget(self.load_map, 7, 0, 1, 2)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
 
@@ -224,7 +294,7 @@ class PhotiniMap(QtWidgets.QWidget):
         for widget in self.show_terms():
             widget.setStyleSheet('QPushButton, QLabel { font-size: 10px }')
             show_terms.addWidget(widget)
-        self.layout().addLayout(show_terms, 7, 0)
+        self.layout().addLayout(show_terms, 7, 0, 1, 2)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.image_list_changed()
@@ -300,24 +370,59 @@ class PhotiniMap(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             self.coords.clear()
+            self.auto_location.setEnabled(False)
             return
         latlong = images[0].metadata.latlong
         for image in images[1:]:
             if image.metadata.latlong != latlong:
                 self.coords.setText(self.multiple_values)
+                self.auto_location.setEnabled(False)
                 return
         if latlong:
             self.coords.setText(str(latlong))
+            self.auto_location.setEnabled(True)
         else:
             self.coords.clear()
+            self.auto_location.setEnabled(False)
+
+    def display_location(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            for widget_group in (self.location_info['taken'],
+                                 self.location_info['shown']):
+                for attr in ('sublocation', 'city', 'province_state',
+                             'country_name', 'country_code', 'world_region'):
+                    widget_group[attr].clear()
+            return
+        for taken_shown in 'taken', 'shown':
+            widget_group = self.location_info[taken_shown]
+            for attr in ('sublocation', 'city', 'province_state',
+                         'country_name', 'country_code', 'world_region'):
+                value = getattr(images[0].metadata, 'location_' + taken_shown)
+                if value:
+                    value = value.value[attr]
+                for image in images[1:]:
+                    other = getattr(image.metadata, 'location_' + taken_shown)
+                    if other:
+                        other = other.value[attr]
+                    if other != value:
+                        widget_group[attr].setText(self.multiple_values)
+                        break
+                else:
+                    if value:
+                        widget_group[attr].setText(value)
+                    else:
+                        widget_group[attr].clear()
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
         self.coords.setEnabled(bool(selection))
+        self.location_info.setEnabled(bool(selection))
         for marker_id, images in self.marker_images.items():
             self.JavaScript('enableMarker("{}", {:d})'.format(
                 marker_id, any([image.selected for image in images])))
         self.display_coords()
+        self.display_location()
         self.see_selection()
 
     def redraw_markers(self):
