@@ -212,32 +212,38 @@ function reverseGeocode(lat, lng)
                     {
                         case "political":
                             continue;
-                        case "street_number":
-                            sublocation = address.long_name + ", " + sublocation;
-                            break;
                         case "premise":
                         case "route":
+                        case "street_number":
+                            if (sublocation.indexOf(address.long_name) >= 0)
+                                break;
+                            if (sublocation)
+                                sublocation += ", ";
                             sublocation += address.long_name;
-                            break;
-                        case "sublocality":
-                            city = address.long_name + ", " + city;
                             break;
                         case "locality":
                         case "neighborhood":
                         case "postal_town":
+                        case "sublocality":
+                            if (city.indexOf(address.long_name) >= 0)
+                                break;
+                            if (city)
+                                city += ", ";
                             city += address.long_name;
                             break;
-                        case "administrative_area_level_2":
-                            province_state = address.long_name + ", " + province_state;
-                            break;
                         case "administrative_area_level_1":
+                        case "administrative_area_level_2":
+                        case "administrative_area_level_3":
+                            if (province_state.indexOf(address.long_name) >= 0)
+                                break;
+                            if (province_state)
+                                province_state += ", ";
                             province_state += address.long_name;
                             break;
                         case "country":
                             country_name = address.long_name;
                             country_code = address.short_name;
                             break;
-                        case "administrative_area_level_3":
                         case "postal_code":
                             break;
                         default:
