@@ -142,26 +142,21 @@ class LocationInfo(QtWidgets.QWidget):
         layout.addWidget(label, 0, 3, 1, 2)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Location:')), 1, 0)
-        layout.addWidget(self.members['taken']['sublocation'], 1, 1, 1, 2)
-        layout.addWidget(self.members['shown']['sublocation'], 1, 3, 1, 2)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'City:')), 2, 0)
-        layout.addWidget(self.members['taken']['city'], 2, 1, 1, 2)
-        layout.addWidget(self.members['shown']['city'], 2, 3, 1, 2)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Province:')), 3, 0)
-        layout.addWidget(self.members['taken']['province_state'], 3, 1, 1, 2)
-        layout.addWidget(self.members['shown']['province_state'], 3, 3, 1, 2)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Country:')), 4, 0)
-        layout.addWidget(self.members['taken']['country_name'], 4, 1)
-        layout.addWidget(self.members['taken']['country_code'], 4, 2)
-        layout.addWidget(self.members['shown']['country_name'], 4, 3)
-        layout.addWidget(self.members['shown']['country_code'], 4, 4)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Region:')), 5, 0)
-        layout.addWidget(self.members['taken']['world_region'], 5, 1, 1, 2)
-        layout.addWidget(self.members['shown']['world_region'], 5, 3, 1, 2)
+        for ts, col in (('taken', 1), ('shown', 3)):
+            layout.addWidget(self.members[ts]['sublocation'], 1, col, 1, 2)
+            layout.addWidget(self.members[ts]['city'], 2, col, 1, 2)
+            layout.addWidget(self.members[ts]['province_state'], 3, col, 1, 2)
+            layout.addWidget(self.members[ts]['country_name'], 4, col)
+            layout.addWidget(self.members[ts]['country_code'], 4, col + 1)
+            layout.addWidget(self.members[ts]['world_region'], 5, col, 1, 2)
 
     def __getitem__(self, key):
         return self.members[key]
