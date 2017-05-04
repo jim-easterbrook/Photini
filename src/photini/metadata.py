@@ -790,7 +790,7 @@ class MetadataHandler(GExiv2.Metadata):
     def clear_tag(self, tag):
         if isinstance(tag, tuple):
             for sub_tag in tag:
-                super(MetadataHandler, self).clear_tag(sub_tag)
+                self.clear_tag(sub_tag)
             return
         super(MetadataHandler, self).clear_tag(tag)
 
@@ -846,7 +846,7 @@ class MetadataHandler(GExiv2.Metadata):
                 self.set_tag_string(sub_tag, sub_value)
             return
         if not value:
-            super(MetadataHandler, self).clear_tag(tag)
+            self.clear_tag(tag)
             return
         if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
             value = value.encode('utf_8')[:_max_bytes[tag]]
@@ -870,7 +870,7 @@ class MetadataHandler(GExiv2.Metadata):
                 self.set_tag_multiple(sub_tag, sub_value)
             return
         if not value:
-            super(MetadataHandler, self).clear_tag(tag)
+            self.clear_tag(tag)
             return
         if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
             value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
