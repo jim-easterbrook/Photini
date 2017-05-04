@@ -180,7 +180,7 @@ function search(search_string)
         function(results, status) {
             if (status == google.maps.GeocoderStatus.OK)
             {
-                for (i in results)
+                for (var i in results)
                 {
                     var ne = results[i].geometry.viewport.getNorthEast();
                     var sw = results[i].geometry.viewport.getSouthWest();
@@ -191,4 +191,65 @@ function search(search_string)
             else
                 alert("Search fail, code:" + status);
             });
+}
+
+function reverseGeocode(lat, lng)
+{
+    geocoder.geocode({'location': {lat: lat, lng: lng}}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK)
+        {
+            var country_code = "";
+            var country_name = "";
+            var province_state = "";
+            var city = "";
+            var sublocation = "";
+            for (var i in results[0].address_components)
+            {
+                var address = results[0].address_components[i];
+                for (var j in address.types)
+                {
+                    switch (address.types[j])
+                    {
+                        case "political":
+                            continue;
+                        case "street_number":
+                            sublocation = address.long_name + ", " + sublocation;
+                            break;
+                        case "premise":
+                        case "route":
+                            sublocation += address.long_name;
+                            break;
+                        case "sublocality":
+                            city = address.long_name + ", " + city;
+                            break;
+                        case "locality":
+                        case "neighborhood":
+                        case "postal_town":
+                            city += address.long_name;
+                            break;
+                        case "administrative_area_level_2":
+                            province_state = address.long_name + ", " + province_state;
+                            break;
+                        case "administrative_area_level_1":
+                            province_state += address.long_name;
+                            break;
+                        case "country":
+                            country_name = address.long_name;
+                            country_code = address.short_name;
+                            break;
+                        case "administrative_area_level_3":
+                        case "postal_code":
+                            break;
+                        default:
+                            alert("Unknown type:" + address.long_name + ", " + address.types.join());
+                    }
+                    break;
+                }
+            }
+            python.set_location_taken(
+                "", country_code, country_name, province_state, city, sublocation);
+        }
+        else
+            alert("Geocode fail, code:" + status);
+        });
 }

@@ -168,6 +168,8 @@ class LocationInfo(QtWidgets.QWidget):
 
 
 class PhotiniMap(QtWidgets.QWidget):
+    reverse_geocode = False
+
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -228,7 +230,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', 'Address lookup'))
         self.auto_location.setEnabled(False)
-        layout.addWidget(self.auto_location, 2, 1)
+        if self.reverse_geocode:
+            self.auto_location.clicked.connect(self.get_address)
+            layout.addWidget(self.auto_location, 2, 1)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
@@ -259,6 +263,8 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def image_list_changed(self):
         self.redraw_markers()
+        self.display_coords()
+        self.display_location()
         self.see_selection()
 
     @QtCore.pyqtSlot()
@@ -329,8 +335,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().addLayout(show_terms, 7, 0, 1, 2)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        self.image_list_changed()
         self.image_list.set_drag_to_map(self.drag_icon)
+        self.redraw_markers()
+        self.display_coords()
 
     def refresh(self):
         if not self.map_loaded:
@@ -398,11 +405,21 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
-    @QtCore.pyqtSlot(str, str)
+    @QtCore.pyqtSlot(six.text_type, six.text_type, six.text_type,
+                     six.text_type, six.text_type, six.text_type)
+    def set_location_taken(self, world_region, country_code, country_name,
+                           province_state, city, sublocation):
+        for image in self.image_list.get_selected_images():
+            image.metadata.location_taken = (
+                world_region, country_code, country_name,
+                province_state, city, sublocation)
+        self.display_location()
+
+    @QtCore.pyqtSlot(six.text_type, six.text_type)
     def new_location_taken(self, key, value):
         self._new_location('location_taken', key, value)
 
-    @QtCore.pyqtSlot(str, str)
+    @QtCore.pyqtSlot(six.text_type, six.text_type)
     def new_location_shown(self, key, value):
         self._new_location('location_shown', key, value)
 
@@ -433,7 +450,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.auto_location.setEnabled(False)
                 return
         self.coords.set_value(latlong)
-        self.auto_location.setEnabled(bool(latlong))
+        self.auto_location.setEnabled(self.map_loaded and bool(latlong))
 
     def display_location(self):
         images = self.image_list.get_selected_images()
