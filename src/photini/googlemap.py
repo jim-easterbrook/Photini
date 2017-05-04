@@ -29,13 +29,6 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore, QtWidgets
 
 class GoogleMap(PhotiniMap):
-    reverse_geocode = True
-
-    @QtCore.pyqtSlot()
-    def get_address(self):
-        latlng = self.coords.get_value()
-        self.JavaScript('reverseGeocode({})'.format(latlng))
-
     def get_page_elements(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:

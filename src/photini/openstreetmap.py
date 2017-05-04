@@ -27,7 +27,7 @@ import six
 
 from photini import __version__
 from photini.photinimap import PhotiniMap
-from photini.pyqt import QtCore, QtWidgets, qt_version_info
+from photini.pyqt import Busy, QtCore, QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
     def get_page_elements(self):
@@ -92,6 +92,49 @@ class OpenStreetMap(PhotiniMap):
         webbrowser.open_new('https://carto.com/attribution')
 
     @QtCore.pyqtSlot()
+    def get_address(self):
+        lat, lon = self.coords.get_value().split(',')
+        params = {
+            'lat': lat.strip(),
+            'lon': lon.strip(),
+            'zoom': '18',
+            'format': 'json',
+            'addressdetails': '1',
+            }
+        headers = {'user-agent': 'Photini/' + __version__}
+        with Busy():
+            rsp = requests.get(
+                'http://nominatim.openstreetmap.org/reverse',
+                params=params, headers=headers)
+        if rsp.status_code >= 400:
+            return
+        address = rsp.json()['address']
+        location = []
+        for iptc_key, osm_keys in (
+                ('world_region',   ()),
+                ('country_code',   ('country_code',)),
+                ('country_name',   ('country',)),
+                ('province_state', ('county', 'state')),
+                ('city',           ('village', 'suburb', 'town',
+                                    'city_district', 'city')),
+                ('sublocation',    ('building', 'place_of_worship', 'school',
+                                    'house_number', 'pedestrian', 'road'))):
+            element = ''
+            for key in osm_keys:
+                if key not in address:
+                    continue
+                if element:
+                    element += ', '
+                element += address[key]
+                del(address[key])
+            location.append(element)
+        if 'postcode' in address:
+            del address['postcode']
+        if address:
+            self.logger.warning('Unused address element(s): %s', str(address))
+        self.set_location_taken(*location)
+
+    @QtCore.pyqtSlot()
     def search(self, search_string=None):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
@@ -111,9 +154,12 @@ class OpenStreetMap(PhotiniMap):
             params['viewbox'] = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(
                 bounds[3], bounds[0], bounds[1], bounds[2])
         headers = {'user-agent': 'Photini/' + __version__}
-        rsp = requests.get(
-            'http://nominatim.openstreetmap.org/search',
-            params=params, headers=headers)
+        with Busy():
+            rsp = requests.get(
+                'http://nominatim.openstreetmap.org/search',
+                params=params, headers=headers)
+        if rsp.status_code >= 400:
+            return
         for result in rsp.json():
             self.search_result(
                 result['boundingbox'][0], result['boundingbox'][3],

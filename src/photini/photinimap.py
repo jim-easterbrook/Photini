@@ -168,8 +168,6 @@ class LocationInfo(QtWidgets.QWidget):
 
 
 class PhotiniMap(QtWidgets.QWidget):
-    reverse_geocode = False
-
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -230,9 +228,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', 'Address lookup'))
         self.auto_location.setEnabled(False)
-        if self.reverse_geocode:
-            self.auto_location.clicked.connect(self.get_address)
-            layout.addWidget(self.auto_location, 2, 1)
+        self.auto_location.clicked.connect(self.get_address)
+        layout.addWidget(self.auto_location, 2, 1)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
@@ -530,6 +527,11 @@ class PhotiniMap(QtWidgets.QWidget):
         else:
             self.JavaScript('delMarker("{}")'.format(marker_id))
             del self.marker_images[marker_id]
+
+    @QtCore.pyqtSlot()
+    def get_address(self):
+        latlng = self.coords.get_value()
+        self.JavaScript('reverseGeocode({})'.format(latlng))
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):
