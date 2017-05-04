@@ -23,7 +23,8 @@ from datetime import timedelta
 import re
 
 from photini.metadata import DateTime, LensSpec
-from photini.pyqt import multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets
+from photini.pyqt import (
+    multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets, SquareButton)
 
 # 'constant' used by some widgets to indicate they've been set to '<multiple>'
 MULTI = 'multi'
@@ -324,14 +325,6 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
     @QtCore.pyqtSlot()
     def new_time_zone(self):
         self.new_value.emit((MULTI, MULTI, self.time_zone.get_value()))
-
-
-class SquareButton(QtWidgets.QPushButton):
-    def sizeHint(self):
-        size = super(SquareButton, self).sizeHint()
-        size.setHeight(size.height() - 4)
-        size.setWidth(size.height())
-        return size
 
 
 class OffsetWidget(QtWidgets.QWidget):

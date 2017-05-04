@@ -190,6 +190,14 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
+class SquareButton(QtWidgets.QPushButton):
+    def sizeHint(self):
+        size = super(SquareButton, self).sizeHint()
+        size.setHeight(size.height() - 4)
+        size.setWidth(size.height())
+        return size
+
+
 class StartStopButton(QtWidgets.QPushButton):
     click_start = QtCore.pyqtSignal()
     click_stop = QtCore.pyqtSignal()

@@ -28,10 +28,9 @@ import pkg_resources
 import six
 
 from photini.imagelist import DRAG_MIMETYPE
-from photini.technical import SquareButton
 from photini.pyqt import (
     Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, SingleLineEdit)
+    QtWebKitWidgets, QtWidgets, SingleLineEdit, SquareButton)
 
 translate = QtCore.QCoreApplication.translate
 
