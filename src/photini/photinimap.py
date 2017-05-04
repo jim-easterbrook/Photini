@@ -28,6 +28,7 @@ import pkg_resources
 import six
 
 from photini.imagelist import DRAG_MIMETYPE
+from photini.technical import SquareButton
 from photini.pyqt import (
     Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
     QtWebKitWidgets, QtWidgets, SingleLineEdit)
@@ -134,12 +135,17 @@ class LocationInfo(QtWidgets.QWidget):
             'taken': LocationWidgets(self),
             'shown': LocationWidgets(self)
             }
+        self.swap = SquareButton(six.unichr(0x21c4))
+        self.swap.setStyleSheet('QPushButton { font-size: 10px }')
+        self.swap.setFont(QtGui.QFont("Dejavu Sans"))
+        if not self.swap.fontInfo().exactMatch():
+            # probably on Windows, try a different font
+            self.swap.setFont(QtGui.QFont("Segoe UI Symbol"))
+        layout.addWidget(self.swap, 0, 4)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
-        label.setAlignment(Qt.AlignCenter)
         layout.addWidget(label, 0, 1, 1, 2)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
-        label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(label, 0, 3, 1, 2)
+        layout.addWidget(label, 0, 3)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Location:')), 1, 0)
         layout.addWidget(
@@ -229,6 +235,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
         self.location_info['shown'].new_value.connect(self.new_location_shown)
+        self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
         self.layout().addWidget(self.location_info, 3, 0, 1, 2)
         # load map button
@@ -405,6 +412,19 @@ class PhotiniMap(QtWidgets.QWidget):
             image.metadata.location_taken = (
                 world_region, country_code, country_name,
                 province_state, city, sublocation)
+        self.display_location()
+
+    @QtCore.pyqtSlot()
+    def swap_locations(self):
+        for image in self.image_list.get_selected_images():
+            taken = image.metadata.location_taken
+            if taken:
+                taken = taken.value
+            shown = image.metadata.location_shown
+            if shown:
+                shown = shown.value
+            image.metadata.location_taken = shown
+            image.metadata.location_shown = taken
         self.display_location()
 
     @QtCore.pyqtSlot(six.text_type, six.text_type)
