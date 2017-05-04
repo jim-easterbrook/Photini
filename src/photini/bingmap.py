@@ -30,6 +30,13 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets
 
 class BingMap(PhotiniMap):
+    reverse_geocode = True
+
+    @QtCore.pyqtSlot()
+    def get_address(self):
+        latlng = self.coords.get_value()
+        self.JavaScript('reverseGeocode({})'.format(latlng))
+
     def __init__(self, *arg, **kw):
         super(BingMap, self).__init__(*arg, **kw)
         if not QtWebEngineWidgets:

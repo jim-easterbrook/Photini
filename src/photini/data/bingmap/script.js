@@ -186,3 +186,26 @@ function errCallback(geocodeRequest)
 {
     alert("Search fail.");
 }
+
+function reverseGeocode(lat, lng)
+{
+    searchManager.reverseGeocode({
+        location: new Microsoft.Maps.Location(lat, lng),
+        includeCountryIso2: true,
+        callback: reverseGeocodeCallback,
+        errorCallback: errCallback
+        });
+}
+
+function reverseGeocodeCallback(geocodeResult, userData)
+{
+    var country_code = geocodeResult.address.countryRegionISO2;
+    var country_name = geocodeResult.address.countryRegion;
+    var province_state = geocodeResult.address.adminDistrict;
+    if (geocodeResult.address.district)
+        province_state = geocodeResult.address.district + ", " + province_state;
+    var city = geocodeResult.address.locality;
+    var sublocation = geocodeResult.address.addressLine;
+    python.set_location_taken(
+        "", country_code, country_name, province_state, city, sublocation);
+}
