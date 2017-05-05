@@ -184,7 +184,7 @@ function geocodeCallback(geocodeResult, userData)
 
 function errCallback(geocodeRequest)
 {
-    alert("Search fail.");
+    python.log(40, "geocode request fail: " + JSON.stringify(geocodeRequest));
 }
 
 function reverseGeocode(lat, lng)

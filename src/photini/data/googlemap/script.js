@@ -189,7 +189,7 @@ function search(search_string)
                 }
             }
             else
-                alert("Search fail, code:" + status);
+                python.log(40, "Search fail: " + status);
             });
 }
 
@@ -247,7 +247,8 @@ function reverseGeocode(lat, lng)
                         case "postal_code":
                             break;
                         default:
-                            alert("Unknown type:" + address.long_name + ", " + address.types.join());
+                            python.log(40, "Unknown type:" + address.long_name +
+                                           ", " + address.types.join());
                     }
                     break;
                 }
@@ -256,6 +257,6 @@ function reverseGeocode(lat, lng)
                 "", country_code, country_name, province_state, city, sublocation);
         }
         else
-            alert("Geocode fail, code:" + status);
+            python.log(40, "reverseGeocode fail: " + status);
         });
 }

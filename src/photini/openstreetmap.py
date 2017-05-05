@@ -108,7 +108,11 @@ class OpenStreetMap(PhotiniMap):
                 params=params, headers=headers)
         if rsp.status_code >= 400:
             return
-        address = rsp.json()['address']
+        rsp = rsp.json()
+        if 'error' in rsp:
+            self.logger.error(rsp['error'])
+            return
+        address = rsp['address']
         location = []
         for iptc_key, osm_keys in (
                 ('world_region',   ()),
