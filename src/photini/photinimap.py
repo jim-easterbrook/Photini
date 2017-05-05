@@ -83,14 +83,15 @@ class LocationWidgets(QtCore.QObject):
             'province_state': SingleLineEdit(),
             'country_name'  : SingleLineEdit(),
             'country_code'  : SingleLineEdit(),
-            'world_region'  : SingleLineEdit(),
+            ## Not needed when only using 'legacy' location tags
+##            'world_region'  : SingleLineEdit(),
             }
         self.members['sublocation'].editingFinished.connect(self.new_sublocation)
         self.members['city'].editingFinished.connect(self.new_city)
         self.members['province_state'].editingFinished.connect(self.new_province_state)
         self.members['country_name'].editingFinished.connect(self.new_country_name)
         self.members['country_code'].editingFinished.connect(self.new_country_code)
-        self.members['world_region'].editingFinished.connect(self.new_world_region)
+##        self.members['world_region'].editingFinished.connect(self.new_world_region)
         self.members['country_code'].setMaximumWidth(40)
 
     def __getitem__(self, key):
@@ -132,19 +133,21 @@ class LocationInfo(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {
             'taken': LocationWidgets(self),
-            'shown': LocationWidgets(self)
+            ## Not needed when only using 'legacy' location tags
+##            'shown': LocationWidgets(self)
             }
-        self.swap = SquareButton(six.unichr(0x21c4))
-        self.swap.setStyleSheet('QPushButton { font-size: 10px }')
-        self.swap.setFont(QtGui.QFont("Dejavu Sans"))
-        if not self.swap.fontInfo().exactMatch():
-            # probably on Windows, try a different font
-            self.swap.setFont(QtGui.QFont("Segoe UI Symbol"))
-        layout.addWidget(self.swap, 0, 4)
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
-        layout.addWidget(label, 0, 1, 1, 2)
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
-        layout.addWidget(label, 0, 3)
+        ## Not needed when only using 'legacy' location tags
+##        self.swap = SquareButton(six.unichr(0x21c4))
+##        self.swap.setStyleSheet('QPushButton { font-size: 10px }')
+##        self.swap.setFont(QtGui.QFont("Dejavu Sans"))
+##        if not self.swap.fontInfo().exactMatch():
+##            # probably on Windows, try a different font
+##            self.swap.setFont(QtGui.QFont("Segoe UI Symbol"))
+##        layout.addWidget(self.swap, 0, 4)
+##        label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
+##        layout.addWidget(label, 0, 1, 1, 2)
+##        label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
+##        layout.addWidget(label, 0, 3)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Location:')), 1, 0)
         layout.addWidget(
@@ -153,15 +156,17 @@ class LocationInfo(QtWidgets.QWidget):
             QtWidgets.QLabel(translate('PhotiniMap', 'Province:')), 3, 0)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Country:')), 4, 0)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Region:')), 5, 0)
-        for ts, col in (('taken', 1), ('shown', 3)):
+##        layout.addWidget(
+##            QtWidgets.QLabel(translate('PhotiniMap', 'Region:')), 5, 0)
+        ## 'shown' not needed when only using 'legacy' location tags
+##        for ts, col in (('taken', 1), ('shown', 3)):
+        for ts, col in (('taken', 1),):
             layout.addWidget(self.members[ts]['sublocation'], 1, col, 1, 2)
             layout.addWidget(self.members[ts]['city'], 2, col, 1, 2)
             layout.addWidget(self.members[ts]['province_state'], 3, col, 1, 2)
             layout.addWidget(self.members[ts]['country_name'], 4, col)
             layout.addWidget(self.members[ts]['country_code'], 4, col + 1)
-            layout.addWidget(self.members[ts]['world_region'], 5, col, 1, 2)
+##            layout.addWidget(self.members[ts]['world_region'], 5, col, 1, 2)
 
     def __getitem__(self, key):
         return self.members[key]
@@ -233,8 +238,9 @@ class PhotiniMap(QtWidgets.QWidget):
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
-        self.location_info['shown'].new_value.connect(self.new_location_shown)
-        self.location_info.swap.clicked.connect(self.swap_locations)
+        ## 'shown' not needed when only using 'legacy' location tags
+##        self.location_info['shown'].new_value.connect(self.new_location_shown)
+##        self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
         self.layout().addWidget(self.location_info, 3, 0, 1, 2)
         # load map button
@@ -409,30 +415,32 @@ class PhotiniMap(QtWidgets.QWidget):
                            province_state, city, sublocation):
         for image in self.image_list.get_selected_images():
             image.metadata.location_taken = (
-                world_region, country_code, country_name,
-                province_state, city, sublocation)
+                sublocation, city, province_state,
+                country_name, country_code, world_region)
         self.display_location()
 
-    @QtCore.pyqtSlot()
-    def swap_locations(self):
-        for image in self.image_list.get_selected_images():
-            taken = image.metadata.location_taken
-            if taken:
-                taken = taken.value
-            shown = image.metadata.location_shown
-            if shown:
-                shown = shown.value
-            image.metadata.location_taken = shown
-            image.metadata.location_shown = taken
-        self.display_location()
+    ## Not needed when only using 'legacy' location tags
+##    @QtCore.pyqtSlot()
+##    def swap_locations(self):
+##        for image in self.image_list.get_selected_images():
+##            taken = image.metadata.location_taken
+##            if taken:
+##                taken = taken.value
+##            shown = image.metadata.location_shown
+##            if shown:
+##                shown = shown.value
+##            image.metadata.location_taken = shown
+##            image.metadata.location_shown = taken
+##        self.display_location()
 
     @QtCore.pyqtSlot(six.text_type, six.text_type)
     def new_location_taken(self, key, value):
         self._new_location('location_taken', key, value)
 
-    @QtCore.pyqtSlot(six.text_type, six.text_type)
-    def new_location_shown(self, key, value):
-        self._new_location('location_shown', key, value)
+    ## Not needed when only using 'legacy' location tags
+##    @QtCore.pyqtSlot(six.text_type, six.text_type)
+##    def new_location_shown(self, key, value):
+##        self._new_location('location_shown', key, value)
 
     def _new_location(self, taken_shown, key, value):
         for image in self.image_list.get_selected_images():
@@ -441,8 +449,8 @@ class PhotiniMap(QtWidgets.QWidget):
                 new_value = dict(location.value)
             else:
                 new_value = dict.fromkeys((
-                    'world_region', 'country_code', 'country_name',
-                    'province_state', 'city', 'sublocation'))
+                    'sublocation', 'city', 'province_state',
+                    'country_name', 'country_code', 'world_region'))
             new_value[key] = value
             if not any(new_value.values()):
                 new_value = None
@@ -466,12 +474,17 @@ class PhotiniMap(QtWidgets.QWidget):
     def display_location(self):
         images = self.image_list.get_selected_images()
         if not images:
+            ## 'shown' not needed when only using 'legacy' location tags
+##            for widget_group in (self.location_info['taken'],
+##                                 self.location_info['shown']):
             for widget_group in (self.location_info['taken'],
-                                 self.location_info['shown']):
+                                 ):
                 for attr in widget_group.members:
                     widget_group[attr].set_value(None)
             return
-        for taken_shown in 'taken', 'shown':
+        ## 'shown' not needed when only using 'legacy' location tags
+##        for taken_shown in 'taken', 'shown':
+        for taken_shown in 'taken',:
             widget_group = self.location_info[taken_shown]
             for attr in widget_group.members:
                 value = getattr(images[0].metadata, 'location_' + taken_shown)

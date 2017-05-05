@@ -52,6 +52,7 @@ gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
+GExiv2.initialize()
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 
 def safe_fraction(value):
@@ -280,31 +281,55 @@ class Location(MetadataDictValue):
         if isinstance(value, six.string_types):
             value = value.split(',')
         super(Location, self).__init__({
-            'world_region'  : value[0],
-            'country_code'  : value[1],
-            'country_name'  : value[2],
-            'province_state': value[3],
-            'city'          : value[4],
-            'sublocation'   : value[5]
+            'sublocation'   : value[0],
+            'city'          : value[1],
+            'province_state': value[2],
+            'country_name'  : value[3],
+            'country_code'  : value[4],
+            'world_region'  : value[5]
             })
 
     @classmethod
     def from_iptc(cls, file_value):
-        return cls([None] + file_value)
+        return cls(file_value + [None])
+
+    def to_iptc(self):
+        return (self.value['sublocation'],
+                self.value['city'],
+                self.value['province_state'],
+                self.value['country_name'],
+                self.value['country_code'],
+                self.value['world_region'])
 
     @classmethod
     def from_xmp(cls, file_value):
         if len(file_value) == 5:
-            return cls([None] + file_value)
+            return cls(file_value + [None])
         return cls(file_value)
 
     def to_xmp(self):
-        return (self.value['world_region'],
-                self.value['country_code'],
-                self.value['country_name'],
-                self.value['province_state'],
+        return (self.value['sublocation'],
                 self.value['city'],
-                self.value['sublocation'])
+                self.value['province_state'],
+                self.value['country_name'],
+                self.value['country_code'],
+                self.value['world_region'])
+
+    def contains(self, other):
+        if not other:
+            return True
+        for key in self.value:
+            if (self.value[key] and other.value[key] and
+                    other.value[key] not in self.value[key]):
+                return False
+        return True
+
+    def merge(self, other, family=None):
+        for key in self.value:
+            if (self.value[key] and other.value[key] and
+                    other.value[key] not in self.value[key]):
+                self.value[key] += ' // ' + other.value[key]
+        return True
 
 
 class LensSpec(MetadataDictValue):
@@ -685,12 +710,17 @@ class Aperture(MetadataValue):
 _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
     'Iptc.Application2.Caption'          : 2000,
+    'Iptc.Application2.City'             :   32,
     'Iptc.Application2.Copyright'        :  128,
+    'Iptc.Application2.CountryCode'      :    3,
+    'Iptc.Application2.CountryName'      :   64,
     'Iptc.Application2.Headline'         :  256,
     'Iptc.Application2.Keywords'         :   64,
     'Iptc.Application2.ObjectName'       :   64,
     'Iptc.Application2.Program'          :   32,
     'Iptc.Application2.ProgramVersion'   :   10,
+    'Iptc.Application2.ProvinceState'    :   32,
+    'Iptc.Application2.SubLocation'      :   32,
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
@@ -854,14 +884,26 @@ class MetadataHandler(GExiv2.Metadata):
                 value = value.decode('utf_8')
         elif six.PY2:
             value = value.encode('utf_8')
-        if MetadataHandler.is_xmp_tag(tag) and '/' in tag:
-            # create XMP structure/container
-            root_tag = tag.split('/')[0].partition('[')[0]
-            for t in self.get_xmp_tags():
-                if t.startswith(root_tag):
-                    break
-            else:
-                self.set_xmp_tag_struct(root_tag,  GExiv2.StructureType.BAG)
+##        Not needed when only using 'legacy' location tags
+##        if MetadataHandler.is_xmp_tag(tag) and '/' in tag:
+##            # create XMP structure/container
+##            bag = tag.split('/')[0].partition('[')[0]
+##            no_bag = True
+##            ns_defined = False
+##            for t in self.get_xmp_tags():
+##                if t.startswith(bag):
+##                    # file already has container
+##                    no_bag = False
+##                if 'Iptc4xmpExt' in t:
+##                    # file has correct namespace defined
+##                    ns_defined = True
+##            if no_bag:
+##                # create empty container
+##                print('set_xmp_tag_struct', bag)
+##                print(self.set_xmp_tag_struct(bag,  GExiv2.StructureType.BAG))
+##            if not ns_defined:
+##                self.register_xmp_namespace(
+##                    'iptc.org/std/Iptc4xmpExt/2008-02-29/', 'Iptc4xmpExt')
         super(MetadataHandler, self).set_tag_string(tag, value)
 
     def set_tag_multiple(self, tag, value):
@@ -932,7 +974,8 @@ class Metadata(object):
         'lens_model'     : String,
         'lens_serial'    : String,
         'lens_spec'      : LensSpec,
-        'location_shown' : Location,
+##        Not needed when only using 'legacy' location tags
+##        'location_shown' : Location,
         'location_taken' : Location,
         'orientation'    : Int,
         'software'       : Software,
@@ -979,20 +1022,32 @@ class Metadata(object):
         'lens_model'     : (('Exif', 'Exif.Photo.LensModel'),),
         'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
         'lens_spec'      : (('Exif', 'Exif.Photo.LensSpecification'),),
-        'location_shown' : (
-            ('Xmp', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation')),),
-        'location_taken' : (
-            ('Xmp', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation')),),
+        ## Not needed when only using 'legacy' location tags
+##        'location_shown' : (
+##            ('Xmp', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation'
+##                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
+##                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
+##                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
+##                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
+##                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion')),),
+        ## Use 'legacy' location tags for now
+##        'location_taken' : (
+##            ('Xmp', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
+##                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
+##                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+##                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+##                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+##                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion')),),
+        'location_taken' : (('Iptc', ('Iptc.Application2.SubLocation',
+                                      'Iptc.Application2.City',
+                                      'Iptc.Application2.ProvinceState',
+                                      'Iptc.Application2.CountryName',
+                                      'Iptc.Application2.CountryCode')),
+                            ('Xmp', ('Xmp.iptc.Location',
+                                     'Xmp.photoshop.City',
+                                     'Xmp.photoshop.State',
+                                     'Xmp.photoshop.Country',
+                                     'Xmp.iptc.CountryCode'))),
         'orientation'    : (('Exif', 'Exif.Image.Orientation'),),
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
@@ -1034,16 +1089,31 @@ class Metadata(object):
         'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),
                             ('Exif', 'Exif.CanonCs.Lens'),
                             ('Exif', 'Exif.Nikon3.Lens')),
-        'location_taken' : (('Iptc', ('Iptc.Application2.CountryCode',
-                                      'Iptc.Application2.CountryName',
-                                      'Iptc.Application2.ProvinceState',
-                                      'Iptc.Application2.City',
-                                      'Iptc.Application2.SubLocation')),
-                            ('Xmp', ('Xmp.Iptc4xmpCore.CountryCode',
-                                     'Xmp.photoshop.Country',
-                                     'Xmp.photoshop.State',
-                                     'Xmp.photoshop.City',
-                                     'Xmp.Iptc4xmpCore.Location'))),
+        ## These are the 'legacy' location tags
+##        'location_taken' : (('Iptc', ('Iptc.Application2.SubLocation',
+##                                      'Iptc.Application2.City',
+##                                      'Iptc.Application2.ProvinceState',
+##                                      'Iptc.Application2.CountryName',
+##                                      'Iptc.Application2.CountryCode')),
+##                            ('Xmp', ('Xmp.iptc.Location',
+##                                     'Xmp.photoshop.City',
+##                                     'Xmp.photoshop.State',
+##                                     'Xmp.photoshop.Country',
+##                                     'Xmp.iptc.CountryCode'))),
+        ## Merge any new location tags in to 'legacy' tags
+        'location_taken' : (
+            ('Xmp', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion')),
+            ('Xmp', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion'))),
         'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
