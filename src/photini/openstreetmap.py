@@ -103,9 +103,13 @@ class OpenStreetMap(PhotiniMap):
             }
         headers = {'user-agent': 'Photini/' + __version__}
         with Busy():
-            rsp = requests.get(
-                'http://nominatim.openstreetmap.org/reverse',
-                params=params, headers=headers)
+            try:
+                rsp = requests.get(
+                    'http://nominatim.openstreetmap.org/reverse',
+                    params=params, headers=headers)
+            except Exception as ex:
+                self.logger.error(str(ex))
+                return
         if rsp.status_code >= 400:
             return
         rsp = rsp.json()
@@ -119,9 +123,11 @@ class OpenStreetMap(PhotiniMap):
                 ('country_code',   ('country_code',)),
                 ('country_name',   ('country',)),
                 ('province_state', ('county', 'state')),
-                ('city',           ('village', 'suburb', 'town',
-                                    'city_district', 'city')),
+                ('city',           ('hamlet', 'neighbourhood', 'village',
+                                    'suburb', 'town', 'city_district', 'city')),
                 ('sublocation',    ('building', 'place_of_worship', 'school',
+                                    'raceway', 'community_centre',
+                                    'sports_centre',
                                     'house_number', 'pedestrian', 'road'))):
             element = ''
             for key in osm_keys:
@@ -132,10 +138,11 @@ class OpenStreetMap(PhotiniMap):
                 element += address[key]
                 del(address[key])
             location.append(element)
-        if 'postcode' in address:
-            del address['postcode']
+        for key in ('bakery', 'postcode', 'post_office'):
+            if key in address:
+                del address[key]
         if address:
-            self.logger.warning('Unused address element(s): %s', str(address))
+            self.logger.error('Unused address element(s): %s', str(address))
         self.set_location_taken(*location)
 
     @QtCore.pyqtSlot()
@@ -159,9 +166,13 @@ class OpenStreetMap(PhotiniMap):
                 bounds[3], bounds[0], bounds[1], bounds[2])
         headers = {'user-agent': 'Photini/' + __version__}
         with Busy():
-            rsp = requests.get(
-                'http://nominatim.openstreetmap.org/search',
-                params=params, headers=headers)
+            try:
+                rsp = requests.get(
+                    'http://nominatim.openstreetmap.org/search',
+                    params=params, headers=headers)
+            except Exception as ex:
+                self.logger.error(str(ex))
+                return
         if rsp.status_code >= 400:
             return
         for result in rsp.json():

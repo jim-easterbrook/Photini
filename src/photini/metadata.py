@@ -887,7 +887,7 @@ class MetadataHandler(GExiv2.Metadata):
         if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
             value = value.encode('utf_8')[:_max_bytes[tag]]
             if not six.PY2:
-                value = value.decode('utf_8')
+                value = value.decode('utf_8', errors='ignore')
         elif six.PY2:
             value = value.encode('utf_8')
 ##        Not needed when only using 'legacy' location tags
