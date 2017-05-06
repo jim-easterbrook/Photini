@@ -224,17 +224,17 @@ class PhotiniMap(QtWidgets.QWidget):
         self.layout().addWidget(self.edit_box, 0, 1)
         # latitude & longitude
         self.layout().addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Latitude, longitude:')), 1, 0)
+            QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long:')), 1, 0)
         self.coords = SingleLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
         self.layout().addWidget(self.coords, 1, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
-            translate('PhotiniMap', 'Address lookup'))
+            translate('PhotiniMap', 'Lat, long -> location'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        layout.addWidget(self.auto_location, 2, 1)
+        layout.addWidget(self.auto_location, 1, 1)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)

@@ -63,7 +63,7 @@ class OpenStreetMap(PhotiniMap):
         if qt_version_info >= (5, 0):
             self.trUtf8 = self.tr
         widget = QtWidgets.QPushButton(
-            self.trUtf8('Map data ©OpenStreetMap contributors\nlicensed under ODbL'))
+            self.trUtf8('Map data ©OpenStreetMap\ncontributors, licensed under ODbL'))
         widget.clicked.connect(self.load_tou_osm)
         widget.setStyleSheet('QPushButton { font-size: 10px }')
         layout.addWidget(widget, 1, 0)
