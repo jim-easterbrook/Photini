@@ -200,9 +200,9 @@ function reverseGeocode(lat, lng)
         {
             var country_code = "";
             var country_name = "";
-            var province_state = "";
-            var city = "";
-            var sublocation = "";
+            var province_state = [];
+            var city = [];
+            var sublocation = [];
             for (var i in results[0].address_components)
             {
                 var address = results[0].address_components[i];
@@ -215,36 +215,28 @@ function reverseGeocode(lat, lng)
                         case "premise":
                         case "route":
                         case "street_number":
-                            if (sublocation.indexOf(address.long_name) >= 0)
-                                break;
-                            if (sublocation)
-                                sublocation += ", ";
-                            sublocation += address.long_name;
+                            if (sublocation.indexOf(address.long_name) < 0)
+                                sublocation.push(address.long_name);
                             break;
                         case "locality":
                         case "neighborhood":
                         case "postal_town":
                         case "sublocality":
-                            if (city.indexOf(address.long_name) >= 0)
-                                break;
-                            if (city)
-                                city += ", ";
-                            city += address.long_name;
+                            if (city.indexOf(address.long_name) < 0)
+                                city.push(address.long_name);
                             break;
                         case "administrative_area_level_1":
                         case "administrative_area_level_2":
                         case "administrative_area_level_3":
-                            if (province_state.indexOf(address.long_name) >= 0)
-                                break;
-                            if (province_state)
-                                province_state += ", ";
-                            province_state += address.long_name;
+                            if (province_state.indexOf(address.long_name) < 0)
+                                province_state.push(address.long_name);
                             break;
                         case "country":
                             country_name = address.long_name;
                             country_code = address.short_name;
                             break;
                         case "postal_code":
+                        case "postal_code_suffix":
                             break;
                         default:
                             python.log(40, "Unknown type:" + address.long_name +
@@ -254,7 +246,8 @@ function reverseGeocode(lat, lng)
                 }
             }
             python.set_location_taken(
-                "", country_code, country_name, province_state, city, sublocation);
+                "", country_code, country_name, province_state.join(", "),
+                city.join(", "), sublocation.join(", "));
         }
         else
             python.log(40, "reverseGeocode fail: " + status);
