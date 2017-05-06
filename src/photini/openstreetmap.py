@@ -128,15 +128,14 @@ class OpenStreetMap(PhotiniMap):
                                     'town', 'city_district', 'city')),
                 ('sublocation',    ('building', 'house_number',
                                     'footway', 'pedestrian', 'road'))):
-            element = ''
+            element = []
             for key in osm_keys:
                 if key not in address:
                     continue
-                if element:
-                    element += ', '
-                element += address[key]
+                if address[key] not in element:
+                    element.append(address[key])
                 del(address[key])
-            location.append(element)
+            location.append(', '.join(element))
         # put remaining keys in sublocation
         for key in address:
             if key in ('postcode',):
