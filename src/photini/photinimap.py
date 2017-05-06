@@ -455,6 +455,7 @@ class PhotiniMap(QtWidgets.QWidget):
             if not any(new_value.values()):
                 new_value = None
             setattr(image.metadata, taken_shown, new_value)
+        self.display_location()
 
     def display_coords(self):
         images = self.image_list.get_selected_images()

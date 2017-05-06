@@ -282,16 +282,17 @@ class Location(MetadataDictValue):
     # stores IPTC defined location heirarchy
     def __init__(self, value):
         if isinstance(value, dict):
-            super(Location, self).__init__(value)
-            return
-        if isinstance(value, six.string_types):
+            value = (value['sublocation'], value['city'],
+                     value['province_state'], value['country_name'],
+                     value['country_code'], value['world_region'])
+        elif isinstance(value, six.string_types):
             value = value.split(',')
         super(Location, self).__init__({
             'sublocation'   : value[0],
             'city'          : value[1],
             'province_state': value[2],
             'country_name'  : value[3],
-            'country_code'  : value[4],
+            'country_code'  : value[4].upper(),
             'world_region'  : value[5]
             })
 
