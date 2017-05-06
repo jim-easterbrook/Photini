@@ -122,9 +122,10 @@ class OpenStreetMap(PhotiniMap):
                 ('world_region',   ()),
                 ('country_code',   ('country_code',)),
                 ('country_name',   ('country',)),
-                ('province_state', ('county', 'state')),
-                ('city',           ('hamlet', 'neighbourhood', 'village',
-                                    'suburb', 'town', 'city_district', 'city')),
+                ('province_state', ('county', 'state_district', 'state')),
+                ('city',           ('hamlet', 'locality', 'neighbourhood',
+                                    'village', 'suburb',
+                                    'town', 'city_district', 'city')),
                 ('sublocation',    ('building', 'house_number',
                                     'footway', 'pedestrian', 'road'))):
             element = ''

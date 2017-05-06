@@ -149,7 +149,7 @@ class LocationInfo(QtWidgets.QWidget):
 ##        label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
 ##        layout.addWidget(label, 0, 3)
         layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Location:')), 1, 0)
+            QtWidgets.QLabel(translate('PhotiniMap', 'Street:')), 1, 0)
         layout.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'City:')), 2, 0)
         layout.addWidget(
