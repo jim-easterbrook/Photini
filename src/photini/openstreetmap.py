@@ -125,10 +125,8 @@ class OpenStreetMap(PhotiniMap):
                 ('province_state', ('county', 'state')),
                 ('city',           ('hamlet', 'neighbourhood', 'village',
                                     'suburb', 'town', 'city_district', 'city')),
-                ('sublocation',    ('building', 'place_of_worship', 'school',
-                                    'raceway', 'community_centre',
-                                    'sports_centre',
-                                    'house_number', 'pedestrian', 'road'))):
+                ('sublocation',    ('building', 'house_number',
+                                    'footway', 'pedestrian', 'road'))):
             element = ''
             for key in osm_keys:
                 if key not in address:
@@ -138,11 +136,11 @@ class OpenStreetMap(PhotiniMap):
                 element += address[key]
                 del(address[key])
             location.append(element)
-        for key in ('bakery', 'postcode', 'post_office'):
-            if key in address:
-                del address[key]
-        if address:
-            self.logger.error('Unused address element(s): %s', str(address))
+        # put remaining keys in sublocation
+        for key in address:
+            if key in ('postcode',):
+                continue
+            location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
         self.set_location_taken(*location)
 
     @QtCore.pyqtSlot()

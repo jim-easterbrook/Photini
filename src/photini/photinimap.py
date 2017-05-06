@@ -234,7 +234,7 @@ class PhotiniMap(QtWidgets.QWidget):
             translate('PhotiniMap', 'Lat, long -> location'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        layout.addWidget(self.auto_location, 1, 1)
+        layout.addWidget(self.auto_location, 2, 1)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
