@@ -46,7 +46,7 @@ except ImportError:
 from photini.editsettings import EditSettings
 from photini.googlemap import GoogleMap
 from photini.importer import Importer
-from photini.metadata import gexiv2_version
+from photini.metadata import debug_metadata, gexiv2_version
 from photini.openstreetmap import OpenStreetMap
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
@@ -92,6 +92,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
         self.app.test_mode = options.test
+        # set debug mode
+        if self.app.test_mode:
+            debug_metadata()
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(

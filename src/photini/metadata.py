@@ -53,7 +53,13 @@ gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
 GExiv2.initialize()
+
+# we can't reroute GExiv2 messages to Python logging, so mute them...
 GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
+
+# ...unless in test mode
+def debug_metadata():
+    GExiv2.log_set_level(GExiv2.LogLevel.INFO)
 
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
