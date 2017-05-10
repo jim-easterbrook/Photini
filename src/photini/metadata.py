@@ -287,12 +287,15 @@ class Location(MetadataDictValue):
                      value['country_code'], value['world_region'])
         elif isinstance(value, six.string_types):
             value = value.split(',')
+        country_code = value[4]
+        if country_code:
+            country_code = country_code.upper()
         super(Location, self).__init__({
             'sublocation'   : value[0],
             'city'          : value[1],
             'province_state': value[2],
             'country_name'  : value[3],
-            'country_code'  : value[4].upper(),
+            'country_code'  : country_code,
             'world_region'  : value[5]
             })
 
