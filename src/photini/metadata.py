@@ -1251,21 +1251,15 @@ class Metadata(object):
     def __getattr__(self, name):
         if name not in self._primary_tags:
             return super(Metadata, self).__getattr__(name)
-        # get values from all 3 families
-        value = {'Exif': None, 'Iptc': None, 'Xmp': None}
-        used_tag = {'Exif': None, 'Iptc': None, 'Xmp': None}
-        for family, tag in self._primary_tags[name]:
-            try:
-                value[family] = self.get_value(self._data_type[name], tag)
-                used_tag[family] = tag
-            except Exception as ex:
-                self.logger.exception(ex)
-        # merge conflicting data from secondary and read-only tags
-        tag_list = []
+        # make list of tags to read
+        tag_list = list(self._primary_tags[name])
         if name in self._secondary_tags:
             tag_list.extend(self._secondary_tags[name])
         if name in self._read_tags:
             tag_list.extend(self._read_tags[name])
+        # read data, merging in any conflicting values
+        value = {'Exif': None, 'Iptc': None, 'Xmp': None}
+        used_tag = {'Exif': None, 'Iptc': None, 'Xmp': None}
         for family, tag in tag_list:
             try:
                 new_value = self.get_value(self._data_type[name], tag)
