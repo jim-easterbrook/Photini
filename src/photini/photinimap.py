@@ -167,7 +167,7 @@ class LocationInfo(QtWidgets.QWidget):
         return self.members[key]
 
 
-class PhotiniMap(QtWidgets.QWidget):
+class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -182,11 +182,14 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_loaded = False
         self.marker_images = {}
         self.map_status = {}
-        layout = QtWidgets.QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setRowStretch(6, 1)
-        layout.setColumnStretch(1, 1)
-        self.setLayout(layout)
+        self.setChildrenCollapsible(False)
+        left_side = QtWidgets.QWidget()
+        self.addWidget(left_side)
+        self.grid = QtWidgets.QGridLayout()
+        self.grid.setContentsMargins(0, 0, 0, 0)
+        self.grid.setRowStretch(6, 1)
+        self.grid.setColumnStretch(1, 1)
+        left_side.setLayout(self.grid)
         # map
         self.map = WebView()
         self.map.setPage(WebPage(parent=self.map))
@@ -202,9 +205,9 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.java_script_window_object_cleared)
         self.map.setAcceptDrops(False)
         self.map.drop_text.connect(self.drop_text)
-        self.layout().addWidget(self.map, 0, 2, 8, 1)
+        self.addWidget(self.map)
         # search
-        self.layout().addWidget(
+        self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
         self.edit_box = QtWidgets.QComboBox()
         self.edit_box.setMinimumWidth(200)
@@ -216,37 +219,42 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.layout().addWidget(self.edit_box, 0, 1)
+        self.grid.addWidget(self.edit_box, 0, 1)
         # latitude & longitude
-        self.layout().addWidget(
+        self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long:')), 1, 0)
         self.coords = SingleLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
-        self.layout().addWidget(self.coords, 1, 1)
+        self.grid.addWidget(self.coords, 1, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', 'Lat, long -> location'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        layout.addWidget(self.auto_location, 2, 1)
+        self.grid.addWidget(self.auto_location, 2, 1)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
         self.location_info['shown'].new_value.connect(self.new_location_shown)
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
-        self.layout().addWidget(self.location_info, 3, 0, 1, 2)
+        self.grid.addWidget(self.location_info, 3, 0, 1, 2)
         # load map button
         self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
         self.load_map.clicked.connect(self.initialise)
-        self.layout().addWidget(self.load_map, 7, 0, 1, 2)
+        self.grid.addWidget(self.load_map, 7, 0, 1, 2)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
+        self.splitterMoved.connect(self.new_split)
 
     @QtCore.pyqtSlot(int, six.text_type)
     def log(self, level, message):
         self.logger.log(level, message)
+
+    @QtCore.pyqtSlot(int, int)
+    def new_split(self, pos, index):
+        self.app.config_store.set('map', 'split', str(self.sizes()))
 
     @QtCore.pyqtSlot()
     def java_script_window_object_cleared(self):
@@ -327,10 +335,10 @@ class PhotiniMap(QtWidgets.QWidget):
     def initialize_finished(self):
         QtWidgets.QApplication.restoreOverrideCursor()
         self.map_loaded = True
-        self.layout().removeWidget(self.load_map)
+        self.grid.removeWidget(self.load_map)
         self.load_map.setParent(None)
         show_terms = self.show_terms()
-        self.layout().addLayout(show_terms, 7, 0, 1, 2)
+        self.grid.addLayout(show_terms, 7, 0, 1, 2)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.image_list.set_drag_to_map(self.drag_icon)
@@ -338,6 +346,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.display_coords()
 
     def refresh(self):
+        self.setSizes(
+            eval(self.app.config_store.get('map', 'split', str(self.sizes()))))
         if not self.map_loaded:
             return
         lat, lng = eval(self.config_store.get('map', 'centre'))
