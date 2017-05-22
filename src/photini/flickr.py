@@ -102,11 +102,11 @@ class FlickrSession(object):
         person = rsp['person']
         icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
             person['iconfarm'], person['iconserver'], person['nsid'])
-        try:
-            rsp = requests.get(icon_url)
+        rsp = requests.get(icon_url)
+        if rsp.status_code == 200:
             result = user['fullname'], rsp.content
-        except Exception as ex:
-            self.logger.error('cannot read %s: %s', icon_url, str(ex))
+        else:
+            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
         return result
 
     def do_upload(self, fileobj, image_type, image, params):

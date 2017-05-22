@@ -406,11 +406,11 @@ class FacebookUploadConfig(QtWidgets.QWidget):
             self.widgets['album_location'].clear()
         pixmap = QtGui.QPixmap()
         if picture:
-            try:
-                rsp = requests.get(picture)
+            rsp = requests.get(picture)
+            if rsp.status_code == 200:
                 pixmap.loadFromData(rsp.content)
-            except Exception as ex:
-                self.logger.error('cannot read %s: %s', picture, str(ex))
+            else:
+                logger.error('HTTP error %d (%s)', rsp.status_code, picture)
         self.widgets['album_thumb'].setPixmap(pixmap)
 
 
