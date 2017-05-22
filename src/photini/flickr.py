@@ -100,8 +100,11 @@ class FlickrSession(object):
         if rsp['stat'] != 'ok':
             return result
         person = rsp['person']
-        icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
-            person['iconfarm'], person['iconserver'], person['nsid'])
+        if person['iconserver'] != '0':
+            icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
+                person['iconfarm'], person['iconserver'], person['nsid'])
+        else:
+            icon_url = 'https://www.flickr.com/images/buddyicon.gif'
         rsp = requests.get(icon_url)
         if rsp.status_code == 200:
             result = user['fullname'], rsp.content
