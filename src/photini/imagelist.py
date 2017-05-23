@@ -29,7 +29,7 @@ import webbrowser
 
 from photini.metadata import Metadata
 from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
-                          qt_version_info, video_types)
+                          qt_version_info, set_symbol_font, video_types)
 
 DRAG_MIMETYPE = 'application/x-photini-image'
 
@@ -106,10 +106,7 @@ class Image(QtWidgets.QFrame):
         self.status = QtWidgets.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
         self.status.setStyleSheet("QLabel { font-size: 12px }")
-        self.status.setFont(QtGui.QFont("Dejavu Sans"))
-        if not self.status.fontInfo().exactMatch():
-            # probably on Windows, try a different font
-            self.status.setFont(QtGui.QFont("Segoe UI Symbol"))
+        set_symbol_font(self.status)
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Plain)
         self.setObjectName("thumbnail")

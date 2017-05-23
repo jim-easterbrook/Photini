@@ -84,6 +84,12 @@ def multiple():
 def multiple_values():
     return QtCore.QCoreApplication.translate('Multiple', '<multiple values>')
 
+def set_symbol_font(widget):
+    widget.setFont(QtGui.QFont('DejaVu Sans'))
+    if widget.fontInfo().family().lower() != 'dejavu sans':
+        # probably on Windows, try a different font
+        widget.setFont(QtGui.QFont("Segoe UI Symbol"))
+
 class Busy(object):
     @staticmethod
     def start():
