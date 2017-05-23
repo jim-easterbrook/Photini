@@ -349,8 +349,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         lat, lng = eval(self.config_store.get('map', 'centre'))
         zoom = eval(self.config_store.get('map', 'zoom'))
-        self.JavaScript(
-            'setView({0}, {1}, {2:d})'.format(repr(lat), repr(lng), zoom))
+        self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
         self.redraw_markers()
         self.image_list.set_drag_to_map(self.drag_icon)
 
@@ -365,11 +364,11 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
-        self.JavaScript('markerDrop({:d},{:d},{:s})'.format(x, y, text))
+        self.JavaScript('markerDrop({:d},{:d},"{:s}")'.format(x, y, text))
 
-    @QtCore.pyqtSlot(float, float, QtCore.QVariant)
+    @QtCore.pyqtSlot(float, float, six.text_type)
     def marker_drop(self, lat, lng, path_list):
-        for path in path_list:
+        for path in eval(path_list):
             image = self.image_list.get_image(path)
             self._remove_image(image)
             self._set_metadata(image, lat, lng)
@@ -500,7 +499,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.coords.setEnabled(bool(selection))
         self.location_info.setEnabled(bool(selection))
         for marker_id, images in self.marker_images.items():
-            self.JavaScript('enableMarker("{}", {:d})'.format(
+            self.JavaScript('enableMarker({:d},{:d})'.format(
                 marker_id, any([image.selected for image in images])))
         self.display_coords()
         self.display_location()
@@ -523,15 +522,15 @@ class PhotiniMap(QtWidgets.QSplitter):
                 self.marker_images[marker_id].append(image)
                 if image.selected:
                     self.JavaScript(
-                        'enableMarker("{}", {:d})'.format(marker_id, True))
+                        'enableMarker({:d},{:d})'.format(marker_id, True))
                 break
         else:
             for i in range(len(self.marker_images) + 2):
-                marker_id = str(i)
+                marker_id = i
                 if marker_id not in self.marker_images:
                     break
             self.marker_images[marker_id] = [image]
-            self.JavaScript('addMarker("{}", {!r}, {!r}, {:d})'.format(
+            self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
                 marker_id, latlong.lat, latlong.lon,
                 image.selected))
 
@@ -543,11 +542,11 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.marker_images[marker_id].remove(image)
         if self.marker_images[marker_id]:
-            self.JavaScript('enableMarker("{}", {:d})'.format(
+            self.JavaScript('enableMarker({:d},{:d})'.format(
                 marker_id,
                 any([image.selected for image in self.marker_images[marker_id]])))
         else:
-            self.JavaScript('delMarker("{}")'.format(marker_id))
+            self.JavaScript('delMarker({:d})'.format(marker_id))
             del self.marker_images[marker_id]
 
     @QtCore.pyqtSlot()
@@ -564,7 +563,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.search_string = search_string
         self.clear_search()
-        self.JavaScript('search("{0}")'.format(search_string))
+        self.JavaScript('search("{}")'.format(search_string))
 
     def clear_search(self):
         self.edit_box.clear()
@@ -590,11 +589,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         view = self.edit_box.itemData(idx)
         self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtCore.pyqtSlot(int)
     def marker_click(self, marker_id):
         self.image_list.select_images(self.marker_images[marker_id])
 
-    @QtCore.pyqtSlot(float, float, six.text_type)
+    @QtCore.pyqtSlot(float, float, int)
     def marker_drag(self, lat, lng, marker_id):
         for image in self.marker_images[marker_id]:
             self._set_metadata(image, lat, lng)
