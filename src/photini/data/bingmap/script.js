@@ -138,11 +138,11 @@ function markerDrag(event)
     python.marker_drag(loc.latitude, loc.longitude, marker._id);
 }
 
-function markerDrop(x, y, text)
+function markerDrop(x, y)
 {
     var position = map.tryPixelToLocation(
         new Microsoft.Maps.Point(x, y), Microsoft.Maps.PixelReference.page);
-    python.marker_drop(position.latitude, position.longitude, text);
+    python.marker_drop(position.latitude, position.longitude);
 }
 
 function delMarker(id)

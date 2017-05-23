@@ -179,6 +179,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map_loaded = False
         self.marker_images = {}
         self.map_status = {}
+        self.dropped_images = []
         self.setChildrenCollapsible(False)
         left_side = QtWidgets.QWidget()
         self.addWidget(left_side)
@@ -364,15 +365,17 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
-        self.JavaScript('markerDrop({:d},{:d},"{:s}")'.format(x, y, text))
+        self.dropped_images = eval(text)
+        self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
 
-    @QtCore.pyqtSlot(float, float, six.text_type)
-    def marker_drop(self, lat, lng, path_list):
-        for path in eval(path_list):
+    @QtCore.pyqtSlot(float, float)
+    def marker_drop(self, lat, lng):
+        for path in self.dropped_images:
             image = self.image_list.get_image(path)
             self._remove_image(image)
             self._set_metadata(image, lat, lng)
             self._add_image(image)
+        self.dropped_images = []
         self.display_coords()
         self.see_selection()
 
@@ -604,7 +607,6 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def JavaScript(self, command):
         if self.map_loaded:
-            command = command.replace('\\', '\\\\')
             if QtWebEngineWidgets:
                 self.map.page().runJavaScript(command)
             else:

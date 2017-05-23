@@ -136,7 +136,7 @@ function addMarker(id, lat, lng, active)
     enableMarker(id, active)
 }
 
-function markerDrop(x, y, text)
+function markerDrop(x, y)
 {
     // convert x, y to world coordinates
     var scale = Math.pow(2, map.getZoom());
@@ -150,7 +150,7 @@ function markerDrop(x, y, text)
     // convert world coordinates to lat & lng
     var position = map.getProjection().fromPointToLatLng(
         new google.maps.Point(worldX, worldY));
-    python.marker_drop(position.lat(), position.lng(), text);
+    python.marker_drop(position.lat(), position.lng());
 }
 
 function delMarker(id)
