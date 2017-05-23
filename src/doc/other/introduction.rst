@@ -15,7 +15,7 @@ Introduction
    :start-after: Text editing screenshot
    :end-before: .. image
 
-.. image:: ../images/screenshot_19.png
+.. image:: ../images/screenshot_66.png
 
 .. include:: ../../../README.rst
    :start-after: Geotagging screenshot

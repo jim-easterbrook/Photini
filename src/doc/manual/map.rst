@@ -65,11 +65,18 @@ Address lookup
 --------------
 
 Photograph metadata can include textual address elements as well as the latitude & longitude.
-These are stored in a 4-level hierarchy: ``street``, ``city``, ``province`` and ``country``.
+These are stored in a 5-level hierarchy: ``street``, ``city``, ``province``, ``country`` and ``region``.
 The meaning of these terms is rather loose, especially when out in the countryside, and there's no requirement to fill them all in.
 Typically ``city`` can be anything from a village to a metropolis, and ``street`` is a more specific location, e.g. "23 Abdication Avenue".
 ``Province`` would be a state in the USA or a county in the UK.
 ``Country`` is stored as a name and a 2 or 3 letter ISO code.
+``Region`` appears to be rarely used but could be a continent or sub-continent.
+
+Photini stores two addresses: ``camera`` is where the photographer was positioned and ``subject`` is the location being photographed.
+For example, a general view of the Eiffel Tower will almost certainly have been taken from somewhere else in Paris.
+This separation of camera and subject addresses was added to the IPTC specification in 2009, but you may still have software that only recognises "legacy" address metadata.
+In this case you should not use the ``subject`` column or ``region`` row.
+(Note that although the address metadata is standardised by the IPTC, it's actually stored in the XMP data.)
 
 .. image:: ../images/screenshot_69.png
 
@@ -82,7 +89,22 @@ In this example Google and Bing are using different languages for the ``state`` 
 
 .. image:: ../images/screenshot_71.png
 
-With OpenStreetMap we get a different result, including the fact that the location is a church.
+With OpenStreetMap we get more information.
+This is more visible if you expand the address area by dragging its border with the map to the right.
+
+.. image:: ../images/screenshot_72.png
+
+OpenStreetMap is the only provider to include the fact that the location is a church.
 There are many different types of premises (shops, cafés, parks, etc.) included in OSM addresses.
 Photini adds all the information supplied to the ``street`` element.
 You can edit it out if it's not appropriate.
+
+.. image:: ../images/screenshot_72.png
+
+.. |swap| unicode:: U+021c4
+
+The |swap| button exchanges the ``camera`` and ``subject`` addresses.
+This may be useful if you have files with "legacy" address metadata that should really be in the ``subject`` column.
+
+.. image:: ../images/screenshot_73.png
+
