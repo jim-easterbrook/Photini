@@ -21,19 +21,19 @@ These tags are where Photini stores its metadata.
 Note that "Title / Object Name" and "Keywords" are not stored in Exif.
 You may prefer not to use these fields to ensure compatibility with software that only handles Exif.
 
-=====================  ================================  =========================  ==================
-Photini field          Exif tag                          XMP tag                    IPTC tag
-=====================  ================================  =========================  ==================
-Title / Object Name                                      Xmp.dc.title               Iptc.Application2.ObjectName
-Description / Caption  Exif.Image.ImageDescription       Xmp.dc.description         Iptc.Application2.Caption
-Keywords                                                 Xmp.dc.subject             Iptc.Application2.Keywords
-Copyright              Exif.Image.Copyright              Xmp.dc.rights              Iptc.Application2.Copyright
-Creator / Artist       Exif.Image.Artist                 Xmp.dc.creator             Iptc.Application2.Byline
-Date / time Taken      Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated  Iptc.Application2.DateCreated
-                       Exif.Photo.SubSecTimeOriginal                                Iptc.Application2.TimeCreated
+=====================  ================================  ===========================  ==================
+Photini field          Exif tag                          XMP tag                      IPTC tag
+=====================  ================================  ===========================  ==================
+Title / Object Name                                      Xmp.dc.title                 Iptc.Application2.ObjectName
+Description / Caption  Exif.Image.ImageDescription       Xmp.dc.description           Iptc.Application2.Caption
+Keywords                                                 Xmp.dc.subject               Iptc.Application2.Keywords
+Copyright              Exif.Image.Copyright              Xmp.dc.rights                Iptc.Application2.Copyright
+Creator / Artist       Exif.Image.Artist                 Xmp.dc.creator               Iptc.Application2.Byline
+Date / time Taken      Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated    Iptc.Application2.DateCreated
+                       Exif.Photo.SubSecTimeOriginal                                  Iptc.Application2.TimeCreated
                        Exif.Image.TimeZoneOffset
-Date / time Digitised  Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate         Iptc.Application2.DigitizationDate
-                       Exif.Photo.SubSecTimeDigitized                               Iptc.Application2.DigitizationTime
+Date / time Digitised  Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate           Iptc.Application2.DigitizationDate
+                       Exif.Photo.SubSecTimeDigitized                                 Iptc.Application2.DigitizationTime
 Date / time Modified   Exif.Image.DateTime               Xmp.xmp.ModifyDate
                        Exif.Photo.SubSecTime
 Orientation            Exif.Image.Orientation
@@ -48,7 +48,14 @@ Latitude, longitude    Exif.GPSInfo.GPSLatitude
                        Exif.GPSInfo.GPSLatitudeRef
                        Exif.GPSInfo.GPSLongitude
                        Exif.GPSInfo.GPSLongitudeRef
-=====================  ================================  =========================  ==================
+Camera address                                           Xmp.iptcExt.LocationCreated
+                                                         Xmp.iptc.Location            Iptc.Application2.SubLocation
+                                                         Xmp.photoshop.City           Iptc.Application2.City
+                                                         Xmp.photoshop.State          Iptc.Application2.ProvinceState
+                                                         Xmp.photoshop.Country        Iptc.Application2.CountryName
+                                                         Xmp.iptc.CountryCode         Iptc.Application2.CountryCode
+Subject address                                          Xmp.iptcExt.LocationShown
+=====================  ================================  ===========================  ==================
 
 Secondary tags
 --------------
