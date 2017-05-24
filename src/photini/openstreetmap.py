@@ -27,9 +27,16 @@ import six
 
 from photini import __version__
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, QtCore, QtWidgets, qt_version_info
+from photini.pyqt import Busy, Qt, QtCore, QtWidgets, qt_version_info
 
 class OpenStreetMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(OpenStreetMap, self).__init__(*arg, **kw)
+        self.block_timer = QtCore.QTimer(self)
+        self.block_timer.setInterval(10000)
+        self.block_timer.setSingleShot(True)
+        self.block_timer.timeout.connect(self.enable_search)
+
     def get_page_elements(self):
         return {
             'head': '''
@@ -92,7 +99,24 @@ class OpenStreetMap(PhotiniMap):
         webbrowser.open_new('https://carto.com/attribution')
 
     @QtCore.pyqtSlot()
+    def enable_search(self):
+        self.edit_box.lineEdit().setEnabled(self.map_loaded)
+        if self.search_string:
+            item = self.edit_box.model().item(1)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        self.display_coords()
+
+    def disable_search(self):
+        self.edit_box.lineEdit().setEnabled(False)
+        if self.search_string:
+            item = self.edit_box.model().item(1)
+            item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
+        self.auto_location.setEnabled(False)
+        self.block_timer.start()
+
+    @QtCore.pyqtSlot()
     def get_address(self):
+        self.disable_search()
         lat, lon = self.coords.get_value().split(',')
         params = {
             'lat': lat.strip(),
@@ -153,6 +177,7 @@ class OpenStreetMap(PhotiniMap):
             return
         self.search_string = search_string
         self.clear_search()
+        self.disable_search()
         params = {
             'q': search_string,
             'format': 'json',
