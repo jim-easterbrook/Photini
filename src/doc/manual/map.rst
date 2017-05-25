@@ -19,16 +19,18 @@ This helps reduce the load on the map providers' servers by not having them cont
 Once the map is loaded, the ``Load map`` button is replaced by legal notices and a button (or buttons) to display the terms of use in your web browser.
 
 The map initially displays the previously used location.
-You can change the view by zooming in or out, or by panning the map with the pan control, or by dragging it with the mouse.
+You can change the view by zooming in or out, or by panning the map by dragging it with the mouse.
 However, it's usually easier to find a specific location by using the search facility.
 
 .. image:: ../images/screenshot_62.png
 
 Click on the ``<new search>`` edit box and type in a search term such as the name of a town, then press the 'return' key.
 A drop down list of place names should appear, from which you can select one.
-Note that the search is influenced by the current location shown on the map.
+Note that the search may be influenced by the current location shown on the map.
 A search for 'newport' may return different results if the map is showing New York than if it's showing London.
 Sometimes you may need to drag the map to somewhere near where you want to be and then click on the ``<repeat search>`` item in the drop down list.
+
+Note that the OSM map's search box is disabled for a few seconds after each search to limit the load on the free servers that provide the service.
 
 .. image:: ../images/screenshot_63.png
 
@@ -38,7 +40,7 @@ Using aerial / satellite imagery (if it's available) can help with this.
 .. image:: ../images/screenshot_64.png
 
 Now you can drag and drop your photograph onto the map to set its location.
-To set the same location on multiple images, select them all and then drag and drop any one of them.
+To set the same location on multiple images, select them all and then drag and drop one of them.
 
 .. image:: ../images/screenshot_65.png
 
@@ -98,8 +100,6 @@ OpenStreetMap is the only provider to include the fact that the location is a ch
 There are many different types of premises (shops, cafés, parks, etc.) included in OSM addresses.
 Photini adds all the information supplied to the ``street`` element.
 You can edit it out if it's not appropriate.
-
-.. image:: ../images/screenshot_72.png
 
 .. |swap| unicode:: U+021c4
 
