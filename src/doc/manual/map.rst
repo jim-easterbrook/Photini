@@ -82,12 +82,12 @@ In this case you should not use the ``subject`` column or ``region`` row.
 
 .. image:: ../images/screenshot_69.png
 
-The ``lat, long -> location`` button uses the map provider's "reverse geolocation" service to convert latitude & longitude into a hierarchical address.
+The ``⇨ address`` button uses the map provider's "reverse geolocation" service to convert latitude & longitude into a hierarchical address.
 This is a rather imprecise process so you may need to edit the results yourself.
 
 .. image:: ../images/screenshot_70.png
 
-In this example Google and Bing are using different languages for the ``state`` element, but are otherwise very similar.
+In this example Google and Bing disagree about the street address and are using different languages for the ``state`` element.
 
 .. image:: ../images/screenshot_71.png
 
@@ -101,9 +101,7 @@ There are many different types of premises (shops, cafés, parks, etc.) included
 Photini adds all the information supplied to the ``street`` element.
 You can edit it out if it's not appropriate.
 
-.. |swap| unicode:: U+021c4
-
-The |swap| button exchanges the ``camera`` and ``subject`` addresses.
+The ``⇄`` button exchanges the ``camera`` and ``subject`` addresses.
 This may be useful if you have files with "legacy" address metadata that should really be in the ``subject`` column.
 
 .. image:: ../images/screenshot_73.png
