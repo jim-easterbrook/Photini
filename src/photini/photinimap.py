@@ -217,7 +217,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.grid.addWidget(self.edit_box, 0, 1)
+        self.grid.addWidget(self.edit_box, 0, 1, 1, 2)
         # latitude & longitude
         self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long:')), 1, 0)
@@ -227,21 +227,21 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.grid.addWidget(self.coords, 1, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
-            translate('PhotiniMap', 'Lat, long -> location'))
+            translate('PhotiniMap', six.unichr(0x21e8) + ' address'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        self.grid.addWidget(self.auto_location, 2, 1)
+        self.grid.addWidget(self.auto_location, 1, 2)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
         self.location_info['shown'].new_value.connect(self.new_location_shown)
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
-        self.grid.addWidget(self.location_info, 3, 0, 1, 2)
+        self.grid.addWidget(self.location_info, 3, 0, 1, 3)
         # load map button
         self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
         self.load_map.clicked.connect(self.initialise)
-        self.grid.addWidget(self.load_map, 7, 0, 1, 2)
+        self.grid.addWidget(self.load_map, 7, 0, 1, 3)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
         self.splitterMoved.connect(self.new_split)
@@ -336,7 +336,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.grid.removeWidget(self.load_map)
         self.load_map.setParent(None)
         show_terms = self.show_terms()
-        self.grid.addLayout(show_terms, 7, 0, 1, 2)
+        self.grid.addLayout(show_terms, 7, 0, 1, 3)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.image_list.set_drag_to_map(self.drag_icon)
