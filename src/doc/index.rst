@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Photini documentation
@@ -20,7 +20,7 @@ More detail about its capabilities can be found in :doc:`the user manual <manual
    misc/index
    other/reading
 
-Copyright (C)  2012-16  Jim Easterbrook.
+Copyright (C)  2012-17  Jim Easterbrook.
 
 Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU Free Documentation License".

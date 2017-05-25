@@ -19,13 +19,14 @@
 
 from __future__ import unicode_literals
 
+import locale
 import os
 import webbrowser
 
 import requests
 import six
 
-from photini import __version__
+from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, Qt, QtCore, QtWidgets, qt_version_info
 
@@ -36,6 +37,7 @@ class OpenStreetMap(PhotiniMap):
         self.block_timer.setInterval(10000)
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
+        self.api_key = key_store.get('opencagedata', 'api_key')
 
     def get_page_elements(self):
         return {
@@ -59,8 +61,8 @@ class OpenStreetMap(PhotiniMap):
     def show_terms(self):
         # return widget to display map terms and conditions
         layout = QtWidgets.QGridLayout()
-        widget = QtWidgets.QPushButton(self.tr('Search powered by Nominatim'))
-        widget.clicked.connect(self.load_tou_nominatim)
+        widget = QtWidgets.QPushButton(self.tr('Search powered by OpenCage'))
+        widget.clicked.connect(self.load_tou_opencage)
         widget.setStyleSheet('QPushButton { font-size: 10px }')
         layout.addWidget(widget, 0, 0)
         widget = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
@@ -82,9 +84,8 @@ class OpenStreetMap(PhotiniMap):
         return layout
 
     @QtCore.pyqtSlot()
-    def load_tou_nominatim(self):
-        webbrowser.open_new(
-            'https://operations.osmfoundation.org/policies/nominatim/')
+    def load_tou_opencage(self):
+        webbrowser.open_new('https://geocoder.opencagedata.com/')
 
     @QtCore.pyqtSlot()
     def load_tou_leaflet(self):
@@ -114,33 +115,49 @@ class OpenStreetMap(PhotiniMap):
         self.auto_location.setEnabled(False)
         self.block_timer.start()
 
-    @QtCore.pyqtSlot()
-    def get_address(self):
+    def do_search(self, query):
         self.disable_search()
-        lat, lon = self.coords.get_value().split(',')
         params = {
-            'lat': lat.strip(),
-            'lon': lon.strip(),
-            'zoom': '18',
-            'format': 'json',
-            'addressdetails': '1',
+            'key': self.api_key,
+            'q': query,
+            'abbrv': '1',
+            'no_annotations': '1',
             }
-        headers = {'user-agent': 'Photini/' + __version__}
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
         with Busy():
             try:
                 rsp = requests.get(
-                    'http://nominatim.openstreetmap.org/reverse',
-                    params=params, headers=headers)
+                    'https://api.opencagedata.com/geocode/v1/json',
+                    params=params)
             except Exception as ex:
                 self.logger.error(str(ex))
-                return
+                return None
         if rsp.status_code >= 400:
-            return
+            self.logger.error('Search error %d', rsp.status_code)
+            return None
         rsp = rsp.json()
-        if 'error' in rsp:
-            self.logger.error(rsp['error'])
+        status = rsp['status']
+        if status['code'] != 200:
+            self.logger.error(
+                'Search error %d: %s', status['code'], status['message'])
+            return None
+        rate = rsp['rate']
+        self.block_timer.setInterval(
+            10000 * rate['limit'] // max(rate['remaining'], 1))
+        return rsp
+
+    @QtCore.pyqtSlot()
+    def get_address(self):
+        lat, lon = self.coords.get_value().split(',')
+        rsp = self.do_search(lat.strip() + ' ' + lon.strip())
+        if not rsp:
             return
-        address = rsp['address']
+        if rsp['total_results'] < 1:
+            self.logger.error('Address not found')
+            return
+        address = rsp['results'][0]['components']
         location = []
         for iptc_key, osm_keys in (
                 ('world_region',   ()),
@@ -163,7 +180,7 @@ class OpenStreetMap(PhotiniMap):
             location.append(', '.join(element))
         # put remaining keys in sublocation
         for key in address:
-            if key in ('postcode',):
+            if key in ('postcode', 'state_code', '_type'):
                 continue
             location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
         self.set_location_taken(*location)
@@ -177,33 +194,16 @@ class OpenStreetMap(PhotiniMap):
             return
         self.search_string = search_string
         self.clear_search()
-        self.disable_search()
-        params = {
-            'q': search_string,
-            'format': 'json',
-            'polygon': '0',
-            'addressdetails': '0',
-            }
-        if 'bounds' in self.map_status:
-            bounds = self.map_status['bounds']
-            params['viewbox'] = '{:.8f},{:.8f},{:.8f},{:.8f}'.format(
-                bounds[3], bounds[0], bounds[1], bounds[2])
-        headers = {'user-agent': 'Photini/' + __version__}
-        with Busy():
-            try:
-                rsp = requests.get(
-                    'http://nominatim.openstreetmap.org/search',
-                    params=params, headers=headers)
-            except Exception as ex:
-                self.logger.error(str(ex))
-                return
-        if rsp.status_code >= 400:
+        rsp = self.do_search(search_string)
+        if not rsp:
             return
-        for result in rsp.json():
+        for result in rsp['results']:
             self.search_result(
-                result['boundingbox'][0], result['boundingbox'][3],
-                result['boundingbox'][1], result['boundingbox'][2],
-                result['display_name'])
+                result['bounds']['northeast']['lat'],
+                result['bounds']['northeast']['lng'],
+                result['bounds']['southwest']['lat'],
+                result['bounds']['southwest']['lng'],
+                result['formatted'])
 
     @QtCore.pyqtSlot(int)
     def marker_drag_start(self, marker_id):

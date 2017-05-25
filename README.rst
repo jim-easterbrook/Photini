@@ -116,8 +116,6 @@ Use of the Google map tab is subject to the `Google Maps Terms of Use`_ and `Goo
 
 Use of the Bing map tab is subject to the `Microsoft Bing Maps Terms of Use`_ and `Microsoft Privacy Statement`_.
 
-Use of the OpenStreetMap tab is subject to the `Nominatim usage policy`_ and the `OpenStreetMap licence`_.
-
 The Flickr upload tab uses the Flickr API but is not endorsed or certified by Flickr.
 
 Privacy statement
@@ -155,8 +153,6 @@ A copy of the license is included in the documentation section entitled "GNU Fre
                    http://www.microsoft.com/maps/assets/docs/terms.aspx
 .. _Microsoft Privacy Statement:
                    http://www.microsoft.com/en-us/privacystatement/
-.. _Nominatim usage policy:
-                   http://wiki.openstreetmap.org/wiki/Nominatim_usage_policy
 .. _OAuth:         http://oauth.net/
 .. _OpenStreetMap licence:
                    http://www.openstreetmap.org/copyright

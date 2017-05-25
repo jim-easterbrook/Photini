@@ -14,3 +14,6 @@ api_key = QXJKRXpTUE00N3llQ0UzMUs5WmdlbE4yalBHMjBlZ2JRTkM4REdNX19aNHI5WThVLWh2aj
 
 [facebook]
 app_id = MTY3NTczNDYwMzA0NzA1
+
+[opencagedata]
+api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
