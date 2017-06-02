@@ -911,11 +911,16 @@ class MetadataHandler(GExiv2.Metadata):
                 super(MetadataHandler, self).set_tag_string(bag, '')
             if not ns_defined:
                 # create some XMP data with the correct namespace
-                data = self.generate_xmp_packet(
-                    GExiv2.XmpFormatFlags.WRITE_ALIAS_COMMENTS, 0)
+                data = '''<x:xmpmeta
+    xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description
+        xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">
+    </rdf:Description>
+  </rdf:RDF>
+</x:xmpmeta>'''
                 if six.PY2:
                     data = data.decode('utf-8')
-                data = data.replace('iptcExt', 'Iptc4xmpExt')
                 # open the data to register the correct namespace
                 md = GExiv2.Metadata()
                 md.open_buf(data.encode('utf-8'))
