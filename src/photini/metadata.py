@@ -46,13 +46,9 @@ from photini import __version__
 
 logger = logging.getLogger(__name__)
 
-gexiv2_version = GExiv2.get_version()
-gexiv2_version = '.'.join(map(str, (gexiv2_version // 10000,
-                                    (gexiv2_version % 10000) // 100,
-                                    gexiv2_version % 100)))
-gexiv2_version = '{} {}, GExiv2 {}, GObject {}'.format(
-    ('PyGI', 'pgi')[using_pgi], gi.__version__,
-    gexiv2_version, GObject._version)
+gexiv2_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
+    ('PyGI', 'pgi')[using_pgi], gi.__version__, GExiv2.MAJOR_VERSION,
+    GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION, GObject._version)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
