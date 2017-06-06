@@ -161,7 +161,7 @@ class OpenStreetMap(PhotiniMap):
         location = []
         for iptc_key, osm_keys in (
                 ('world_region',   ()),
-                ('country_code',   ('country_code',)),
+                ('country_code',   ('country_code', 'ISO_3166-1_alpha-2')),
                 ('country_name',   ('country',)),
                 ('province_state', ('region', 'county',
                                     'state_district', 'state')),
@@ -174,7 +174,9 @@ class OpenStreetMap(PhotiniMap):
             for key in osm_keys:
                 if key not in address:
                     continue
-                if address[key] not in element:
+                if iptc_key == 'country_code':
+                    element = [address[key]]
+                elif address[key] not in element:
                     element.append(address[key])
                 del(address[key])
             location.append(', '.join(element))
