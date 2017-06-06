@@ -115,14 +115,12 @@ class OpenStreetMap(PhotiniMap):
         self.auto_location.setEnabled(False)
         self.block_timer.start()
 
-    def do_search(self, query):
+    def do_search(self, query, params={}):
         self.disable_search()
-        params = {
-            'key': self.api_key,
-            'q': query,
-            'abbrv': '1',
-            'no_annotations': '1',
-            }
+        params['key'] = self.api_key
+        params['q'] = query
+        params['abbrv'] = '1'
+        params['no_annotations'] = '1'
         lang, encoding = locale.getdefaultlocale()
         if lang:
             params['language'] = lang
@@ -196,7 +194,18 @@ class OpenStreetMap(PhotiniMap):
             return
         self.search_string = search_string
         self.clear_search()
-        rsp = self.do_search(search_string)
+        bounds = self.map_status['bounds']
+        scale = 2 ** (self.map_status['zoom'] - 9)
+        if scale >= 1:
+            w = (bounds[1] - bounds[3]) * scale
+            h = (bounds[0] - bounds[2]) * scale
+            lat, lon = self.map_status['centre']
+            bounds = (lon - w, max(lat - h, -90.0),
+                      lon + w, min(lat + h,  90.0))
+        else:
+            bounds = (bounds[3], bounds[2], bounds[1], bounds[0])
+        rsp = self.do_search(
+            search_string, {'bounds': ','.join(map(str, bounds))})
         if not rsp:
             return
         for result in rsp['results']:
