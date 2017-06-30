@@ -29,12 +29,11 @@ import sys
 import appdirs
 import pkg_resources
 
-from photini.pyqt import QtCore
-
-class ConfigStore(QtCore.QObject):
+class BaseConfigStore(object):
+    # the actual config store functionality
     def __init__(self, name, *arg, **kw):
-        super(ConfigStore, self).__init__(*arg, **kw)
-        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.shutdown)
+        super(BaseConfigStore, self).__init__(*arg, **kw)
+        self.dirty = False
         self.config = RawConfigParser()
         if hasattr(appdirs, 'user_config_dir'):
             config_dir = appdirs.user_config_dir('photini')
@@ -48,10 +47,6 @@ class ConfigStore(QtCore.QObject):
                 self.config.readfp(open(self.file_name, 'r'))
             else:
                 self.config.readfp(open(self.file_name, 'r', encoding='utf-8'))
-        self.timer = QtCore.QTimer(self)
-        self.timer.setSingleShot(True)
-        self.timer.setInterval(3000)
-        self.timer.timeout.connect(self.save)
         self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
@@ -73,7 +68,7 @@ class ConfigStore(QtCore.QObject):
               self.config.get(section, option) == value):
             return
         self.config.set(section, option, value)
-        self.timer.start()
+        self.dirty = True
 
     def remove_section(self, section):
         if not self.config.has_section(section):
@@ -81,21 +76,17 @@ class ConfigStore(QtCore.QObject):
         for option in self.config.options(section):
             self.config.remove_option(section, option)
         self.config.remove_section(section)
-        self.timer.start()
+        self.dirty = True
 
-    @QtCore.pyqtSlot()
-    def shutdown(self):
-        if self.timer.isActive():
-            self.timer.stop()
-            self.save()
-
-    @QtCore.pyqtSlot()
     def save(self):
+        if not self.dirty:
+            return
         if six.PY2:
             self.config.write(open(self.file_name, 'w'))
         else:
             self.config.write(open(self.file_name, 'w', encoding='utf-8'))
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
+        self.dirty = False
 
 
 class KeyStore(object):

@@ -32,7 +32,7 @@ import webbrowser
 
 import pkg_resources
 
-from photini.configstore import ConfigStore
+from photini.configstore import BaseConfigStore
 from photini.bingmap import BingMap
 from photini.descriptive import Descriptive
 try:
@@ -55,7 +55,7 @@ try:
 except ImportError:
     PicasaUploader = None
 from photini.pyqt import (Qt, QtCore, QtGui, QNetworkProxy,
-                          QtWebEngineWidgets, QtWidgets, qt_version_info)
+                          QtWidgets, qt_version_info, using_qtwebengine)
 from photini.spelling import enchant_version, SpellCheck
 from photini.technical import Technical
 from photini import __version__, build
@@ -65,6 +65,29 @@ class QTabBar(QtWidgets.QTabBar):
         size = super(QTabBar, self).tabSizeHint(index)
         size.setWidth(max(size.width(), 90))
         return size
+
+
+class ConfigStore(BaseConfigStore, QtCore.QObject):
+    # add timer to save config after it's changed
+    def __init__(self, name, *arg, **kw):
+        super(ConfigStore, self).__init__(name, *arg, **kw)
+        QtCore.QCoreApplication.instance().aboutToQuit.connect(self.save)
+        self.timer = QtCore.QTimer(self)
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(3000)
+        self.timer.timeout.connect(self.save)
+
+    def set(self, section, option, value):
+        super(ConfigStore, self).set(section, option, value)
+        self.timer.start()
+
+    def remove_section(self, section):
+        super(ConfigStore, self).remove_section(section)
+        self.timer.start()
+
+    @QtCore.pyqtSlot()
+    def save(self):
+        super(ConfigStore, self).save()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -362,10 +385,9 @@ def main(argv=None):
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
     version += '\n  ' + gexiv2_version
-    version += '\n  PyQt {}, Qt {}'.format(
-        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
-    if QtWebEngineWidgets:
-        version += ', using QtWebEngineWidgets'
+    version += '\n  PyQt {}, Qt {}, using {}'.format(
+        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
+        ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
     if enchant_version:
         version += '\n  ' + enchant_version
     if FlickrUploader:

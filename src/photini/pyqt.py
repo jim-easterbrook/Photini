@@ -20,22 +20,36 @@
 from __future__ import unicode_literals
 
 from collections import namedtuple
+import six
 
-try:
-    from PyQt5 import QtCore
-    using_pyqt5 = True
-except ImportError:
-    using_pyqt5 = False
+from photini.configstore import BaseConfigStore
+
+# temporarily open config file to get any over-rides
+config = BaseConfigStore('editor')
+using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto') != 'False'
+using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto') != 'False'
+config.save()
+del config
+
+if using_pyqt5:
+    try:
+        from PyQt5 import QtCore
+    except ImportError:
+        using_pyqt5 = False
 
 if using_pyqt5:
     from PyQt5 import QtGui, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
-    try:
-        from PyQt5 import QtWebChannel, QtWebEngineWidgets
+    if using_qtwebengine:
+        try:
+            from PyQt5 import QtWebChannel, QtWebEngineWidgets
+        except ImportError:
+            using_qtwebengine = False
+    if using_qtwebengine:
         QtWebKit = None
         QtWebKitWidgets = None
-    except ImportError:
+    else:
         from PyQt5 import QtWebKit, QtWebKitWidgets
         QtWebChannel = None
         QtWebEngineWidgets = None
@@ -46,13 +60,13 @@ else:
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     from PyQt4 import QtCore, QtGui, QtWebKit
+    using_qtwebengine = False
     QtWidgets = QtGui
     QtWebKitWidgets = QtWebKit
     QtWebChannel = None
     QtWebEngineWidgets = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
-import six
 
 from photini.spelling import SpellingHighlighter
 
