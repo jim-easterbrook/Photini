@@ -290,7 +290,7 @@ class PhotiniMap(QtWidgets.QSplitter):
   <body ondragstart="return false">
     <div id="mapDiv"></div>
     <script type="text/javascript">
-      var initData = {data};
+      var initData = {{lat: {lat}, lng: {lng}, zoom: {zoom}}};
     </script>
 {body}
   </body>
@@ -298,7 +298,6 @@ class PhotiniMap(QtWidgets.QSplitter):
 '''
         lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = eval(self.config_store.get('map', 'zoom', '11'))
-        data = {'lat': lat, 'lng': lng, 'zoom': zoom}
         if QtWebEngineWidgets:
             initialize = '''
     <script type="text/javascript"
@@ -324,8 +323,8 @@ class PhotiniMap(QtWidgets.QSplitter):
       }
     </script>
 '''
-        page = page.format(
-            data=str(data), initialize=initialize, **self.get_page_elements())
+        page = page.format(lat=lat, lng=lng, zoom=zoom, initialize=initialize,
+                           **self.get_page_elements())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
