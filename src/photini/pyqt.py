@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 from collections import namedtuple
+import re
 import six
 
 from photini.configstore import BaseConfigStore
@@ -67,8 +68,6 @@ else:
     QtWebEngineWidgets = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
-
-from photini.spelling import SpellingHighlighter
 
 qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
@@ -119,6 +118,33 @@ class Busy(object):
 
     def __exit__(self, type, value, traceback):
         Busy.stop()
+
+
+class SpellingHighlighter(QtGui.QSyntaxHighlighter):
+    words = re.compile("\w+([-']\w+)*", flags=re.IGNORECASE | re.UNICODE)
+
+    def __init__(self, *arg, **kw):
+        super(SpellingHighlighter, self).__init__(*arg, **kw)
+        self.spell_check = QtWidgets.QApplication.instance().spell_check
+        self.spell_check.new_dict.connect(self.rehighlight)
+
+    def highlightBlock(self, text):
+        if not (self.spell_check.enabled and self.spell_check.dict):
+            return
+        formatter = QtGui.QTextCharFormat()
+        formatter.setUnderlineColor(Qt.red)
+        formatter.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+        for word in self.words.finditer(text):
+            if not self.spell_check.dict.check(word.group()):
+                self.setFormat(
+                    word.start(), word.end() - word.start(), formatter)
+
+    def suggestions(self, word):
+        if not (self.spell_check.enabled and self.spell_check.dict):
+            return []
+        if self.spell_check.dict.check(word):
+            return []
+        return self.spell_check.dict.suggest(word)
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):

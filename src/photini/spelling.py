@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@ from __future__ import unicode_literals
 
 import logging
 import os
-import re
 import site
 import sys
 
@@ -62,7 +61,6 @@ if sys.platform == 'win32x':
                 break
 
 from photini.pyqt import Qt, QtCore, QtGui, QtWidgets
-
 
 class SpellCheck(QtCore.QObject):
     new_dict = QtCore.pyqtSignal()
@@ -107,31 +105,3 @@ class SpellCheck(QtCore.QObject):
             self.dict = None
         self.config_store.set('spelling', 'language', self.current_language())
         self.new_dict.emit()
-
-
-class SpellingHighlighter(QtGui.QSyntaxHighlighter):
-    words = re.compile("\w+([-']\w+)*", flags=re.IGNORECASE | re.UNICODE)
-
-    def __init__(self, *arg, **kw):
-        super(SpellingHighlighter, self).__init__(*arg, **kw)
-        self.spell_check = QtWidgets.QApplication.instance().spell_check
-        self.spell_check.new_dict.connect(self.rehighlight)
-
-    def highlightBlock(self, text):
-        if not (self.spell_check.enabled and self.spell_check.dict):
-            return
-        formatter = QtGui.QTextCharFormat()
-        formatter.setUnderlineColor(Qt.red)
-        formatter.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
-        for word in self.words.finditer(text):
-            if not self.spell_check.dict.check(word.group()):
-                self.setFormat(
-                    word.start(), word.end() - word.start(), formatter)
-
-    def suggestions(self, word):
-        if not (self.spell_check.enabled and self.spell_check.dict):
-            return []
-        if self.spell_check.dict.check(word):
-            return []
-        return self.spell_check.dict.suggest(word)
-
