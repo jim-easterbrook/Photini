@@ -1,8 +1,9 @@
 #define PyDir "{app}\python-3.4.4"
 #define SrcDir "WinPython\python-3.4.4"
+#define Version "2017.07"
 
 [Setup]
-VersionInfoVersion=2017.03
+VersionInfoVersion={#Version}
 VersionInfoProductTextVersion=Latest release
 AppId={{55D6EC72-D14D-4A19-AE26-EECC1A6EF1EA}
 AppName=Photini
@@ -13,7 +14,7 @@ AppCopyright=Copyright (C) 2012-17 Jim Easterbrook
 DefaultDirName={pf}\Photini
 DefaultGroupName=Photini
 AllowNoIcons=yes
-OutputBaseFilename=photini-win32-setup
+OutputBaseFilename=photini-win32-{#Version}
 OutputDir=installers
 Compression=lzma
 SolidCompression=yes
@@ -21,7 +22,7 @@ LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=18800000
+ExtraDiskSpaceRequired=23000000
 SignTool=normal
 
 [Languages]
