@@ -302,10 +302,13 @@ If it fails to run you should get some diagnostic information::
 
 If you need more help, please email jim@jim-easterbrook.me.uk.
 It would probably be helpful to copy any diagnostic messages into your email.
-If Photini runs but you have some other problem with it then I would find it useful to know what version you are running.
+I would also find it useful to know what version of Photini and some of its dependencies you are running.
 You can find out with the ``--version`` option::
 
    python -m photini.editor --version
+
+Some versions of PyQt may fail to work properly with Photini, even causing a crash at startup.
+If this happens you may be able to circumvent the problem by editing the :ref:`Photini configuration file <configuration-pyqt>` before running Photini.
 
 .. _installation-documentation:
 
