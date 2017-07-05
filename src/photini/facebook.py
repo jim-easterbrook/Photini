@@ -25,7 +25,6 @@ import math
 import os
 from six.moves.urllib.parse import unquote
 
-import keyring
 import oauthlib
 try:
     import PIL.Image as PIL
@@ -40,33 +39,26 @@ from photini.configstore import key_store
 from photini.pyqt import (
     Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWebEngineWidgets,
     QtWebKitWidgets, QtWidgets, SingleLineEdit)
-from photini.uploader import PhotiniUploader
+from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 cities_cache = []
 
-class FacebookSession(object):
+class FacebookSession(UploaderSession):
+    name = 'facebook'
     scope = {
         'read' : 'user_photos',
         'write': 'user_photos,publish_actions',
         }
 
-    def __init__(self, auto_refresh=True):
-        self.auto_refresh = auto_refresh
-        self.session = None
-
-    def log_out(self):
-        keyring.delete_password('photini', 'facebook')
-        self.session = None
-
     def permitted(self, level):
-        access_token = keyring.get_password('photini', 'facebook')
+        access_token = self.get_password()
         if not access_token:
-            self.session = None
+            self.api = None
             return False
-        if not self.session:
+        if not self.api:
             token = {'access_token': access_token}
-            self.session = OAuth2Session(token=token)
+            self.api = OAuth2Session(token=token)
         try:
             permissions = self.get('https://graph.facebook.com/me/permissions')
         except Exception:
@@ -89,14 +81,13 @@ class FacebookSession(object):
         return True
 
     def get_auth_url(self, level):
-        logger.info('using %s', keyring.get_keyring().__module__)
         app_id = key_store.get('facebook', 'app_id')
         client = oauthlib.oauth2.MobileApplicationClient(app_id)
-        self.session = OAuth2Session(
+        self.api = OAuth2Session(
             client=client, scope=self.scope[level],
             redirect_uri='https://www.facebook.com/connect/login_success.html',
             )
-        result = self.session.authorization_url(
+        result = self.api.authorization_url(
             'https://www.facebook.com/dialog/oauth',
             display='popup', auth_type='rerequest')[0]
         # use unquote to prevent "redirect_uri URL is not properly
@@ -104,9 +95,9 @@ class FacebookSession(object):
         return unquote(result)
 
     def get_access_token(self, url):
-        token = self.session.token_from_fragment(url)
-        self._save_token(token)
-        self.session = None
+        token = self.api.token_from_fragment(url)
+        self.set_password(token['access_token'])
+        self.api = None
 
     def get_user(self):
         rsp = self.get('https://graph.facebook.com/me',
@@ -116,11 +107,11 @@ class FacebookSession(object):
         if rsp['picture']:
             url = rsp['picture']['data']['url']
             try:
-                pic_rsp = self.session.get(url)
+                pic_rsp = self.api.get(url)
                 pic_rsp.raise_for_status()
                 return rsp['name'], pic_rsp.content
             except Exception as ex:
-                self.logger.error('cannot read %s: %s', url, str(ex))
+                logger.error('cannot read %s: %s', url, str(ex))
         return rsp['name'], None
 
     def get_album(self, album_id, fields):
@@ -266,18 +257,14 @@ class FacebookSession(object):
         return ''
 
     def get(self, *arg, **kw):
-        rsp = self.session.get(*arg, **kw)
+        rsp = self.api.get(*arg, **kw)
         rsp.raise_for_status()
         return rsp.json()
 
     def post(self, *arg, **kw):
-        rsp = self.session.post(*arg, **kw)
+        rsp = self.api.post(*arg, **kw)
         rsp.raise_for_status()
         return rsp.json()
-
-    def _save_token(self, token):
-        if self.auto_refresh:
-            keyring.set_password('photini', 'facebook', token['access_token'])
 
 
 if QtWebEngineWidgets:

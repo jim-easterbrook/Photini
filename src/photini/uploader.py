@@ -28,9 +28,27 @@ import threading
 import webbrowser
 
 import appdirs
+import keyring
 
 from photini.metadata import Metadata
 from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
+
+class UploaderSession(object):
+    def __init__(self, auto_refresh=True):
+        self.auto_refresh = auto_refresh
+        self.api = None
+
+    def log_out(self):
+        keyring.delete_password('photini', self.name)
+        self.api = None
+
+    def get_password(self):
+        return keyring.get_password('photini', self.name)
+
+    def set_password(self, password):
+        if self.auto_refresh:
+            keyring.set_password('photini', self.name, password)
+
 
 class FileObjWithCallback(object):
     def __init__(self, fileobj, callback):
@@ -103,6 +121,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info('using %s', keyring.get_keyring().__module__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()

@@ -25,13 +25,12 @@ import os
 import xml.etree.ElementTree as ET
 
 import certifi
-import keyring
 import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.configstore import key_store
 from photini.pyqt import Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets
-from photini.uploader import PhotiniUploader
+from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 
@@ -117,27 +116,23 @@ class FeedNode(PicasaNode):
         }
 
 
-class PicasaSession(object):
-    token_url     = 'https://www.googleapis.com/oauth2/v4/token'
-    album_feed    = 'https://picasaweb.google.com/data/feed/api/user/default'
+class PicasaSession(UploaderSession):
+    name = 'picasa'
+    token_url  = 'https://www.googleapis.com/oauth2/v4/token'
+    album_feed = 'https://picasaweb.google.com/data/feed/api/user/default'
     scope = {
         'read' : 'https://picasaweb.google.com/data/',
         'write': 'https://picasaweb.google.com/data/',
         }
 
     def __init__(self, auto_refresh=True):
-        self.auto_refresh = auto_refresh
-        self.session = None
+        super(PicasaSession, self).__init__(auto_refresh)
         self.token = None
 
-    def log_out(self):
-        keyring.delete_password('photini', 'picasa')
-        self.session = None
-
     def permitted(self, level):
-        refresh_token = keyring.get_password('photini', 'picasa')
+        refresh_token = self.get_password()
         if not refresh_token:
-            self.session = None
+            self.api = None
             self.token = None
             return False
         if not self.token:
@@ -147,8 +142,8 @@ class PicasaSession(object):
                 'refresh_token' : refresh_token,
                 'expires_in'    : -30,
                 }
-            self.session = None
-        if not self.session:
+            self.api = None
+        if not self.api:
             # create new session
             client_id     = key_store.get('picasa', 'client_id')
             client_secret = key_store.get('picasa', 'client_secret')
@@ -157,20 +152,20 @@ class PicasaSession(object):
                 'client_secret': client_secret,
                 }
             if self.auto_refresh:
-                self.session = OAuth2Session(
+                self.api = OAuth2Session(
                     client_id, token=self.token, token_updater=self._save_token,
                     auto_refresh_kwargs=auto_refresh_kwargs,
                     auto_refresh_url=self.token_url,
                     )
             else:
-                self.session = OAuth2Session(client_id, token=self.token)
-            self.session.verify = certifi.old_where()
+                self.api = OAuth2Session(client_id, token=self.token)
+            self.api.verify = certifi.old_where()
             # refresh manually to get a valid token now
-            self.token = self.session.refresh_token(
+            self.token = self.api.refresh_token(
                 self.token_url, **auto_refresh_kwargs)
-            self.session.headers.update({'GData-Version': '2'})
+            self.api.headers.update({'GData-Version': '2'})
             # verify the token
-            resp = self._check_response(self.session.get(
+            resp = self._check_response(self.api.get(
                 'https://www.googleapis.com/oauth2/v3/tokeninfo',
                 params={'access_token': self.token['access_token']})).json()
             if resp['scope'] != self.scope[level] or resp['aud'] != client_id:
@@ -178,13 +173,12 @@ class PicasaSession(object):
         return True
 
     def get_auth_url(self, level):
-        logger.info('using %s', keyring.get_keyring().__module__)
         client_id = key_store.get('picasa', 'client_id')
-        self.session = OAuth2Session(
+        self.api = OAuth2Session(
             client_id, scope=self.scope[level],
             redirect_uri='urn:ietf:wg:oauth:2.0:oob')
-        self.session.verify = certifi.old_where()
-        return self.session.authorization_url(
+        self.api.verify = certifi.old_where()
+        return self.api.authorization_url(
             'https://accounts.google.com/o/oauth2/v2/auth')[0]
 
     def get_access_token(self, auth_code):
@@ -193,40 +187,39 @@ class PicasaSession(object):
         os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
         client_id = key_store.get('picasa', 'client_id')
         client_secret = key_store.get('picasa', 'client_secret')
-        self.token = self.session.fetch_token(
+        self.token = self.api.fetch_token(
             self.token_url, code=auth_code,
             auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
         self._save_token(self.token)
-        self.session = None
+        self.api = None
 
     def _save_token(self, token):
-        if self.auto_refresh:
-            keyring.set_password('photini', 'picasa', token['refresh_token'])
+        self.set_password(token['refresh_token'])
 
     def edit_node(self, node):
-        resp = self._check_response(self.session.put(
+        resp = self._check_response(self.api.put(
             node.get_link('edit'), node.to_string(),
             headers={'If-Match' : node.etag,
                      'Content-Type' : 'application/atom+xml'}))
         return PicasaNode(text=resp.text)
 
     def get_feed(self):
-        resp = self._check_response(self.session.get(
+        resp = self._check_response(self.api.get(
             self.album_feed, params={'kind': 'album'}))
         return FeedNode(text=resp.text)
 
 ##    def new_album(self, album):
-##        resp = self._check_response(self.session.post(
+##        resp = self._check_response(self.api.post(
 ##            self.album_feed, album.to_string(),
 ##            headers={'Content-Type' : 'application/atom+xml'}))
 ##        return PicasaNode(text=resp.text)
 
 ##    def delete_album(self, album):
-##        self._check_response(self.session.delete(
+##        self._check_response(self.api.delete(
 ##            album.get_link('edit'), headers={'If-Match' : album.etag}))
 
     def new_photo(self, title, album, data, image_type):
-        resp = self._check_response(self.session.post(
+        resp = self._check_response(self.api.post(
             album.get_link('feed'), data=data,
             headers={'Content-Type' : 'image/' + image_type, 'Slug' : title}))
         return PicasaNode(text=resp.text)
@@ -237,7 +230,7 @@ class PicasaSession(object):
         url = feed.thumbnail.text
         if url:
             try:
-                resp = self._check_response(self.session.get(url))
+                resp = self._check_response(self.api.get(url))
                 picture = resp.content
             except Exception as ex:
                 self.logger.error('cannot read %s: %s', url, str(ex))
@@ -249,7 +242,7 @@ class PicasaSession(object):
         image = QtGui.QPixmap(160, 160)
         try:
             resp = self._check_response(
-                self.session.get(album.group.thumbnail[0].get('url')))
+                self.api.get(album.group.thumbnail[0].get('url')))
             image.loadFromData(resp.content)
         except Exception as ex:
             paint = QtGui.QPainter(image)

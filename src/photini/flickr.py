@@ -27,32 +27,25 @@ from six.moves.html_parser import HTMLParser
 import time
 
 import flickrapi
-import keyring
 
 from photini.configstore import key_store
 from photini.pyqt import (
     Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets, SingleLineEdit)
-from photini.uploader import PhotiniUploader
+from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
-class FlickrSession(object):
+class FlickrSession(UploaderSession):
+    name = 'flickr'
     perms = {
         'read' : 'write',
         'write': 'write',
         }
-    def __init__(self, auto_refresh=True):
-        self.auto_refresh = auto_refresh
-        self.api = None
-
-    def log_out(self):
-        keyring.delete_password('photini', 'flickr')
-        self.api = None
 
     def permitted(self, level):
-        stored_token = keyring.get_password('photini', 'flickr')
+        stored_token = self.get_password()
         if not stored_token:
             self.api = None
             return False
@@ -67,7 +60,6 @@ class FlickrSession(object):
         return self.api.token_valid(perms=self.perms[level])
 
     def get_auth_url(self, level):
-        logger.info('using %s', keyring.get_keyring().__module__)
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
         token = flickrapi.auth.FlickrAccessToken('', '', self.perms[level])
@@ -84,9 +76,7 @@ class FlickrSession(object):
             self.api = None
             return False
         token = self.api.token_cache.token
-        if self.auto_refresh:
-            keyring.set_password(
-                'photini', 'flickr', token.token + '&' + token.token_secret)
+        self.set_password(token.token + '&' + token.token_secret)
         self.api = None
 
     def get_user(self):
