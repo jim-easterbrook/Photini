@@ -47,8 +47,8 @@ cities_cache = []
 class FacebookSession(UploaderSession):
     name = 'facebook'
     scope = {
-        'read' : 'user_photos',
-        'write': 'user_photos,publish_actions',
+        'read' : ('user_photos',),
+        'write': ('user_photos', 'publish_actions'),
         }
 
     def permitted(self, level):
@@ -57,19 +57,14 @@ class FacebookSession(UploaderSession):
             self.api = None
             return False
         if not self.api:
-            token = {'access_token': access_token}
-            self.api = OAuth2Session(token=token)
+            self.api = OAuth2Session(token={'access_token': access_token})
         try:
             permissions = self.get('https://graph.facebook.com/me/permissions')
         except Exception:
             permissions = None
         if not permissions:
             return False
-        for required in self.scope[level].split(','):
-            required = required.strip()
-            if not required:
-                continue
-            found = False
+        for required in self.scope[level]:
             for permission in permissions['data']:
                 if permission['permission'] != required:
                     continue
@@ -84,7 +79,7 @@ class FacebookSession(UploaderSession):
         app_id = key_store.get('facebook', 'app_id')
         client = oauthlib.oauth2.MobileApplicationClient(app_id)
         self.api = OAuth2Session(
-            client=client, scope=self.scope[level],
+            client=client, scope=','.join(self.scope[level]),
             redirect_uri='https://www.facebook.com/connect/login_success.html',
             )
         result = self.api.authorization_url(
