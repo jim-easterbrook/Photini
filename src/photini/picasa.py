@@ -120,30 +120,20 @@ class PicasaSession(UploaderSession):
     name = 'picasa'
     token_url  = 'https://www.googleapis.com/oauth2/v4/token'
     album_feed = 'https://picasaweb.google.com/data/feed/api/user/default'
-    scope = {
-        'read' : 'https://picasaweb.google.com/data/',
-        'write': 'https://picasaweb.google.com/data/',
-        }
-
-    def __init__(self, auto_refresh=True):
-        super(PicasaSession, self).__init__(auto_refresh)
-        self.token = None
+    scope      = 'https://picasaweb.google.com/data/'
 
     def permitted(self, level):
         refresh_token = self.get_password()
         if not refresh_token:
             self.api = None
-            self.token = None
             return False
-        if not self.token:
+        if not self.api:
             # create expired token
-            self.token = {
+            token = {
                 'access_token'  : 'xxx',
                 'refresh_token' : refresh_token,
                 'expires_in'    : -30,
                 }
-            self.api = None
-        if not self.api:
             # create new session
             client_id     = key_store.get('picasa', 'client_id')
             client_secret = key_store.get('picasa', 'client_secret')
@@ -153,29 +143,28 @@ class PicasaSession(UploaderSession):
                 }
             if self.auto_refresh:
                 self.api = OAuth2Session(
-                    client_id, token=self.token, token_updater=self._save_token,
+                    client_id, token=token, token_updater=self._save_token,
                     auto_refresh_kwargs=auto_refresh_kwargs,
                     auto_refresh_url=self.token_url,
                     )
             else:
-                self.api = OAuth2Session(client_id, token=self.token)
+                self.api = OAuth2Session(client_id, token=token)
             self.api.verify = certifi.old_where()
             # refresh manually to get a valid token now
-            self.token = self.api.refresh_token(
-                self.token_url, **auto_refresh_kwargs)
+            token = self.api.refresh_token(self.token_url, **auto_refresh_kwargs)
             self.api.headers.update({'GData-Version': '2'})
             # verify the token
             resp = self._check_response(self.api.get(
                 'https://www.googleapis.com/oauth2/v3/tokeninfo',
-                params={'access_token': self.token['access_token']})).json()
-            if resp['scope'] != self.scope[level] or resp['aud'] != client_id:
+                params={'access_token': token['access_token']})).json()
+            if resp['scope'] != self.scope or resp['aud'] != client_id:
                 return False
         return True
 
     def get_auth_url(self, level):
         client_id = key_store.get('picasa', 'client_id')
         self.api = OAuth2Session(
-            client_id, scope=self.scope[level],
+            client_id, scope=self.scope,
             redirect_uri='urn:ietf:wg:oauth:2.0:oob')
         self.api.verify = certifi.old_where()
         return self.api.authorization_url(
@@ -187,10 +176,10 @@ class PicasaSession(UploaderSession):
         os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
         client_id = key_store.get('picasa', 'client_id')
         client_secret = key_store.get('picasa', 'client_secret')
-        self.token = self.api.fetch_token(
+        token = self.api.fetch_token(
             self.token_url, code=auth_code,
             auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
-        self._save_token(self.token)
+        self._save_token(token)
         self.api = None
 
     def _save_token(self, token):
