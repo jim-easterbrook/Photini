@@ -200,6 +200,13 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.session.log_out()
         self.refresh(force=True)
 
+    def load_user_data(self):
+        if self.connected:
+            self.show_user(*self.session.get_user())
+        else:
+            self.show_user(None, None)
+        self.get_album_list()
+
     def do_not_close(self):
         if not self.upload_worker:
             return False

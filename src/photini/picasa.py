@@ -128,6 +128,7 @@ class PicasaSession(UploaderSession):
             self.api = None
             return False
         if not self.api:
+            self.current_feed = None
             # create expired token
             token = {
                 'access_token'  : 'xxx',
@@ -194,17 +195,30 @@ class PicasaSession(UploaderSession):
         return PicasaNode(text=resp.text)
 
     def get_feed(self):
+        if self.current_feed:
+            return self.current_feed
         resp = self._check_response(self.api.get(
             self.album_feed, params={'kind': 'album'}))
-        return FeedNode(text=resp.text)
+        self.current_feed = FeedNode(text=resp.text)
+        return self.current_feed
+
+    def get_albums(self):
+        feed = self.get_feed()
+        for album in feed.entry:
+            if not album.get_link('edit'):
+                # ignore 'system' albums
+                continue
+            yield album
 
 ##    def new_album(self, album):
+##        self.current_feed = None
 ##        resp = self._check_response(self.api.post(
 ##            self.album_feed, album.to_string(),
 ##            headers={'Content-Type' : 'application/atom+xml'}))
 ##        return PicasaNode(text=resp.text)
 
 ##    def delete_album(self, album):
+##        self.current_feed = None
 ##        self._check_response(self.api.delete(
 ##            album.get_link('edit'), headers={'If-Match' : album.etag}))
 
@@ -214,7 +228,8 @@ class PicasaSession(UploaderSession):
             headers={'Content-Type' : 'image/' + image_type, 'Slug' : title}))
         return PicasaNode(text=resp.text)
 
-    def get_user(self, feed):
+    def get_user(self):
+        feed = self.get_feed()
         name = feed.nickname.text
         picture = None
         url = feed.thumbnail.text
@@ -428,27 +443,15 @@ class PicasaUploader(PhotiniUploader):
         self.timer.setInterval(5000)
         self.timer.timeout.connect(self.save_changes)
 
-    def get_albums(self, feed=None):
-        if not feed:
-            feed = self.session.get_feed()
-        for album in feed.entry:
-            if not album.get_link('edit'):
-                # ignore 'system' albums
-                continue
-            yield album
-
-    def load_user_data(self):
+    def get_album_list(self):
         self.current_album = None
         self.upload_config.albums.clear()
         if self.connected:
-            feed = self.session.get_feed()
-            self.show_user(*self.session.get_user(feed))
-            for album in self.get_albums(feed):
+            for album in self.session.get_albums():
                 self.upload_config.albums.addItem(
                     album.title.text, album.id.text)
             self.set_current_album()
         else:
-            self.show_user(None, None)
             self.upload_config.show_album(None, None)
 
     def get_upload_params(self):
@@ -545,7 +548,7 @@ class PicasaUploader(PhotiniUploader):
         if album_id is None:
             album_id = self.upload_config.albums.itemData(0)
         self.current_album = None
-        for album in self.get_albums():
+        for album in self.session.get_albums():
             if album.id.text == album_id:
                 self.upload_config.show_album(album, self.session.get_album_thumb)
                 self.current_album = album

@@ -291,11 +291,10 @@ class FlickrUploader(PhotiniUploader):
             'rejected': ('image/x-dcraw', 'video/x-ms-wmv'),
             }
 
-    def load_user_data(self):
+    def get_album_list(self):
         self.photosets = []
         self.upload_config.clear_sets()
         if self.connected:
-            self.show_user(*self.session.get_user())
             sets = self.session.photosets_getList()
             for item in sets.find('photosets').findall('photoset'):
                 title = item.find('title').text
@@ -306,8 +305,6 @@ class FlickrUploader(PhotiniUploader):
                     'title' : title,
                     'widget': widget,
                     })
-        else:
-            self.show_user(None, None)
 
     def get_upload_params(self):
         # get config params that apply to all photos

@@ -427,12 +427,11 @@ class FacebookUploader(PhotiniUploader):
             return None
         return self.login_popup.result
 
-    def load_user_data(self, album_id=None):
+    def get_album_list(self, album_id=None):
         self.upload_config.widgets['album_choose'].clear()
         self.upload_config.widgets['album_choose'].addItem(
             self.tr('<default>'), 'me')
         if self.connected:
-            self.show_user(*self.session.get_user())
             selected = 0
             for album in self.session.get_albums('id,can_upload,name'):
                 self.upload_config.widgets['album_choose'].addItem(
@@ -446,7 +445,6 @@ class FacebookUploader(PhotiniUploader):
             self.upload_config.widgets['album_choose'].setCurrentIndex(selected)
             self.select_album(selected)
         else:
-            self.show_user(None, None)
             self.upload_config.show_album({}, None)
 
     def optimise(self, image):
@@ -546,7 +544,7 @@ class FacebookUploader(PhotiniUploader):
             self.logger.error(str(ex))
             self.refresh(force=True)
             return
-        self.load_user_data(album_id=album['id'])
+        self.get_album_list(album_id=album['id'])
 
     @QtCore.pyqtSlot(int)
     def select_album(self, index):
