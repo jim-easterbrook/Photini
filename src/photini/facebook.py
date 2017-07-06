@@ -89,10 +89,11 @@ class FacebookSession(UploaderSession):
         # formatted" error on Windows
         return unquote(result)
 
-    def get_access_token(self, url):
+    def get_access_token(self, url, level):
         token = self.api.token_from_fragment(url)
         self.set_password(token['access_token'])
         self.api = None
+        return self.permitted(level)
 
     def get_user(self):
         rsp = self.get('https://graph.facebook.com/me',

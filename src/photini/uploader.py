@@ -410,8 +410,7 @@ then enter the verification code:""").format(info_text))
         if not auth_code:
             return False
         with Busy():
-            self.session.get_access_token(auth_code)
-            return self.session.permitted(level)
+            return self.session.get_access_token(auth_code, level)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

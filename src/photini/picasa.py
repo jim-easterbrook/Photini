@@ -170,7 +170,7 @@ class PicasaSession(UploaderSession):
         return self.api.authorization_url(
             'https://accounts.google.com/o/oauth2/v2/auth')[0]
 
-    def get_access_token(self, auth_code):
+    def get_access_token(self, auth_code, level):
         # Fix for requests-oauthlib bug #157
         # https://github.com/requests/requests-oauthlib/issues/157
         os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = 'True'
@@ -181,6 +181,7 @@ class PicasaSession(UploaderSession):
             auth=requests.auth.HTTPBasicAuth(client_id, client_secret))
         self._save_token(token)
         self.api = None
+        return self.permitted(level)
 
     def _save_token(self, token):
         self.set_password(token['refresh_token'])

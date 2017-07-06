@@ -39,10 +39,6 @@ flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
 class FlickrSession(UploaderSession):
     name = 'flickr'
-    perms = {
-        'read' : 'write',
-        'write': 'write',
-        }
 
     def permitted(self, level):
         stored_token = self.get_password()
@@ -54,21 +50,21 @@ class FlickrSession(UploaderSession):
             api_secret = key_store.get('flickr', 'api_secret')
             token, token_secret = stored_token.split('&')
             token = flickrapi.auth.FlickrAccessToken(
-                token, token_secret, self.perms[level])
+                token, token_secret, 'write')
             self.api = flickrapi.FlickrAPI(
                 api_key, api_secret, token=token, store_token=False)
-        return self.api.token_valid(perms=self.perms[level])
+        return self.api.token_valid(perms='write')
 
     def get_auth_url(self, level):
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
-        token = flickrapi.auth.FlickrAccessToken('', '', self.perms[level])
+        token = flickrapi.auth.FlickrAccessToken('', '', 'write')
         self.api = flickrapi.FlickrAPI(
             api_key, api_secret, token=token, store_token=False)
         self.api.get_request_token(oauth_callback='oob')
-        return self.api.auth_url(perms=self.perms[level])
+        return self.api.auth_url(perms='write')
 
-    def get_access_token(self, auth_code):
+    def get_access_token(self, auth_code, level):
         try:
             self.api.get_access_token(auth_code)
         except flickrapi.FlickrError as ex:
@@ -78,6 +74,7 @@ class FlickrSession(UploaderSession):
         token = self.api.token_cache.token
         self.set_password(token.token + '&' + token.token_secret)
         self.api = None
+        return self.permitted(level)
 
     def get_user(self):
         result = None, None
