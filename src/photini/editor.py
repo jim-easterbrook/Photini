@@ -282,15 +282,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def close_files(self):
-        self._close_files(False)
+        self.image_list.close_files(False)
 
     @QtCore.pyqtSlot()
     def close_all_files(self):
-        self._close_files(True)
-
-    def _close_files(self, all_files):
-        if self.image_list.unsaved_files_dialog(all_files=all_files):
-            self.image_list.close_files(all_files)
+        self.image_list.close_files(True)
 
     def closeEvent(self, event):
         for n in range(self.tabs.count()):

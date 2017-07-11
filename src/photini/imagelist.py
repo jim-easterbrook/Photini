@@ -494,6 +494,8 @@ class ImageList(QtWidgets.QWidget):
             self.app.processEvents()
 
     def close_files(self, all_files):
+        if not self.unsaved_files_dialog(all_files=all_files):
+            return
         layout = self.thumbnails.layout()
         for image in list(self.images):
             if all_files or image.get_selected():
