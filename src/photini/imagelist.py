@@ -361,6 +361,10 @@ class ImageList(QtWidgets.QWidget):
                         self.scroll_area, self.move_to_prev_thumb)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToNextChar,
                         self.scroll_area, self.move_to_next_thumb)
+        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToStartOfLine,
+                        self.scroll_area, self.move_to_first_thumb)
+        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToEndOfLine,
+                        self.scroll_area, self.move_to_last_thumb)
         QtWidgets.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
                         self.scroll_area, self.select_prev_thumb)
         QtWidgets.QShortcut(QtGui.QKeySequence.SelectNextChar,
@@ -568,6 +572,12 @@ class ImageList(QtWidgets.QWidget):
 
     def move_to_next_thumb(self):
         self._inc_selection(1)
+
+    def move_to_first_thumb(self):
+        self.select_image(self.images[0])
+
+    def move_to_last_thumb(self):
+        self.select_image(self.images[-1])
 
     def select_prev_thumb(self):
         self._inc_selection(-1, extend_selection=True)
