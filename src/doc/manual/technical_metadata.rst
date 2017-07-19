@@ -6,7 +6,9 @@ Technical metadata
 ==================
 
 The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to edit 'technical' information about your photographs, such as the date & time they were taken and the lens that was used (if your camera has interchangable lenses).
-Usually you do not need to edit any of this data, but I like to set the time zone of all my pictures, especially when I'm holidaying in another country.
+You can also set the image orientation, which is useful if your camera doesn't set it correctly.
+(This often happens to me when taking pictures looking straight up or down.)
+I also like to set the time zone of all my pictures, especially when I'm holidaying in another country.
 
 .. image:: ../images/screenshot_50.png
 
