@@ -128,16 +128,19 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
         self.spell_check = QtWidgets.QApplication.instance().spell_check
         self.spell_check.new_dict.connect(self.rehighlight)
 
+    def findWords(self, text):
+        for word in self.words.finditer(text):
+            yield word.group(), word.start(), word.end()
+
     def highlightBlock(self, text):
-        if not (self.spell_check.enabled and self.spell_check.dict):
+        if not (text and self.spell_check.enabled and self.spell_check.dict):
             return
         formatter = QtGui.QTextCharFormat()
         formatter.setUnderlineColor(Qt.red)
         formatter.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
-        for word in self.words.finditer(text):
-            if not self.spell_check.dict.check(word.group()):
-                self.setFormat(
-                    word.start(), word.end() - word.start(), formatter)
+        for word, start, end in self.findWords(text):
+            if not self.spell_check.dict.check(word):
+                self.setFormat(start, end - start, formatter)
 
     def suggestions(self, word):
         if not (self.spell_check.enabled and self.spell_check.dict):
@@ -172,12 +175,22 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         super(MultiLineEdit, self).keyPressEvent(event)
 
     def contextMenuEvent(self, event):
+        if not self.spell_check:
+            return super(MultiLineEdit, self).contextMenuEvent(event)
         menu = self.createStandardContextMenu()
         suggestion_group = QtWidgets.QActionGroup(menu)
-        if self.spell_check:
-            cursor = self.cursorForPosition(event.pos())
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            word = cursor.selectedText()
+        cursor = self.cursorForPosition(event.pos())
+        block_pos = cursor.block().position()
+        for word, start, end in self.spell_check.findWords(cursor.block().text()):
+            if start > cursor.positionInBlock():
+                break
+            if end <= cursor.positionInBlock():
+                continue
+            cursor.setPosition(block_pos + start)
+            cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
+            break
+        word = cursor.selectedText()
+        if word:
             suggestions = self.spell_check.suggestions(word)
             if suggestions:
                 sep = menu.insertSeparator(menu.actions()[0])
@@ -186,8 +199,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                     menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
-            cursor = self.cursorForPosition(event.pos())
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+            cursor.setPosition(block_pos + start)
+            cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
             cursor.insertText(action.iconText())
 
     def set_value(self, value):
