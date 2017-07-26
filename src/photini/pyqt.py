@@ -188,7 +188,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         if action and action.actionGroup() == suggestion_group:
             cursor = self.cursorForPosition(event.pos())
             cursor.select(QtGui.QTextCursor.WordUnderCursor)
-            cursor.insertText(action.text())
+            cursor.insertText(action.iconText())
 
     def set_value(self, value):
         self._is_multiple = False
