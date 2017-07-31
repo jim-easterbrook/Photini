@@ -735,15 +735,12 @@ _max_bytes = {
     }
 
 class MetadataHandler(GExiv2.Metadata):
-    def __init__(self, path, image_data=None):
+    def __init__(self, path):
         super(MetadataHandler, self).__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
         # read metadata from file
-        if image_data and not using_pgi:
-            self.open_buf(image_data)
-        else:
-            self.open_path(self._path)
+        self.open_path(self._path)
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -1122,7 +1119,7 @@ class Metadata(object):
                             'Exif.CanonCs.MaxAperture',
                             'Exif.CanonCs.MinAperture'),
         }
-    def __init__(self, path, image_data=None, new_status=None):
+    def __init__(self, path, new_status=None):
         super(Metadata, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self._new_status = new_status
@@ -1137,7 +1134,7 @@ class Metadata(object):
                 self.logger.exception(ex)
         self._if = None
         try:
-            self._if = MetadataHandler(path, image_data=image_data)
+            self._if = MetadataHandler(path)
         except GLib.Error:
             # expected if unrecognised file format
             pass
