@@ -1218,24 +1218,14 @@ class Metadata(object):
         return False
 
     def get_exif_thumbnail(self):
-        if using_pgi:
-            if self._sc:
-                OK, thumb = self._sc.get_exif_thumbnail()
-                if OK:
-                    return bytearray(thumb)
-            if self._if:
-                OK, thumb = self._if.get_exif_thumbnail()
-                if OK:
-                    return bytearray(thumb)
-        else:
-            if self._sc:
-                thumb = self._sc.get_exif_thumbnail()
+        for source in self._sc, self._if:
+            if source:
+                thumb = source.get_exif_thumbnail()
+                if using_pgi:
+                    # get_exif_thumbnail returns (OK, data) tuple
+                    thumb = thumb[thumb[0]]
                 if thumb:
-                    return thumb
-            if self._if:
-                thumb = self._if.get_exif_thumbnail()
-                if thumb:
-                    return thumb
+                    return bytearray(thumb)
         return None
 
     # setters: set in both sidecar and image file
