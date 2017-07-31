@@ -39,7 +39,7 @@ for gexiv2_vsn in ('0.10', '0.4'):
         break
     except ValueError:
         pass
-from gi.repository import GObject, GExiv2
+from gi.repository import GLib, GObject, GExiv2
 import six
 
 from photini import __version__
@@ -1129,16 +1129,22 @@ class Metadata(object):
         # create metadata handlers for image file and/or sidecar
         self._path = path
         self._sc_path = self._find_side_car(path)
+        self._sc = None
         if self._sc_path:
-            self._sc = MetadataHandler(self._sc_path)
-        else:
-            self._sc = None
+            try:
+                self._sc = MetadataHandler(self._sc_path)
+            except Exception as ex:
+                self.logger.exception(ex)
+        self._if = None
         try:
             self._if = MetadataHandler(path, image_data)
-        except Exception:
-            self._if = None
-            if not self._sc:
-                self.create_side_car()
+        except GLib.Error:
+            # expected if unrecognised file format
+            pass
+        except Exception as ex:
+            self.logger.exception(ex)
+        if not self._if and not self._sc:
+            self.create_side_car()
         self._unsaved = False
 
     def _find_side_car(self, path):
