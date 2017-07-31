@@ -41,16 +41,12 @@ class Image(QtWidgets.QFrame):
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         self.thumb_size = thumb_size
-        # read image
-        with open(self.path, 'rb') as pf:
-            image_data = pf.read()
         # read metadata
-        self.metadata = Metadata(
-            self.path, image_data=image_data, new_status=self.show_status)
+        self.metadata = Metadata(self.path, new_status=self.show_status)
         # set file type
         self.file_type = mimetypes.guess_type(self.path)[0]
         if not self.file_type:
-            self.file_type = imghdr.what(self.path, image_data)
+            self.file_type = imghdr.what(self.path)
             if self.file_type:
                 self.file_type = 'image/' + self.file_type
         # anything not recognised is assumed to be 'raw'
@@ -65,7 +61,7 @@ class Image(QtWidgets.QFrame):
             self.pixmap.loadFromData(thumb)
         # if that failed, make our own
         if self.pixmap.isNull():
-            self.pixmap.loadFromData(image_data)
+            self.pixmap.load(self.path)
             unrotate = self.file_type == 'image/x-dcraw'
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 450:
