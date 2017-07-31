@@ -243,7 +243,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def copy_metadata(self, image, path):
         # copy metadata, forcing IPTC creation
-        md = Metadata(path, None)
+        md = Metadata(path)
         md.copy(image.metadata)
         md.save(True, 'none', True)
 

@@ -46,7 +46,7 @@ class Image(QtWidgets.QFrame):
             image_data = pf.read()
         # read metadata
         self.metadata = Metadata(
-            self.path, image_data, new_status=self.show_status)
+            self.path, image_data=image_data, new_status=self.show_status)
         # set file type
         ext = ext.lower()
         self.file_type = mimetypes.guess_type(self.path)[0]

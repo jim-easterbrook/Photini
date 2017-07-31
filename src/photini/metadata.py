@@ -1122,7 +1122,7 @@ class Metadata(object):
                             'Exif.CanonCs.MaxAperture',
                             'Exif.CanonCs.MinAperture'),
         }
-    def __init__(self, path, image_data, new_status=None):
+    def __init__(self, path, image_data=None, new_status=None):
         super(Metadata, self).__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
         self._new_status = new_status
@@ -1137,7 +1137,7 @@ class Metadata(object):
                 self.logger.exception(ex)
         self._if = None
         try:
-            self._if = MetadataHandler(path, image_data)
+            self._if = MetadataHandler(path, image_data=image_data)
         except GLib.Error:
             # expected if unrecognised file format
             pass
