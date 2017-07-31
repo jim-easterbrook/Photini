@@ -908,14 +908,15 @@ class MetadataHandler(GExiv2.Metadata):
                 super(MetadataHandler, self).set_tag_string(bag, '')
             if not ns_defined:
                 # create some XMP data with the correct namespace
-                data = '''<x:xmpmeta
-    xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+                data = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <rdf:Description
         xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">
     </rdf:Description>
   </rdf:RDF>
-</x:xmpmeta>'''
+</x:xmpmeta>
+<?xpacket end="w"?>'''
                 if six.PY2:
                     data = data.decode('utf-8')
                 # open the data to register the correct namespace
@@ -1155,11 +1156,15 @@ class Metadata(object):
     def create_side_car(self):
         self._sc_path = self._path + '.xmp'
         with open(self._sc_path, 'w') as of:
-            of.write('<x:xmpmeta x:xmptk="XMP Core 4.4.0-Exiv2" ')
-            of.write('xmlns:x="adobe:ns:meta/">\n')
-            of.write('</x:xmpmeta>')
-        self._sc = MetadataHandler(self._sc_path)
-        if self._if:
+            of.write('''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+</x:xmpmeta>
+<?xpacket end="w"?>''')
+        try:
+            self._sc = MetadataHandler(self._sc_path)
+        except Exception as ex:
+            self.logger.exception(ex)
+        if self._sc and self._if:
             self._sc.copy(self._if)
 
     def save(self, if_mode, sc_mode, force_iptc):
