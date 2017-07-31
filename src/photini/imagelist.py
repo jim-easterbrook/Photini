@@ -48,7 +48,6 @@ class Image(QtWidgets.QFrame):
         self.metadata = Metadata(
             self.path, image_data=image_data, new_status=self.show_status)
         # set file type
-        ext = ext.lower()
         self.file_type = mimetypes.guess_type(self.path)[0]
         if not self.file_type:
             self.file_type = imghdr.what(self.path, image_data)
@@ -59,14 +58,15 @@ class Image(QtWidgets.QFrame):
             self.file_type = 'image/raw'
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
-        self.pixmap.loadFromData(image_data)
-        unrotate = self.file_type == 'image/x-dcraw'
+        unrotate = False
+        # use exif thumbnail if there is one
+        thumb = self.metadata.get_exif_thumbnail()
+        if thumb:
+            self.pixmap.loadFromData(thumb)
+        # if that failed, make our own
         if self.pixmap.isNull():
-            # image read failed so attempt to use exif thumbnail
-            thumb = self.metadata.get_exif_thumbnail()
-            if thumb:
-                self.pixmap.loadFromData(bytearray(thumb))
-                unrotate = False
+            self.pixmap.loadFromData(image_data)
+            unrotate = self.file_type == 'image/x-dcraw'
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 450:
                 # store a scaled down version of image to save memory
