@@ -78,6 +78,14 @@ class MetadataValue(object):
         self.value = value
 
     @classmethod
+    def from_file(cls, tag, file_value):
+        if MetadataHandler.is_exif_tag(tag):
+            return cls.from_exif(file_value)
+        if MetadataHandler.is_iptc_tag(tag):
+            return cls.from_iptc(file_value)
+        return cls.from_xmp(file_value)
+
+    @classmethod
     def from_exif(cls, file_value):
         return cls(file_value)
 
@@ -154,7 +162,7 @@ class FocalLength(MetadataDictValue):
         super(FocalLength, self).__init__({'fl': fl, 'fl_35': fl_35})
 
     @classmethod
-    def from_exif(cls, file_value):
+    def from_file(cls, tag, file_value):
         focal_length, focal_length_35mm = file_value
         return cls((focal_length, focal_length_35mm))
 
@@ -169,11 +177,6 @@ class FocalLength(MetadataDictValue):
         else:
             focal_length_35mm = '{:d}'.format(self.fl_35)
         return focal_length, focal_length_35mm
-
-    @classmethod
-    def from_xmp(cls, file_value):
-        focal_length, focal_length_35mm = file_value
-        return cls((focal_length, focal_length_35mm))
 
     def to_35(self, value):
         if self.fl and self.fl_35:
@@ -818,11 +821,7 @@ class MetadataHandler(GExiv2.Metadata):
                           '{}/{}'.format(long_focal, focal_units),
                           0, 0)
         # convert to Photini data type
-        if MetadataHandler.is_exif_tag(tag):
-            return data_type.from_exif(file_value)
-        if MetadataHandler.is_iptc_tag(tag):
-            return data_type.from_iptc(file_value)
-        return data_type.from_xmp(file_value)
+        return data_type.from_file(tag, file_value)
 
     def clear_tag(self, tag):
         if isinstance(tag, tuple):
