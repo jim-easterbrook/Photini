@@ -80,29 +80,13 @@ class MetadataValue(object):
 
     @classmethod
     def from_file(cls, tag, file_value):
-        if MetadataHandler.is_exif_tag(tag):
-            return cls.from_exif(file_value)
-        if MetadataHandler.is_iptc_tag(tag):
-            return cls.from_iptc(file_value)
-        return cls.from_xmp(file_value)
-
-    @classmethod
-    def from_exif(cls, file_value):
         return cls(file_value)
 
     def to_exif(self):
         return self.value
 
-    @classmethod
-    def from_iptc(cls, file_value):
-        return cls(file_value)
-
     def to_iptc(self):
         return self.value
-
-    @classmethod
-    def from_xmp(cls, file_value):
-        return cls(file_value)
 
     def to_xmp(self):
         return self.value
@@ -218,14 +202,19 @@ class LatLon(MetadataDictValue):
     # Do something different with Xmp.video tags
     @classmethod
     def from_file(cls, tag, file_value):
-        if MetadataHandler.is_exif_tag(tag):
-            return cls.from_exif(file_value)
-        if tag.startswith('Xmp.video'):
+        if isinstance(tag, six.string_types) and tag.startswith('Xmp.video'):
             match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
             if not match:
                 return None
             return cls(match.group(1, 2))
-        return cls.from_xmp(file_value)
+        if not all(file_value):
+            return None
+        if MetadataHandler.is_exif_tag(tag):
+            lat_string, lat_ref, lon_string, lon_ref = file_value
+            return cls((cls.from_exif_part(lat_string, lat_ref),
+                        cls.from_exif_part(lon_string, lon_ref)))
+        lat_string, lon_string = file_value
+        return cls((cls.from_xmp_part(lat_string), cls.from_xmp_part(lon_string)))
 
     @staticmethod
     def from_exif_part(value, ref):
@@ -234,14 +223,6 @@ class LatLon(MetadataDictValue):
         if ref in ('S', 'W'):
             result = -result
         return result
-
-    @classmethod
-    def from_exif(cls, file_value):
-        if not all(file_value):
-            return None
-        lat_string, lat_ref, lon_string, lon_ref = file_value
-        return cls((cls.from_exif_part(lat_string, lat_ref),
-                    cls.from_exif_part(lon_string, lon_ref)))
 
     @staticmethod
     def to_exif_part(value):
@@ -278,13 +259,6 @@ class LatLon(MetadataDictValue):
         if ref in ('S', 'W'):
             value = -value
         return value
-
-    @classmethod
-    def from_xmp(cls, file_value):
-        if not all(file_value):
-            return None
-        lat_string, lon_string = file_value
-        return cls((cls.from_xmp_part(lat_string), cls.from_xmp_part(lon_string)))
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
@@ -672,7 +646,7 @@ class String(MetadataValue):
         super(String, self).__init__(value)
 
     @classmethod
-    def from_exif(cls, file_value):
+    def from_file(cls, tag, file_value):
         value = six.text_type(file_value).strip()
         if not value:
             return None
