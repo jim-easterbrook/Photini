@@ -25,6 +25,7 @@ from fractions import Fraction
 import locale
 import logging
 import os
+import re
 
 try:
     import pgi
@@ -213,6 +214,18 @@ class LatLon(MetadataDictValue):
             'lat' : round(float(lat), 6),
             'lon' : round(float(lon), 6),
             })
+
+    # Do something different with Xmp.video tags
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if MetadataHandler.is_exif_tag(tag):
+            return cls.from_exif(file_value)
+        if tag.startswith('Xmp.video'):
+            match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
+            if not match:
+                return None
+            return cls(match.group(1, 2))
+        return cls.from_xmp(file_value)
 
     @staticmethod
     def from_exif_part(value, ref):
@@ -1102,17 +1115,13 @@ class Metadata(object):
                             ('Exif', 'Exif.Photo.ApertureValue'),
                             ('Xmp', 'Xmp.exif.FNumber'),
                             ('Xmp', 'Xmp.exif.ApertureValue')),
-        'camera_model'   : (('Exif', 'Exif.Image.UniqueCameraModel'),),
         'copyright'      : (('Xmp', 'Xmp.tiff.Copyright'),),
         'creator'        : (('Exif', 'Exif.Image.XPAuthor'),
                             ('Xmp', 'Xmp.tiff.Artist')),
-        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),
-                            ('Xmp', 'Xmp.video.DateUTC')),
-        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),
-                            ('Xmp', 'Xmp.video.ModificationDate')),
+        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),),
+        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),),
         'date_taken'     : (('Exif', ('Exif.Image.DateTimeOriginal',)),
-                            ('Xmp', 'Xmp.exif.DateTimeOriginal'),
-                            ('Xmp', 'Xmp.video.DateUTC')),
+                            ('Xmp', 'Xmp.exif.DateTimeOriginal')),
         'description'    : (('Exif', 'Exif.Image.XPComment'),
                             ('Exif', 'Exif.Image.XPSubject'),
                             ('Xmp', 'Xmp.tiff.ImageDescription')),
@@ -1135,6 +1144,12 @@ class Metadata(object):
         }
     # tags that are read and merged but not deleted
     _read_tags = {
+        'camera_model'   : (('Exif', 'Exif.Image.UniqueCameraModel'),
+                            ('Xmp', 'Xmp.video.Model')),
+        'date_digitised' : (('Xmp', 'Xmp.video.DateUTC'),),
+        'date_modified'  : (('Xmp', 'Xmp.video.ModificationDate'),),
+        'date_taken'     : (('Xmp', 'Xmp.video.DateUTC'),),
+        'latlong'        : (('Xmp', 'Xmp.video.GPSCoordinates'),),
         'timezone'       : (('Exif', 'Exif.Image.TimeZoneOffset'),
                             ('Exif', 'Exif.NikonWt.Timezone')),
         }
