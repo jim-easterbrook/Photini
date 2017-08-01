@@ -89,7 +89,7 @@ def image_types():
     return result
 
 def video_types():
-    return ['avi', 'mp4', 'mpeg', 'mpg', 'mov', 'qt', 'wmv']
+    return ['3gp', 'avi', 'mp4', 'mpeg', 'mpg', 'mov', 'mts', 'qt', 'wmv']
 
 def multiple():
     return QtCore.QCoreApplication.translate('Multiple', '<multiple>')
