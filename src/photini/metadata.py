@@ -1230,6 +1230,11 @@ class Metadata(object):
                     return bytearray(thumb)
         return None
 
+    def get_mime_type(self):
+        if self._if:
+            return self._if.get_mime_type()
+        return None
+
     # setters: set in both sidecar and image file
     def set_value(self, tag, value):
         if self._sc:

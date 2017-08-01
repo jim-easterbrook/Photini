@@ -44,7 +44,9 @@ class Image(QtWidgets.QFrame):
         # read metadata
         self.metadata = Metadata(self.path, new_status=self.show_status)
         # set file type
-        self.file_type = mimetypes.guess_type(self.path)[0]
+        self.file_type = self.metadata.get_mime_type()
+        if not self.file_type:
+            self.file_type = mimetypes.guess_type(self.path)[0]
         if not self.file_type:
             self.file_type = imghdr.what(self.path)
             if self.file_type:
@@ -62,7 +64,7 @@ class Image(QtWidgets.QFrame):
         # if that failed, make our own
         if self.pixmap.isNull():
             self.pixmap.load(self.path)
-            unrotate = self.file_type == 'image/x-dcraw'
+            unrotate = self.file_type == 'image/x-canon-cr2'
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 450:
                 # store a scaled down version of image to save memory
