@@ -287,8 +287,8 @@ class FlickrUploader(PhotiniUploader):
         self.service_name = self.tr('Flickr')
         self.image_types = {
             'accepted': ('image/gif', 'image/jpeg', 'image/png',
-                         'video/mp4', 'video/mpeg', 'video/quicktime'),
-            'rejected': ('image/x-dcraw', 'video/x-ms-wmv'),
+                         'video/mp4', 'video/quicktime', 'video/riff'),
+            'rejected': ('image/x-canon-cr2',),
             }
 
     def get_album_list(self):

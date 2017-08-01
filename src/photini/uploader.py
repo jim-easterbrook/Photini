@@ -261,20 +261,17 @@ class PhotiniUploader(QtWidgets.QWidget):
         return path
 
     def is_convertible(self, image):
-        file_type = image.file_type.split('/')
-        if file_type[0] != 'image':
+        if not image.file_type.startswith('image'):
             # can only convert images
             return False
-        if 'raw' in file_type[1]:
-            # can't convert raw files
-            return False
-        if image.pixmap.isNull():
-            # if Qt can't read it, we can't convert it
-            return False
-        return True
+        return QtGui.QImageReader(image.path).canRead()
 
     def get_conversion_function(self, image):
+        print(image.file_type)
         if image.file_type in self.image_types['accepted']:
+            if image.file_type.startswith('video'):
+                # don't try to write metadata to videos
+                return None
             if image.metadata._sc or not image.metadata.has_iptc():
                 # need to create file without sidecar and with IPTC
                 return self.copy_file_and_metadata

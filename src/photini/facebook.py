@@ -408,7 +408,7 @@ class FacebookUploader(PhotiniUploader):
         self.service_name = self.tr('Facebook')
         self.image_types = {
             'accepted': ('image/jpeg', 'image/png'),
-            'rejected': ('image/x-portable-anymap', 'image/x-dcraw'),
+            'rejected': ('image/x-portable-anymap', 'image/x-canon-cr2'),
             }
         self.login_popup = None
         # add Facebook icon to connect button
