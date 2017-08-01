@@ -101,6 +101,10 @@ These tags are not deleted when the corresponding primary tags are saved.
 =====================  =========================  ================================  ==================
 Photini field          Exif tag                   XMP tag                           IPTC tag
 =====================  =========================  ================================  ==================
+Date / time Taken                                 Xmp.video.DateUTC
+Date / time Digitised                             Xmp.video.DateUTC
+Date / time Modified                              Xmp.video.ModificationDate
+Latitude, longitude                               Xmp.video.GPSCoordinates
 Time zone offset[1]    Exif.Image.TimeZoneOffset
                        Exif.NikonWt.Timezone
 =====================  =========================  ================================  ==================
