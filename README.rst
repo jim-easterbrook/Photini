@@ -22,6 +22,7 @@ Features
 
 *   Easy to use graphical interface.
 *   Set photo title, description, keywords, copyright and creator fields.
+*   Some support for video files.
 *   Spell checking of some fields (optional).
 *   Can set metadata for multiple images simultaneously.
 *   Can adjust picture date & time and time zone (of multiple images simultaneously).
@@ -34,6 +35,7 @@ Features
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
+*   Convert GPS coordinates to street address.
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images on to map to set GPS location.
 *   Edit coordinates if required, or clear to unset GPS data.

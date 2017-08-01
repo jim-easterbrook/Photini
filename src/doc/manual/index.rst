@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 User manual
@@ -19,5 +19,6 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    picasa
    facebook
    importer
+   video
    configuration
    tags
