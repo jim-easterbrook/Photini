@@ -267,7 +267,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         return QtGui.QImageReader(image.path).canRead()
 
     def get_conversion_function(self, image):
-        print(image.file_type)
         if image.file_type in self.image_types['accepted']:
             if image.file_type.startswith('video'):
                 # don't try to write metadata to videos

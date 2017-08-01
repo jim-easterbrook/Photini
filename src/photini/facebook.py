@@ -448,7 +448,14 @@ class FacebookUploader(PhotiniUploader):
             self.upload_config.show_album({}, None)
 
     def optimise(self, image):
-        im = PIL.open(image.path)
+        try:
+            im = PIL.open(image.path)
+        except OSError:
+            # PIL didn't recognise the file, so go via Qt
+            path = self.convert_to_jpeg(image)
+            im = PIL.open(path)
+            im.load()
+            os.unlink(path)
         # scale to one of Facebook's preferred sizes
         w, h = im.size
         old_size = max(w, h)
