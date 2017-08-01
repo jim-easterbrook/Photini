@@ -14,7 +14,7 @@ This may enable Photini to read date & time, and possibly GPS location data.
 
 The image selector currently does not show a thumbnail for video files.
 
-The :doc:`flickr`, :doc:`facebook`, and :doc:`picasa` tabs can all upload video files, but expect it to be slow.
+The :doc:`flickr` and :doc:`picasa` tabs can upload video files, but expect it to be slow.
 Video files can be very large.
 
 .. _Exiv2:        http://www.exiv2.org/
