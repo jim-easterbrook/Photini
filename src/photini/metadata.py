@@ -452,6 +452,26 @@ class DateTime(MetadataDictValue):
                 minutes // 60, minutes % 60)
         return datetime_string
 
+    # many quicktime movies use Apple's 1904 timestamp zero point
+    qt_offset = (datetime(1970, 1, 1) - datetime(1904, 1, 1)).total_seconds()
+
+    # Do something different with Xmp.video tags
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if MetadataHandler.is_exif_tag(tag):
+            return cls.from_exif(file_value)
+        if MetadataHandler.is_iptc_tag(tag):
+            return cls.from_iptc(file_value)
+        if tag.startswith('Xmp.video'):
+            time_stamp = int(file_value)
+            if time_stamp == 0:
+                return None
+            # assume date should be in range 1970 to 2034
+            if time_stamp > cls.qt_offset:
+                time_stamp -= cls.qt_offset
+            return cls((datetime.utcfromtimestamp(time_stamp), 6, 0))
+        return cls.from_xmp(file_value)
+
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
     @classmethod
@@ -1086,10 +1106,13 @@ class Metadata(object):
         'copyright'      : (('Xmp', 'Xmp.tiff.Copyright'),),
         'creator'        : (('Exif', 'Exif.Image.XPAuthor'),
                             ('Xmp', 'Xmp.tiff.Artist')),
-        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),),
-        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),),
+        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),
+                            ('Xmp', 'Xmp.video.DateUTC')),
+        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),
+                            ('Xmp', 'Xmp.video.ModificationDate')),
         'date_taken'     : (('Exif', ('Exif.Image.DateTimeOriginal',)),
-                            ('Xmp', 'Xmp.exif.DateTimeOriginal')),
+                            ('Xmp', 'Xmp.exif.DateTimeOriginal'),
+                            ('Xmp', 'Xmp.video.DateUTC')),
         'description'    : (('Exif', 'Exif.Image.XPComment'),
                             ('Exif', 'Exif.Image.XPSubject'),
                             ('Xmp', 'Xmp.tiff.ImageDescription')),
