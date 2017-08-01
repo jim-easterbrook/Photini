@@ -290,8 +290,10 @@ class Location(MetadataDictValue):
             })
 
     @classmethod
-    def from_iptc(cls, file_value):
-        return cls(file_value + [None])
+    def from_file(cls, tag, file_value):
+        if len(file_value) == 5:
+            return cls(file_value + [None])
+        return cls(file_value)
 
     def to_iptc(self):
         return (self.value['sublocation'],
@@ -300,12 +302,6 @@ class Location(MetadataDictValue):
                 self.value['country_name'],
                 self.value['country_code'],
                 self.value['world_region'])
-
-    @classmethod
-    def from_xmp(cls, file_value):
-        if len(file_value) == 5:
-            return cls(file_value + [None])
-        return cls(file_value)
 
     def to_xmp(self):
         return (self.value['sublocation'],
@@ -669,7 +665,7 @@ class CharacterSet(String):
         }
 
     @classmethod
-    def from_iptc(cls, file_value):
+    def from_file(cls, tag, file_value):
         for charset, encoding in cls.known_encodings.items():
             if encoding == file_value:
                 return cls(charset)
@@ -682,13 +678,15 @@ class CharacterSet(String):
 
 class Software(String):
     @classmethod
-    def from_iptc(cls, file_value):
-        program, version = file_value
-        if not program:
-            return None
-        if version:
-            program += ' v' + version
-        return cls(program)
+    def from_file(cls, tag, file_value):
+        if isinstance(file_value, tuple):
+            program, version = file_value
+            if not program:
+                return None
+            if version:
+                program += ' v' + version
+            return cls(program)
+        return cls(file_value)
 
     def to_iptc(self):
         return self.value.split(' v')
