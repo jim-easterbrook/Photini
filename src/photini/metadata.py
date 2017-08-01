@@ -953,6 +953,9 @@ class MetadataHandler(GExiv2.Metadata):
         return GExiv2.Metadata.is_iptc_tag(tag)
 
     def save(self):
+        if self.get_mime_type().startswith('video'):
+            # GExiv2 can't yet save to video, but doesn't raise an exception
+            return False
         try:
             self.save_file(self._path)
         except Exception as ex:
