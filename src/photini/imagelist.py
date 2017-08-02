@@ -22,15 +22,23 @@ from __future__ import unicode_literals
 import six
 from datetime import datetime
 import imghdr
+import logging
 import mimetypes
 import os
+from six import BytesIO
 from six.moves.urllib.parse import unquote
 import webbrowser
+
+try:
+    import PIL.Image as PIL
+except ImportError:
+    PIL = None
 
 from photini.metadata import Metadata
 from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
                           qt_version_info, set_symbol_font, video_types)
 
+logger = logging.getLogger(__name__)
 DRAG_MIMETYPE = 'application/x-photini-image'
 
 class Image(QtWidgets.QFrame):
@@ -54,37 +62,6 @@ class Image(QtWidgets.QFrame):
         # anything not recognised is assumed to be 'raw'
         if not self.file_type:
             self.file_type = 'image/raw'
-        # make 'master' thumbnail
-        self.pixmap = QtGui.QPixmap()
-        new_thumb = False
-        # use exif thumbnail if there is one
-        thumb = self.metadata.get_exif_thumbnail()
-        if thumb:
-            self.pixmap.loadFromData(thumb)
-        # if that failed, make our own
-        if self.pixmap.isNull():
-            self.pixmap.load(self.path)
-            new_thumb = True
-        if not self.pixmap.isNull():
-            if max(self.pixmap.width(), self.pixmap.height()) > 450:
-                # store a scaled down version of image to save memory
-                self.pixmap = self.pixmap.scaled(
-                    300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            if new_thumb and self.file_type == 'image/x-canon-cr2':
-                # loading preview which is already re-oriented
-                orientation = self.metadata.orientation
-                if orientation and orientation.value > 1:
-                    # need to unrotate and or unreflect image
-                    transform = QtGui.QTransform()
-                    if orientation.value in (3, 4):
-                        transform = transform.rotate(180.0)
-                    elif orientation.value in (5, 6):
-                        transform = transform.rotate(-90.0)
-                    elif orientation.value in (7, 8):
-                        transform = transform.rotate(90.0)
-                    if orientation.value in (2, 4, 5, 7):
-                        transform = transform.scale(-1.0, 1.0)
-                    self.pixmap = self.pixmap.transformed(transform)
         # sub widgets
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
@@ -111,15 +88,62 @@ class Image(QtWidgets.QFrame):
         self.set_selected(False)
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
-        # try saving new thumbnail
-        if new_thumb and not self.pixmap.isNull():
-            im = self.pixmap.scaled(
-                160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation).toImage()
+
+    def regenerate_thumbnail(self):
+        # get Qt image first
+        qt_im = QtGui.QImage(self.path)
+        if qt_im.isNull():
+            logger.error('Cannot read image data from %s', self.path)
+            return
+        # reorient if required
+        if self.file_type == 'image/x-canon-cr2':
+            orientation = self.metadata.orientation
+            if orientation and orientation.value > 1:
+                # need to unrotate and or unreflect image
+                transform = QtGui.QTransform()
+                if orientation.value in (3, 4):
+                    transform = transform.rotate(180.0)
+                elif orientation.value in (5, 6):
+                    transform = transform.rotate(-90.0)
+                elif orientation.value in (7, 8):
+                    transform = transform.rotate(90.0)
+                if orientation.value in (2, 4, 5, 7):
+                    transform = transform.scale(-1.0, 1.0)
+                qt_im = qt_im.transformed(transform)
+        if PIL:
+            # convert Qt image to PIL image
             buf = QtCore.QBuffer()
             buf.open(QtCore.QIODevice.WriteOnly)
-            im.save(buf, 'JPEG', 95)
+            qt_im.save(buf, 'PPM')
+            data = BytesIO(buf.data().data())
+            pil_im = PIL.open(data)
+            # scale PIL image
+            w, h = pil_im.size
+            scale = 160.0 / float(max(w, h))
+            pil_im = pil_im.resize(
+                (round(w * scale), round(h * scale)), PIL.ANTIALIAS)
+            # save image to memory
+            data = BytesIO()
+            pil_im.save(data, 'TIFF')
+            data = data.getvalue()
+        else:
+            # scale Qt image - not as good quality as PIL
+            qt_im = qt_im.scaled(
+                160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            # save image to memory
+            buf = QtCore.QBuffer()
+            buf.open(QtCore.QIODevice.WriteOnly)
+            qt_im.save(buf, 'TIFF')
             data = buf.data().data()
-            self.metadata.set_exif_thumbnail(data)
+        # set thumbnail
+        self.metadata.set_exif_thumbnail(data)
+        # reload thumbnail
+        self.load_thumbnail()
+
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.tr('Regenerate thumbnail'), self.regenerate_thumbnail)
+        action = menu.exec_(event.globalPos())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -207,26 +231,29 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
 
     def load_thumbnail(self):
-        if self.pixmap.isNull():
+        pixmap = QtGui.QPixmap()
+        thumb = self.metadata.get_exif_thumbnail()
+        if thumb:
+            pixmap.loadFromData(thumb)
+        if pixmap.isNull():
             self.image.setText(self.tr('Can not\ncreate\nthumbnail'))
-        else:
-            pixmap = self.pixmap
-            orientation = self.metadata.orientation
-            if orientation and orientation.value > 1:
-                # need to rotate and or reflect image
-                transform = QtGui.QTransform()
-                if orientation.value in (3, 4):
-                    transform = transform.rotate(180.0)
-                elif orientation.value in (5, 6):
-                    transform = transform.rotate(90.0)
-                elif orientation.value in (7, 8):
-                    transform = transform.rotate(-90.0)
-                if orientation.value in (2, 4, 5, 7):
-                    transform = transform.scale(-1.0, 1.0)
-                pixmap = pixmap.transformed(transform)
-            self.image.setPixmap(pixmap.scaled(
-                self.thumb_size, self.thumb_size,
-                Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            return
+        orientation = self.metadata.orientation
+        if orientation and orientation.value > 1:
+            # need to rotate and or reflect image
+            transform = QtGui.QTransform()
+            if orientation.value in (3, 4):
+                transform = transform.rotate(180.0)
+            elif orientation.value in (5, 6):
+                transform = transform.rotate(90.0)
+            elif orientation.value in (7, 8):
+                transform = transform.rotate(-90.0)
+            if orientation.value in (2, 4, 5, 7):
+                transform = transform.scale(-1.0, 1.0)
+            pixmap = pixmap.transformed(transform)
+        self.image.setPixmap(
+            pixmap.scaled(self.thumb_size, self.thumb_size,
+                          Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def set_selected(self, value):
         self.selected = value
