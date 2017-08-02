@@ -140,7 +140,6 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         super(DateTimeEdit, self).__init__(*arg, **kw)
         self.precision = 1
         self.multiple = multiple_values()
-        self.is_multiple = False
         # get size at full precision
         self.set_value([QtCore.QDateTime.currentDateTime()])
         self.set_precision(7)
@@ -153,48 +152,51 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
 
     def focusInEvent(self, event):
         if self.dateTime() == self.minimumDateTime():
-            self.setDateTime(self.date_time)
+            self.clearMinimumDateTime()
+            self.setDateTime(self.dateTime())
         super(DateTimeEdit, self).focusInEvent(event)
 
     def contextMenuEvent(self, event):
-        if len(self.date_times) <= 1:
+        if len(self.values) <= 1:
             return super(DateTimeEdit, self).contextMenuEvent(event)
         menu = QtWidgets.QMenu(self)
-        for suggestion in self.date_times:
+        for suggestion in self.values:
             if suggestion:
-                menu.addAction(suggestion.isoformat(' '))
+                menu.addAction(self.textFromDateTime(suggestion))
         action = menu.exec_(event.globalPos())
         if action:
-            value = action.iconText()
-            if '.' in value:
-                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S.%f')
-            else:
-                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-            self.set_value([value])
+            self.set_value([self.dateTimeFromText(action.iconText())])
+
+    def dateTimeFromText(self, text):
+        if not text:
+            self.clearMinimumDateTime()
+            return self.minimumDateTime()
+        return super(DateTimeEdit, self).dateTimeFromText(text)
+
+    def validate(self, text, pos):
+        if not text:
+            return QtGui.QValidator.Acceptable, text, pos
+        return super(DateTimeEdit, self).validate(text, pos)
 
     def get_value(self):
-        if len(self.date_times) > 1:
-            return MULTI
         value = self.dateTime()
         if value != self.minimumDateTime():
-            self.date_time = value
             return value.toPyDateTime()
+        if len(self.values) > 1:
+            return MULTI
         return None
 
     def set_value(self, values):
-        self.date_times = values
+        self.values = values
         if len(values) > 1:
             self.setSpecialValueText(self.multiple)
-            self.setDateTime(self.minimumDateTime())
-            self.is_multiple = True
-            return
-        self.is_multiple = False
-        if len(values) < 1 or values[0] is None:
+            self.setMinimumDateTime(self.dateTime())
+        elif len(values) < 1 or values[0] is None:
             self.setSpecialValueText(' ')
-            self.setDateTime(self.minimumDateTime())
-            return
-        self.setDateTime(values[0])
-        self.date_time = self.dateTime()
+            self.setMinimumDateTime(self.dateTime())
+        else:
+            self.clearMinimumDateTime()
+            self.setDateTime(values[0])
 
     @QtCore.pyqtSlot(int)
     def set_precision(self, value):
@@ -209,18 +211,28 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
     def __init__(self, *arg, **kw):
         super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.multiple = multiple()
-        self.is_multiple = False
         self.setRange(45 - (15 * 60), 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
         self.setSpecialValueText(' ')
+        self.values = []
 
     def focusInEvent(self, event):
         self.setSpecialValueText(' ')
-        self.is_multiple = False
         if self.value() == self.minimum():
             self.setValue(0)
         super(TimeZoneWidget, self).focusInEvent(event)
+
+    def contextMenuEvent(self, event):
+        if len(self.values) <= 1:
+            return super(TimeZoneWidget, self).contextMenuEvent(event)
+        menu = QtWidgets.QMenu(self)
+        for suggestion in self.values:
+            if suggestion:
+                menu.addAction(self.textFromValue(suggestion))
+        action = menu.exec_(event.globalPos())
+        if action:
+            self.set_value([self.valueFromText(action.iconText())])
 
     def validate(self, text, pos):
         if not text.strip():
@@ -256,18 +268,16 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         value = self.value()
         if value != self.minimum():
             return value
-        if self.is_multiple:
+        if len(self.values) > 1:
             return MULTI
         return None
 
     def set_value(self, values):
+        self.values = values
         if len(values) > 1:
             self.setSpecialValueText(self.multiple)
             self.setValue(self.minimum())
-            self.is_multiple = True
-            return
-        self.is_multiple = False
-        if len(values) < 1 or values[0] is None:
+        elif len(values) < 1 or values[0] is None:
             self.setSpecialValueText(' ')
             self.setValue(self.minimum())
         else:
@@ -845,7 +855,11 @@ class Technical(QtWidgets.QWidget):
     def _new_date_value(self, key, value):
         date_time, precision, tz_offset = value
         attribute = 'date_' + key
-        if date_time != MULTI:
+        if date_time is None:
+            # clear datetime
+            for image in self.image_list.get_selected_images():
+                setattr(image.metadata, attribute, None)
+        elif date_time != MULTI:
             # set all three parts
             if tz_offset == MULTI:
                 tz_offset = None
