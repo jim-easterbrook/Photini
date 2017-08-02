@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -33,6 +33,20 @@ class LineEdit(QtWidgets.QLineEdit):
         self.multiple_values = multiple_values()
         self._is_multiple = False
 
+    def contextMenuEvent(self, event):
+        menu = self.createStandardContextMenu()
+        suggestion_group = QtWidgets.QActionGroup(menu)
+        if self._is_multiple:
+            if self.choices:
+                sep = menu.insertSeparator(menu.actions()[0])
+                for suggestion in self.choices:
+                    action = QtWidgets.QAction(
+                        six.text_type(suggestion), suggestion_group)
+                    menu.insertAction(sep, action)
+        action = menu.exec_(event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            self.set_value(action.iconText())
+
     def set_value(self, value):
         self._is_multiple = False
         if not value:
@@ -44,8 +58,9 @@ class LineEdit(QtWidgets.QLineEdit):
     def get_value(self):
         return self.text()
 
-    def set_multiple(self):
+    def set_multiple(self, choices=[]):
         self._is_multiple = True
+        self.choices = choices
         self.setPlaceholderText(self.multiple_values)
         self.clear()
 
@@ -268,12 +283,15 @@ class Descriptive(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
-        value = getattr(images[0].metadata, key)
-        for image in images[1:]:
-            if getattr(image.metadata, key) != value:
-                self.widgets[key].set_multiple()
-                return
-        self.widgets[key].set_value(value)
+        values = []
+        for image in images:
+            value = getattr(image.metadata, key)
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets[key].set_multiple(choices=filter(None, values))
+        else:
+            self.widgets[key].set_value(values[0])
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

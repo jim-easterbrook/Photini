@@ -164,7 +164,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             self.spell_check = None
 
     def focusOutEvent(self, event):
-        self.editingFinished.emit()
+        if not self._is_multiple:
+            self.editingFinished.emit()
         super(MultiLineEdit, self).focusOutEvent(event)
 
     def keyPressEvent(self, event):
@@ -175,33 +176,42 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         super(MultiLineEdit, self).keyPressEvent(event)
 
     def contextMenuEvent(self, event):
-        if not self.spell_check:
-            return super(MultiLineEdit, self).contextMenuEvent(event)
         menu = self.createStandardContextMenu()
         suggestion_group = QtWidgets.QActionGroup(menu)
-        cursor = self.cursorForPosition(event.pos())
-        block_pos = cursor.block().position()
-        for word, start, end in self.spell_check.findWords(cursor.block().text()):
-            if start > cursor.positionInBlock():
-                break
-            if end <= cursor.positionInBlock():
-                continue
-            cursor.setPosition(block_pos + start)
-            cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
-            break
-        word = cursor.selectedText()
-        if word:
-            suggestions = self.spell_check.suggestions(word)
-            if suggestions:
+        if self._is_multiple:
+            if self.choices:
                 sep = menu.insertSeparator(menu.actions()[0])
-                for suggestion in suggestions:
-                    action = QtWidgets.QAction(suggestion, suggestion_group)
+                for suggestion in self.choices:
+                    action = QtWidgets.QAction(
+                        six.text_type(suggestion), suggestion_group)
                     menu.insertAction(sep, action)
+        elif self.spell_check:
+            cursor = self.cursorForPosition(event.pos())
+            block_pos = cursor.block().position()
+            for word, start, end in self.spell_check.findWords(cursor.block().text()):
+                if start > cursor.positionInBlock():
+                    break
+                if end <= cursor.positionInBlock():
+                    continue
+                cursor.setPosition(block_pos + start)
+                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
+                break
+            word = cursor.selectedText()
+            if word:
+                suggestions = self.spell_check.suggestions(word)
+                if suggestions:
+                    sep = menu.insertSeparator(menu.actions()[0])
+                    for suggestion in suggestions:
+                        action = QtWidgets.QAction(suggestion, suggestion_group)
+                        menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
-            cursor.setPosition(block_pos + start)
-            cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
-            cursor.insertText(action.iconText())
+            if self._is_multiple:
+                self.set_value(action.iconText())
+            else:
+                cursor.setPosition(block_pos + start)
+                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
+                cursor.insertText(action.iconText())
 
     def set_value(self, value):
         self._is_multiple = False
@@ -218,8 +228,9 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             return ''
         return value
 
-    def set_multiple(self):
+    def set_multiple(self, choices=[]):
         self._is_multiple = True
+        self.choices = choices
         if qt_version_info >= (5, 3):
             self.setPlaceholderText(self.multiple_values)
             self.clear()

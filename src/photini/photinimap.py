@@ -463,14 +463,17 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.coords.set_value(None)
             self.auto_location.setEnabled(False)
             return
-        latlong = images[0].metadata.latlong
-        for image in images[1:]:
-            if image.metadata.latlong != latlong:
-                self.coords.set_multiple()
-                self.auto_location.setEnabled(False)
-                return
-        self.coords.set_value(latlong)
-        self.auto_location.setEnabled(self.map_loaded and bool(latlong))
+        values = []
+        for image in images:
+            value = image.metadata.latlong
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.coords.set_multiple(choices=filter(None, values))
+            self.auto_location.setEnabled(False)
+        else:
+            self.coords.set_value(values[0])
+            self.auto_location.setEnabled(self.map_loaded and bool(values[0]))
 
     def display_location(self):
         images = self.image_list.get_selected_images()
@@ -483,18 +486,17 @@ class PhotiniMap(QtWidgets.QSplitter):
         for taken_shown in 'taken', 'shown':
             widget_group = self.location_info[taken_shown]
             for attr in widget_group.members:
-                value = getattr(images[0].metadata, 'location_' + taken_shown)
-                if value:
-                    value = value.value[attr]
-                for image in images[1:]:
-                    other = getattr(image.metadata, 'location_' + taken_shown)
-                    if other:
-                        other = other.value[attr]
-                    if other != value:
-                        widget_group[attr].set_multiple()
-                        break
+                values = []
+                for image in images:
+                    value = getattr(image.metadata, 'location_' + taken_shown)
+                    if value:
+                        value = value.value[attr]
+                    if value not in values:
+                        values.append(value)
+                if len(values) > 1:
+                    widget_group[attr].set_multiple(choices=filter(None, values))
                 else:
-                    widget_group[attr].set_value(value)
+                    widget_group[attr].set_value(values[0])
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
