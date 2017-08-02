@@ -23,6 +23,7 @@ If you scan some old photographs you should set the ``taken`` entry to when the 
 The date can be picked from a calendar widget that pops up when you click on the down arrow in a date/time entry.
 Clicking on any of the numbers allows them to be adjusted with your keyboard up & down arrow keys.
 You can also double click on any of the numbers to select it and type a new value in directly.
+Selecting all the numbers, e.g. with ``Ctrl+A``, allows them to be deleted which removes the date & time metadata from the photograph(s).
 
 .. image:: ../images/screenshot_51.png
 
