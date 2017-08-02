@@ -1269,6 +1269,13 @@ class Metadata(object):
                 self._if.copy(other._sc)
         self._set_unsaved(True)
 
+    def set_exif_thumbnail(self, thumb):
+        if self._sc:
+            self._sc.set_exif_thumbnail_from_buffer(thumb)
+        if self._if:
+            self._if.set_exif_thumbnail_from_buffer(thumb)
+        self._set_unsaved(True)
+
     def __getattr__(self, name):
         if name not in self._primary_tags:
             return super(Metadata, self).__getattr__(name)

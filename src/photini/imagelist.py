@@ -56,7 +56,7 @@ class Image(QtWidgets.QFrame):
             self.file_type = 'image/raw'
         # make 'master' thumbnail
         self.pixmap = QtGui.QPixmap()
-        unrotate = False
+        new_thumb = False
         # use exif thumbnail if there is one
         thumb = self.metadata.get_exif_thumbnail()
         if thumb:
@@ -64,13 +64,13 @@ class Image(QtWidgets.QFrame):
         # if that failed, make our own
         if self.pixmap.isNull():
             self.pixmap.load(self.path)
-            unrotate = self.file_type == 'image/x-canon-cr2'
+            new_thumb = True
         if not self.pixmap.isNull():
             if max(self.pixmap.width(), self.pixmap.height()) > 450:
                 # store a scaled down version of image to save memory
                 self.pixmap = self.pixmap.scaled(
                     300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            if unrotate:
+            if new_thumb and self.file_type == 'image/x-canon-cr2':
                 # loading preview which is already re-oriented
                 orientation = self.metadata.orientation
                 if orientation and orientation.value > 1:
@@ -111,6 +111,15 @@ class Image(QtWidgets.QFrame):
         self.set_selected(False)
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
+        # try saving new thumbnail
+        if new_thumb and not self.pixmap.isNull():
+            im = self.pixmap.scaled(
+                160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation).toImage()
+            buf = QtCore.QBuffer()
+            buf.open(QtCore.QIODevice.WriteOnly)
+            im.save(buf, 'JPEG', 95)
+            data = buf.data().data()
+            self.metadata.set_exif_thumbnail(data)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
