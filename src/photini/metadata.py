@@ -277,6 +277,7 @@ class Location(MetadataDictValue):
                      value['country_code'], value['world_region'])
         elif isinstance(value, six.string_types):
             value = value.split(',')
+        value = [x or None for x in value]
         country_code = value[4]
         if country_code:
             country_code = country_code.upper()
