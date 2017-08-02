@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 import re
 
 from photini.metadata import DateTime, LensSpec
@@ -138,15 +138,15 @@ class IntEdit(QtWidgets.QLineEdit):
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
     def __init__(self, *arg, **kw):
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.precision = -1
+        self.precision = 1
         self.multiple = multiple_values()
         self.is_multiple = False
         # get size at full precision
-        self.set_value(QtCore.QDateTime.currentDateTime())
+        self.set_value([QtCore.QDateTime.currentDateTime()])
         self.set_precision(7)
         self.minimum_size = super(DateTimeEdit, self).sizeHint()
         # clear display
-        self.set_value(None)
+        self.set_value([])
 
     def sizeHint(self):
         return self.minimum_size
@@ -156,41 +156,53 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.setDateTime(self.date_time)
         super(DateTimeEdit, self).focusInEvent(event)
 
+    def contextMenuEvent(self, event):
+        if len(self.date_times) <= 1:
+            return super(DateTimeEdit, self).contextMenuEvent(event)
+        menu = QtWidgets.QMenu(self)
+        for suggestion in self.date_times:
+            if suggestion:
+                menu.addAction(suggestion.isoformat(' '))
+        action = menu.exec_(event.globalPos())
+        if action:
+            value = action.iconText()
+            if '.' in value:
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S.%f')
+            else:
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            self.set_value([value])
+
     def get_value(self):
+        if len(self.date_times) > 1:
+            return MULTI
         value = self.dateTime()
         if value != self.minimumDateTime():
             self.date_time = value
             return value.toPyDateTime()
-        if self.is_multiple:
-            return MULTI
         return None
 
-    def set_value(self, value):
-        if value == MULTI:
+    def set_value(self, values):
+        self.date_times = values
+        if len(values) > 1:
             self.setSpecialValueText(self.multiple)
             self.setDateTime(self.minimumDateTime())
             self.is_multiple = True
             return
         self.is_multiple = False
-        if value is None:
+        if len(values) < 1 or values[0] is None:
             self.setSpecialValueText(' ')
             self.setDateTime(self.minimumDateTime())
             return
-        self.setDateTime(value)
+        self.setDateTime(values[0])
         self.date_time = self.dateTime()
 
     @QtCore.pyqtSlot(int)
     def set_precision(self, value):
         if value != self.precision:
             self.precision = value
-            if self.precision == 0:
-                self.setSpecialValueText(' ')
-                self.setDateTime(self.minimumDateTime())
-            else:
-                self.setDisplayFormat(
-                    ''.join(('yyyy', '-MM', '-dd',
-                             ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
-                self.setDateTime(self.date_time)
+            self.setDisplayFormat(
+                ''.join(('yyyy', '-MM', '-dd',
+                         ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
 
 class TimeZoneWidget(QtWidgets.QSpinBox):
@@ -248,18 +260,18 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             return MULTI
         return None
 
-    def set_value(self, value):
-        if value == MULTI:
+    def set_value(self, values):
+        if len(values) > 1:
             self.setSpecialValueText(self.multiple)
             self.setValue(self.minimum())
             self.is_multiple = True
             return
         self.is_multiple = False
-        if value is None:
+        if len(values) < 1 or values[0] is None:
             self.setSpecialValueText(' ')
             self.setValue(self.minimum())
         else:
-            self.setValue(value)
+            self.setValue(values[0])
 
 
 class Slider(QtWidgets.QSlider):
@@ -287,7 +299,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         # precision
         self.addWidget(QtWidgets.QLabel(self.tr('Precision:')), 1, 0)
         self.precision = Slider(Qt.Horizontal)
-        self.precision.setRange(0, 7)
+        self.precision.setRange(1, 7)
         self.precision.setPageStep(1)
         self.addWidget(self.precision, 1, 1)
         # connections
@@ -301,13 +313,13 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                 self.precision.value(),
                 self.time_zone.get_value())
 
-    def set_value(self, date_time, precision, tz_offset):
+    def set_value(self, date_times, precision, tz_offsets):
         blocked = self.precision.blockSignals(True)
         self.precision.setValue(precision)
         self.precision.blockSignals(blocked)
         self.datetime.set_precision(precision)
-        self.datetime.set_value(date_time)
-        self.time_zone.set_value(tz_offset)
+        self.datetime.set_value(date_times)
+        self.time_zone.set_value(tz_offsets)
 
     def set_enabled(self, enabled):
         self.datetime.setEnabled(enabled)
@@ -341,7 +353,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.offset)
         # time zone
         self.time_zone = TimeZoneWidget()
-        self.time_zone.set_value(None)
+        self.time_zone.set_value([])
         self.layout().addWidget(self.time_zone)
         # add offset button
         add_button = SquareButton('+')
@@ -356,7 +368,7 @@ class OffsetWidget(QtWidgets.QWidget):
         value = eval(self.config_store.get('technical', 'offset', 'None'))
         if value:
             self.offset.setTime(QtCore.QTime(*value[0:3]))
-            self.time_zone.set_value(value[3])
+            self.time_zone.set_value([value[3]])
         # connections
         self.offset.editingFinished.connect(self.new_value)
         self.time_zone.editingFinished.connect(self.new_value)
@@ -846,11 +858,8 @@ class Technical(QtWidgets.QWidget):
                 value = getattr(image.metadata, attribute)
                 if not value:
                     continue
-                if precision <= 0:
-                    setattr(image.metadata, attribute, None)
-                else:
-                    setattr(image.metadata, attribute,
-                            (value.datetime, precision, value.tz_offset))
+                setattr(image.metadata, attribute,
+                        (value.datetime, precision, value.tz_offset))
         elif tz_offset != MULTI:
             # update tz_offset
             for image in self.image_list.get_selected_images():
@@ -866,31 +875,23 @@ class Technical(QtWidgets.QWidget):
         if not images:
             return
         attribute = 'date_' + key
-        value = getattr(images[0].metadata, attribute)
-        if value:
-            date_time = value.datetime
-            precision = value.precision
-            tz_offset = value.tz_offset
-        else:
-            date_time = None
-            precision = 0
-            tz_offset = None
-        multi_date_time = False
-        multi_tz_offset = False
-        for image in images[1:]:
+        date_times = []
+        tz_offsets = []
+        precision = 1
+        for image in images:
             value = getattr(image.metadata, attribute)
             if value:
-                multi_date_time = multi_date_time or date_time != value.datetime
+                date_time = value.datetime
+                tz_offset = value.tz_offset
                 precision = max(precision, value.precision)
-                multi_tz_offset = multi_tz_offset or tz_offset != value.tz_offset
             else:
-                multi_date_time = multi_date_time or date_time is not None
-                multi_tz_offset = multi_tz_offset or tz_offset is not None
-        if multi_date_time:
-            date_time = MULTI
-        if multi_tz_offset:
-            tz_offset = MULTI
-        self.date_widget[key].set_value(date_time, precision, tz_offset)
+                date_time = None
+                tz_offset = None
+            if date_time not in date_times:
+                date_times.append(date_time)
+            if tz_offset not in tz_offsets:
+                tz_offsets.append(tz_offset)
+        self.date_widget[key].set_value(date_times, precision, tz_offsets)
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
@@ -1032,7 +1033,7 @@ class Technical(QtWidgets.QWidget):
         if not selection:
             self.setEnabled(False)
             for key in self.date_widget:
-                self.date_widget[key].set_value(None, 0, None)
+                self.date_widget[key].set_value([], 0, [])
             for key in self.widgets:
                 self.widgets[key].set_value(None)
             return
