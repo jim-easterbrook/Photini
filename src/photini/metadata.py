@@ -1201,8 +1201,13 @@ class Metadata(object):
         with open(self._sc_path, 'w') as of:
             of.write('''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about=""
+    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+   xmp:CreatorTool="{}"/>
+ </rdf:RDF>
 </x:xmpmeta>
-<?xpacket end="w"?>''')
+<?xpacket end="w"?>'''.format('Photini editor v' + __version__))
         try:
             self._sc = MetadataHandler(self._sc_path)
         except Exception as ex:
