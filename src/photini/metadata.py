@@ -958,9 +958,6 @@ class MetadataHandler(GExiv2.Metadata):
         return GExiv2.Metadata.is_iptc_tag(tag)
 
     def save(self):
-        if self.get_mime_type().startswith('video'):
-            # GExiv2 can't yet save to video, but doesn't raise an exception
-            return False
         try:
             self.save_file(self._path)
         except Exception as ex:
@@ -979,6 +976,9 @@ class MetadataHandler(GExiv2.Metadata):
         if xmp:
             for tag in other.get_xmp_tags():
                 self.set_tag_multiple(tag, other.get_tag_multiple(tag))
+
+    def get_all_tags(self):
+        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
 
 class Metadata(object):
@@ -1205,6 +1205,13 @@ class Metadata(object):
         OK = False
         if self._if and if_mode:
             OK = self._if.save()
+            if OK:
+                # check that data really was saved
+                saved_tags = MetadataHandler(self._path).get_all_tags()
+                for tag in self._if.get_all_tags():
+                    if tag not in saved_tags:
+                        self.logger.warning('tag not saved: %s', tag)
+                        OK = False
         if sc_mode == 'delete' and self._sc and OK:
             os.unlink(self._sc_path)
             self._sc = None
