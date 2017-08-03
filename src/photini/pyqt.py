@@ -233,7 +233,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
-        self.choices = choices
+        self.choices = list(choices)
         if qt_version_info >= (5, 3):
             self.setPlaceholderText(self.multiple_values)
             self.clear()

@@ -39,13 +39,16 @@ class LineEdit(QtWidgets.QLineEdit):
         if self._is_multiple:
             if self.choices:
                 sep = menu.insertSeparator(menu.actions()[0])
+                fm = menu.fontMetrics()
                 for suggestion in self.choices:
-                    action = QtWidgets.QAction(
-                        six.text_type(suggestion), suggestion_group)
+                    label = six.text_type(suggestion).replace('\n', ' ')
+                    label = fm.elidedText(label, Qt.ElideMiddle, self.width())
+                    action = QtWidgets.QAction(label, suggestion_group)
+                    action.setData(six.text_type(suggestion))
                     menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.iconText())
+            self.set_value(action.data())
 
     def set_value(self, value):
         self._is_multiple = False
@@ -60,7 +63,7 @@ class LineEdit(QtWidgets.QLineEdit):
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
-        self.choices = choices
+        self.choices = list(choices)
         self.setPlaceholderText(self.multiple_values)
         self.clear()
 
