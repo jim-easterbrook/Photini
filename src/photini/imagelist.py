@@ -466,11 +466,21 @@ class ImageList(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def open_files(self):
-        path_list = QtWidgets.QFileDialog.getOpenFileNames(
-            self, "Open files", self.app.config_store.get('paths', 'images', ''),
+        args = [
+            self,
+            self.tr('Open files'),
+            self.app.config_store.get('paths', 'images', ''),
             self.tr("Images ({0});;Videos ({1});;All files (*)").format(
                 ' '.join(['*.' + x for x in image_types()]),
-                ' '.join(['*.' + x for x in video_types()])))
+                ' '.join(['*.' + x for x in video_types()]))
+            ]
+        if eval(self.app.config_store.get('pyqt', 'native_dialog', 'True')):
+            pass
+        elif qt_version_info >= (5, 0):
+            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
+        else:
+            args += [QtWidgets.QFileDialog.DontUseNativeDialog]
+        path_list = QtWidgets.QFileDialog.getOpenFileNames(*args)
         if qt_version_info >= (5, 0):
             path_list = path_list[0]
         if not path_list:
