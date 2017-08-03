@@ -89,59 +89,71 @@ class Image(QtWidgets.QFrame):
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
 
-    def regenerate_thumbnail(self):
-        # get Qt image first
-        qt_im = QtGui.QImage(self.path)
-        if qt_im.isNull():
-            logger.error('Cannot read image data from %s', self.path)
-            return
-        # reorient if required
-        if self.file_type == 'image/x-canon-cr2':
-            orientation = self.metadata.orientation
-            if orientation and orientation.value > 1:
-                # need to unrotate and or unreflect image
-                transform = QtGui.QTransform()
-                if orientation.value in (3, 4):
-                    transform = transform.rotate(180.0)
-                elif orientation.value in (5, 6):
-                    transform = transform.rotate(-90.0)
-                elif orientation.value in (7, 8):
-                    transform = transform.rotate(90.0)
-                if orientation.value in (2, 4, 5, 7):
-                    transform = transform.scale(-1.0, 1.0)
-                qt_im = qt_im.transformed(transform)
-        if PIL:
-            # convert Qt image to PIL image
-            buf = QtCore.QBuffer()
-            buf.open(QtCore.QIODevice.WriteOnly)
-            qt_im.save(buf, 'PPM')
-            data = BytesIO(buf.data().data())
-            pil_im = PIL.open(data)
-            # scale PIL image
-            w, h = pil_im.size
-            scale = 160.0 / float(max(w, h))
-            pil_im = pil_im.resize(
-                (round(w * scale), round(h * scale)), PIL.ANTIALIAS)
-            # save image to memory
-            data = BytesIO()
-            pil_im.save(data, 'TIFF')
-            data = data.getvalue()
-        else:
-            # scale Qt image - not as good quality as PIL
-            qt_im = qt_im.scaled(
-                160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            # save image to memory
-            buf = QtCore.QBuffer()
-            buf.open(QtCore.QIODevice.WriteOnly)
-            qt_im.save(buf, 'TIFF')
-            data = buf.data().data()
-        # set thumbnail
-        self.metadata.set_exif_thumbnail(data)
-        # reload thumbnail
+    def reload_metadata(self):
+        self.metadata = Metadata(self.path, new_status=self.show_status)
+        self.show_status(False)
         self.load_thumbnail()
+        self.image_list.emit_selection()
+
+    def save_metadata(self):
+        self.image_list.save_files(images=[self])
+
+    def regenerate_thumbnail(self):
+        with Busy():
+            # get Qt image first
+            qt_im = QtGui.QImage(self.path)
+            if qt_im.isNull():
+                logger.error('Cannot read image data from %s', self.path)
+                return
+            # reorient if required
+            if self.file_type == 'image/x-canon-cr2':
+                orientation = self.metadata.orientation
+                if orientation and orientation.value > 1:
+                    # need to unrotate and or unreflect image
+                    transform = QtGui.QTransform()
+                    if orientation.value in (3, 4):
+                        transform = transform.rotate(180.0)
+                    elif orientation.value in (5, 6):
+                        transform = transform.rotate(-90.0)
+                    elif orientation.value in (7, 8):
+                        transform = transform.rotate(90.0)
+                    if orientation.value in (2, 4, 5, 7):
+                        transform = transform.scale(-1.0, 1.0)
+                    qt_im = qt_im.transformed(transform)
+            if PIL:
+                # convert Qt image to PIL image
+                buf = QtCore.QBuffer()
+                buf.open(QtCore.QIODevice.WriteOnly)
+                qt_im.save(buf, 'PPM')
+                data = BytesIO(buf.data().data())
+                pil_im = PIL.open(data)
+                # scale PIL image
+                w, h = pil_im.size
+                scale = 160.0 / float(max(w, h))
+                pil_im = pil_im.resize(
+                    (round(w * scale), round(h * scale)), PIL.ANTIALIAS)
+                # save image to memory
+                data = BytesIO()
+                pil_im.save(data, 'TIFF')
+                data = data.getvalue()
+            else:
+                # scale Qt image - not as good quality as PIL
+                qt_im = qt_im.scaled(
+                    160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                # save image to memory
+                buf = QtCore.QBuffer()
+                buf.open(QtCore.QIODevice.WriteOnly)
+                qt_im.save(buf, 'TIFF')
+                data = buf.data().data()
+            # set thumbnail
+            self.metadata.set_exif_thumbnail(data)
+            # reload thumbnail
+            self.load_thumbnail()
 
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
+        menu.addAction(self.tr('Reload metadata'), self.reload_metadata)
+        menu.addAction(self.tr('Save metadata'), self.save_metadata)
         menu.addAction(self.tr('Regenerate thumbnail'), self.regenerate_thumbnail)
         action = menu.exec_(event.globalPos())
 
@@ -236,7 +248,7 @@ class Image(QtWidgets.QFrame):
         if thumb:
             pixmap.loadFromData(thumb)
         if pixmap.isNull():
-            self.image.setText(self.tr('Can not\ncreate\nthumbnail'))
+            self.image.setText(self.tr('No\nthumbnail\nin file'))
             return
         orientation = self.metadata.orientation
         if orientation and orientation.value > 1:
@@ -546,16 +558,23 @@ class ImageList(QtWidgets.QWidget):
         self.image_list_changed.emit()
 
     @QtCore.pyqtSlot()
-    def save_files(self):
+    def save_files(self, images=[]):
         if_mode = eval(self.app.config_store.get('files', 'image', 'True'))
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
         force_iptc = eval(
             self.app.config_store.get('files', 'force_iptc', 'False'))
-        unsaved = False
         with Busy():
-            for image in self.images:
-                image.metadata.save(if_mode, sc_mode, force_iptc)
-                unsaved = unsaved or image.metadata.changed()
+            if images:
+                for image in images:
+                    image.metadata.save(if_mode, sc_mode, force_iptc)
+            else:
+                for image in self.images:
+                    image.metadata.save(if_mode, sc_mode, force_iptc)
+        unsaved = False
+        for image in self.images:
+            if image.metadata.changed():
+                unsaved = True
+                break
         self.new_metadata.emit(unsaved)
 
     def unsaved_files_dialog(
