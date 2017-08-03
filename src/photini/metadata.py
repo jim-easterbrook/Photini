@@ -743,6 +743,11 @@ _max_bytes = {
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
+# extra Xmp namespaces we may need
+_extra_ns = {
+    'Iptc4xmpExt': 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/',
+    }
+
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path):
         super(MetadataHandler, self).__init__()
@@ -898,30 +903,32 @@ class MetadataHandler(GExiv2.Metadata):
             value = value.encode('utf_8')
         if MetadataHandler.is_xmp_tag(tag) and '/' in tag:
             # create XMP structure/container
-            bag = tag.split('/')[0].partition('[')[0]
+            container, subtag = tag.split('/')
+            bag = container.partition('[')[0]
+            ns_prefix = subtag.partition(':')[0]
             no_bag = True
-            ns_defined = 'Iptc4xmpExt' not in tag
+            ns_defined = ns_prefix not in _extra_ns
             for t in self.get_xmp_tags():
                 if t.startswith(bag):
                     # file already has container
                     no_bag = False
-                if 'Iptc4xmpExt' in t:
+                if ns_prefix in t:
                     # file has correct namespace defined
                     ns_defined = True
             if no_bag:
                 # create empty container
-                super(MetadataHandler, self).set_tag_string(bag, '')
+                self.set_xmp_tag_struct(bag, GExiv2.StructureType.ALT)
             if not ns_defined:
                 # create some XMP data with the correct namespace
                 data = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
     <rdf:Description
-        xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/">
+        xmlns:{}="{}">
     </rdf:Description>
   </rdf:RDF>
 </x:xmpmeta>
-<?xpacket end="w"?>'''
+<?xpacket end="w"?>'''.format(ns_prefix, _extra_ns[ns_prefix])
                 if six.PY2:
                     data = data.decode('utf-8')
                 # open the data to register the correct namespace
@@ -982,20 +989,26 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_xmp_thumbnail(self):
         widths = []
-        for i in range(1, 100):
-            tag = 'Xmp.xmp.Thumbnails[{}]/xapGImg:width'.format(i)
-            width = self.get_tag_string(tag)
-            if not width:
-                break
-            widths.append(int(width))
+        tags = []
+        for tag in self.get_xmp_tags():
+            if tag.startswith('Xmp.xmp.Thumbnails') and tag.endswith('width'):
+                widths.append(int(self.get_tag_string(tag)))
+                tags.append(tag)
         if not widths:
-            return
-        best = 1 + widths.index(max(widths))
-        tag = 'Xmp.xmp.Thumbnails[{}]/xapGImg:image'.format(best)
+            return None
+        best = widths.index(max(widths))
+        tag = tags[best].replace('width', 'image')
         data = self.get_tag_string(tag)
         if not six.PY2:
             data = bytes(data, 'ASCII')
         return codecs.decode(data, 'base64_codec')
+
+    def set_xmp_thumbnail(self, data, fmt, w, h):
+        data = codecs.encode(data, 'base64_codec')
+        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', fmt)
+        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
+        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
+        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', data)
 
 
 class Metadata(object):
@@ -1298,9 +1311,9 @@ class Metadata(object):
                 self._if.copy(other._sc)
         self._set_unsaved(True)
 
-    def set_exif_thumbnail(self, thumb):
+    def set_thumbnail(self, thumb, fmt, w, h):
         if self._sc:
-            self._sc.set_exif_thumbnail_from_buffer(thumb)
+            self._sc.set_xmp_thumbnail(thumb, fmt, w, h)
         if self._if:
             self._if.set_exif_thumbnail_from_buffer(thumb)
         self._set_unsaved(True)

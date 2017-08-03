@@ -120,6 +120,7 @@ class Image(QtWidgets.QFrame):
                     if orientation.value in (2, 4, 5, 7):
                         transform = transform.scale(-1.0, 1.0)
                     qt_im = qt_im.transformed(transform)
+            fmt = 'JPEG'
             if PIL:
                 # convert Qt image to PIL image
                 buf = QtCore.QBuffer()
@@ -131,22 +132,25 @@ class Image(QtWidgets.QFrame):
                 w, h = pil_im.size
                 scale = 160.0 / float(max(w, h))
                 pil_im = pil_im.resize(
-                    (round(w * scale), round(h * scale)), PIL.ANTIALIAS)
+                    (int(round(w * scale)), int(round(h * scale))), PIL.ANTIALIAS)
+                w, h = pil_im.size
                 # save image to memory
                 data = BytesIO()
-                pil_im.save(data, 'TIFF')
+                pil_im.save(data, fmt)
                 data = data.getvalue()
             else:
                 # scale Qt image - not as good quality as PIL
                 qt_im = qt_im.scaled(
                     160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                w = qt_im.width()
+                h = qt_im.height()
                 # save image to memory
                 buf = QtCore.QBuffer()
                 buf.open(QtCore.QIODevice.WriteOnly)
-                qt_im.save(buf, 'TIFF')
+                qt_im.save(buf, fmt)
                 data = buf.data().data()
             # set thumbnail
-            self.metadata.set_exif_thumbnail(data)
+            self.metadata.set_thumbnail(data, fmt, w, h)
             # reload thumbnail
             self.load_thumbnail()
 
