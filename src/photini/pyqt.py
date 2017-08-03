@@ -181,9 +181,12 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         if self._is_multiple:
             if self.choices:
                 sep = menu.insertSeparator(menu.actions()[0])
+                fm = menu.fontMetrics()
                 for suggestion in self.choices:
-                    action = QtWidgets.QAction(
-                        six.text_type(suggestion), suggestion_group)
+                    label = six.text_type(suggestion).replace('\n', ' ')
+                    label = fm.elidedText(label, Qt.ElideMiddle, self.width())
+                    action = QtWidgets.QAction(label, suggestion_group)
+                    action.setData(six.text_type(suggestion))
                     menu.insertAction(sep, action)
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
@@ -207,7 +210,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
-                self.set_value(action.iconText())
+                self.set_value(action.data())
             else:
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
