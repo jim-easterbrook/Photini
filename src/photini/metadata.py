@@ -980,6 +980,23 @@ class MetadataHandler(GExiv2.Metadata):
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
+    def get_xmp_thumbnail(self):
+        widths = []
+        for i in range(1, 100):
+            tag = 'Xmp.xmp.Thumbnails[{}]/xapGImg:width'.format(i)
+            width = self.get_tag_string(tag)
+            if not width:
+                break
+            widths.append(int(width))
+        if not widths:
+            return
+        best = 1 + widths.index(max(widths))
+        tag = 'Xmp.xmp.Thumbnails[{}]/xapGImg:image'.format(best)
+        data = self.get_tag_string(tag)
+        if not six.PY2:
+            data = bytes(data, 'ASCII')
+        return codecs.decode(data, 'base64_codec')
+
 
 class Metadata(object):
     # type of each Photini data field's data
@@ -1239,9 +1256,14 @@ class Metadata(object):
             return True
         return False
 
-    def get_exif_thumbnail(self):
+    def get_thumbnail(self):
         for source in self._sc, self._if:
             if source:
+                # try Xmp first
+                thumb = source.get_xmp_thumbnail()
+                if thumb:
+                    return thumb
+                # then try Exif
                 thumb = source.get_exif_thumbnail()
                 if using_pgi:
                     # get_exif_thumbnail returns (OK, data) tuple

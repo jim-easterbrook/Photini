@@ -244,7 +244,7 @@ class Image(QtWidgets.QFrame):
 
     def load_thumbnail(self):
         pixmap = QtGui.QPixmap()
-        thumb = self.metadata.get_exif_thumbnail()
+        thumb = self.metadata.get_thumbnail()
         if thumb:
             pixmap.loadFromData(thumb)
         if pixmap.isNull():
