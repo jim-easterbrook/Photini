@@ -1005,6 +1005,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def set_xmp_thumbnail(self, data, fmt, w, h):
         data = codecs.encode(data, 'base64_codec')
+        self.set_tag_string('Xmp.xmp.Thumbnails', None)
         self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', fmt)
         self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
         self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
