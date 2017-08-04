@@ -258,6 +258,21 @@ The ``Optimise image size`` option requires the `Python Imaging Library <http://
 
    sudo pip install Pillow
 
+.. _installation-thumbnail:
+
+Thumbnail creation
+""""""""""""""""""
+
+If the Python Imaging Library (see above) is installed then Photini can make good quality thumbnails.
+Otherwise it uses Qt's image resizing which may produce rather soft results.
+
+Creating a thumbnail image from a video requires the `OpenCV <http://opencv.org/>`_ image processing library (including its Python interface) and the `NumPy <http://www.numpy.org/>`_ "numerical Python" package.
+These should both be installed with your system's package manager, as they depend on C libraries that cannot be installed with pip.
+
+You may still find that Photini can't read image data from video files.
+Running it from the command line may show why.
+(The OpenCV library writes messages to the console rather than raise a Python exception.)
+
 .. _installation-importer:
 
 Importer

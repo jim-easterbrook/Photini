@@ -12,7 +12,10 @@ The `Exiv2`_ metadata library cannot write to video files, so Photini will alway
 If you compile your own copy of `Exiv2`_ you can configure it to be able to read some metadata from video files.
 This may enable Photini to read date & time, and possibly GPS location data.
 
-The image selector currently does not show a thumbnail for video files.
+Most video files don't have thumbnails, but Photini may be able to create one if you have `OpenCV`_ installed on your computer.
+(See :ref:`installation - thumbnail creation<installation-thumbnail>`.)
+Right-click on the file and choose ``regenerate thumbnail`` from the popup menu.
+If Photini is able to generate a thumbnail it will store it in the XMP sidecar file.
 
 The :doc:`flickr` and :doc:`picasa` tabs can upload video files, but expect it to be slow.
 Video files can be very large.
@@ -152,3 +155,4 @@ You can check what version of GExiv2 Photini is using as follows::
    jim@mole ~/Documents/gexiv2-0.10.6 $ 
 
 .. _Exiv2:        http://www.exiv2.org/
+.. _OpenCV:       http://opencv.org/
