@@ -30,6 +30,11 @@ from six.moves.urllib.parse import unquote
 import webbrowser
 
 try:
+    import cv2
+    import numpy as np
+except ImportError:
+    cv2 = None
+try:
     import PIL.Image as PIL
 except ImportError:
     PIL = None
@@ -98,11 +103,56 @@ class Image(QtWidgets.QFrame):
     def save_metadata(self):
         self.image_list.save_files(images=[self])
 
+    def get_video_frame(self):
+        if not cv2:
+            return
+        video = cv2.VideoCapture(self.path)
+        if not video.isOpened():
+            return
+        OK, cv_image = video.read()
+        if not OK:
+            return
+        height, width, channel = cv_image.shape
+        fmt = QtGui.QImage.Format_RGB888
+        # need to pad to 4 pixel multiple
+        new_width = width - (width % -4)
+        if channel == 4:
+            # assume BGRA
+            fmt = QtGui.QImage.Format_ARGB32
+            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
+            np_image[ : , :width, 0] = cv_image[ : , : , 3]
+            np_image[ : , :width, 1] = cv_image[ : , : , 2]
+            np_image[ : , :width, 2] = cv_image[ : , : , 1]
+            np_image[ : , :width, 3] = cv_image[ : , : , 0]
+        elif channel == 3:
+            # assume BGR
+            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
+            np_image[ : , :width, 0] = cv_image[ : , : , 2]
+            np_image[ : , :width, 1] = cv_image[ : , : , 1]
+            np_image[ : , :width, 2] = cv_image[ : , : , 0]
+        elif channel == 1:
+            # assume Y
+            channel = 3
+            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
+            np_image[ : , :width, 0] = cv_image[ : , : , 0]
+            np_image[ : , :width, 1] = cv_image[ : , : , 0]
+            np_image[ : , :width, 2] = cv_image[ : , : , 0]
+        else:
+            return
+        bpl = new_width * channel
+        qt_im = QtGui.QImage(np_image.data, width, height, bpl, fmt)
+        # attach np_image so it isn't deleted until qt_im is
+        qt_im._data = np_image
+        return qt_im
+
     def regenerate_thumbnail(self):
         with Busy():
             # get Qt image first
             qt_im = QtGui.QImage(self.path)
-            if qt_im.isNull():
+            if self.file_type.startswith('video') and qt_im.isNull():
+                # use OpenCV to read first frame
+                qt_im = self.get_video_frame()
+            if not qt_im or qt_im.isNull():
                 logger.error('Cannot read image data from %s', self.path)
                 return
             # reorient if required
