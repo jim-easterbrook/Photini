@@ -866,6 +866,9 @@ class MetadataHandler(GExiv2.Metadata):
     def get_tag_string(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_tag_string, tag))
+        # some versions of Exiv2 crash if reading tag with unknown xmp namespace
+        if self.is_xmp_tag(tag) and tag not in self.get_xmp_tags():
+            return ''
         try:
             result = super(MetadataHandler, self).get_tag_string(tag)
             if six.PY2:
@@ -878,6 +881,9 @@ class MetadataHandler(GExiv2.Metadata):
     def get_tag_multiple(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_tag_multiple, tag))
+        # some versions of Exiv2 crash if reading tag with unknown xmp namespace
+        if self.is_xmp_tag(tag) and tag not in self.get_xmp_tags():
+            return []
         try:
             result = super(MetadataHandler, self).get_tag_multiple(tag)
             if six.PY2:
