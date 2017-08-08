@@ -36,11 +36,15 @@ This context menu also allows the file's metadata to be saved or reloaded, undoi
 .. image:: ../images/screenshot_04.png
 
 Multiple files can be selected by holding down the 'shift' key while clicking on a second image.
+To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images.
 
 .. image:: ../images/screenshot_05.png
 
-To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images.
+The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
 
 .. image:: ../images/screenshot_06.png
 
-The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
+Selecting multiple files allows you to set metadata, such as the image title, on several files at once.
+This is much quicker than having to edit the metadata of each file separately.
+You will probably want to select a different group of files before editing each metadata item.
+For example, you might give the same title (and copyright and creator) to all your images, then select only the first two or three before writing a description.
