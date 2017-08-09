@@ -16,8 +16,9 @@ All-in-one installer (Windows)
 The Windows installer creates a standalone Python installation with all the dependencies needed to run Photini.
 The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
-You can download the latest Windows installer from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page.
-It's the file ``photini-win32-setup.exe`` included in the "downloads" section of the latest release.
+You can download the latest Windows installer from the `GitHub releases`_ page.
+Look for the most recent release with a ``.exe`` file listed in its downloads.
+This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
 The installer should finish by running the Photini program.
@@ -27,7 +28,7 @@ If not, see the troubleshooting_ section below.
 Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before upgrading Photini you should check the `change log <https://github.com/jim-easterbrook/Photini/blob/master/CHANGELOG.txt>`_ to see if a new installer has been released since you last downloaded it.
+Before upgrading Photini you should check the `GitHub releases`_ page to see if a new Windows installer has been released since you last downloaded it.
 If it hasn't, then you can use the "upgrade Photini" command in the start menu.
 This needs to be run as administrator.
 Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
@@ -39,13 +40,9 @@ Verifying the Windows installer
 
 The Windows installer is digitally signed using a "self-signed Certificate Authority".
 If you add my certificate to your computer you will get fewer security warnings when you install Photini.
-You can download the certificate file ``jim_easterbrook_CA.cer`` from the `GitHub releases <https://github.com/jim-easterbrook/Photini/releases>`_ page and install it by running ``cmd.exe`` and issuing the following command::
+You can download the certificate file ``jim_easterbrook_CA.cer`` from the `GitHub releases`_ page and install it by running ``cmd.exe`` and issuing the following command::
 
    certutil -user -addstore Root jim_easterbrook_CA.cer
-
-If you want to check the validity of the certificate file, you can do so using GnuPG.
-The file ``jim_easterbrook_CA.cer.asc`` contains a digital signature that can be checked with my public keys ``0x959AF9B6`` or ``0x4748AD59`` (a subkey of ``0x2036BBF6``).
-These keys' fingerprints are ``05A7 0CD9 380D 8EAA 97AE FD3F 56D7 01F5 959A F9B6`` and ``45A2 B27B AC1D 12B2 5C33 655C 7CF4 E704 2036 BBF6``.
 
 If the above means nothing to you, don't worry about it.
 The security warnings when you install Photini can safely be ignored.
@@ -270,7 +267,7 @@ Creating a thumbnail image from a video requires the `OpenCV <http://opencv.org/
 These should both be installed with your system's package manager, as they depend on C libraries that cannot be installed with pip.
 
 You may still find that Photini can't read image data from video files.
-Running it from the command line may show why.
+Running it from the command line (see troubleshooting_) may show why.
 (The OpenCV library writes messages to the console rather than raise a Python exception.)
 
 .. _installation-importer:
@@ -336,3 +333,5 @@ If you would like to have a local copy of the Photini documentation, and have do
    python -B setup.py build_sphinx
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
+
+.. _GitHub releases: https://github.com/jim-easterbrook/Photini/releases
