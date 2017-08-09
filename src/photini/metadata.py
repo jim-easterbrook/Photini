@@ -791,8 +791,8 @@ class MetadataHandler(GExiv2.Metadata):
                 pass
         for tag in self.get_iptc_tags():
             try:
-                value_list = self.get_tag_multiple(tag)
-                self.set_tag_multiple(tag, value_list)
+                value_list = self.get_multiple(tag)
+                self.set_multiple(tag, value_list)
             except Exception as ex:
                 self._logger.exception(ex)
 
@@ -813,14 +813,14 @@ class MetadataHandler(GExiv2.Metadata):
         # get string or multiple strings
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
-            file_value = self.get_tag_multiple(tag)
+            file_value = self.get_multiple(tag)
         elif tag in ('Xmp.dc.description', 'Xmp.dc.rights', 'Xmp.dc.title',
                      'Xmp.tiff.Copyright'):
-            file_value = self.get_tag_multiple(tag)
+            file_value = self.get_multiple(tag)
             if file_value:
                 file_value = file_value[0]
         else:
-            file_value = self.get_tag_string(tag)
+            file_value = self.get_string(tag)
         if file_value is None or not any(file_value):
             return None
         # manipulate some tags' data
@@ -845,27 +845,27 @@ class MetadataHandler(GExiv2.Metadata):
         # convert to Photini data type
         return data_type.from_file(tag, file_value)
 
-    def clear_tag(self, tag):
+    def clear_value(self, tag):
         # exiv2 pretends XMP files have non-xmp tags
         if self._is_sidecar and not self.is_xmp_tag(tag):
             return
         if isinstance(tag, tuple):
             for sub_tag in tag:
-                self.clear_tag(sub_tag)
+                self.clear_value(sub_tag)
             return
-        super(MetadataHandler, self).clear_tag(tag)
+        self.clear_tag(tag)
 
     def set_value(self, tag, value):
         # exiv2 pretends XMP files have non-xmp tags
         if self._is_sidecar and not self.is_xmp_tag(tag):
             return
         if not value:
-            self.clear_tag(tag)
+            self.clear_value(tag)
             return
         # convert from Photini data type to string or multiple string
-        if MetadataHandler.is_exif_tag(tag):
+        if self.is_exif_tag(tag):
             file_value = value.to_exif()
-        elif MetadataHandler.is_iptc_tag(tag):
+        elif self.is_iptc_tag(tag):
             file_value = value.to_iptc()
         else:
             file_value = value.to_xmp()
@@ -876,15 +876,15 @@ class MetadataHandler(GExiv2.Metadata):
         # write to file
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
-            self.set_tag_multiple(tag, file_value)
+            self.set_multiple(tag, file_value)
         else:
-            self.set_tag_string(tag, file_value)
+            self.set_string(tag, file_value)
 
-    def get_tag_string(self, tag):
+    def get_string(self, tag):
         if isinstance(tag, tuple):
-            return list(map(self.get_tag_string, tag))
+            return list(map(self.get_string, tag))
         try:
-            result = super(MetadataHandler, self).get_tag_string(tag)
+            result = self.get_tag_string(tag)
             if six.PY2:
                 result = self._decode_string(result)
         except UnicodeDecodeError as ex:
@@ -892,11 +892,11 @@ class MetadataHandler(GExiv2.Metadata):
             return ''
         return result
 
-    def get_tag_multiple(self, tag):
+    def get_multiple(self, tag):
         if isinstance(tag, tuple):
-            return list(map(self.get_tag_multiple, tag))
+            return list(map(self.get_multiple, tag))
         try:
-            result = super(MetadataHandler, self).get_tag_multiple(tag)
+            result = self.get_tag_multiple(tag)
             if six.PY2:
                 result = list(map(self._decode_string, result))
         except UnicodeDecodeError as ex:
@@ -904,21 +904,21 @@ class MetadataHandler(GExiv2.Metadata):
             return []
         return result
 
-    def set_tag_string(self, tag, value):
+    def set_string(self, tag, value):
         if isinstance(tag, tuple):
             for sub_tag, sub_value in zip(tag, value):
-                self.set_tag_string(sub_tag, sub_value)
+                self.set_string(sub_tag, sub_value)
             return
         if not value:
-            self.clear_tag(tag)
+            self.clear_value(tag)
             return
-        if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
+        if self.is_iptc_tag(tag) and tag in _max_bytes:
             value = value.encode('utf_8')[:_max_bytes[tag]]
             if not six.PY2:
                 value = value.decode('utf_8', errors='ignore')
         elif six.PY2:
             value = value.encode('utf_8')
-        if MetadataHandler.is_xmp_tag(tag) and '/' in tag:
+        if self.is_xmp_tag(tag) and '/' in tag:
             # create XMP structure/container
             container, subtag = tag.split('/')
             bag = container.partition('[')[0]
@@ -951,23 +951,23 @@ class MetadataHandler(GExiv2.Metadata):
                 # open the data to register the correct namespace
                 md = GExiv2.Metadata()
                 md.open_buf(data.encode('utf-8'))
-        super(MetadataHandler, self).set_tag_string(tag, value)
+        self.set_tag_string(tag, value)
 
-    def set_tag_multiple(self, tag, value):
+    def set_multiple(self, tag, value):
         if isinstance(tag, tuple):
             for sub_tag, sub_value in zip(tag, value):
-                self.set_tag_multiple(sub_tag, sub_value)
+                self.set_multiple(sub_tag, sub_value)
             return
         if not value:
-            self.clear_tag(tag)
+            self.clear_value(tag)
             return
-        if MetadataHandler.is_iptc_tag(tag) and tag in _max_bytes:
+        if self.is_iptc_tag(tag) and tag in _max_bytes:
             value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
             if not six.PY2:
                 value = [x.decode('utf_8') for x in value]
         elif six.PY2:
             value = [x.encode('utf_8') for x in value]
-        super(MetadataHandler, self).set_tag_multiple(tag, value)
+        self.set_tag_multiple(tag, value)
 
     @staticmethod
     def is_exif_tag(tag):
@@ -999,13 +999,16 @@ class MetadataHandler(GExiv2.Metadata):
         # copy from other to self
         if exif:
             for tag in other.get_exif_tags():
-                self.set_tag_string(tag, other.get_tag_string(tag))
+                self.set_string(tag, other.get_string(tag))
         if iptc:
             for tag in other.get_iptc_tags():
-                self.set_tag_multiple(tag, other.get_tag_multiple(tag))
+                self.set_multiple(tag, other.get_multiple(tag))
         if xmp:
             for tag in other.get_xmp_tags():
-                self.set_tag_multiple(tag, other.get_tag_multiple(tag))
+                if self.get_tag_type(tag) == 'XmpText':
+                    self.set_string(tag, other.get_string(tag))
+                else:
+                    self.set_multiple(tag, other.get_multiple(tag))
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
@@ -1016,24 +1019,24 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in self.get_xmp_tags():
             # not everyone uses the 'xmpGImg' prefix
             if tag.startswith('Xmp.xmp.Thumbnails') and tag.endswith('width'):
-                widths.append(int(self.get_tag_string(tag)))
+                widths.append(int(self.get_string(tag)))
                 tags.append(tag)
         if not widths:
             return None
         best = widths.index(max(widths))
         tag = tags[best].replace('width', 'image')
-        data = self.get_tag_string(tag)
+        data = self.get_string(tag)
         if not six.PY2:
             data = bytes(data, 'ASCII')
         return codecs.decode(data, 'base64_codec')
 
     def set_xmp_thumbnail(self, data, fmt, w, h):
         data = codecs.encode(data, 'base64_codec')
-        self.set_tag_string('Xmp.xmp.Thumbnails', None)
-        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', fmt)
-        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
-        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
-        self.set_tag_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', data)
+        self.set_string('Xmp.xmp.Thumbnails', None)
+        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', fmt)
+        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
+        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
+        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', data)
 
 
 class Metadata(object):
