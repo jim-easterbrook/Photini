@@ -62,6 +62,13 @@ GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 def debug_metadata():
     GExiv2.log_set_level(GExiv2.LogLevel.INFO)
 
+# recent versions of Exiv2 have these namespaces defined, but older versions
+# may not recognise them
+for prefix, name in (
+        ('video',   'http://www.video/'),
+        ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
+    GExiv2.Metadata.register_xmp_namespace(name, prefix)
+
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
     if isinstance(value, six.string_types):
@@ -866,9 +873,6 @@ class MetadataHandler(GExiv2.Metadata):
     def get_tag_string(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_tag_string, tag))
-        # some versions of Exiv2 crash if reading tag with unknown xmp namespace
-        if self.is_xmp_tag(tag) and tag not in self.get_xmp_tags():
-            return ''
         try:
             result = super(MetadataHandler, self).get_tag_string(tag)
             if six.PY2:
@@ -881,9 +885,6 @@ class MetadataHandler(GExiv2.Metadata):
     def get_tag_multiple(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_tag_multiple, tag))
-        # some versions of Exiv2 crash if reading tag with unknown xmp namespace
-        if self.is_xmp_tag(tag) and tag not in self.get_xmp_tags():
-            return []
         try:
             result = super(MetadataHandler, self).get_tag_multiple(tag)
             if six.PY2:
@@ -997,6 +998,7 @@ class MetadataHandler(GExiv2.Metadata):
         widths = []
         tags = []
         for tag in self.get_xmp_tags():
+            # not everyone uses the 'xmpGImg' prefix
             if tag.startswith('Xmp.xmp.Thumbnails') and tag.endswith('width'):
                 widths.append(int(self.get_tag_string(tag)))
                 tags.append(tag)
