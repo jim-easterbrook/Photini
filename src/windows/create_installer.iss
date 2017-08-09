@@ -1,6 +1,6 @@
 #define PyDir "{app}\python-3.4.4"
 #define SrcDir "WinPython\python-3.4.4"
-#define Version "2017.07"
+#define Version "2017.08"
 
 [Setup]
 VersionInfoVersion={#Version}
@@ -56,14 +56,14 @@ Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
 Name: "{group}\Photini documentation"; Filename: "http://photini.readthedocs.org/"
 Name: "{group}\upgrade Photini"; Filename: "{#PyDir}\python.exe"; \
-  Parameters: "-m pip install -U -I setuptools_scm pyenchant photini[flickr,picasa]"
+  Parameters: "-m pip install -U -I setuptools_scm pgi photini[flickr,picasa,spelling]"
 Name: "{commondesktop}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
   IconFileName: {app}\icon.ico; Tasks: desktopicon
 
 [Run]
 Filename: "{#PyDir}\python.exe"; \
-  Parameters: "-m pip install -U -I setuptools_scm pyenchant photini[flickr,picasa]"; \
+  Parameters: "-m pip install -U -I setuptools_scm pgi photini[flickr,picasa,spelling]"; \
   StatusMsg: "Installing PyPI packages..."; Flags: hidewizard
 Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; \
   Description: "{cm:LaunchProgram,Photini}"; Flags: nowait postinstall skipifsilent
