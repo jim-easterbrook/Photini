@@ -756,10 +756,11 @@ _extra_ns = {
     }
 
 class MetadataHandler(GExiv2.Metadata):
-    def __init__(self, path):
+    def __init__(self, path, is_sidecar=False):
         super(MetadataHandler, self).__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
+        self._is_sidecar = is_sidecar
         # read metadata from file
         self.open_path(self._path)
         # make list of possible character encodings
@@ -775,7 +776,7 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         # convert IPTC data to UTF-8
-        if not self.has_iptc():
+        if self._is_sidecar or not self.has_iptc():
             return
         current_encoding = self.get_value(
             CharacterSet, 'Iptc.Envelope.CharacterSet')
@@ -806,6 +807,9 @@ class MetadataHandler(GExiv2.Metadata):
         return value.decode('utf_8', 'replace')
 
     def get_value(self, data_type, tag):
+        # exiv2 pretends XMP files have non-xmp tags
+        if self._is_sidecar and not self.is_xmp_tag(tag):
+            return None
         # get string or multiple strings
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
@@ -842,6 +846,9 @@ class MetadataHandler(GExiv2.Metadata):
         return data_type.from_file(tag, file_value)
 
     def clear_tag(self, tag):
+        # exiv2 pretends XMP files have non-xmp tags
+        if self._is_sidecar and not self.is_xmp_tag(tag):
+            return
         if isinstance(tag, tuple):
             for sub_tag in tag:
                 self.clear_tag(sub_tag)
@@ -849,6 +856,9 @@ class MetadataHandler(GExiv2.Metadata):
         super(MetadataHandler, self).clear_tag(tag)
 
     def set_value(self, tag, value):
+        # exiv2 pretends XMP files have non-xmp tags
+        if self._is_sidecar and not self.is_xmp_tag(tag):
+            return
         if not value:
             self.clear_tag(tag)
             return
@@ -970,6 +980,12 @@ class MetadataHandler(GExiv2.Metadata):
         if isinstance(tag, tuple):
             tag = tag[0]
         return GExiv2.Metadata.is_iptc_tag(tag)
+
+    @staticmethod
+    def is_xmp_tag(tag):
+        if isinstance(tag, tuple):
+            tag = tag[0]
+        return GExiv2.Metadata.is_xmp_tag(tag)
 
     def save(self):
         try:
@@ -1182,7 +1198,7 @@ class Metadata(object):
         self._sc = None
         if self._sc_path:
             try:
-                self._sc = MetadataHandler(self._sc_path)
+                self._sc = MetadataHandler(self._sc_path, is_sidecar=True)
             except Exception as ex:
                 self.logger.exception(ex)
         self._if = None
@@ -1218,7 +1234,7 @@ class Metadata(object):
 </x:xmpmeta>
 <?xpacket end="w"?>'''.format('Photini editor v' + __version__))
         try:
-            self._sc = MetadataHandler(self._sc_path)
+            self._sc = MetadataHandler(self._sc_path, is_sidecar=True)
         except Exception as ex:
             self.logger.exception(ex)
         if self._sc and self._if:
