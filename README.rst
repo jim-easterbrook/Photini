@@ -75,6 +75,7 @@ Getting help
 ------------
 
 If you encounter any problems installing or running Photini, please email jim@jim-easterbrook.me.uk and I'll respond as soon as I can.
+There is also an email list or forum for discussions about Photini at https://groups.google.com/forum/#!forum/photini.
 If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page`_.
 
 Internationalisation

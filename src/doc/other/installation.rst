@@ -322,6 +322,12 @@ You can find out with the ``--version`` option::
 Some versions of PyQt may fail to work properly with Photini, even causing a crash at startup.
 If this happens you may be able to circumvent the problem by editing the :ref:`Photini configuration file <configuration-pyqt>` before running Photini.
 
+Mailing list
+------------
+
+For more general discussion of Photini (e.g. release announcements, questions about using it, problems with installing, etc.) there is an email list or forum hosted on Google Groups.
+You can view previous messages and ask to join the group at https://groups.google.com/forum/#!forum/photini.
+
 .. _installation-documentation:
 
 Photini documentation
