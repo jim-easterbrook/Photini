@@ -934,7 +934,10 @@ class MetadataHandler(GExiv2.Metadata):
                     ns_defined = True
             if no_bag:
                 # create empty container
-                self.set_xmp_tag_struct(bag, GExiv2.StructureType.ALT)
+                if '[' in container:
+                    self.set_xmp_tag_struct(bag, GExiv2.StructureType.ALT)
+                else:
+                    self.set_xmp_tag_struct(bag, GExiv2.StructureType.SEQ)
             if not ns_defined:
                 # create some XMP data with the correct namespace
                 data = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
