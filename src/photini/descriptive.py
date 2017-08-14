@@ -247,15 +247,16 @@ class Descriptive(QtWidgets.QWidget):
                 self.config_store.set('user', 'copyright_name', name)
             else:
                 name = ''
+        copyright_text = self.config_store.get(
+            'user', 'copyright_text',
+            self.trUtf8('Copyright ©{year} {name}. All rights reserved.'))
         for image in self.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
             if date_taken is None:
                 date_taken = datetime.now()
             else:
                 date_taken = date_taken.datetime
-            value = self.trUtf8(
-                'Copyright ©{0:d} {1}. All rights reserved.').format(
-                    date_taken.year, name)
+            value = copyright_text.format(year=date_taken.year, name=name)
             image.metadata.copyright = value
         self._update_widget('copyright')
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -37,6 +37,8 @@ class EditSettings(QtWidgets.QDialog):
         self.layout().addWidget(scroll_area)
         panel = QtWidgets.QWidget()
         panel.setLayout(QtWidgets.QFormLayout())
+        panel.layout().setRowWrapPolicy(max(QtWidgets.QFormLayout.WrapLongRows,
+                                            panel.layout().rowWrapPolicy()))
         # apply & cancel buttons
         self.button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Apply | QtWidgets.QDialogButtonBox.Cancel)
@@ -47,12 +49,18 @@ class EditSettings(QtWidgets.QDialog):
         self.copyright_name.setText(
             self.config_store.get('user', 'copyright_name', ''))
         self.copyright_name.setMinimumWidth(200)
-        panel.layout().addRow(self.tr('Copyright holder'), self.copyright_name)
+        panel.layout().addRow(self.tr('Copyright holder name'), self.copyright_name)
+        # copyright text
+        self.copyright_text = QtWidgets.QLineEdit()
+        self.copyright_text.setText(
+            self.config_store.get('user', 'copyright_text', ''))
+        self.copyright_name.setMinimumWidth(300)
+        panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
         # creator name
         self.creator_name = QtWidgets.QLineEdit()
         self.creator_name.setText(
             self.config_store.get('user', 'creator_name', ''))
-        panel.layout().addRow(self.tr('Creator'), self.creator_name)
+        panel.layout().addRow(self.tr('Creator name'), self.creator_name)
         # reset flickr
         self.reset_flickr = QtWidgets.QCheckBox()
         panel.layout().addRow(self.tr('Disconnect from Flickr'), self.reset_flickr)
@@ -121,6 +129,7 @@ class EditSettings(QtWidgets.QDialog):
             return self.reject()
         # change config
         self.config_store.set('user', 'copyright_name', self.copyright_name.text())
+        self.config_store.set('user', 'copyright_text', self.copyright_text.text())
         self.config_store.set('user', 'creator_name', self.creator_name.text())
         if (self.reset_flickr.isChecked() and
                             keyring.get_password('photini', 'flickr')):
