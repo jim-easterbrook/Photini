@@ -56,6 +56,8 @@ class Image(QtWidgets.QFrame):
         self.thumb_size = thumb_size
         # read metadata
         self.metadata = Metadata(self.path, new_status=self.show_status)
+        self.file_times = (os.path.getatime(self.path),
+                           os.path.getmtime(self.path))
         # set file type
         self.file_type = self.metadata.get_mime_type()
         if not self.file_type:
@@ -627,13 +629,17 @@ class ImageList(QtWidgets.QWidget):
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
         force_iptc = eval(
             self.app.config_store.get('files', 'force_iptc', 'False'))
+        keep_time = eval(
+            self.app.config_store.get('files', 'preserve_timestamps', 'False'))
+        if not images:
+            images = self.images
         with Busy():
-            if images:
-                for image in images:
-                    image.metadata.save(if_mode, sc_mode, force_iptc)
-            else:
-                for image in self.images:
-                    image.metadata.save(if_mode, sc_mode, force_iptc)
+            for image in images:
+                if keep_time:
+                    file_times = image.file_times
+                else:
+                    file_times = None
+                image.metadata.save(if_mode, sc_mode, force_iptc, file_times)
         unsaved = False
         for image in self.images:
             if image.metadata.changed():

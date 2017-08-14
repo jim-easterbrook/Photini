@@ -987,9 +987,11 @@ class MetadataHandler(GExiv2.Metadata):
             tag = tag[0]
         return GExiv2.Metadata.is_xmp_tag(tag)
 
-    def save(self):
+    def save(self, file_times):
         try:
             self.save_file(self._path)
+            if file_times:
+                os.utime(self._path, file_times)
         except Exception as ex:
             self._logger.exception(ex)
             return False
@@ -1243,7 +1245,7 @@ class Metadata(object):
         if self._sc and self._if:
             self._sc.copy(self._if)
 
-    def save(self, if_mode, sc_mode, force_iptc):
+    def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self._unsaved:
             return
         self.software = 'Photini editor v' + __version__
@@ -1267,7 +1269,7 @@ class Metadata(object):
             self._if.copy(self._sc)
         OK = False
         if self._if and if_mode:
-            OK = self._if.save()
+            OK = self._if.save(file_times)
             if OK:
                 # check that data really was saved
                 saved_tags = MetadataHandler(self._path).get_all_tags()
@@ -1283,7 +1285,7 @@ class Metadata(object):
         if sc_mode == 'always' and not self._sc:
             self.create_side_car()
         if self._sc:
-            OK = self._sc.save()
+            OK = self._sc.save(file_times)
         self._set_unsaved(not OK)
 
     # getters: use sidecar if tag is present, otherwise use image file

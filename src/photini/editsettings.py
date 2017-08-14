@@ -97,6 +97,13 @@ class EditSettings(QtWidgets.QDialog):
         self.write_if.setChecked(if_mode)
         self.write_if.clicked.connect(self.new_write_if)
         panel.layout().addRow(self.tr('Write to image'), self.write_if)
+        # preserve file timestamps
+        keep_time = eval(
+            self.config_store.get('files', 'preserve_timestamps', 'False'))
+        self.keep_time = QtWidgets.QCheckBox()
+        self.keep_time.setChecked(keep_time)
+        panel.layout().addRow(
+            self.tr('Preserve file timestamps'), self.keep_time)
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
@@ -134,4 +141,6 @@ class EditSettings(QtWidgets.QDialog):
             sc_mode = 'delete'
         self.config_store.set('files', 'sidecar', sc_mode)
         self.config_store.set('files', 'image', str(self.write_if.isChecked()))
+        self.config_store.set(
+            'files', 'preserve_timestamps', str(self.keep_time.isChecked()))
         return self.accept()
