@@ -997,20 +997,20 @@ class MetadataHandler(GExiv2.Metadata):
             return False
         return True
 
-    def copy(self, other, exif=True, iptc=True, xmp=True):
+    def clone(self, other):
         # copy from other to self
-        if exif:
-            for tag in other.get_exif_tags():
+        for tag in other.get_exif_tags():
+            self.set_string(tag, other.get_string(tag))
+        for tag in other.get_iptc_tags():
+            self.set_multiple(tag, other.get_multiple(tag))
+        for tag in other.get_xmp_tags():
+            if not self._is_sidecar and tag.startswith('Xmp.xmp.Thumbnails'):
+                # don't try and fit a thumbnail in 64k Xmp segment
+                continue
+            if self.get_tag_type(tag) == 'XmpText':
                 self.set_string(tag, other.get_string(tag))
-        if iptc:
-            for tag in other.get_iptc_tags():
+            else:
                 self.set_multiple(tag, other.get_multiple(tag))
-        if xmp:
-            for tag in other.get_xmp_tags():
-                if self.get_tag_type(tag) == 'XmpText':
-                    self.set_string(tag, other.get_string(tag))
-                else:
-                    self.set_multiple(tag, other.get_multiple(tag))
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
@@ -1243,7 +1243,7 @@ class Metadata(object):
         except Exception as ex:
             self.logger.exception(ex)
         if self._sc and self._if:
-            self._sc.copy(self._if)
+            self._sc.clone(self._if)
 
     def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self._unsaved:
@@ -1266,7 +1266,7 @@ class Metadata(object):
                 for tag in self._clear_tags[name]:
                     self.set_value(tag, None)
         if self._if and sc_mode == 'delete' and self._sc:
-            self._if.copy(self._sc)
+            self._if.clone(self._sc)
         OK = False
         if self._if and if_mode:
             OK = self._if.save(file_times)
@@ -1336,14 +1336,14 @@ class Metadata(object):
         # copy from other to self, sidecar over-rides image
         if self._sc:
             if other._if:
-                self._sc.copy(other._if)
+                self._sc.clone(other._if)
             if other._sc:
-                self._sc.copy(other._sc)
+                self._sc.clone(other._sc)
         if self._if:
             if other._if:
-                self._if.copy(other._if)
+                self._if.clone(other._if)
             if other._sc:
-                self._if.copy(other._sc)
+                self._if.clone(other._sc)
         self._set_unsaved(True)
 
     def set_thumbnail(self, thumb, fmt, w, h):
