@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
+   Copyright (C)  2012-17  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Image importer
@@ -22,18 +22,18 @@ As well as the date & time format strings, bracketed keywords can be used to man
 ========  ==================================  =======
 keyword   meaning                             example
 ========  ==================================  =======
-(camera)  the camera model name               Canon_PowerShot_A1100_IS
-(name)    the complete file name              IMG_9999.JPG
-(number)  the numeric part of the file name   9999
-(root)    the filename without its extension  IMG_9999
-(ext)     the filename extension              .JPG
+{camera}  the camera model name               Canon_PowerShot_A1100_IS
+{name}    the complete file name              IMG_9999.JPG
+{number}  the numeric part of the file name   9999
+{root}    the filename without its extension  IMG_9999
+{ext}     the filename extension              .JPG
 ========  ==================================  =======
 
 Below the ``Target format`` field is an example generated from the current format to help you edit it correctly.
 
 Note that Photini stores a different target format for each camera or source folder that you use.
 This can be useful if you have two cameras that use the same file names.
-For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/IMGe(number)(ext)`` for my DSLR to rename files from ``IMG_9999.JPG`` to ``IMGe9999.JPG`` so they don't clash with files from my compact camera, which also uses names like ``IMG_9999.JPG``.
+For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/100D_{name}`` for my DSLR to rename files from ``IMG_9999.JPG`` to ``100D_IMG_9999.JPG`` so they don't clash with files from my compact camera, which also uses names like ``IMG_9999.JPG``.
 
 .. image:: ../images/screenshot_31.png
 
