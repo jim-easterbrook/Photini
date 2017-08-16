@@ -155,17 +155,6 @@ class NameMangler(QtCore.QObject):
     @QtCore.pyqtSlot(str)
     def new_format(self, format_string):
         self.format_string = format_string
-        # extract bracket delimited words from string
-        self.parts = []
-        while format_string:
-            parts = format_string.split('(', 1)
-            if len(parts) > 1:
-                parts[1:] = parts[1].split(')', 1)
-            if len(parts) < 3:
-                self.parts.append((format_string, ''))
-                break
-            self.parts.append((parts[0], parts[1]))
-            format_string = parts[2]
         self.refresh_example()
 
     def set_example(self, example):
@@ -187,14 +176,11 @@ class NameMangler(QtCore.QObject):
         subst['root'], subst['ext'] = os.path.splitext(name)
         subst['camera'] = file_data['camera'] or 'unknown_camera'
         subst['camera'] = subst['camera'].replace(' ', '_')
-        result = ''
-        # process (...) parts first
-        for left, right in self.parts:
-            result += left
-            if right in subst:
-                result += subst[right]
-            else:
-                result += right
+        # process {...} parts first
+        try:
+            result = self.format_string.format(**subst)
+        except (KeyError, ValueError):
+            result = self.format_string
         # then do timestamp
         return file_data['timestamp'].strftime(result)
 
@@ -277,7 +263,7 @@ class Importer(QtWidgets.QWidget):
         else:
             path = os.path.expanduser('~/Pictures')
         self.path_format.setText(
-            os.path.join(path, '%Y', '%Y_%m_%d', '(name)'))
+            os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
         self.refresh()
         self.list_files()
 
@@ -295,6 +281,7 @@ class Importer(QtWidgets.QWidget):
         path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
+        path_format = path_format.replace('(', '{').replace(')', '}')
         self.path_format.setText(path_format)
         self.file_list_widget.clear()
         # allow 100ms for display to update before getting file list
