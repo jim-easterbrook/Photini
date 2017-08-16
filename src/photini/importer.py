@@ -443,6 +443,7 @@ class Importer(QtWidgets.QWidget):
             dest_path = self.nm.transform(file_data)
             file_data['dest_path'] = dest_path
             item = QtWidgets.QListWidgetItem(name + ' -> ' + dest_path)
+            item.setData(Qt.UserRole, name)
             if os.path.exists(dest_path):
                 item.setFlags(Qt.NoItemFlags)
             else:
@@ -486,7 +487,7 @@ class Importer(QtWidgets.QWidget):
             item = self.file_list_widget.item(row)
             if not (item.flags() & Qt.ItemIsSelectable):
                 continue
-            name = item.text().split()[0]
+            name = item.data(Qt.UserRole)
             timestamp = self.file_data[name]['timestamp']
             if timestamp > since:
                 if not first_active:
@@ -506,7 +507,7 @@ class Importer(QtWidgets.QWidget):
         self.import_in_progress = True
         copy_list = []
         for item in self.file_list_widget.selectedItems():
-            name = item.text().split()[0]
+            name = item.data(Qt.UserRole)
             copy_list.append(self.file_data[name])
         last_item = None, datetime.min
         with self.session() as session:
