@@ -1,7 +1,7 @@
 Photini
 =======
 
-A free, easy to use, digital photograph metadata (EXIF, IPTC, XMP) editing application.
+A free, easy to use, digital photograph metadata (Exif, IPTC, XMP) editing application.
 
 "Metadata" is said to mean "data about data".
 In the context of digital photographs this means information that isn't essential in order to display the image, but tells you something about it.
@@ -26,12 +26,12 @@ Features
 *   Spell checking of some fields (optional).
 *   Can set metadata for multiple images simultaneously.
 *   Can adjust picture date & time and time zone (of multiple images simultaneously).
-*   Reads EXIF, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
+*   Reads Exif, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ and/or Facebook_ and/or `Google Photos`_ with reuse of metadata.
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_66.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_69.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
