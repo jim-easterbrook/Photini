@@ -69,6 +69,8 @@ Note that there is no GUI to set these options.
 You may need to adjust them if Photini crashes on startup, in which case the GUI would be unusable.
 The configuration file can be edited with any plain text editing program.
 
+.. _configuration-style:
+
 Application style
 ^^^^^^^^^^^^^^^^^
 

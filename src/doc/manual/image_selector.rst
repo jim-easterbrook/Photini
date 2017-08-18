@@ -7,6 +7,7 @@ Image selector
 
 When you start the Photini editor it displays a GUI (graphical user interface) as shown below.
 The exact appearance will depend on your operating system and window manager preferences, but the same functional elements should be present.
+(The appearance can be altered by setting a different style, see the :ref:`configuration section <configuration-style>` for more detail.)
 
 .. image:: ../images/screenshot_01.png
 
