@@ -389,6 +389,8 @@ def main(argv=None):
     if FlickrUploader:
         from photini.flickr import flickr_version
         version += '\n  ' + flickr_version
+    version += '\n  available styles: {}'.format(
+        ', '.join(QtWidgets.QStyleFactory.keys()))
     parser = OptionParser(
         usage=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Usage: %prog [options] [file_name, ...]')),
