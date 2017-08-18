@@ -29,8 +29,6 @@ from photini.configstore import BaseConfigStore
 config = BaseConfigStore('editor')
 using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto') != 'False'
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto') != 'False'
-config.save()
-del config
 
 if using_pyqt5:
     try:
@@ -68,6 +66,12 @@ else:
     QtWebEngineWidgets = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
+
+style = config.get('pyqt', 'style')
+if style:
+    QtWidgets.QApplication.setStyle(style)
+config.save()
+del config, style
 
 qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
