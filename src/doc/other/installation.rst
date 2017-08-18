@@ -300,6 +300,8 @@ Running Photini
 
 If the installation has been successful you should be able to run Photini from the "Start" menu (Windows) or application launcher (Linux).
 
+.. _installation-troubleshooting:
+
 Troubleshooting
 ^^^^^^^^^^^^^^^
 

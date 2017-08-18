@@ -68,3 +68,40 @@ This may be useful if your operating system has a case sensitive file filter, so
 Note that there is no GUI to set these options.
 You may need to adjust them if Photini crashes on startup, in which case the GUI would be unusable.
 The configuration file can be edited with any plain text editing program.
+
+Application style
+^^^^^^^^^^^^^^^^^
+
+Qt applications can have their appearance changed by selecting different "styles".
+Normally a style is automatically chosen that suits the operating system, but you may want to override this if you prefer something different.
+For example, on one of my computers the default style doesn't draw lines round the grouped elements on the uploader tabs, so I change the style to one that does.
+
+To find out what styles are available on your computer you can use Photini's ``--version`` flag.
+(You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)
+You can then try one of these styles as follows::
+
+   jim@brains:~$ python3 -m photini.editor --version
+   Photini 2017.8.1, build 898 (a98bfac)
+     Python 3.4.5 (default, Jul 03 2016, 13:32:18) [GCC]
+     pgi 0.0.11.1, GExiv2 0.10.6, GObject 2.0
+     PyQt 5.4, Qt 5.5.0, using QtWebKit
+     enchant 1.6.6
+     flickrapi 2.2.1
+     available styles: Breeze, Windows, GTK+, Fusion
+   jim@brains:~$ python3 -m photini.editor -style breeze
+
+Note that the style names are not case sensitive.
+If none of the available styles is to your liking you may be able to install extra ones.
+For example, on some Ubuntu Linux systems the package ``qt5-style-plugins`` is available.
+
+Once you find a style that you like, you can set Photini to use that style by editing the configuration file as described above.
+Add a line such as ``style = breeze`` to the ``[pyqt]`` section to set your chosen style.
+Note that after doing this you can not set a different style on the command line unless you remove the ``style = ...`` line from your config file.
+
+.. code-block:: guess
+
+   [pyqt]
+   using_pyqt5 = auto
+   using_qtwebengine = auto
+   native_dialog = True
+   style = breeze
