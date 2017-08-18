@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2017.8.1:
+  1/ Added option to preserve file timestamps.
+  2/ Added option to change copyright boilerplate text.
+  3/ Added config file option to change application style.
+  4/ Fix bug with importing files with spaces in their names.
+  5/ Changed importer template marker from () to {}.
+
 Changes in v2017.8.0:
   1/ Use Exif/Xmp thumbnails instead of computing from image data.
   2/ Improved video file metadata reading.
