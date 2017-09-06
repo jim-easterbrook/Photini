@@ -171,6 +171,9 @@ class FocalLength(MetadataDictValue):
             focal_length_35mm = '{:d}'.format(self.fl_35)
         return focal_length, focal_length_35mm
 
+    def to_xmp(self):
+        return self.to_exif()
+
     def to_35(self, value):
         if self.fl and self.fl_35:
             return int((float(value) * self.fl_35 / self.fl) + 0.5)
@@ -724,6 +727,9 @@ class Int(MetadataValue):
     def to_exif(self):
         return '{:d}'.format(self.value)
 
+    def to_xmp(self):
+        return '{:d}'.format(self.value)
+
     def __nonzero__(self):
         return self.value is not None
 
@@ -737,6 +743,9 @@ class Aperture(MetadataValue):
 
     def to_exif(self):
         return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
+
+    def to_xmp(self):
+        return self.to_exif()
 
     def __nonzero__(self):
         return self.value is not None
@@ -1133,7 +1142,8 @@ class Metadata(object):
         }
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
-        'aperture'       : (('Exif', 'Exif.Photo.FNumber'),),
+        'aperture'       : (('Exif', 'Exif.Photo.FNumber'),
+                            ('Xmp',  'Xmp.exif.FNumber')),
         'camera_model'   : (('Exif', 'Exif.Image.Model'),),
         'character_set'  : (('Iptc', 'Iptc.Envelope.CharacterSet'),),
         'copyright'      : (('Exif', 'Exif.Image.Copyright'),
@@ -1160,7 +1170,9 @@ class Metadata(object):
                             ('Xmp',  'Xmp.dc.description'),
                             ('Iptc', 'Iptc.Application2.Caption')),
         'focal_length'   : (('Exif', ('Exif.Photo.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm')),),
+                                      'Exif.Photo.FocalLengthIn35mmFilm')),
+                            ('Xmp',  ('Xmp.exif.FocalLength',
+                                      'Xmp.exif.FocalLengthIn35mmFilm'))),
         'keywords'       : (('Xmp',  'Xmp.dc.subject'),
                             ('Iptc', 'Iptc.Application2.Keywords')),
         'latlong'        : (('Exif', ('Exif.GPSInfo.GPSLatitude',
@@ -1197,7 +1209,8 @@ class Metadata(object):
                       'Iptc.Application2.ProvinceState',
                       'Iptc.Application2.CountryName',
                       'Iptc.Application2.CountryCode'))),
-        'orientation'    : (('Exif', 'Exif.Image.Orientation'),),
+        'orientation'    : (('Exif', 'Exif.Image.Orientation'),
+                            ('Xmp',  'Xmp.tiff.Orientation')),
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
                                       'Iptc.Application2.ProgramVersion'))),
@@ -1212,7 +1225,6 @@ class Metadata(object):
         'aperture'       : (('Exif', 'Exif.Image.FNumber'),
                             ('Exif', 'Exif.Image.ApertureValue'),
                             ('Exif', 'Exif.Photo.ApertureValue'),
-                            ('Xmp', 'Xmp.exif.FNumber'),
                             ('Xmp', 'Xmp.exif.ApertureValue')),
         'copyright'      : (('Xmp', 'Xmp.tiff.Copyright'),),
         'creator'        : (('Exif', 'Exif.Image.XPAuthor'),
@@ -1225,9 +1237,7 @@ class Metadata(object):
                             ('Exif', 'Exif.Image.XPSubject'),
                             ('Xmp', 'Xmp.tiff.ImageDescription')),
         'focal_length'   : (('Exif', ('Exif.Image.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm')),
-                            ('Xmp', ('Xmp.exif.FocalLength',
-                                     'Xmp.exif.FocalLengthIn35mmFilm'))),
+                                      'Exif.Photo.FocalLengthIn35mmFilm')),),
         'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
         'lens_model'     : (('Exif', 'Exif.Canon.LensModel'),
                             ('Exif', 'Exif.OlympusEq.LensModel'),),
@@ -1235,7 +1245,6 @@ class Metadata(object):
         'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),
                             ('Exif', 'Exif.CanonCs.Lens'),
                             ('Exif', 'Exif.Nikon3.Lens')),
-        'orientation'    : (('Xmp', 'Xmp.tiff.Orientation'),),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
         }

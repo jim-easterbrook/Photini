@@ -36,10 +36,10 @@ Date / time Digitised  Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate     
                        Exif.Photo.SubSecTimeDigitized                                 Iptc.Application2.DigitizationTime
 Date / time Modified   Exif.Image.DateTime               Xmp.xmp.ModifyDate
                        Exif.Photo.SubSecTime
-Orientation            Exif.Image.Orientation
-Aperture               Exif.Photo.FNumber
-Focal length           Exif.Photo.FocalLength
-                       Exif.Photo.FocalLengthIn35mmFilm
+Orientation            Exif.Image.Orientation            Xmp.tiff.Orientation
+Aperture               Exif.Photo.FNumber                Xmp.exif.FNumber
+Focal length           Exif.Photo.FocalLength            Xmp.exif.FocalLength
+                       Exif.Photo.FocalLengthIn35mmFilm  Xmp.exif.FocalLengthIn35mmFilm
 Lens maker name        Exif.Photo.LensMake
 Lens model name        Exif.Photo.LensModel
 Lens serial number     Exif.Photo.LensSerialNumber
@@ -75,12 +75,10 @@ Creator / Artist       Exif.Image.XPAuthor              Xmp.tiff.Artist
 Date / time Taken      Exif.Image.DateTimeOriginal      Xmp.exif.DateTimeOriginal
 Date / time Digitised                                   Xmp.exif.DateTimeDigitized
 Date / time Modified                                    Xmp.tiff.DateTime
-Orientation                                             Xmp.tiff.Orientation
-Aperture               Exif.Image.FNumber               Xmp.exif.FNumber
-                       Exif.Image.ApertureValue         Xmp.exif.ApertureValue
+Aperture               Exif.Image.FNumber               Xmp.exif.ApertureValue
+                       Exif.Image.ApertureValue
                        Exif.Photo.ApertureValue
-Focal length           Exif.Image.FocalLength           Xmp.exif.FocalLength
-                                                        Xmp.exif.FocalLengthIn35mmFilm
+Focal length           Exif.Image.FocalLength
 Lens maker name
 Lens model name        Exif.Canon.LensModel
                        Exif.OlympusEq.LensModel
