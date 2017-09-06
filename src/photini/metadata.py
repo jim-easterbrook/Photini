@@ -44,6 +44,7 @@ from gi.repository import GLib, GObject, GExiv2
 import six
 
 from photini import __version__
+from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
 
@@ -1003,17 +1004,65 @@ class MetadataHandler(GExiv2.Metadata):
     def clone(self, other):
         # copy from other to self
         for tag in other.get_exif_tags():
+            if tag.startswith('Exif.Thumbnail'):
+                continue
             self.set_string(tag, other.get_string(tag))
         for tag in other.get_iptc_tags():
             self.set_multiple(tag, other.get_multiple(tag))
         for tag in other.get_xmp_tags():
-            if not self._is_sidecar and tag.startswith('Xmp.xmp.Thumbnails'):
-                # don't try and fit a thumbnail in 64k Xmp segment
+            if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
             if self.get_tag_type(tag) == 'XmpText':
                 self.set_string(tag, other.get_string(tag))
             else:
                 self.set_multiple(tag, other.get_multiple(tag))
+        # handle thumbnails separately
+        if self._is_sidecar:
+            # can only store XMP thumbnails
+            # try copying from XMP first
+            got_xmp = False
+            for tag in other.get_xmp_tags():
+                if tag.startswith('Xmp.xmp.Thumbnails'):
+                    self.set_string(tag, other.get_string(tag))
+                    got_xmp = True
+            if got_xmp:
+                return
+            # try copying Exif
+            thumb = other.get_exif_thumbnail()
+            if using_pgi:
+                # get_exif_thumbnail returns (OK, data) tuple
+                thumb = thumb[thumb[0]]
+            if not thumb:
+                return
+            thumb = bytearray(thumb)
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(thumb)
+            w = pixmap.width()
+            h = pixmap.height()
+            if other.get_string('Exif.Thumbnail.Compression') != '6':
+                # thumb data is not already in JPEG format
+                buf = QtCore.QBuffer()
+                buf.open(QtCore.QIODevice.WriteOnly)
+                pixmap.save(buf, 'JPEG')
+                thumb = buf.data().data()
+            thumb = codecs.encode(thumb, 'base64_codec')
+            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', 'JPEG')
+            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
+            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
+            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', thumb)
+        else:
+            # don't try and fit a thumbnail in 64k XMP segment
+            # try copying Exif first
+            thumb = other.get_exif_thumbnail()
+            if using_pgi:
+                # get_exif_thumbnail returns (OK, data) tuple
+                thumb = thumb[thumb[0]]
+            if not thumb:
+                # try XMP thumbnail
+                thumb = other.get_xmp_thumbnail()
+            if not thumb:
+                return
+            self.set_exif_thumbnail_from_buffer(thumb)
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
