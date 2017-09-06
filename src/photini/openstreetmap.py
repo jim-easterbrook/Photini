@@ -158,7 +158,7 @@ class OpenStreetMap(PhotiniMap):
         address = rsp['results'][0]['components']
         location = []
         for iptc_key, osm_keys in (
-                ('world_region',   ()),
+                ('world_region',   ('continent',)),
                 ('country_code',   ('country_code', 'ISO_3166-1_alpha-2')),
                 ('country_name',   ('country',)),
                 ('province_state', ('region', 'county',
