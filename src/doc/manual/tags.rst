@@ -44,8 +44,8 @@ Lens maker name        Exif.Photo.LensMake
 Lens model name        Exif.Photo.LensModel
 Lens serial number     Exif.Photo.LensSerialNumber
 Lens specification     Exif.Photo.LensSpecification
-Latitude, longitude    Exif.GPSInfo.GPSLatitude
-                       Exif.GPSInfo.GPSLatitudeRef
+Latitude, longitude    Exif.GPSInfo.GPSLatitude          Xmp.exif.GPSLatitude
+                       Exif.GPSInfo.GPSLatitudeRef       Xmp.exif.GPSLongitude
                        Exif.GPSInfo.GPSLongitude
                        Exif.GPSInfo.GPSLongitudeRef
 Camera address                                           Xmp.iptcExt.LocationCreated
@@ -88,8 +88,6 @@ Lens serial number     Exif.OlympusEq.LensSerialNumber
 Lens specification     Exif.Image.LensInfo
                        Exif.CanonCs.Lens
                        Exif.Nikon3.Lens
-Latitude, longitude                                     Xmp.exif.GPSLatitude
-                                                        Xmp.exif.GPSLongitude
 =====================  ===============================  ==============================  ==================
 
 Read only tags

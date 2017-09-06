@@ -268,6 +268,22 @@ class LatLon(MetadataDictValue):
             value = -value
         return value
 
+    @staticmethod
+    def to_xmp_part(value):
+        negative = value < 0.0
+        if negative:
+            value = -value
+        degrees = int(value)
+        minutes = (value - degrees) * 60.0
+        return '{:d},{:.6f}'.format(degrees, minutes), negative
+
+    def to_xmp(self):
+        lat_string, negative = self.to_xmp_part(self.lat)
+        lat_string += 'NS'[negative]
+        lon_string, negative = self.to_xmp_part(self.lon)
+        lon_string += 'EW'[negative]
+        return lat_string, lon_string
+
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
@@ -1150,7 +1166,9 @@ class Metadata(object):
         'latlong'        : (('Exif', ('Exif.GPSInfo.GPSLatitude',
                                       'Exif.GPSInfo.GPSLatitudeRef',
                                       'Exif.GPSInfo.GPSLongitude',
-                                      'Exif.GPSInfo.GPSLongitudeRef')),),
+                                      'Exif.GPSInfo.GPSLongitudeRef')),
+                            ('Xmp', ('Xmp.exif.GPSLatitude',
+                                     'Xmp.exif.GPSLongitude'))),
         'lens_make'      : (('Exif', 'Exif.Photo.LensMake'),),
         'lens_model'     : (('Exif', 'Exif.Photo.LensModel'),),
         'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
@@ -1211,8 +1229,6 @@ class Metadata(object):
                             ('Xmp', ('Xmp.exif.FocalLength',
                                      'Xmp.exif.FocalLengthIn35mmFilm'))),
         'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
-        'latlong'        : (('Xmp', ('Xmp.exif.GPSLatitude',
-                                     'Xmp.exif.GPSLongitude')),),
         'lens_model'     : (('Exif', 'Exif.Canon.LensModel'),
                             ('Exif', 'Exif.OlympusEq.LensModel'),),
         'lens_serial'    : (('Exif', 'Exif.OlympusEq.LensSerialNumber'),),
