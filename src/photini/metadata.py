@@ -1029,34 +1029,21 @@ class MetadataHandler(GExiv2.Metadata):
                 return
             # try copying Exif
             thumb = other.get_exif_thumbnail()
-            if using_pgi:
-                # get_exif_thumbnail returns (OK, data) tuple
-                thumb = thumb[thumb[0]]
             if not thumb:
                 return
-            thumb = bytearray(thumb)
             pixmap = QtGui.QPixmap()
             pixmap.loadFromData(thumb)
-            w = pixmap.width()
-            h = pixmap.height()
             if other.get_string('Exif.Thumbnail.Compression') != '6':
                 # thumb data is not already in JPEG format
                 buf = QtCore.QBuffer()
                 buf.open(QtCore.QIODevice.WriteOnly)
                 pixmap.save(buf, 'JPEG')
                 thumb = buf.data().data()
-            thumb = codecs.encode(thumb, 'base64_codec')
-            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', 'JPEG')
-            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
-            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
-            self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', thumb)
+            self.set_xmp_thumbnail(thumb, 'JPEG', pixmap.width(), pixmap.height())
         else:
             # don't try and fit a thumbnail in 64k XMP segment
             # try copying Exif first
             thumb = other.get_exif_thumbnail()
-            if using_pgi:
-                # get_exif_thumbnail returns (OK, data) tuple
-                thumb = thumb[thumb[0]]
             if not thumb:
                 # try XMP thumbnail
                 thumb = other.get_xmp_thumbnail()
@@ -1066,6 +1053,15 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+
+    def get_exif_thumbnail(self):
+            thumb = super(MetadataHandler, self).get_exif_thumbnail()
+            if using_pgi and isinstance(thumb, tuple):
+                # get_exif_thumbnail returns (OK, data) tuple
+                thumb = thumb[thumb[0]]
+            if thumb:
+                thumb = bytearray(thumb)
+            return thumb
 
     def get_xmp_thumbnail(self):
         widths = []
@@ -1359,17 +1355,14 @@ class Metadata(object):
     def get_thumbnail(self):
         for source in self._sc, self._if:
             if source:
-                # try Xmp first
+                # try XMP first
                 thumb = source.get_xmp_thumbnail()
                 if thumb:
                     return thumb
                 # then try Exif
                 thumb = source.get_exif_thumbnail()
-                if using_pgi:
-                    # get_exif_thumbnail returns (OK, data) tuple
-                    thumb = thumb[thumb[0]]
                 if thumb:
-                    return bytearray(thumb)
+                    return thumb
         return None
 
     def get_mime_type(self):
