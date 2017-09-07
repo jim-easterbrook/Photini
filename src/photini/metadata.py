@@ -431,7 +431,7 @@ class Thumbnail(MetadataDictValue):
         h    = self.value['h']
         if fmt != 'JPEG':
             pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(thumb)
+            pixmap.loadFromData(data)
             buf = QtCore.QBuffer()
             buf.open(QtCore.QIODevice.WriteOnly)
             pixmap.save(buf, 'JPEG')
@@ -440,7 +440,7 @@ class Thumbnail(MetadataDictValue):
             h = pixmap.height()
         if not w or not h:
             pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(thumb)
+            pixmap.loadFromData(data)
             w = pixmap.width()
             h = pixmap.height()
         data = codecs.encode(data, 'base64_codec')
@@ -495,7 +495,7 @@ class DateTime(MetadataDictValue):
             # assume no time information
             time_string = ''
             tz_offset = None
-        datetime_string = date_string + time_string
+        datetime_string = date_string + time_string[:13]
         precision = min((len(datetime_string) - 2) // 2, 7)
         if precision <= 0:
             return None
@@ -1090,7 +1090,7 @@ class MetadataHandler(GExiv2.Metadata):
         return True
 
     def clone(self, other):
-        # copy from other to self
+        # copy from other to self, ignoring thumbnails
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
@@ -1104,40 +1104,6 @@ class MetadataHandler(GExiv2.Metadata):
                 self.set_string(tag, other.get_string(tag))
             else:
                 self.set_multiple(tag, other.get_multiple(tag))
-        # handle thumbnails separately
-        if self._is_sidecar:
-            # can only store XMP thumbnails
-            # try copying from XMP first
-            got_xmp = False
-            for tag in other.get_xmp_tags():
-                if tag.startswith('Xmp.xmp.Thumbnails'):
-                    self.set_string(tag, other.get_string(tag))
-                    got_xmp = True
-            if got_xmp:
-                return
-            # try copying Exif
-            thumb = other.get_exif_thumbnail()
-            if not thumb:
-                return
-            pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(thumb)
-            if other.get_string('Exif.Thumbnail.Compression') != '6':
-                # thumb data is not already in JPEG format
-                buf = QtCore.QBuffer()
-                buf.open(QtCore.QIODevice.WriteOnly)
-                pixmap.save(buf, 'JPEG')
-                thumb = buf.data().data()
-            self.set_xmp_thumbnail(thumb, 'JPEG', pixmap.width(), pixmap.height())
-        else:
-            # don't try and fit a thumbnail in 64k XMP segment
-            # try copying Exif first
-            thumb = other.get_exif_thumbnail()
-            if not thumb:
-                # try XMP thumbnail
-                thumb = other.get_xmp_thumbnail()
-            if not thumb:
-                return
-            self.set_exif_thumbnail_from_buffer(thumb)
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
@@ -1364,12 +1330,12 @@ class Metadata(object):
             self._sc = MetadataHandler(self._sc_path, is_sidecar=True)
         except Exception as ex:
             self.logger.exception(ex)
-        if self._sc and self._if:
-            self._sc.clone(self._if)
 
     def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self._unsaved:
             return
+        if sc_mode == 'always' and not self._sc:
+            self.create_side_car()
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         save_iptc = force_iptc or self.has_iptc()
@@ -1399,13 +1365,13 @@ class Metadata(object):
                     if tag not in saved_tags:
                         self.logger.warning('tag not saved: %s', tag)
                         OK = False
+            if not OK and not self._sc:
+                # can't write to image so create side car
+                self.save(False, 'always', force_iptc, file_times)
+                return
         if sc_mode == 'delete' and self._sc and OK:
             os.unlink(self._sc_path)
             self._sc = None
-        if sc_mode in ('auto', 'delete') and not self._sc and not OK:
-            self.create_side_car()
-        if sc_mode == 'always' and not self._sc:
-            self.create_side_car()
         if self._sc:
             OK = self._sc.save(file_times)
         self._set_unsaved(not OK)
