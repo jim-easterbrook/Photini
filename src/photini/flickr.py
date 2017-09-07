@@ -120,15 +120,18 @@ class FlickrSession(UploaderSession):
         if status != 'ok':
             return status
         photo_id = rsp.find('photoid').text
-        # set date granularity
+        # set date and granularity
         date_taken = image.metadata.date_taken
-        if date_taken and date_taken.precision <= 2:
-            granularity = 8 - (date_taken.precision * 2)
+        if date_taken:
+            kwargs = {
+                'photo_id'  : photo_id,
+                'date_taken': date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+                }
+            if date_taken.precision <= 2:
+                kwargs['date_taken_granularity'] = 8 - (date_taken.precision * 2)
             for attempt in range(3):
                 try:
-                    rsp = self.api.photos_setDates(
-                        photo_id=photo_id,
-                        date_taken_granularity=granularity)
+                    rsp = self.api.photos_setDates(**kwargs)
                     status = rsp.attrib['stat']
                     if status == 'ok':
                         break
