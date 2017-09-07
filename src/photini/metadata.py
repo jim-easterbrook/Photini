@@ -840,13 +840,13 @@ _extra_ns = {
     }
 
 class MetadataHandler(GExiv2.Metadata):
-    def __init__(self, path, is_sidecar=False):
+    def __init__(self, path):
         super(MetadataHandler, self).__init__()
         self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
-        self._is_sidecar = is_sidecar
         # read metadata from file
         self.open_path(self._path)
+        self._is_sidecar = self.get_mime_type() == 'application/rdf+xml'
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -1291,7 +1291,7 @@ class Metadata(object):
         self._sc = None
         if self._sc_path:
             try:
-                self._sc = MetadataHandler(self._sc_path, is_sidecar=True)
+                self._sc = MetadataHandler(self._sc_path)
             except Exception as ex:
                 self.logger.exception(ex)
         self._if = None
@@ -1327,7 +1327,7 @@ class Metadata(object):
 </x:xmpmeta>
 <?xpacket end="w"?>'''.format('Photini editor v' + __version__))
         try:
-            self._sc = MetadataHandler(self._sc_path, is_sidecar=True)
+            self._sc = MetadataHandler(self._sc_path)
         except Exception as ex:
             self.logger.exception(ex)
 
