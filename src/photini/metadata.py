@@ -392,6 +392,64 @@ class LensSpec(MetadataDictValue):
         return True
 
 
+class Thumbnail(MetadataDictValue):
+    def __init__(self, value):
+        data, fmt, w, h = value
+        super(Thumbnail, self).__init__({
+            'data' : data,
+            'fmt'  : fmt,
+            'w'    : w,
+            'h'    : h,
+            })
+
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if MetadataHandler.is_xmp_tag(tag):
+            data, fmt, w, h = file_value
+            if not data:
+                return None
+            if not six.PY2:
+                data = bytes(data, 'ASCII')
+            data = codecs.decode(data, 'base64_codec')
+            w = int(w)
+            h = int(h)
+        else:
+            data, fmt = file_value
+            if not data:
+                return None
+            fmt = ('TIFF', 'JPEG')[fmt == '6']
+            w, h = None, None
+        return cls((data, fmt, w, h))
+
+    def to_exif(self):
+        return (self.value['data'], )
+
+    def to_xmp(self):
+        data = self.value['data']
+        fmt  = self.value['fmt']
+        w    = self.value['w']
+        h    = self.value['h']
+        if fmt != 'JPEG':
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(thumb)
+            buf = QtCore.QBuffer()
+            buf.open(QtCore.QIODevice.WriteOnly)
+            pixmap.save(buf, 'JPEG')
+            data = buf.data().data()
+            w = pixmap.width()
+            h = pixmap.height()
+        if not w or not h:
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(thumb)
+            w = pixmap.width()
+            h = pixmap.height()
+        data = codecs.encode(data, 'base64_codec')
+        return data, fmt, str(w), str(h)
+
+    def contains(self, other):
+        return True
+
+
 class DateTime(MetadataDictValue):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
@@ -909,6 +967,8 @@ class MetadataHandler(GExiv2.Metadata):
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_string, tag))
+        if tag == 'Exif.Thumbnail.Image':
+            return self.get_exif_thumbnail()
         try:
             result = self.get_tag_string(tag)
             if six.PY2:
@@ -937,6 +997,9 @@ class MetadataHandler(GExiv2.Metadata):
             return
         if not value:
             self.clear_value(tag)
+            return
+        if tag == 'Exif.Thumbnail.Image':
+            self.set_exif_thumbnail_from_buffer(value)
             return
         if self.is_iptc_tag(tag) and tag in _max_bytes:
             value = value.encode('utf_8')[:_max_bytes[tag]]
@@ -1080,38 +1143,13 @@ class MetadataHandler(GExiv2.Metadata):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
     def get_exif_thumbnail(self):
-            thumb = super(MetadataHandler, self).get_exif_thumbnail()
-            if using_pgi and isinstance(thumb, tuple):
-                # get_exif_thumbnail returns (OK, data) tuple
-                thumb = thumb[thumb[0]]
-            if thumb:
-                thumb = bytearray(thumb)
-            return thumb
-
-    def get_xmp_thumbnail(self):
-        widths = []
-        tags = []
-        for tag in self.get_xmp_tags():
-            # not everyone uses the 'xmpGImg' prefix
-            if tag.startswith('Xmp.xmp.Thumbnails') and tag.endswith('width'):
-                widths.append(int(self.get_string(tag)))
-                tags.append(tag)
-        if not widths:
-            return None
-        best = widths.index(max(widths))
-        tag = tags[best].replace('width', 'image')
-        data = self.get_string(tag)
-        if not six.PY2:
-            data = bytes(data, 'ASCII')
-        return codecs.decode(data, 'base64_codec')
-
-    def set_xmp_thumbnail(self, data, fmt, w, h):
-        data = codecs.encode(data, 'base64_codec')
-        self.set_string('Xmp.xmp.Thumbnails', None)
-        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:format', fmt)
-        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:width', str(w))
-        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:height', str(h))
-        self.set_string('Xmp.xmp.Thumbnails[1]/xmpGImg:image', data)
+        thumb = super(MetadataHandler, self).get_exif_thumbnail()
+        if using_pgi and isinstance(thumb, tuple):
+            # get_exif_thumbnail returns (OK, data) tuple
+            thumb = thumb[thumb[0]]
+        if thumb:
+            return bytearray(thumb)
+        return None
 
 
 class Metadata(object):
@@ -1137,6 +1175,7 @@ class Metadata(object):
         'location_taken' : Location,
         'orientation'    : Int,
         'software'       : Software,
+        'thumbnail'      : Thumbnail,
         'timezone'       : Int,
         'title'          : String,
         }
@@ -1214,6 +1253,12 @@ class Metadata(object):
         'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
                             ('Iptc', ('Iptc.Application2.Program',
                                       'Iptc.Application2.ProgramVersion'))),
+        'thumbnail'      : (('Exif', ('Exif.Thumbnail.Image',
+                                      'Exif.Thumbnail.Compression')),
+                            ('Xmp',  ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
+                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
+                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
+                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:height'))),
         'timezone'       : (),
         'title'          : (('Xmp',  'Xmp.dc.title'),
                             ('Iptc', 'Iptc.Application2.ObjectName')),
@@ -1247,6 +1292,10 @@ class Metadata(object):
                             ('Exif', 'Exif.Nikon3.Lens')),
         'title'          : (('Exif', 'Exif.Image.XPTitle'),
                             ('Iptc', 'Iptc.Application2.Headline')),
+        'thumbnail'      : (('Xmp',  ('Xmp.xmp.Thumbnails[1]/xapGImg:image',
+                                      'Xmp.xmp.Thumbnails[1]/xapGImg:format',
+                                      'Xmp.xmp.Thumbnails[1]/xapGImg:width',
+                                      'Xmp.xmp.Thumbnails[1]/xapGImg:height')),),
         }
     # tags that are read and merged but not deleted
     _read_tags = {
@@ -1377,19 +1426,6 @@ class Metadata(object):
             return True
         return False
 
-    def get_thumbnail(self):
-        for source in self._sc, self._if:
-            if source:
-                # try XMP first
-                thumb = source.get_xmp_thumbnail()
-                if thumb:
-                    return thumb
-                # then try Exif
-                thumb = source.get_exif_thumbnail()
-                if thumb:
-                    return thumb
-        return None
-
     def get_mime_type(self):
         if self._if:
             return self._if.get_mime_type()
@@ -1414,13 +1450,6 @@ class Metadata(object):
                 self._if.clone(other._if)
             if other._sc:
                 self._if.clone(other._sc)
-        self._set_unsaved(True)
-
-    def set_thumbnail(self, thumb, fmt, w, h):
-        if self._sc:
-            self._sc.set_xmp_thumbnail(thumb, fmt, w, h)
-        if self._if:
-            self._if.set_exif_thumbnail_from_buffer(thumb)
         self._set_unsaved(True)
 
     def __getattr__(self, name):

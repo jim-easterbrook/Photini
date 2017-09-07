@@ -202,7 +202,7 @@ class Image(QtWidgets.QFrame):
                 qt_im.save(buf, fmt)
                 data = buf.data().data()
             # set thumbnail
-            self.metadata.set_thumbnail(data, fmt, w, h)
+            self.metadata.thumbnail = data, fmt, w, h
             # reload thumbnail
             self.load_thumbnail()
 
@@ -300,9 +300,9 @@ class Image(QtWidgets.QFrame):
 
     def load_thumbnail(self):
         pixmap = QtGui.QPixmap()
-        thumb = self.metadata.get_thumbnail()
+        thumb = self.metadata.thumbnail
         if thumb:
-            pixmap.loadFromData(thumb)
+            pixmap.loadFromData(thumb.data)
         if pixmap.isNull():
             self.image.setText(self.tr('No\nthumbnail\nin file'))
             return
