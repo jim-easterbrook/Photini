@@ -139,6 +139,24 @@ class FlickrSession(UploaderSession):
                     status = str(ex)
             else:
                 return status
+        # set location
+        latlon = image.metadata.latlong
+        if latlon:
+            kwargs = {
+                'photo_id': photo_id,
+                'lat'     : '{:.6f}'.format(latlon.lat),
+                'lon'     : '{:.6f}'.format(latlon.lon),
+                }
+            for attempt in range(3):
+                try:
+                    rsp = self.api.photos.geo.setLocation(**kwargs)
+                    status = rsp.attrib['stat']
+                    if status == 'ok':
+                        break
+                except flickrapi.FlickrError as ex:
+                    status = str(ex)
+            else:
+                return status
         # add to sets
         for p_set in params[1]:
             if p_set['id']:
