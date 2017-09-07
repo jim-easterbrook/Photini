@@ -552,6 +552,8 @@ class ImageList(QtWidgets.QWidget):
 
     def open_file(self, path):
         path = os.path.abspath(path)
+        if not os.path.isfile(path):
+            return
         if self.get_image(path):
             # already opened this path
             return
