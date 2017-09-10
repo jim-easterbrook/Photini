@@ -937,7 +937,20 @@ class MetadataHandler(GExiv2.Metadata):
             for sub_tag in tag:
                 self.clear_value(sub_tag)
             return
+        if not self.has_tag(tag):
+            return
         self.clear_tag(tag)
+        if self.is_xmp_tag(tag) and '/' in tag:
+            # remove XMP structure/container
+            container, subtag = tag.split('/')
+            bag = container.partition('[')[0]
+            for t in self.get_xmp_tags():
+                if t.startswith(bag):
+                    # bag is not empty
+                    return
+            # set bag to something to wipe struct information
+            self.set_tag_string(bag, 'Empty')
+            self.clear_tag(bag)
 
     def set_value(self, tag, value):
         # exiv2 pretends XMP files have non-xmp tags
