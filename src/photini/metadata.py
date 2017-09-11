@@ -538,7 +538,7 @@ class DateTime(MetadataDictValue):
             # assume date should be in range 1970 to 2034
             if time_stamp > cls.qt_offset:
                 time_stamp -= cls.qt_offset
-            return cls((datetime.utcfromtimestamp(time_stamp), 6, 0))
+            return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_xmp(file_value)
 
     # Exif datetime is always full resolution and valid. Assume a time
@@ -846,7 +846,11 @@ class MetadataHandler(GExiv2.Metadata):
         self._path = path
         # read metadata from file
         self.open_path(self._path)
-        is_sidecar = self.get_mime_type() == 'application/rdf+xml'
+        self._is_xmp = self.get_mime_type() == 'application/rdf+xml'
+        # remove exiv2's synthesised non-XMP tags
+        if self._is_xmp:
+            self.clear_exif()
+            self.clear_iptc()
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -860,7 +864,7 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         # convert IPTC data to UTF-8
-        if is_sidecar or not self.has_iptc():
+        if self._is_xmp or not self.has_iptc():
             return
         current_encoding = self.get_value(
             CharacterSet, 'Iptc.Envelope.CharacterSet')
@@ -891,6 +895,9 @@ class MetadataHandler(GExiv2.Metadata):
         return value.decode('utf_8', 'replace')
 
     def get_value(self, data_type, tag):
+        # don't get non XMP tags from XMP file
+        if self._is_xmp and not self.is_xmp_tag(tag):
+            return None
         # get string or multiple strings
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
@@ -935,20 +942,21 @@ class MetadataHandler(GExiv2.Metadata):
             return
         self.clear_tag(tag)
         if self.is_xmp_tag(tag) and '/' in tag:
-            # remove XMP structure/container
+            # attempt to remove XMP structure/container
             container, subtag = tag.split('/')
             bag = container.partition('[')[0]
             for t in self.get_xmp_tags():
                 if t.startswith(bag):
                     # bag is not empty
                     return
-            # set bag to something to wipe struct information
-            self.set_tag_string(bag, 'Empty')
             self.clear_tag(bag)
 
     def set_value(self, tag, value):
         if not value:
             self.clear_value(tag)
+            return
+        # don't set non XMP tags in XMP file
+        if self._is_xmp and not self.is_xmp_tag(tag):
             return
         # convert from Photini data type to string or multiple string
         if self.is_exif_tag(tag):
@@ -1084,6 +1092,10 @@ class MetadataHandler(GExiv2.Metadata):
         return GExiv2.Metadata.is_xmp_tag(tag)
 
     def save(self, file_times):
+        # remove exiv2's synthesised non-XMP tags
+        if self._is_xmp:
+            self.clear_exif()
+            self.clear_iptc()
         try:
             self.save_file(self._path)
             if file_times:
@@ -1389,7 +1401,7 @@ class Metadata(object):
     # getters: use sidecar if tag is present, otherwise use image file
     def get_value(self, data_type, tag):
         result = None
-        if self._sc and MetadataHandler.is_xmp_tag(tag):
+        if self._sc:
             result = self._sc.get_value(data_type, tag)
         if self._if and not result:
             result = self._if.get_value(data_type, tag)
@@ -1402,7 +1414,7 @@ class Metadata(object):
 
     # setters: set in both sidecar and image file
     def set_value(self, tag, value):
-        if self._sc and MetadataHandler.is_xmp_tag(tag):
+        if self._sc:
             self._sc.set_value(tag, value)
         if self._if:
             self._if.set_value(tag, value)
