@@ -846,7 +846,7 @@ class MetadataHandler(GExiv2.Metadata):
         self._path = path
         # read metadata from file
         self.open_path(self._path)
-        self._is_sidecar = self.get_mime_type() == 'application/rdf+xml'
+        is_sidecar = self.get_mime_type() == 'application/rdf+xml'
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -860,7 +860,7 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         # convert IPTC data to UTF-8
-        if self._is_sidecar or not self.has_iptc():
+        if is_sidecar or not self.has_iptc():
             return
         current_encoding = self.get_value(
             CharacterSet, 'Iptc.Envelope.CharacterSet')
@@ -891,9 +891,6 @@ class MetadataHandler(GExiv2.Metadata):
         return value.decode('utf_8', 'replace')
 
     def get_value(self, data_type, tag):
-        # exiv2 pretends XMP files have non-xmp tags
-        if self._is_sidecar and not self.is_xmp_tag(tag):
-            return None
         # get string or multiple strings
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
@@ -930,9 +927,6 @@ class MetadataHandler(GExiv2.Metadata):
         return data_type.from_file(tag, file_value)
 
     def clear_value(self, tag):
-        # exiv2 pretends XMP files have non-xmp tags
-        if self._is_sidecar and not self.is_xmp_tag(tag):
-            return
         if isinstance(tag, tuple):
             for sub_tag in tag:
                 self.clear_value(sub_tag)
@@ -953,9 +947,6 @@ class MetadataHandler(GExiv2.Metadata):
             self.clear_tag(bag)
 
     def set_value(self, tag, value):
-        # exiv2 pretends XMP files have non-xmp tags
-        if self._is_sidecar and not self.is_xmp_tag(tag):
-            return
         if not value:
             self.clear_value(tag)
             return
@@ -1351,7 +1342,7 @@ class Metadata(object):
             self.create_side_car()
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
-        save_iptc = force_iptc or self.has_iptc()
+        save_iptc = force_iptc or (self._if and self._if.has_iptc())
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
@@ -1392,18 +1383,11 @@ class Metadata(object):
     # getters: use sidecar if tag is present, otherwise use image file
     def get_value(self, data_type, tag):
         result = None
-        if self._sc:
+        if self._sc and MetadataHandler.is_xmp_tag(tag):
             result = self._sc.get_value(data_type, tag)
         if self._if and not result:
             result = self._if.get_value(data_type, tag)
         return result
-
-    def has_iptc(self):
-        if self._sc and self._sc.has_iptc():
-            return True
-        if self._if and self._if.has_iptc():
-            return True
-        return False
 
     def get_mime_type(self):
         if self._if:
@@ -1412,7 +1396,7 @@ class Metadata(object):
 
     # setters: set in both sidecar and image file
     def set_value(self, tag, value):
-        if self._sc:
+        if self._sc and MetadataHandler.is_xmp_tag(tag):
             self._sc.set_value(tag, value)
         if self._if:
             self._if.set_value(tag, value)
