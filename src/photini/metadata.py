@@ -1343,6 +1343,12 @@ class Metadata(object):
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         save_iptc = force_iptc or (self._if and self._if.has_iptc())
+        if self._sc:
+            # workaround for bug in exiv2 xmp timestamp altering
+            for name in ('date_digitised', 'date_modified', 'date_taken'):
+                for family, tag in self._primary_tags[name]:
+                    self._sc.clear_value(tag)
+            self._sc.save(file_times)
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
