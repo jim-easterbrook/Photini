@@ -79,6 +79,12 @@ def safe_fraction(value):
     return Fraction(value).limit_denominator(1000000)
 
 
+# results of MetadataValue.merge()
+MERGE_CONTAINS = 0      # self contains other, no action taken
+MERGE_MERGED   = 1      # other merged into self with no loss of information
+MERGE_REPLACED = 2      # self replaced by non-contained other
+MERGE_IGNORED  = 3      # non-contained other ignored
+
 class MetadataValue(object):
     # base for classes that store a metadata value, e.g. a string, int
     # or float
@@ -115,10 +121,11 @@ class MetadataValue(object):
         # "contains" = no need to merge or replace.
         return (not other) or (other.value == self.value)
 
-    def merge(self, other, family=None):
-        # Only called if contains returns False. Returns True if other
-        # merged into self, False if self should be replaced by other.
-        return False
+    def merge(self, tag, other):
+        # merge or replace self with other, or ignore other
+        if self.contains(other):
+            return MERGE_CONTAINS
+        return MERGE_IGNORED
 
 
 class MetadataDictValue(MetadataValue):
@@ -187,16 +194,20 @@ class FocalLength(MetadataDictValue):
     def __nonzero__(self):
         return (self.fl is not None) or (self.fl_35 is not None)
 
-    def contains(self, other):
-        return (not other) or ((other.fl in (None, self.fl)) and
-                               (other.fl_35 in (None, self.fl_35)))
-
-    def merge(self, other, family=None):
+    def merge(self, tag, other):
+        if (not other) or ((other.fl in (None, self.fl)) and
+                           (other.fl_35 in (None, self.fl_35))):
+            return MERGE_CONTAINS
+        result = MERGE_MERGED
         if self.fl is None:
             self.fl = other.fl
+        elif other.fl and other.fl != self.fl:
+            result = MERGE_IGNORED
         if self.fl_35 is None:
             self.fl_35 = other.fl_35
-        return True
+        elif other.fl_35 and other.fl_35 != self.fl_35:
+            result = MERGE_IGNORED
+        return result
 
 
 class LatLon(MetadataDictValue):
@@ -339,21 +350,16 @@ class Location(MetadataDictValue):
                 self.value['country_code'],
                 self.value['world_region'])
 
-    def contains(self, other):
+    def merge(self, tag, other):
         if not other:
-            return True
-        for key in self.value:
-            if (self.value[key] and other.value[key] and
-                    other.value[key] not in self.value[key]):
-                return False
-        return True
-
-    def merge(self, other, family=None):
+            return MERGE_CONTAINS
+        result = MERGE_CONTAINS
         for key in self.value:
             if (self.value[key] and other.value[key] and
                     other.value[key] not in self.value[key]):
                 self.value[key] += ' // ' + other.value[key]
-        return True
+                result = MERGE_MERGED
+        return result
 
 
 class LensSpec(MetadataDictValue):
@@ -654,49 +660,33 @@ class DateTime(MetadataDictValue):
     def __str__(self):
         return self.to_ISO_8601()
 
-    def contains(self, other):
+    def merge(self, tag, other):
         if (not other) or (other.value == self.value):
-            return True
-        if other.datetime != self.truncate_date_time(
-                                self.datetime, other.precision):
-            return False
-        if self.precision < 7 and other.precision < self.precision:
-            return False
-        if other.tz_offset in (None, self.tz_offset):
-            return True
-        return False
-
-    def merge(self, other, family=None):
-        result = False
-        # work out apparent precisions by stripping zeroes
-        self_precision = self.precision
-        while self_precision > 1 and self.truncate_date_time(
-                        self.datetime, self_precision - 1) == self.datetime:
-            self_precision -= 1
-        other_precision = other.precision
-        while other_precision > 1 and self.truncate_date_time(
-                        other.datetime, other_precision - 1) == other.datetime:
-            other_precision -= 1
-        # if datetime values differ, choose the one with more apparent precision
-        if other.datetime != self.datetime and other_precision > self_precision:
-            self.datetime = other.datetime
-            self.precision = other.precision
-            self.tz_offset = other.tz_offset
-            return True
+            return MERGE_CONTAINS
+        # if datetime values differ, choose the one with more precision
+        if other.datetime != self.datetime:
+            if other.precision > self.precision:
+                self.datetime = other.datetime
+                self.precision = other.precision
+                self.tz_offset = other.tz_offset
+                return MERGE_REPLACED
+            if other.datetime != self.truncate_date_time(
+                                    self.datetime, other.precision):
+                return MERGE_IGNORED
+        result = MERGE_CONTAINS
         # some formats default to a higher precision than wanted
-        if (other.datetime == self.datetime and
-                    self.precision < 7 and other.precision < self.precision):
+        if self.precision < 7 and other.precision < self.precision:
             self.precision = other.precision
-            result = True
+            result = MERGE_MERGED
         # don't trust IPTC time zone and Exif time zone is quantised to
         # whole hours, unlike Xmp
-        if other.tz_offset is not None and family != 'Iptc':
-            if self.tz_offset is None:
-                self.tz_offset = other.tz_offset
-                result = True
-            elif self.tz_offset != other.tz_offset and family == 'Xmp':
-                self.tz_offset = other.tz_offset
-                result = True
+        if other.tz_offset is None or MetadataHandler.is_iptc_tag(tag):
+            return result
+        if self.tz_offset == other.tz_offset:
+            return result
+        if MetadataHandler.is_xmp_tag(tag):
+            self.tz_offset = other.tz_offset
+            result = MERGE_MERGED
         return result
 
 
@@ -713,13 +703,12 @@ class MultiString(MetadataValue):
     def __str__(self):
         return '; '.join(self.value)
 
-    def contains(self, other):
-        return (not other) or (not bool(
-            [x for x in other.value if x not in self.value]))
-
-    def merge(self, other, family=None):
+    def merge(self, tag, other):
+        if (not other) or (not bool(
+                [x for x in other.value if x not in self.value])):
+            return MERGE_CONTAINS
         self.value += other.value
-        return True
+        return MERGE_MERGED
 
 
 class String(MetadataValue):
@@ -735,12 +724,11 @@ class String(MetadataValue):
             return None
         return cls(value)
 
-    def contains(self, other):
-        return (not other) or (other.value in self.value)
-
-    def merge(self, other, family=None):
+    def merge(self, tag, other):
+        if (not other) or (other.value in self.value):
+            return MERGE_CONTAINS
         self.value += ' // ' + other.value
-        return True
+        return MERGE_MERGED
 
 
 class CharacterSet(String):
@@ -1441,66 +1429,47 @@ class Metadata(object):
             tag_list.extend(self._secondary_tags[name])
         if name in self._read_tags:
             tag_list.extend(self._read_tags[name])
-        # read data, merging in any conflicting values
-        value = {'Exif': None, 'Iptc': None, 'Xmp': None}
-        used_tag = {'Exif': None, 'Iptc': None, 'Xmp': None}
+        # read data values
+        values = {'Exif': [], 'Iptc': [], 'Xmp': []}
         for family, tag in tag_list:
             try:
                 new_value = self.get_value(self._data_type[name], tag)
             except Exception as ex:
                 logger.exception(ex)
                 continue
-            if not new_value:
-                continue
-            elif not value[family]:
-                value[family] = new_value
-                used_tag[family] = tag
-            elif value[family].contains(new_value):
-                continue
-            elif value[family].merge(new_value):
-                logger.info(
-                    '%s: merged %s into %s',
-                    os.path.basename(self._path), tag, used_tag[family])
-            else:
-                logger.warning(
-                    '%s: using %s value "%s", ignoring %s value "%s"',
-                    os.path.basename(self._path), used_tag[family],
-                    str(value[family]), tag, str(new_value))
-        # choose preferred family
-        if value['Exif']:
-            preference = 'Exif'
-        elif value['Xmp']:
-            preference = 'Xmp'
-        else:
-            preference = 'Iptc'
-        # merge in non-matching data so user can review it
-        result = value[preference]
-        if result:
-            for family in ('Exif', 'Xmp', 'Iptc'):
-                other = value[family]
-                if result.contains(other):
+            if new_value:
+                values[family].append((tag, new_value))
+        # choose result and merge in non-matching data so user can review it
+        result = None, None
+        for family in ('Exif', 'Xmp', 'Iptc'):
+            for tag, value in values[family]:
+                if not result[1]:
+                    result = tag, value
                     continue
-                elif result.merge(other, family):
-                    logger.info(
-                        '%s: merged %s data into %s',
-                        os.path.basename(self._path),
-                        used_tag[family], used_tag[preference])
-                else:
+                merged = result[1].merge(tag, value)
+                if merged == MERGE_MERGED:
+                    logger.info('%s: merged %s data into %s',
+                                os.path.basename(self._path), tag, result[0])
+                elif merged == MERGE_REPLACED:
                     logger.warning(
                         '%s: using %s value "%s", ignoring %s value "%s"',
-                        os.path.basename(self._path), used_tag[preference],
-                        str(result), used_tag[family], str(other))
+                        os.path.basename(self._path), tag, str(value),
+                        result[0], str(result[1]))
+                elif merged == MERGE_IGNORED:
+                    logger.warning(
+                        '%s: using %s value "%s", ignoring %s value "%s"',
+                        os.path.basename(self._path), result[0], str(result[1]),
+                        tag, str(value))
         # merge in camera timezone if needed
-        if (result and name.startswith('date_') and
-                            result.tz_offset is None and self.timezone):
-            result.tz_offset = self.timezone.value
-            logger.info(
-                '%s: merged camera timezone offset into %s',
-                os.path.basename(self._path), used_tag[preference])
+        if (result[1] and name.startswith('date_') and
+                            result[1].tz_offset is None and self.timezone):
+            result[1].tz_offset = self.timezone.value
+            logger.info('%s: merged camera timezone offset into %s',
+                        os.path.basename(self._path), result[0])
         # add value to object attributes so __getattr__ doesn't get
         # called again
-        super(Metadata, self).__setattr__(name, result)
-        return result
+        super(Metadata, self).__setattr__(name, result[1])
+        return result[1]
 
     def __setattr__(self, name, value):
         if name not in self._primary_tags:
