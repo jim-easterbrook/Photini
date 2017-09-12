@@ -238,7 +238,7 @@ class PicasaSession(UploaderSession):
                 resp = self._check_response(self.api.get(url))
                 picture = resp.content
             except Exception as ex:
-                self.logger.error('cannot read %s: %s', url, str(ex))
+                logger.error('cannot read %s: %s', url, str(ex))
         return name, picture
 
     def get_album_thumb(self, album):

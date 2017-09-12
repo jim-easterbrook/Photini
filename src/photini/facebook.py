@@ -548,7 +548,7 @@ class FacebookUploader(PhotiniUploader):
             album = self.session.post(
                 'https://graph.facebook.com/me/albums', data=data)
         except Exception as ex:
-            self.logger.error(str(ex))
+            logger.error(str(ex))
             self.refresh(force=True)
             return
         self.get_album_list(album_id=album['id'])

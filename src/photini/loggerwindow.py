@@ -58,6 +58,13 @@ class StreamProxy(QtCore.QObject):
         self.flush_text.emit()
 
 
+class LoggerFilter(object):
+    def filter(self, record):
+        # reduce severity of non-Photini messages
+        if not record.name.startswith('photini'):
+            record.levelno -= 10
+        return 1
+
 class LoggerWindow(QtWidgets.QWidget):
     def __init__(self, verbose, *arg, **kw):
         super(LoggerWindow, self).__init__(*arg, **kw)
@@ -91,6 +98,7 @@ class LoggerWindow(QtWidgets.QWidget):
         handler.setFormatter(logging.Formatter(
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
+        handler.addFilter(LoggerFilter())
         self.logger.addHandler(handler)
         # intercept stdout and stderr, if they exist
         if sys.stderr:

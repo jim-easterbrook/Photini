@@ -96,7 +96,7 @@ class SpellCheck(QtCore.QObject):
 
     def set_dict(self, tag):
         if tag:
-            logger.info('Setting dictionary %s', tag)
+            logger.debug('Setting dictionary %s', tag)
         if tag and enchant and enchant.dict_exists(tag):
             self.dict = enchant.Dict(tag)
         else:

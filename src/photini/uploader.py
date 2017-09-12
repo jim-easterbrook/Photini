@@ -33,6 +33,8 @@ import keyring
 from photini.metadata import Metadata
 from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
 
+logger = logging.getLogger(__name__)
+
 class UploaderSession(object):
     def __init__(self, auto_refresh=True):
         self.auto_refresh = auto_refresh
@@ -120,8 +122,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.info('using %s', keyring.get_keyring().__module__)
+        logger.debug('using %s', keyring.get_keyring().__module__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
@@ -180,7 +181,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     try:
                         self.load_user_data()
                     except Exception as ex:
-                        self.logger.error(ex)
+                        logger.error(ex)
                         self.connected = False
             if not self.connected:
                 self.user_connect.setText(self.tr('Connect'))

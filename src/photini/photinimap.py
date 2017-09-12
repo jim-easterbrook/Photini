@@ -32,6 +32,7 @@ from photini.pyqt import (
     Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
     QtWebKitWidgets, QtWidgets, set_symbol_font, SingleLineEdit, SquareButton)
 
+logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 if QtWebEngineWidgets:
@@ -42,14 +43,10 @@ else:
     WebViewBase = QtWebKitWidgets.QWebView
 
 class WebPage(WebPageBase):
-    def __init__(self, parent=None):
-        super(WebPage, self).__init__(parent)
-        self.logger = logging.getLogger(self.__class__.__name__)
-
     def javaScriptConsoleMessage(self, msg, line, source):
         if msg.startswith("Consider using 'dppx' units instead of 'dpi'"):
             return
-        self.logger.error('%s line %d: %s', source, line, msg)
+        logger.error('%s line %d: %s', source, line, msg)
 
 
 class WebView(WebViewBase):
@@ -167,7 +164,6 @@ class LocationInfo(QtWidgets.QWidget):
 class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
-        self.logger = logging.getLogger(self.__class__.__name__)
         self.app = QtWidgets.QApplication.instance()
         self.config_store = self.app.config_store
         self.image_list = image_list
@@ -248,7 +244,7 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(int, six.text_type)
     def log(self, level, message):
-        self.logger.log(level, message)
+        logger.log(level, message)
 
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):

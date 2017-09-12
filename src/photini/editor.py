@@ -103,7 +103,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # logger window
         self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
-        self.logger = logging.getLogger(self.__class__.__name__)
         # set network proxy
         proxies = getproxies()
         if 'http' in proxies:

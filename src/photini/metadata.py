@@ -842,7 +842,6 @@ _extra_ns = {
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path):
         super(MetadataHandler, self).__init__()
-        self._logger = logging.getLogger(self.__class__.__name__)
         self._path = path
         # read metadata from file
         self.open_path(self._path)
@@ -882,7 +881,7 @@ class MetadataHandler(GExiv2.Metadata):
                 value_list = self.get_multiple(tag)
                 self.set_multiple(tag, value_list)
             except Exception as ex:
-                self._logger.exception(ex)
+                logger.exception(ex)
 
     def _decode_string(self, value):
         if not value:
@@ -986,7 +985,7 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = self._decode_string(result)
         except UnicodeDecodeError as ex:
-            self._logger.error(str(ex))
+            logger.error(str(ex))
             return ''
         return result
 
@@ -998,7 +997,7 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = list(map(self._decode_string, result))
         except UnicodeDecodeError as ex:
-            self._logger.error(str(ex))
+            logger.error(str(ex))
             return []
         return result
 
@@ -1101,7 +1100,7 @@ class MetadataHandler(GExiv2.Metadata):
             if file_times:
                 os.utime(self._path, file_times)
         except Exception as ex:
-            self._logger.exception(ex)
+            logger.exception(ex)
             return False
         return True
 
@@ -1299,7 +1298,6 @@ class Metadata(object):
         }
     def __init__(self, path, new_status=None):
         super(Metadata, self).__init__()
-        self.logger = logging.getLogger(self.__class__.__name__)
         self._new_status = new_status
         # create metadata handlers for image file and/or sidecar
         self._path = path
@@ -1309,7 +1307,7 @@ class Metadata(object):
             try:
                 self._sc = MetadataHandler(self._sc_path)
             except Exception as ex:
-                self.logger.exception(ex)
+                logger.exception(ex)
         self._if = None
         try:
             self._if = MetadataHandler(path)
@@ -1317,7 +1315,7 @@ class Metadata(object):
             # expected if unrecognised file format
             pass
         except Exception as ex:
-            self.logger.exception(ex)
+            logger.exception(ex)
         if not self._if and not self._sc:
             self.create_side_car()
         self._unsaved = False
@@ -1345,7 +1343,7 @@ class Metadata(object):
         try:
             self._sc = MetadataHandler(self._sc_path)
         except Exception as ex:
-            self.logger.exception(ex)
+            logger.exception(ex)
 
     def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self._unsaved:
@@ -1385,7 +1383,7 @@ class Metadata(object):
                 saved_tags = MetadataHandler(self._path).get_all_tags()
                 for tag in self._if.get_all_tags():
                     if tag not in saved_tags:
-                        self.logger.warning('tag not saved: %s', tag)
+                        logger.warning('tag not saved: %s', tag)
                         OK = False
             if not OK and not self._sc:
                 # can't write to image so create side car
@@ -1449,7 +1447,7 @@ class Metadata(object):
             try:
                 new_value = self.get_value(self._data_type[name], tag)
             except Exception as ex:
-                self.logger.exception(ex)
+                logger.exception(ex)
                 continue
             if not new_value:
                 continue
@@ -1459,11 +1457,11 @@ class Metadata(object):
             elif value[family].contains(new_value):
                 continue
             elif value[family].merge(new_value):
-                self.logger.info(
+                logger.info(
                     '%s: merged %s into %s',
                     os.path.basename(self._path), tag, used_tag[family])
             else:
-                self.logger.warning(
+                logger.warning(
                     '%s: using %s value "%s", ignoring %s value "%s"',
                     os.path.basename(self._path), used_tag[family],
                     str(value[family]), tag, str(new_value))
@@ -1482,12 +1480,12 @@ class Metadata(object):
                 if result.contains(other):
                     continue
                 elif result.merge(other, family):
-                    self.logger.info(
+                    logger.info(
                         '%s: merged %s data into %s',
                         os.path.basename(self._path),
                         used_tag[family], used_tag[preference])
                 else:
-                    self.logger.warning(
+                    logger.warning(
                         '%s: using %s value "%s", ignoring %s value "%s"',
                         os.path.basename(self._path), used_tag[preference],
                         str(result), used_tag[family], str(other))
@@ -1495,7 +1493,7 @@ class Metadata(object):
         if (result and name.startswith('date_') and
                             result.tz_offset is None and self.timezone):
             result.tz_offset = self.timezone.value
-            self.logger.info(
+            logger.info(
                 '%s: merged camera timezone offset into %s',
                 os.path.basename(self._path), used_tag[preference])
         # add value to object attributes so __getattr__ doesn't get
