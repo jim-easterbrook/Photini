@@ -291,8 +291,8 @@ class LatLon(MetadataDictValue):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
     def contains(self, other):
-        return (not other) or ((abs(other.lat - self.lat) < 0.000001) and
-                               (abs(other.lon - self.lon) < 0.000001))
+        return (not other) or ((abs(other.lat - self.lat) < 0.0000015) and
+                               (abs(other.lon - self.lon) < 0.0000015))
 
 
 class Location(MetadataDictValue):
@@ -657,7 +657,8 @@ class DateTime(MetadataDictValue):
     def contains(self, other):
         if (not other) or (other.value == self.value):
             return True
-        if other.datetime != self.datetime:
+        if other.datetime != self.truncate_date_time(
+                                self.datetime, other.precision):
             return False
         if self.precision < 7 and other.precision < self.precision:
             return False
