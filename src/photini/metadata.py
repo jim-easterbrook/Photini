@@ -661,10 +661,11 @@ class DateTime(MetadataDictValue):
         return self.to_ISO_8601()
 
     def merge(self, tag, other):
+        result = MERGE_CONTAINS
         if (not other) or (other.value == self.value):
-            return MERGE_CONTAINS
-        # if datetime values differ, choose the one with more precision
+            return result
         if other.datetime != self.datetime:
+            # if datetime values differ, choose the one with more precision
             if other.precision > self.precision:
                 self.datetime = other.datetime
                 self.precision = other.precision
@@ -673,11 +674,11 @@ class DateTime(MetadataDictValue):
             if other.datetime != self.truncate_date_time(
                                     self.datetime, other.precision):
                 return MERGE_IGNORED
-        result = MERGE_CONTAINS
-        # some formats default to a higher precision than wanted
-        if self.precision < 7 and other.precision < self.precision:
-            self.precision = other.precision
-            result = MERGE_MERGED
+        else:
+            # some formats default to a higher precision than wanted
+            if self.precision < 7 and other.precision < self.precision:
+                self.precision = other.precision
+                result = MERGE_MERGED
         # don't trust IPTC time zone and Exif time zone is quantised to
         # whole hours, unlike Xmp
         if other.tz_offset is None or MetadataHandler.is_iptc_tag(tag):
