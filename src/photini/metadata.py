@@ -96,13 +96,7 @@ class MetadataValue(object):
     def from_file(cls, tag, file_value):
         return cls(file_value)
 
-    def to_exif(self):
-        return self.value
-
-    def to_iptc(self):
-        return self.value
-
-    def to_xmp(self):
+    def to_file(self, tag):
         return self.value
 
     def __str__(self):
@@ -166,7 +160,7 @@ class FocalLength(MetadataDictValue):
         focal_length, focal_length_35mm = file_value
         return cls((focal_length, focal_length_35mm))
 
-    def to_exif(self):
+    def to_file(self, tag):
         if self.fl is None:
             focal_length = None
         else:
@@ -177,9 +171,6 @@ class FocalLength(MetadataDictValue):
         else:
             focal_length_35mm = '{:d}'.format(self.fl_35)
         return focal_length, focal_length_35mm
-
-    def to_xmp(self):
-        return self.to_exif()
 
     def to_35(self, value):
         if self.fl and self.fl_35:
@@ -224,7 +215,7 @@ class LatLon(MetadataDictValue):
     # Do something different with Xmp.video tags
     @classmethod
     def from_file(cls, tag, file_value):
-        if isinstance(tag, six.string_types) and tag.startswith('Xmp.video'):
+        if tag == 'Xmp.video.GPSCoordinates':
             match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
             if not match:
                 return None
@@ -238,6 +229,19 @@ class LatLon(MetadataDictValue):
         lat_string, lon_string = file_value
         return cls((cls.from_xmp_part(lat_string), cls.from_xmp_part(lon_string)))
 
+    def to_file(self, tag):
+        if MetadataHandler.is_exif_tag(tag):
+            lat_string, negative = self.to_exif_part(self.lat)
+            lat_ref = 'NS'[negative]
+            lon_string, negative = self.to_exif_part(self.lon)
+            lon_ref = 'EW'[negative]
+            return lat_string, lat_ref, lon_string, lon_ref
+        lat_string, negative = self.to_xmp_part(self.lat)
+        lat_string += 'NS'[negative]
+        lon_string, negative = self.to_xmp_part(self.lon)
+        lon_string += 'EW'[negative]
+        return lat_string, lon_string
+
     @staticmethod
     def from_exif_part(value, ref):
         parts = [float(Fraction(x)) for x in value.split()] + [0.0, 0.0]
@@ -248,10 +252,8 @@ class LatLon(MetadataDictValue):
 
     @staticmethod
     def to_exif_part(value):
-        if value >= 0.0:
-            negative = False
-        else:
-            negative = True
+        negative = value < 0.0
+        if negative:
             value = -value
         degrees = int(value)
         value = (value - degrees) * 60.0
@@ -260,13 +262,6 @@ class LatLon(MetadataDictValue):
         seconds = safe_fraction(seconds)
         return '{:d}/1 {:d}/1 {:d}/{:d}'.format(
             degrees, minutes, seconds.numerator, seconds.denominator), negative
-
-    def to_exif(self):
-        lat_string, negative = self.to_exif_part(self.lat)
-        lat_ref = 'NS'[negative]
-        lon_string, negative = self.to_exif_part(self.lon)
-        lon_ref = 'EW'[negative]
-        return lat_string, lat_ref, lon_string, lon_ref
 
     @staticmethod
     def from_xmp_part(value):
@@ -290,13 +285,6 @@ class LatLon(MetadataDictValue):
         degrees = int(value)
         minutes = (value - degrees) * 60.0
         return '{:d},{:.6f}'.format(degrees, minutes), negative
-
-    def to_xmp(self):
-        lat_string, negative = self.to_xmp_part(self.lat)
-        lat_string += 'NS'[negative]
-        lon_string, negative = self.to_xmp_part(self.lon)
-        lon_string += 'EW'[negative]
-        return lat_string, lon_string
 
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
@@ -334,15 +322,7 @@ class Location(MetadataDictValue):
             return cls(file_value + [None])
         return cls(file_value)
 
-    def to_iptc(self):
-        return (self.value['sublocation'],
-                self.value['city'],
-                self.value['province_state'],
-                self.value['country_name'],
-                self.value['country_code'],
-                self.value['world_region'])
-
-    def to_xmp(self):
+    def to_file(self, tag):
         return (self.value['sublocation'],
                 self.value['city'],
                 self.value['province_state'],
@@ -383,7 +363,7 @@ class LensSpec(MetadataDictValue):
             float(self.min_fl),    float(self.max_fl),
             float(self.min_fl_fn), float(self.max_fl_fn))
 
-    def to_exif(self):
+    def to_file(self, tag):
         return ' '.join(
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
                 self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
@@ -427,10 +407,9 @@ class Thumbnail(MetadataDictValue):
             w, h = None, None
         return cls((data, fmt, w, h))
 
-    def to_exif(self):
-        return (self.value['data'], )
-
-    def to_xmp(self):
+    def to_file(self, tag):
+        if MetadataHandler.is_exif_tag(tag):
+            return (self.value['data'], )
         data = self.value['data']
         fmt  = self.value['fmt']
         w    = self.value['w']
@@ -546,6 +525,13 @@ class DateTime(MetadataDictValue):
                 time_stamp -= cls.qt_offset
             return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_xmp(file_value)
+
+    def to_file(self, tag):
+        if MetadataHandler.is_exif_tag(tag):
+            return self.to_exif()
+        if MetadataHandler.is_iptc_tag(tag):
+            return self.to_iptc()
+        return self.to_xmp()
 
     # Exif datetime is always full resolution and valid. Assume a time
     # of 00:00:00 is a none value though.
@@ -698,8 +684,10 @@ class MultiString(MetadataValue):
         value = list(filter(bool, [x.strip() for x in value]))
         super(MultiString, self).__init__(value)
 
-    def to_exif(self):
-        return ';'.join(self.value)
+    def to_file(self, tag):
+        if MetadataHandler.is_exif_tag(tag):
+            return ';'.join(self.value)
+        return self.value
 
     def __str__(self):
         return '; '.join(self.value)
@@ -748,7 +736,7 @@ class CharacterSet(String):
         logger.warning('Unknown character encoding "%s"', repr(file_value))
         return None
 
-    def to_iptc(self):
+    def to_file(self, tag):
         return self.known_encodings[self.value]
 
 
@@ -764,18 +752,17 @@ class Software(String):
             return cls(program)
         return cls(file_value)
 
-    def to_iptc(self):
-        return self.value.split(' v')
+    def to_file(self, tag):
+        if MetadataHandler.is_iptc_tag(tag):
+            return self.value.split(' v')
+        return self.value
 
 
 class Int(MetadataValue):
     def __init__(self, value):
         super(Int, self).__init__(int(value))
 
-    def to_exif(self):
-        return '{:d}'.format(self.value)
-
-    def to_xmp(self):
+    def to_file(self, tag):
         return '{:d}'.format(self.value)
 
     def __nonzero__(self):
@@ -789,11 +776,8 @@ class Aperture(MetadataValue):
     def __init__(self, value):
         super(Aperture, self).__init__(Fraction(value))
 
-    def to_exif(self):
+    def to_file(self, tag):
         return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
-
-    def to_xmp(self):
-        return self.to_exif()
 
     def __nonzero__(self):
         return self.value is not None
@@ -949,12 +933,7 @@ class MetadataHandler(GExiv2.Metadata):
         if self._xmp_only and not self.is_xmp_tag(tag):
             return
         # convert from Photini data type to string or multiple string
-        if self.is_exif_tag(tag):
-            file_value = value.to_exif()
-        elif self.is_iptc_tag(tag):
-            file_value = value.to_iptc()
-        else:
-            file_value = value.to_xmp()
+        file_value = value.to_file(tag)
         # manipulate some tags' data
         if tag == 'Exif.Image.TimeZoneOffset':
             # convert minutes to hours
