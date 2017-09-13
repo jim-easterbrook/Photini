@@ -835,9 +835,10 @@ class MetadataHandler(GExiv2.Metadata):
         self._path = path
         # read metadata from file
         self.open_path(self._path)
-        self._is_xmp = self.get_mime_type() == 'application/rdf+xml'
+        self._xmp_only = self.get_mime_type() in (
+            'application/rdf+xml', 'application/postscript')
         # remove exiv2's synthesised non-XMP tags
-        if self._is_xmp:
+        if self._xmp_only:
             self.clear_exif()
             self.clear_iptc()
         # make list of possible character encodings
@@ -853,7 +854,7 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         # convert IPTC data to UTF-8
-        if self._is_xmp or not self.has_iptc():
+        if not self.has_iptc():
             return
         current_encoding = self.get_value(
             CharacterSet, 'Iptc.Envelope.CharacterSet')
@@ -885,7 +886,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_value(self, data_type, tag):
         # don't get non XMP tags from XMP file
-        if self._is_xmp and not self.is_xmp_tag(tag):
+        if self._xmp_only and not self.is_xmp_tag(tag):
             return None
         # get string or multiple strings
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
@@ -945,7 +946,7 @@ class MetadataHandler(GExiv2.Metadata):
             self.clear_value(tag)
             return
         # don't set non XMP tags in XMP file
-        if self._is_xmp and not self.is_xmp_tag(tag):
+        if self._xmp_only and not self.is_xmp_tag(tag):
             return
         # convert from Photini data type to string or multiple string
         if self.is_exif_tag(tag):
@@ -1086,16 +1087,21 @@ class MetadataHandler(GExiv2.Metadata):
         return GExiv2.Metadata.is_xmp_tag(tag)
 
     def get_supports_exif(self):
-        if self._is_xmp:
+        if self._xmp_only:
             return False
         return super(MetadataHandler, self).get_supports_exif()
+
+    def has_iptc(self):
+        if self._xmp_only:
+            return False
+        return super(MetadataHandler, self).has_iptc()
 
     def save(self, file_times):
         # don't try to save to unwritable formats
         if not (self.get_supports_xmp() or self.get_supports_exif()):
             return False
         # remove exiv2's synthesised non-XMP tags
-        if self._is_xmp:
+        if self._xmp_only:
             self.clear_exif()
             self.clear_iptc()
         try:
