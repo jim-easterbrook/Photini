@@ -1171,132 +1171,132 @@ class Metadata(object):
         }
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
-        'aperture'       : (('Exif', 'Exif.Photo.FNumber'),
-                            ('Xmp',  'Xmp.exif.FNumber')),
-        'camera_model'   : (('Exif', 'Exif.Image.Model'),),
-        'character_set'  : (('Iptc', 'Iptc.Envelope.CharacterSet'),),
-        'copyright'      : (('Exif', 'Exif.Image.Copyright'),
-                            ('Xmp',  'Xmp.dc.rights'),
-                            ('Iptc', 'Iptc.Application2.Copyright')),
-        'creator'        : (('Exif', 'Exif.Image.Artist'),
-                            ('Xmp',  'Xmp.dc.creator'),
-                            ('Iptc', 'Iptc.Application2.Byline')),
-        'date_digitised' : (('Exif', ('Exif.Photo.DateTimeDigitized',
-                                      'Exif.Photo.SubSecTimeDigitized')),
-                            ('Xmp',  'Xmp.xmp.CreateDate'),
-                            ('Iptc', ('Iptc.Application2.DigitizationDate',
-                                      'Iptc.Application2.DigitizationTime'))),
-        'date_modified'  : (('Exif', ('Exif.Image.DateTime',
-                                      'Exif.Photo.SubSecTime')),
-                            ('Xmp',  'Xmp.xmp.ModifyDate')),
-        'date_taken'     : (('Exif', ('Exif.Photo.DateTimeOriginal',
-                                      'Exif.Photo.SubSecTimeOriginal',
-                                      'Exif.Image.TimeZoneOffset')),
-                            ('Xmp',  'Xmp.photoshop.DateCreated'),
-                            ('Iptc', ('Iptc.Application2.DateCreated',
-                                      'Iptc.Application2.TimeCreated'))),
-        'description'    : (('Exif', 'Exif.Image.ImageDescription'),
-                            ('Xmp',  'Xmp.dc.description'),
-                            ('Iptc', 'Iptc.Application2.Caption')),
-        'focal_length'   : (('Exif', ('Exif.Photo.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm')),
-                            ('Xmp',  ('Xmp.exif.FocalLength',
-                                      'Xmp.exif.FocalLengthIn35mmFilm'))),
-        'keywords'       : (('Xmp',  'Xmp.dc.subject'),
-                            ('Iptc', 'Iptc.Application2.Keywords')),
-        'latlong'        : (('Exif', ('Exif.GPSInfo.GPSLatitude',
-                                      'Exif.GPSInfo.GPSLatitudeRef',
-                                      'Exif.GPSInfo.GPSLongitude',
-                                      'Exif.GPSInfo.GPSLongitudeRef')),
-                            ('Xmp', ('Xmp.exif.GPSLatitude',
-                                     'Xmp.exif.GPSLongitude'))),
-        'lens_make'      : (('Exif', 'Exif.Photo.LensMake'),),
-        'lens_model'     : (('Exif', 'Exif.Photo.LensModel'),),
-        'lens_serial'    : (('Exif', 'Exif.Photo.LensSerialNumber'),),
-        'lens_spec'      : (('Exif', 'Exif.Photo.LensSpecification'),),
+        'aperture'       : ('Exif.Photo.FNumber',
+                            'Xmp.exif.FNumber'),
+        'camera_model'   : ('Exif.Image.Model',),
+        'character_set'  : ('Iptc.Envelope.CharacterSet',),
+        'copyright'      : ('Exif.Image.Copyright',
+                            'Xmp.dc.rights',
+                            'Iptc.Application2.Copyright'),
+        'creator'        : ('Exif.Image.Artist',
+                            'Xmp.dc.creator',
+                            'Iptc.Application2.Byline'),
+        'date_digitised' : (('Exif.Photo.DateTimeDigitized',
+                             'Exif.Photo.SubSecTimeDigitized'),
+                            'Xmp.xmp.CreateDate',
+                            ('Iptc.Application2.DigitizationDate',
+                             'Iptc.Application2.DigitizationTime')),
+        'date_modified'  : (('Exif.Image.DateTime',
+                             'Exif.Photo.SubSecTime'),
+                            'Xmp.xmp.ModifyDate'),
+        'date_taken'     : (('Exif.Photo.DateTimeOriginal',
+                             'Exif.Photo.SubSecTimeOriginal',
+                             'Exif.Image.TimeZoneOffset'),
+                            'Xmp.photoshop.DateCreated',
+                            ('Iptc.Application2.DateCreated',
+                             'Iptc.Application2.TimeCreated')),
+        'description'    : ('Exif.Image.ImageDescription',
+                            'Xmp.dc.description',
+                            'Iptc.Application2.Caption'),
+        'focal_length'   : (('Exif.Photo.FocalLength',
+                             'Exif.Photo.FocalLengthIn35mmFilm'),
+                            ('Xmp.exif.FocalLength',
+                             'Xmp.exif.FocalLengthIn35mmFilm')),
+        'keywords'       : ('Xmp.dc.subject',
+                            'Iptc.Application2.Keywords'),
+        'latlong'        : (('Exif.GPSInfo.GPSLatitude',
+                             'Exif.GPSInfo.GPSLatitudeRef',
+                             'Exif.GPSInfo.GPSLongitude',
+                             'Exif.GPSInfo.GPSLongitudeRef'),
+                            ('Xmp.exif.GPSLatitude',
+                             'Xmp.exif.GPSLongitude')),
+        'lens_make'      : ('Exif.Photo.LensMake',),
+        'lens_model'     : ('Exif.Photo.LensModel',),
+        'lens_serial'    : ('Exif.Photo.LensSerialNumber',),
+        'lens_spec'      : ('Exif.Photo.LensSpecification',),
         'location_shown' : (
-            ('Xmp', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion')),),
+            ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation',
+             'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
+             'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
+             'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
+             'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
+             'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion'),),
         'location_taken' : (
-            ('Xmp', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-                     'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion')),
-            ('Xmp', ('Xmp.iptc.Location',
-                     'Xmp.photoshop.City',
-                     'Xmp.photoshop.State',
-                     'Xmp.photoshop.Country',
-                     'Xmp.iptc.CountryCode')),
-            ('Iptc', ('Iptc.Application2.SubLocation',
-                      'Iptc.Application2.City',
-                      'Iptc.Application2.ProvinceState',
-                      'Iptc.Application2.CountryName',
-                      'Iptc.Application2.CountryCode'))),
-        'orientation'    : (('Exif', 'Exif.Image.Orientation'),
-                            ('Xmp',  'Xmp.tiff.Orientation')),
-        'software'       : (('Exif', 'Exif.Image.ProcessingSoftware'),
-                            ('Iptc', ('Iptc.Application2.Program',
-                                      'Iptc.Application2.ProgramVersion'))),
-        'thumbnail'      : (('Exif', ('Exif.Thumbnail.Image',
-                                      'Exif.Thumbnail.Compression')),
-                            ('Xmp',  ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
-                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
-                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
-                                      'Xmp.xmp.Thumbnails[1]/xmpGImg:height'))),
+            ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
+             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
+             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion'),
+            ('Xmp.iptc.Location',
+             'Xmp.photoshop.City',
+             'Xmp.photoshop.State',
+             'Xmp.photoshop.Country',
+             'Xmp.iptc.CountryCode'),
+            ('Iptc.Application2.SubLocation',
+             'Iptc.Application2.City',
+             'Iptc.Application2.ProvinceState',
+             'Iptc.Application2.CountryName',
+             'Iptc.Application2.CountryCode')),
+        'orientation'    : ('Exif.Image.Orientation',
+                            'Xmp.tiff.Orientation'),
+        'software'       : ('Exif.Image.ProcessingSoftware',
+                            ('Iptc.Application2.Program',
+                             'Iptc.Application2.ProgramVersion')),
+        'thumbnail'      : (('Exif.Thumbnail.Image',
+                             'Exif.Thumbnail.Compression'),
+                            ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
+                             'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
+                             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
+                             'Xmp.xmp.Thumbnails[1]/xmpGImg:height')),
         'timezone'       : (),
-        'title'          : (('Xmp',  'Xmp.dc.title'),
-                            ('Iptc', 'Iptc.Application2.ObjectName')),
+        'title'          : ('Xmp.dc.title',
+                            'Iptc.Application2.ObjectName'),
         }
     # mapping of duplicate tags to Photini data fields
     # data in these is merged in when data is read
     # they get deleted when data is written
     _secondary_tags = {
-        'aperture'       : (('Exif', 'Exif.Image.FNumber'),
-                            ('Exif', 'Exif.Image.ApertureValue'),
-                            ('Exif', 'Exif.Photo.ApertureValue'),
-                            ('Xmp', 'Xmp.exif.ApertureValue')),
-        'copyright'      : (('Xmp', 'Xmp.tiff.Copyright'),),
-        'creator'        : (('Exif', 'Exif.Image.XPAuthor'),
-                            ('Xmp', 'Xmp.tiff.Artist')),
-        'date_digitised' : (('Xmp', 'Xmp.exif.DateTimeDigitized'),),
-        'date_modified'  : (('Xmp', 'Xmp.tiff.DateTime'),),
-        'date_taken'     : (('Exif', ('Exif.Image.DateTimeOriginal',)),
-                            ('Xmp', 'Xmp.exif.DateTimeOriginal')),
-        'description'    : (('Exif', 'Exif.Image.XPComment'),
-                            ('Exif', 'Exif.Image.XPSubject'),
-                            ('Xmp', 'Xmp.tiff.ImageDescription')),
-        'focal_length'   : (('Exif', ('Exif.Image.FocalLength',
-                                      'Exif.Photo.FocalLengthIn35mmFilm')),),
-        'keywords'       : (('Exif', 'Exif.Image.XPKeywords'),),
-        'lens_model'     : (('Exif', 'Exif.Canon.LensModel'),
-                            ('Exif', 'Exif.OlympusEq.LensModel'),),
-        'lens_serial'    : (('Exif', 'Exif.OlympusEq.LensSerialNumber'),),
-        'lens_spec'      : (('Exif', 'Exif.Image.LensInfo'),
-                            ('Exif', 'Exif.CanonCs.Lens'),
-                            ('Exif', 'Exif.Nikon3.Lens')),
-        'title'          : (('Exif', 'Exif.Image.XPTitle'),
-                            ('Iptc', 'Iptc.Application2.Headline')),
-        'thumbnail'      : (('Xmp',  ('Xmp.xmp.Thumbnails[1]/xapGImg:image',
-                                      'Xmp.xmp.Thumbnails[1]/xapGImg:format',
-                                      'Xmp.xmp.Thumbnails[1]/xapGImg:width',
-                                      'Xmp.xmp.Thumbnails[1]/xapGImg:height')),),
+        'aperture'       : ('Exif.Image.FNumber',
+                            'Exif.Image.ApertureValue',
+                            'Exif.Photo.ApertureValue',
+                            'Xmp.exif.ApertureValue'),
+        'copyright'      : ('Xmp.tiff.Copyright',),
+        'creator'        : ('Exif.Image.XPAuthor',
+                            'Xmp.tiff.Artist'),
+        'date_digitised' : ('Xmp.exif.DateTimeDigitized',),
+        'date_modified'  : ('Xmp.tiff.DateTime',),
+        'date_taken'     : (('Exif.Image.DateTimeOriginal',),
+                            'Xmp.exif.DateTimeOriginal'),
+        'description'    : ('Exif.Image.XPComment',
+                            'Exif.Image.XPSubject',
+                            'Xmp.tiff.ImageDescription'),
+        'focal_length'   : (('Exif.Image.FocalLength',
+                             'Exif.Photo.FocalLengthIn35mmFilm'),),
+        'keywords'       : ('Exif.Image.XPKeywords',),
+        'lens_model'     : ('Exif.Canon.LensModel',
+                            'Exif.OlympusEq.LensModel'),
+        'lens_serial'    : ('Exif.OlympusEq.LensSerialNumber',),
+        'lens_spec'      : ('Exif.Image.LensInfo',
+                            'Exif.CanonCs.Lens',
+                            'Exif.Nikon3.Lens'),
+        'title'          : ('Exif.Image.XPTitle',
+                            'Iptc.Application2.Headline'),
+        'thumbnail'      : (('Xmp.xmp.Thumbnails[1]/xapGImg:image',
+                             'Xmp.xmp.Thumbnails[1]/xapGImg:format',
+                             'Xmp.xmp.Thumbnails[1]/xapGImg:width',
+                             'Xmp.xmp.Thumbnails[1]/xapGImg:height'),),
         }
     # tags that are read and merged but not deleted
     _read_tags = {
-        'camera_model'   : (('Exif', 'Exif.Image.UniqueCameraModel'),
-                            ('Xmp', 'Xmp.video.Model')),
-        'date_digitised' : (('Xmp', 'Xmp.video.DateUTC'),),
-        'date_modified'  : (('Xmp', 'Xmp.video.ModificationDate'),),
-        'date_taken'     : (('Xmp', 'Xmp.video.DateUTC'),),
-        'latlong'        : (('Xmp', 'Xmp.video.GPSCoordinates'),),
-        'timezone'       : (('Exif', 'Exif.Image.TimeZoneOffset'),
-                            ('Exif', 'Exif.NikonWt.Timezone')),
+        'camera_model'   : ('Exif.Image.UniqueCameraModel',
+                            'Xmp.video.Model'),
+        'date_digitised' : ('Xmp.video.DateUTC',),
+        'date_modified'  : ('Xmp.video.ModificationDate',),
+        'date_taken'     : ('Xmp.video.DateUTC',),
+        'latlong'        : ('Xmp.video.GPSCoordinates',),
+        'timezone'       : ('Exif.Image.TimeZoneOffset',
+                            'Exif.NikonWt.Timezone'),
         }
     # tags that aren't read but are cleared when Photini data is written
     _clear_tags = {
@@ -1363,18 +1363,18 @@ class Metadata(object):
         if self._sc:
             # workaround for bug in exiv2 xmp timestamp altering
             for name in ('date_digitised', 'date_modified', 'date_taken'):
-                for family, tag in self._primary_tags[name]:
+                for tag in self._primary_tags[name]:
                     self._sc.clear_value(tag)
             self._sc.save(file_times)
         for name in self._primary_tags:
             value = getattr(self, name)
             # write data to primary tags
-            for family, tag in self._primary_tags[name]:
-                if save_iptc or family != 'Iptc':
+            for tag in self._primary_tags[name]:
+                if save_iptc or not MetadataHandler.is_iptc_tag(tag):
                     self.set_value(tag, value)
             # delete secondary tags
             if name in self._secondary_tags:
-                for family, tag in self._secondary_tags[name]:
+                for tag in self._secondary_tags[name]:
                     self.set_value(tag, None)
             # clear duplicated but unreadable data
             if name in self._clear_tags:
@@ -1449,13 +1449,17 @@ class Metadata(object):
             tag_list.extend(self._read_tags[name])
         # read data values
         values = {'Exif': [], 'Iptc': [], 'Xmp': []}
-        for family, tag in tag_list:
+        for tag in tag_list:
             try:
                 new_value = self.get_value(self._data_type[name], tag)
             except Exception as ex:
                 logger.exception(ex)
                 continue
             if new_value:
+                if isinstance(tag, tuple):
+                    family = tag[0].split('.')[0]
+                else:
+                    family = tag.split('.')[0]
                 values[family].append((tag, new_value))
         # choose result and merge in non-matching data so user can review it
         result = None, None
@@ -1463,19 +1467,21 @@ class Metadata(object):
             for tag, value in values[family]:
                 if not result[1]:
                     result = tag, value
+                    logger.debug('%s: set %s to %s',
+                                 os.path.basename(self._path), name, tag)
                     continue
                 merged = result[1].merge(tag, value)
                 if merged == MERGE_MERGED:
-                    logger.info('%s: merged %s data into %s',
-                                os.path.basename(self._path), tag, result[0])
+                    logger.info('%s: merged %s into %s',
+                                os.path.basename(self._path), tag, name)
                 elif merged == MERGE_REPLACED:
                     logger.warning(
-                        '%s: using %s value "%s", ignoring %s value "%s"',
+                        '%s: using %s "%s", ignoring %s "%s"',
                         os.path.basename(self._path), tag, str(value),
                         result[0], str(result[1]))
                 elif merged == MERGE_IGNORED:
                     logger.warning(
-                        '%s: using %s value "%s", ignoring %s value "%s"',
+                        '%s: using %s "%s", ignoring %s "%s"',
                         os.path.basename(self._path), result[0], str(result[1]),
                         tag, str(value))
         # merge in camera timezone if needed
@@ -1483,7 +1489,7 @@ class Metadata(object):
                             result[1].tz_offset is None and self.timezone):
             result[1].tz_offset = self.timezone.value
             logger.info('%s: merged camera timezone offset into %s',
-                        os.path.basename(self._path), result[0])
+                        os.path.basename(self._path), name)
         # add value to object attributes so __getattr__ doesn't get
         # called again
         super(Metadata, self).__setattr__(name, result[1])
