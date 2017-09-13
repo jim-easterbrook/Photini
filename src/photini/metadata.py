@@ -999,6 +999,11 @@ class MetadataHandler(GExiv2.Metadata):
         if not value:
             self.clear_value(tag)
             return
+        # don't duplicate Exif properties in XMP
+        if self.get_supports_exif() and (tag.startswith('Xmp.exif.') or
+                                         tag.startswith('Xmp.tiff.')):
+            self.clear_value(tag)
+            return
         if tag == 'Exif.Thumbnail.Image':
             self.set_exif_thumbnail_from_buffer(value)
             return
@@ -1080,7 +1085,15 @@ class MetadataHandler(GExiv2.Metadata):
             tag = tag[0]
         return GExiv2.Metadata.is_xmp_tag(tag)
 
+    def get_supports_exif(self):
+        if self._is_xmp:
+            return False
+        return super(MetadataHandler, self).get_supports_exif()
+
     def save(self, file_times):
+        # don't try to save to unwritable formats
+        if not (self.get_supports_xmp() or self.get_supports_exif()):
+            return False
         # remove exiv2's synthesised non-XMP tags
         if self._is_xmp:
             self.clear_exif()
