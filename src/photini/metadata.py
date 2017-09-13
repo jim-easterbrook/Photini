@@ -544,7 +544,7 @@ class DateTime(MetadataDictValue):
         return self.to_xmp()
 
     # Exif datetime is always full resolution and valid. Assume a time
-    # of 00:00:00 is a none value though.
+    # of 00:00:00 is a None value though.
     @classmethod
     def from_exif(cls, file_value):
         datetime_string = file_value[0]
@@ -563,7 +563,7 @@ class DateTime(MetadataDictValue):
         if result.precision > 3 and len(file_value) > 2:
             tz_string = file_value[2]
             if tz_string:
-                result.tz_offset = int(tz_string)
+                result.tz_offset = 60 * int(tz_string)
         return result
 
     def to_exif(self):
@@ -574,7 +574,7 @@ class DateTime(MetadataDictValue):
         #                   YYYY mm dd HH MM SS
         datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
         if self.precision > 3 and self.tz_offset is not None:
-            tz_string = str(self.tz_offset)
+            tz_string = str(int(round(float(self.tz_offset) / 60.0)))
         else:
             tz_string = ''
         return datetime_string, sub_sec_string, tz_string
@@ -782,6 +782,23 @@ class Int(MetadataValue):
         return '{:d}'.format(self.value)
 
 
+class Timezone(Int):
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if tag == 'Exif.Image.TimeZoneOffset':
+            # convert hours to minutes
+            return cls(int(file_value) * 60)
+        return cls(file_value)
+
+    def to_file(self, tag):
+        if tag == 'Exif.Image.TimeZoneOffset':
+            # convert minutes to hours
+            value = int(round(float(self.value) / 60.0))
+        else:
+            value = self.value
+        return '{:d}'.format(value)
+
+
 class Aperture(MetadataValue):
     # store FNumber as a fraction
     def __init__(self, value):
@@ -915,9 +932,6 @@ class MetadataHandler(GExiv2.Metadata):
             # decode UCS2 string
             file_value = bytearray(map(int, file_value.split()))
             file_value = file_value.decode('utf_16').strip('\x00')
-        elif tag == 'Exif.Image.TimeZoneOffset':
-            # convert hours to minutes
-            file_value = str(int(file_value) * 60)
         # convert to Photini data type
         return data_type.from_file(tag, file_value)
 
@@ -948,10 +962,6 @@ class MetadataHandler(GExiv2.Metadata):
             return
         # convert from Photini data type to string or multiple string
         file_value = value.to_file(tag)
-        # manipulate some tags' data
-        if tag == 'Exif.Image.TimeZoneOffset':
-            # convert minutes to hours
-            file_value = str(int(round(float(file_value) / 60.0)))
         # write to file
         if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.Keywords',
                    'Xmp.dc.creator', 'Xmp.dc.subject'):
@@ -1161,7 +1171,7 @@ class Metadata(object):
         'orientation'    : Int,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
-        'timezone'       : Int,
+        'timezone'       : Timezone,
         'title'          : String,
         }
     # mapping of preferred tags to Photini data fields
