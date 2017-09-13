@@ -24,6 +24,7 @@ from datetime import datetime
 from fractions import Fraction
 import locale
 import logging
+import math
 import os
 import re
 
@@ -358,15 +359,24 @@ class LensSpec(MetadataDictValue):
             'max_fl_fn' : safe_fraction(max_fl_fn),
             })
 
-    def __str__(self):
-        return '{:g} {:g} {:g} {:g}'.format(
-            float(self.min_fl),    float(self.max_fl),
-            float(self.min_fl_fn), float(self.max_fl_fn))
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if tag == 'Exif.CanonCs.Lens':
+            long_focal, short_focal, focal_units = file_value.split()
+            return cls(('{}/{}'.format(short_focal, focal_units),
+                        '{}/{}'.format(long_focal, focal_units),
+                        0, 0))
+        return cls(file_value)
 
     def to_file(self, tag):
         return ' '.join(
             ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
                 self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)])
+
+    def __str__(self):
+        return '{:g} {:g} {:g} {:g}'.format(
+            float(self.min_fl),    float(self.max_fl),
+            float(self.min_fl_fn), float(self.max_fl_fn))
 
     def contains(self, other):
         if (not other) or (other.value == self.value):
@@ -431,8 +441,8 @@ class Thumbnail(MetadataDictValue):
         data = codecs.encode(data, 'base64_codec')
         return data, fmt, str(w), str(h)
 
-    def contains(self, other):
-        return True
+    def merge(self, tag, other):
+        return MERGE_CONTAINS
 
 
 class DateTime(MetadataDictValue):
@@ -773,11 +783,24 @@ class Int(MetadataValue):
 
 
 class Aperture(MetadataValue):
+    # store FNumber as a fraction
     def __init__(self, value):
-        super(Aperture, self).__init__(Fraction(value))
+        super(Aperture, self).__init__(safe_fraction(value))
+
+    @classmethod
+    def from_file(cls, tag, file_value):
+        if tag.split('.')[-1] == 'ApertureValue':
+            # convert from APEX aperture value
+            return cls(2.0 ** (Fraction(file_value) / 2.0))
+        return cls(file_value)
 
     def to_file(self, tag):
-        return '{:d}/{:d}'.format(self.value.numerator, self.value.denominator)
+        if tag.split('.')[-1] == 'ApertureValue':
+            # convert to APEX aperture value
+            value = safe_fraction(math.log(self.value, 2) * 2.0)
+        else:
+            value = self.value
+        return '{:d}/{:d}'.format(value.numerator, value.denominator)
 
     def __nonzero__(self):
         return self.value is not None
@@ -886,24 +909,15 @@ class MetadataHandler(GExiv2.Metadata):
         if file_value is None or not any(file_value):
             return None
         # manipulate some tags' data
-        if tag in ('Exif.Image.ApertureValue',
-                   'Exif.Photo.ApertureValue'):
-            # convert APEX aperture value
-            file_value = 2.0 ** (Fraction(file_value) / 2.0)
-        elif tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPComment',
-                     'Exif.Image.XPKeywords', 'Exif.Image.XPSubject',
-                     'Exif.Image.XPTitle'):
+        if tag in ('Exif.Image.XPAuthor', 'Exif.Image.XPComment',
+                   'Exif.Image.XPKeywords', 'Exif.Image.XPSubject',
+                   'Exif.Image.XPTitle'):
             # decode UCS2 string
             file_value = bytearray(map(int, file_value.split()))
             file_value = file_value.decode('utf_16').strip('\x00')
         elif tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
             file_value = str(int(file_value) * 60)
-        elif tag == 'Exif.CanonCs.Lens':
-            long_focal, short_focal, focal_units = file_value.split()
-            file_value = ('{}/{}'.format(short_focal, focal_units),
-                          '{}/{}'.format(long_focal, focal_units),
-                          0, 0)
         # convert to Photini data type
         return data_type.from_file(tag, file_value)
 
@@ -980,8 +994,10 @@ class MetadataHandler(GExiv2.Metadata):
             self.clear_value(tag)
             return
         # don't duplicate Exif properties in XMP
-        if self.get_supports_exif() and (tag.startswith('Xmp.exif.') or
-                                         tag.startswith('Xmp.tiff.')):
+        if self.get_supports_exif() and (
+                tag.startswith('Xmp.xmp.Thumbnails') or
+                '.'.join(tag.split('.')[:2]) in (
+                    'Xmp.aux', 'Xmp.exif', 'Xmp.exifEX', 'Xmp.tiff')):
             self.clear_value(tag)
             return
         if tag == 'Exif.Thumbnail.Image':
@@ -1151,7 +1167,9 @@ class Metadata(object):
     # mapping of preferred tags to Photini data fields
     _primary_tags = {
         'aperture'       : ('Exif.Photo.FNumber',
-                            'Xmp.exif.FNumber'),
+                            'Exif.Photo.ApertureValue',
+                            'Xmp.exif.FNumber',
+                            'Xmp.exif.ApertureValue'),
         'camera_model'   : ('Exif.Image.Model',),
         'character_set'  : ('Iptc.Envelope.CharacterSet',),
         'copyright'      : ('Exif.Image.Copyright',
@@ -1189,10 +1207,14 @@ class Metadata(object):
                              'Exif.GPSInfo.GPSLongitudeRef'),
                             ('Xmp.exif.GPSLatitude',
                              'Xmp.exif.GPSLongitude')),
-        'lens_make'      : ('Exif.Photo.LensMake',),
-        'lens_model'     : ('Exif.Photo.LensModel',),
-        'lens_serial'    : ('Exif.Photo.LensSerialNumber',),
-        'lens_spec'      : ('Exif.Photo.LensSpecification',),
+        'lens_make'      : ('Exif.Photo.LensMake',
+                            'Xmp.exifEX.LensMake'),
+        'lens_model'     : ('Exif.Photo.LensModel',
+                            'Xmp.exifEX.LensModel'),
+        'lens_serial'    : ('Exif.Photo.LensSerialNumber',
+                            'Xmp.exifEX.LensSerialNumber'),
+        'lens_spec'      : ('Exif.Photo.LensSpecification',
+                            'Xmp.exifEX.LensSpecification'),
         'location_shown' : (
             ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation',
              'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
@@ -1237,9 +1259,7 @@ class Metadata(object):
     # they get deleted when data is written
     _secondary_tags = {
         'aperture'       : ('Exif.Image.FNumber',
-                            'Exif.Image.ApertureValue',
-                            'Exif.Photo.ApertureValue',
-                            'Xmp.exif.ApertureValue'),
+                            'Exif.Image.ApertureValue'),
         'copyright'      : ('Xmp.tiff.Copyright',),
         'creator'        : ('Exif.Image.XPAuthor',
                             'Xmp.tiff.Artist'),
@@ -1254,8 +1274,10 @@ class Metadata(object):
                              'Exif.Photo.FocalLengthIn35mmFilm'),),
         'keywords'       : ('Exif.Image.XPKeywords',),
         'lens_model'     : ('Exif.Canon.LensModel',
-                            'Exif.OlympusEq.LensModel'),
-        'lens_serial'    : ('Exif.OlympusEq.LensSerialNumber',),
+                            'Exif.OlympusEq.LensModel',
+                            'Xmp.aux.Lens'),
+        'lens_serial'    : ('Exif.OlympusEq.LensSerialNumber',
+                            'Xmp.aux.SerialNumber'),
         'lens_spec'      : ('Exif.Image.LensInfo',
                             'Exif.CanonCs.Lens',
                             'Exif.Nikon3.Lens'),
