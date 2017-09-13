@@ -1306,8 +1306,6 @@ class Metadata(object):
             pass
         except Exception as ex:
             logger.exception(ex)
-        if not self._if and not self._sc:
-            self.create_side_car()
         self._unsaved = False
 
     def _find_side_car(self, path):
@@ -1338,7 +1336,7 @@ class Metadata(object):
     def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self._unsaved:
             return
-        if sc_mode == 'always' and not self._sc:
+        if (sc_mode == 'always' or not self._if) and not self._sc:
             self.create_side_car()
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
