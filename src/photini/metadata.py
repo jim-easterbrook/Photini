@@ -979,19 +979,17 @@ class MetadataHandler(GExiv2.Metadata):
         if not self.has_tag(tag):
             return
         self.clear_tag(tag)
-
-    def clear_tag(self, tag):
-        super(MetadataHandler, self).clear_tag(tag)
         if self.is_xmp_tag(tag) and '/' in tag:
             # attempt to remove XMP structure/container
             container, subtag = tag.split('/')
             bag = container.partition('[')[0]
             for t in self.get_xmp_tags():
-                if t.startswith(bag):
+                if t.startswith(container + '/'):
                     # bag is not empty
                     return
-            super(MetadataHandler, self).clear_tag(container)
-            super(MetadataHandler, self).clear_tag(bag)
+            if container != bag:
+                self.clear_tag(container)
+            self.clear_tag(bag)
 
     def get_string(self, tag):
         if isinstance(tag, tuple):
