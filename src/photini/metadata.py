@@ -1231,6 +1231,7 @@ class Metadata(object):
                                        'Xmp.xmp.Thumbnails[1]/xapGImg:width',
                                        'Xmp.xmp.Thumbnails[1]/xapGImg:height'))),
         'timezone'       : (('RA.WN', 'Exif.Image.TimeZoneOffset'),
+                            ('RA.WN', 'Exif.CanonTi.TimeZone'),
                             ('RA.WN', 'Exif.NikonWt.Timezone')),
         'title'          : (('RA.WA', 'Xmp.dc.title'),
                             ('RA.WA', 'Iptc.Application2.ObjectName'),
