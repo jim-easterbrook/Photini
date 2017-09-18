@@ -31,7 +31,6 @@ Copyright              Exif.Image.Copyright              Xmp.dc.rights          
 Creator / Artist       Exif.Image.Artist                 Xmp.dc.creator                  Iptc.Application2.Byline
 Date / time Taken      Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated       Iptc.Application2.DateCreated
                        Exif.Photo.SubSecTimeOriginal                                     Iptc.Application2.TimeCreated
-                       Exif.Image.TimeZoneOffset
 Date / time Digitised  Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate              Iptc.Application2.DigitizationDate
                        Exif.Photo.SubSecTimeDigitized                                    Iptc.Application2.DigitizationTime
 Date / time Modified   Exif.Image.DateTime               Xmp.xmp.ModifyDate
