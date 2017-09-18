@@ -1293,7 +1293,6 @@ class Metadata(QtCore.QObject):
             self.create_side_car()
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
-        save_iptc = force_iptc or (self._if and self._if.has_iptc())
         if self._sc:
             # workaround for bug in exiv2 xmp timestamp altering
             for name in ('date_digitised', 'date_modified', 'date_taken'):
@@ -1301,16 +1300,17 @@ class Metadata(QtCore.QObject):
                     if mode == 'RA.WA':
                         self._sc.clear_value(tag)
             self._sc.save(file_times)
-        for name in self._tag_list:
-            value = getattr(self, name)
-            for mode, tag in self._tag_list[name]:
-                if not save_iptc and MetadataHandler.is_iptc_tag(tag):
-                    continue
-                write_mode = mode.split('.')[1]
-                if write_mode == 'WN':
-                    continue
-                for handler in (self._sc, self._if):
-                    if not handler:
+        for handler in (self._sc, self._if):
+            if not handler:
+                continue
+            save_iptc = force_iptc or handler.has_iptc()
+            for name in self._tag_list:
+                value = getattr(self, name)
+                for mode, tag in self._tag_list[name]:
+                    if not save_iptc and handler.is_iptc_tag(tag):
+                        continue
+                    write_mode = mode.split('.')[1]
+                    if write_mode == 'WN':
                         continue
                     if ((not value) or (write_mode == 'W0') or
                         (write_mode == 'WX' and handler.get_supports_exif())):
