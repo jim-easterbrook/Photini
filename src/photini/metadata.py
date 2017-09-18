@@ -1079,7 +1079,9 @@ class MetadataHandler(GExiv2.Metadata):
         return None
 
 
-class Metadata(object):
+class Metadata(QtCore.QObject):
+    unsaved = QtCore.pyqtSignal(bool)
+
     # type of each Photini data field's data
     _data_type = {
         'aperture'       : Aperture,
@@ -1238,9 +1240,8 @@ class Metadata(object):
                             ('RA.W0', 'Exif.Image.XPTitle'),
                             ('RA.W0', 'Iptc.Application2.Headline')),
         }
-    def __init__(self, path, new_status=None):
-        super(Metadata, self).__init__()
-        self._new_status = new_status
+    def __init__(self, path, *args, **kw):
+        super(Metadata, self).__init__(*args, **kw)
         # create metadata handlers for image file and/or sidecar
         self._path = path
         self._sc_path = self._find_side_car(path)
@@ -1258,7 +1259,7 @@ class Metadata(object):
             pass
         except Exception as ex:
             logger.exception(ex)
-        self._unsaved = False
+        self.dirty = False
 
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
@@ -1286,7 +1287,7 @@ class Metadata(object):
             logger.exception(ex)
 
     def save(self, if_mode, sc_mode, force_iptc, file_times):
-        if not self._unsaved:
+        if not self.dirty:
             return
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self.create_side_car()
@@ -1335,7 +1336,9 @@ class Metadata(object):
             self._sc = None
         if self._sc:
             OK = self._sc.save(file_times)
-        self._set_unsaved(not OK)
+        if OK:
+            self.dirty = False
+            self.unsaved.emit(self.dirty)
 
     def get_mime_type(self):
         if self._if:
@@ -1354,7 +1357,8 @@ class Metadata(object):
                 self._if.clone(other._if)
             if other._sc:
                 self._if.clone(other._sc)
-        self._set_unsaved(True)
+        self.dirty = True
+        self.unsaved.emit(self.dirty)
 
     def __getattr__(self, name):
         if name not in self._tag_list:
@@ -1407,12 +1411,9 @@ class Metadata(object):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
-        self._set_unsaved(True)
-
-    def _set_unsaved(self, status):
-        self._unsaved = status
-        if self._new_status:
-            self._new_status(self._unsaved)
+        if not self.dirty:
+            self.dirty = True
+            self.unsaved.emit(self.dirty)
 
     def changed(self):
-        return self._unsaved
+        return self.dirty
