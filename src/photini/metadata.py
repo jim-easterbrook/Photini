@@ -280,26 +280,16 @@ class LatLon(MD_Dict):
 
 
 class Location(MD_Dict):
+    _keys = ('sublocation', 'city', 'province_state',
+             'country_name', 'country_code', 'world_region')
+
     # stores IPTC defined location heirarchy
     def __init__(self, value):
-        if isinstance(value, dict):
-            value = (value['sublocation'], value['city'],
-                     value['province_state'], value['country_name'],
-                     value['country_code'], value['world_region'])
-        elif isinstance(value, six.string_types):
-            value = value.split(',')
-        value = [x or None for x in value]
-        country_code = value[4]
-        if country_code:
-            country_code = country_code.upper()
-        super(Location, self).__init__({
-            'sublocation'   : value[0],
-            'city'          : value[1],
-            'province_state': value[2],
-            'country_name'  : value[3],
-            'country_code'  : country_code,
-            'world_region'  : value[5]
-            })
+        if isinstance(value, (tuple, list)):
+            value = dict(zip(self._keys, value))
+        if value['country_code']:
+            value['country_code'] = value['country_code'].upper()
+        super(Location, self).__init__(value)
 
     @classmethod
     def read(cls, handler, tag):
@@ -311,9 +301,7 @@ class Location(MD_Dict):
         return cls(file_value)
 
     def write(self, handler, tag):
-        handler.set_string(tag, (
-            self.sublocation, self.city, self.province_state,
-            self.country_name, self.country_code, self.world_region))
+        handler.set_string(tag, [self[x] for x in self._keys])
 
     def merge(self, info, tag, other):
         merged = False
