@@ -1304,6 +1304,8 @@ class Metadata(QtCore.QObject):
         for name in self._tag_list:
             value = getattr(self, name)
             for mode, tag in self._tag_list[name]:
+                if not save_iptc and MetadataHandler.is_iptc_tag(tag):
+                    continue
                 write_mode = mode.split('.')[1]
                 if write_mode == 'WN':
                     continue
