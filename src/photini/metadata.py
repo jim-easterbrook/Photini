@@ -138,13 +138,9 @@ class FocalLength(MD_Dict):
     # store actual focal length and 35mm film equivalent
     def __init__(self, value):
         fl, fl_35 = value
-        if fl in (None, ''):
-            fl = None
-        else:
+        if fl:
             fl = safe_fraction(fl)
-        if fl_35 in (None, ''):
-            fl_35 = None
-        else:
+        if fl_35:
             fl_35 = int(fl_35)
         super(FocalLength, self).__init__({'fl': fl, 'fl_35': fl_35})
 
@@ -153,24 +149,18 @@ class FocalLength(MD_Dict):
         file_value = handler.get_string(tag)
         if not any(file_value):
             return None
-        focal_length = file_value[0]
-        if len(file_value) > 1:
-            focal_length_35mm = file_value[1]
-        else:
-            focal_length_35mm = None
-        return cls((focal_length, focal_length_35mm))
+        if len(file_value) < 2:
+            file_value.append(None)
+        return cls(file_value)
 
     def write(self, handler, tag):
-        if self.fl is None:
-            focal_length = None
-        else:
-            focal_length = '{:d}/{:d}'.format(
+        file_value = [None, None]
+        if self.fl:
+            file_value[0] = '{:d}/{:d}'.format(
                 self.fl.numerator, self.fl.denominator)
-        if self.fl_35 is None:
-            focal_length_35mm = None
-        else:
-            focal_length_35mm = '{:d}'.format(self.fl_35)
-        handler.set_string(tag, (focal_length, focal_length_35mm))
+        if self.fl_35:
+            file_value[1] = '{:d}'.format(self.fl_35)
+        handler.set_string(tag, file_value)
 
     def to_35(self, value):
         if value and self.fl and self.fl_35:
