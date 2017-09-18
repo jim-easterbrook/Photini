@@ -373,7 +373,7 @@ class Thumbnail(MD_Dict):
             data = handler.get_exif_thumbnail()
             if not data:
                 return None
-            fmt = handler.get_tag_string(tag[1])
+            fmt = handler.get_tag_string(tag)
             fmt = ('TIFF', 'JPEG')[fmt == '6']
             w, h = None, None
         return cls((data, fmt, w, h))
@@ -1221,8 +1221,7 @@ class Metadata(object):
         'software'       : (('RA.WA', 'Exif.Image.ProcessingSoftware'),
                             ('RA.WA', ('Iptc.Application2.Program',
                                        'Iptc.Application2.ProgramVersion'))),
-        'thumbnail'      : (('RA.WA', ('Exif.Thumbnail.Image',
-                                       'Exif.Thumbnail.Compression')),
+        'thumbnail'      : (('RA.WA', 'Exif.Thumbnail.Compression'),
                             ('RA.WX', ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
                                        'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
                                        'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
