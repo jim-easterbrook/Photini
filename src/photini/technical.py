@@ -581,11 +581,11 @@ class NewLensDialog(QtWidgets.QDialog):
         # fill in any values we can from existing metadata
         for image in images:
             if image.metadata.lens_model:
-                self.lens_model.setText(image.metadata.lens_model.value)
+                self.lens_model.setText(image.metadata.lens_model)
             if image.metadata.lens_make:
-                self.lens_make.setText(image.metadata.lens_make.value)
+                self.lens_make.setText(image.metadata.lens_make)
             if image.metadata.lens_serial:
-                self.lens_serial.setText(image.metadata.lens_serial.value)
+                self.lens_serial.setText(image.metadata.lens_serial)
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
                 if spec and spec.value[key]:
@@ -764,8 +764,6 @@ class Technical(QtWidgets.QWidget):
             return
         if value == '<clear>':
             value = None
-        else:
-            value = int(value)
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
@@ -932,18 +930,18 @@ class Technical(QtWidgets.QWidget):
                 return
         if not self.widgets['lens_model'].known_value(model):
             # new lens
-            self.lens_data.load_from_image(model.value, images[0])
-            self.widgets['lens_model'].add_item(model.value, model.value)
+            self.lens_data.load_from_image(model, images[0])
+            self.widgets['lens_model'].add_item(model, model)
         blocked = self.widgets['lens_model'].blockSignals(True)
         self.widgets['lens_model'].set_value(model)
         self.widgets['lens_model'].blockSignals(blocked)
         tool_tip = ''
         if images[0].metadata.lens_make:
-            tool_tip = images[0].metadata.lens_make.value + ' '
+            tool_tip = images[0].metadata.lens_make + ' '
         if images[0].metadata.lens_model:
-            tool_tip += images[0].metadata.lens_model.value + ' '
+            tool_tip += images[0].metadata.lens_model + ' '
         if images[0].metadata.lens_serial:
-            tool_tip += '(' + images[0].metadata.lens_serial.value + ')'
+            tool_tip += '(' + images[0].metadata.lens_serial + ')'
         self.widgets['lens_model'].setToolTip(tool_tip)
 
     def _update_lens_spec(self):
@@ -962,7 +960,7 @@ class Technical(QtWidgets.QWidget):
         make_changes = False
         for image in images:
             if image.metadata.aperture:
-                new_aperture = image.metadata.aperture.value
+                new_aperture = image.metadata.aperture
             else:
                 new_aperture = 0
             if image.metadata.focal_length:
@@ -981,7 +979,7 @@ class Technical(QtWidgets.QWidget):
             if new_aperture == 0 and new_fl == 0:
                 continue
             if (image.metadata.aperture and
-                    new_aperture == image.metadata.aperture.value and
+                    new_aperture == image.metadata.aperture and
                     image.metadata.focal_length and
                     new_fl == image.metadata.focal_length.fl):
                 continue

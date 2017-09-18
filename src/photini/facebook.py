@@ -183,7 +183,12 @@ class FacebookSession(UploaderSession):
         # get a list of possible place names by searching for anything nearby
         hist = defaultdict(int)
         for place in self.get_places(latlong, 1000, ''):
-            for word in place['name'].split() + place['location']['city'].split():
+            words = []
+            if 'name' in place:
+                words += place['name'].split()
+            if 'location' in place and 'city' in place['location']:
+                words += place['location']['city'].split()
+            for word in words:
                 if word and word[0] in (',', '('):
                     word = word[1:]
                 if word and word[-1] in (',', ')'):
@@ -218,11 +223,11 @@ class FacebookSession(UploaderSession):
         title = image.metadata.title
         description = image.metadata.description
         if title and description:
-            caption = title.value + '\n\n' + description.value
+            caption = title + '\n\n' + description
         elif title:
-            caption = title.value
+            caption = title
         elif description:
-            caption = description.value
+            caption = description
         else:
             caption = ''
         if caption:

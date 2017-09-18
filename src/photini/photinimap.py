@@ -420,14 +420,8 @@ class PhotiniMap(QtWidgets.QSplitter):
     @QtCore.pyqtSlot()
     def swap_locations(self):
         for image in self.image_list.get_selected_images():
-            taken = image.metadata.location_taken
-            if taken:
-                taken = taken.value
-            shown = image.metadata.location_shown
-            if shown:
-                shown = shown.value
-            image.metadata.location_taken = shown
-            image.metadata.location_shown = taken
+            image.metadata.location_taken, image.metadata.location_shown = (
+                image.metadata.location_shown, image.metadata.location_taken)
         self.display_location()
 
     @QtCore.pyqtSlot(six.text_type, six.text_type)
@@ -442,7 +436,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         for image in self.image_list.get_selected_images():
             location = getattr(image.metadata, taken_shown)
             if location:
-                new_value = dict(location.value)
+                new_value = dict(location)
             else:
                 new_value = dict.fromkeys((
                     'sublocation', 'city', 'province_state',
@@ -486,7 +480,7 @@ class PhotiniMap(QtWidgets.QSplitter):
                 for image in images:
                     value = getattr(image.metadata, 'location_' + taken_shown)
                     if value:
-                        value = value.value[attr]
+                        value = value[attr]
                     if value not in values:
                         values.append(value)
                 if len(values) > 1:

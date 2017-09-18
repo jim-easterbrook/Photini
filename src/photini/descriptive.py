@@ -144,7 +144,7 @@ class KeywordsEditor(QtWidgets.QWidget):
             for keyword in self.league_table:
                 self.league_table[keyword] = max(
                     self.league_table[keyword] - 1, -5)
-            for keyword in value.value:
+            for keyword in value:
                 self.league_table[keyword] = min(
                     self.league_table[keyword] + 10, 1000)
         self.config_store.set(

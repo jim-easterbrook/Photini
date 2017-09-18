@@ -83,72 +83,58 @@ def decode_UCS2(value):
     value = bytearray(map(int, value.split()))
     return value.decode('utf_16').strip('\x00')
 
-
-# results of MetadataValue.merge()
-MERGE_CONTAINS = 0      # self contains other, no action taken
-MERGE_MERGED   = 1      # other merged into self with no loss of information
-MERGE_REPLACED = 2      # self replaced by non-contained other
-MERGE_IGNORED  = 3      # non-contained other ignored
-
-class MetadataValue(object):
-    # base for classes that store a metadata value, e.g. a string, int
-    # or float
-    def __init__(self, value):
-        assert(value is not None)
-        self.value = value
-
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        return cls(file_value)
-
-    def write(self, handler, tag):
-        handler.set_string(tag, self.value)
-
-    def __str__(self):
-        return six.text_type(self.value)
-
+class MD_Value(object):
+    # mixin for "metadata objects" - Python types with additional functionality
     def __nonzero__(self):
-        return bool(self.value)
+        # reinterpret as "has a value"
+        return True
 
-    def __eq__(self, other):
-        return isinstance(other, MetadataValue) and self.value == other.value
+    def log_merged(self, info, tag, value):
+        logger.info('%s: merged %s', info, tag)
 
-    def __ne__(self, other):
-        return not isinstance(other, MetadataValue) or self.value != other.value
+    def log_replaced(self, info, tag, value):
+        logger.warning(
+            '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
 
-    def contains(self, other):
-        # "contains" = no need to merge or replace.
-        return (not other) or (other.value == self.value)
-
-    def merge(self, tag, other):
-        # merge or replace self with other, or ignore other
-        if self.contains(other):
-            return MERGE_CONTAINS
-        return MERGE_IGNORED
+    def log_ignored(self, info, tag, value):
+        logger.warning('%s: ignored %s "%s"', info, tag, str(value))
 
 
-class MetadataDictValue(MetadataValue):
-    # base for classes that store a dictionary of metadata values, e.g.
-    # latitude & longitude
-    value = {}
-
+class MD_Dict(dict, MD_Value):
     def __getattr__(self, name):
-        if name in self.value:
-            return self.value[name]
+        if name in self:
+            return self[name]
         raise AttributeError(
-            "%s has no attribute %s" % (self.__class__, name))
+            "{} has no attribute {}".format(self.__class__, name))
 
     def __setattr__(self, name, value):
-        if name in self.value:
-            self.value[name] = value
+        if name in self:
+            self[name] = value
             return
-        super(MetadataDictValue, self).__setattr__(name, value)
+        super(MD_Dict, self).__setattr__(name, value)
+
+    def __nonzero__(self):
+        return any(self.values())
+
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        ignored = False
+        for key in self:
+            if not other[key]:
+                continue
+            if not self[key]:
+                self[key] = other[key]
+            elif other[key] != self[key]:
+                ignored = True
+        if ignored:
+            self.log_ignored(info, tag, other)
+        else:
+            self.log_merged(info, tag, other)
+        return self
 
 
-class FocalLength(MetadataDictValue):
+class FocalLength(MD_Dict):
     # store actual focal length and 35mm film equivalent
     def __init__(self, value):
         fl, fl_35 = value
@@ -187,35 +173,17 @@ class FocalLength(MetadataDictValue):
         handler.set_string(tag, (focal_length, focal_length_35mm))
 
     def to_35(self, value):
-        if self.fl and self.fl_35:
+        if value and self.fl and self.fl_35:
             return int((float(value) * float(self.fl_35) / self.fl) + 0.5)
         return self.fl_35
 
     def from_35(self, value):
-        if self.fl and self.fl_35:
+        if value and self.fl and self.fl_35:
             return round(float(value) * self.fl / float(self.fl_35), 2)
         return self.fl
 
-    def __nonzero__(self):
-        return (self.fl is not None) or (self.fl_35 is not None)
 
-    def merge(self, tag, other):
-        if (not other) or ((other.fl in (None, self.fl)) and
-                           (other.fl_35 in (None, self.fl_35))):
-            return MERGE_CONTAINS
-        result = MERGE_MERGED
-        if self.fl is None:
-            self.fl = other.fl
-        elif other.fl and other.fl != self.fl:
-            result = MERGE_IGNORED
-        if self.fl_35 is None:
-            self.fl_35 = other.fl_35
-        elif other.fl_35 and other.fl_35 != self.fl_35:
-            result = MERGE_IGNORED
-        return result
-
-
-class LatLon(MetadataDictValue):
+class LatLon(MD_Dict):
     # simple class to store latitude and longitude
     def __init__(self, value):
         if isinstance(value, six.string_types):
@@ -305,12 +273,13 @@ class LatLon(MetadataDictValue):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
-    def contains(self, other):
-        return (not other) or ((abs(other.lat - self.lat) < 0.0000015) and
-                               (abs(other.lon - self.lon) < 0.0000015))
+    def merge(self, info, tag, other):
+        if max(abs(other.lat - self.lat), abs(other.lon - self.lon)) > 0.0000015:
+            self.log_ignored(info, tag, other)
+        return self
 
 
-class Location(MetadataDictValue):
+class Location(MD_Dict):
     # stores IPTC defined location heirarchy
     def __init__(self, value):
         if isinstance(value, dict):
@@ -342,26 +311,27 @@ class Location(MetadataDictValue):
         return cls(file_value)
 
     def write(self, handler, tag):
-        handler.set_string(tag, (self.value['sublocation'],
-                                 self.value['city'],
-                                 self.value['province_state'],
-                                 self.value['country_name'],
-                                 self.value['country_code'],
-                                 self.value['world_region']))
+        handler.set_string(tag, (
+            self.sublocation, self.city, self.province_state,
+            self.country_name, self.country_code, self.world_region))
 
-    def merge(self, tag, other):
-        if not other:
-            return MERGE_CONTAINS
-        result = MERGE_CONTAINS
-        for key in self.value:
-            if (self.value[key] and other.value[key] and
-                    other.value[key] not in self.value[key]):
-                self.value[key] += ' // ' + other.value[key]
-                result = MERGE_MERGED
-        return result
+    def merge(self, info, tag, other):
+        merged = False
+        for key in self:
+            if not other[key]:
+                continue
+            if not self[key]:
+                self[key] = other[key]
+                merged = True
+            elif other[key] not in self[key]:
+                self[key] += ' // ' + other[key]
+                merged = True
+        if merged:
+            self.log_merged(info, tag, other)
+        return self
 
 
-class LensSpec(MetadataDictValue):
+class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
     def __init__(self, value):
         if isinstance(value, six.string_types):
@@ -399,17 +369,8 @@ class LensSpec(MetadataDictValue):
             float(self.min_fl),    float(self.max_fl),
             float(self.min_fl_fn), float(self.max_fl_fn))
 
-    def contains(self, other):
-        if (not other) or (other.value == self.value):
-            return True
-        # only interested in non-zero values
-        for key in self.value:
-            if other.value[key] and other.value[key] != self.value[key]:
-                return False
-        return True
 
-
-class Thumbnail(MetadataDictValue):
+class Thumbnail(MD_Dict):
     def __init__(self, value):
         data, fmt, w, h = value
         super(Thumbnail, self).__init__({
@@ -441,10 +402,10 @@ class Thumbnail(MetadataDictValue):
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
-            data = self.value['data']
-            fmt  = self.value['fmt']
-            w    = self.value['w']
-            h    = self.value['h']
+            data = self.data
+            fmt  = self.fmt
+            w    = self.w
+            h    = self.h
             if fmt != 'JPEG':
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
@@ -462,13 +423,13 @@ class Thumbnail(MetadataDictValue):
             data = codecs.encode(data, 'base64_codec')
             handler.set_string(tag, (data, fmt, str(w), str(h)))
         elif handler.get_supports_exif():
-            handler.set_exif_thumbnail_from_buffer(self.value['data'])
+            handler.set_exif_thumbnail_from_buffer(self.data)
 
-    def merge(self, tag, other):
-        return MERGE_CONTAINS
+    def merge(self, info, tag, other):
+        return self
 
 
-class DateTime(MetadataDictValue):
+class DateTime(MD_Dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
     def __init__(self, value):
@@ -683,42 +644,40 @@ class DateTime(MetadataDictValue):
     def __str__(self):
         return self.to_ISO_8601()
 
-    def merge(self, tag, other):
-        result = MERGE_CONTAINS
-        if (not other) or (other.value == self.value):
-            return result
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        merged = False
         if other.datetime != self.datetime:
             # if datetime values differ, choose the one with more precision
             if other.precision > self.precision:
-                self.datetime = other.datetime
-                self.precision = other.precision
-                self.tz_offset = other.tz_offset
-                return MERGE_REPLACED
+                self.log_replaced(info, tag, other)
+                return other
             if other.datetime != self.truncate_date_time(
                                     self.datetime, other.precision):
-                return MERGE_IGNORED
+                self.log_ignored(info, tag, other)
+                return self
         else:
             # some formats default to a higher precision than wanted
             if self.precision < 7 and other.precision < self.precision:
                 self.precision = other.precision
-                result = MERGE_MERGED
+                merged = True
         # don't trust IPTC time zone and Exif time zone is quantised to
         # whole hours, unlike Xmp
-        if other.tz_offset is None or MetadataHandler.is_iptc_tag(tag):
-            return result
-        if self.tz_offset == other.tz_offset:
-            return result
-        if MetadataHandler.is_xmp_tag(tag):
+        if (other.tz_offset not in (None, self.tz_offset) and
+                MetadataHandler.is_xmp_tag(tag)):
             self.tz_offset = other.tz_offset
-            result = MERGE_MERGED
-        return result
+            merged = True
+        if merged:
+            self.log_merged(info, tag, other)
+        return self
 
 
-class MultiString(MetadataValue):
+class MultiString(list, MD_Value):
     def __init__(self, value):
         if isinstance(value, six.string_types):
             value = value.split(';')
-        value = list(filter(bool, [x.strip() for x in value]))
+        value = filter(bool, [x.strip() for x in value])
         super(MultiString, self).__init__(value)
 
     @classmethod
@@ -735,29 +694,27 @@ class MultiString(MetadataValue):
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
-            handler.set_string(tag, ';'.join(self.value))
+            handler.set_string(tag, ';'.join(self))
         elif handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
-            handler.set_multiple(tag, self.value)
+            handler.set_multiple(tag, self)
         else:
-            handler.set_string(tag, self.value)
+            handler.set_string(tag, self)
 
     def __str__(self):
-        return '; '.join(self.value)
+        return '; '.join(self)
 
-    def merge(self, tag, other):
-        if (not other) or (not bool(
-                [x for x in other.value if x not in self.value])):
-            return MERGE_CONTAINS
-        self.value += other.value
-        return MERGE_MERGED
+    def merge(self, info, tag, other):
+        merged = False
+        for item in other:
+            if item not in self:
+                self.append(item)
+                merged = True
+        if merged:
+            self.log_merged(info, tag, other)
+        return self
 
 
-class String(MetadataValue):
-    def __init__(self, value):
-        if isinstance(value, list):
-            value = value[0]
-        super(String, self).__init__(value)
-
+class MD_String(six.text_type, MD_Value):
     @classmethod
     def read(cls, handler, tag):
         if handler.get_tag_type(tag) == 'LangAlt':
@@ -774,14 +731,17 @@ class String(MetadataValue):
             return None
         return cls(file_value)
 
-    def merge(self, tag, other):
-        if (not other) or (other.value in self.value):
-            return MERGE_CONTAINS
-        self.value += ' // ' + other.value
-        return MERGE_MERGED
+    def write(self, handler, tag):
+        handler.set_string(tag, self)
+
+    def merge(self, info, tag, other):
+        if other in self:
+            return self
+        self.log_merged(info, tag, other)
+        return MD_String(self + ' // ' + other)
 
 
-class CharacterSet(String):
+class CharacterSet(MD_String):
     known_encodings = {
         'ascii'   : '\x1b(B',
         'latin_1' : '\x1b/A',
@@ -800,10 +760,10 @@ class CharacterSet(String):
         return None
 
     def write(self, handler, tag):
-        handler.set_string(tag, self.known_encodings[self.value])
+        handler.set_string(tag, self.known_encodings[self])
 
 
-class Software(String):
+class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
@@ -820,26 +780,29 @@ class Software(String):
 
     def write(self, handler, tag):
         if handler.is_iptc_tag(tag):
-            handler.set_string(tag, self.value.split(' v'))
+            handler.set_string(tag, self.split(' v'))
         else:
-            handler.set_string(tag, self.value)
+            handler.set_string(tag, self)
 
 
-class Int(MetadataValue):
-    def __init__(self, value):
-        super(Int, self).__init__(int(value))
+class MD_Int(int, MD_Value):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        return cls(file_value)
 
     def write(self, handler, tag):
-        handler.set_string(tag, '{:d}'.format(self.value))
+        handler.set_string(tag, six.text_type(self))
 
-    def __nonzero__(self):
-        return self.value is not None
+    def merge(self, info, tag, other):
+        if self != other:
+            self.log_ignored(info, tag, other)
+        return self
 
-    def __str__(self):
-        return '{:d}'.format(self.value)
 
-
-class Timezone(Int):
+class Timezone(MD_Int):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
@@ -851,47 +814,38 @@ class Timezone(Int):
         return cls(file_value)
 
 
-class Aperture(MetadataValue):
+class Aperture(Fraction, MD_Value):
     # store FNumber and APEX aperture as fractions
     # only FNumber is presented to the user, either is computed if missing
-    def __init__(self, value):
-        if isinstance(value, list):
-            f_number, apex = value
-        else:
-            f_number, apex = value, None
-        if apex:
-            apex = safe_fraction(apex)
-        if not f_number:
-            f_number = 2.0 ** (apex / 2.0)
-        f_number = safe_fraction(f_number)
-        if not apex:
-            apex = math.log(f_number, 2) * 2.0
-        super(Aperture, self).__init__(f_number)
-        self.apex = safe_fraction(apex)
-
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
         if not any(file_value):
             return None
-        return cls(file_value)
+        f_number, apex = file_value
+        if apex:
+            apex = safe_fraction(apex)
+        if not f_number:
+            f_number = 2.0 ** (apex / 2.0)
+        f_number = safe_fraction(f_number)
+        self = cls(f_number)
+        if apex:
+            self.apex = apex
+        return self
 
     def write(self, handler, tag):
+        apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
         handler.set_string(tag, (
-            '{:d}/{:d}'.format(
-                self.value.numerator, self.value.denominator),
-            '{:d}/{:d}'.format(
-                self.apex.numerator, self.apex.denominator)))
-
-    def __nonzero__(self):
-        return self.value is not None
+            '{:d}/{:d}'.format(self.numerator, self.denominator),
+            '{:d}/{:d}'.format(apex.numerator, apex.denominator)))
 
     def __str__(self):
-        return '{:g}'.format(float(self.value))
+        return six.text_type(float(self))
 
-    def contains(self, other):
-        return (not other) or ((min(other.value, self.value) /
-                                max(other.value, self.value)) > 0.95)
+    def merge(self, info, tag, other):
+        if (min(other, self) / max(other, self)) < 0.95:
+            self.log_ignored(info, tag, other)
+        return self
 
 
 # maximum length of Iptc data
@@ -946,10 +900,10 @@ class MetadataHandler(GExiv2.Metadata):
             return
         current_encoding = CharacterSet.read(self, 'Iptc.Envelope.CharacterSet')
         if current_encoding:
-            if current_encoding.value == 'utf_8':
+            if current_encoding == 'utf_8':
                 return
             try:
-                name = codecs.lookup(current_encoding.value).name
+                name = codecs.lookup(current_encoding).name
                 if name not in self._encodings:
                     self._encodings.insert(0, name)
             except LookupError:
@@ -1161,28 +1115,28 @@ class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
         'aperture'       : Aperture,
-        'camera_model'   : String,
+        'camera_model'   : MD_String,
         'character_set'  : CharacterSet,
-        'copyright'      : String,
+        'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
-        'description'    : String,
+        'description'    : MD_String,
         'focal_length'   : FocalLength,
         'keywords'       : MultiString,
         'latlong'        : LatLon,
-        'lens_make'      : String,
-        'lens_model'     : String,
-        'lens_serial'    : String,
+        'lens_make'      : MD_String,
+        'lens_model'     : MD_String,
+        'lens_serial'    : MD_String,
         'lens_spec'      : LensSpec,
         'location_shown' : Location,
         'location_taken' : Location,
-        'orientation'    : Int,
+        'orientation'    : MD_Int,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
-        'title'          : String,
+        'title'          : MD_String,
         }
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs, where tag can be a tuple of tags. The mode is a
@@ -1196,7 +1150,7 @@ class Metadata(object):
                                        'Exif.Image.ApertureValue')),
                             ('RA.WX', ('Xmp.exif.FNumber',
                                        'Xmp.exif.ApertureValue'))),
-        'camera_model'   : (('RA.WA', 'Exif.Image.Model'),
+        'camera_model'   : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Xmp.video.Model')),
         'character_set'  : (('RA.WA', 'Iptc.Envelope.CharacterSet'),),
@@ -1457,34 +1411,22 @@ class Metadata(object):
                     values.append((tag, new_value))
                     break
         # choose result and merge in non-matching data so user can review it
-        result = None, None
+        result = None
         if values:
-            result = values.pop(0)
-            logger.debug('%s: set %s to %s',
-                         os.path.basename(self._path), name, result[0])
+            info = '{}({})'.format(os.path.basename(self._path), name)
+            tag, result = values.pop(0)
+            logger.debug('%s: set from %s', info, tag)
         for tag, value in values:
-            merged = result[1].merge(tag, value)
-            if merged == MERGE_MERGED:
-                logger.info('%s: merged %s into %s',
-                            os.path.basename(self._path), tag, name)
-            elif merged == MERGE_REPLACED:
-                logger.warning('%s: using %s "%s", ignoring %s "%s"',
-                               os.path.basename(self._path),
-                               tag, str(value), result[0], str(result[1]))
-            elif merged == MERGE_IGNORED:
-                logger.warning('%s: using %s "%s", ignoring %s "%s"',
-                               os.path.basename(self._path),
-                               result[0], str(result[1]), tag, str(value))
+            merged = result.merge(info, tag, value)
         # merge in camera timezone if needed
-        if (result[1] and name.startswith('date_') and
-                            result[1].tz_offset is None and self.timezone):
-            result[1].tz_offset = self.timezone.value
-            logger.info('%s: merged camera timezone offset into %s',
-                        os.path.basename(self._path), name)
+        if (result and name.startswith('date_') and
+                            result.tz_offset is None and self.timezone):
+            result.tz_offset = self.timezone
+            logger.info('%s: merged camera timezone offset', info)
         # add value to object attributes so __getattr__ doesn't get
         # called again
-        super(Metadata, self).__setattr__(name, result[1])
-        return result[1]
+        super(Metadata, self).__setattr__(name, result)
+        return result
 
     def __setattr__(self, name, value):
         if name not in self._tag_list:

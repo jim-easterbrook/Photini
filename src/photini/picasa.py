@@ -269,14 +269,14 @@ class PicasaSession(UploaderSession):
 ##        title = image.metadata.title
 ##        description = image.metadata.description
 ##        if title and description:
-##            photo.summary.text = title.value + '\n\n' + description.value
+##            photo.summary.text = title + '\n\n' + description
 ##        elif title:
-##            photo.summary.text = title.value
+##            photo.summary.text = title
 ##        elif description:
-##            photo.summary.text = description.value
+##            photo.summary.text = description
 ##        keywords = image.metadata.keywords
 ##        if keywords:
-##            photo.group.keywords.text = ','.join(keywords.value)
+##            photo.group.keywords.text = ','.join(keywords)
 ##        latlong = image.metadata.latlong
 ##        if latlong:
 ##            photo.where.Point.pos.text = '{:.6f} {:.6f}'.format(

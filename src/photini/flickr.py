@@ -104,13 +104,13 @@ class FlickrSession(UploaderSession):
         kwargs = dict(params[0])
         title = image.metadata.title
         if title:
-            kwargs['title'] = title.value
+            kwargs['title'] = title
         description = image.metadata.description
         if description:
-            kwargs['description'] = description.value
+            kwargs['description'] = description
         keywords = image.metadata.keywords
         if keywords:
-            kwargs['tags'] = ' '.join(['"' + x + '"' for x in keywords.value])
+            kwargs['tags'] = ' '.join(['"' + x + '"' for x in keywords])
         # upload photo
         try:
             rsp = self.api.upload(image.path, fileobj=fileobj, **kwargs)
