@@ -453,6 +453,9 @@ class DateTime(MD_Dict):
             precision = self.precision
         fmt = ''.join(fmt[:precision])
         datetime_string = self.datetime.strftime(fmt)
+        if precision > 6:
+            # truncate subsecond to 3 digits
+            datetime_string = datetime_string[:-3]
         if precision > 3 and time_zone and self.tz_offset is not None:
             # add time zone
             minutes = self.tz_offset
