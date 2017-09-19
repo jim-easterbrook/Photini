@@ -174,6 +174,18 @@ class Image(QtWidgets.QFrame):
                     if orientation in (2, 4, 5, 7):
                         transform = transform.scale(-1.0, 1.0)
                     qt_im = qt_im.transformed(transform)
+            # DCF spec says thumbnail must be 160 x 120 so pad picture
+            # to 4:3 aspect ratio
+            w = qt_im.width()
+            h = qt_im.height()
+            new_h = int(0.5 + (float(w * 3) / 4.0))
+            new_w = int(0.5 + (float(h * 4) / 3.0))
+            if new_h > h:
+                pad = (new_h - h) // 2
+                qt_im = qt_im.copy(0, -pad, w, new_h)
+            elif new_w > w:
+                pad = (new_w - w) // 2
+                qt_im = qt_im.copy(-pad, 0, new_w, h)
             fmt = 'JPEG'
             if PIL:
                 # convert Qt image to PIL image
@@ -183,10 +195,7 @@ class Image(QtWidgets.QFrame):
                 data = BytesIO(buf.data().data())
                 pil_im = PIL.open(data)
                 # scale PIL image
-                w, h = pil_im.size
-                scale = 160.0 / float(max(w, h))
-                pil_im = pil_im.resize(
-                    (int(round(w * scale)), int(round(h * scale))), PIL.ANTIALIAS)
+                pil_im = pil_im.resize((160, 120), PIL.ANTIALIAS)
                 w, h = pil_im.size
                 # save image to memory
                 data = BytesIO()
@@ -195,7 +204,7 @@ class Image(QtWidgets.QFrame):
             else:
                 # scale Qt image - not as good quality as PIL
                 qt_im = qt_im.scaled(
-                    160, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                    160, 120, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
                 w = qt_im.width()
                 h = qt_im.height()
                 # save image to memory
