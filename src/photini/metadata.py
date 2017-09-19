@@ -1377,7 +1377,7 @@ class Metadata(QtCore.QObject):
             tag, result = values.pop(0)
             logger.debug('%s: set from %s', info, tag)
         for tag, value in values:
-            merged = result.merge(info, tag, value)
+            result = result.merge(info, tag, value)
         # merge in camera timezone if needed
         if (result and name.startswith('date_') and
                             result.tz_offset is None and self.timezone):
