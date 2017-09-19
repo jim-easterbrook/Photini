@@ -101,6 +101,15 @@ class MD_Value(object):
 
 
 class MD_Dict(dict, MD_Value):
+    def __init__(self, value):
+        # can initialise from a string containing comma separated values
+        if isinstance(value, six.string_types):
+            value = value.split(',')
+        # or a list of values
+        if isinstance(value, (tuple, list)):
+            value = zip(self._keys, value)
+        super(MD_Dict, self).__init__(value)
+
     def __getattr__(self, name):
         if name in self:
             return self[name]
@@ -136,22 +145,21 @@ class MD_Dict(dict, MD_Value):
 
 class FocalLength(MD_Dict):
     # store actual focal length and 35mm film equivalent
+    _keys = ('fl', 'fl_35')
+
     def __init__(self, value):
-        fl, fl_35 = value
-        if fl:
-            fl = safe_fraction(fl)
-        if fl_35:
-            fl_35 = int(fl_35)
-        super(FocalLength, self).__init__({'fl': fl, 'fl_35': fl_35})
+        super(FocalLength, self).__init__(value)
+        if self.fl:
+            self.fl = safe_fraction(self.fl)
+        if self.fl_35:
+            self.fl_35 = int(self.fl_35)
 
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
         if not any(file_value):
             return None
-        if len(file_value) < 2:
-            file_value.append(None)
-        return cls(file_value)
+        return cls(file_value + [None])
 
     def write(self, handler, tag):
         file_value = [None, None]
@@ -175,14 +183,12 @@ class FocalLength(MD_Dict):
 
 class LatLon(MD_Dict):
     # simple class to store latitude and longitude
+    _keys = ('lat', 'lon')
+
     def __init__(self, value):
-        if isinstance(value, six.string_types):
-            value = value.split(',')
-        lat, lon = value
-        super(LatLon, self).__init__({
-            'lat' : round(float(lat), 6),
-            'lon' : round(float(lon), 6),
-            })
+        super(LatLon, self).__init__(value)
+        self.lat = round(float(self.lat), 6)
+        self.lon = round(float(self.lon), 6)
 
     @classmethod
     def read(cls, handler, tag):
@@ -270,25 +276,21 @@ class LatLon(MD_Dict):
 
 
 class Location(MD_Dict):
+    # stores IPTC defined location heirarchy
     _keys = ('sublocation', 'city', 'province_state',
              'country_name', 'country_code', 'world_region')
 
-    # stores IPTC defined location heirarchy
     def __init__(self, value):
-        if isinstance(value, (tuple, list)):
-            value = dict(zip(self._keys, value))
-        if value['country_code']:
-            value['country_code'] = value['country_code'].upper()
         super(Location, self).__init__(value)
+        if self.country_code:
+            self.country_code = self.country_code.upper()
 
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
         if not any(file_value):
             return None
-        if len(file_value) == 5:
-            return cls(file_value + [None])
-        return cls(file_value)
+        return cls(file_value + [None])
 
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
@@ -311,19 +313,16 @@ class Location(MD_Dict):
 
 class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
+    _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
+
     def __init__(self, value):
-        if isinstance(value, six.string_types):
-            sep = None
-            if ',' in value:
-                sep = ','
-            value = value.split(sep)
-        min_fl, max_fl, min_fl_fn, max_fl_fn = value
-        super(LensSpec, self).__init__({
-            'min_fl'    : safe_fraction(min_fl),
-            'max_fl'    : safe_fraction(max_fl),
-            'min_fl_fn' : safe_fraction(min_fl_fn),
-            'max_fl_fn' : safe_fraction(max_fl_fn),
-            })
+        if isinstance(value, six.string_types) and ',' not in value:
+            value = value.split()
+        super(LensSpec, self).__init__(value)
+        self.min_fl = safe_fraction(self.min_fl)
+        self.max_fl = safe_fraction(self.max_fl)
+        self.min_fl_fn = safe_fraction(self.min_fl_fn)
+        self.max_fl_fn = safe_fraction(self.max_fl_fn)
 
     @classmethod
     def read(cls, handler, tag):
@@ -332,31 +331,22 @@ class LensSpec(MD_Dict):
             return None
         if tag == 'Exif.CanonCs.Lens':
             long_focal, short_focal, focal_units = file_value.split()
+            if focal_units == '0':
+                return None
             return cls(('{}/{}'.format(short_focal, focal_units),
-                        '{}/{}'.format(long_focal, focal_units),
-                        0, 0))
+                        '{}/{}'.format(long_focal, focal_units), 0, 0))
         return cls(file_value)
 
     def write(self, handler, tag):
-        handler.set_string(tag, ' '.join(
-            ['{:d}/{:d}'.format(x.numerator, x.denominator) for x in (
-                self.min_fl, self.max_fl, self.min_fl_fn, self.max_fl_fn)]))
+        handler.set_string(tag, ' '.join(['{:d}/{:d}'.format(
+            self[x].numerator, self[x].denominator) for x in self._keys]))
 
     def __str__(self):
-        return '{:g} {:g} {:g} {:g}'.format(
-            float(self.min_fl),    float(self.max_fl),
-            float(self.min_fl_fn), float(self.max_fl_fn))
+        return ','.join(['{:g}'.format(self[x]) for x in self._keys])
 
 
 class Thumbnail(MD_Dict):
-    def __init__(self, value):
-        data, fmt, w, h = value
-        super(Thumbnail, self).__init__({
-            'data' : data,
-            'fmt'  : fmt,
-            'w'    : w,
-            'h'    : h,
-            })
+    _keys = ('data', 'fmt', 'w', 'h')
 
     @classmethod
     def read(cls, handler, tag):
@@ -410,23 +400,20 @@ class Thumbnail(MD_Dict):
 class DateTime(MD_Dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
+    _keys = ('datetime', 'precision', 'tz_offset')
+
     def __init__(self, value):
-        date_time, precision, tz_offset = value
-        if date_time is None:
+        super(DateTime, self).__init__(value)
+        if not self.datetime:
             # use a well known 'zero'
-            date_time = datetime(1970, 1, 1)
+            self.datetime = datetime(1970, 1, 1)
         else:
-            date_time = self.truncate_date_time(date_time, precision)
-        if precision <= 3:
-            tz_offset = None
-        super(DateTime, self).__init__({
-            'datetime'  : date_time,
-            'precision' : precision,
-            'tz_offset' : tz_offset,
-            })
+            self.datetime = self.truncate_datetime(self.datetime, self.precision)
+        if self.precision <= 3:
+            self.tz_offset = None
 
     @staticmethod
-    def truncate_date_time(date_time, precision):
+    def truncate_datetime(date_time, precision):
         parts = [date_time.year, date_time.month, date_time.day,
                  date_time.hour, date_time.minute, date_time.second,
                  date_time.microsecond][:precision]
@@ -621,7 +608,7 @@ class DateTime(MD_Dict):
             if other.precision > self.precision:
                 self.log_replaced(info, tag, other)
                 return other
-            if other.datetime != self.truncate_date_time(
+            if other.datetime != self.truncate_datetime(
                                     self.datetime, other.precision):
                 self.log_ignored(info, tag, other)
                 return self

@@ -588,9 +588,9 @@ class NewLensDialog(QtWidgets.QDialog):
                 self.lens_serial.setText(image.metadata.lens_serial)
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
-                if spec and spec.value[key]:
+                if spec and spec[key]:
                     self.lens_spec[key].setText(
-                        '{:g}'.format(float(spec.value[key])))
+                        '{:g}'.format(float(spec[key])))
 
 
 class Technical(QtWidgets.QWidget):
