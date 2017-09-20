@@ -316,8 +316,6 @@ class LensSpec(MD_Dict):
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
 
     def __init__(self, value):
-        if isinstance(value, six.string_types) and ',' not in value:
-            value = value.split()
         super(LensSpec, self).__init__(value)
         self.min_fl = safe_fraction(self.min_fl)
         self.max_fl = safe_fraction(self.max_fl)
@@ -329,8 +327,9 @@ class LensSpec(MD_Dict):
         file_value = handler.get_string(tag)
         if not file_value:
             return None
+        file_value = file_value.split()
         if tag == 'Exif.CanonCs.Lens':
-            long_focal, short_focal, focal_units = file_value.split()
+            long_focal, short_focal, focal_units = file_value
             if focal_units == '0':
                 return None
             return cls(('{}/{}'.format(short_focal, focal_units),
@@ -342,7 +341,7 @@ class LensSpec(MD_Dict):
             self[x].numerator, self[x].denominator) for x in self._keys]))
 
     def __str__(self):
-        return ','.join(['{:g}'.format(self[x]) for x in self._keys])
+        return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
 
 
 class Thumbnail(MD_Dict):

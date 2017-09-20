@@ -492,6 +492,9 @@ class LensData(object):
         section = 'lens ' + model
         for item in ('lens_make', 'lens_serial', 'lens_spec'):
             value = self.config_store.get(section, item) or None
+            if item == 'lens_spec' and value and ',' not in value:
+                value = ','.join(value.split())
+                self.config_store.set(section, item, value)
             setattr(image.metadata, item, value)
 
     def load_from_image(self, model, image):
