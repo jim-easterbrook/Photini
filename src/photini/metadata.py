@@ -370,25 +370,22 @@ class Thumbnail(MD_Dict):
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
             data = self.data
-            fmt  = self.fmt
-            w    = self.w
-            h    = self.h
-            if fmt != 'JPEG':
+            if self.fmt != 'JPEG':
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
                 buf = QtCore.QBuffer()
                 buf.open(QtCore.QIODevice.WriteOnly)
                 pixmap.save(buf, 'JPEG')
                 data = buf.data().data()
-                w = pixmap.width()
-                h = pixmap.height()
-            if not w or not h:
+                self.w = pixmap.width()
+                self.h = pixmap.height()
+            if not self.w or not self.h:
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
-                w = pixmap.width()
-                h = pixmap.height()
+                self.w = pixmap.width()
+                self.h = pixmap.height()
             data = codecs.encode(data, 'base64_codec')
-            handler.set_string(tag, (data, fmt, str(w), str(h)))
+            handler.set_string(tag, (data, 'JPEG', str(self.w), str(self.h)))
         elif handler.get_supports_exif():
             handler.set_exif_thumbnail_from_buffer(self.data)
 
