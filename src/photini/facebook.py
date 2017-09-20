@@ -166,7 +166,7 @@ class FacebookSession(UploaderSession):
                 'latitude' in place['location'] and
                 'longitude' in place['location'])
 
-    def get_cities(self, latlong):
+    def get_cities(self, latlong, city=None):
         # check cache for similar latlong
         nearest = None, 1.0e12
         for cache in cities_cache:
@@ -180,35 +180,42 @@ class FacebookSession(UploaderSession):
             result = list(nearest[0])
         else:
             result = []
-        # get a list of possible place names by searching for anything nearby
-        hist = defaultdict(int)
-        for place in self.get_places(latlong, 1000, ''):
-            words = []
-            if 'name' in place:
-                words += place['name'].split()
-            if 'location' in place and 'city' in place['location']:
-                words += place['location']['city'].split()
-            for word in words:
-                if word and word[0] in (',', '('):
-                    word = word[1:]
-                if word and word[-1] in (',', ')'):
-                    word = word[:-1]
-                if len(word) > 2:
-                    hist[word.lower()] += 1
-            if place not in result and self.is_city(place):
-                result.append(place)
-        if not hist:
-            hist['city'] = 1
-        words = list(hist.keys())
-        words.sort(key=lambda x: -hist[x])
-        # search for cities, regions etc. using possible place names
-        threshold = hist[words[len(words) // 2]]
-        for word in words[:5]:
-            if hist[word] <= threshold:
-                break
-            for place in self.get_places(latlong, 10000, word):
+        if city:
+            # look for actual city
+            for word in city.split(','):
+                for place in self.get_places(latlong, 10000, word):
+                    if place not in result and self.is_city(place):
+                        result.append(place)
+        else:
+            # get a list of possible place names by searching for anything nearby
+            hist = defaultdict(int)
+            for place in self.get_places(latlong, 1000, ''):
+                words = []
+                if 'name' in place:
+                    words += place['name'].split()
+                if 'location' in place and 'city' in place['location']:
+                    words += place['location']['city'].split()
+                for word in words:
+                    if word and word[0] in (',', '('):
+                        word = word[1:]
+                    if word and word[-1] in (',', ')'):
+                        word = word[:-1]
+                    if len(word) > 2:
+                        hist[word.lower()] += 1
                 if place not in result and self.is_city(place):
                     result.append(place)
+            if not hist:
+                hist['city'] = 1
+            words = list(hist.keys())
+            words.sort(key=lambda x: -hist[x])
+            # search for cities, regions etc. using possible place names
+            threshold = hist[words[len(words) // 2]]
+            for word in words[:5]:
+                if hist[word] <= threshold:
+                    break
+                for place in self.get_places(latlong, 10000, word):
+                    if place not in result and self.is_city(place):
+                        result.append(place)
         cities_cache.append({
             'location'   : {'latitude': latlong.lat, 'longitude': latlong.lon},
             'cities_list': result,
@@ -240,8 +247,13 @@ class FacebookSession(UploaderSession):
                     'year', 'month', 'day', 'hour', 'min')[date_taken.precision - 1]
         latlong = image.metadata.latlong
         if latlong and params['geo_tag']:
+            city = None
+            if image.metadata.location_taken:
+                city = image.metadata.location_taken.city
+            if image.metadata.location_shown:
+                city = city or image.metadata.location_shown.city
             nearest = None, 1.0e12
-            for place in self.get_cities(latlong):
+            for place in self.get_cities(latlong, city=city):
                 dist = self.distance(latlong, place['location'])
                 if dist < nearest[1]:
                     nearest = place, dist
@@ -328,7 +340,7 @@ class FacebookUploadConfig(QtWidgets.QWidget):
         # geotagging
         self.widgets['geo_tag'] = QtWidgets.QCheckBox()
         config_group.layout().addRow(
-            self.tr('Set "city" from map coordinates'), self.widgets['geo_tag'])
+            self.tr('Set "city" from location metadata'), self.widgets['geo_tag'])
         self.widgets['geo_tag'].setChecked(True)
         label = config_group.layout().labelForField(self.widgets['geo_tag'])
         label.setWordWrap(True)
