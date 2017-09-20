@@ -404,15 +404,14 @@ class DateTime(MD_Dict):
             # use a well known 'zero'
             self.datetime = datetime(1970, 1, 1)
         else:
-            self.datetime = self.truncate_datetime(self.datetime, self.precision)
+            self.datetime = self.truncate_datetime(self.precision)
         if self.precision <= 3:
             self.tz_offset = None
 
-    @staticmethod
-    def truncate_datetime(date_time, precision):
-        parts = [date_time.year, date_time.month, date_time.day,
-                 date_time.hour, date_time.minute, date_time.second,
-                 date_time.microsecond][:precision]
+    def truncate_datetime(self, precision):
+        parts = [self.datetime.year, self.datetime.month, self.datetime.day,
+                 self.datetime.hour, self.datetime.minute, self.datetime.second,
+                 self.datetime.microsecond][:precision]
         parts.extend((1, 1, 1)[len(parts):])
         return datetime(*parts)
 
@@ -607,8 +606,7 @@ class DateTime(MD_Dict):
             if other.precision > self.precision:
                 self.log_replaced(info, tag, other)
                 return other
-            if other.datetime != self.truncate_datetime(
-                                    self.datetime, other.precision):
+            if other.datetime != self.truncate_datetime(other.precision):
                 self.log_ignored(info, tag, other)
                 return self
         else:
@@ -616,8 +614,7 @@ class DateTime(MD_Dict):
             if self.precision < 7 and other.precision < self.precision:
                 self.precision = other.precision
                 merged = True
-        # don't trust IPTC time zone and Exif time zone is quantised to
-        # whole hours, unlike Xmp
+        # don't trust IPTC time zone and Exif doesn't have time zone
         if (other.tz_offset not in (None, self.tz_offset) and
                 MetadataHandler.is_xmp_tag(tag)):
             self.tz_offset = other.tz_offset
