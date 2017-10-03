@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2017.10.0:
+  1/ Use timezone metadata from some Canon cameras.
+  2/ Make thumbnails 160x120 as specified by DCF.
+  3/ Fix bug in localisation of uploader tabs.
+  4/ Substantial rewrite of metadata handling.
+
 Changes in v2017.8.1:
   1/ Added option to preserve file timestamps.
   2/ Added option to change copyright boilerplate text.
