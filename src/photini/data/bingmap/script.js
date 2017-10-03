@@ -66,8 +66,7 @@ function setView(lat, lng, zoom)
 
 function adjustBounds(lat0, lng0, lat1, lng1)
 {
-    var bounds = Microsoft.Maps.LocationRect.fromCorners(
-        new Microsoft.Maps.Location(lat0, lng0), new Microsoft.Maps.Location(lat1, lng1));
+    var bounds = Microsoft.Maps.LocationRect.fromEdges(lat1, lng1, lat0, lng0);
     map.setView({bounds: bounds});
 }
 
