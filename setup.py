@@ -201,8 +201,12 @@ class build_messages(Command):
             base, ext = os.path.splitext(name)
             if ext != '.ts' or '.' not in base:
                 continue
-            self.spawn(['lrelease', os.path.join(self.input_dir, name),
-                        '-qm', os.path.join(self.output_dir, base + '.qm')])
+            try:
+                self.spawn(['lrelease-qt5', os.path.join(self.input_dir, name),
+                            '-qm', os.path.join(self.output_dir, base + '.qm')])
+            except DistutilsExecError:
+                self.spawn(['lrelease', os.path.join(self.input_dir, name),
+                            '-qm', os.path.join(self.output_dir, base + '.qm')])
 
 cmdclass['build_messages'] = build_messages
 command_options['build_messages'] = {
