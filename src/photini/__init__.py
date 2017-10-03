@@ -1,4 +1,4 @@
 from __future__ import unicode_literals
 
-__version__ = '2017.9.0'
-build = '948 (aff9e01)'
+__version__ = '2017.10.0'
+build = '949 (b044d7b)'

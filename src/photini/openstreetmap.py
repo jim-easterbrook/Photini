@@ -34,7 +34,7 @@ class OpenStreetMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         super(OpenStreetMap, self).__init__(*arg, **kw)
         self.block_timer = QtCore.QTimer(self)
-        self.block_timer.setInterval(10000)
+        self.block_timer.setInterval(5000)
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
         self.api_key = key_store.get('opencagedata', 'api_key')
@@ -143,7 +143,7 @@ class OpenStreetMap(PhotiniMap):
             return None
         rate = rsp['rate']
         self.block_timer.setInterval(
-            10000 * rate['limit'] // max(rate['remaining'], 1))
+            5000 * rate['limit'] // max(rate['remaining'], 1))
         return rsp
 
     @QtCore.pyqtSlot()
@@ -208,6 +208,11 @@ class OpenStreetMap(PhotiniMap):
             search_string, {'bounds': ','.join(map(str, bounds))})
         if not rsp:
             return
+        if not rsp['results']:
+            # repeat search without bounds
+            rsp = self.do_search(search_string)
+            if not rsp:
+                return
         for result in rsp['results']:
             self.search_result(
                 result['bounds']['northeast']['lat'],
