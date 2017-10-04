@@ -194,16 +194,17 @@ class OpenStreetMap(PhotiniMap):
             return
         self.search_string = search_string
         self.clear_search()
-        bounds = self.map_status['bounds']
+        north, east, south, west = self.map_status['bounds']
         scale = 2 ** (self.map_status['zoom'] - 9)
         if scale >= 1:
-            w = (bounds[1] - bounds[3]) * scale
-            h = (bounds[0] - bounds[2]) * scale
+            w = (east - west) * scale
+            h = (north - south) * scale
             lat, lon = self.map_status['centre']
-            bounds = (lon - w, max(lat - h, -90.0),
-                      lon + w, min(lat + h,  90.0))
-        else:
-            bounds = (bounds[3], bounds[2], bounds[1], bounds[0])
+            north = min(lat + h,  90.0)
+            south = max(lat - h, -90.0)
+            east = lon + w
+            west = lon - w
+        bounds = (west, south, east, north)
         rsp = self.do_search(
             search_string, {'bounds': ','.join(map(str, bounds))})
         if not rsp:

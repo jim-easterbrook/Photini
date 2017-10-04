@@ -64,9 +64,9 @@ function setView(lat, lng, zoom)
     map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: zoom});
 }
 
-function adjustBounds(lat0, lng0, lat1, lng1)
+function adjustBounds(north, east, south, west)
 {
-    var bounds = Microsoft.Maps.LocationRect.fromEdges(lat1, lng1, lat0, lng0);
+    var bounds = Microsoft.Maps.LocationRect.fromEdges(north, west, south, east);
     map.setView({bounds: bounds});
 }
 
@@ -177,7 +177,7 @@ function geocodeCallback(geocodeResult, userData)
         var view = geocodeResult.results[i].bestView;
         python.search_result(
             view.getNorth(), view.getEast(), view.getSouth(), view.getWest(),
-        geocodeResult.results[i].name);
+            geocodeResult.results[i].name);
     }
 }
 

@@ -57,9 +57,9 @@ function setView(lat, lng, zoom)
     map.setView([lat, lng], zoom);
 }
 
-function adjustBounds(lat0, lng0, lat1, lng1)
+function adjustBounds(north, east, south, west)
 {
-    map.fitBounds([[lat0, lng0], [lat1, lng1]]);
+    map.fitBounds([[north, east], [south, west]]);
 }
 
 function fitPoints(points)

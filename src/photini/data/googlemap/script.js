@@ -54,9 +54,9 @@ function setView(lat, lng, zoom)
     map.panTo(new google.maps.LatLng(lat, lng));
 }
 
-function adjustBounds(lat0, lng0, lat1, lng1)
+function adjustBounds(north, east, south, west)
 {
-    map.fitBounds({north: lat0, east: lng0, south: lat1, west: lng1});
+    map.fitBounds({north: north, east: east, south: south, west: west});
 }
 
 function fitPoints(points)

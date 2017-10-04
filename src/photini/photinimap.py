@@ -566,8 +566,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.edit_box.addItem(translate('PhotiniMap', '<repeat search>'))
 
     @QtCore.pyqtSlot(float, float, float, float, six.text_type)
-    def search_result(self, lat0, lng0, lat1, lng1, name):
-        self.edit_box.addItem(name, (lat0, lng0, lat1, lng1))
+    def search_result(self, north, east, south, west, name):
+        self.edit_box.addItem(name, (north, east, south, west))
         self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
