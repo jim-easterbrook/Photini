@@ -180,7 +180,8 @@ class OpenStreetMap(PhotiniMap):
             location.append(', '.join(element))
         # put remaining keys in sublocation
         for key in address:
-            if key in ('postcode', 'state_code', '_type'):
+            if key in ('postcode', 'road_reference', 'road_reference_intl',
+                       'state_code', '_type'):
                 continue
             location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
         self.set_location_taken(*location)
