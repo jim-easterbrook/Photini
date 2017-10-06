@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-16  Jim Easterbrook.
+   Copyright (C)  2015-17  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -59,6 +59,9 @@ HTML markup
 Keyboard shortcuts
    Some strings include a single ampersand character ``&`` immediately before a letter that is used as a keyboard shortcut.
    You should choose a suitable letter in your translation and place the ampersand appropriately.
+
+Note that Transifex may attempt to render some of this markup rather than show the raw strings.
+It may help if you use the settings button (a cogwheel shape) on the translation page to "enable raw editor mode".
 
 ``doc.xxx`` resources
 ^^^^^^^^^^^^^^^^^^^^^
