@@ -108,7 +108,7 @@ if BuildDoc:
     command_options['gettext'] = {
         'all_files'  : ('setup.py', '1'),
         'source_dir' : ('setup.py', 'src/doc'),
-        'build_dir'  : ('setup.py', 'src/lang/doc'),
+        'build_dir'  : ('setup.py', 'src/lang/doc/pot'),
         'builder'    : ('setup.py', 'gettext'),
         }
 
