@@ -194,7 +194,7 @@ CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 '''.format(' '.join(inputs), ' '.join(outputs)))
         try:
-            self.spawn(['pylupdate5', '-verbose', self.project_file])
+            self.spawn(['pylupdate5', '-verbose', '-noobsolete', self.project_file])
         except DistutilsExecError:
             self.spawn(['pylupdate4', '-verbose', '-noobsolete', self.project_file])
 
