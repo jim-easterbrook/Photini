@@ -147,7 +147,9 @@ class extract_messages(Command):
     description = 'extract localizable strings from Photini program code'
     user_options = [
         ('output-file=', 'o',
-         'name of the output file'),
+         'path of the output file'),
+        ('project-file=', 'p',
+         'name of the project file (generated)'),
         ('input-dir=', 'i',
          'directory that should be scanned for Python files'),
     ]
@@ -155,10 +157,13 @@ class extract_messages(Command):
     def initialize_options(self):
         self.output_file = None
         self.input_dir = None
+        self.project_file = None
 
     def finalize_options(self):
         if not self.output_file:
             raise DistutilsOptionError('no output file specified')
+        if not self.project_file:
+            raise DistutilsOptionError('no project file specified')
         if not self.input_dir:
             raise DistutilsOptionError('no input directory specified')
 
@@ -170,17 +175,33 @@ class extract_messages(Command):
                 inputs.append(os.path.join(self.input_dir, name))
         inputs.sort()
         out_dir = os.path.dirname(self.output_file)
-        self.mkpath(out_dir)
+        if os.path.exists(self.output_file):
+            outputs = []
+            for name in os.listdir(out_dir):
+                base, ext = os.path.splitext(name)
+                if ext == '.ts':
+                    outputs.append(os.path.join(out_dir, name))
+            if self.output_file not in outputs:
+                outputs.append(self.output_file)
+            outputs.sort()
+        else:
+            self.mkpath(out_dir)
+            outputs = [self.output_file]
+        with open(self.project_file, 'w') as proj:
+            proj.write('''SOURCES = {}
+TRANSLATIONS = {}
+CODECFORTR = UTF-8
+CODECFORSRC = UTF-8
+'''.format(' '.join(inputs), ' '.join(outputs)))
         try:
-            self.spawn(
-                ['pylupdate5', '-verbose'] + inputs + ['-ts', self.output_file])
+            self.spawn(['pylupdate5', '-verbose', self.project_file])
         except DistutilsExecError:
-            self.spawn(
-                ['pylupdate4', '-verbose'] + inputs + ['-ts', self.output_file])
+            self.spawn(['pylupdate4', '-verbose', '-noobsolete', self.project_file])
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {
-    'output_file' : ('setup.py', 'src/lang/photini.ts'),
+    'output_file' : ('setup.py', 'src/lang/photini.en.ts'),
+    'project_file': ('setup.py', 'photini.pro'),
     'input_dir'   : ('setup.py', 'src/photini'),
     }
 
