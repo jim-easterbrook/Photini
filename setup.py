@@ -88,22 +88,29 @@ build = '%d (%s)'
 # extract strings for translation
 try:
     from sphinx.setup_command import BuildDoc
-    cmdclass['build_sphinx'] = BuildDoc
+except ImportError:
+    BuildDoc = None
+if BuildDoc:
+    class BuildSphinx(BuildDoc):
+        description = 'build Photini documentation'
+
+    class GetText(BuildDoc):
+        description = 'prepare Photini documentation for translation'
+
+    cmdclass['build_sphinx'] = BuildSphinx
     command_options['build_sphinx'] = {
         'all_files'  : ('setup.py', '1'),
         'source_dir' : ('setup.py', 'src/doc'),
         'build_dir'  : ('setup.py', 'doc'),
         'builder'    : ('setup.py', 'html'),
         }
-    cmdclass['gettext'] = BuildDoc
+    cmdclass['gettext'] = GetText
     command_options['gettext'] = {
         'all_files'  : ('setup.py', '1'),
         'source_dir' : ('setup.py', 'src/doc'),
         'build_dir'  : ('setup.py', 'src/lang/doc'),
         'builder'    : ('setup.py', 'gettext'),
         }
-except ImportError:
-    pass
 
 # modify upload class to add appropriate tag
 # requires GitPython - 'sudo pip install gitpython'
@@ -137,7 +144,7 @@ command_options['sdist'] = {
 # an alternative to xgettext, generating .pot files. This uses Qt's
 # pylupdate5 (or pylupdate4) command to generate a .ts file
 class extract_messages(Command):
-    description = 'extract localizable strings from the project code'
+    description = 'extract localizable strings from Photini program code'
     user_options = [
         ('output-file=', 'o',
          'name of the output file'),
@@ -224,6 +231,13 @@ if sys.platform.startswith('linux'):
         'single_version_externally_managed' : ('setup.py', '1'),
         'record'                            : ('setup.py', 'install.txt'),
         }
+
+for alias, cmd in (('compile_catalog', 'build_messages'),
+                   ('init_catalog',    'extract_messages'),
+                   ('update_catalog',  'extract_messages'),
+                   ):
+    cmdclass[alias] = cmdclass[cmd]
+    command_options[alias] = command_options[cmd]
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
