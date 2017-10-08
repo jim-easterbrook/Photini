@@ -33,10 +33,7 @@ pip-log.txt
 MANIFEST
 photini.pro
 /doc
-/src/lang/photini.ts
-/src/lang/doc/doctrees/
-/src/lang/doc/en/
-/src/lang/doc/gettext/
+/src/lang/doc/pot/
 /src/misc/*.pam
 /src/photini/data/lang
 /src/windows/installers

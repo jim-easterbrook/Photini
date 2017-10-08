@@ -142,7 +142,7 @@ command_options['sdist'] = {
 # add command to extract strings for translation
 # NB the "babel" package provides an extract_messages command, but it is
 # an alternative to xgettext, generating .pot files. This uses Qt's
-# pylupdate5 (or pylupdate4) command to generate a .ts file
+# pylupdate5 (or pylupdate4) command to generate .ts files
 class extract_messages(Command):
     description = 'extract localizable strings from Photini program code'
     user_options = [
@@ -193,10 +193,11 @@ TRANSLATIONS = {}
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 '''.format(' '.join(inputs), ' '.join(outputs)))
+        args = ['-verbose', '-noobsolete', self.project_file]
         try:
-            self.spawn(['pylupdate5', '-verbose', '-noobsolete', self.project_file])
+            self.spawn(['pylupdate5'] + args)
         except DistutilsExecError:
-            self.spawn(['pylupdate4', '-verbose', '-noobsolete', self.project_file])
+            self.spawn(['pylupdate4'] + args)
 
 cmdclass['extract_messages'] = extract_messages
 command_options['extract_messages'] = {
@@ -229,18 +230,47 @@ class build_messages(Command):
             base, ext = os.path.splitext(name)
             if ext != '.ts' or '.' not in base:
                 continue
+            args = [os.path.join(self.input_dir, name),
+                    '-qm', os.path.join(self.output_dir, base + '.qm')]
             try:
-                self.spawn(['lrelease-qt5', os.path.join(self.input_dir, name),
-                            '-qm', os.path.join(self.output_dir, base + '.qm')])
+                self.spawn(['lrelease-qt5'] + args)
             except DistutilsExecError:
-                self.spawn(['lrelease', os.path.join(self.input_dir, name),
-                            '-qm', os.path.join(self.output_dir, base + '.qm')])
+                self.spawn(['lrelease'] + args)
 
 cmdclass['build_messages'] = build_messages
 command_options['build_messages'] = {
     'output_dir' : ('setup.py', 'src/photini/data/lang'),
     'input_dir'  : ('setup.py', 'src/lang'),
     }
+
+# tweak Babel's translation commands
+try:
+    from babel.messages import frontend as babel
+except ImportError:
+    babel = None
+if babel:
+    class InitCatalog(babel.init_catalog):
+        def finalize_options(self):
+            if self.input_file:
+                self.domain = os.path.splitext(
+                    os.path.basename(self.input_file))[0]
+            babel.init_catalog.finalize_options(self)
+
+    class UpdateCatalog(babel.update_catalog):
+        def finalize_options(self):
+            if self.input_file:
+                self.domain = os.path.splitext(
+                    os.path.basename(self.input_file))[0]
+            babel.update_catalog.finalize_options(self)
+
+    cmdclass['init_catalog'] = InitCatalog
+    cmdclass['update_catalog'] = UpdateCatalog
+    command_options['init_catalog'] = {
+        'output_dir' : ('setup.py', 'src/lang/doc'),
+        }
+    command_options['update_catalog'] = {
+        'output_dir' : ('setup.py', 'src/lang/doc'),
+        }
 
 data_files = []
 if sys.platform.startswith('linux'):
@@ -252,13 +282,6 @@ if sys.platform.startswith('linux'):
         'single_version_externally_managed' : ('setup.py', '1'),
         'record'                            : ('setup.py', 'install.txt'),
         }
-
-for alias, cmd in (('compile_catalog', 'build_messages'),
-                   ('init_catalog',    'extract_messages'),
-                   ('update_catalog',  'extract_messages'),
-                   ):
-    cmdclass[alias] = cmdclass[cmd]
-    command_options[alias] = command_options[cmd]
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
