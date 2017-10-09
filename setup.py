@@ -193,7 +193,7 @@ TRANSLATIONS = {}
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 '''.format(' '.join(inputs), ' '.join(outputs)))
-        args = ['-verbose', '-noobsolete', self.project_file]
+        args = ['-verbose', self.project_file]
         try:
             self.spawn(['pylupdate5'] + args)
         except DistutilsExecError:
@@ -255,6 +255,9 @@ if babel:
                 self.domain = os.path.splitext(
                     os.path.basename(self.input_file))[0]
             babel.init_catalog.finalize_options(self)
+            if os.path.exists(self.output_file):
+                raise DistutilsOptionError(
+                    'output file exists, use "update_catalog" to update it')
 
     class UpdateCatalog(babel.update_catalog):
         def finalize_options(self):
