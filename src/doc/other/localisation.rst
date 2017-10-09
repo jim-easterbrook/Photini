@@ -77,7 +77,7 @@ For example, if you are going to translate Photini into Dutch::
 
 Now update (or initialise if it doesn't exist) the translation file with the current program strings::
 
-   python setup.py extract_messages -l nl
+   python setup.py lupdate -l nl
 
 Now you can open the translation file in your chosen editor, for example::
 
@@ -140,7 +140,7 @@ This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-lingui
 
 You can easily compile all the language files with setup.py::
 
-   python setup.py build_messages
+   python setup.py lrelease
 
 Now you can install Photini with your new translation(s)::
 
@@ -177,7 +177,7 @@ For example, if you are going to translate the documentation into Dutch::
 The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project.
 The documentation text to be translated is extracted from its source into several ``.pot`` "template" files::
 
-   python -B setup.py gettext
+   python -B setup.py xgettext
 
 (The ``-B`` option stops Python "compiling" files as they are imported.)
 Each of these template files is then used to initialise or update a ``.po`` translation files.

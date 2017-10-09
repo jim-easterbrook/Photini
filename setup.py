@@ -104,8 +104,8 @@ if BuildDoc:
         'build_dir'  : ('setup.py', 'doc'),
         'builder'    : ('setup.py', 'html'),
         }
-    cmdclass['gettext'] = GetText
-    command_options['gettext'] = {
+    cmdclass['xgettext'] = GetText
+    command_options['xgettext'] = {
         'all_files'  : ('setup.py', '1'),
         'source_dir' : ('setup.py', 'src/doc'),
         'build_dir'  : ('setup.py', 'src/lang/doc/pot'),
@@ -143,7 +143,7 @@ command_options['sdist'] = {
 # NB the "babel" package provides an extract_messages command, but it is
 # an alternative to xgettext, generating .pot files. This uses Qt's
 # pylupdate5 (or pylupdate4) command to generate .ts files
-class extract_messages(Command):
+class LUpdate(Command):
     description = 'extract localizable strings from Photini program code'
     user_options = [
         ('locale=', 'l',
@@ -194,15 +194,15 @@ CODECFORSRC = UTF-8
         except DistutilsExecError:
             self.spawn(['pylupdate4'] + args)
 
-cmdclass['extract_messages'] = extract_messages
-command_options['extract_messages'] = {
+cmdclass['lupdate'] = LUpdate
+command_options['lupdate'] = {
     'output_dir'  : ('setup.py', 'src/lang'),
     'project_file': ('setup.py', 'photini.pro'),
     'input_dir'   : ('setup.py', 'src/photini'),
     }
 
 # add command to 'compile' translated messages
-class build_messages(Command):
+class LRelease(Command):
     description = 'compile translated strings (.ts) to binary .qm files'
     user_options = [
         ('output-dir=', 'o', 'location of output .qm files'),
@@ -232,8 +232,8 @@ class build_messages(Command):
             except DistutilsExecError:
                 self.spawn(['lrelease'] + args)
 
-cmdclass['build_messages'] = build_messages
-command_options['build_messages'] = {
+cmdclass['lrelease'] = LRelease
+command_options['lrelease'] = {
     'output_dir' : ('setup.py', 'src/photini/data/lang'),
     'input_dir'  : ('setup.py', 'src/lang'),
     }
