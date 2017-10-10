@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="en" sourcelanguage="">
+<!DOCTYPE TS>
+<TS version="2.1" language="en">
 <context>
     <name>BingMap</name>
     <message>
@@ -58,7 +59,7 @@
         <source>Please type in the creator&apos;s name</source>
         <translation>Please type in the creator&apos;s name</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../photini/descriptive.py" line="251"/>
         <source>Copyright ©{year} {name}. All rights reserved.</source>
         <translation>Copyright ©{year} {name}. All rights reserved.</translation>
@@ -832,7 +833,7 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
         <translation>Aperture at max. focal length f/</translation>
     </message>
 </context>
-<context encoding="UTF-8">
+<context>
     <name>OpenStreetMap</name>
     <message>
         <location filename="../photini/openstreetmap.py" line="68"/>
@@ -851,7 +852,7 @@ licensed under CC BY 3.0</translation>
         <source>Search powered by OpenCage</source>
         <translation>Search powered by OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <location filename="../photini/openstreetmap.py" line="74"/>
         <source>Map data ©OpenStreetMap
 contributors, licensed under ODbL</source>
@@ -1013,17 +1014,17 @@ then enter the verification code:</translation>
     <message>
         <location filename="../photini/uploader.py" line="193"/>
         <source>Connect</source>
-        <translation>Connect</translation>
+        <translation type="obsolete">Connect</translation>
     </message>
     <message>
         <location filename="../photini/uploader.py" line="237"/>
         <source>Connected to {0} on {1}</source>
-        <translation>Connected to {0} on {1}</translation>
+        <translation type="obsolete">Connected to {0} on {1}</translation>
     </message>
     <message>
         <location filename="../photini/uploader.py" line="241"/>
         <source>Not connected to {}</source>
-        <translation>Not connected to {}</translation>
+        <translation type="obsolete">Not connected to {}</translation>
     </message>
     <message>
         <location filename="../photini/uploader.py" line="297"/>
@@ -1039,6 +1040,21 @@ then enter the verification code:</translation>
         <location filename="../photini/uploader.py" line="290"/>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
         <translation>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</translation>
+    </message>
+    <message>
+        <location filename="../photini/uploader.py" line="193"/>
+        <source>Log in</source>
+        <translation>Log in</translation>
+    </message>
+    <message>
+        <location filename="../photini/uploader.py" line="237"/>
+        <source>Logged in as {0} on {1}</source>
+        <translation>Logged in as {0} on {1}</translation>
+    </message>
+    <message>
+        <location filename="../photini/uploader.py" line="241"/>
+        <source>Not logged in to {}</source>
+        <translation>Not logged in to {}</translation>
     </message>
 </context>
 <context>
