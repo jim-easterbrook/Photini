@@ -190,7 +190,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                         logger.error(ex)
                         self.connected = False
             if not self.connected:
-                self.user_connect.setText(translate('PhotiniUploader', 'Connect'))
+                self.user_connect.setText(translate('PhotiniUploader', 'Log in'))
                 # clearing user data is quick so do it anyway
                 self.load_user_data()
             self.user_connect.setChecked(self.connected)
@@ -236,11 +236,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         if name:
             self.user_name.setText(translate(
                 'PhotiniUploader',
-                'Connected to {0} on {1}').format(name, self.service_name))
+                'Logged in as {0} on {1}').format(name, self.service_name))
         else:
             self.user_name.setText(translate(
                 'PhotiniUploader',
-                'Not connected to {}').format(self.service_name))
+                'Not logged in to {}').format(self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
             pixmap.loadFromData(picture)
