@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals
 
-from photini.pyqt import Qt, QtCore, QtWidgets
+from photini.pyqt import Qt, QtCore, QtWidgets, SingleLineEdit
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
@@ -40,20 +40,19 @@ class EditSettings(QtWidgets.QDialog):
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # copyright holder name
-        self.copyright_name = QtWidgets.QLineEdit()
-        self.copyright_name.setText(
+        self.copyright_name = SingleLineEdit(spell_check=True)
+        self.copyright_name.set_value(
             self.config_store.get('user', 'copyright_name', ''))
-        self.copyright_name.setMinimumWidth(200)
         panel.layout().addRow(self.tr('Copyright holder name'), self.copyright_name)
         # copyright text
-        self.copyright_text = QtWidgets.QLineEdit()
-        self.copyright_text.setText(
+        self.copyright_text = SingleLineEdit(spell_check=True)
+        self.copyright_text.set_value(
             self.config_store.get('user', 'copyright_text', ''))
-        self.copyright_name.setMinimumWidth(300)
+        self.copyright_text.setMinimumWidth(300)
         panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
         # creator name
-        self.creator_name = QtWidgets.QLineEdit()
-        self.creator_name.setText(
+        self.creator_name = SingleLineEdit(spell_check=True)
+        self.creator_name.set_value(
             self.config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator name'), self.creator_name)
         # IPTC data
@@ -105,9 +104,12 @@ class EditSettings(QtWidgets.QDialog):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()
         # change config
-        self.config_store.set('user', 'copyright_name', self.copyright_name.text())
-        self.config_store.set('user', 'copyright_text', self.copyright_text.text())
-        self.config_store.set('user', 'creator_name', self.creator_name.text())
+        self.config_store.set(
+            'user', 'copyright_name', self.copyright_name.get_value())
+        self.config_store.set(
+            'user', 'copyright_text', self.copyright_text.get_value())
+        self.config_store.set(
+            'user', 'creator_name', self.creator_name.get_value())
         self.config_store.set(
             'files', 'force_iptc', str(self.write_iptc.isChecked()))
         if self.sc_always.isChecked():
