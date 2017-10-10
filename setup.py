@@ -182,6 +182,16 @@ class LUpdate(Command):
         self.mkpath(self.output_dir)
         output_file = os.path.join(
             self.output_dir, 'photini.' + self.locale + '.ts')
+        # workaround for UTF-8 bug in pylupdate
+        if os.path.exists(output_file):
+            bak_file = output_file + '.bak'
+            os.rename(output_file, bak_file)
+            with open(bak_file, 'r') as src:
+                with open(output_file, 'w') as dst:
+                    for line in src.readlines():
+                        dst.write(line.replace(
+                            '<message>', '<message encoding="UTF-8">'))
+            os.unlink(bak_file)
         with open(self.project_file, 'w') as proj:
             proj.write('''SOURCES = {}
 TRANSLATIONS = {}
