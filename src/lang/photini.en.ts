@@ -20,49 +20,49 @@
 <context>
     <name>Descriptive</name>
     <message>
-        <location filename="../photini/descriptive.py" line="181"/>
+        <location filename="../photini/descriptive.py" line="179"/>
         <source>Title / Object Name</source>
         <translation>Title / Object Name</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="185"/>
+        <location filename="../photini/descriptive.py" line="183"/>
         <source>Description / Caption</source>
         <translation>Description / Caption</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="190"/>
+        <location filename="../photini/descriptive.py" line="188"/>
         <source>Keywords</source>
         <translation>Keywords</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="196"/>
+        <location filename="../photini/descriptive.py" line="194"/>
         <source>Copyright</source>
         <translation>Copyright</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="201"/>
+        <location filename="../photini/descriptive.py" line="199"/>
         <source>Creator / Artist</source>
         <translation>Creator / Artist</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="268"/>
+        <location filename="../photini/descriptive.py" line="266"/>
         <source>Photini: input name</source>
         <translation>Photini: input name</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="242"/>
+        <location filename="../photini/descriptive.py" line="240"/>
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Please type in the copyright holder&apos;s name</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="268"/>
+        <location filename="../photini/descriptive.py" line="266"/>
         <source>Please type in the creator&apos;s name</source>
         <translation>Please type in the creator&apos;s name</translation>
     </message>
     <message>
-        <location filename="../photini/descriptive.py" line="251"/>
+        <location filename="../photini/descriptive.py" line="249"/>
         <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation>Copyright ©{year} {name}. All rights reserved.</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -76,84 +76,94 @@
 <context>
     <name>EditSettings</name>
     <message>
-        <location filename="../photini/editsettings.py" line="33"/>
+        <location filename="../photini/editsettings.py" line="28"/>
         <source>Photini: settings</source>
         <translation>Photini: settings</translation>
     </message>
     <message>
         <location filename="../photini/editsettings.py" line="84"/>
         <source>Write unconditionally</source>
-        <translation>Write unconditionally</translation>
+        <translation type="obsolete">Write unconditionally</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="86"/>
+        <location filename="../photini/editsettings.py" line="62"/>
         <source>IPTC metadata</source>
         <translation>IPTC metadata</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="92"/>
+        <location filename="../photini/editsettings.py" line="68"/>
         <source>Always create</source>
         <translation>Always create</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="94"/>
+        <location filename="../photini/editsettings.py" line="70"/>
         <source>Sidecar files</source>
         <translation>Sidecar files</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="95"/>
+        <location filename="../photini/editsettings.py" line="71"/>
         <source>Create if necessary</source>
         <translation>Create if necessary</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="99"/>
+        <location filename="../photini/editsettings.py" line="75"/>
         <source>Delete when possible</source>
         <translation>Delete when possible</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="104"/>
+        <location filename="../photini/editsettings.py" line="80"/>
         <source>(when possible)</source>
         <translation>(when possible)</translation>
     </message>
     <message>
         <location filename="../photini/editsettings.py" line="107"/>
         <source>Write to image</source>
-        <translation>Write to image</translation>
+        <translation type="obsolete">Write to image</translation>
     </message>
     <message>
         <location filename="../photini/editsettings.py" line="66"/>
         <source>Disconnect from Flickr</source>
-        <translation>Disconnect from Flickr</translation>
+        <translation type="obsolete">Disconnect from Flickr</translation>
     </message>
     <message>
         <location filename="../photini/editsettings.py" line="72"/>
         <source>Disconnect from Google Photos</source>
-        <translation>Disconnect from Google Photos</translation>
+        <translation type="obsolete">Disconnect from Google Photos</translation>
     </message>
     <message>
         <location filename="../photini/editsettings.py" line="78"/>
         <source>Disconnect from Facebook</source>
-        <translation>Disconnect from Facebook</translation>
+        <translation type="obsolete">Disconnect from Facebook</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="52"/>
+        <location filename="../photini/editsettings.py" line="46"/>
         <source>Copyright holder name</source>
         <translation>Copyright holder name</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="58"/>
+        <location filename="../photini/editsettings.py" line="52"/>
         <source>Copyright text</source>
         <translation>Copyright text</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="63"/>
+        <location filename="../photini/editsettings.py" line="57"/>
         <source>Creator name</source>
         <translation>Creator name</translation>
     </message>
     <message>
-        <location filename="../photini/editsettings.py" line="113"/>
+        <location filename="../photini/editsettings.py" line="89"/>
         <source>Preserve file timestamps</source>
         <translation>Preserve file timestamps</translation>
+    </message>
+    <message>
+        <location filename="../photini/editsettings.py" line="60"/>
+        <source>Always write</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../photini/editsettings.py" line="83"/>
+        <source>Write to image file</source>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -841,7 +851,7 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
         <translation>Map powered by Leaflet</translation>
     </message>
     <message>
-        <location filename="../photini/openstreetmap.py" line="79"/>
+        <location filename="../photini/openstreetmap.py" line="77"/>
         <source>Map tiles by CARTO
 licensed under CC BY 3.0</source>
         <translation>Map tiles by CARTO
@@ -853,11 +863,10 @@ licensed under CC BY 3.0</translation>
         <translation>Search powered by OpenCage</translation>
     </message>
     <message>
-        <location filename="../photini/openstreetmap.py" line="74"/>
+        <location filename="../photini/openstreetmap.py" line="72"/>
         <source>Map data ©OpenStreetMap
 contributors, licensed under ODbL</source>
-        <translation>Map data ©OpenStreetMap
-contributors, licensed under ODbL</translation>
+        <translation></translation>
     </message>
 </context>
 <context>
