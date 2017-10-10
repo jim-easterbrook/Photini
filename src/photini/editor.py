@@ -363,19 +363,25 @@ def main(argv=None):
     sys.argv.append('xxx')
     app = QtWidgets.QApplication(sys.argv)
     del sys.argv[-1]
-    # install translation
+    # install translations
     if qt_version_info < (5, 0):
         QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
-    locale = QtCore.QLocale.system()
+    # English translation as a fallback (to get correct plurals)
+    lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
     translator = QtCore.QTranslator(parent=app)
-    translator.load(locale, 'photini', '.', pkg_resources.resource_filename(
-        'photini', 'data/lang'), '.qm')
-    app.installTranslator(translator)
-    qt_translator = QtCore.QTranslator(parent=app)
-    qt_translator.load(
-        locale, 'qt', '_',
-        QtCore.QLibraryInfo.location(QtCore.QLibraryInfo.TranslationsPath))
-    app.installTranslator(qt_translator)
+    if translator.load('photini.en', lang_dir):
+        app.installTranslator(translator)
+        translator = QtCore.QTranslator(parent=app)
+    # localised translation, if it exists
+    locale = QtCore.QLocale.system()
+    if translator.load(locale, 'photini', '.', lang_dir):
+        app.installTranslator(translator)
+        translator = QtCore.QTranslator(parent=app)
+    # Qt's own translation, e.g. for 'apply' or 'cancel' buttons
+    if qt_version_info < (5, 0):
+        if translator.load(locale, 'qt', '_', QtCore.QLibraryInfo.location(
+                QtCore.QLibraryInfo.TranslationsPath)):
+            app.installTranslator(translator)
     # parse remaining arguments
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
