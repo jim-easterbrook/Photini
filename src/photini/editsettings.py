@@ -19,16 +19,11 @@
 
 from __future__ import unicode_literals
 
-try:
-    import keyring
-except (ImportError, RuntimeError):
-    keyring = None
-
 from photini.pyqt import Qt, QtCore, QtWidgets
 
 class EditSettings(QtWidgets.QDialog):
-    def __init__(self, parent):
-        QtWidgets.QDialog.__init__(self, parent)
+    def __init__(self, *arg, **kw):
+        super(EditSettings, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.setWindowTitle(self.tr('Photini: settings'))
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -61,27 +56,9 @@ class EditSettings(QtWidgets.QDialog):
         self.creator_name.setText(
             self.config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator name'), self.creator_name)
-        # reset flickr
-        self.reset_flickr = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Disconnect from Flickr'), self.reset_flickr)
-        if not keyring or keyring.get_password('photini', 'flickr') is None:
-            self.reset_flickr.setDisabled(True)
-            panel.layout().labelForField(self.reset_flickr).setDisabled(True)
-        # reset picasa
-        self.reset_picasa = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Disconnect from Google Photos'), self.reset_picasa)
-        if not keyring or keyring.get_password('photini', 'picasa') is None:
-            self.reset_picasa.setDisabled(True)
-            panel.layout().labelForField(self.reset_picasa).setDisabled(True)
-        # reset facebook
-        self.reset_facebook = QtWidgets.QCheckBox()
-        panel.layout().addRow(self.tr('Disconnect from Facebook'), self.reset_facebook)
-        if not keyring or keyring.get_password('photini', 'facebook') is None:
-            self.reset_facebook.setDisabled(True)
-            panel.layout().labelForField(self.reset_facebook).setDisabled(True)
         # IPTC data
         force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
-        self.write_iptc = QtWidgets.QCheckBox(self.tr('Write unconditionally'))
+        self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
         self.write_iptc.setChecked(force_iptc)
         panel.layout().addRow(self.tr('IPTC metadata'), self.write_iptc)
         # sidecar files
@@ -104,7 +81,7 @@ class EditSettings(QtWidgets.QDialog):
         self.write_if = QtWidgets.QCheckBox(self.tr('(when possible)'))
         self.write_if.setChecked(if_mode)
         self.write_if.clicked.connect(self.new_write_if)
-        panel.layout().addRow(self.tr('Write to image'), self.write_if)
+        panel.layout().addRow(self.tr('Write to image file'), self.write_if)
         # preserve file timestamps
         keep_time = eval(
             self.config_store.get('files', 'preserve_timestamps', 'False'))
@@ -131,15 +108,6 @@ class EditSettings(QtWidgets.QDialog):
         self.config_store.set('user', 'copyright_name', self.copyright_name.text())
         self.config_store.set('user', 'copyright_text', self.copyright_text.text())
         self.config_store.set('user', 'creator_name', self.creator_name.text())
-        if (self.reset_flickr.isChecked() and
-                            keyring.get_password('photini', 'flickr')):
-            keyring.delete_password('photini', 'flickr')
-        if (self.reset_picasa.isChecked() and
-                            keyring.get_password('photini', 'picasa')):
-            keyring.delete_password('photini', 'picasa')
-        if (self.reset_facebook.isChecked() and
-                            keyring.get_password('photini', 'facebook')):
-            keyring.delete_password('photini', 'facebook')
         self.config_store.set(
             'files', 'force_iptc', str(self.write_iptc.isChecked()))
         if self.sc_always.isChecked():
