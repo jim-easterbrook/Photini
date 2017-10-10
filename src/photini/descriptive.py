@@ -171,8 +171,6 @@ class Descriptive(QtWidgets.QWidget):
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
         self.setLayout(self.form)
-        if qt_version_info >= (5, 0):
-            self.trUtf8 = self.tr
         # construct widgets
         self.widgets = {}
         # title
@@ -249,7 +247,7 @@ class Descriptive(QtWidgets.QWidget):
                 name = ''
         copyright_text = self.config_store.get(
             'user', 'copyright_text',
-            self.trUtf8('Copyright ©{year} {name}. All rights reserved.'))
+            self.tr('Copyright ©{year} {name}. All rights reserved.'))
         for image in self.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
             if date_taken is None:
