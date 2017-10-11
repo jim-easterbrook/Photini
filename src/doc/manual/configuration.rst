@@ -15,17 +15,14 @@ The top three items can be used to adjust the auto-generated copyright and creat
 The ``copyright text`` entry has place-holders where the photograph's "taken" year and the copyright holder's name are inserted.
 You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
 
-The next three items allow you to delete Photini's "Oauth tokens" for Flickr, Google Photos or Facebook.
-This forces you to re-authenticate next time you use any of these services, just like clicking ``Log out`` on the relevant tab.
-
 The next items adjust how Photini uses "sidecar" files and IPTC metadata.
-Sidecar files allow metadata to be stored without needing to write to the actual image file.
-If you deselect "write to image" then sidecars will always be created.
-Otherwise, you can choose to have them always created (storing data in parallel with the image file), only created when necessary (e.g. an image file is write protected), or deleted when possible (if metadata can be copied to the image file the sidecar is deleted).
-
 The `Metadata Working Group <http://www.metadataworkinggroup.org/specs/>`_ recommends that IPTC metadata is not written to files unless already present.
 Photini has an option to always write IPTC metadata.
 You may need this if you use some other software that reads IPTC but not Exif or XMP.
+
+Sidecar files allow metadata to be stored without needing to write to the actual image file.
+If you deselect "write to image file" then sidecars will always be created.
+Otherwise, you can choose to have them always created (storing data in parallel with the image file), only created when necessary (e.g. an image file is write protected), or deleted when possible (if metadata can be copied to the image file the sidecar is deleted).
 
 Finally there is an option to preserve file timestamps.
 This allows Photini to write metadata to an image file without changing the file's "modification time" as displayed in a file browser.
