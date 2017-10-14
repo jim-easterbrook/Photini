@@ -267,6 +267,14 @@ class SingleLineEdit(MultiLineEdit):
         self.insertPlainText(source.text().replace('\n', ' '))
 
 
+class Slider(QtWidgets.QSlider):
+    editing_finished = QtCore.pyqtSignal()
+
+    def focusOutEvent(self, event):
+        self.editing_finished.emit()
+        super(Slider, self).focusOutEvent(event)
+
+
 class SquareButton(QtWidgets.QPushButton):
     def sizeHint(self):
         size = super(SquareButton, self).sizeHint()

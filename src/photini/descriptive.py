@@ -25,13 +25,14 @@ from datetime import datetime
 import six
 
 from photini.pyqt import (multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtWidgets, qt_version_info, SingleLineEdit)
+                          QtWidgets, qt_version_info, SingleLineEdit, Slider)
 
 class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(LineEdit, self).__init__(*arg, **kw)
         self.multiple_values = multiple_values()
         self._is_multiple = False
+        self.get_value = self.text
 
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
@@ -57,9 +58,6 @@ class LineEdit(QtWidgets.QLineEdit):
             self.setPlaceholderText('')
         else:
             self.setText(six.text_type(value))
-
-    def get_value(self):
-        return self.text()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -91,6 +89,65 @@ class LineEditWithAuto(QtWidgets.QWidget):
         self.is_multiple = self.edit.is_multiple
         self.editingFinished = self.edit.editingFinished
         self.autoComplete = self.auto.clicked
+
+
+class RatingWidget(QtWidgets.QWidget):
+    new_value = QtCore.pyqtSignal()
+
+    def __init__(self, *arg, **kw):
+        super(RatingWidget, self).__init__(*arg, **kw)
+        self._is_multiple = False
+        self.multiple_values = multiple_values()
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        # slider
+        self.slider = Slider(Qt.Horizontal)
+        self.slider.setFixedWidth(200)
+        self.slider.setRange(-2, 5)
+        self.slider.setPageStep(1)
+        self.slider.valueChanged.connect(self.slider_changed)
+        self.slider.editing_finished.connect(self.new_value)
+        self.layout().addWidget(self.slider)
+        # display
+        self.display = QtWidgets.QLineEdit()
+        self.display.setFrame(False)
+        self.display.setReadOnly(True)
+        self.layout().addWidget(self.display)
+        # adopt child signal
+        self.editingFinished = self.slider.editing_finished
+
+    @QtCore.pyqtSlot(int)
+    def slider_changed(self, value):
+        if value == -2:
+            self.display.clear()
+        elif value == -1:
+            self.display.setText(self.tr('reject'))
+        else:
+            self.display.setText((six.unichr(0x2605) * value) +
+                                 (six.unichr(0x2606) * (5 - value)))
+
+    def set_value(self, value):
+        self._is_multiple = False
+        self.display.setPlaceholderText('')
+        if not value:
+            self.slider.setValue(-2)
+        else:
+            self.slider.setValue(int(value + 1.5) - 1)
+        self.slider_changed(self.slider.value())
+
+    def get_value(self):
+        value = self.slider.value()
+        if value == -2:
+            return None
+        return value
+
+    def set_multiple(self, choices=[]):
+        self._is_multiple = True
+        self.slider.setValue(-2)
+        self.display.setPlaceholderText(self.multiple_values)
+
+    def is_multiple(self):
+        return self._is_multiple
 
 
 class KeywordsEditor(QtWidgets.QWidget):
@@ -187,6 +244,10 @@ class Descriptive(QtWidgets.QWidget):
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
         self.image_list.image_list_changed.connect(self.image_list_changed)
+        # rating
+        self.widgets['rating'] = RatingWidget()
+        self.widgets['rating'].editingFinished.connect(self.new_rating)
+        self.form.addRow(self.tr('Rating'), self.widgets['rating'])
         # copyright
         self.widgets['copyright'] = LineEditWithAuto()
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
@@ -224,6 +285,10 @@ class Descriptive(QtWidgets.QWidget):
         self._new_value('keywords')
         self.widgets['keywords'].update_league_table(
             self.image_list.get_selected_images())
+
+    @QtCore.pyqtSlot()
+    def new_rating(self):
+        self._new_value('rating')
 
     @QtCore.pyqtSlot()
     def new_copyright(self):

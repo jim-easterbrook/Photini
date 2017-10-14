@@ -799,6 +799,30 @@ class Aperture(Fraction, MD_Value):
         return self
 
 
+class Rating(float, MD_Value):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if file_value is None:
+            return None
+        if tag in ('Exif.Image.RatingPercent', 'Xmp.MicrosoftPhoto.Rating'):
+            value = 1.0 + (float(file_value) / 25.0)
+        else:
+            value = min(max(float(file_value), -1.0), 5.0)
+        return cls(value)
+
+    def write(self, handler, tag):
+        if handler.is_exif_tag(tag):
+            handler.set_string(tag, six.text_type(int(self + 1.5) - 1))
+        else:
+            handler.set_string(tag, six.text_type(self))
+
+    def merge(self, info, tag, other):
+        if self != other:
+            self.log_ignored(info, tag, other)
+        return self
+
+
 # maximum length of Iptc data
 _max_bytes = {
     'Iptc.Application2.Byline'           :   32,
@@ -1086,6 +1110,7 @@ class Metadata(QtCore.QObject):
         'location_shown' : Location,
         'location_taken' : Location,
         'orientation'    : MD_Int,
+        'rating'         : Rating,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
@@ -1203,6 +1228,10 @@ class Metadata(QtCore.QObject):
                        'Iptc.Application2.CountryCode'))),
         'orientation'    : (('RA.WA', 'Exif.Image.Orientation'),
                             ('RA.WX', 'Xmp.tiff.Orientation')),
+        'rating'         : (('RA.WA', 'Xmp.xmp.rating'),
+                            ('RA.W0', 'Exif.Image.Rating'),
+                            ('RA.W0', 'Exif.Image.RatingPercent'),
+                            ('RA.W0', 'Xmp.MicrosoftPhoto.Rating')),
         'software'       : (('RA.WA', 'Exif.Image.ProcessingSoftware'),
                             ('RA.WA', ('Iptc.Application2.Program',
                                        'Iptc.Application2.ProgramVersion'))),

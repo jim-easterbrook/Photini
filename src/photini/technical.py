@@ -23,8 +23,8 @@ from datetime import datetime, timedelta
 import re
 
 from photini.metadata import DateTime, LensSpec
-from photini.pyqt import (
-    multiple, multiple_values, Qt, QtCore, QtGui, QtWidgets, SquareButton)
+from photini.pyqt import (multiple, multiple_values, Qt, QtCore, QtGui,
+                          QtWidgets, Slider, SquareButton)
 
 # 'constant' used by some widgets to indicate they've been set to '<multiple>'
 MULTI = 'multi'
@@ -282,14 +282,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             self.setValue(self.minimum())
         else:
             self.setValue(values[0])
-
-
-class Slider(QtWidgets.QSlider):
-    editing_finished = QtCore.pyqtSignal()
-
-    def focusOutEvent(self, event):
-        self.editing_finished.emit()
-        super(Slider, self).focusOutEvent(event)
 
 
 class DateAndTimeWidget(QtWidgets.QGridLayout):
