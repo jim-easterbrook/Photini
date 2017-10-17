@@ -52,8 +52,18 @@ If you select a group of images you may see ``<multiple values>`` displayed in s
 If you want the group of the photographs to have the same metadata for one of these fields you can right-click on the ``<multiple values>`` box.
 This brings up a menu from which you can choose a value to be copied to all the selected photographs.
 
-Finally you can set a list of keywords for the image by typing them in the ``Keywords`` box.
+Next you can set a list of keywords for the image by typing them in the ``Keywords`` box.
 Keywords should be separated by semi-colon (;) characters.
 The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
 
 .. image:: ../images/screenshot_12.png
+
+Finally the ``Rating`` slider allows you to note any particularly good or bad pictures.
+Good pictures can be given a one to five star rating.
+
+.. image:: ../images/screenshot_13.png
+
+Bad pictures can be given a ``reject`` rating.
+This is stored in the metadata as a rating value of -1.
+
+.. image:: ../images/screenshot_14.png
