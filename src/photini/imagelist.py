@@ -178,14 +178,20 @@ class Image(QtWidgets.QFrame):
             # to 4:3 aspect ratio
             w = qt_im.width()
             h = qt_im.height()
-            new_h = int(0.5 + (float(w * 3) / 4.0))
-            new_w = int(0.5 + (float(h * 4) / 3.0))
+            if w >= h:
+                new_h = int(0.5 + (float(w * 3) / 4.0))
+                new_w = int(0.5 + (float(h * 4) / 3.0))
+            else:
+                new_h = int(0.5 + (float(w * 4) / 3.0))
+                new_w = int(0.5 + (float(h * 3) / 4.0))
             if new_h > h:
                 pad = (new_h - h) // 2
                 qt_im = qt_im.copy(0, -pad, w, new_h)
+                w, h = 160, 120
             elif new_w > w:
                 pad = (new_w - w) // 2
                 qt_im = qt_im.copy(-pad, 0, new_w, h)
+                w, h = 120, 160
             fmt = 'JPEG'
             if PIL:
                 # convert Qt image to PIL image
@@ -195,8 +201,7 @@ class Image(QtWidgets.QFrame):
                 data = BytesIO(buf.data().data())
                 pil_im = PIL.open(data)
                 # scale PIL image
-                pil_im = pil_im.resize((160, 120), PIL.ANTIALIAS)
-                w, h = pil_im.size
+                pil_im = pil_im.resize((w, h), PIL.ANTIALIAS)
                 # save image to memory
                 data = BytesIO()
                 pil_im.save(data, fmt)
@@ -204,9 +209,7 @@ class Image(QtWidgets.QFrame):
             else:
                 # scale Qt image - not as good quality as PIL
                 qt_im = qt_im.scaled(
-                    160, 120, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                w = qt_im.width()
-                h = qt_im.height()
+                    w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
                 # save image to memory
                 buf = QtCore.QBuffer()
                 buf.open(QtCore.QIODevice.WriteOnly)
