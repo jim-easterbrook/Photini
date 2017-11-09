@@ -85,8 +85,12 @@ def decode_UCS2(value):
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
+    def __bool__(self):
+        # reinterpret as "has a value" (Python 3)
+        return True
+
     def __nonzero__(self):
-        # reinterpret as "has a value"
+        # reinterpret as "has a value" (Python 2)
         return True
 
     def log_merged(self, info, tag, value):
@@ -100,7 +104,7 @@ class MD_Value(object):
         logger.warning('%s: ignored %s "%s"', info, tag, str(value))
 
 
-class MD_Dict(dict, MD_Value):
+class MD_Dict(MD_Value, dict):
     def __init__(self, value):
         # can initialise from a string containing comma separated values
         if isinstance(value, six.string_types):
@@ -624,7 +628,7 @@ class DateTime(MD_Dict):
         return self
 
 
-class MultiString(list, MD_Value):
+class MultiString(MD_Value, list):
     def __init__(self, value):
         if isinstance(value, six.string_types):
             value = value.split(';')
@@ -665,7 +669,7 @@ class MultiString(list, MD_Value):
         return self
 
 
-class MD_String(six.text_type, MD_Value):
+class MD_String(MD_Value, six.text_type):
     @classmethod
     def read(cls, handler, tag):
         if handler.get_tag_type(tag) == 'LangAlt':
@@ -736,7 +740,7 @@ class Software(MD_String):
             handler.set_string(tag, self)
 
 
-class MD_Int(int, MD_Value):
+class MD_Int(MD_Value, int):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
@@ -765,7 +769,7 @@ class Timezone(MD_Int):
         return cls(file_value)
 
 
-class Aperture(Fraction, MD_Value):
+class Aperture(MD_Value, Fraction):
     # store FNumber and APEX aperture as fractions
     # only FNumber is presented to the user, either is computed if missing
     @classmethod
@@ -799,7 +803,7 @@ class Aperture(Fraction, MD_Value):
         return self
 
 
-class Rating(float, MD_Value):
+class Rating(MD_Value, float):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
