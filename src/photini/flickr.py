@@ -34,6 +34,7 @@ from photini.pyqt import (
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
@@ -311,6 +312,29 @@ class FlickrUploader(PhotiniUploader):
                          'video/mp4', 'video/quicktime', 'video/riff'),
             'rejected': ('image/x-canon-cr2',),
             }
+
+    def get_conversion_function(self, image):
+        convert = super(FlickrUploader, self).get_conversion_function(image)
+        if convert == 'omit':
+            return convert
+        max_size = 2 ** 30
+        size = os.stat(image.path).st_size
+        if size < max_size:
+            return convert
+        dialog = QtWidgets.QMessageBox(parent=self)
+        dialog.setWindowTitle(
+            translate('PhotiniUploader', 'Photini: too large'))
+        dialog.setText(
+            translate('PhotiniUploader', '<h3>File too large.</h3>'))
+        dialog.setInformativeText(
+            translate('PhotiniUploader',
+                      'File "{0}" has {1} bytes and exceeds Flickr\'s limit' +
+                      ' of {2} bytes.').format(
+                          os.path.basename(image.path), size, max_size))
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ignore)
+        dialog.exec_()
+        return 'omit'
 
     def get_album_list(self):
         self.photosets = []
