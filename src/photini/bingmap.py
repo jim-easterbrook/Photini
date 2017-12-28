@@ -77,19 +77,25 @@ class BingMap(PhotiniMap):
             'http://www.microsoft.com/maps/assets/docs/terms.aspx')
 
     def do_search(self, query='', params={}):
+        self.disable_search()
         params['key'] = self.api_key
         url = 'http://dev.virtualearth.net/REST/v1/Locations'
         if query:
             url += '/' + query
         with Busy():
             try:
-                rsp = requests.get(url, params=params)
+                rsp = requests.get(url, params=params, timeout=5)
             except Exception as ex:
                 self.logger.error(str(ex))
                 return None
         if rsp.status_code >= 400:
             self.logger.error('Search error %d', rsp.status_code)
             return None
+        if rsp.headers['X-MS-BM-WS-INFO'] == '1':
+            self.logger.error('Server overload')
+        else:
+            # re-enable search immediately rather than after timeout
+            self.enable_search()
         rsp = rsp.json()
         if rsp['statusCode'] != 200:
             self.logger.error('Search error %d: %s',

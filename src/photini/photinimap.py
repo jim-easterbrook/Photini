@@ -241,6 +241,10 @@ class PhotiniMap(QtWidgets.QSplitter):
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
         self.splitterMoved.connect(self.new_split)
+        self.block_timer = QtCore.QTimer(self)
+        self.block_timer.setInterval(5000)
+        self.block_timer.setSingleShot(True)
+        self.block_timer.timeout.connect(self.enable_search)
 
     @QtCore.pyqtSlot(int, six.text_type)
     def log(self, level, message):
@@ -542,6 +546,23 @@ class PhotiniMap(QtWidgets.QSplitter):
         else:
             self.JavaScript('delMarker({:d})'.format(marker_id))
             del self.marker_images[marker_id]
+
+    @QtCore.pyqtSlot()
+    def enable_search(self):
+        self.block_timer.stop()
+        self.edit_box.lineEdit().setEnabled(self.map_loaded)
+        if self.search_string:
+            item = self.edit_box.model().item(1)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+        self.display_coords()
+
+    def disable_search(self):
+        self.edit_box.lineEdit().setEnabled(False)
+        if self.search_string:
+            item = self.edit_box.model().item(1)
+            item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
+        self.auto_location.setEnabled(False)
+        self.block_timer.start()
 
     @QtCore.pyqtSlot()
     def get_address(self):
