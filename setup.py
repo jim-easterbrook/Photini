@@ -331,7 +331,7 @@ setup(name = 'Photini',
               'photini = photini.editor:main',
               ],
           },
-      install_requires = ['appdirs >= 1.3', 'six >= 1.5'],
+      install_requires = ['appdirs >= 1.3', 'requests >= 2.4.0', 'six >= 1.5'],
       extras_require = {
           'facebook' : ['requests-oauthlib >= 0.4', 'requests-toolbelt >= 0.4',
                         'keyring >= 7.0', 'Pillow >= 2.0'],

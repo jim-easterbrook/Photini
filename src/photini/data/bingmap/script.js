@@ -18,7 +18,6 @@
 
 var map;
 var markers = {};
-var searchManager;
 
 function loadMap()
 {
@@ -37,13 +36,6 @@ function loadMap()
         };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
-    Microsoft.Maps.loadModule(
-        'Microsoft.Maps.Search', {callback: searchModuleLoaded});
-}
-
-function searchModuleLoaded()
-{
-    searchManager = new Microsoft.Maps.Search.SearchManager(map);
     python.initialize_finished();
 }
 
@@ -157,54 +149,4 @@ function removeMarkers()
 {
     map.entities.clear();
     markers = {};
-}
-
-function search(search_string)
-{
-    var geocodeRequest = {
-        where: search_string,
-        count: 20,
-        callback: geocodeCallback,
-        errorCallback: errCallback
-        };
-    searchManager.geocode(geocodeRequest);
-}
-
-function geocodeCallback(geocodeResult, userData)
-{
-    for (var i = 0; i < geocodeResult.results.length; i++)
-    {
-        var view = geocodeResult.results[i].bestView;
-        python.search_result(
-            view.getNorth(), view.getEast(), view.getSouth(), view.getWest(),
-            geocodeResult.results[i].name);
-    }
-}
-
-function errCallback(geocodeRequest)
-{
-    python.log(40, "geocode request fail: " + JSON.stringify(geocodeRequest));
-}
-
-function reverseGeocode(lat, lng)
-{
-    searchManager.reverseGeocode({
-        location: new Microsoft.Maps.Location(lat, lng),
-        includeCountryIso2: true,
-        callback: reverseGeocodeCallback,
-        errorCallback: errCallback
-        });
-}
-
-function reverseGeocodeCallback(geocodeResult, userData)
-{
-    var country_code = geocodeResult.address.countryRegionISO2;
-    var country_name = geocodeResult.address.countryRegion;
-    var province_state = geocodeResult.address.adminDistrict;
-    if (geocodeResult.address.district)
-        province_state = geocodeResult.address.district + ", " + province_state;
-    var city = geocodeResult.address.locality;
-    var sublocation = geocodeResult.address.addressLine;
-    python.set_location_taken(
-        "", country_code, country_name, province_state, city, sublocation);
 }
