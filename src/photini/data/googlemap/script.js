@@ -16,7 +16,6 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-var geocoder;
 var map;
 var markers = {};
 
@@ -30,7 +29,6 @@ function loadMap()
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
-    geocoder = new google.maps.Geocoder();
     google.maps.event.addListener(map, 'idle', newBounds);
     python.initialize_finished();
 }
@@ -171,85 +169,4 @@ function removeMarkers()
         markers[id].setMap(null);
     }
     markers = {};
-}
-
-function search(search_string)
-{
-    geocoder.geocode(
-        {address: search_string, bounds: map.getBounds()},
-        function(results, status) {
-            if (status == google.maps.GeocoderStatus.OK)
-            {
-                for (var i in results)
-                {
-                    var ne = results[i].geometry.viewport.getNorthEast();
-                    var sw = results[i].geometry.viewport.getSouthWest();
-                    python.search_result(ne.lat(), ne.lng(), sw.lat(), sw.lng(),
-                                         results[i].formatted_address);
-                }
-            }
-            else
-                python.log(40, "Search fail: " + status);
-            });
-}
-
-function reverseGeocode(lat, lng)
-{
-    geocoder.geocode({'location': {lat: lat, lng: lng}}, function(results, status) {
-        if (status == google.maps.GeocoderStatus.OK)
-        {
-            var country_code = "";
-            var country_name = "";
-            var province_state = [];
-            var city = [];
-            var sublocation = [];
-            for (var i in results[0].address_components)
-            {
-                var address = results[0].address_components[i];
-                for (var j in address.types)
-                {
-                    switch (address.types[j])
-                    {
-                        case "political":
-                            continue;
-                        case "premise":
-                        case "route":
-                        case "street_number":
-                            if (sublocation.indexOf(address.long_name) < 0)
-                                sublocation.push(address.long_name);
-                            break;
-                        case "locality":
-                        case "neighborhood":
-                        case "postal_town":
-                        case "sublocality":
-                            if (city.indexOf(address.long_name) < 0)
-                                city.push(address.long_name);
-                            break;
-                        case "administrative_area_level_1":
-                        case "administrative_area_level_2":
-                        case "administrative_area_level_3":
-                            if (province_state.indexOf(address.long_name) < 0)
-                                province_state.push(address.long_name);
-                            break;
-                        case "country":
-                            country_name = address.long_name;
-                            country_code = address.short_name;
-                            break;
-                        case "postal_code":
-                        case "postal_code_suffix":
-                            break;
-                        default:
-                            python.log(40, "Unknown type:" + address.long_name +
-                                           ", " + address.types.join());
-                    }
-                    break;
-                }
-            }
-            python.set_location_taken(
-                "", country_code, country_name, province_state.join(", "),
-                city.join(", "), sublocation.join(", "));
-        }
-        else
-            python.log(40, "reverseGeocode fail: " + status);
-        });
 }

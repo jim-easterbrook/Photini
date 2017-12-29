@@ -24,16 +24,22 @@ import os
 import re
 import webbrowser
 
+import requests
+
 from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
-from photini.pyqt import QtCore, QtWidgets
+from photini.pyqt import Busy, QtCore, QtWidgets
 
 class GoogleMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(GoogleMap, self).__init__(*arg, **kw)
+        self.api_key = key_store.get('google', 'api_key')
+
     def get_page_elements(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:
             url += '.exp'
-        url += '&key=' + key_store.get('google', 'api_key')
+        url += '&key=' + self.api_key
         lang, encoding = locale.getdefaultlocale()
         if lang:
             match = re.match('[a-zA-Z]+[-_]([A-Z]+)', lang)
@@ -65,3 +71,108 @@ class GoogleMap(PhotiniMap):
     @QtCore.pyqtSlot()
     def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')
+
+    def do_search(self, params={}):
+        self.disable_search()
+        params['key'] = self.api_key
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        url = 'https://maps.googleapis.com/maps/api/geocode/json'
+        with Busy():
+            try:
+                rsp = requests.get(url, params=params, timeout=5)
+            except Exception as ex:
+                self.logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            self.logger.error('Search error %d', rsp.status_code)
+            return []
+        self.enable_search()
+        rsp = rsp.json()
+        if rsp['status'] != 'OK':
+            if 'error_message' in rsp:
+                self.logger.error(
+                    'Search error: %s: %s', rsp['status'], rsp['error_message'])
+            else:
+                self.logger.error('Search error: %s', rsp['status'])
+            return []
+        results = rsp['results']
+        if not results:
+            self.logger.error('No results found')
+            return []
+        return results
+
+    @QtCore.pyqtSlot()
+    def get_address(self):
+        params = {
+            'latlng': self.coords.get_value().replace(' ', '')
+            }
+        results = self.do_search(params=params)
+        if not results:
+            return
+        address = {}
+        for item in results[0]['address_components']:
+            type_name = ''
+            for name in item['types']:
+                if name == 'political':
+                    continue
+                if len(name) > len(type_name):
+                    type_name = name
+            if not type_name:
+                type_name = 'unknown'
+            address[type_name] = item['long_name']
+            address[type_name + '_sh'] = item['short_name']
+        location = []
+        for iptc_key, google_keys in (
+                ('world_region',   ('no_key',)),
+                ('country_code',   ('country_sh',)),
+                ('country_name',   ('country',)),
+                ('province_state', ('administrative_area_level_3',
+                                    'administrative_area_level_2',
+                                    'administrative_area_level_1')),
+                ('city',           ('sublocality_level_2',
+                                    'sublocality_level_1',
+                                    'sublocality',
+                                    'neighborhood',
+                                    'locality', 'postal_town')),
+                ('sublocation',    ('establishment', 'point_of_interest',
+                                    'premise', 'street_number', 'route'))):
+            element = []
+            for key in google_keys:
+                if key not in address:
+                    continue
+                if address[key] not in element:
+                    element.append(address[key])
+                del(address[key])
+            location.append(', '.join(element))
+        # put any remaining keys in sublocation
+        for key in address:
+            if key[-3:] == '_sh':
+                continue
+            if key in ('postal_code', 'postal_code_suffix'):
+                continue
+            location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
+        self.set_location_taken(*location)
+
+    @QtCore.pyqtSlot()
+    def search(self, search_string=None):
+        if not search_string:
+            search_string = self.edit_box.lineEdit().text()
+            self.edit_box.clearEditText()
+        if not search_string:
+            return
+        self.search_string = search_string
+        self.clear_search()
+        north, east, south, west = self.map_status['bounds']
+        params = {
+            'address': search_string,
+            'bounds' : '{!r},{!r}|{!r},{!r}'.format(south, west, north, east),
+            }
+        results = self.do_search(params=params)
+        for result in results:
+            bounds = result['geometry']['viewport']
+            self.search_result(
+                bounds['northeast']['lat'], bounds['northeast']['lng'],
+                bounds['southwest']['lat'], bounds['southwest']['lng'],
+                result['formatted_address'])
