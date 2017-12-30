@@ -587,7 +587,9 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.search_string = search_string
         self.clear_search()
-        self.JavaScript('search("{}")'.format(search_string))
+        north, east, south, west = self.map_status['bounds']
+        for result in self.geocode(search_string, north, east, south, west):
+            self.search_result(*result)
 
     def clear_search(self):
         self.edit_box.clear()

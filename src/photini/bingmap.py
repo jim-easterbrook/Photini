@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 import locale
+import logging
 import os
 import webbrowser
 
@@ -30,6 +31,8 @@ from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import (
     Busy, QtCore, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets)
+
+logger = logging.getLogger(__name__)
 
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
@@ -76,7 +79,7 @@ class BingMap(PhotiniMap):
         webbrowser.open_new(
             'http://www.microsoft.com/maps/assets/docs/terms.aspx')
 
-    def do_search(self, query='', params={}):
+    def do_geocode(self, query='', params={}):
         self.disable_search()
         params['key'] = self.api_key
         url = 'http://dev.virtualearth.net/REST/v1/Locations'
@@ -86,25 +89,25 @@ class BingMap(PhotiniMap):
             try:
                 rsp = requests.get(url, params=params, timeout=5)
             except Exception as ex:
-                self.logger.error(str(ex))
-                return None
+                logger.error(str(ex))
+                return []
         if rsp.status_code >= 400:
-            self.logger.error('Search error %d', rsp.status_code)
-            return None
+            logger.error('Search error %d', rsp.status_code)
+            return []
         if rsp.headers['X-MS-BM-WS-INFO'] == '1':
-            self.logger.error('Server overload')
+            logger.error('Server overload')
         else:
             # re-enable search immediately rather than after timeout
             self.enable_search()
         rsp = rsp.json()
         if rsp['statusCode'] != 200:
-            self.logger.error('Search error %d: %s',
-                              rsp['statusCode'], rsp['statusDescription'])
-            return None
+            logger.error('Search error %d: %s',
+                         rsp['statusCode'], rsp['statusDescription'])
+            return []
         resource_sets = rsp['resourceSets']
         if not resource_sets:
-            self.logger.error('No results found')
-            return None
+            logger.error('No results found')
+            return []
         return resource_sets
 
     address_map = {
@@ -122,34 +125,22 @@ class BingMap(PhotiniMap):
             'inclnb': '1',
             'incl'  : 'ciso2',
             }
-        resource_sets = self.do_search(query=query, params=params)
+        resource_sets = self.do_geocode(query=query, params=params)
         if not resource_sets:
-            return
+            return None
         address = resource_sets[0]['resources'][0]['address']
         for key in ('formattedAddress', 'postalCode'):
             if key in address:
                 del address[key]
         return address
 
-    @QtCore.pyqtSlot()
-    def search(self, search_string=None):
-        if not search_string:
-            search_string = self.edit_box.lineEdit().text()
-            self.edit_box.clearEditText()
-        if not search_string:
-            return
-        self.search_string = search_string
-        self.clear_search()
-        north, east, south, west = self.map_status['bounds']
+    def geocode(self, search_string, north, east, south, west):
         params = {
             'q'     : search_string,
             'maxRes': 20,
             'umv'   : '{!r},{!r},{!r},{!r}'.format(south, west, north, east),
             }
-        resource_sets = self.do_search(params=params)
-        if not resource_sets:
-            return
-        for resource_set in resource_sets:
+        for resource_set in self.do_geocode(params=params):
             for resource in resource_set['resources']:
                 south, west, north, east = resource['bbox']
-                self.search_result(north, east, south, west, resource['name'])
+                yield north, east, south, west, resource['name']

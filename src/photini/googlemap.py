@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 import locale
+import logging
 import os
 import re
 import webbrowser
@@ -29,6 +30,8 @@ import requests
 from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, QtCore, QtWidgets
+
+logger = logging.getLogger(__name__)
 
 class GoogleMap(PhotiniMap):
     def __init__(self, *arg, **kw):
@@ -72,7 +75,7 @@ class GoogleMap(PhotiniMap):
     def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')
 
-    def do_search(self, params):
+    def do_geocode(self, params):
         self.disable_search()
         params['key'] = self.api_key
         lang, encoding = locale.getdefaultlocale()
@@ -83,23 +86,23 @@ class GoogleMap(PhotiniMap):
             try:
                 rsp = requests.get(url, params=params, timeout=5)
             except Exception as ex:
-                self.logger.error(str(ex))
+                logger.error(str(ex))
                 return []
         if rsp.status_code >= 400:
-            self.logger.error('Search error %d', rsp.status_code)
+            logger.error('Search error %d', rsp.status_code)
             return []
         self.enable_search()
         rsp = rsp.json()
         if rsp['status'] != 'OK':
             if 'error_message' in rsp:
-                self.logger.error(
+                logger.error(
                     'Search error: %s: %s', rsp['status'], rsp['error_message'])
             else:
-                self.logger.error('Search error: %s', rsp['status'])
+                logger.error('Search error: %s', rsp['status'])
             return []
         results = rsp['results']
         if not results:
-            self.logger.error('No results found')
+            logger.error('No results found')
             return []
         return results
 
@@ -118,9 +121,9 @@ class GoogleMap(PhotiniMap):
         }
 
     def reverse_geocode(self, coords):
-        results = self.do_search({'latlng': coords})
+        results = self.do_geocode({'latlng': coords})
         if not results:
-            return
+            return None
         # the first result is the most specific
         address_components = results[0]['address_components']
         # merge in a street address if it's not the first result
@@ -144,24 +147,13 @@ class GoogleMap(PhotiniMap):
                 address['country_code'] = item['short_name']
         return address
 
-    @QtCore.pyqtSlot()
-    def search(self, search_string=None):
-        if not search_string:
-            search_string = self.edit_box.lineEdit().text()
-            self.edit_box.clearEditText()
-        if not search_string:
-            return
-        self.search_string = search_string
-        self.clear_search()
-        north, east, south, west = self.map_status['bounds']
+    def geocode(self, search_string, north, east, south, west):
         params = {
             'address': search_string,
             'bounds' : '{!r},{!r}|{!r},{!r}'.format(south, west, north, east),
             }
-        results = self.do_search(params)
-        for result in results:
+        for result in self.do_geocode(params):
             bounds = result['geometry']['viewport']
-            self.search_result(
-                bounds['northeast']['lat'], bounds['northeast']['lng'],
-                bounds['southwest']['lat'], bounds['southwest']['lng'],
-                result['formatted_address'])
+            yield (bounds['northeast']['lat'], bounds['northeast']['lng'],
+                   bounds['southwest']['lat'], bounds['southwest']['lng'],
+                   result['formatted_address'])

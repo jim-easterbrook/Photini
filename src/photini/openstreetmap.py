@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 import locale
+import logging
 import os
 import webbrowser
 
@@ -29,6 +30,8 @@ import six
 from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, Qt, QtCore, QtWidgets, qt_version_info
+
+logger = logging.getLogger(__name__)
 
 class OpenStreetMap(PhotiniMap):
     def __init__(self, *arg, **kw):
@@ -93,7 +96,7 @@ class OpenStreetMap(PhotiniMap):
     def load_tou_tiles(self):
         webbrowser.open_new('https://carto.com/attribution')
 
-    def do_search(self, params):
+    def do_geocode(self, params):
         self.disable_search()
         params['key'] = self.api_key
         params['abbrv'] = '1'
@@ -107,21 +110,24 @@ class OpenStreetMap(PhotiniMap):
                     'https://api.opencagedata.com/geocode/v1/json',
                     params=params, timeout=5)
             except Exception as ex:
-                self.logger.error(str(ex))
-                return None
+                logger.error(str(ex))
+                return []
         if rsp.status_code >= 400:
-            self.logger.error('Search error %d', rsp.status_code)
-            return None
+            logger.error('Search error %d', rsp.status_code)
+            return []
         rsp = rsp.json()
         status = rsp['status']
         if status['code'] != 200:
-            self.logger.error(
+            logger.error(
                 'Search error %d: %s', status['code'], status['message'])
-            return None
+            return []
+        if rsp['total_results'] < 1:
+            logger.error('No results found')
+            return []
         rate = rsp['rate']
         self.block_timer.setInterval(
             5000 * rate['limit'] // max(rate['remaining'], 1))
-        return rsp
+        return rsp['results']
 
     address_map = {
         'world_region'  :('continent',),
@@ -135,13 +141,10 @@ class OpenStreetMap(PhotiniMap):
         }
 
     def reverse_geocode(self, coords):
-        rsp = self.do_search({'q': coords})
-        if not rsp:
-            return
-        if rsp['total_results'] < 1:
-            self.logger.error('Address not found')
-            return
-        address = rsp['results'][0]['components']
+        results = self.do_geocode({'q': coords})
+        if not results:
+            return None
+        address = results[0]['components']
         for key in ('postcode', 'road_reference', 'road_reference_intl',
                     'state_code', '_type'):
             if key in address:
@@ -150,16 +153,7 @@ class OpenStreetMap(PhotiniMap):
             address['country_code'] = address['country_code'].upper()
         return address
 
-    @QtCore.pyqtSlot()
-    def search(self, search_string=None):
-        if not search_string:
-            search_string = self.edit_box.lineEdit().text()
-            self.edit_box.clearEditText()
-        if not search_string:
-            return
-        self.search_string = search_string
-        self.clear_search()
-        north, east, south, west = self.map_status['bounds']
+    def geocode(self, search_string, north, east, south, west):
         w = east - west
         h = north - south
         if min(w, h) < 10.0:
@@ -173,16 +167,12 @@ class OpenStreetMap(PhotiniMap):
             'limit' : '20',
             'bounds': '{!r},{!r},{!r},{!r}'.format(west, south, east, north),
             }
-        rsp = self.do_search(params)
-        if not rsp:
-            return
-        for result in rsp['results']:
-            self.search_result(
-                result['bounds']['northeast']['lat'],
-                result['bounds']['northeast']['lng'],
-                result['bounds']['southwest']['lat'],
-                result['bounds']['southwest']['lng'],
-                result['formatted'])
+        for result in self.do_geocode(params):
+            yield (result['bounds']['northeast']['lat'],
+                   result['bounds']['northeast']['lng'],
+                   result['bounds']['southwest']['lat'],
+                   result['bounds']['southwest']['lng'],
+                   result['formatted'])
 
     @QtCore.pyqtSlot(int)
     def marker_drag_start(self, marker_id):
