@@ -93,10 +93,9 @@ class OpenStreetMap(PhotiniMap):
     def load_tou_tiles(self):
         webbrowser.open_new('https://carto.com/attribution')
 
-    def do_search(self, query, params={}):
+    def do_search(self, params):
         self.disable_search()
         params['key'] = self.api_key
-        params['q'] = query
         params['abbrv'] = '1'
         params['no_annotations'] = '1'
         lang, encoding = locale.getdefaultlocale()
@@ -106,7 +105,7 @@ class OpenStreetMap(PhotiniMap):
             try:
                 rsp = requests.get(
                     'https://api.opencagedata.com/geocode/v1/json',
-                    params=params)
+                    params=params, timeout=5)
             except Exception as ex:
                 self.logger.error(str(ex))
                 return None
@@ -126,8 +125,10 @@ class OpenStreetMap(PhotiniMap):
 
     @QtCore.pyqtSlot()
     def get_address(self):
-        lat, lon = self.coords.get_value().split(',')
-        rsp = self.do_search(lat.strip() + ' ' + lon.strip())
+        params = {
+            'q': self.coords.get_value().replace(' ', '')
+            }
+        rsp = self.do_search(params)
         if not rsp:
             return
         if rsp['total_results'] < 1:
@@ -174,25 +175,22 @@ class OpenStreetMap(PhotiniMap):
         self.search_string = search_string
         self.clear_search()
         north, east, south, west = self.map_status['bounds']
-        scale = 2 ** (self.map_status['zoom'] - 9)
-        if scale >= 1:
-            w = (east - west) * scale
-            h = (north - south) * scale
+        w = east - west
+        h = north - south
+        if min(w, h) < 10.0:
             lat, lon = self.map_status['centre']
-            north = min(lat + h,  90.0)
-            south = max(lat - h, -90.0)
-            east = lon + w
-            west = lon - w
-        bounds = (west, south, east, north)
-        rsp = self.do_search(
-            search_string, {'bounds': ','.join(map(str, bounds))})
+            north = min(lat + 5.0,  90.0)
+            south = max(lat - 5.0, -90.0)
+            east = lon + 5.0
+            west = lon - 5.0
+        params = {
+            'q'     : search_string,
+            'limit' : '20',
+            'bounds': '{!r},{!r},{!r},{!r}'.format(west, south, east, north),
+            }
+        rsp = self.do_search(params)
         if not rsp:
             return
-        if not rsp['results']:
-            # repeat search without bounds
-            rsp = self.do_search(search_string)
-            if not rsp:
-                return
         for result in rsp['results']:
             self.search_result(
                 result['bounds']['northeast']['lat'],

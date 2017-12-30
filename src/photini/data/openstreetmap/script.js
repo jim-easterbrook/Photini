@@ -37,6 +37,7 @@ function loadMap()
     icon_off = new L.Icon({
         iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]});
     python.initialize_finished();
+    newBounds();
 }
 
 function newBounds(event)
