@@ -123,8 +123,8 @@ class BingMap(PhotiniMap):
                 ('world_region',   ('no_key',)),
                 ('country_code',   ('countryRegionIso2',)),
                 ('country_name',   ('countryRegion',)),
-                ('province_state', ('adminDistrict', 'adminDistrict2')),
-                ('city',           ('locality', 'neighborhood')),
+                ('province_state', ('adminDistrict2', 'adminDistrict')),
+                ('city',           ('neighborhood', 'locality')),
                 ('sublocation',    ('landmark', 'addressLine'))):
             element = []
             for key in bing_keys:
