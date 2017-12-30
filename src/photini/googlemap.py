@@ -111,8 +111,14 @@ class GoogleMap(PhotiniMap):
         results = self.do_search(params=params)
         if not results:
             return
+        # the first result is the most specific
+        address_components = results[0]['address_components']
+        # merge in a street address if it's not the first result
+        for result in results[1:]:
+            if 'street_address' in result['types']:
+                address_components += result['address_components']
         address = {}
-        for item in results[0]['address_components']:
+        for item in address_components:
             type_name = ''
             for name in item['types']:
                 if name == 'political':
