@@ -107,9 +107,17 @@ class BingMap(PhotiniMap):
             return None
         return resource_sets
 
-    @QtCore.pyqtSlot()
-    def get_address(self):
-        query = self.coords.get_value().replace(' ', '')
+    address_map = {
+        'world_region'  : ('no_key',),
+        'country_code'  : ('countryRegionIso2',),
+        'country_name'  : ('countryRegion',),
+        'province_state': ('adminDistrict2', 'adminDistrict'),
+        'city'          : ('neighborhood', 'locality'),
+        'sublocation'   : ('landmark', 'addressLine'),
+        }
+
+    def reverse_geocode(self, coords):
+        query = coords
         params = {
             'inclnb': '1',
             'incl'  : 'ciso2',
@@ -118,28 +126,10 @@ class BingMap(PhotiniMap):
         if not resource_sets:
             return
         address = resource_sets[0]['resources'][0]['address']
-        location = []
-        for iptc_key, bing_keys in (
-                ('world_region',   ('no_key',)),
-                ('country_code',   ('countryRegionIso2',)),
-                ('country_name',   ('countryRegion',)),
-                ('province_state', ('adminDistrict2', 'adminDistrict')),
-                ('city',           ('neighborhood', 'locality')),
-                ('sublocation',    ('landmark', 'addressLine'))):
-            element = []
-            for key in bing_keys:
-                if key not in address:
-                    continue
-                if address[key] not in element:
-                    element.append(address[key])
-                del(address[key])
-            location.append(', '.join(element))
-        # put any remaining keys in sublocation
-        for key in address:
-            if key in ('formattedAddress', 'postalCode'):
-                continue
-            location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
-        self.set_location_taken(*location)
+        for key in ('formattedAddress', 'postalCode'):
+            if key in address:
+                del address[key]
+        return address
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):

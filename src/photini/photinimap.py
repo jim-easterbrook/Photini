@@ -411,16 +411,6 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
-    @QtCore.pyqtSlot(six.text_type, six.text_type, six.text_type,
-                     six.text_type, six.text_type, six.text_type)
-    def set_location_taken(self, world_region, country_code, country_name,
-                           province_state, city, sublocation):
-        for image in self.image_list.get_selected_images():
-            image.metadata.location_taken = (
-                sublocation, city, province_state,
-                country_name, country_code, world_region)
-        self.display_location()
-
     @QtCore.pyqtSlot()
     def swap_locations(self):
         for image in self.image_list.get_selected_images():
@@ -566,8 +556,27 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot()
     def get_address(self):
-        latlng = self.coords.get_value()
-        self.JavaScript('reverseGeocode({})'.format(latlng))
+        coords = self.coords.get_value().replace(' ', '')
+        address = self.reverse_geocode(coords)
+        if not address:
+            return
+        location = {}
+        for iptc_key in self.address_map:
+            element = []
+            for key in self.address_map[iptc_key]:
+                if key not in address:
+                    continue
+                if address[key] not in element:
+                    element.append(address[key])
+                del(address[key])
+            location[iptc_key] = ', '.join(element)
+        # put remaining keys in sublocation
+        for key in address:
+            location['sublocation'] = '{}: {}, {}'.format(
+                key, address[key], location['sublocation'])
+        for image in self.image_list.get_selected_images():
+            image.metadata.location_taken = location
+        self.display_location()
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):

@@ -72,7 +72,7 @@ class GoogleMap(PhotiniMap):
     def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')
 
-    def do_search(self, params={}):
+    def do_search(self, params):
         self.disable_search()
         params['key'] = self.api_key
         lang, encoding = locale.getdefaultlocale()
@@ -103,12 +103,22 @@ class GoogleMap(PhotiniMap):
             return []
         return results
 
-    @QtCore.pyqtSlot()
-    def get_address(self):
-        params = {
-            'latlng': self.coords.get_value().replace(' ', '')
-            }
-        results = self.do_search(params=params)
+    address_map = {
+        'world_region'  : ('no_key',),
+        'country_code'  : ('country_code',),
+        'country_name'  : ('country',),
+        'province_state': ('administrative_area_level_3',
+                           'administrative_area_level_2',
+                           'administrative_area_level_1'),
+        'city'          : ('sublocality_level_2', 'sublocality_level_1',
+                           'sublocality', 'neighborhood', 'locality',
+                           'postal_town'),
+        'sublocation'   : ('establishment', 'point_of_interest', 'premise',
+                           'street_number', 'route'),
+        }
+
+    def reverse_geocode(self, coords):
+        results = self.do_search({'latlng': coords})
         if not results:
             return
         # the first result is the most specific
@@ -127,39 +137,12 @@ class GoogleMap(PhotiniMap):
                     type_name = name
             if not type_name:
                 type_name = 'unknown'
+            if type_name in ('postal_code', 'postal_code_suffix'):
+                continue
             address[type_name] = item['long_name']
-            address[type_name + '_sh'] = item['short_name']
-        location = []
-        for iptc_key, google_keys in (
-                ('world_region',   ('no_key',)),
-                ('country_code',   ('country_sh',)),
-                ('country_name',   ('country',)),
-                ('province_state', ('administrative_area_level_3',
-                                    'administrative_area_level_2',
-                                    'administrative_area_level_1')),
-                ('city',           ('sublocality_level_2',
-                                    'sublocality_level_1',
-                                    'sublocality',
-                                    'neighborhood',
-                                    'locality', 'postal_town')),
-                ('sublocation',    ('establishment', 'point_of_interest',
-                                    'premise', 'street_number', 'route'))):
-            element = []
-            for key in google_keys:
-                if key not in address:
-                    continue
-                if address[key] not in element:
-                    element.append(address[key])
-                del(address[key])
-            location.append(', '.join(element))
-        # put any remaining keys in sublocation
-        for key in address:
-            if key[-3:] == '_sh':
-                continue
-            if key in ('postal_code', 'postal_code_suffix'):
-                continue
-            location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
-        self.set_location_taken(*location)
+            if type_name == 'country':
+                address['country_code'] = item['short_name']
+        return address
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):
@@ -175,7 +158,7 @@ class GoogleMap(PhotiniMap):
             'address': search_string,
             'bounds' : '{!r},{!r}|{!r},{!r}'.format(south, west, north, east),
             }
-        results = self.do_search(params=params)
+        results = self.do_search(params)
         for result in results:
             bounds = result['geometry']['viewport']
             self.search_result(

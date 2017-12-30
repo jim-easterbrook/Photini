@@ -123,47 +123,32 @@ class OpenStreetMap(PhotiniMap):
             5000 * rate['limit'] // max(rate['remaining'], 1))
         return rsp
 
-    @QtCore.pyqtSlot()
-    def get_address(self):
-        params = {
-            'q': self.coords.get_value().replace(' ', '')
-            }
-        rsp = self.do_search(params)
+    address_map = {
+        'world_region'  :('continent',),
+        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
+        'country_name'  :('country',),
+        'province_state':('region', 'county', 'state_district', 'state'),
+        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
+                          'suburb', 'town', 'city_district', 'city'),
+        'sublocation'   :('building', 'house_number',
+                          'footway', 'pedestrian', 'road'),
+        }
+
+    def reverse_geocode(self, coords):
+        rsp = self.do_search({'q': coords})
         if not rsp:
             return
         if rsp['total_results'] < 1:
             self.logger.error('Address not found')
             return
         address = rsp['results'][0]['components']
-        location = []
-        for iptc_key, osm_keys in (
-                ('world_region',   ('continent',)),
-                ('country_code',   ('country_code', 'ISO_3166-1_alpha-2')),
-                ('country_name',   ('country',)),
-                ('province_state', ('region', 'county',
-                                    'state_district', 'state')),
-                ('city',           ('hamlet', 'locality', 'neighbourhood',
-                                    'village', 'suburb',
-                                    'town', 'city_district', 'city')),
-                ('sublocation',    ('building', 'house_number',
-                                    'footway', 'pedestrian', 'road'))):
-            element = []
-            for key in osm_keys:
-                if key not in address:
-                    continue
-                if iptc_key == 'country_code':
-                    element = [address[key]]
-                elif address[key] not in element:
-                    element.append(address[key])
-                del(address[key])
-            location.append(', '.join(element))
-        # put remaining keys in sublocation
-        for key in address:
-            if key in ('postcode', 'road_reference', 'road_reference_intl',
-                       'state_code', '_type'):
-                continue
-            location[-1] = '{}: {}, {}'.format(key, address[key], location[-1])
-        self.set_location_taken(*location)
+        for key in ('postcode', 'road_reference', 'road_reference_intl',
+                    'state_code', '_type'):
+            if key in address:
+                del address[key]
+        if 'country_code' in address:
+            address['country_code'] = address['country_code'].upper()
+        return address
 
     @QtCore.pyqtSlot()
     def search(self, search_string=None):
