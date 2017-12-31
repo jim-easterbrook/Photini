@@ -358,7 +358,7 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(QtCore.QVariant)
     def new_status(self, status):
-        self.map_status = status
+        self.map_status.update(status)
         self.config_store.set('map', 'centre', str(self.map_status['centre']))
         self.config_store.set('map', 'zoom', str(int(self.map_status['zoom'])))
 

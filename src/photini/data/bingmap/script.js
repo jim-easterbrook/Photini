@@ -36,6 +36,14 @@ function loadMap()
         };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
+    map.getCredentials(newCredentials);
+}
+
+function newCredentials(sessionId)
+{
+    python.new_status({
+        session_id: sessionId,
+        });
     python.initialize_finished();
 }
 

@@ -81,7 +81,7 @@ class BingMap(PhotiniMap):
 
     def do_geocode(self, query='', params={}):
         self.disable_search()
-        params['key'] = self.api_key
+        params['key'] = self.map_status['session_id']
         url = 'http://dev.virtualearth.net/REST/v1/Locations'
         if query:
             url += '/' + query
