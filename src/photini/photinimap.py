@@ -589,18 +589,15 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.clear_search()
         north, east, south, west = self.map_status['bounds']
         for result in self.geocode(search_string, north, east, south, west):
-            self.search_result(*result)
+            north, east, south, west, name = result
+            self.edit_box.addItem(name, (north, east, south, west))
+            self.edit_box.showPopup()
 
     def clear_search(self):
         self.edit_box.clear()
         self.edit_box.addItem('')
         if self.search_string:
             self.edit_box.addItem(translate('PhotiniMap', '<repeat search>'))
-
-    @QtCore.pyqtSlot(float, float, float, float, six.text_type)
-    def search_result(self, north, east, south, west, name):
-        self.edit_box.addItem(name, (north, east, south, west))
-        self.edit_box.showPopup()
 
     @QtCore.pyqtSlot(int)
     def goto_search_result(self, idx):
