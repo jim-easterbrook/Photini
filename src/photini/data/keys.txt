@@ -1,3 +1,21 @@
+#  Photini - a simple photo metadata editor.
+#  http://github.com/jim-easterbrook/Photini
+#  Copyright (C) 2015-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#
+#  This program is free software: you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License as
+#  published by the Free Software Foundation, either version 3 of the
+#  License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see
+#  <http://www.gnu.org/licenses/>.
+
 [picasa]
 client_id     = OTkxMTQ2MzkyMzc1LmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29t
 client_secret = Z1NDQlBCVjB0cEFyV09LMklEY0VBNmVH
@@ -7,10 +25,10 @@ api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
 api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
 
 [google]
-api_key = QUl6YVN5QWF5cmNNYXlSWHo2VktrZzh1RHBGV0ZkRmJyRWg1azFJ
+api_key = QUl6YVN5QTY0T1dXVEtfbk9ncWNoWWE0TDUyUWhmb3dGS0UzSXdn
 
 [bing]
-api_key = QXZVTnlwZkQyckxVbjc3ckhYZzZqam5QWE93dEtQLUdlRVpxd3BvOGVpUnNwNGZLdl9GbmsxX1dpY0VzZVpmTw==
+api_key = QWtpcUV6eXNXeHZEM25rdXNEUFVHT0k2VS1FbG04R09xM1FVbG80azB0Q1d6cVRQQ1BMMnpCLTZKeVd0cDhKWQ==
 
 [facebook]
 app_id = MTY3NTczNDYwMzA0NzA1
