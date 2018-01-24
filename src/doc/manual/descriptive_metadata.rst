@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Descriptive metadata
@@ -49,8 +49,10 @@ There are probably only one or two photographs that share the same description, 
 .. image:: ../images/screenshot_11.png
 
 If you select a group of images you may see ``<multiple values>`` displayed in some of the text boxes.
-If you want the group of the photographs to have the same metadata for one of these fields you can right-click on the ``<multiple values>`` box.
-This brings up a menu from which you can choose a value to be copied to all the selected photographs.
+You can right-click on the box to bring up a context menu from which you can choose a value to be copied to all the selected photographs.
+In this case there is only one choice as one photo has a description and the other does not.
+
+.. image:: ../images/screenshot_10a.png
 
 Next you can set a list of keywords for the image by typing them in the ``Keywords`` box.
 Keywords should be separated by semi-colon (;) characters.
