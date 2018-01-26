@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -67,6 +67,7 @@ def debug_metadata():
 # recent versions of Exiv2 have these namespaces defined, but older versions
 # may not recognise them
 for prefix, name in (
+        ('exifEX',  'http://cipa.jp/exif/1.0/'),
         ('video',   'http://www.video/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
