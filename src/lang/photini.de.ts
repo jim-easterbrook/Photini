@@ -3,7 +3,7 @@
 <context>
     <name>BingMap</name>
     <message>
-        <location filename="../photini/bingmap.py" line="65"/>
+        <location filename="../photini/bingmap.py" line="71"/>
         <source>Terms of Use</source>
         <translation>Nutzungsbedingungen</translation>
     </message>
@@ -355,12 +355,12 @@
 <context>
     <name>GoogleMap</name>
     <message>
-        <location filename="../photini/googlemap.py" line="56"/>
+        <location filename="../photini/googlemap.py" line="65"/>
         <source>Search powered by Google</source>
         <translation>Suche durch Google</translation>
     </message>
     <message>
-        <location filename="../photini/googlemap.py" line="59"/>
+        <location filename="../photini/googlemap.py" line="68"/>
         <source>Terms of Use</source>
         <translation>Nutzungsbedingungen</translation>
     </message>
@@ -823,24 +823,24 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 <context encoding="UTF-8">
     <name>OpenStreetMap</name>
     <message>
-        <location filename="../photini/openstreetmap.py" line="68"/>
+        <location filename="../photini/openstreetmap.py" line="67"/>
         <source>Map powered by Leaflet</source>
         <translation>Kartenmaterial von Leaflet</translation>
     </message>
     <message>
-        <location filename="../photini/openstreetmap.py" line="77"/>
+        <location filename="../photini/openstreetmap.py" line="76"/>
         <source>Map tiles by CARTO
 licensed under CC BY 3.0</source>
         <translation>Kartenkacheln von CARTO
 lizenziert unter der CC BY 3.0</translation>
     </message>
     <message>
-        <location filename="../photini/openstreetmap.py" line="64"/>
+        <location filename="../photini/openstreetmap.py" line="63"/>
         <source>Search powered by OpenCage</source>
         <translation>Suche unterstützt von OpenCage</translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../photini/openstreetmap.py" line="72"/>
+        <location filename="../photini/openstreetmap.py" line="71"/>
         <source>Map data ©OpenStreetMap
 contributors, licensed under ODbL</source>
         <translation>Kartendaten ©OpenStreetMap
@@ -869,7 +869,7 @@ Karte laden
 </translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="566"/>
+        <location filename="../photini/photinimap.py" line="600"/>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;Suche wiederholen&gt;</translation>
     </message>
@@ -1027,6 +1027,21 @@ dann Verifizierungscode eingeben:</translation>
         <location filename="../photini/uploader.py" line="241"/>
         <source>Not logged in to {}</source>
         <translation>Nicht angemeldet bei {}</translation>
+    </message>
+    <message>
+        <location filename="../photini/flickr.py" line="326"/>
+        <source>Photini: too large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/flickr.py" line="328"/>
+        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/flickr.py" line="330"/>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
