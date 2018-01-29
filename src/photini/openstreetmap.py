@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -174,7 +174,6 @@ class OpenStreetMap(PhotiniMap):
                    result['bounds']['southwest']['lng'],
                    result['formatted'])
 
-    @QtCore.pyqtSlot(int)
     def marker_drag_start(self, marker_id):
         blocked = self.image_list.blockSignals(True)
         self.image_list.select_images(self.marker_images[marker_id])

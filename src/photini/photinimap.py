@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -161,6 +161,37 @@ class LocationInfo(QtWidgets.QWidget):
         return self.members[key]
 
 
+class CallHandler(QtCore.QObject):
+    @QtCore.pyqtSlot(int, six.text_type)
+    def log(self, level, message):
+        logger.log(level, message)
+
+    @QtCore.pyqtSlot()
+    def initialize_finished(self):
+        self.parent().initialize_finished()
+
+    @QtCore.pyqtSlot(QtCore.QVariant)
+    def new_status(self, status):
+        self.parent().new_status(status)
+
+    @QtCore.pyqtSlot(int)
+    def marker_click(self, marker_id):
+        self.parent().marker_click(marker_id)
+
+    @QtCore.pyqtSlot(float, float, int)
+    def marker_drag(self, lat, lng, marker_id):
+        self.parent().marker_drag(lat, lng, marker_id)
+
+    @QtCore.pyqtSlot(float, float)
+    def marker_drop(self, lat, lng):
+        self.parent().marker_drop(lat, lng)
+
+    # only used by OpenStreetMap
+    @QtCore.pyqtSlot(int)
+    def marker_drag_start(self, marker_id):
+        self.parent().marker_drag_start(marker_id)
+
+
 class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
@@ -187,10 +218,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         # map
         self.map = WebView()
         self.map.setPage(WebPage(parent=self.map))
+        self.call_handler = CallHandler(parent=self)
         if QtWebEngineWidgets:
             self.web_channel = QtWebChannel.QWebChannel()
             self.map.page().setWebChannel(self.web_channel)
-            self.web_channel.registerObject('python', self)
+            self.web_channel.registerObject('python', self.call_handler)
         else:
             self.map.page().setLinkDelegationPolicy(
                 QtWebKitWidgets.QWebPage.DelegateAllLinks)
@@ -246,17 +278,14 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
 
-    @QtCore.pyqtSlot(int, six.text_type)
-    def log(self, level, message):
-        logger.log(level, message)
-
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):
         self.app.config_store.set('map', 'split', str(self.sizes()))
 
     @QtCore.pyqtSlot()
     def java_script_window_object_cleared(self):
-        self.map.page().mainFrame().addToJavaScriptWindowObject("python", self)
+        self.map.page().mainFrame().addToJavaScriptWindowObject(
+            "python", self.call_handler)
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     def link_clicked(self, url):
@@ -328,7 +357,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
-    @QtCore.pyqtSlot()
     def initialize_finished(self):
         QtWidgets.QApplication.restoreOverrideCursor()
         self.map_loaded = True
@@ -356,7 +384,6 @@ class PhotiniMap(QtWidgets.QSplitter):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(QtCore.QVariant)
     def new_status(self, status):
         self.map_status.update(status)
         self.config_store.set('map', 'centre', str(self.map_status['centre']))
@@ -367,7 +394,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.dropped_images = eval(text)
         self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
 
-    @QtCore.pyqtSlot(float, float)
     def marker_drop(self, lat, lng):
         for path in self.dropped_images:
             image = self.image_list.get_image(path)
@@ -612,11 +638,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         view = self.edit_box.itemData(idx)
         self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
-    @QtCore.pyqtSlot(int)
     def marker_click(self, marker_id):
         self.image_list.select_images(self.marker_images[marker_id])
 
-    @QtCore.pyqtSlot(float, float, int)
     def marker_drag(self, lat, lng, marker_id):
         for image in self.marker_images[marker_id]:
             self._set_metadata(image, lat, lng)
