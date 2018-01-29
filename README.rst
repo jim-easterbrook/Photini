@@ -48,7 +48,7 @@ An "all in one" installer for Windows is available that installs Photini and all
 Users of other operating systems will need to install the following:
 
 *   Python, version 2.6+ (including Python 3): http://python.org/
-*   PyQt, version 4 or 5: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+*   PyQt, version 4 or 5: http://www.riverbankcomputing.co.uk/software/pyqt/
 *   six, version 1.5+: https://pypi.python.org/pypi/six/
 *   appdirs, version 1.3+: http://pypi.python.org/pypi/appdirs/
 *   gexiv2 (GObject Exiv2 wrapper), version 0.5+: https://wiki.gnome.org/Projects/gexiv2
@@ -93,7 +93,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz

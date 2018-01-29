@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -142,7 +142,7 @@ If PyQt is installed then one of these will run without generating any error mes
 
 Linux users should use their package manager to install ``python-qt4`` or ``python-qt5``.
 On some Linux systems you may also need to install the Qt WebKit package, e.g. ``qt5-webkit``.
-Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download (make sure you choose the installer for your version of Python).
+Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download5 (make sure you choose the installer for your version of Python).
 
 gexiv2
 ^^^^^^
