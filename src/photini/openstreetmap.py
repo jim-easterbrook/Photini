@@ -42,12 +42,12 @@ class OpenStreetMap(PhotiniMap):
         return {
             'head': '''
     <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+      href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js">
+      src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js">
     </script>
 ''',
             'body': '''
