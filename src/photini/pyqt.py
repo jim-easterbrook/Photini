@@ -27,17 +27,20 @@ from photini.configstore import BaseConfigStore
 
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
-using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto') != 'False'
+using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto') != 'False'
 
-if using_pyqt5:
+if using_pyqt5 == 'auto':
     try:
         from PyQt5 import QtCore
+        using_pyqt5 = True
     except ImportError:
         using_pyqt5 = False
+else:
+    using_pyqt5 = eval(using_pyqt5)
 
 if using_pyqt5:
-    from PyQt5 import QtGui, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
     if using_qtwebengine:
