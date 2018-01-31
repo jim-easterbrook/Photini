@@ -220,7 +220,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map.setPage(WebPage(parent=self.map))
         self.call_handler = CallHandler(parent=self)
         if QtWebEngineWidgets:
-            self.web_channel = QtWebChannel.QWebChannel()
+            self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.map.page().setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
         else:
@@ -277,6 +277,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.block_timer.setInterval(5000)
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
+
+    def closeEvent(self, event):
+        if QtWebEngineWidgets:
+            self.web_channel.deRegisterObject(self.call_handler)
+        super(PhotiniMap, self).closeEvent(event)
 
     @QtCore.pyqtSlot(int, int)
     def new_split(self, pos, index):
