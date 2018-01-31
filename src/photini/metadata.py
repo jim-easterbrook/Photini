@@ -390,6 +390,8 @@ class Thumbnail(MD_Dict):
                 self.w = pixmap.width()
                 self.h = pixmap.height()
             data = codecs.encode(data, 'base64_codec')
+            if not six.PY2:
+                data = data.decode('ASCII')
             handler.set_string(tag, (data, 'JPEG', str(self.w), str(self.h)))
         elif handler.get_supports_exif():
             handler.set_exif_thumbnail_from_buffer(self.data)
