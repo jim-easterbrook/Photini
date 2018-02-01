@@ -93,6 +93,11 @@ class MD_Value(object):
     # Python 3 uses __bool__, Python 2 uses __nonzero__
     __nonzero__ = __bool__
 
+    def merge(self, info, tag, other):
+        if self != other:
+            self.log_ignored(info, tag, other)
+        return self
+
     def log_merged(self, info, tag, value):
         logger.info('%s: merged %s', info, tag)
 
@@ -395,8 +400,8 @@ class Thumbnail(MD_Dict):
         elif handler.get_supports_exif():
             handler.set_exif_thumbnail_from_buffer(self.data)
 
-    def merge(self, info, tag, other):
-        return self
+    def __str__(self):
+        return '{} thumbnail, {}x{}'.format(self.fmt, self.w, self.h)
 
 
 class DateTime(MD_Dict):
@@ -753,11 +758,6 @@ class MD_Int(MD_Value, int):
     def write(self, handler, tag):
         handler.set_string(tag, six.text_type(self))
 
-    def merge(self, info, tag, other):
-        if self != other:
-            self.log_ignored(info, tag, other)
-        return self
-
 
 class Timezone(MD_Int):
     @classmethod
@@ -822,11 +822,6 @@ class Rating(MD_Value, float):
             handler.set_string(tag, six.text_type(int(self + 1.5) - 1))
         else:
             handler.set_string(tag, six.text_type(self))
-
-    def merge(self, info, tag, other):
-        if self != other:
-            self.log_ignored(info, tag, other)
-        return self
 
 
 # maximum length of Iptc data
