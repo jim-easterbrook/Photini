@@ -87,12 +87,11 @@ def decode_UCS2(value):
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
     def __bool__(self):
-        # reinterpret as "has a value" (Python 3)
+        # reinterpret to mean "has a value", even if the value is zero
         return True
 
-    def __nonzero__(self):
-        # reinterpret as "has a value" (Python 2)
-        return True
+    # Python 3 uses __bool__, Python 2 uses __nonzero__
+    __nonzero__ = __bool__
 
     def log_merged(self, info, tag, value):
         logger.info('%s: merged %s', info, tag)
@@ -127,8 +126,8 @@ class MD_Dict(MD_Value, dict):
             return
         super(MD_Dict, self).__setattr__(name, value)
 
-    def __nonzero__(self):
-        return any(self.values())
+    def __bool__(self):
+        return any([x is not None for x in self.values()])
 
     def merge(self, info, tag, other):
         if other == self:
