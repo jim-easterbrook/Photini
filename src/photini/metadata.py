@@ -117,7 +117,10 @@ class MD_Dict(MD_Value, dict):
         # or a list of values
         if isinstance(value, (tuple, list)):
             value = zip(self._keys, value)
-        super(MD_Dict, self).__init__(value)
+        # initialise all keys to None
+        super(MD_Dict, self).__init__(dict.fromkeys(self._keys))
+        # update with any supplied values
+        self.update(value)
 
     def __getattr__(self, name):
         if name in self:
@@ -133,6 +136,13 @@ class MD_Dict(MD_Value, dict):
 
     def __bool__(self):
         return any([x is not None for x in self.values()])
+
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not any(file_value):
+            return None
+        return cls(file_value)
 
     def merge(self, info, tag, other):
         if other == self:
@@ -162,13 +172,6 @@ class FocalLength(MD_Dict):
             self.fl = safe_fraction(self.fl)
         if self.fl_35:
             self.fl_35 = int(self.fl_35)
-
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not any(file_value):
-            return None
-        return cls(file_value + [None])
 
     def write(self, handler, tag):
         file_value = [None, None]
@@ -293,13 +296,6 @@ class Location(MD_Dict):
         super(Location, self).__init__(value)
         if self.country_code:
             self.country_code = self.country_code.upper()
-
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not any(file_value):
-            return None
-        return cls(file_value + [None])
 
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
