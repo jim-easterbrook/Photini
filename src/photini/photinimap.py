@@ -463,9 +463,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             if location:
                 new_value = dict(location)
             else:
-                new_value = dict.fromkeys((
-                    'sublocation', 'city', 'province_state',
-                    'country_name', 'country_code', 'world_region'))
+                new_value = {}
             new_value[key] = value
             if not any(new_value.values()):
                 new_value = None

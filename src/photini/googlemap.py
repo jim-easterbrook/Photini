@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -107,7 +107,6 @@ class GoogleMap(PhotiniMap):
         return results
 
     address_map = {
-        'world_region'  : ('no_key',),
         'country_code'  : ('country_code',),
         'country_name'  : ('country',),
         'province_state': ('administrative_area_level_3',
