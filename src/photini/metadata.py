@@ -1280,8 +1280,9 @@ class Metadata(QtCore.QObject):
 
     def create_side_car(self):
         self._sc_path = self._path + '.xmp'
-        with open(self._sc_path, 'w') as of:
-            of.write('''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+        try:
+            with open(self._sc_path, 'w') as of:
+                of.write('''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <rdf:Description rdf:about=""
@@ -1290,10 +1291,10 @@ class Metadata(QtCore.QObject):
  </rdf:RDF>
 </x:xmpmeta>
 <?xpacket end="w"?>'''.format('Photini editor v' + __version__))
-        try:
             self._sc = MetadataHandler(self._sc_path)
         except Exception as ex:
             logger.exception(ex)
+            self._sc = None
 
     def save(self, if_mode, sc_mode, force_iptc, file_times):
         if not self.dirty:
@@ -1302,51 +1303,55 @@ class Metadata(QtCore.QObject):
             self.create_side_car()
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
-        if self._sc:
-            # workaround for bug in exiv2 xmp timestamp altering
-            for name in ('date_digitised', 'date_modified', 'date_taken'):
-                for mode, tag in self._tag_list[name]:
-                    if mode == 'RA.WA':
-                        self._sc.clear_value(tag)
-            self._sc.save(file_times)
-        for handler in (self._sc, self._if):
-            if not handler:
-                continue
-            save_iptc = force_iptc or handler.has_iptc()
-            for name in self._tag_list:
-                value = getattr(self, name)
-                for mode, tag in self._tag_list[name]:
-                    if not save_iptc and handler.is_iptc_tag(tag):
-                        continue
-                    write_mode = mode.split('.')[1]
-                    if write_mode == 'WN':
-                        continue
-                    if ((not value) or (write_mode == 'W0') or
-                        (write_mode == 'WX' and handler.get_supports_exif())):
-                        handler.clear_value(tag)
-                    else:
-                        value.write(handler, tag)
-        if self._if and sc_mode == 'delete' and self._sc:
-            self._if.clone(self._sc)
-        OK = False
-        if self._if and if_mode:
-            OK = self._if.save(file_times)
-            if OK:
-                # check that data really was saved
-                saved_tags = MetadataHandler(self._path).get_all_tags()
-                for tag in self._if.get_all_tags():
-                    if tag not in saved_tags:
-                        logger.warning('tag not saved: %s', tag)
-                        OK = False
-            if not OK and not self._sc:
-                # can't write to image so create side car
-                self.save(False, 'always', force_iptc, file_times)
-                return
-        if sc_mode == 'delete' and self._sc and OK:
-            os.unlink(self._sc_path)
-            self._sc = None
-        if self._sc:
-            OK = self._sc.save(file_times)
+        try:
+            if self._sc:
+                # workaround for bug in exiv2 xmp timestamp altering
+                for name in ('date_digitised', 'date_modified', 'date_taken'):
+                    for mode, tag in self._tag_list[name]:
+                        if mode == 'RA.WA':
+                            self._sc.clear_value(tag)
+                self._sc.save(file_times)
+            for handler in (self._sc, self._if):
+                if not handler:
+                    continue
+                save_iptc = force_iptc or handler.has_iptc()
+                for name in self._tag_list:
+                    value = getattr(self, name)
+                    for mode, tag in self._tag_list[name]:
+                        if not save_iptc and handler.is_iptc_tag(tag):
+                            continue
+                        write_mode = mode.split('.')[1]
+                        if write_mode == 'WN':
+                            continue
+                        if ((not value) or (write_mode == 'W0') or
+                            (write_mode == 'WX' and handler.get_supports_exif())):
+                            handler.clear_value(tag)
+                        else:
+                            value.write(handler, tag)
+            if self._if and sc_mode == 'delete' and self._sc:
+                self._if.clone(self._sc)
+            OK = False
+            if self._if and if_mode:
+                OK = self._if.save(file_times)
+                if OK:
+                    # check that data really was saved
+                    saved_tags = MetadataHandler(self._path).get_all_tags()
+                    for tag in self._if.get_all_tags():
+                        if tag not in saved_tags:
+                            logger.warning('tag not saved: %s', tag)
+                            OK = False
+                if not OK and not self._sc:
+                    # can't write to image so create side car
+                    self.save(False, 'always', force_iptc, file_times)
+                    return
+            if sc_mode == 'delete' and self._sc and OK:
+                os.unlink(self._sc_path)
+                self._sc = None
+            if self._sc:
+                OK = self._sc.save(file_times)
+        except Exception as ex:
+            logger.exception(ex)
+            return
         if OK:
             self.dirty = False
             self.unsaved.emit(self.dirty)
@@ -1358,16 +1363,19 @@ class Metadata(QtCore.QObject):
 
     def copy(self, other):
         # copy from other to self, sidecar over-rides image
-        if self._sc:
-            if other._if:
-                self._sc.clone(other._if)
-            if other._sc:
-                self._sc.clone(other._sc)
-        if self._if:
-            if other._if:
-                self._if.clone(other._if)
-            if other._sc:
-                self._if.clone(other._sc)
+        try:
+            if self._sc:
+                if other._if:
+                    self._sc.clone(other._if)
+                if other._sc:
+                    self._sc.clone(other._sc)
+            if self._if:
+                if other._if:
+                    self._if.clone(other._if)
+                if other._sc:
+                    self._if.clone(other._sc)
+        except Exception as ex:
+            logger.exception(ex)
         self.dirty = True
         self.unsaved.emit(self.dirty)
 
