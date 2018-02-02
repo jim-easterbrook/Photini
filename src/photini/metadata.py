@@ -415,12 +415,12 @@ class DateTime(MD_Dict):
         if self.precision <= 3:
             self.tz_offset = None
 
+    _replace = (('microsecond', 0), ('second', 0),
+                ('minute',      0), ('hour',   0),
+                ('day',         1), ('month',  1))
+
     def truncate_datetime(self, precision):
-        parts = [self.datetime.year, self.datetime.month, self.datetime.day,
-                 self.datetime.hour, self.datetime.minute, self.datetime.second,
-                 self.datetime.microsecond][:precision]
-        parts.extend((1, 1, 1)[len(parts):])
-        return datetime(*parts)
+        return self.datetime.replace(**dict(self._replace[:7 - precision]))
 
     @classmethod
     def from_ISO_8601(cls, date_string, time_string, tz_string):
