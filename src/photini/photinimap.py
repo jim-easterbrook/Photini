@@ -27,6 +27,7 @@ import webbrowser
 import pkg_resources
 import six
 
+from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
@@ -198,8 +199,10 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.app = QtWidgets.QApplication.instance()
         self.config_store = self.app.config_store
         self.image_list = image_list
+        name = self.__class__.__name__.lower()
+        self.api_key = key_store.get(name, 'api_key')
         self.script_dir = pkg_resources.resource_filename(
-            'photini', 'data/' + self.__class__.__name__.lower() + '/')
+            'photini', 'data/' + name + '/')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'grey_marker.png'))
         self.search_string = None

@@ -24,14 +24,14 @@ client_secret = Z1NDQlBCVjB0cEFyV09LMklEY0VBNmVH
 api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
 api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
 
-[google]
+[googlemap]
 api_key = QUl6YVN5QTY0T1dXVEtfbk9ncWNoWWE0TDUyUWhmb3dGS0UzSXdn
 
-[bing]
+[bingmap]
 api_key = QWtpcUV6eXNXeHZEM25rdXNEUFVHT0k2VS1FbG04R09xM1FVbG80azB0Q1d6cVRQQ1BMMnpCLTZKeVd0cDhKWQ==
 
 [facebook]
 app_id = MTY3NTczNDYwMzA0NzA1
 
-[opencagedata]
+[openstreetmap]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n

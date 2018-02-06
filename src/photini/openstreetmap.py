@@ -27,17 +27,12 @@ import webbrowser
 import requests
 import six
 
-from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, Qt, QtCore, QtWidgets, qt_version_info
 
 logger = logging.getLogger(__name__)
 
 class OpenStreetMap(PhotiniMap):
-    def __init__(self, *arg, **kw):
-        super(OpenStreetMap, self).__init__(*arg, **kw)
-        self.api_key = key_store.get('opencagedata', 'api_key')
-
     def get_page_elements(self):
         return {
             'head': '''

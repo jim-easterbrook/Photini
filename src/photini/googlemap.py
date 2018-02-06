@@ -27,17 +27,12 @@ import webbrowser
 
 import requests
 
-from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
 
 class GoogleMap(PhotiniMap):
-    def __init__(self, *arg, **kw):
-        super(GoogleMap, self).__init__(*arg, **kw)
-        self.api_key = key_store.get('google', 'api_key')
-
     def get_page_elements(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:
