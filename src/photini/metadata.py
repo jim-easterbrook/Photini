@@ -1432,7 +1432,7 @@ class Metadata(QtCore.QObject):
         super(Metadata, self).__setattr__(name, value)
         if not self.dirty:
             self.dirty = True
-            self.unsaved.emit(self.dirty)
+        self.unsaved.emit(self.dirty)
 
     def changed(self):
         return self.dirty

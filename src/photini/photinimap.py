@@ -406,7 +406,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         for path in self.dropped_images:
             image = self.image_list.get_image(path)
             self._remove_image(image)
-            self._set_metadata(image, lat, lng)
+            image.metadata.latlong = lat, lng
             self._add_image(image)
         self.dropped_images = []
         self.display_coords()
@@ -427,7 +427,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         for image in self.image_list.get_selected_images():
             self._remove_image(image)
-            self._set_metadata(image, lat, lng)
+            image.metadata.latlong = lat, lng
             self._add_image(image)
         self.display_coords()
         self.see_selection()
@@ -520,7 +520,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.location_info.setEnabled(bool(selection))
         for marker_id, images in self.marker_images.items():
             self.JavaScript('enableMarker({:d},{:d})'.format(
-                marker_id, any([image.selected for image in images])))
+                marker_id, any([x.selected for x in images])))
         self.display_coords()
         self.display_location()
         self.see_selection()
@@ -537,34 +537,32 @@ class PhotiniMap(QtWidgets.QSplitter):
         latlong = image.metadata.latlong
         if not latlong:
             return
-        for marker_id in self.marker_images:
-            if self.marker_images[marker_id][0].metadata.latlong == latlong:
-                self.marker_images[marker_id].append(image)
-                if image.selected:
+        for marker_id, images in self.marker_images.items():
+            if images[0].metadata.latlong == latlong:
+                if image.selected and not any([x.selected for x in images]):
                     self.JavaScript(
                         'enableMarker({:d},{:d})'.format(marker_id, True))
+                images.append(image)
+                return
+        for i in range(len(self.marker_images) + 2):
+            marker_id = i
+            if marker_id not in self.marker_images:
                 break
-        else:
-            for i in range(len(self.marker_images) + 2):
-                marker_id = i
-                if marker_id not in self.marker_images:
-                    break
-            self.marker_images[marker_id] = [image]
-            self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
-                marker_id, latlong.lat, latlong.lon,
-                image.selected))
+        self.marker_images[marker_id] = [image]
+        self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
+            marker_id, latlong.lat, latlong.lon, image.selected))
 
     def _remove_image(self, image):
-        for marker_id in self.marker_images:
-            if image in self.marker_images[marker_id]:
+        for marker_id, images in self.marker_images.items():
+            if image in images:
                 break
         else:
             return
-        self.marker_images[marker_id].remove(image)
-        if self.marker_images[marker_id]:
-            self.JavaScript('enableMarker({:d},{:d})'.format(
-                marker_id,
-                any([image.selected for image in self.marker_images[marker_id]])))
+        images.remove(image)
+        if images:
+            if image.selected and not any([x.selected for x in images]):
+                self.JavaScript(
+                    'enableMarker({:d},{:d})'.format(marker_id, False))
         else:
             self.JavaScript('delMarker({:d})'.format(marker_id))
             del self.marker_images[marker_id]
@@ -649,11 +647,8 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def marker_drag(self, lat, lng, marker_id):
         for image in self.marker_images[marker_id]:
-            self._set_metadata(image, lat, lng)
+            image.metadata.latlong = lat, lng
         self.display_coords()
-
-    def _set_metadata(self, image, lat, lng):
-        image.metadata.latlong = lat, lng
 
     def JavaScript(self, command):
         if self.map_loaded:
