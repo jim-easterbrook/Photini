@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -117,21 +117,22 @@ function addMarker(id, lat, lng, active)
         });
     markers[id] = marker;
     marker._id = id;
-    google.maps.event.addListener(marker, 'click', function(event) {
-            python.marker_click(this._id)
-            });
-    google.maps.event.addListener(marker, 'dragstart', function(event) {
-        python.marker_click(this._id)
-        });
-    google.maps.event.addListener(marker, 'drag', function(event) {
-        var loc = event.latLng;
-        python.marker_drag(loc.lat(), loc.lng(), this._id);
-        });
-    google.maps.event.addListener(marker, 'dragend', function(event) {
-        var loc = event.latLng;
-        python.marker_drag(loc.lat(), loc.lng(), this._id);
-        });
+    google.maps.event.addListener(marker, 'click', markerClick);
+    google.maps.event.addListener(marker, 'dragstart', markerClick);
+    google.maps.event.addListener(marker, 'drag', markerDrag);
+    google.maps.event.addListener(marker, 'dragend', markerDrag);
     enableMarker(id, active)
+}
+
+function markerClick(event)
+{
+    python.marker_click(this._id);
+}
+
+function markerDrag(event)
+{
+    var loc = event.latLng;
+    python.marker_drag(loc.lat(), loc.lng(), this._id);
 }
 
 function markerDrop(x, y)
