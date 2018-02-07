@@ -92,7 +92,7 @@ function enableMarker(id, active)
 
 function addMarker(id, lat, lng, active)
 {
-    var marker = L.marker([lat, lng], {draggable: true});
+    var marker = L.marker([lat, lng], {draggable: true, autoPan: true});
     marker.addTo(map);
     markers[id] = marker;
     marker._id = id;
