@@ -35,6 +35,8 @@ function loadMap()
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
         };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
+    map.layers.insert(new Microsoft.Maps.Layer('markers'));
+    Microsoft.Maps.Events.addHandler(map.layers[0], 'click', markerClick);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     map.getCredentials(newCredentials);
 }
@@ -116,10 +118,9 @@ function addMarker(id, lat, lng, active)
 {
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {draggable: true});
-    map.entities.push(marker);
+    map.layers[0].add(marker);
     markers[id] = marker;
-    marker._id = id;
-    Microsoft.Maps.Events.addHandler(marker, 'click', markerClick);
+    marker.metadata = id;
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
@@ -129,14 +130,14 @@ function addMarker(id, lat, lng, active)
 function markerClick(event)
 {
     var marker = event.target;
-    python.marker_click(marker._id);
+    python.marker_click(marker.metadata);
 }
 
 function markerDrag(event)
 {
     var marker = event.target;
     var loc = marker.getLocation();
-    python.marker_drag(loc.latitude, loc.longitude, marker._id);
+    python.marker_drag(loc.latitude, loc.longitude, marker.metadata);
 }
 
 function markerDrop(x, y)
@@ -148,12 +149,12 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    map.entities.remove(markers[id]);
+    map.layers[0].remove(markers[id]);
     delete markers[id];
 }
 
 function removeMarkers()
 {
-    map.entities.clear();
+    map.layers[0].clear();
     markers = {};
 }
