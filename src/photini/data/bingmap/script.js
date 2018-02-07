@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -97,8 +97,6 @@ function fitPoints(points)
 function enableMarker(id, active)
 {
     var marker = markers[id];
-    if (!marker)
-        return;
     if (active)
         marker.setOptions({color: 'Orchid', zIndex: 1});
     else
@@ -107,13 +105,8 @@ function enableMarker(id, active)
 
 function addMarker(id, lat, lng, active)
 {
-    var position = new Microsoft.Maps.Location(lat, lng);
-    if (markers[id])
-    {
-        markers[id].setLocation(position);
-        return;
-    }
-    var marker = new Microsoft.Maps.Pushpin(position, {draggable: true});
+    var marker = new Microsoft.Maps.Pushpin(
+        new Microsoft.Maps.Location(lat, lng), {draggable: true});
     map.entities.push(marker);
     markers[id] = marker;
     marker._id = id;
@@ -146,11 +139,8 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    if (markers[id])
-    {
-        map.entities.remove(markers[id]);
-        delete markers[id];
-    }
+    map.entities.remove(markers[id]);
+    delete markers[id];
 }
 
 function removeMarkers()

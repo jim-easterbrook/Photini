@@ -88,8 +88,6 @@ function fitPoints(points)
 function enableMarker(id, active)
 {
     var marker = markers[id];
-    if (!marker)
-        return;
     if (active)
         marker.setOptions({
             icon: '',
@@ -104,14 +102,8 @@ function enableMarker(id, active)
 
 function addMarker(id, lat, lng, active)
 {
-    var position = new google.maps.LatLng(lat, lng);
-    if (markers[id])
-    {
-        markers[id].setPosition(position);
-        return;
-    }
     var marker = new google.maps.Marker({
-        position: position,
+        position: new google.maps.LatLng(lat, lng),
         map: map,
         draggable: true,
         });
@@ -154,12 +146,9 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    if (markers[id])
-    {
-        google.maps.event.clearInstanceListeners(markers[id]);
-        markers[id].setMap(null);
-        delete markers[id];
-    }
+    google.maps.event.clearInstanceListeners(markers[id]);
+    markers[id].setMap(null);
+    delete markers[id];
 }
 
 function removeMarkers()
