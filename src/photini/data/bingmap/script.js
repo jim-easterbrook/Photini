@@ -87,11 +87,20 @@ function fitPoints(points)
         return;
     bounds = Microsoft.Maps.LocationRect.fromCorners(nw, se);
     if (bounds.height > mapBounds.height || bounds.width > mapBounds.width)
+    {
         map.setView({bounds: bounds});
-    else if (mapBounds.intersects(bounds))
-        map.setView({bounds: bounds, zoom: map.getZoom()});
+        return;
+    }
+    var d_lat = Math.max(nw.latitude - mapBounds.getNorth(), 0) +
+                Math.min(se.latitude - mapBounds.getSouth(), 0);
+    var d_long = Math.min(nw.longitude - mapBounds.getWest(), 0) +
+                 Math.max(se.longitude - mapBounds.getEast(), 0);
+    if (d_lat < mapBounds.height / 2 && d_long < mapBounds.width / 2)
+        map.setView({center: new Microsoft.Maps.Location(
+            mapBounds.center.latitude + d_lat,
+            mapBounds.center.longitude + d_long)});
     else
-        map.setView({center: bounds.center, zoom: map.getZoom()});
+        map.setView({center: bounds.center});
 }
 
 function enableMarker(id, active)
