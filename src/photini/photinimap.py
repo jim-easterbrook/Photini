@@ -187,11 +187,6 @@ class CallHandler(QtCore.QObject):
     def marker_drop(self, lat, lng):
         self.parent().marker_drop(lat, lng)
 
-    # only used by OpenStreetMap
-    @QtCore.pyqtSlot(int)
-    def marker_drag_start(self, marker_id):
-        self.parent().marker_drag_start(marker_id)
-
 
 class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):

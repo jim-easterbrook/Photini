@@ -16,6 +16,7 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+var drag_id = -1;
 var map;
 var markers = {};
 var icon_on;
@@ -68,9 +69,9 @@ function fitPoints(points)
     var bounds = L.latLngBounds(points);
     if (map.getBounds().contains(bounds))
         return;
-    map.fitBounds(
-        bounds,
-        {paddingTopLeft: [15, 50], paddingBottomRight: [15, 10], maxZoom: map.getZoom()});
+    map.fitBounds(bounds, {
+        paddingTopLeft: [15, 50], paddingBottomRight: [15, 10],
+        maxZoom: map.getZoom()});
 }
 
 function enableMarker(id, active)
@@ -79,7 +80,8 @@ function enableMarker(id, active)
     if (active)
     {
         marker.setZIndexOffset(1000);
-        marker.setIcon(icon_on);
+        if (id != drag_id)
+            marker.setIcon(icon_on);
     }
     else
     {
@@ -108,7 +110,10 @@ function markerClick(event)
 
 function markerDragStart(event)
 {
-    python.marker_drag_start(this._id);
+    // workaround for Leaflet bug #4484 - don't change marker image until end
+    // of drag. https://github.com/Leaflet/Leaflet/issues/4484
+    drag_id = this._id;
+    python.marker_click(this._id);
 }
 
 function markerDrag(event)
@@ -121,6 +126,7 @@ function markerDragEnd(event)
 {
     var loc = this.getLatLng();
     python.marker_drag(loc.lat, loc.lng, this._id);
+    drag_id = -1;
     python.marker_click(this._id);
 }
 

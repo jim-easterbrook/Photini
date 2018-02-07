@@ -168,14 +168,3 @@ class OpenStreetMap(PhotiniMap):
                    result['bounds']['southwest']['lat'],
                    result['bounds']['southwest']['lng'],
                    result['formatted'])
-
-    def marker_drag_start(self, marker_id):
-        blocked = self.image_list.blockSignals(True)
-        self.image_list.select_images(self.marker_images[marker_id])
-        self.image_list.blockSignals(blocked)
-        self.coords.setEnabled(True)
-        for other_id, images in self.marker_images.items():
-            if other_id != marker_id:
-                self.JavaScript('enableMarker({:d},{:d})'.format(
-                    other_id, False))
-        self.display_coords()
