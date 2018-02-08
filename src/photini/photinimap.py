@@ -45,8 +45,6 @@ else:
 
 class WebPage(WebPageBase):
     def javaScriptConsoleMessage(self, msg, line, source):
-        if msg.startswith("Consider using 'dppx' units instead of 'dpi'"):
-            return
         logger.error('%s line %d: %s', source, line, msg)
 
 
@@ -192,7 +190,6 @@ class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.config_store = self.app.config_store
         self.image_list = image_list
         name = self.__class__.__name__.lower()
         self.api_key = key_store.get(name, 'api_key')
@@ -328,8 +325,8 @@ class PhotiniMap(QtWidgets.QSplitter):
   </body>
 </html>
 '''
-        lat, lng = eval(self.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        zoom = eval(self.config_store.get('map', 'zoom', '11'))
+        lat, lng = eval(self.app.config_store.get('map', 'centre', '(51.0, 0.0)'))
+        zoom = eval(self.app.config_store.get('map', 'zoom', '11'))
         if QtWebEngineWidgets:
             initialize = '''
     <script type="text/javascript"
@@ -378,8 +375,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             eval(self.app.config_store.get('map', 'split', str(self.sizes()))))
         if not self.map_loaded:
             return
-        lat, lng = eval(self.config_store.get('map', 'centre'))
-        zoom = eval(self.config_store.get('map', 'zoom'))
+        lat, lng = eval(self.app.config_store.get('map', 'centre'))
+        zoom = eval(self.app.config_store.get('map', 'zoom'))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
         self.redraw_markers()
         self.image_list.set_drag_to_map(self.drag_icon)
@@ -389,8 +386,10 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def new_status(self, status):
         self.map_status.update(status)
-        self.config_store.set('map', 'centre', str(self.map_status['centre']))
-        self.config_store.set('map', 'zoom', str(int(self.map_status['zoom'])))
+        self.app.config_store.set(
+            'map', 'centre', str(self.map_status['centre']))
+        self.app.config_store.set(
+            'map', 'zoom', str(int(self.map_status['zoom'])))
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
