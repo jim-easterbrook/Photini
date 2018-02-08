@@ -17,7 +17,7 @@
 //  <http://www.gnu.org/licenses/>.
 
 var map;
-var markers = {};
+var markerLayer;
 
 function loadMap()
 {
@@ -35,8 +35,9 @@ function loadMap()
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
         };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
-    map.layers.insert(new Microsoft.Maps.Layer('markers'));
-    Microsoft.Maps.Events.addHandler(map.layers[0], 'click', markerClick);
+    markerLayer = new Microsoft.Maps.Layer('markers');
+    map.layers.insert(markerLayer);
+    Microsoft.Maps.Events.addHandler(markerLayer, 'click', markerClick);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     map.getCredentials(newCredentials);
 }
@@ -107,19 +108,26 @@ function fitPoints(points)
 
 function enableMarker(id, active)
 {
-    var marker = markers[id];
+    var marker = findMarker(id)
     if (active)
         marker.setOptions({color: 'Orchid', zIndex: 1});
     else
         marker.setOptions({color: 'DimGrey', zIndex: 0});
 }
 
+function findMarker(id)
+{
+    var markers = markerLayer.getPrimitives();
+    for (var i = 0; i < markers.length; i++)
+        if (markers[i].metadata == id)
+            return markers[i];
+}
+
 function addMarker(id, lat, lng, active)
 {
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {draggable: true});
-    map.layers[0].add(marker);
-    markers[id] = marker;
+    markerLayer.add(marker);
     marker.metadata = id;
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
@@ -149,12 +157,11 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    map.layers[0].remove(markers[id]);
-    delete markers[id];
+    var marker = findMarker(id)
+    markerLayer.remove(marker);
 }
 
 function removeMarkers()
 {
-    map.layers[0].clear();
-    markers = {};
+    markerLayer.clear();
 }
