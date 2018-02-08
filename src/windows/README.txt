@@ -13,19 +13,23 @@ Brief notes.  (-:
 4/ Install msys2 from http://www.msys2.org/ (32 bit version)
    Update packages as instructed, then install gexiv2 (32 bit version):
    pacman -S mingw-w64-i686-gexiv2
-5/ Download opencv_python-3.1.0-cp34-cp34m-win32.whl from
-   http://www.lfd.uci.edu/~gohlke/pythonlibs/#opencv
-6/ Install WinPython (3.4.x, 32 bit, Qt5) from https://winpython.github.io/ to
+5/ Install WinPython (3.6.x, 32 bit, Zero) from https://winpython.github.io/ to
    Photini/src/windows/WinPython
-7/ Install All-In-One PyGI/PyGObject for Windows from
-   http://sourceforge.net/projects/pygobjectwin32/files/
-   Add the Photini/src/windows/WinPython Python as a "portable Python" installation
-   Select "Base packages" and "Gexiv2" packages, then "Enchant-extra-dicts" non-GNOME library
+6/ Install older WinPython (3.4.x, 32 bit, Qt5) from https://winpython.github.io/ to
+   WinPython-old, then copy WinPython-old/python-3.4.x/Lib/site-packages/gnome to
+   Photini/src/windows/WinPython/python-3.6.x/Lib/site-packages
+7/ Edit Photini/src/windows/WinPython/settings/winpython.ini and add the following line:
+   PATH = %WINPYDIR%\Lib\site-packages\gnome;%PATH%
 8/ Run WinPython Command Prompt.exe to open a shell, then navigate to the src/windows
    directory. Run 'python clean_winpython.py' to remove unwanted stuff and copy other
    stuff.
-9/ In the same shell run
-   'pip install -U -I setuptools_scm pgi photini[flickr,picasa,spelling]' to install
-   Photini. Test that it works as expected, then uninstall Photini:
-   'pip uninstall photini'.
-10/ Run Inno Setup to compile an installer
+9/ In the same shell run 'pip install pywin32' then run
+   'python WinPython\python-3.6.3\Scripts\pywin32_postinstall.py -install'
+10/ Download opengl32sw-32-mesa from
+    http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/
+    and copy it to Photini/src/windows/WinPython/python-3.6.x/DLLs
+11/ In the WinPython Command shell run
+    'pip install -U -I PyQt5 pgi opencv-python photini[facebook,flickr,picasa,spelling]'
+    to install Photini. Test that it works as expected. Run 'python clean_winpython.py'
+    again to remove large packages.
+12/ Run Inno Setup to compile an installer
