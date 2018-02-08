@@ -108,7 +108,6 @@ function addMarker(id, lat, lng, active)
         draggable: true,
         });
     markers[id] = marker;
-    marker._id = id;
     google.maps.event.addListener(marker, 'click', markerClick);
     google.maps.event.addListener(marker, 'dragstart', markerClick);
     google.maps.event.addListener(marker, 'drag', markerDrag);
@@ -116,15 +115,22 @@ function addMarker(id, lat, lng, active)
     enableMarker(id, active)
 }
 
+function markerToId(marker)
+{
+    for (var id in markers)
+        if (markers[id] == marker)
+            return id;
+}
+
 function markerClick(event)
 {
-    python.marker_click(this._id);
+    python.marker_click(markerToId(this));
 }
 
 function markerDrag(event)
 {
     var loc = event.latLng;
-    python.marker_drag(loc.lat(), loc.lng(), this._id);
+    python.marker_drag(loc.lat(), loc.lng(), markerToId(this));
 }
 
 function markerDrop(x, y)

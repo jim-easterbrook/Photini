@@ -95,7 +95,6 @@ function addMarker(id, lat, lng, active)
     var marker = L.marker([lat, lng], {draggable: true, autoPan: true});
     marker.addTo(map);
     markers[id] = marker;
-    marker._id = id;
     marker.on('click', markerClick);
     marker.on('dragstart', markerDragStart);
     marker.on('drag', markerDrag);
@@ -103,31 +102,40 @@ function addMarker(id, lat, lng, active)
     enableMarker(id, active)
 }
 
+function markerToId(marker)
+{
+    for (var id in markers)
+        if (markers[id] == marker)
+            return id;
+}
+
 function markerClick(event)
 {
-    python.marker_click(this._id);
+    python.marker_click(markerToId(this));
 }
 
 function markerDragStart(event)
 {
     // workaround for Leaflet bug #4484 - don't change marker image until end
     // of drag. https://github.com/Leaflet/Leaflet/issues/4484
-    drag_id = this._id;
-    python.marker_click(this._id);
+    var id = markerToId(this);
+    drag_id = id;
+    python.marker_click(id);
 }
 
 function markerDrag(event)
 {
     var loc = this.getLatLng();
-    python.marker_drag(loc.lat, loc.lng, this._id);
+    python.marker_drag(loc.lat, loc.lng, markerToId(this));
 }
 
 function markerDragEnd(event)
 {
     var loc = this.getLatLng();
-    python.marker_drag(loc.lat, loc.lng, this._id);
+    var id = markerToId(this);
+    python.marker_drag(loc.lat, loc.lng, id);
     drag_id = -1;
-    python.marker_click(this._id);
+    python.marker_click(id);
 }
 
 function markerDrop(x, y)
@@ -145,6 +153,6 @@ function delMarker(id)
 function removeMarkers()
 {
     for (var id in markers)
-        map.removeLayer(markers[id]);
+        markers[id].removeFrom(map);
     markers = {};
 }
