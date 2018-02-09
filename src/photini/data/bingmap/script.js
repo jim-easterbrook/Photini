@@ -112,7 +112,7 @@ function enableMarker(id, active)
     if (active)
         marker.setOptions({color: 'Orchid', zIndex: 1});
     else
-        marker.setOptions({color: 'DimGrey', zIndex: 0});
+        marker.setOptions({color: '#b0b0b0', zIndex: 0});
 }
 
 function findMarker(id)
