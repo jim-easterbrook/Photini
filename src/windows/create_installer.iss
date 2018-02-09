@@ -1,5 +1,4 @@
 #define PyDir "{app}\python-3.6.3"
-#define Scripts "{app}\scripts"
 #define SrcDir "WinPython\python-3.6.3"
 #define Version "2018.02"
 
@@ -46,23 +45,24 @@ Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packa
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "WinPython\WinPython Command Prompt.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "WinPython\scripts\*"; DestDir: "{#Scripts}"; Flags: ignoreversion
-Source: "WinPython\settings\winpython.ini"; DestDir: "{app}\settings"; Flags: ignoreversion
+Source: "WinPython\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Photini"; Filename: "{#Scripts}\Noshell.vbs"; \
-  Parameters: "python -m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
+Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
+  Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
 Name: "{group}\Photini documentation"; Filename: "http://photini.readthedocs.io/"
 Name: "{group}\upgrade Photini"; Filename: "{#PyDir}\python.exe"; \
   Parameters: "-m pip install -U PyQt5 pgi opencv-python photini[facebook,flickr,picasa,spelling]"
-Name: "{commondesktop}\Photini"; Filename: "{#Scripts}\Noshell.vbs"; \
-  Parameters: "python -m photini.editor"; Comment: "Photo metadata editor"; \
+Name: "{commondesktop}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
+  Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
   IconFileName: {app}\icon.ico; Tasks: desktopicon
 
 [Run]
 Filename: "{#PyDir}\python.exe"; \
   Parameters: "-m pip install -U PyQt5 pgi opencv-python photini[facebook,flickr,picasa,spelling]"; \
   StatusMsg: "Installing PyPI packages..."; Flags: hidewizard
+Filename: "{#PyDir}\pythonw.exe"; Parameters: "-m photini.editor"; \
+  Description: "{cm:LaunchProgram,Photini}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{#PyDir}"

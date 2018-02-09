@@ -18,18 +18,16 @@ Brief notes.  (-:
    and "Gexiv2" packages, then "Enchant-extra-dicts" non-GNOME library. Copy
    WinPython-old/python-3.4.x/Lib/site-packages/gnome to
    Photini/src/windows/WinPython/python-3.6.x/Lib/site-packages
-6/ Edit Photini/src/windows/WinPython/settings/winpython.ini and add the following line:
-   PATH = %WINPYDIR%\Lib\site-packages\gnome;%PATH%
-7/ Run WinPython Command Prompt.exe to open a shell, then navigate to the src/windows
+6/ Run WinPython Command Prompt.exe to open a shell, then navigate to the src/windows
    directory. Run 'python clean_winpython.py' to remove unwanted stuff and copy other
    stuff.
-8/ In the same shell run 'pip install pywin32' then run
+7/ In the same shell run 'pip install pywin32' then run
    'python WinPython\python-3.6.3\Scripts\pywin32_postinstall.py -install'
-9/ Download opengl32sw-32-mesa from
+8/ Download opengl32sw-32-mesa from
    http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/
    and copy it to Photini/src/windows/WinPython/python-3.6.x/DLLs
-10/ In the WinPython Command shell run
-    'pip install -U -I PyQt5 pgi opencv-python photini[facebook,flickr,picasa,spelling]'
-    to install Photini. Test that it works as expected. Run 'python clean_winpython.py'
-    again to remove large packages.
-11/ Run Inno Setup to compile an installer
+9/ In the WinPython Command shell run
+   'pip install -U -I PyQt5 pgi opencv-python photini[facebook,flickr,picasa,spelling]'
+   to install Photini. Test that it works as expected. Run 'python clean_winpython.py'
+   again to remove large packages.
+10/ Run Inno Setup to compile an installer
