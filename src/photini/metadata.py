@@ -27,6 +27,16 @@ import logging
 import math
 import os
 import re
+import site
+import sys
+
+if sys.platform == 'win32':
+    # add gnome DLLs to PATH before importing GExiv2
+    for name in site.getsitepackages():
+        gnome_path = os.path.join(name, 'gnome')
+        if os.path.isdir(gnome_path) and gnome_path not in os.environ['PATH']:
+            os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
+            break
 
 try:
     import pgi

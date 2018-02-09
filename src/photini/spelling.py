@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-# avoid "dll Hell" on Windows by getting PyEnchant to use PyGObject's
+# avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
 # copy of libenchant and associated libraries
 if sys.platform == 'win32':
     # disable PyEnchant's forced use of its bundled DLLs
@@ -36,7 +36,7 @@ if sys.platform == 'win32':
     # add gnome DLLs to PATH
     for name in site.getsitepackages():
         gnome_path = os.path.join(name, 'gnome')
-        if os.path.isdir(gnome_path):
+        if os.path.isdir(gnome_path) and gnome_path not in os.environ['PATH']:
             os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
             break
 
