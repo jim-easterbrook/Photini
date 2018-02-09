@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@ from distutils.cmd import Command
 from distutils.command.upload import upload
 from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
+import re
 from setuptools import setup
 import sys
 
@@ -52,15 +53,11 @@ if git:
             # get latest release tag
             latest = 0
             for tag in repo.tags:
-                tag_name = str(tag)
-                if tag.commit.committed_date < latest:
-                    continue
-                if tag_name[0] == 'v':
-                    tag_name = tag_name[1:]
-                if not tag_name.startswith('20'):
-                    continue
-                latest = tag.commit.committed_date
-                last_release = tag_name
+                if tag.commit.committed_date > latest:
+                    tag_name = str(tag)
+                    if re.match('\d{4}\.\d{1,2}\.\d$', tag_name):
+                        latest = tag.commit.committed_date
+                        last_release = tag_name
             # set current version number (calendar based)
             major, minor, micro = map(int, last_release.split('.'))
             today = date.today()
