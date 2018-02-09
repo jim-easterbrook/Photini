@@ -24,7 +24,6 @@ InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
 ExtraDiskSpaceRequired=306600000
-SignTool=normal
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

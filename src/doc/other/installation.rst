@@ -21,6 +21,10 @@ Look for the most recent release with a ``.exe`` file listed in its downloads.
 This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
+When you run the installer you will probably get a security warning because the installer is not signed by a recognised authority.
+This is unavoidable unless I purchase a certificate with which to sign the installer.
+As I don't make any money from Photini this is unlikely to happen!
+
 The installer should finish by running the Photini program.
 If this works then you have successfully installed Photini and can ignore the rest of these instructions.
 If not, see the troubleshooting_ section below.
@@ -34,18 +38,6 @@ This needs to be run as administrator.
 Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
 
 If there is a new installer available then you should download it and use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
-
-Verifying the Windows installer
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Windows installer is digitally signed using a "self-signed Certificate Authority".
-If you add my certificate to your computer you will get fewer security warnings when you install Photini.
-You can download the certificate file ``jim_easterbrook_CA.cer`` from the `GitHub releases`_ page and install it by running ``cmd.exe`` and issuing the following command::
-
-   certutil -user -addstore Root jim_easterbrook_CA.cer
-
-If the above means nothing to you, don't worry about it.
-The security warnings when you install Photini can safely be ignored.
 
 Package manager (some Linux distributions)
 ------------------------------------------
