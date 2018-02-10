@@ -114,6 +114,7 @@ if BuildDoc:
 class upload_and_tag(upload):
     def run(self):
         import git
+        result = upload.run(self)
         message = 'Photini-' + __version__ + '\n\n'
         with open('CHANGELOG.txt') as cl:
             while not cl.readline().startswith('Changes'):
@@ -127,7 +128,8 @@ class upload_and_tag(upload):
         tag = repo.create_tag(__version__, message=message)
         remote = repo.remotes.origin
         remote.push(tags=True)
-        return upload.run(self)
+        return result
+
 cmdclass['upload'] = upload_and_tag
 
 # set options for building distributions
