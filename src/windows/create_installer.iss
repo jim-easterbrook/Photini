@@ -22,7 +22,7 @@ LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=306600000
+ExtraDiskSpaceRequired=307600000
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -38,7 +38,8 @@ Source: "{#SrcDir}\*"; DestDir: "{#PyDir}"; \
 Source: "{#SrcDir}\Lib\site-packages\*"; DestDir: "{#PyDir}\Lib\site-packages"; \
   Excludes: "*.pyc,\gnome"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#SrcDir}\Lib\site-packages\gnome\share\enchant\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome\share\enchant"; \
+Source: "{#SrcDir}\Lib\site-packages\gnome\share\enchant\*"; \
+  DestDir: "{#PyDir}\Lib\site-packages\gnome\share\enchant"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packages\gnome"; \
   Excludes: "*.exe,\share"; \
@@ -46,6 +47,8 @@ Source: "{#SrcDir}\Lib\site-packages\gnome\*"; DestDir: "{#PyDir}\Lib\site-packa
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "WinPython\WinPython Command Prompt.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "WinPython\scripts\*"; DestDir: "{app}\scripts"; Flags: ignoreversion
+Source: "{#SrcDir}\DLLs\opengl32sw.dll"; DestDir: "{#PyDir}\Lib\site-packages\PyQt5\Qt\bin"; \
+  Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Photini"; Filename: "{#PyDir}\pythonw.exe"; \
