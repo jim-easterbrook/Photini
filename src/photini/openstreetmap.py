@@ -37,12 +37,12 @@ class OpenStreetMap(PhotiniMap):
         return {
             'head': '''
     <link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+      href="https://unpkg.com/leaflet@1/dist/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js">
+      src="https://unpkg.com/leaflet@1/dist/leaflet.js">
     </script>
 ''',
             'body': '''
@@ -59,7 +59,9 @@ class OpenStreetMap(PhotiniMap):
         widget.clicked.connect(self.load_tou_opencage)
         widget.setStyleSheet('QPushButton { font-size: 10px }')
         layout.addWidget(widget, 0, 0)
-        widget = QtWidgets.QPushButton(self.tr('Map powered by Leaflet'))
+        widget = QtWidgets.QPushButton(
+            self.tr('Map powered by Leaflet {}').format(
+                self.map_status['version']))
         widget.clicked.connect(self.load_tou_leaflet)
         widget.setStyleSheet('QPushButton { font-size: 10px }')
         layout.addWidget(widget, 0, 1)

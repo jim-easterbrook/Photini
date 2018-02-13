@@ -386,10 +386,10 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def new_status(self, status):
         self.map_status.update(status)
-        self.app.config_store.set(
-            'map', 'centre', str(self.map_status['centre']))
-        self.app.config_store.set(
-            'map', 'zoom', str(int(self.map_status['zoom'])))
+        for key in ('centre', 'zoom'):
+            if key in status:
+                self.app.config_store.set(
+                    'map', key, repr(self.map_status[key]))
 
     @QtCore.pyqtSlot(int, int, six.text_type)
     def drop_text(self, x, y, text):
