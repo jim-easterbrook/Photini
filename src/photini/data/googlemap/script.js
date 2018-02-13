@@ -23,6 +23,7 @@ function loadMap()
 {
     var mapOptions = {
         center: new google.maps.LatLng(initData.lat, initData.lng),
+        fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
         zoom: initData.zoom,
