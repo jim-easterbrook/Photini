@@ -326,7 +326,7 @@ class PhotiniMap(QtWidgets.QSplitter):
 </html>
 '''
         lat, lng = eval(self.app.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        zoom = eval(self.app.config_store.get('map', 'zoom', '11'))
+        zoom = int(eval(self.app.config_store.get('map', 'zoom', '11')))
         if QtWebEngineWidgets:
             initialize = '''
     <script type="text/javascript"
@@ -376,7 +376,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         if not self.map_loaded:
             return
         lat, lng = eval(self.app.config_store.get('map', 'centre'))
-        zoom = eval(self.app.config_store.get('map', 'zoom'))
+        zoom = int(eval(self.app.config_store.get('map', 'zoom')))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
         self.redraw_markers()
         self.image_list.set_drag_to_map(self.drag_icon)
