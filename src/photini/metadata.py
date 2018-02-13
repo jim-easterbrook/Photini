@@ -935,8 +935,21 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = self._decode_string(result)
         except UnicodeDecodeError as ex:
-            logger.error(str(ex))
-            return None
+            if not using_pgi:
+                logger.error(str(ex))
+                return None
+            # attempt to read raw data instead
+            result = self.get_tag_raw(tag)
+            if isinstance(result, GLib.Bytes):
+                result = result.get_data()
+                # pgi returns an array of int instead of a bytes object
+                if result and isinstance(result[0], int):
+                    result = bytearray(result)
+            try:
+                result = self._decode_string(result)
+            except UnicodeDecodeError as ex:
+                logger.error(str(ex))
+                return None
         return result
 
     def get_multiple(self, tag):
@@ -947,8 +960,21 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = list(map(self._decode_string, result))
         except UnicodeDecodeError as ex:
-            logger.error(str(ex))
-            return []
+            if not using_pgi:
+                logger.error(str(ex))
+                return []
+            # attempt to read raw data instead, only gets the first value
+            result = self.get_tag_raw(tag)
+            if isinstance(result, GLib.Bytes):
+                result = result.get_data()
+                # pgi returns an array of ints instead of a bytes object
+                if result and isinstance(result[0], int):
+                    result = bytearray(result)
+            try:
+                result = [self._decode_string(result)]
+            except UnicodeDecodeError as ex:
+                logger.error(str(ex))
+                return []
         return result
 
     def set_string(self, tag, value):
