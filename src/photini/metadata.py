@@ -927,6 +927,23 @@ class MetadataHandler(GExiv2.Metadata):
                 self.clear_tag(container)
             self.clear_tag(bag)
 
+    def get_raw(self, tag):
+        if not using_pgi:
+            return None
+        try:
+            result = self.get_tag_raw(tag)
+            if not result:
+                return None
+            result = result.get_data()
+            # pgi returns an array of int instead of a bytes object
+            if result and isinstance(result[0], int):
+                result = bytearray(result)
+            result = self._decode_string(result)
+        except Exception as ex:
+            logger.exception(ex)
+            return None
+        return result
+
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_string, tag))
@@ -935,19 +952,9 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = self._decode_string(result)
         except UnicodeDecodeError as ex:
-            if not using_pgi:
-                logger.error(str(ex))
-                return None
             # attempt to read raw data instead
-            result = self.get_tag_raw(tag)
-            if isinstance(result, GLib.Bytes):
-                result = result.get_data()
-                # pgi returns an array of int instead of a bytes object
-                if result and isinstance(result[0], int):
-                    result = bytearray(result)
-            try:
-                result = self._decode_string(result)
-            except UnicodeDecodeError as ex:
+            result = self.get_raw(tag)
+            if not result:
                 logger.error(str(ex))
                 return None
         return result
@@ -960,21 +967,12 @@ class MetadataHandler(GExiv2.Metadata):
             if six.PY2:
                 result = list(map(self._decode_string, result))
         except UnicodeDecodeError as ex:
-            if not using_pgi:
-                logger.error(str(ex))
-                return []
             # attempt to read raw data instead, only gets the first value
-            result = self.get_tag_raw(tag)
-            if isinstance(result, GLib.Bytes):
-                result = result.get_data()
-                # pgi returns an array of ints instead of a bytes object
-                if result and isinstance(result[0], int):
-                    result = bytearray(result)
-            try:
-                result = [self._decode_string(result)]
-            except UnicodeDecodeError as ex:
+            result = self.get_raw(tag)
+            if not result:
                 logger.error(str(ex))
                 return []
+            result = [result]
         return result
 
     def set_string(self, tag, value):
