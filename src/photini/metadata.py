@@ -79,6 +79,7 @@ def debug_metadata():
 for prefix, name in (
         ('exifEX',  'http://cipa.jp/exif/1.0/'),
         ('video',   'http://www.video/'),
+        ('xapGImg', 'http://ns.adobe.com/xap/1.0/g/img/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
 
@@ -928,13 +929,14 @@ class MetadataHandler(GExiv2.Metadata):
             self.clear_tag(bag)
 
     def get_raw(self, tag):
-        if not using_pgi:
-            return None
         try:
             result = self.get_tag_raw(tag)
             if not result:
                 return None
             result = result.get_data()
+            # strip nul termination if present
+            if result and result[-1] == 0:
+                result = result[:-1]
             # pgi returns an array of int instead of a bytes object
             if result and isinstance(result[0], int):
                 result = bytearray(result)
@@ -947,33 +949,37 @@ class MetadataHandler(GExiv2.Metadata):
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_string, tag))
-        try:
-            result = self.get_tag_string(tag)
-            if six.PY2:
-                result = self._decode_string(result)
-        except UnicodeDecodeError as ex:
-            # attempt to read raw data instead
-            result = self.get_raw(tag)
-            if not result:
-                logger.error(str(ex))
-                return None
-        return result
+        if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
+                                        'Ascii', 'String', 'XmpText'):
+            # get_tag_string is at no risk from non utf8 strings
+            try:
+                result = self.get_tag_string(tag)
+                if six.PY2:
+                    result = self._decode_string(result)
+                return result
+            except UnicodeDecodeError as ex:
+                pass
+        # attempt to read raw data instead
+        return self.get_raw(tag)
 
     def get_multiple(self, tag):
         if isinstance(tag, tuple):
             return list(map(self.get_multiple, tag))
-        try:
-            result = self.get_tag_multiple(tag)
-            if six.PY2:
-                result = list(map(self._decode_string, result))
-        except UnicodeDecodeError as ex:
-            # attempt to read raw data instead, only gets the first value
-            result = self.get_raw(tag)
-            if not result:
-                logger.error(str(ex))
-                return []
-            result = [result]
-        return result
+        if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
+                                        'Ascii', 'String', 'XmpText'):
+            # get_tag_multiple is at no risk from non utf8 strings
+            try:
+                result = self.get_tag_multiple(tag)
+                if six.PY2:
+                    result = list(map(self._decode_string, result))
+                return result
+            except UnicodeDecodeError as ex:
+                pass
+        # attempt to read raw data instead, only gets the first value
+        result = self.get_raw(tag)
+        if not result:
+            return []
+        return [result]
 
     def set_string(self, tag, value):
         if isinstance(tag, tuple):
