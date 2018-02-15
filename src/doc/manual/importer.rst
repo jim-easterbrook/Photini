@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Image importer
@@ -9,7 +9,7 @@ The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy photo
 Whilst there are many other programs to do this, I've never found one that does things the way I want, so I added one to Photini.
 
 Note that you can only import directly from cameras if you have installed python-gphoto2 (which is not available on Windows).
-See :ref:`installation <installation-importer>` for more detail.
+See :ref:`installation <installation-optional>` for more detail.
 
 The key part of the importer is the ``Target format`` field.
 This provides a very flexible way to specify where on your computer imported images should be stored.

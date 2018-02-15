@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-17  Jim Easterbrook.
+   Copyright (C)  2015-18  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -218,7 +218,7 @@ Special characters, e.g. ``(|hazard|)``
 Short cross references, e.g. ``:doc:`tags```
    These should not be translated.
 
-Long cross references, e.g. ``:ref:`installation <installation-flickr>```
+Long cross references, e.g. ``:ref:`installation <installation-optional>```
    The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link caption.
 
 External links, e.g. ```Flickr <http://www.flickr.com/>`_``

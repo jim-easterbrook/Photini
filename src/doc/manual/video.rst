@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2017  Jim Easterbrook.
+   Copyright (C)  2017-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Video file handling
@@ -13,7 +13,7 @@ If you compile your own copy of `Exiv2`_ you can configure it to be able to read
 This may enable Photini to read date & time, and possibly GPS location data.
 
 Most video files don't have thumbnails, but Photini may be able to create one if you have `OpenCV`_ installed on your computer.
-(See :ref:`installation - thumbnail creation<installation-thumbnail>`.)
+(See :ref:`installation - optional dependencies<installation-optional>`.)
 Right-click on the file and choose ``regenerate thumbnail`` from the popup menu.
 If Photini is able to generate a thumbnail it will store it in the XMP sidecar file.
 

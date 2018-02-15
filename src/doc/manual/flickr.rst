@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-16  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Flickr uploader
@@ -12,8 +12,8 @@ The Flickr upload tab uses the Flickr API but is not endorsed or certified by Fl
 Unlike some other Flickr uploaders, Photini uses the descriptive metadata you've created to set Flickr's title, description and tags.
 This means you don't have to retype all that information!
 
-Note that the Flickr upload tab is only enabled if you have installed python-flickrapi.
-See :ref:`installation <installation-flickr>` for more detail.
+Note that the Flickr upload tab is only enabled if you have installed some extra software packages.
+See :ref:`installation <installation-optional>` for more detail.
 
 .. image:: ../images/screenshot_22.png
 

@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Google Photos / Picasa uploader
@@ -20,7 +20,7 @@ Unlike some other uploaders, Photini uses the descriptive metadata you've create
 This means you don't have to retype all that information!
 
 Note that the Google Photos upload tab is only enabled if you have installed the relevant libraries.
-See :ref:`installation <installation-picasa>` for more detail.
+See :ref:`installation <installation-optional>` for more detail.
 
 The first time you select Photini's Google Photos upload tab it will ask you to authorise Photini to access Google Photos.
 It does this by connecting your web browser to Google, from where you can log in and give Photini permission to access Google Photos on your behalf.

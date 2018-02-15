@@ -17,7 +17,7 @@ The Windows installer creates a standalone Python installation with all the depe
 The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
 You can download the latest Windows installer from the `GitHub releases`_ page.
-Look for the most recent release with a ``.exe`` file listed in its downloads.
+Look for the most recent release with a ``.exe`` file listed in its downloads, e.g. ``photini-win32-2018.02.exe``.
 This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
@@ -43,7 +43,7 @@ Package manager (some Linux distributions)
 ------------------------------------------
 
 .. note:: These Linux packages are maintained by other people and may not install the latest version of Photini.
-   You may also need to install missing dependencies, as described below.
+   You may also need to install further dependencies, as described below.
 
 Ubuntu and derived systems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -60,111 +60,49 @@ OpenSUSE 42.2 or newer
 Photini is available from the Packman community repository.
 It can be installed by clicking on this link: http://packman.links2linux.org/install/Photini
 
-OpenSUSE and Fedora
-^^^^^^^^^^^^^^^^^^^
-
-Togan Muftuoglu (https://build.opensuse.org/user/show/toganm) has created a python-photini package.
-See https://build.opensuse.org/package/show/home:toganm:photography/python-photini for more information.
-
-Dependencies package (some Linux distributions)
------------------------------------------------
-
-This is the easiest way to install Photini's dependencies and the latest release of Photini.
-You use your package manager to install the non-Python dependencies, then use pip_ to install the latest versions of all the Python packages.
-
-OpenSUSE (and other Red Hat derived distributions?)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Photini project includes a ``.spec`` file that lists the required dependencies.
-Download the ``.spec`` file and use it to build a ``.rpm`` file::
-
-   wget https://raw.githubusercontent.com/jim-easterbrook/Photini/master/src/linux/python3-photini-meta.spec
-   rpmbuild -ba python3-photini-meta.spec
-
-Note where ``rpmbuild`` wrote its output file, then install that file. For example::
-
-   sudo zypper install /home/jim/rpmbuild/RPMS/noarch/python3-photini-meta-1-0.noarch.rpm
-
-Now you can :ref:`install Photini <installation-photini>` using pip_ as described below.
-
 Piecemeal installation
 ----------------------
 
-This is the hardest way to install Photini, mainly because of the libraries required to access photographs' metadata.
-The installation process is different for Windows, Linux and MacOS, and there are variations with different versions of those operating systems.
+This is the most time consuming way to install Photini.
+Different operating systems have different names for the same packages.
 If you run into problems, please let me know (email jim@jim-easterbrook.me.uk) and once we've worked out what needs to be done I'll be able to improve these instructions.
 
 Essential dependencies
 ----------------------
 
 These are all required for Photini to be usable.
+In general you should use your operating system's package manager to install these, to avoid breaking other software installed on your computer by installing an incompatible version.
+If a package is not available from the system's package manager (or is not already in use by other software) then you can use pip_ to install it from PyPI_.
+You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
 
-Python
-^^^^^^
+==============  =================  ============================  =================
+Package         Minimum version    Typical Linux package name    PyPI package name
+==============  =================  ============================  =================
+Python_         2.6 (3 preferred)  python3
+PyQt_           4 (5 preferred)    python3-qt5 or python3-pyqt5  PyQt5
+                                   (qt5-webkit may also be
+                                   needed)
+gexiv2_ [1]     0.10               typelib-1_0-GExiv2-0_10 or
+                                   gir1.2-gexiv2-0.10
+PyGObject_ [2]                     python3-gobject or
+                                   python3-gi
+pgi_ [2]        0.0.8                                            pgi
+appdirs         1.3                python3-appdirs               appdirs
+requests_       2.4                python3-requests              requests
+six             1.5                python3-six                   six
+==============  =================  ============================  =================
 
-Photini should work with all versions of `Python <https://www.python.org/>`_ from 2.6 onwards.
-
-Python may already be installed on your computer.
-To find out, open a terminal window (Windows users run ``cmd.exe``) and try running python by typing this command::
-
-   python -V
-
-If Python is installed this should show you the version number.
-
-Linux users should use their system's package manager to install Python.
-Windows and MacOS users can download an installer from https://www.python.org/downloads/.
-Windows users should install the 32 bit version of Python, even on a 64 bit machine.
-This is because some of the required libraries are not available in 64 bit builds.
-
-PyQt
-^^^^
-
-The `PyQt <http://www.riverbankcomputing.co.uk/software/pyqt/>`_ application framework provides the graphical user interface elements used by Photini.
-Version 4 or 5 is required.
-
-You can check if PyQt is already installed with one of these commands::
-
-   python -c "import PyQt5"
-
-or ::
-
-   python -c "import PyQt4"
-
-If PyQt is installed then one of these will run without generating any error message.
-
-Linux users should use their package manager to install ``python-qt4`` or ``python-qt5``.
-On some Linux systems you may also need to install the Qt WebKit package, e.g. ``qt5-webkit``.
-Windows users can download a binary installer from http://www.riverbankcomputing.co.uk/software/pyqt/download5 (make sure you choose the installer for your version of Python).
-
-gexiv2
-^^^^^^
-
-Several libraries are needed to access photograph metadata from Python.
-`Exiv2 <http://www.exiv2.org/>`_ is the core "C" library.
-`gexiv2 <https://wiki.gnome.org/Projects/gexiv2>`_ is a GObject wrapper around the Exiv2 library.
+[1] Several libraries are needed to access photograph metadata from Python.
+Exiv2_ is the core "C" library.
+gexiv2_ is a GObject wrapper around the Exiv2 library.
 It has extra "introspection bindings" that allow it to be used by other languages.
-`PyGObject <https://wiki.gnome.org/Projects/PyGObject>`_ (also known as PyGI) provides a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
+PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-Linux users should use their package manager to install these, but note that the package names may not be obvious.
-The core gexiv2 wrapper is probably called ``libgexiv2`` or similar, but on my OpenSUSE system the introspection bindings are called ``typelib-1_0-GExiv2-0_4`` whereas on Ubuntu systems they are called ``gir1.2-gexiv2-0.4``.
-The PyGObject interface probably appears in the package manager as ``python-gobject`` or ``python-gi``.
+[2] pgi_ is a pure Python alternative to PyGObject that I have found to be more reliable, despite its author's warnings about its experimental status.
+If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
-Windows users should download and run the latest "pygi-aio" (PyGI all-in-one) installer from http://sourceforge.net/projects/pygobjectwin32/files/.
-You should install the "Base packages" & "GExiv2" packages, and the "Enchant-extra-dicts" non-GNOME library.
-
-pip
-^^^
-
-The remaining dependencies are Python packages that are easily installed with `pip <https://pip.pypa.io/en/latest/>`_.
-You may already have pip installed on your computer.
-You can check with the ``pip list`` command::
-
-   pip list
-
-Linux users should use their package manager to install ``python-pip``.
-Windows and MacOS users can use the installer from https://pip.pypa.io/en/latest/installing.html#install-pip.
-All users should then `upgrade pip <https://pip.pypa.io/en/latest/installing.html#upgrade-pip>`_.
+   sudo pip uninstall pgi
 
 .. _installation-photini:
 
@@ -188,104 +126,36 @@ Either way, you then need to build and install Photini::
 
 You will also need to install the remaining Python packages.
 
-Essential Python packages
-^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _installation-optional:
 
-There are two small Python packages needed to run Photini.
-They can be installed with one command::
-
-   sudo pip install six appdirs
-
-Note that ``sudo`` is not required on Windows, or if you have root privileges.
-In this case you just run ``pip install six appdirs``.
-
-Optional Python packages
-^^^^^^^^^^^^^^^^^^^^^^^^
+Optional dependencies
+---------------------
 
 Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
+As before, you should use your system's package manager to install these if possible, otherwise use pip_.
+The system package manager names will probably have ``python-`` or ``python3-`` prefixes.
 
-Spelling
-""""""""
+============================  =================
+Feature                       Dependencies
+============================  =================
+Spell check                   pyenchant_ 1.6+
+Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
+Google Photos upload          keyring_ 7.0+, `requests-oauthlib`_ 0.4+
+Facebook upload               keyring_ 7.0+, Pillow_ 2.0+,
+                              `requests-oauthlib`_ 0.4+, `requests-toolbelt`_ 0.4+
+Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
+Import photos from camera[2]  `python-gphoto2`_ 0.10+
+============================  =================
 
-`PyEnchant <http://pythonhosted.org/pyenchant/>`_ is a Python interface to the `Enchant <http://www.abisource.com/projects/enchant/>`_ spell-checking library.
-If it is installed then spell checking is available for some of Photini's text entry fields.
-Use pip_ to install it::
-
-   sudo pip install pyenchant
-
-.. _installation-flickr:
-
-Flickr
-""""""
-
-Photini's Flickr uploader requires `python-flickrapi <https://pypi.python.org/pypi/flickrapi/>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
-These are easily installed with pip::
-
-   sudo pip install flickrapi keyring
-
-.. _installation-picasa:
-
-Google Photos / Picasa
-""""""""""""""""""""""
-
-The Google Photos / Picasa uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
-These are also installed with pip::
-
-   sudo pip install requests requests-oauthlib keyring
-
-.. _installation-facebook:
-
-Facebook
-""""""""
-
-The Facebook uploader requires `requests <https://github.com/kennethreitz/requests>`_, `requests-oauthlib <https://github.com/requests/requests-oauthlib>`_, `requests-toolbelt <https://toolbelt.readthedocs.io/>`_ and `python-keyring <https://pypi.python.org/pypi/keyring/>`_.
-These are also installed with pip::
-
-   sudo pip install requests requests-oauthlib requests-toolbelt keyring
-
-The ``Optimise image size`` option requires the `Python Imaging Library <http://pillow.readthedocs.io/>`_, which is also installed with pip::
-
-   sudo pip install Pillow
-
-.. _installation-thumbnail:
-
-Thumbnail creation
-""""""""""""""""""
-
-If the Python Imaging Library (see above) is installed then Photini can make good quality thumbnails.
-Otherwise it uses Qt's image resizing which may produce rather soft results.
-
-Creating a thumbnail image from a video requires the `OpenCV <http://opencv.org/>`_ image processing library (including its Python interface) and the `NumPy <http://www.numpy.org/>`_ "numerical Python" package.
-These should both be installed with your system's package manager, as they depend on C libraries that cannot be installed with pip.
-
+[1] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
+The NumPy and OpenCV packages are only required to generate thumbnails from video files.
 You may still find that Photini can't read image data from video files.
 Running it from the command line (see troubleshooting_) may show why.
 (The OpenCV library writes messages to the console rather than raise a Python exception.)
 
-.. _installation-importer:
-
-Importer
-""""""""
-
-Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera.
-This requires `libgphoto2 <http://www.gphoto.org/proj/libgphoto2/>`_, which is often already installed, and its `python-gphoto2 <https://pypi.python.org/pypi/gphoto2/>`_ Python bindings, version 0.10 or greater::
-
-   sudo pip install -v gphoto2
-
+[2]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed.
 Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
 You should be able to install these with your system package manager.
-
-pgi
-"""
-
-If you find the PyGObject bindings to be unreliable (I found they sometimes crash when using Python 3) you can use `pgi <https://pypi.python.org/pypi/pgi/>`_ instead::
-
-   sudo pip install pgi
-
-Note that pgi may also have problems.
-If you need to go back to using PyGObject you should uninstall pgi::
-
-   sudo pip uninstall pgi
 
 Running Photini
 ---------------
@@ -334,4 +204,22 @@ If you would like to have a local copy of the Photini documentation, and have do
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
-.. _GitHub releases: https://github.com/jim-easterbrook/Photini/releases
+.. _Exiv2:             http://exiv2.org/
+.. _flickrapi:         https://stuvel.eu/flickrapi/
+.. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
+.. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
+.. _keyring:           https://keyring.readthedocs.io/
+.. _NumPy:             http://www.numpy.org/
+.. _OpenCV:            http://opencv.org/
+.. _pgi:               https://pgi.readthedocs.io/
+.. _Pillow:            http://pillow.readthedocs.io/
+.. _pip:               https://pip.pypa.io/en/latest/
+.. _PyEnchant:         http://pythonhosted.org/pyenchant/
+.. _PyGObject:         https://pygobject.readthedocs.io/
+.. _Python:            https://www.python.org/
+.. _python-gphoto2:    https://pypi.python.org/pypi/gphoto2/
+.. _PyPI:              https://pypi.python.org/pypi
+.. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
+.. _requests:          https://github.com/kennethreitz/requests/
+.. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
+.. _requests-toolbelt: https://toolbelt.readthedocs.io/

@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2016  Jim Easterbrook.
+   Copyright (C)  2016-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Facebook uploader
@@ -8,7 +8,7 @@ Facebook uploader
 The ``Facebook`` tab (keyboard shortcut ``Alt+k``) allows you to upload photographs to `Facebook <https://www.facebook.com/>`_.
 Your photos' descriptive metadata is used to generate a caption.
 Note that the tab is only available if you have installed the relevant libraries.
-See :ref:`installation <installation-facebook>` for more detail.
+See :ref:`installation <installation-optional>` for more detail.
 
 Initially most of the Facebook uploader tab is disabled, as shown below.
 It's only usable after you've authorised Photini to access your Facebook account by clicking the ``Connect`` button.
