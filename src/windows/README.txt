@@ -5,6 +5,8 @@ Brief notes.  (-:
 
 1/ Install GitHub Desktop from https://desktop.github.com/
 2/ Install Inno Setup from http://www.jrsoftware.org/isinfo.php
+2a/ Install Microsoft Visual C++ 2010 Redistributable Package (x86) from
+    https://www.microsoft.com/en-us/download/details.aspx?id=5555
 3/ Install msys2 from http://www.msys2.org/ (32 bit version)
    Update packages as instructed, then install gexiv2 (32 bit version):
    pacman -S mingw-w64-i686-gexiv2
