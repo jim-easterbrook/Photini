@@ -8,9 +8,10 @@ Video file handling
 Although designed primarily for use with still images Photini can also be used with video files.
 The :doc:`image_selector` ``Open images`` dialogue normally shows image files only (``.jpg``, ``.gif``, etc.) but has a drop down selector to choose video files (``.mov``, ``.mp4``, etc.) instead, or all file types.
 
-The `Exiv2`_ metadata library cannot write to video files, so Photini will always use XMP sidecars for the metadata you write.
-If you compile your own copy of `Exiv2`_ you can configure it to be able to read some metadata from video files.
+The Exiv2_ metadata library cannot write to video files, so Photini will always use XMP sidecars for the metadata you write.
+There is an option when compiling Exiv2 that enables it to read some metadata from video files.
 This may enable Photini to read date & time, and possibly GPS location data.
+It is unlikely that the Exiv2 library installed with your operating system has been compiled with video capability, so you may need to compile it yourself.
 
 Most video files don't have thumbnails, but Photini may be able to create one if you have `OpenCV`_ installed on your computer.
 (See :ref:`installation - optional dependencies<installation-optional>`.)
@@ -27,6 +28,9 @@ The following instructions assume some familiarity with compiling and installing
 The examples shown are for one particular system at one particular time.
 It is unlikely that exactly the same commands will work on your machine.
 Don't blindly copy and paste them.
+
+.. note::
+   Replacing the Exiv2 library installed with your operating system may affect the operation of other programs.
 
 Before attempting to compile Exiv2 with video support you should get Photini running with the versions of Exiv2 and GExiv2 installed by your system's package manager.
 You can test if you already have video support by attempting to open a video file using the ``exiv2`` command line tool::
