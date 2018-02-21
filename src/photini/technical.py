@@ -119,9 +119,9 @@ class IntEdit(QtWidgets.QLineEdit):
         self._is_multiple = False
         if not value:
             self.clear()
-            self.setPlaceholderText('')
         else:
             self.setText(str(value))
+        self.setPlaceholderText('')
 
     def get_value(self):
         return self.text()
@@ -591,6 +591,7 @@ class NewLensDialog(QtWidgets.QDialog):
 class Technical(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(Technical, self).__init__(*arg, **kw)
+        self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.widgets = {}
@@ -826,9 +827,11 @@ class Technical(QtWidgets.QWidget):
         if not self.widgets['focal_length'].is_multiple():
             fl = self.widgets['focal_length'].get_value()
             for image in self.image_list.get_selected_images():
-                fl_35 = image.metadata.fl_to_35(fl)
+                # only update 35mm equiv if already set
+                if image.metadata.focal_length_35:
+                    image.metadata.focal_length_35 = self.calc_35(
+                        image.metadata, fl)
                 image.metadata.focal_length = fl
-                image.metadata.focal_length_35 = fl_35
             self._update_focal_length()
             self._update_focal_length_35()
 
@@ -837,9 +840,8 @@ class Technical(QtWidgets.QWidget):
         if not self.widgets['focal_length_35'].is_multiple():
             fl_35 = self.widgets['focal_length_35'].get_value()
             for image in self.image_list.get_selected_images():
-                fl = image.metadata.fl_from_35(fl_35)
-                image.metadata.focal_length = fl
                 image.metadata.focal_length_35 = fl_35
+                self.set_crop_factor(image.metadata)
             self._update_focal_length()
             self._update_focal_length_35()
 
@@ -985,9 +987,11 @@ class Technical(QtWidgets.QWidget):
             if new_aperture:
                 image.metadata.aperture = new_aperture
             if new_fl:
-                fl_35 = image.metadata.fl_to_35(new_fl)
+                # only update 35mm equiv if already set
+                if image.metadata.focal_length_35:
+                    image.metadata.focal_length_35 = self.calc_35(
+                        image.metadata, new_fl)
                 image.metadata.focal_length = new_fl
-                image.metadata.focal_length_35 = fl_35
         if make_changes:
             self._update_aperture()
             self._update_focal_length()
@@ -1019,12 +1023,54 @@ class Technical(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
+        # display real value if it exists
         value = images[0].metadata.focal_length_35
         for image in images[1:]:
             if image.metadata.focal_length_35 != value:
                 self.widgets['focal_length_35'].set_multiple()
                 return
         self.widgets['focal_length_35'].set_value(value)
+        if value:
+            return
+        # otherwise display calculated value
+        value = self.calc_35(images[0].metadata)
+        for image in images[1:]:
+            fl_35 = self.calc_35(image.metadata)
+            if fl_35 != value:
+                self.widgets['focal_length_35'].set_multiple()
+                return
+        if value:
+            # display as placeholder so it's shown faintly
+            self.widgets['focal_length_35'].setPlaceholderText(str(value))
+
+    def set_crop_factor(self, md):
+        if not md.camera_model:
+            return
+        if not md.focal_length_35:
+            self.config_store.set('crop factor', md.camera_model, 'None')
+        elif md.focal_length:
+            crop_factor = float(md.focal_length_35) / md.focal_length
+            self.config_store.set(
+                'crop factor', md.camera_model, str(crop_factor))
+
+    def get_crop_factor(self, md):
+        crop_factor = None
+        if md.focal_length and md.focal_length_35:
+            crop_factor = float(md.focal_length_35) / md.focal_length
+            if md.camera_model:
+                self.config_store.set(
+                    'crop factor', md.camera_model, str(crop_factor))
+        if md.camera_model and not crop_factor:
+            crop_factor = eval(self.config_store.get(
+                'crop factor', md.camera_model, 'None'))
+        return crop_factor
+
+    def calc_35(self, md, value=None):
+        crop_factor = self.get_crop_factor(md)
+        value = value or md.focal_length
+        if crop_factor and value:
+            return int((float(value) * crop_factor) + 0.5)
+        return md.focal_length_35
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):

@@ -1276,7 +1276,6 @@ class Metadata(QtCore.QObject):
         }
     def __init__(self, path, *args, **kw):
         super(Metadata, self).__init__(*args, **kw)
-        self.config_store = QtCore.QCoreApplication.instance().config_store
         # create metadata handlers for image file and/or sidecar
         self._path = path
         self._sc_path = self._find_side_car(path)
@@ -1462,27 +1461,3 @@ class Metadata(QtCore.QObject):
 
     def changed(self):
         return self.dirty
-
-    def crop_factor(self):
-        crop_factor = None
-        if self.camera_model:
-            crop_factor = eval(self.config_store.get(
-                'crop factor', self.camera_model, 'None'))
-        if not crop_factor and self.focal_length and self.focal_length_35:
-            crop_factor = float(self.focal_length_35) / self.focal_length
-            if self.camera_model:
-                self.config_store.set(
-                    'crop factor', self.camera_model, six.text_type(crop_factor))
-        return crop_factor
-
-    def fl_to_35(self, value):
-        crop_factor = self.crop_factor()
-        if crop_factor and value:
-            return int((float(value) * crop_factor) + 0.5)
-        return self.focal_length_35
-
-    def fl_from_35(self, value):
-        crop_factor = self.crop_factor()
-        if crop_factor and value:
-            return round(float(value) / crop_factor, 2)
-        return self.focal_length
