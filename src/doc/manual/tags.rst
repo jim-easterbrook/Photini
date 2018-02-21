@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Tag reference
@@ -38,7 +38,7 @@ Date / time Modified   Exif.Image.DateTime               Xmp.xmp.ModifyDate
 Orientation            Exif.Image.Orientation            Xmp.tiff.Orientation
 Aperture               Exif.Photo.FNumber                Xmp.exif.FNumber
 Focal length           Exif.Photo.FocalLength            Xmp.exif.FocalLength
-                       Exif.Photo.FocalLengthIn35mmFilm  Xmp.exif.FocalLengthIn35mmFilm
+35mm equiv             Exif.Photo.FocalLengthIn35mmFilm  Xmp.exif.FocalLengthIn35mmFilm
 Lens maker name        Exif.Photo.LensMake
 Lens model name        Exif.Photo.LensModel
 Lens serial number     Exif.Photo.LensSerialNumber

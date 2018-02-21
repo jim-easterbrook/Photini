@@ -104,6 +104,16 @@ class MD_Value(object):
     # Python 3 uses __bool__, Python 2 uses __nonzero__
     __nonzero__ = __bool__
 
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        return cls(file_value)
+
+    def write(self, handler, tag):
+        handler.set_string(tag, six.text_type(self))
+
     def merge(self, info, tag, other):
         if self != other:
             self.log_ignored(info, tag, other)
@@ -171,37 +181,6 @@ class MD_Dict(MD_Value, dict):
         else:
             self.log_merged(info, tag, other)
         return self
-
-
-class FocalLength(MD_Dict):
-    # store actual focal length and 35mm film equivalent
-    _keys = ('fl', 'fl_35')
-
-    def __init__(self, value):
-        super(FocalLength, self).__init__(value)
-        if self.fl:
-            self.fl = safe_fraction(self.fl)
-        if self.fl_35:
-            self.fl_35 = int(self.fl_35)
-
-    def write(self, handler, tag):
-        file_value = [None, None]
-        if self.fl:
-            file_value[0] = '{:d}/{:d}'.format(
-                self.fl.numerator, self.fl.denominator)
-        if self.fl_35:
-            file_value[1] = '{:d}'.format(self.fl_35)
-        handler.set_string(tag, file_value)
-
-    def to_35(self, value):
-        if value and self.fl and self.fl_35:
-            return int((float(value) * float(self.fl_35) / self.fl) + 0.5)
-        return self.fl_35
-
-    def from_35(self, value):
-        if value and self.fl and self.fl_35:
-            return round(float(value) * self.fl / float(self.fl_35), 2)
-        return self.fl
 
 
 class LatLon(MD_Dict):
@@ -755,15 +734,7 @@ class Software(MD_String):
 
 
 class MD_Int(MD_Value, int):
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        return cls(file_value)
-
-    def write(self, handler, tag):
-        handler.set_string(tag, six.text_type(self))
+    pass
 
 
 class Timezone(MD_Int):
@@ -778,7 +749,23 @@ class Timezone(MD_Int):
         return cls(file_value)
 
 
-class Aperture(MD_Value, Fraction):
+class MD_Rational(MD_Value, Fraction):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        return cls(safe_fraction(file_value))
+
+    def write(self, handler, tag):
+        handler.set_string(
+            tag, '{:d}/{:d}'.format(self.numerator, self.denominator))
+
+    def __str__(self):
+        return six.text_type(float(self))
+
+
+class Aperture(MD_Rational):
     # store FNumber and APEX aperture as fractions
     # only FNumber is presented to the user, either is computed if missing
     @classmethod
@@ -802,9 +789,6 @@ class Aperture(MD_Value, Fraction):
         handler.set_string(tag, (
             '{:d}/{:d}'.format(self.numerator, self.denominator),
             '{:d}/{:d}'.format(apex.numerator, apex.denominator)))
-
-    def __str__(self):
-        return six.text_type(float(self))
 
     def merge(self, info, tag, other):
         if (min(other, self) / max(other, self)) < 0.95:
@@ -1137,7 +1121,8 @@ class Metadata(QtCore.QObject):
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
         'description'    : MD_String,
-        'focal_length'   : FocalLength,
+        'focal_length'   : MD_Rational,
+        'focal_length_35': MD_Int,
         'keywords'       : MultiString,
         'latlong'        : LatLon,
         'lens_make'      : MD_String,
@@ -1204,11 +1189,11 @@ class Metadata(QtCore.QObject):
                             ('RA.WA', 'Xmp.dc.description'),
                             ('RA.W0', 'Xmp.tiff.ImageDescription'),
                             ('RA.WA', 'Iptc.Application2.Caption')),
-        'focal_length'   : (('RA.WA', ('Exif.Photo.FocalLength',
-                                       'Exif.Photo.FocalLengthIn35mmFilm')),
-                            ('RA.W0', ('Exif.Image.FocalLength',)),
-                            ('RA.WX', ('Xmp.exif.FocalLength',
-                                       'Xmp.exif.FocalLengthIn35mmFilm'))),
+        'focal_length'   : (('RA.WA', 'Exif.Photo.FocalLength'),
+                            ('RA.W0', 'Exif.Image.FocalLength'),
+                            ('RA.WX', 'Xmp.exif.FocalLength')),
+        'focal_length_35': (('RA.WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
+                            ('RA.WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
         'keywords'       : (('RA.WA', 'Xmp.dc.subject'),
                             ('RA.WA', 'Iptc.Application2.Keywords'),
                             ('RA.W0', 'Exif.Image.XPKeywords')),
@@ -1476,3 +1461,15 @@ class Metadata(QtCore.QObject):
 
     def changed(self):
         return self.dirty
+
+    def fl_to_35(self, value):
+        if value and self.focal_length and self.focal_length_35:
+            return int((float(value) *
+                        float(self.focal_length_35) / self.focal_length) + 0.5)
+        return self.focal_length_35
+
+    def fl_from_35(self, value):
+        if value and self.focal_length and self.focal_length_35:
+            return round(float(value) *
+                         self.focal_length / float(self.focal_length_35), 2)
+        return self.focal_length

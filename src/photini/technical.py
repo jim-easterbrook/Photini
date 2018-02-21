@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -826,24 +826,22 @@ class Technical(QtWidgets.QWidget):
         if not self.widgets['focal_length'].is_multiple():
             fl = self.widgets['focal_length'].get_value()
             for image in self.image_list.get_selected_images():
-                if image.metadata.focal_length:
-                    fl_35 = image.metadata.focal_length.to_35(fl)
-                else:
-                    fl_35 = None
-                image.metadata.focal_length = fl, fl_35
+                fl_35 = image.metadata.fl_to_35(fl)
+                image.metadata.focal_length = fl
+                image.metadata.focal_length_35 = fl_35
             self._update_focal_length()
+            self._update_focal_length_35()
 
     @QtCore.pyqtSlot()
     def new_focal_length_35(self):
         if not self.widgets['focal_length_35'].is_multiple():
             fl_35 = self.widgets['focal_length_35'].get_value()
             for image in self.image_list.get_selected_images():
-                if image.metadata.focal_length:
-                    fl = image.metadata.focal_length.from_35(fl_35)
-                else:
-                    fl = None
-                image.metadata.focal_length = fl, fl_35
+                fl = image.metadata.fl_from_35(fl_35)
+                image.metadata.focal_length = fl
+                image.metadata.focal_length_35 = fl_35
             self._update_focal_length()
+            self._update_focal_length_35()
 
     def _new_date_value(self, key, value):
         date_time, precision, tz_offset = value
@@ -958,10 +956,7 @@ class Technical(QtWidgets.QWidget):
                 new_aperture = image.metadata.aperture
             else:
                 new_aperture = 0
-            if image.metadata.focal_length:
-                new_fl = image.metadata.focal_length.fl or 0
-            else:
-                new_fl = 0
+            new_fl = image.metadata.focal_length or 0
             if new_fl <= spec.min_fl:
                 new_fl = spec.min_fl
                 new_aperture = max(new_aperture, spec.min_fl_fn)
@@ -973,10 +968,8 @@ class Technical(QtWidgets.QWidget):
                                    min(spec.min_fl_fn, spec.max_fl_fn))
             if new_aperture == 0 and new_fl == 0:
                 continue
-            if (image.metadata.aperture and
-                    new_aperture == image.metadata.aperture and
-                    image.metadata.focal_length and
-                    new_fl == image.metadata.focal_length.fl):
+            if (new_aperture == image.metadata.aperture and
+                      new_fl == image.metadata.focal_length):
                 continue
             if make_changes:
                 pass
@@ -992,14 +985,13 @@ class Technical(QtWidgets.QWidget):
             if new_aperture:
                 image.metadata.aperture = new_aperture
             if new_fl:
-                if image.metadata.focal_length:
-                    image.metadata.focal_length = (
-                        new_fl, image.metadata.focal_length.to_35(new_fl))
-                else:
-                    image.metadata.focal_length = new_fl, None
+                fl_35 = image.metadata.fl_to_35(new_fl)
+                image.metadata.focal_length = new_fl
+                image.metadata.focal_length_35 = fl_35
         if make_changes:
             self._update_aperture()
             self._update_focal_length()
+            self._update_focal_length_35()
 
     def _update_aperture(self):
         images = self.image_list.get_selected_images()
@@ -1020,20 +1012,19 @@ class Technical(QtWidgets.QWidget):
         for image in images[1:]:
             if image.metadata.focal_length != value:
                 self.widgets['focal_length'].set_multiple()
+                return
+        self.widgets['focal_length'].set_value(value)
+
+    def _update_focal_length_35(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            return
+        value = images[0].metadata.focal_length_35
+        for image in images[1:]:
+            if image.metadata.focal_length_35 != value:
                 self.widgets['focal_length_35'].set_multiple()
                 return
-        if not value:
-            self.widgets['focal_length'].set_value(None)
-            self.widgets['focal_length_35'].set_value(None)
-            return
-        fl = value.fl
-        if fl:
-            fl = '{:g}'.format(float(fl))
-        self.widgets['focal_length'].set_value(fl)
-        fl_35 = value.fl_35
-        if fl_35:
-            fl_35 = '{:d}'.format(fl_35)
-        self.widgets['focal_length_35'].set_value(fl_35)
+        self.widgets['focal_length_35'].set_value(value)
 
     @QtCore.pyqtSlot(list)
     def new_selection(self, selection):
@@ -1058,5 +1049,6 @@ class Technical(QtWidgets.QWidget):
         self._update_lens_model()
         self._update_aperture()
         self._update_focal_length()
+        self._update_focal_length_35()
         self._update_lens_spec()
         self.setEnabled(True)
