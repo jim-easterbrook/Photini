@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+import math
 import re
 
 from photini.metadata import DateTime, LensSpec
@@ -1063,6 +1064,23 @@ class Technical(QtWidgets.QWidget):
         if md.camera_model and not crop_factor:
             crop_factor = eval(self.config_store.get(
                 'crop factor', md.camera_model, 'None'))
+        if not crop_factor and all((md.dimension_x, md.dimension_y,
+                                    md.resolution_x, md.resolution_y)):
+            # calculate from image size and resolution
+            w = md.dimension_x / md.resolution_x
+            h = md.dimension_y / md.resolution_y
+            d = math.sqrt((h ** 2) + (w ** 2))
+            if md.resolution_unit == 3:
+                # unit is cm
+                d *= 10.0
+            elif md.resolution_unit in (None, 1, 2):
+                # unit is (assumed to be) inches
+                d *= 25.4
+            # 35 mm film diagonal is 43.27 mm
+            crop_factor = 43.27 / d
+            if md.camera_model:
+                self.config_store.set(
+                    'crop factor', md.camera_model, str(crop_factor))
         return crop_factor
 
     def calc_35(self, md, value=None):
