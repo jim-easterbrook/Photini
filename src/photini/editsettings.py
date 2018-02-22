@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,7 +19,11 @@
 
 from __future__ import unicode_literals
 
-from photini.pyqt import Qt, QtCore, QtWidgets, SingleLineEdit
+import logging
+
+from photini.pyqt import Qt, QtWidgets, safe_slot, SingleLineEdit
+
+logger = logging.getLogger(__name__)
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
@@ -91,15 +95,15 @@ class EditSettings(QtWidgets.QDialog):
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
-    @QtCore.pyqtSlot()
-    def new_write_if(self):
+    @safe_slot(bool)
+    def new_write_if(self, checked=False):
         if_mode = self.write_if.isChecked()
         self.sc_auto.setEnabled(if_mode)
         self.sc_delete.setEnabled(if_mode)
         if not if_mode:
             self.sc_always.setChecked(True)
 
-    @QtCore.pyqtSlot(QtWidgets.QAbstractButton)
+    @safe_slot(QtWidgets.QAbstractButton)
     def button_clicked(self, button):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()

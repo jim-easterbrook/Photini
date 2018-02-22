@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2016-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2016-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ from requests_toolbelt import MultipartEncoder
 from photini.configstore import key_store
 from photini.pyqt import (
     Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, SingleLineEdit)
+    QtWebKitWidgets, QtWidgets, safe_slot, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -306,7 +306,7 @@ class FacebookLoginPopup(QtWidgets.QDialog):
     def load_url(self, auth_url):
         self.browser.load(QtCore.QUrl(auth_url))
 
-    @QtCore.pyqtSlot(QtCore.QUrl)
+    @safe_slot(QtCore.QUrl)
     def auth_url_changed(self, url):
         if url.path() != '/connect/login_success.html':
             return
@@ -519,8 +519,8 @@ class FacebookUploader(PhotiniUploader):
         self.select_album(
             self.upload_config.widgets['album_choose'].currentIndex())
 
-    @QtCore.pyqtSlot()
-    def new_album(self):
+    @safe_slot(bool)
+    def new_album(self, checked=False):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Facebook album'))
         dialog.setLayout(QtWidgets.QFormLayout())
@@ -570,7 +570,7 @@ class FacebookUploader(PhotiniUploader):
             return
         self.get_album_list(album_id=album['id'])
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def select_album(self, index):
         if not self.authorise('read'):
             self.refresh(force=True)

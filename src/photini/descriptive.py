@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -21,11 +21,15 @@ from __future__ import unicode_literals
 
 from collections import defaultdict
 from datetime import datetime
+import logging
 
 import six
 
-from photini.pyqt import (multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtWidgets, qt_version_info, SingleLineEdit, Slider)
+from photini.pyqt import (
+    multiple_values, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
+    qt_version_info, safe_slot, SingleLineEdit, Slider)
+
+logger = logging.getLogger(__name__)
 
 class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
@@ -116,7 +120,7 @@ class RatingWidget(QtWidgets.QWidget):
         # adopt child signal
         self.editingFinished = self.slider.editing_finished
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def slider_changed(self, value):
         if value == -2:
             self.display.clear()
@@ -208,7 +212,7 @@ class KeywordsEditor(QtWidgets.QWidget):
             'descriptive', 'keywords', six.text_type(dict(self.league_table)))
         self.update_favourites()
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def add_favourite(self, idx):
         if idx <= 0:
             return
@@ -267,39 +271,39 @@ class Descriptive(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_title(self):
         self._new_value('title')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_description(self):
         self._new_value('description')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_keywords(self):
         self._new_value('keywords')
         self.widgets['keywords'].update_league_table(
             self.image_list.get_selected_images())
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_rating(self):
         self._new_value('rating')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_copyright(self):
         self._new_value('copyright')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_creator(self):
         self._new_value('creator')
 
-    @QtCore.pyqtSlot()
-    def auto_copyright(self):
+    @safe_slot(bool)
+    def auto_copyright(self, checked=False):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
@@ -323,8 +327,8 @@ class Descriptive(QtWidgets.QWidget):
             image.metadata.copyright = value
         self._update_widget('copyright')
 
-    @QtCore.pyqtSlot()
-    def auto_creator(self):
+    @safe_slot(bool)
+    def auto_creator(self, checked=False):
         name = self.config_store.get('user', 'creator_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
@@ -360,7 +364,7 @@ class Descriptive(QtWidgets.QWidget):
         else:
             self.widgets[key].set_value(values[0])
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:

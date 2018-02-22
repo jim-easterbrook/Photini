@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -29,7 +29,8 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.configstore import key_store
-from photini.pyqt import Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets
+from photini.pyqt import (
+    Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets, safe_slot)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -370,17 +371,17 @@ class PicasaUploadConfig(QtWidgets.QWidget):
         album_form_right.addRow(self.album_thumb)
         self.layout().addWidget(album_group)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_title(self):
         value = self.albums.lineEdit().text()
         self.albums.setItemText(self.albums.currentIndex(), value)
         self.new_album_details()
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def new_access(self, index):
         self.new_album_details()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_album_details(self):
         new_values = {
             'title'       : self.albums.itemText(self.albums.currentIndex()),
@@ -393,7 +394,7 @@ class PicasaUploadConfig(QtWidgets.QWidget):
             }
 ##        self.update_album.emit(new_values)
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def switch_album(self, index):
         self.select_album.emit(self.albums.itemData(index))
 
@@ -462,8 +463,8 @@ class PicasaUploader(PhotiniUploader):
         with Busy():
             self.set_current_album(self.current_album.id.text)
 
-##    @QtCore.pyqtSlot()
-##    def new_album(self):
+##    @safe_slot(bool)
+##    def new_album(self, checked=False):
 ##        with Busy():
 ##            self.save_changes()
 ##            if not self.session.permitted('write'):
@@ -480,8 +481,8 @@ class PicasaUploader(PhotiniUploader):
 ##            self.upload_config.albums.addItem(album.title.text, album.id.text)
 ##            self.set_current_album(album.id.text)
 
-##    @QtCore.pyqtSlot()
-##    def delete_album(self):
+##    @safe_slot(bool)
+##    def delete_album(self, checked=False):
 ##        album = self.current_album
 ##        if int(album.numphotos.text) > 0:
 ##            if QtWidgets.QMessageBox.question(
@@ -507,7 +508,7 @@ class PicasaUploader(PhotiniUploader):
 ##                self.upload_config.albums.findData(album.id.text))
 ##            self.set_current_album()
 
-    @QtCore.pyqtSlot(six.text_type)
+    @safe_slot(six.text_type)
     def select_album(self, album_id):
         with Busy():
             self.save_changes()
@@ -519,7 +520,7 @@ class PicasaUploader(PhotiniUploader):
             QtWidgets.QApplication.processEvents()
             self.set_current_album(album_id)
 
-##    @QtCore.pyqtSlot(dict)
+##    @safe_slot(dict)
 ##    def update_album(self, new_values):
 ##        if not self.current_album:
 ##            return
@@ -555,7 +556,7 @@ class PicasaUploader(PhotiniUploader):
                 return
         self.upload_config.show_album(None, None)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def save_changes(self):
         self.timer.stop()
         if not self.album_changed:

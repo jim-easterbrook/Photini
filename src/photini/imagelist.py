@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -40,8 +40,9 @@ except ImportError:
     PIL = None
 
 from photini.metadata import Metadata
-from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
-                          qt_version_info, set_symbol_font, video_types)
+from photini.pyqt import (
+    Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
+    safe_slot, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -284,7 +285,7 @@ class Image(QtWidgets.QFrame):
     def mouseDoubleClickEvent(self, event):
         webbrowser.open(self.path)
 
-    @QtCore.pyqtSlot(bool)
+    @safe_slot(bool)
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
@@ -531,8 +532,8 @@ class ImageList(QtWidgets.QWidget):
             self.selection_anchor = None
             self.emit_selection()
 
-    @QtCore.pyqtSlot()
-    def open_files(self):
+    @safe_slot(bool)
+    def open_files(self, checked):
         args = [
             self,
             self.tr('Open files'),
@@ -558,7 +559,7 @@ class ImageList(QtWidgets.QWidget):
             path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def open_file_list(self, path_list):
         with Busy():
             for path in path_list:
@@ -596,7 +597,7 @@ class ImageList(QtWidgets.QWidget):
         result = result.isoformat() + image.path
         return result
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
@@ -640,7 +641,7 @@ class ImageList(QtWidgets.QWidget):
         self.emit_selection()
         self.image_list_changed.emit()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def save_files(self, images=[]):
         if_mode = eval(self.app.config_store.get('files', 'image', 'True'))
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
@@ -733,7 +734,7 @@ class ImageList(QtWidgets.QWidget):
             idx = 0
         self.select_image(self.images[idx], extend_selection=extend_selection)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def _new_thumb_size(self):
         self.thumb_size = self.size_slider.value() * 20
         self.app.config_store.set('controls', 'thumb_size', str(self.thumb_size))

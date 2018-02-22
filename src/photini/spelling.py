@@ -26,6 +26,8 @@ import os
 import site
 import sys
 
+from photini.pyqt import safe_slot
+
 logger = logging.getLogger(__name__)
 
 # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
@@ -84,13 +86,13 @@ class SpellCheck(QtCore.QObject):
             return self.dict.tag
         return ''
 
-    @QtCore.pyqtSlot(bool)
+    @safe_slot(bool)
     def enable(self, enabled):
         self.enabled = bool(enchant) and enabled
         self.config_store.set('spelling', 'enabled', str(self.enabled))
         self.new_dict.emit()
 
-    @QtCore.pyqtSlot(QtWidgets.QAction)
+    @safe_slot(QtWidgets.QAction)
     def set_language(self, action):
         self.set_dict(action.text().replace('&', ''))
 

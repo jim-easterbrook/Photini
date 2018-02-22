@@ -30,8 +30,8 @@ import six
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, set_symbol_font, SingleLineEdit, SquareButton)
+    Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets, QtWebKitWidgets,
+    QtWidgets, safe_slot, set_symbol_font, SingleLineEdit, SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -92,27 +92,27 @@ class LocationWidgets(QtCore.QObject):
     def __getitem__(self, key):
         return self.members[key]
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_sublocation(self):
         self.send_value('sublocation')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_city(self):
         self.send_value('city')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_province_state(self):
         self.send_value('province_state')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_country_name(self):
         self.send_value('country_name')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_country_code(self):
         self.send_value('country_code')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_world_region(self):
         self.send_value('world_region')
 
@@ -167,23 +167,38 @@ class CallHandler(QtCore.QObject):
 
     @QtCore.pyqtSlot()
     def initialize_finished(self):
-        self.parent().initialize_finished()
+        try:
+            self.parent().initialize_finished()
+        except Exception as ex:
+            logger.exception(ex)
 
     @QtCore.pyqtSlot(QtCore.QVariant)
     def new_status(self, status):
-        self.parent().new_status(status)
+        try:
+            self.parent().new_status(status)
+        except Exception as ex:
+            logger.exception(ex)
 
     @QtCore.pyqtSlot(int)
     def marker_click(self, marker_id):
-        self.parent().marker_click(marker_id)
+        try:
+            self.parent().marker_click(marker_id)
+        except Exception as ex:
+            logger.exception(ex)
 
     @QtCore.pyqtSlot(float, float, int)
     def marker_drag(self, lat, lng, marker_id):
-        self.parent().marker_drag(lat, lng, marker_id)
+        try:
+            self.parent().marker_drag(lat, lng, marker_id)
+        except Exception as ex:
+            logger.exception(ex)
 
     @QtCore.pyqtSlot(float, float)
     def marker_drop(self, lat, lng):
-        self.parent().marker_drop(lat, lng)
+        try:
+            self.parent().marker_drop(lat, lng)
+        except Exception as ex:
+            logger.exception(ex)
 
 
 class PhotiniMap(QtWidgets.QSplitter):
@@ -278,30 +293,30 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.web_channel.deRegisterObject(self.call_handler)
         super(PhotiniMap, self).closeEvent(event)
 
-    @QtCore.pyqtSlot(int, int)
+    @safe_slot(int, int)
     def new_split(self, pos, index):
         self.app.config_store.set('map', 'split', str(self.sizes()))
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def java_script_window_object_cleared(self):
         self.map.page().mainFrame().addToJavaScriptWindowObject(
             "python", self.call_handler)
 
-    @QtCore.pyqtSlot(QtCore.QUrl)
+    @safe_slot(QtCore.QUrl)
     def link_clicked(self, url):
         if url.isLocalFile():
             url.setScheme('http')
         webbrowser.open_new(url.toString())
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def image_list_changed(self):
         self.redraw_markers()
         self.display_coords()
         self.display_location()
         self.see_selection()
 
-    @QtCore.pyqtSlot()
-    def initialise(self):
+    @safe_slot(bool)
+    def initialise(self, checked):
         page = '''
 <!DOCTYPE html>
 <html>
@@ -391,7 +406,7 @@ class PhotiniMap(QtWidgets.QSplitter):
                 self.app.config_store.set(
                     'map', key, repr(self.map_status[key]))
 
-    @QtCore.pyqtSlot(int, int, six.text_type)
+    @safe_slot(int, int, six.text_type)
     def drop_text(self, x, y, text):
         self.dropped_images = eval(text)
         self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
@@ -406,7 +421,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.display_coords()
         self.see_selection()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_coords(self):
         text = self.coords.get_value().strip()
         if not text:
@@ -439,18 +454,18 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def swap_locations(self):
         for image in self.image_list.get_selected_images():
             image.metadata.location_taken, image.metadata.location_shown = (
                 image.metadata.location_shown, image.metadata.location_taken)
         self.display_location()
 
-    @QtCore.pyqtSlot(six.text_type, six.text_type)
+    @safe_slot(six.text_type, six.text_type)
     def new_location_taken(self, key, value):
         self._new_location('location_taken', key, value)
 
-    @QtCore.pyqtSlot(six.text_type, six.text_type)
+    @safe_slot(six.text_type, six.text_type)
     def new_location_shown(self, key, value):
         self._new_location('location_shown', key, value)
 
@@ -508,7 +523,7 @@ class PhotiniMap(QtWidgets.QSplitter):
                 else:
                     widget_group[attr].set_value(values[0])
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def new_selection(self, selection):
         self.coords.setEnabled(bool(selection))
         self.location_info.setEnabled(bool(selection))
@@ -561,7 +576,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.JavaScript('delMarker({:d})'.format(marker_id))
             del self.marker_images[marker_id]
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def enable_search(self):
         self.block_timer.stop()
         self.edit_box.lineEdit().setEnabled(self.map_loaded)
@@ -578,7 +593,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.auto_location.setEnabled(False)
         self.block_timer.start()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def get_address(self):
         coords = self.coords.get_value().replace(' ', '')
         address = self.reverse_geocode(coords)
@@ -602,7 +617,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             image.metadata.location_taken = location
         self.display_location()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def search(self, search_string=None):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
@@ -623,7 +638,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         if self.search_string:
             self.edit_box.addItem(translate('PhotiniMap', '<repeat search>'))
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def goto_search_result(self, idx):
         self.edit_box.setCurrentIndex(0)
         self.edit_box.clearFocus()

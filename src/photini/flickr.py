@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -29,8 +29,8 @@ import time
 import flickrapi
 
 from photini.configstore import key_store
-from photini.pyqt import (
-    Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets, SingleLineEdit)
+from photini.pyqt import (Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
+                          safe_slot, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -255,7 +255,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.layout().addWidget(sets_group, 0, 2, 2, 1)
         self.layout().setColumnStretch(2, 1)
 
-    @QtCore.pyqtSlot(bool)
+    @safe_slot(bool)
     def enable_ff(self, value):
         self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
         self.privacy['family'].setEnabled(self.privacy['private'].isChecked())
@@ -364,8 +364,8 @@ class FlickrUploader(PhotiniUploader):
     def upload_finished(self):
         pass
 
-    @QtCore.pyqtSlot()
-    def new_set(self):
+    @safe_slot(bool)
+    def new_set(self, checked=False):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Flickr album'))
         dialog.setLayout(QtWidgets.QFormLayout())

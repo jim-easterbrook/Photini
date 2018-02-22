@@ -3,7 +3,7 @@
 
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -32,9 +32,10 @@ import webbrowser
 
 import pkg_resources
 
-from photini.configstore import BaseConfigStore
 from photini.bingmap import BingMap
+from photini.configstore import BaseConfigStore
 from photini.descriptive import Descriptive
+from photini.editsettings import EditSettings
 try:
     from photini.facebook import FacebookUploader
 except ImportError:
@@ -43,22 +44,24 @@ try:
     from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
-from photini.editsettings import EditSettings
 from photini.googlemap import GoogleMap
+from photini.imagelist import ImageList
 from photini.importer import Importer
+from photini.loggerwindow import LoggerWindow
 from photini.metadata import debug_metadata, gexiv2_version
 from photini.openstreetmap import OpenStreetMap
-from photini.imagelist import ImageList
-from photini.loggerwindow import LoggerWindow
 try:
     from photini.picasa import PicasaUploader
 except ImportError:
     PicasaUploader = None
-from photini.pyqt import (Qt, QtCore, QtGui, QNetworkProxy,
-                          QtWidgets, qt_version_info, using_qtwebengine)
+from photini.pyqt import (
+    Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
+    safe_slot, using_qtwebengine)
 from photini.spelling import enchant_version, SpellCheck
 from photini.technical import Technical
 from photini import __version__, build
+
+logger = logging.getLogger(__name__)
 
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
@@ -85,7 +88,7 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         super(ConfigStore, self).remove_section(section)
         self.timer.start()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def save(self):
         super(ConfigStore, self).save()
 
@@ -250,12 +253,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.initial_files:
             QtCore.QTimer.singleShot(0, self.open_initial_files)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
-    @QtCore.pyqtSlot()
-    def add_tabs(self):
+    @safe_slot(bool)
+    def add_tabs(self, checked=False):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
@@ -275,16 +278,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
-    @QtCore.pyqtSlot()
-    def open_docs(self):
+    @safe_slot(bool)
+    def open_docs(self, checked=False):
         webbrowser.open_new('http://photini.readthedocs.io/')
 
-    @QtCore.pyqtSlot()
-    def close_files(self):
+    @safe_slot(bool)
+    def close_files(self, checked=False):
         self.image_list.close_files(False)
 
-    @QtCore.pyqtSlot()
-    def close_all_files(self):
+    @safe_slot(bool)
+    def close_all_files(self, checked=False):
         self.image_list.close_files(True)
 
     def closeEvent(self, event):
@@ -295,14 +298,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         super(MainWindow, self).closeEvent(event)
 
-    @QtCore.pyqtSlot()
-    def edit_settings(self):
+    @safe_slot(bool)
+    def edit_settings(self, checked=False):
         dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
 
-    @QtCore.pyqtSlot()
-    def about(self):
+    @safe_slot(bool)
+    def about(self, checked=False):
         text = self.tr("""
 <table width="100%"><tr>
 <td align="center" width="70%">
@@ -330,12 +333,12 @@ details click the 'show details' button.</p>
         dialog.setDetailedText(licence.decode('utf-8'))
         dialog.exec_()
 
-    @QtCore.pyqtSlot(int, int)
+    @safe_slot(int, int)
     def new_split(self, pos, index):
         self.app.config_store.set(
             'main_window', 'split', str(self.central_widget.sizes()))
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
@@ -343,12 +346,12 @@ details click the 'show details' button.</p>
             current.refresh()
             self.image_list.emit_selection()
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def new_selection(self, selection):
         self.close_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
 
-    @QtCore.pyqtSlot(bool)
+    @safe_slot(bool)
     def new_metadata(self, unsaved_data):
         self.save_action.setEnabled(unsaved_data)
 

@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 
 from collections import namedtuple
 import re
+
 import six
 
 from photini.configstore import BaseConfigStore
@@ -79,6 +80,19 @@ del config, style
 qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
         map(int, QtCore.QT_VERSION_STR.split('.')))
+
+# replacement pyqtSlot decorator that logs any exception raised
+def safe_slot(*args):
+    @QtCore.pyqtSlot(*args)
+    def decorator(func):
+        def wrapper(*args):
+            try:
+                func(*args)
+            except Exception as ex:
+                logger.exception(ex)
+        return wrapper
+
+    return decorator
 
 def image_types():
     result = [
@@ -315,7 +329,7 @@ class StartStopButton(QtWidgets.QPushButton):
             self.setText(self.start_text)
 
     @QtCore.pyqtSlot(bool)
-    def do_clicked(self, checked):
+    def do_clicked(self, checked=False):
         if checked:
             self.click_start.emit()
         else:

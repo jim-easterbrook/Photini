@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,7 +31,8 @@ import appdirs
 import keyring
 
 from photini.metadata import Metadata
-from photini.pyqt import Busy, Qt, QtCore, QtGui, QtWidgets, StartStopButton
+from photini.pyqt import (
+    Busy, Qt, QtCore, QtGui, QtWidgets, safe_slot, StartStopButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -96,7 +97,7 @@ class UploadWorker(QtCore.QObject):
             self.fileobj.close()
             self.fileobj = None
 
-    @QtCore.pyqtSlot(object, object)
+    @safe_slot(object, object)
     def upload_file(self, image, convert):
         if not self.session.permitted('write'):
             self.upload_file_done.emit(image, 'not permitted')
@@ -169,7 +170,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     def tr(self, *arg, **kw):
         return QtCore.QCoreApplication.translate('PhotiniUploader', *arg, **kw)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def shutdown(self):
         if self.upload_worker:
             self.upload_worker.abort_upload()
@@ -199,7 +200,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # enable or disable upload button
             self.new_selection(self.image_list.get_selected_images())
 
-    @QtCore.pyqtSlot(bool)
+    @safe_slot(bool)
     def connect_user(self, connect):
         if connect:
             self.authorise('read')
@@ -322,7 +323,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return self.convert_to_jpeg
         return None
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def stop_upload(self):
         if self.upload_worker:
             # invoke worker method in this thread as worker thread is busy
@@ -330,7 +331,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # reset GUI
             self.upload_file_done(None, '')
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def start_upload(self):
         if not self.image_list.unsaved_files_dialog(with_discard=False):
             self.upload_button.setChecked(False)
@@ -369,7 +370,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         QtWidgets.QApplication.processEvents()
         self.upload_file.emit(image, convert)
 
-    @QtCore.pyqtSlot(object, str)
+    @safe_slot(object, str)
     def upload_file_done(self, image, error):
         if error:
             dialog = QtWidgets.QMessageBox(self)
@@ -436,7 +437,7 @@ then enter the verification code:""").format(info_text))
         with Busy():
             return self.session.get_access_token(auth_code, level)
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def new_selection(self, selection):
         self.upload_button.setEnabled(
             self.upload_button.isChecked() or (

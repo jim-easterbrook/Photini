@@ -20,12 +20,15 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+import logging
 import math
 import re
 
 from photini.metadata import DateTime, LensSpec
 from photini.pyqt import (multiple, multiple_values, Qt, QtCore, QtGui,
-                          QtWidgets, Slider, SquareButton)
+                          QtWidgets, safe_slot, Slider, SquareButton)
+
+logger = logging.getLogger(__name__)
 
 # 'constant' used by some widgets to indicate they've been set to '<multiple>'
 MULTI = 'multi'
@@ -42,7 +45,7 @@ class DropdownEdit(QtWidgets.QComboBox):
         self.setItemData(2, 0, Qt.UserRole - 1)
         self.currentIndexChanged.connect(self._new_value)
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def _new_value(self, index):
         if index >= 0:
             self.new_value.emit()
@@ -199,7 +202,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.clearMinimumDateTime()
             self.setDateTime(values[0])
 
-    @QtCore.pyqtSlot(int)
+    @safe_slot(int)
     def set_precision(self, value):
         if value != self.precision:
             self.precision = value
@@ -329,15 +332,15 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.time_zone.setEnabled(enabled)
         self.precision.setEnabled(enabled)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_precision(self):
         self.new_value.emit((MULTI, self.precision.value(), MULTI))
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_datetime(self):
         self.new_value.emit(self.get_value())
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_time_zone(self):
         self.new_value.emit((MULTI, MULTI, self.time_zone.get_value()))
 
@@ -376,22 +379,22 @@ class OffsetWidget(QtWidgets.QWidget):
         self.offset.editingFinished.connect(self.new_value)
         self.time_zone.editingFinished.connect(self.new_value)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_value(self):
         value = self.offset.time()
         value = (value.hour(), value.minute(), value.second(),
                  self.time_zone.get_value())
         self.config_store.set('technical', 'offset', str(value))
 
-    @QtCore.pyqtSlot()
-    def add(self):
+    @safe_slot(bool)
+    def add(self, checked=False):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
         self.apply_offset.emit(offset, self.time_zone.get_value())
 
-    @QtCore.pyqtSlot()
-    def sub(self):
+    @safe_slot(bool)
+    def sub(self, checked=False):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
@@ -696,23 +699,23 @@ class Technical(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(object)
+    @safe_slot(object)
     def new_date_taken(self, value):
         self._new_date_value('taken', value)
         if self.link_widget['taken', 'digitised'].isChecked():
             self.new_date_digitised(value)
 
-    @QtCore.pyqtSlot(object)
+    @safe_slot(object)
     def new_date_digitised(self, value):
         self._new_date_value('digitised', value)
         if self.link_widget['digitised', 'modified'].isChecked():
             self.new_date_modified(value)
 
-    @QtCore.pyqtSlot(object)
+    @safe_slot(object)
     def new_date_modified(self, value):
         self._new_date_value('modified', value)
 
-    @QtCore.pyqtSlot(timedelta, object)
+    @safe_slot(timedelta, object)
     def apply_offset(self, offset, tz_offset):
         for image in self.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
@@ -736,24 +739,24 @@ class Technical(QtWidgets.QWidget):
             if self.link_widget['digitised', 'modified'].isChecked():
                 self._update_datetime('modified')
 
-    @QtCore.pyqtSlot()
-    def new_link_digitised(self):
+    @safe_slot(bool)
+    def new_link_digitised(self, checked=False):
         if self.link_widget['taken', 'digitised'].isChecked():
             self.date_widget['digitised'].set_enabled(False)
             self.new_date_digitised(self.date_widget['taken'].get_value())
         else:
             self.date_widget['digitised'].set_enabled(True)
 
-    @QtCore.pyqtSlot()
-    def new_link_modified(self):
+    @safe_slot(bool)
+    def new_link_modified(self, checked=False):
         if self.link_widget['digitised', 'modified'].isChecked():
             self.date_widget['modified'].set_enabled(False)
             self.new_date_modified(self.date_widget['digitised'].get_value())
         else:
             self.date_widget['modified'].set_enabled(True)
 
-    @QtCore.pyqtSlot()
-    def new_orientation(self):
+    @safe_slot(bool)
+    def new_orientation(self, checked=False):
         value = self.widgets['orientation'].get_value()
         if value is None:
             # multiple or blank value
@@ -766,7 +769,7 @@ class Technical(QtWidgets.QWidget):
             image.load_thumbnail()
         self._update_orientation()
 
-    @QtCore.pyqtSlot(QtCore.QPoint)
+    @safe_slot(QtCore.QPoint)
     def remove_lens_model(self, pos):
         current_model = self.widgets['lens_model'].get_value()
         menu = QtWidgets.QMenu()
@@ -787,7 +790,7 @@ class Technical(QtWidgets.QWidget):
         self.lens_data.delete_model(model)
         self.widgets['lens_model'].remove_item(model)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_lens_model(self):
         value = self.widgets['lens_model'].get_value()
         if value is None:
@@ -816,14 +819,14 @@ class Technical(QtWidgets.QWidget):
         if self.widgets['lens_model'].findText(model) < 0:
             self.widgets['lens_model'].add_item(model, model)
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_aperture(self):
         if not self.widgets['aperture'].is_multiple():
             value = self.widgets['aperture'].get_value()
             for image in self.image_list.get_selected_images():
                 image.metadata.aperture = value
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_focal_length(self):
         if not self.widgets['focal_length'].is_multiple():
             fl = self.widgets['focal_length'].get_value()
@@ -836,7 +839,7 @@ class Technical(QtWidgets.QWidget):
             self._update_focal_length()
             self._update_focal_length_35()
 
-    @QtCore.pyqtSlot()
+    @safe_slot()
     def new_focal_length_35(self):
         if not self.widgets['focal_length_35'].is_multiple():
             fl_35 = self.widgets['focal_length_35'].get_value()
@@ -1090,7 +1093,7 @@ class Technical(QtWidgets.QWidget):
             return int((float(value) * crop_factor) + 0.5)
         return md.focal_length_35
 
-    @QtCore.pyqtSlot(list)
+    @safe_slot(list)
     def new_selection(self, selection):
         if not selection:
             self.setEnabled(False)
