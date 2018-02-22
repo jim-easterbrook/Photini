@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 from collections import namedtuple
+import logging
 import re
 
 import six
@@ -76,6 +77,8 @@ if style:
     QtWidgets.QApplication.setStyle(style)
 config.save()
 del config, style
+
+logger = logging.getLogger(__name__)
 
 qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
