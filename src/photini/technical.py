@@ -1067,8 +1067,10 @@ class Technical(QtWidgets.QWidget):
         if md.camera_model and not crop_factor:
             crop_factor = eval(self.config_store.get(
                 'crop factor', md.camera_model, 'None'))
-        if not crop_factor and all((md.dimension_x, md.dimension_y,
-                                    md.resolution_x, md.resolution_y)):
+        if not crop_factor and (md.resolution_x and md.resolution_x > 0 and
+                                md.resolution_y and md.resolution_y > 0 and
+                                md.dimension_x and md.dimension_x > 0 and
+                                md.dimension_y and md.dimension_y > 0):
             # calculate from image size and resolution
             w = md.dimension_x / md.resolution_x
             h = md.dimension_y / md.resolution_y
