@@ -597,8 +597,8 @@ class ImageList(QtWidgets.QWidget):
         result = result.isoformat() + image.path
         return result
 
-    @safe_slot()
-    def _new_sort_order(self):
+    @safe_slot(bool)
+    def _new_sort_order(self, checked=False):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
 
@@ -734,9 +734,9 @@ class ImageList(QtWidgets.QWidget):
             idx = 0
         self.select_image(self.images[idx], extend_selection=extend_selection)
 
-    @safe_slot()
-    def _new_thumb_size(self):
-        self.thumb_size = self.size_slider.value() * 20
+    @safe_slot(int)
+    def _new_thumb_size(self, value):
+        self.thumb_size = value * 20
         self.app.config_store.set('controls', 'thumb_size', str(self.thumb_size))
         for image in self.images:
             image.set_thumb_size(self.thumb_size)
