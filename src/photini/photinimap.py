@@ -316,7 +316,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.see_selection()
 
     @safe_slot(bool)
-    def initialise(self, checked):
+    def initialise(self, checked=False):
         page = '''
 <!DOCTYPE html>
 <html>
@@ -454,8 +454,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
-    @safe_slot()
-    def swap_locations(self):
+    @safe_slot(bool)
+    def swap_locations(self, checked=False):
         for image in self.image_list.get_selected_images():
             image.metadata.location_taken, image.metadata.location_shown = (
                 image.metadata.location_shown, image.metadata.location_taken)
@@ -593,8 +593,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.auto_location.setEnabled(False)
         self.block_timer.start()
 
-    @safe_slot()
-    def get_address(self):
+    @safe_slot(bool)
+    def get_address(self, checked=False):
         coords = self.coords.get_value().replace(' ', '')
         address = self.reverse_geocode(coords)
         if not address:
