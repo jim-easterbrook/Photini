@@ -142,8 +142,8 @@ class OpenStreetMap(PhotiniMap):
         if not results:
             return None
         address = results[0]['components']
-        for key in ('postcode', 'road_reference', 'road_reference_intl',
-                    'state_code', '_type'):
+        for key in ('political_union', 'postcode', 'road_reference',
+                    'road_reference_intl', 'state_code', '_type'):
             if key in address:
                 del address[key]
         if 'country_code' in address:
