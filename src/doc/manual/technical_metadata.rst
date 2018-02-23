@@ -33,7 +33,8 @@ The time zone records how many hours & minutes offset from UTC (or GMT) the loca
 
 .. image:: ../images/screenshot_102.png
 
-The ``Adjust times`` field allows a constant offset to be applied to the time stamps of several pictures at once.
+The ``Adjust times`` field allows a constant offset to be applied to the ``taken`` time stamps of several pictures at once.
+(The other time stamps are also adjusted if the ``link ...`` boxes are checked.)
 This can be useful if you are in a different time zone to your camera's setting or you forgot to set your camera's clock before a day's shooting!
 Set the required offset hours, minutes & seconds, then use the ``+`` or ``-`` button to add or subtract that amount from each selected picture's timestamp.
 
@@ -61,7 +62,7 @@ Image display programs should rotate or reflect the image according to the orien
 The ``Lens model`` dropdown list allows you to change the lens specification stored in the image metadata.
 This should usually be left blank for cameras with non-removable lenses, but may be useful if you have an SLR that you use with lenses that its electronics doesn't recognise.
 
-Lens details already in a photograph's metadata are automatically added to the list when the photograph is loaded.
+Lens details already in a photograph's metadata are automatically added to the dropdown list when the photograph is loaded.
 If your camera doesn't record the details of some lenses you can add them by selecting ``<define new lens>`` from the dropdown list.
 
 .. image:: ../images/screenshot_105.png
@@ -73,7 +74,7 @@ Only the ``Model name`` and ``Minimum focal length`` are required.
 .. image:: ../images/screenshot_106.png
 
 The data you enter is stored in the Photini configuration file so you can easily apply it to images in future by selecting the lens you have defined from the dropdown list.
-To remove a lens from the list right-click on it to bring up its context menu.
+To remove a lens from the list right-click on the list to bring up its context menu.
 This includes options to delete any lens but the one currently in use.
 
 .. image:: ../images/screenshot_107.png
