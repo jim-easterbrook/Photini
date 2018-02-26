@@ -19,6 +19,8 @@
 from __future__ import unicode_literals
 
 import ctypes
+import os
+import site
 import sys
 
 if sys.platform == 'win32':
