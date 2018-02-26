@@ -532,9 +532,19 @@ class PhotiniMap(QtWidgets.QSplitter):
     def new_selection(self, selection):
         self.coords.setEnabled(bool(selection))
         self.location_info.setEnabled(bool(selection))
-        for marker_id, images in self.marker_images.items():
-            self.JavaScript('enableMarker({:d},{:d})'.format(
-                marker_id, any([x.selected for x in images])))
+        for marker_id, images in list(self.marker_images.items()):
+            selected = False
+            for image in list(images):
+                if image.metadata.latlong:
+                    selected = selected or image.selected
+                else:
+                    images.remove(image)
+            if images:
+                self.JavaScript(
+                    'enableMarker({:d},{:d})'.format(marker_id, selected))
+            else:
+                self.JavaScript('delMarker({:d})'.format(marker_id))
+                del self.marker_images[marker_id]
         self.display_coords()
         self.display_location()
         self.see_selection()
