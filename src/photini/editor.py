@@ -44,11 +44,12 @@ try:
     from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
+from photini.gi import gi_version
 from photini.googlemap import GoogleMap
 from photini.imagelist import ImageList
 from photini.importer import Importer
 from photini.loggerwindow import LoggerWindow
-from photini.metadata import debug_metadata, gexiv2_version
+from photini.metadata import debug_metadata
 from photini.openstreetmap import OpenStreetMap
 try:
     from photini.picasa import PicasaUploader
@@ -391,7 +392,7 @@ def main(argv=None):
     # parse remaining arguments
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
-    version += '\n  ' + gexiv2_version
+    version += '\n  ' + gi_version
     version += '\n  PyQt {}, Qt {}, using {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
         ('QtWebKit', 'QtWebEngine')[using_qtwebengine])

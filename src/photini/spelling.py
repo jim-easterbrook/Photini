@@ -28,22 +28,10 @@ import re
 import site
 import sys
 
-try:
-    import pgi
-    pgi.install_as_gi()
-except ImportError:
-    pass
-import gi
-try:
-    gi.require_version('Gspell', '1')
-except ValueError:
-    pass
+from photini.gi import Gspell, using_pgi
+from photini.pyqt import Qt, QtCore, QtGui, QtWidgets, safe_slot
+
 spelling_version = None
-try:
-    from gi.repository import Gspell
-    spelling_version = 'Gspell ' + Gspell._version
-except ImportError:
-    Gspell = None
 
 if not Gspell:
     # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
@@ -51,12 +39,6 @@ if not Gspell:
     if sys.platform == 'win32':
         # disable PyEnchant's forced use of its bundled DLLs
         sys.platform = 'win32x'
-        # add gnome DLLs to PATH
-        for name in site.getsitepackages():
-            gnome_path = os.path.join(name, 'gnome')
-            if os.path.isdir(gnome_path) and gnome_path not in os.environ['PATH']:
-                os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
-                break
     try:
         import enchant
         spelling_version = 'enchant ' + enchant.__version__
@@ -74,8 +56,6 @@ if not Gspell:
                 if os.path.isdir(dict_path):
                     enchant.set_param('enchant.myspell.dictionary.path', dict_path)
                     break
-
-from photini.pyqt import Qt, QtCore, QtGui, QtWidgets, safe_slot
 
 logger = logging.getLogger(__name__)
 
@@ -158,8 +138,8 @@ class SpellCheck(QtCore.QObject):
             if isinstance(suggestions, list):
                 # probably using PyGObject
                 return suggestions
-            if hasattr(suggestions, 'length'):
-                # probably using pgi
+            if using_pgi and hasattr(suggestions, 'length'):
+                # convert pgi.clib.glib.GSListPtr to Python list
                 result = []
                 for i in range(suggestions.length):
                     c_str = ctypes.c_char_p(suggestions.nth_data(i))

@@ -26,42 +26,15 @@ import locale
 import logging
 import math
 import os
-import re
-import site
 import sys
 
-if sys.platform == 'win32':
-    # add gnome DLLs to PATH before importing GExiv2
-    for name in site.getsitepackages():
-        gnome_path = os.path.join(name, 'gnome')
-        if os.path.isdir(gnome_path) and gnome_path not in os.environ['PATH']:
-            os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
-            break
-
-try:
-    import pgi
-    pgi.install_as_gi()
-    using_pgi = True
-except ImportError:
-    using_pgi = False
-import gi
-for gexiv2_vsn in ('0.10', '0.4'):
-    try:
-        gi.require_version('GExiv2', gexiv2_vsn)
-        break
-    except ValueError:
-        pass
-from gi.repository import GLib, GObject, GExiv2
 import six
 
 from photini import __version__
+from photini.gi import GLib, GObject, GExiv2, using_pgi
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
-
-gexiv2_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
-    ('PyGI', 'pgi')[using_pgi], gi.__version__, GExiv2.MAJOR_VERSION,
-    GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION, GObject._version)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
