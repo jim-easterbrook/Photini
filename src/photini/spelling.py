@@ -21,14 +21,13 @@
 
 from __future__ import unicode_literals
 
-import ctypes
 import logging
 import os
 import re
 import site
 import sys
 
-from photini.gi import Gspell, using_pgi
+from photini.gi import Gspell, GSListPtr_to_list
 from photini.pyqt import Qt, QtCore, QtGui, QtWidgets, safe_slot
 
 spelling_version = None
@@ -127,24 +126,15 @@ class SpellCheck(QtCore.QObject):
             return True
         if Gspell:
             return self.dict.check_word(word, -1)
-        elif enchant:
+        if enchant:
             return self.dict.check(word)
+        return True
 
     def suggest(self, word):
         if self.check(word):
             return []
         if Gspell:
-            suggestions = self.dict.get_suggestions(word, -1)
-            if isinstance(suggestions, list):
-                # probably using PyGObject
-                return suggestions
-            if using_pgi and hasattr(suggestions, 'length'):
-                # convert pgi.clib.glib.GSListPtr to Python list
-                result = []
-                for i in range(suggestions.length):
-                    c_str = ctypes.c_char_p(suggestions.nth_data(i))
-                    result.append(c_str.value.decode('utf_8'))
-                return result
-            return []
-        elif enchant:
+            return GSListPtr_to_list(self.dict.get_suggestions(word, -1))
+        if enchant:
             return self.dict.suggest(word)
+        return []

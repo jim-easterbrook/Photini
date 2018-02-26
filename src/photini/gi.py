@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+import ctypes
 import sys
 
 if sys.platform == 'win32':
@@ -59,3 +60,15 @@ gi_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
     GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION, GObject._version)
 if Gspell:
     gi_version += ', Gspell {}'.format(Gspell._version)
+
+def GSListPtr_to_list(value):
+    if isinstance(value, list):
+        return value
+    if using_pgi and hasattr(value, 'length'):
+        # convert pgi.clib.glib.GSListPtr to Python list
+        result = []
+        for i in range(value.length):
+            c_str = ctypes.c_char_p(value.nth_data(i))
+            result.append(c_str.value.decode('utf_8'))
+        return result
+    return []
