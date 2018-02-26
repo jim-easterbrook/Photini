@@ -28,7 +28,7 @@ import site
 import sys
 
 from photini.gi import Gspell, GSListPtr_to_list
-from photini.pyqt import Qt, QtCore, QtGui, QtWidgets, safe_slot
+from photini.pyqt import QtCore, QtWidgets, safe_slot
 
 spelling_version = None
 
@@ -65,7 +65,7 @@ class SpellCheck(QtCore.QObject):
         super(SpellCheck, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.enable(eval(self.config_store.get('spelling', 'enabled', 'True')))
-        self.set_dict(self.config_store.get('spelling', 'language'))
+        self.set_language(self.config_store.get('spelling', 'language'))
 
     @staticmethod
     def available_languages():
@@ -97,11 +97,7 @@ class SpellCheck(QtCore.QObject):
         self.config_store.set('spelling', 'enabled', str(self.enabled))
         self.new_dict.emit()
 
-    @safe_slot(QtWidgets.QAction)
-    def set_language(self, action):
-        self.set_dict(action.data())
-
-    def set_dict(self, code):
+    def set_language(self, code):
         if code:
             logger.debug('Setting dictionary %s', code)
         self.dict = None

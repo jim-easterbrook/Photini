@@ -225,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
             language_action.setData(code)
             language_action.setActionGroup(language_group)
             language_menu.addAction(language_action)
-        language_group.triggered.connect(self.app.spell_check.set_language)
+        language_group.triggered.connect(self.set_language)
         spelling_menu.addMenu(language_menu)
         # help menu
         help_menu = self.menuBar().addMenu(self.tr('Help'))
@@ -307,6 +307,10 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
+
+    @safe_slot(QtWidgets.QAction)
+    def set_language(self, action):
+        self.app.spell_check.set_language(action.data())
 
     @safe_slot(bool)
     def about(self, checked=False):
