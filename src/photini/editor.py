@@ -57,7 +57,7 @@ except ImportError:
 from photini.pyqt import (
     Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     safe_slot, using_qtwebengine)
-from photini.spelling import enchant_version, SpellCheck
+from photini.spelling import SpellCheck, spelling_version
 from photini.technical import Technical
 from photini import __version__, build
 
@@ -215,10 +215,13 @@ class MainWindow(QtWidgets.QMainWindow):
         language_menu.setEnabled(bool(languages))
         language_group = QtWidgets.QActionGroup(self)
         current_language = self.app.spell_check.current_language()
-        for tag in languages:
-            language_action = QtWidgets.QAction(tag, self)
+        for name, code in languages:
+            if name != code:
+                name = code + ': ' + name
+            language_action = QtWidgets.QAction(name, self)
             language_action.setCheckable(True)
-            language_action.setChecked(tag == current_language)
+            language_action.setChecked(code == current_language)
+            language_action.setData(code)
             language_action.setActionGroup(language_group)
             language_menu.addAction(language_action)
         language_group.triggered.connect(self.app.spell_check.set_language)
@@ -392,8 +395,8 @@ def main(argv=None):
     version += '\n  PyQt {}, Qt {}, using {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
         ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
-    if enchant_version:
-        version += '\n  ' + enchant_version
+    if spelling_version:
+        version += '\n  ' + spelling_version
     if FlickrUploader:
         from photini.flickr import flickr_version
         version += '\n  ' + flickr_version
