@@ -25,8 +25,8 @@ import math
 import re
 
 from photini.metadata import DateTime, LensSpec
-from photini.pyqt import (multiple, multiple_values, Qt, QtCore, QtGui,
-                          QtWidgets, safe_slot, Slider, SquareButton)
+from photini.pyqt import (catch_all, multiple, multiple_values, Qt, QtCore,
+                          QtGui, QtWidgets, safe_slot, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +160,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.setDateTime(self.dateTime())
         super(DateTimeEdit, self).focusInEvent(event)
 
+    @catch_all
     def contextMenuEvent(self, event):
         if len(self.values) <= 1:
             return super(DateTimeEdit, self).contextMenuEvent(event)
@@ -227,6 +228,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             self.setValue(0)
         super(TimeZoneWidget, self).focusInEvent(event)
 
+    @catch_all
     def contextMenuEvent(self, event):
         if len(self.values) <= 1:
             return super(TimeZoneWidget, self).contextMenuEvent(event)
@@ -247,6 +249,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             return QtGui.QValidator.Intermediate, text, pos
         return QtGui.QValidator.Invalid, text, pos
 
+    @catch_all
     def valueFromText(self, text):
         if not text.strip():
             return self.minimum()
@@ -260,6 +263,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             minutes = 0
         return (hours * 60) + minutes
 
+    @catch_all
     def textFromValue(self, value):
         if value < 0:
             sign = '-'

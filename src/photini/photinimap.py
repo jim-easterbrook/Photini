@@ -30,8 +30,9 @@ import six
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets, QtWebKitWidgets,
-    QtWidgets, safe_slot, set_symbol_font, SingleLineEdit, SquareButton)
+    catch_all, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
+    QtWebKitWidgets, QtWidgets, safe_slot, set_symbol_font, SingleLineEdit,
+    SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -51,15 +52,18 @@ class WebPage(WebPageBase):
 class WebView(WebViewBase):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
 
+    @catch_all
     def dragEnterEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(WebView, self).dragEnterEvent(event)
         event.acceptProposedAction()
 
+    @catch_all
     def dragMoveEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(WebView, self).dragMoveEvent(event)
 
+    @catch_all
     def dropEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(WebView, self).dropEvent(event)
@@ -288,6 +292,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
 
+    @catch_all
     def closeEvent(self, event):
         if QtWebEngineWidgets:
             self.web_channel.deRegisterObject(self.call_handler)

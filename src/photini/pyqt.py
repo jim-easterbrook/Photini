@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-17  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -97,6 +97,15 @@ def safe_slot(*args):
 
     return decorator
 
+# decorator for other methods that logs any exception raised
+def catch_all(func):
+    def wrapper(*args):
+        try:
+            func(*args)
+        except Exception as ex:
+            logger.exception(ex)
+    return wrapper
+
 def image_types():
     result = [
         'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
@@ -157,6 +166,7 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
         self.check = self.spell_check.check
         self.suggest = self.spell_check.suggest
 
+    @catch_all
     def highlightBlock(self, text):
         if not text:
             return
@@ -190,6 +200,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 self.setPlaceholderText('')
         super(MultiLineEdit, self).keyPressEvent(event)
 
+    @catch_all
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
         suggestion_group = QtWidgets.QActionGroup(menu)

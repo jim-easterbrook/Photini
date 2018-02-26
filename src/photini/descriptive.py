@@ -26,7 +26,7 @@ import logging
 import six
 
 from photini.pyqt import (
-    multiple_values, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
+    catch_all, multiple_values, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
     qt_version_info, safe_slot, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,7 @@ class LineEdit(QtWidgets.QLineEdit):
         self._is_multiple = False
         self.get_value = self.text
 
+    @catch_all
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
         suggestion_group = QtWidgets.QActionGroup(menu)

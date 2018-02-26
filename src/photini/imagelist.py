@@ -41,7 +41,7 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
+    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
     safe_slot, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
@@ -221,6 +221,7 @@ class Image(QtWidgets.QFrame):
             # reload thumbnail
             self.load_thumbnail()
 
+    @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.tr('Reload metadata'), self.reload_metadata)
@@ -228,6 +229,7 @@ class Image(QtWidgets.QFrame):
         menu.addAction(self.tr('Regenerate thumbnail'), self.regenerate_thumbnail)
         action = menu.exec_(event.globalPos())
 
+    @catch_all
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_pos = event.pos()
@@ -239,11 +241,13 @@ class Image(QtWidgets.QFrame):
             # don't clear selection in case we're about to drag
             self.image_list.select_image(self)
 
+    @catch_all
     def mouseReleaseEvent(self, event):
         if event.modifiers() not in (Qt.ControlModifier, Qt.ShiftModifier):
             # clear any multiple selection
             self.image_list.select_image(self)
 
+    @catch_all
     def mouseMoveEvent(self, event):
         if not self.image_list.drag_icon:
             return
@@ -282,6 +286,7 @@ class Image(QtWidgets.QFrame):
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(Qt.CopyAction)
 
+    @catch_all
     def mouseDoubleClickEvent(self, event):
         webbrowser.open(self.path)
 
@@ -359,6 +364,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
 
+    @catch_all
     def dropEvent(self, event):
         file_list = []
         for uri in event.mimeData().urls():
@@ -366,6 +372,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         if file_list:
             self.dropped_images.emit(file_list)
 
+    @catch_all
     def dragEnterEvent(self, event):
         if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
@@ -525,6 +532,7 @@ class ImageList(QtWidgets.QWidget):
     def get_images(self):
         return self.images
 
+    @catch_all
     def mousePressEvent(self, event):
         if self.scroll_area.underMouse():
             self._clear_selection()

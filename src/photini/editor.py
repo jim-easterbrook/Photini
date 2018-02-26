@@ -56,7 +56,7 @@ try:
 except ImportError:
     PicasaUploader = None
 from photini.pyqt import (
-    Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
+    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     safe_slot, using_qtwebengine)
 from photini.spelling import SpellCheck, spelling_version
 from photini.technical import Technical
@@ -294,6 +294,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def close_all_files(self, checked=False):
         self.image_list.close_files(True)
 
+    @catch_all
     def closeEvent(self, event):
         for n in range(self.tabs.count()):
             if self.tabs.widget(n).do_not_close():
@@ -363,6 +364,7 @@ details click the 'show details' button.</p>
     def new_metadata(self, unsaved_data):
         self.save_action.setEnabled(unsaved_data)
 
+    @catch_all
     def resizeEvent(self, event):
         size = self.width(), self.height()
         self.app.config_store.set('main_window', 'size', str(size))
