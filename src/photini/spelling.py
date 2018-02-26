@@ -31,9 +31,8 @@ import sys
 try:
     import pgi
     pgi.install_as_gi()
-    using_pgi = True
 except ImportError:
-    using_pgi = False
+    pass
 import gi
 try:
     gi.require_version('Gspell', '1')
@@ -41,14 +40,10 @@ except ValueError:
     pass
 spelling_version = None
 try:
-    from gi.repository import GLib, Gspell
+    from gi.repository import Gspell
     spelling_version = 'Gspell ' + Gspell._version
 except ImportError:
     Gspell = None
-
-from photini.pyqt import safe_slot
-
-logger = logging.getLogger(__name__)
 
 if not Gspell:
     # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
@@ -62,13 +57,11 @@ if not Gspell:
             if os.path.isdir(gnome_path) and gnome_path not in os.environ['PATH']:
                 os.environ['PATH'] = gnome_path + ';' + os.environ['PATH']
                 break
-
     try:
         import enchant
         spelling_version = 'enchant ' + enchant.__version__
     except ImportError:
         enchant = None
-
     if sys.platform == 'win32x':
         # reset sys.platform
         sys.platform = 'win32'
@@ -82,7 +75,9 @@ if not Gspell:
                     enchant.set_param('enchant.myspell.dictionary.path', dict_path)
                     break
 
-from photini.pyqt import Qt, QtCore, QtGui, QtWidgets
+from photini.pyqt import Qt, QtCore, QtGui, QtWidgets, safe_slot
+
+logger = logging.getLogger(__name__)
 
 class SpellCheck(QtCore.QObject):
     new_dict = QtCore.pyqtSignal()
@@ -151,7 +146,7 @@ class SpellCheck(QtCore.QObject):
         if not (word and self.enabled and self.dict):
             return True
         if Gspell:
-            return self.dict.check_word(word, len(word.encode('utf_8')))
+            return self.dict.check_word(word, -1)
         elif enchant:
             return self.dict.check(word)
 
@@ -159,14 +154,17 @@ class SpellCheck(QtCore.QObject):
         if self.check(word):
             return []
         if Gspell:
-            suggestions = self.dict.get_suggestions(word, len(word.encode('utf_8')))
-            if using_pgi:
+            suggestions = self.dict.get_suggestions(word, -1)
+            if isinstance(suggestions, list):
+                # probably using PyGObject
+                return suggestions
+            if hasattr(suggestions, 'length'):
+                # probably using pgi
                 result = []
                 for i in range(suggestions.length):
                     c_str = ctypes.c_char_p(suggestions.nth_data(i))
                     result.append(c_str.value.decode('utf_8'))
                 return result
-            else:
-                return suggestions
+            return []
         elif enchant:
             return self.dict.suggest(word)
