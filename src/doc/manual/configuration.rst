@@ -39,6 +39,10 @@ Windows programs don't share spell checking dictionaries as easily as on Linux.
 I think the easiest way to install an extra language is to copy the dictionary files from another application such as LibreOffice_.
 Search the program's files for ``.dic`` files, e.g. ``C:\Program Files\LibreOffice\share\extensions\dict-en\en_ZA.dic``, then check any accompanying licence or copyright information before copying all the related files (e.g. ``en_ZA.dic``, ``en_ZA.aff``, and ``README_en_ZA.txt``) to Photini's dictionary folder, e.g. ``C:\Program Files (x86)\Photini\python-3.6.3\Lib\site-packages\gnome\share\enchant\myspell``.
 
+You may be able to find a suitable dictionary to download directly.
+There is a list of ispell dictionaries at https://www.cs.hmc.edu/~geoff/ispell-dictionaries.html that might help.
+To install one of these dictionaries, unpack the archive file (if necessary) and copy the ``.aff`` and ``.dic`` files to the Photini ``site-packages\gnome\share\enchant\myspell`` folder.
+
 .. _configuration-pyqt:
 
 PyQt options
