@@ -337,7 +337,7 @@ setup(name = 'Photini',
           'flickr'   : ['flickrapi >= 2.0', 'keyring >= 7.0'],
           'google'   : ['requests-oauthlib >= 0.4', 'keyring >= 7.0'],
           'importer' : ['gphoto2 >= 0.10'],
-          'spelling' : ['pyenchant >= 1.6'],
+          'spelling' : [],
           },
       zip_safe = False,
       )

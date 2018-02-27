@@ -138,7 +138,7 @@ The system package manager names will probably have ``python-`` or ``python3-`` 
 ============================  =================
 Feature                       Dependencies
 ============================  =================
-Spell check                   pyenchant_ 1.6+
+Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
 Google Photos upload          keyring_ 7.0+, `requests-oauthlib`_ 0.4+
 Facebook upload               keyring_ 7.0+, Pillow_ 2.0+,
@@ -208,6 +208,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _flickrapi:         https://stuvel.eu/flickrapi/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
+.. _Gspell:            https://wiki.gnome.org/Projects/gspell
 .. _keyring:           https://keyring.readthedocs.io/
 .. _NumPy:             http://www.numpy.org/
 .. _OpenCV:            http://opencv.org/

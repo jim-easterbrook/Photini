@@ -22,9 +22,7 @@
 from __future__ import unicode_literals
 
 import logging
-import os
 import re
-import site
 import sys
 
 from photini.gi import Gspell, GSListPtr_to_list
@@ -46,15 +44,6 @@ if not Gspell:
     if sys.platform == 'win32x':
         # reset sys.platform
         sys.platform = 'win32'
-        # using PyGObject's copy of libenchant means it won't find the
-        # dictionaries installed with PyEnchant
-        if enchant:
-            for name in site.getsitepackages():
-                dict_path = os.path.join(
-                    name, 'enchant', 'share', 'enchant', 'myspell')
-                if os.path.isdir(dict_path):
-                    enchant.set_param('enchant.myspell.dictionary.path', dict_path)
-                    break
 
 logger = logging.getLogger(__name__)
 

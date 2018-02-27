@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-17  Jim Easterbrook.
+   Copyright (C)  2012-18  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Configuration
@@ -16,7 +16,7 @@ The ``copyright text`` entry has place-holders where the photograph's "taken" ye
 You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
 
 The next items adjust how Photini uses "sidecar" files and IPTC metadata.
-The `Metadata Working Group <http://www.metadataworkinggroup.org/specs/>`_ recommends that IPTC metadata is not written to files unless already present.
+The `Metadata Working Group`_ recommends that IPTC metadata is not written to files unless already present.
 Photini has an option to always write IPTC metadata.
 You may need this if you use some other software that reads IPTC but not Exif or XMP.
 
@@ -33,7 +33,11 @@ Spell checking
 
 The ``Spelling`` menu allows you to enable or disable spell checking on Photini's text fields, and to select the language dictionary to use.
 The available languages depend on what dictionaries you have installed.
-See the `PyEnchant documentation <http://pythonhosted.org/pyenchant/tutorial.html#adding-language-dictionaries>`_ for details of how to add dictionaries.
+Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate Aspell dictionary.
+
+Windows programs don't share spell checking dictionaries as easily as on Linux.
+I think the easiest way to install an extra language is to copy the dictionary files from another application such as LibreOffice_.
+Search the program's files for ``.dic`` files, e.g. ``C:\Program Files\LibreOffice\share\extensions\dict-en\en_ZA.dic``, then check any accompanying licence or copyright information before copying all the related files (e.g. ``en_ZA.dic``, ``en_ZA.aff``, and ``README_en_ZA.txt``) to Photini's dictionary folder, e.g. ``C:\Program Files (x86)\Photini\python-3.6.3\Lib\site-packages\gnome\share\enchant\myspell``.
 
 .. _configuration-pyqt:
 
@@ -104,3 +108,6 @@ Note that after doing this you can not set a different style on the command line
    using_qtwebengine = auto
    native_dialog = True
    style = breeze
+
+.. _LibreOffice:            https://www.libreoffice.org/
+.. _Metadata Working Group: http://www.metadataworkinggroup.org/specs/
