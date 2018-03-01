@@ -602,7 +602,7 @@ class ImageList(QtWidgets.QWidget):
             result = result.datetime
         # convert result to string and append path so photos with same
         # time stamp get sorted consistently
-        result = result.isoformat() + image.path
+        result = result.strftime('%Y%m%d%H%M%S%f') + image.path
         return result
 
     @safe_slot(bool)
