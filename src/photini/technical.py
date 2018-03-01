@@ -249,7 +249,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             return QtGui.QValidator.Intermediate, text, pos
         return QtGui.QValidator.Invalid, text, pos
 
-    @catch_all
     def valueFromText(self, text):
         if not text.strip():
             return self.minimum()
@@ -263,7 +262,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             minutes = 0
         return (hours * 60) + minutes
 
-    @catch_all
     def textFromValue(self, value):
         if value < 0:
             sign = '-'
