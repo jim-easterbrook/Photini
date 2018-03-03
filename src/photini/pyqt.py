@@ -20,6 +20,7 @@
 from __future__ import unicode_literals
 
 from collections import namedtuple
+from functools import wraps
 import logging
 import re
 
@@ -88,6 +89,7 @@ qt_version_info = namedtuple(
 def safe_slot(*args):
     @QtCore.pyqtSlot(*args)
     def decorator(func):
+        @wraps(func)
         def wrapper(*args):
             try:
                 func(*args)
@@ -99,6 +101,7 @@ def safe_slot(*args):
 
 # decorator for other methods that logs any exception raised
 def catch_all(func):
+    @wraps(func)
     def wrapper(*args):
         try:
             func(*args)
