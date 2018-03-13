@@ -26,6 +26,7 @@ import locale
 import logging
 import math
 import os
+import re
 import sys
 
 import six
@@ -52,7 +53,6 @@ def debug_metadata():
 for prefix, name in (
         ('exifEX',  'http://cipa.jp/exif/1.0/'),
         ('video',   'http://www.video/'),
-        ('xapGImg', 'http://ns.adobe.com/xap/1.0/g/img/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
 
@@ -447,7 +447,10 @@ class DateTime(MD_Dict):
         if handler.is_iptc_tag(tag):
             return cls.from_iptc(file_value)
         if tag.startswith('Xmp.video'):
-            time_stamp = int(file_value)
+            try:
+                time_stamp = int(file_value)
+            except ValueError:
+                return None
             if time_stamp == 0:
                 return None
             # assume date should be in range 1970 to 2034
