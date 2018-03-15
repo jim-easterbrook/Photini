@@ -66,7 +66,7 @@ def safe_fraction(value):
 
 def decode_UCS2(value):
     value = bytearray(map(int, value.split()))
-    return value.decode('utf_16').strip('\x00')
+    return value.decode('utf_16', errors='ignore').strip('\x00')
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
