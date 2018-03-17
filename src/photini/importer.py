@@ -40,98 +40,127 @@ from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
 logger = logging.getLogger(__name__)
 
 class FolderSource(object):
+    image_types = ['.' + x for x in image_types() + video_types()]
+
     def __init__(self, root):
         self.root = root
-        self.image_types = ['.' + x for x in image_types() + video_types()]
+
+    def get_file_data(self):
         if not os.path.isdir(self.root):
-            raise RuntimeError('Folder not readable')
-
-    def close(self):
-        pass
-
-    def list_files(self):
-        result = []
+            return None
+        file_list = []
         for root, dirs, files in os.walk(self.root):
             for name in files:
                 base, ext = os.path.splitext(name)
                 if ext.lower() in self.image_types:
-                    result.append(os.path.join(root, name))
-        return result
+                    file_list.append(os.path.join(root, name))
+        file_data = {}
+        for path in file_list:
+            metadata = Metadata(path)
+            timestamp = metadata.date_taken
+            if not timestamp:
+                timestamp = metadata.date_digitised
+            if not timestamp:
+                timestamp = metadata.date_modified
+            if not timestamp:
+                # use file date as last resort
+                timestamp = datetime.fromtimestamp(os.path.getmtime(path))
+            else:
+                timestamp = timestamp.datetime
+            name = os.path.basename(path)
+            file_data[name] = {
+                'camera'    : metadata.camera_model,
+                'path'      : path,
+                'name'      : name,
+                'timestamp' : timestamp,
+                }
+        return file_data
 
-    def get_file_info(self, path):
-        metadata = Metadata(path)
-        timestamp = metadata.date_taken
-        if not timestamp:
-            timestamp = metadata.date_digitised
-        if not timestamp:
-            timestamp = metadata.date_modified
-        if not timestamp:
-            # use file date as last resort
-            timestamp = datetime.fromtimestamp(os.path.getmtime(path))
-        else:
-            timestamp = timestamp.datetime
-        folder, name = os.path.split(path)
-        return {
-            'camera'    : metadata.camera_model,
-            'path'      : path,
-            'name'      : name,
-            'timestamp' : timestamp,
-            }
-
-    def copy_file(self, info, dest):
-        shutil.copy2(info['path'], dest)
-        return None
+    def copy_files(self, info_list):
+        for info in info_list:
+            if not os.path.isfile(info['path']):
+                yield None
+            dest_path = info['dest_path']
+            dest_dir = os.path.dirname(dest_path)
+            if not os.path.isdir(dest_dir):
+                os.makedirs(dest_dir)
+            shutil.copy2(info['path'], dest_path)
+            yield info
 
 
 class CameraSource(object):
     def __init__(self, model, port_name):
         self.model = model
         self.port_name = port_name
-        self.context = gp.Context()
+
+    @contextmanager
+    def session(self):
         # initialise camera
-        self.camera = gp.Camera()
+        camera = gp.Camera()
         # search ports for camera port name
         port_info_list = gp.PortInfoList()
         port_info_list.load()
         idx = port_info_list.lookup_path(self.port_name)
-        self.camera.set_port_info(port_info_list[idx])
-        self.camera.init(self.context)
+        camera.set_port_info(port_info_list[idx])
+        camera.init()
         # check camera is the right model
-        if self.camera.get_abilities().model != self.model:
+        if camera.get_abilities().model != self.model:
             raise RuntimeError('Camera model mismatch')
+        yield camera
+        camera.exit()
 
-    def close(self):
-        # free camera
-        self.camera.exit(self.context)
-
-    def list_files(self, path='/'):
+    def _list_files(self, camera, path='/'):
         result = []
         # get files
-        for name, value in self.camera.folder_list_files(path, self.context):
+        for name, value in camera.folder_list_files(path):
             result.append(os.path.join(path, name))
         # get folders
         folders = []
-        for name, value in self.camera.folder_list_folders(path, self.context):
+        for name, value in camera.folder_list_folders(path):
             folders.append(name)
         # recurse over subfolders
         for name in folders:
-            result.extend(self.list_files(os.path.join(path, name)))
+            result.extend(self._list_files(camera, os.path.join(path, name)))
         return result
 
-    def get_file_info(self, path):
-        folder, name = os.path.split(path)
-        info = self.camera.file_get_info(str(folder), str(name), self.context)
-        timestamp = datetime.utcfromtimestamp(info.file.mtime)
-        return {
-            'camera'    : self.model,
-            'folder'    : folder,
-            'name'      : name,
-            'timestamp' : timestamp,
-            }
+    def get_file_data(self):
+        with self.session() as camera:
+            try:
+                file_list = self._list_files(camera)
+            except gp.GPhoto2Error:
+                # camera is no longer visible
+                return None
+            file_data = {}
+            for path in file_list:
+                folder, name = os.path.split(path)
+                try:
+                    info = camera.file_get_info(str(folder), str(name))
+                except gp.GPhoto2Error:
+                    return None
+                timestamp = datetime.utcfromtimestamp(info.file.mtime)
+                file_data[name] = {
+                    'camera'    : self.model,
+                    'folder'    : folder,
+                    'name'      : name,
+                    'timestamp' : timestamp,
+                    }
+        return file_data
 
-    def copy_file(self, info, dest):
-        return self.camera.file_get(
-            info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL, self.context)
+    def copy_files(self, info_list):
+        with self.session() as camera:
+            for info in info_list:
+                dest_path = info['dest_path']
+                dest_dir = os.path.dirname(dest_path)
+                if not os.path.isdir(dest_dir):
+                    os.makedirs(dest_dir)
+                try:
+                    camera_file = camera.file_get(
+                        info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL)
+                    camera_file.save(dest_path)
+                except gp.GPhoto2Error as ex:
+                    logger.error(str(ex))
+                    yield None
+                yield info
 
 
 def get_camera_list():
@@ -146,7 +175,7 @@ def get_camera_list():
 
 
 class NameMangler(QtCore.QObject):
-    number_parser = re.compile('\D*(\d+)')
+    number_parser = re.compile('(\d+)')
     new_example = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -170,9 +199,9 @@ class NameMangler(QtCore.QObject):
     def transform(self, file_data):
         name = file_data['name']
         subst = {'name': name}
-        match = self.number_parser.match(name)
-        if match:
-            subst['number'] = match.group(1)
+        numbers = self.number_parser.findall(name)
+        if numbers:
+            subst['number'] = numbers[-1]
         else:
             subst['number'] = ''
         subst['root'], subst['ext'] = os.path.splitext(name)
@@ -209,7 +238,7 @@ class Importer(QtWidgets.QWidget):
         self.nm = NameMangler()
         self.file_data = {}
         self.file_list = []
-        self.session_factory = None
+        self.source = None
         self.import_in_progress = False
         # source selector
         box = QtWidgets.QHBoxLayout()
@@ -271,15 +300,14 @@ class Importer(QtWidgets.QWidget):
 
     @safe_slot(int)
     def new_source(self, idx):
-        self.session_factory = None
+        self.source = None
         item_data = self.source_selector.itemData(idx)
         if callable(item_data):
             # a special 'source' that's actually a method to call
             (item_data)()
             return
         # select new source
-        (self.session_factory, self.session_params,
-             self.config_section) = item_data
+        self.source, self.config_section = item_data
         path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
@@ -312,7 +340,7 @@ class Importer(QtWidgets.QWidget):
 
     @safe_slot()
     def path_format_finished(self):
-        if self.session_factory:
+        if self.source:
             self.config_store.set(
                 self.config_section, 'path_format', self.nm.format_string)
         self.show_file_list()
@@ -333,12 +361,12 @@ class Importer(QtWidgets.QWidget):
         for model, port_name in get_camera_list():
             self.source_selector.addItem(
                 self.tr('camera: {0}').format(model),
-                (CameraSource, (model, port_name), 'importer ' + model))
+                (CameraSource(model, port_name), 'importer ' + model))
         for root in eval(self.config_store.get('importer', 'folders', '[]')):
             if os.path.isdir(root):
                 self.source_selector.addItem(
                     self.tr('folder: {0}').format(root),
-                    (FolderSource, (root,), 'importer folder ' + root))
+                    (FolderSource(root), 'importer folder ' + root))
         self.source_selector.addItem(self.tr('<add a folder>'), self.add_folder)
         # restore saved selection
         new_idx = -1
@@ -371,30 +399,14 @@ class Importer(QtWidgets.QWidget):
     def new_selection(self, selection):
         pass
 
-    @contextmanager
-    def session(self):
-        session = (self.session_factory)(*self.session_params)
-        yield session
-        session.close()
-
     def list_files(self):
         file_data = {}
-        if self.session_factory:
-            with self.session() as session:
-                with Busy():
-                    try:
-                        file_list = session.list_files()
-                    except gp.GPhoto2Error:
-                        # camera is no longer visible
-                        self._fail()
-                        return
-                    for path in file_list:
-                        try:
-                            info = session.get_file_info(path)
-                        except gp.GPhoto2Error:
-                            self._fail()
-                            return
-                        file_data[info['name']] = info
+        if self.source:
+            with Busy():
+                file_data = self.source.get_file_data()
+                if file_data is None:
+                    self._fail()
+                    return
         self._new_file_list(file_data)
 
     def _fail(self):
@@ -457,7 +469,7 @@ class Importer(QtWidgets.QWidget):
     @safe_slot(bool)
     def select_new(self, checked=False):
         since = datetime.min
-        if self.session_factory:
+        if self.source:
             since = self.config_store.get(
                 self.config_section, 'last_transfer', since.isoformat(' '))
             if len(since) > 19:
@@ -499,34 +511,19 @@ class Importer(QtWidgets.QWidget):
             name = item.data(Qt.UserRole)
             copy_list.append(self.file_data[name])
         last_item = None, datetime.min
-        with self.session() as session:
-            with Busy():
-                for item in copy_list:
-                    dest_path = item['dest_path']
-                    dest_dir = os.path.dirname(dest_path)
-                    if self.abort_copy():
-                        break
-                    if not os.path.isdir(dest_dir):
-                        os.makedirs(dest_dir)
-                    try:
-                        camera_file = session.copy_file(item, dest_path)
-                        if self.abort_copy():
-                            break
-                        if camera_file:
-                            camera_file.save(dest_path)
-                    except gp.GPhoto2Error as ex:
-                        self.logger.error(str(ex))
-                        self._fail()
-                        break
-                    timestamp = item['timestamp']
-                    if last_item[1] < timestamp:
-                        last_item = dest_path, timestamp
-                    if self.abort_copy():
-                        break
-                    self.image_list.open_file(dest_path)
-                    if self.abort_copy():
-                        break
-                    QtCore.QCoreApplication.flush()
+        with Busy():
+            for item in self.source.copy_files(copy_list):
+                if not item:
+                    self._fail()
+                    break
+                if self.abort_copy():
+                    break
+                self.image_list.open_file(item['dest_path'])
+                if self.abort_copy():
+                    break
+                if last_item[1] < item['timestamp']:
+                    last_item = item['dest_path'], item['timestamp']
+                QtCore.QCoreApplication.flush()
         if last_item[0]:
             self.config_store.set(self.config_section, 'last_transfer',
                                   last_item[1].isoformat(' '))
