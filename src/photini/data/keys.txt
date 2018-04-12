@@ -35,3 +35,6 @@ app_id = MTY3NTczNDYwMzA0NzA1
 
 [openstreetmap]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
+
+[gpxmap]
+api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
