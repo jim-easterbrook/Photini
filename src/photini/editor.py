@@ -24,7 +24,6 @@ from __future__ import unicode_literals
 import six
 import logging
 from optparse import OptionParser
-import os
 import sys
 from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
@@ -51,6 +50,7 @@ from photini.importer import Importer
 from photini.loggerwindow import LoggerWindow
 from photini.metadata import debug_metadata
 from photini.openstreetmap import OpenStreetMap
+from photini.gpxmap import GpxMap
 try:
     from photini.picasa import PicasaUploader
 except ImportError:
@@ -146,6 +146,9 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('Map (&OSM)'),
              'key'   : 'map_osm',
              'class' : OpenStreetMap},
+            {'name'  : self.tr('GPX (&OSM)'),
+             'key'   : 'map_osm',
+             'class' : GpxMap},
             {'name'  : self.tr('&Flickr upload'),
              'key'   : 'flickr_upload',
              'class' : FlickrUploader},
@@ -429,5 +432,10 @@ def main(argv=None):
     main.show()
     return app.exec_()
 
+def no_abort(a, b, c):
+    print("no_abort", a, b, c)
+    sys.__excepthook__(a, b, c)
+
 if __name__ == "__main__":
+    sys.excepthook = no_abort
     sys.exit(main())

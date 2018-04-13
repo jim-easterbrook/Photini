@@ -1,0 +1,43 @@
+* https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[AsciiDoc]
+* http://www.exiv2.org/tags.html[Exif tags]
+* https://github.com/jim-easterbrook/Photini[Photini github]
+* http://photini.readthedocs.io/en/latest/[Photini manual]
+* http://macappstore.org/gexiv2/[gexif2]
+* https://stackoverflow.com/questions/18119618/importerror-no-module-named-gi-repository-mac-os-x[pygobject, gi]
+* https://stackoverflow.com/questions/44213921/python-3-installing-gi-package-with-pip[pip install pgi]
+* https://anaconda.org/anaconda/pyqt[conda install -c anaconda pyqt]
+
+
+```
+$ photini --version
+Photini 2018.2.0, build 1028 (c6281ac)
+  Python 3.6.3 |Anaconda, Inc.| (default, Dec  5 2017, 17:30:25)
+[GCC 4.2.1 Compatible Clang 4.0.1 (tags/RELEASE_401/final)]
+  pgi 0.0.11.1, GExiv2 0.10.8, GObject 2.0
+  PyQt 5.9.2, Qt 5.9.4, using QtWebEngine
+  available styles: Windows, Fusion, Macintosh
+```
+
+```
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
+brew install gexiv2
+brew install pygobject3
+conda install pip
+pip install —upgrade pip
+pip install pgi
+# conda install -c conda-forge gobject-introspection
+conda install -c anaconda pyqt
+conda install appdirs
+sudo pip install photini
+photini
+```
+
+Fix for
+
+```
+ImportError: cannot import name GExiv2, introspection typelib not found
+```
+
+```
+cp /usr/local/lib/girepository-1.0/GExiv2-0.10.typelib /anaconda/lib/girepository-1.0/
+```
