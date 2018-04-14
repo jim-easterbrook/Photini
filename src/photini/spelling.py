@@ -91,7 +91,8 @@ class SpellCheck(QtCore.QObject):
             logger.debug('Setting dictionary %s', code)
         self.dict = None
         if Gspell:
-            self.dict = Gspell.Checker.new(Gspell.Language.lookup(code))
+            if code:
+                self.dict = Gspell.Checker.new(Gspell.Language.lookup(code))
         elif enchant:
             if code and enchant.dict_exists(code):
                 self.dict = enchant.Dict(code)
