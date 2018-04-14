@@ -43,12 +43,19 @@ You may be able to find a suitable dictionary to download directly.
 There is a list of ispell dictionaries at https://www.cs.hmc.edu/~geoff/ispell-dictionaries.html that might help.
 To install one of these dictionaries, unpack the archive file (if necessary) and copy the ``.aff`` and ``.dic`` files to the Photini ``site-packages\gnome\share\enchant\myspell`` folder.
 
+Configuration file location
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Photini stores its configuration in a file called ``editor.ini``.
+The default location of this file is ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
+If you'd like to store it elsewhere (e.g. on a networked drive so you can share configuration between several computers) you can set an environment variable ``PHOTINI_CONFIG`` to the directory you'd like to use.
+
 .. _configuration-pyqt:
 
 PyQt options
 ^^^^^^^^^^^^
 
-Photini's configuration file ``$HOME/.config/photini/editor.ini`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\editor.ini`` (Windows) has options to force use of PyQt4 instead of PyQt5 and use of QtWebKit instead of QtWebEngine.
+The configuration file includes options to force use of PyQt4 instead of PyQt5 and use of QtWebKit instead of QtWebEngine.
 These may be useful if either of these components on your computer is incompatible with Photini.
 There are so many versions of PyQt that it is impossible to test Photini with every one.
 

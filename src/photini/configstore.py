@@ -35,7 +35,10 @@ class BaseConfigStore(object):
         super(BaseConfigStore, self).__init__(*arg, **kw)
         self.dirty = False
         self.config = RawConfigParser()
-        if hasattr(appdirs, 'user_config_dir'):
+        config_dir = os.environ.get('PHOTINI_CONFIG')
+        if config_dir:
+            config_dir = os.path.expanduser(config_dir)
+        elif hasattr(appdirs, 'user_config_dir'):
             config_dir = appdirs.user_config_dir('photini')
         else:
             config_dir = appdirs.user_data_dir('photini')
