@@ -98,6 +98,7 @@ class Image(QtWidgets.QFrame):
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
 
+    @safe_slot()
     def reload_metadata(self):
         self.metadata = Metadata(self.path)
         self.metadata.unsaved.connect(self.show_status)
@@ -105,8 +106,9 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
         self.image_list.emit_selection()
 
+    @safe_slot()
     def save_metadata(self):
-        self.image_list.save_files(images=[self])
+        self.image_list._save_files(images=[self])
 
     def get_video_frame(self):
         if not cv2:
@@ -150,6 +152,7 @@ class Image(QtWidgets.QFrame):
         qt_im._data = np_image
         return qt_im
 
+    @safe_slot()
     def regenerate_thumbnail(self):
         with Busy():
             # get Qt image first
@@ -649,8 +652,11 @@ class ImageList(QtWidgets.QWidget):
         self.emit_selection()
         self.image_list_changed.emit()
 
-    @safe_slot()
-    def save_files(self, images=[]):
+    @safe_slot(bool)
+    def save_files(self, checked):
+        self._save_files(self.images)
+
+    def _save_files(self, images=[]):
         if_mode = eval(self.app.config_store.get('files', 'image', 'True'))
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
         force_iptc = eval(
@@ -695,7 +701,7 @@ class ImageList(QtWidgets.QWidget):
         dialog.setDefaultButton(QtWidgets.QMessageBox.Save)
         result = dialog.exec_()
         if result == QtWidgets.QMessageBox.Save:
-            self.save_files()
+            self._save_files()
             return True
         return result == QtWidgets.QMessageBox.Discard
 
