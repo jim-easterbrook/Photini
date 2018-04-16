@@ -85,29 +85,32 @@ qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
         map(int, QtCore.QT_VERSION_STR.split('.')))
 
+
 # replacement pyqtSlot decorator that logs any exception raised
-def safe_slot(*args):
-    @QtCore.pyqtSlot(*args)
-    def decorator(func):
+def safe_slot(*types):
+    @QtCore.pyqtSlot(*types)
+    def catch_all(func):
         @wraps(func)
-        def wrapper(*args):
+        def wrapper(*args, **kwds):
             try:
-                func(*args)
+                func(*args, **kwds)
             except Exception as ex:
                 logger.exception(ex)
         return wrapper
 
-    return decorator
+    return catch_all
+
 
 # decorator for other methods that logs any exception raised
 def catch_all(func):
     @wraps(func)
-    def wrapper(*args):
+    def wrapper(*args, **kwds):
         try:
-            func(*args)
+            func(*args, **kwds)
         except Exception as ex:
             logger.exception(ex)
     return wrapper
+
 
 def image_types():
     result = [
