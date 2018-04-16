@@ -21,7 +21,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from photini.pyqt import Qt, QtWidgets, safe_slot, SingleLineEdit
+from photini.pyqt import catch_all, Qt, QtCore, QtWidgets, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,9 @@ class EditSettings(QtWidgets.QDialog):
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def new_write_if(self, checked=False):
         if_mode = self.write_if.isChecked()
         self.sc_auto.setEnabled(if_mode)
@@ -103,7 +105,8 @@ class EditSettings(QtWidgets.QDialog):
         if not if_mode:
             self.sc_always.setChecked(True)
 
-    @safe_slot(QtWidgets.QAbstractButton)
+    @QtCore.pyqtSlot(QtWidgets.QAbstractButton)
+    @catch_all
     def button_clicked(self, button):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()

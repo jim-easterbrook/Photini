@@ -27,7 +27,7 @@ import six
 
 from photini.pyqt import (
     catch_all, multiple_values, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
-    qt_version_info, safe_slot, SingleLineEdit, Slider)
+    qt_version_info, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,8 @@ class RatingWidget(QtWidgets.QWidget):
         # adopt child signal
         self.editingFinished = self.slider.editing_finished
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def slider_changed(self, value):
         if value == -2:
             self.display.clear()
@@ -213,7 +214,8 @@ class KeywordsEditor(QtWidgets.QWidget):
             'descriptive', 'keywords', six.text_type(dict(self.league_table)))
         self.update_favourites()
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def add_favourite(self, idx):
         if idx <= 0:
             return
@@ -272,38 +274,47 @@ class Descriptive(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_title(self):
         self._new_value('title')
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_description(self):
         self._new_value('description')
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_keywords(self):
         self._new_value('keywords')
         self.widgets['keywords'].update_league_table(
             self.image_list.get_selected_images())
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_rating(self):
         self._new_value('rating')
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_copyright(self):
         self._new_value('copyright')
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def new_creator(self):
         self._new_value('creator')
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def auto_copyright(self, checked=False):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
@@ -328,7 +339,9 @@ class Descriptive(QtWidgets.QWidget):
             image.metadata.copyright = value
         self._update_widget('copyright')
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def auto_creator(self, checked=False):
         name = self.config_store.get('user', 'creator_name')
         if not name:
@@ -365,7 +378,8 @@ class Descriptive(QtWidgets.QWidget):
         else:
             self.widgets[key].set_value(values[0])
 
-    @safe_slot(list)
+    @QtCore.pyqtSlot(list)
+    @catch_all
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:

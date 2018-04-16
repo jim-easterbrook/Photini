@@ -29,7 +29,7 @@ import six
 
 from photini.photinimap import PhotiniMap
 from photini.pyqt import (
-    Busy, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets, safe_slot)
+    Busy, catch_all, QtCore, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets)
 
 logger = logging.getLogger(__name__)
 
@@ -72,8 +72,9 @@ class BingMap(PhotiniMap):
         layout.addWidget(widget)
         return layout
 
-    @safe_slot(bool)
-    def load_tou(self, checked=False):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou(self):
         webbrowser.open_new(
             'http://www.microsoft.com/maps/assets/docs/terms.aspx')
 

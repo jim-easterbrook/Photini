@@ -37,8 +37,8 @@ from requests_toolbelt import MultipartEncoder
 
 from photini.configstore import key_store
 from photini.pyqt import (
-    Busy, MultiLineEdit, Qt, QtCore, QtGui, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, safe_slot, SingleLineEdit)
+    Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui, QtWebEngineWidgets,
+    QtWebKitWidgets, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -306,7 +306,8 @@ class FacebookLoginPopup(QtWidgets.QDialog):
     def load_url(self, auth_url):
         self.browser.load(QtCore.QUrl(auth_url))
 
-    @safe_slot(QtCore.QUrl)
+    @QtCore.pyqtSlot(QtCore.QUrl)
+    @catch_all
     def auth_url_changed(self, url):
         if url.path() != '/connect/login_success.html':
             return
@@ -519,7 +520,9 @@ class FacebookUploader(PhotiniUploader):
         self.select_album(
             self.upload_config.widgets['album_choose'].currentIndex())
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def new_album(self, checked=False):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Facebook album'))
@@ -570,7 +573,8 @@ class FacebookUploader(PhotiniUploader):
             return
         self.get_album_list(album_id=album['id'])
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def select_album(self, index):
         if not self.authorise('read'):
             self.refresh(force=True)

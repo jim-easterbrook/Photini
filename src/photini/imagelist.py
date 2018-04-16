@@ -42,7 +42,7 @@ except ImportError:
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
-    safe_slot, set_symbol_font, video_types)
+    set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -98,7 +98,8 @@ class Image(QtWidgets.QFrame):
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def reload_metadata(self):
         self.metadata = Metadata(self.path)
         self.metadata.unsaved.connect(self.show_status)
@@ -106,7 +107,8 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
         self.image_list.emit_selection()
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def save_metadata(self):
         self.image_list._save_files(images=[self])
 
@@ -152,7 +154,8 @@ class Image(QtWidgets.QFrame):
         qt_im._data = np_image
         return qt_im
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def regenerate_thumbnail(self):
         with Busy():
             # get Qt image first
@@ -293,7 +296,8 @@ class Image(QtWidgets.QFrame):
     def mouseDoubleClickEvent(self, event):
         webbrowser.open(self.path)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
@@ -543,7 +547,8 @@ class ImageList(QtWidgets.QWidget):
             self.selection_anchor = None
             self.emit_selection()
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def open_files(self, checked):
         args = [
             self,
@@ -570,7 +575,8 @@ class ImageList(QtWidgets.QWidget):
             path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
-    @safe_slot(list)
+    @QtCore.pyqtSlot(list)
+    @catch_all
     def open_file_list(self, path_list):
         with Busy():
             for path in path_list:
@@ -608,7 +614,9 @@ class ImageList(QtWidgets.QWidget):
         result = result.strftime('%Y%m%d%H%M%S%f') + image.path
         return result
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def _new_sort_order(self, checked=False):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
@@ -652,7 +660,8 @@ class ImageList(QtWidgets.QWidget):
         self.emit_selection()
         self.image_list_changed.emit()
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def save_files(self, checked):
         self._save_files(self.images)
 
@@ -748,7 +757,8 @@ class ImageList(QtWidgets.QWidget):
             idx = 0
         self.select_image(self.images[idx], extend_selection=extend_selection)
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def _new_thumb_size(self, value):
         self.thumb_size = value * 20
         self.app.config_store.set('controls', 'thumb_size', str(self.thumb_size))

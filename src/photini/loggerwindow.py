@@ -24,7 +24,7 @@ import logging.handlers
 import os
 import sys
 
-from photini.pyqt import qt_version_info, QtCore, QtWidgets, safe_slot
+from photini.pyqt import catch_all, qt_version_info, QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,8 @@ class LoggerWindow(QtWidgets.QWidget):
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, self.tr('Save log file'),

@@ -28,7 +28,7 @@ import requests
 import six
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, Qt, QtWidgets, qt_version_info, safe_slot
+from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, qt_version_info
 
 logger = logging.getLogger(__name__)
 
@@ -77,20 +77,24 @@ class OpenStreetMap(PhotiniMap):
         layout.addWidget(widget, 1, 1)
         return layout
 
-    @safe_slot(bool)
-    def load_tou_opencage(self, checke0):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_opencage(self):
         webbrowser.open_new('https://geocoder.opencagedata.com/')
 
-    @safe_slot(bool)
-    def load_tou_leaflet(self, checke0):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_leaflet(self):
         webbrowser.open_new('http://leafletjs.com/')
 
-    @safe_slot(bool)
-    def load_tou_osm(self, checke0):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_osm(self):
         webbrowser.open_new('http://www.openstreetmap.org/copyright')
 
-    @safe_slot(bool)
-    def load_tou_tiles(self, checke0):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_tiles(self):
         webbrowser.open_new('https://carto.com/attribution')
 
     def do_geocode(self, params):

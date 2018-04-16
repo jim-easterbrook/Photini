@@ -28,7 +28,7 @@ import webbrowser
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, QtWidgets, safe_slot
+from photini.pyqt import Busy, catch_all, QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +66,9 @@ class GoogleMap(PhotiniMap):
         layout.addWidget(widget)
         return layout
 
-    @safe_slot(bool)
-    def load_tou(self, checked=False):
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou(self):
         webbrowser.open_new('http://www.google.com/help/terms_maps.html')
 
     def do_geocode(self, params):

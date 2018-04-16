@@ -86,22 +86,7 @@ qt_version_info = namedtuple(
         map(int, QtCore.QT_VERSION_STR.split('.')))
 
 
-# replacement pyqtSlot decorator that logs any exception raised
-def safe_slot(*types):
-    @QtCore.pyqtSlot(*types)
-    def catch_all(func):
-        @wraps(func)
-        def wrapper(*args, **kwds):
-            try:
-                func(*args, **kwds)
-            except Exception as ex:
-                logger.exception(ex)
-        return wrapper
-
-    return catch_all
-
-
-# decorator for other methods that logs any exception raised
+# decorator for methods called by Qt that logs any exception raised
 def catch_all(func):
     @wraps(func)
     def wrapper(*args, **kwds):

@@ -34,8 +34,8 @@ except ImportError:
     gp = None
 
 from photini.metadata import Metadata
-from photini.pyqt import (Busy, image_types, Qt, QtCore, QtGui, QtWidgets,
-                          safe_slot, StartStopButton, video_types)
+from photini.pyqt import (Busy, catch_all, image_types, Qt, QtCore, QtGui,
+                          QtWidgets, StartStopButton, video_types)
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +183,8 @@ class NameMangler(QtCore.QObject):
         self.example = None
         self.format_string = None
 
-    @safe_slot(str)
+    @QtCore.pyqtSlot(str)
+    @catch_all
     def new_format(self, format_string):
         self.format_string = format_string
         self.refresh_example()
@@ -298,7 +299,8 @@ class Importer(QtWidgets.QWidget):
         self.refresh()
         self.list_files()
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def new_source(self, idx):
         self.source = None
         item_data = self.source_selector.itemData(idx)
@@ -338,14 +340,16 @@ class Importer(QtWidgets.QWidget):
         idx = self.source_selector.count() - (1 + len(folders))
         self.source_selector.setCurrentIndex(idx)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def path_format_finished(self):
         if self.source:
             self.config_store.set(
                 self.config_section, 'path_format', self.nm.format_string)
         self.show_file_list()
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def refresh(self, checked=False):
         was_blocked = self.source_selector.blockSignals(True)
         # save current selection
@@ -418,7 +422,8 @@ class Importer(QtWidgets.QWidget):
         self.file_data = file_data
         self.sort_file_list()
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def sort_file_list(self):
         if eval(self.config_store.get('controls', 'sort_date', 'False')):
             self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
@@ -457,16 +462,21 @@ class Importer(QtWidgets.QWidget):
         self.file_list_widget.scrollToItem(
             first_active, QtWidgets.QAbstractItemView.PositionAtTop)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
         self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def select_all(self, checked=False):
         self.select_files(datetime.min)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def select_new(self, checked=False):
         since = datetime.min
         if self.source:
@@ -499,7 +509,8 @@ class Importer(QtWidgets.QWidget):
         self.file_list_widget.scrollToItem(
             first_active, QtWidgets.QAbstractItemView.PositionAtTop)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def copy_selected(self):
         if self.import_in_progress:
             # user has clicked while import is still cancelling

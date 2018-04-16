@@ -57,7 +57,7 @@ except ImportError:
     PicasaUploader = None
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
-    safe_slot, using_qtwebengine)
+    using_qtwebengine)
 from photini.spelling import SpellCheck, spelling_version
 from photini.technical import Technical
 from photini import __version__, build
@@ -89,7 +89,8 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         super(ConfigStore, self).remove_section(section)
         self.timer.start()
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def save(self):
         super(ConfigStore, self).save()
 
@@ -257,11 +258,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.initial_files:
             QtCore.QTimer.singleShot(0, self.open_initial_files)
 
-    @safe_slot()
+    @QtCore.pyqtSlot()
+    @catch_all
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def add_tabs(self, checked=False):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
@@ -282,15 +286,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def open_docs(self, checked=False):
         webbrowser.open_new('http://photini.readthedocs.io/')
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def close_files(self, checked=False):
         self.image_list.close_files(False)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def close_all_files(self, checked=False):
         self.image_list.close_files(True)
 
@@ -303,17 +313,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         super(MainWindow, self).closeEvent(event)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def edit_settings(self, checked=False):
         dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
 
-    @safe_slot(QtWidgets.QAction)
+    @QtCore.pyqtSlot(QtWidgets.QAction)
+    @catch_all
     def set_language(self, action):
         self.app.spell_check.set_language(action.data())
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def about(self, checked=False):
         text = self.tr("""
 <table width="100%"><tr>
@@ -342,12 +357,14 @@ details click the 'show details' button.</p>
         dialog.setDetailedText(licence.decode('utf-8'))
         dialog.exec_()
 
-    @safe_slot(int, int)
+    @QtCore.pyqtSlot(int, int)
+    @catch_all
     def new_split(self, pos, index):
         self.app.config_store.set(
             'main_window', 'split', str(self.central_widget.sizes()))
 
-    @safe_slot(int)
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
@@ -355,12 +372,14 @@ details click the 'show details' button.</p>
             current.refresh()
             self.image_list.emit_selection()
 
-    @safe_slot(list)
+    @QtCore.pyqtSlot(list)
+    @catch_all
     def new_selection(self, selection):
         self.close_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def new_metadata(self, unsaved_data):
         self.save_action.setEnabled(unsaved_data)
 

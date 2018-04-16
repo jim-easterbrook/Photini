@@ -26,7 +26,7 @@ import re
 import sys
 
 from photini.gi import Gspell, GSListPtr_to_list
-from photini.pyqt import QtCore, QtWidgets, safe_slot
+from photini.pyqt import catch_all, QtCore, QtWidgets
 
 spelling_version = None
 
@@ -80,7 +80,8 @@ class SpellCheck(QtCore.QObject):
             return self.dict.tag
         return ''
 
-    @safe_slot(bool)
+    @QtCore.pyqtSlot(bool)
+    @catch_all
     def enable(self, enabled):
         self.enabled = enabled and bool(Gspell or enchant)
         self.config_store.set('spelling', 'enabled', str(self.enabled))
