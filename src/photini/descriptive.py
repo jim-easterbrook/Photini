@@ -313,9 +313,8 @@ class Descriptive(QtWidgets.QWidget):
         self._new_value('creator')
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def auto_copyright(self, checked=False):
+    def auto_copyright(self):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
@@ -340,9 +339,8 @@ class Descriptive(QtWidgets.QWidget):
         self._update_widget('copyright')
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def auto_creator(self, checked=False):
+    def auto_creator(self):
         name = self.config_store.get('user', 'creator_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(

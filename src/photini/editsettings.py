@@ -96,9 +96,8 @@ class EditSettings(QtWidgets.QDialog):
         scroll_area.setWidget(panel)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_write_if(self, checked=False):
+    def new_write_if(self):
         if_mode = self.write_if.isChecked()
         self.sc_auto.setEnabled(if_mode)
         self.sc_delete.setEnabled(if_mode)

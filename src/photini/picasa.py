@@ -467,9 +467,9 @@ class PicasaUploader(PhotiniUploader):
         with Busy():
             self.set_current_album(self.current_album.id.text)
 
-##    @QtCore.pyqtSlot(bool)
+##    @QtCore.pyqtSlot()
 ##    @catch_all
-##    def new_album(self, checked=False):
+##    def new_album(self):
 ##        with Busy():
 ##            self.save_changes()
 ##            if not self.session.permitted('write'):
@@ -486,9 +486,9 @@ class PicasaUploader(PhotiniUploader):
 ##            self.upload_config.albums.addItem(album.title.text, album.id.text)
 ##            self.set_current_album(album.id.text)
 
-##    @QtCore.pyqtSlot(bool)
+##    @QtCore.pyqtSlot()
 ##    @catch_all
-##    def delete_album(self, checked=False):
+##    def delete_album(self):
 ##        album = self.current_album
 ##        if int(album.numphotos.text) > 0:
 ##            if QtWidgets.QMessageBox.question(

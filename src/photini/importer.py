@@ -348,9 +348,9 @@ class Importer(QtWidgets.QWidget):
                 self.config_section, 'path_format', self.nm.format_string)
         self.show_file_list()
 
-    @QtCore.pyqtSlot(bool)
+    @QtCore.pyqtSlot()
     @catch_all
-    def refresh(self, checked=False):
+    def refresh(self):
         was_blocked = self.source_selector.blockSignals(True)
         # save current selection
         idx = self.source_selector.currentIndex()
@@ -469,15 +469,13 @@ class Importer(QtWidgets.QWidget):
         self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def select_all(self, checked=False):
+    def select_all(self):
         self.select_files(datetime.min)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def select_new(self, checked=False):
+    def select_new(self):
         since = datetime.min
         if self.source:
             since = self.config_store.get(

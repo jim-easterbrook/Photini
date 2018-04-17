@@ -521,9 +521,8 @@ class FacebookUploader(PhotiniUploader):
             self.upload_config.widgets['album_choose'].currentIndex())
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_album(self, checked=False):
+    def new_album(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Facebook album'))
         dialog.setLayout(QtWidgets.QFormLayout())

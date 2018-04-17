@@ -615,9 +615,8 @@ class ImageList(QtWidgets.QWidget):
         return result
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def _new_sort_order(self, checked=False):
+    def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
 

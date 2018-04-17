@@ -324,7 +324,7 @@ class StartStopButton(QtWidgets.QPushButton):
             self.setText(self.start_text)
 
     @QtCore.pyqtSlot(bool)
-    def do_clicked(self, checked=False):
+    def do_clicked(self, checked):
         if checked:
             self.click_start.emit()
         else:

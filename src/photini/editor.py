@@ -245,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.setTabBar(QTabBar())
         self.tabs.setElideMode(Qt.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
-        self.add_tabs()
+        self.add_tabs(False)
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)
         size = self.central_widget.sizes()
@@ -263,10 +263,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
-    @QtCore.pyqtSlot()
     @QtCore.pyqtSlot(bool)
     @catch_all
-    def add_tabs(self, checked=False):
+    def add_tabs(self, checked):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
@@ -287,21 +286,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.new_tab(-1)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def open_docs(self, checked=False):
+    def open_docs(self):
         webbrowser.open_new('http://photini.readthedocs.io/')
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def close_files(self, checked=False):
+    def close_files(self):
         self.image_list.close_files(False)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def close_all_files(self, checked=False):
+    def close_all_files(self):
         self.image_list.close_files(True)
 
     @catch_all
@@ -314,9 +310,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).closeEvent(event)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def edit_settings(self, checked=False):
+    def edit_settings(self):
         dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
@@ -327,9 +322,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.spell_check.set_language(action.data())
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def about(self, checked=False):
+    def about(self):
         text = self.tr("""
 <table width="100%"><tr>
 <td align="center" width="70%">

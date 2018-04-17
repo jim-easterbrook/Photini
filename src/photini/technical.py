@@ -395,18 +395,16 @@ class OffsetWidget(QtWidgets.QWidget):
         self.config_store.set('technical', 'offset', str(value))
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def add(self, checked=False):
+    def add(self):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
         self.apply_offset.emit(offset, self.time_zone.get_value())
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def sub(self, checked=False):
+    def sub(self):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
@@ -756,9 +754,8 @@ class Technical(QtWidgets.QWidget):
                 self._update_datetime('modified')
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_link_digitised(self, checked=False):
+    def new_link_digitised(self):
         if self.link_widget['taken', 'digitised'].isChecked():
             self.date_widget['digitised'].set_enabled(False)
             self.new_date_digitised(self.date_widget['taken'].get_value())
@@ -766,9 +763,8 @@ class Technical(QtWidgets.QWidget):
             self.date_widget['digitised'].set_enabled(True)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_link_modified(self, checked=False):
+    def new_link_modified(self):
         if self.link_widget['digitised', 'modified'].isChecked():
             self.date_widget['modified'].set_enabled(False)
             self.new_date_modified(self.date_widget['digitised'].get_value())
@@ -776,9 +772,8 @@ class Technical(QtWidgets.QWidget):
             self.date_widget['modified'].set_enabled(True)
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_orientation(self, checked=False):
+    def new_orientation(self):
         value = self.widgets['orientation'].get_value()
         if value is None:
             # multiple or blank value

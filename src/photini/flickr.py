@@ -366,9 +366,8 @@ class FlickrUploader(PhotiniUploader):
         pass
 
     @QtCore.pyqtSlot()
-    @QtCore.pyqtSlot(bool)
     @catch_all
-    def new_set(self, checked=False):
+    def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Create new Flickr album'))
         dialog.setLayout(QtWidgets.QFormLayout())
