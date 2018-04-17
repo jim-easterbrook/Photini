@@ -113,13 +113,13 @@ class FacebookSession(UploaderSession):
     def get_album(self, album_id, fields):
         picture = None
         album = self.get(
-            'https://graph.facebook.com/v2.6/' + album_id,
+            'https://graph.facebook.com/' + album_id,
             params={'fields': fields})
         if not album:
             return {}, picture
         if 'cover_photo' in album:
             picture = self.get(
-                'https://graph.facebook.com/v2.6/' + album['cover_photo']['id'],
+                'https://graph.facebook.com/' + album['cover_photo']['id'],
                 params={'fields': 'picture'})
         if picture:
             picture = picture['picture']
@@ -262,7 +262,7 @@ class FacebookSession(UploaderSession):
                 fields['place'] = nearest['id']
         data = MultipartEncoder(fields=fields)
         headers = {'Content-Type' : data.content_type}
-        url = 'https://graph.facebook.com/v2.6/' + params['album_id'] + '/photos'
+        url = 'https://graph.facebook.com/' + params['album_id'] + '/photos'
         try:
             self.post(url, data=data, headers=headers)
         except Exception as ex:
