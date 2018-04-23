@@ -34,13 +34,13 @@ except ImportError:
     gp = None
 
 from photini.metadata import Metadata
-from photini.pyqt import (Busy, catch_all, image_types, Qt, QtCore, QtGui,
-                          QtWidgets, StartStopButton, video_types)
+from photini.pyqt import (Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
+                          QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
 
 class FolderSource(object):
-    image_types = ['.' + x for x in image_types() + video_types()]
+    image_types = ['.' + x for x in image_types_lower() + video_types_lower()]
 
     def __init__(self, root):
         self.root = root

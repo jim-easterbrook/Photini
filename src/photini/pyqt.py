@@ -97,7 +97,7 @@ def catch_all(func):
     return wrapper
 
 
-def image_types():
+def image_types_lower():
     result = [
         'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
         'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
@@ -112,8 +112,16 @@ def image_types():
             result.remove(ext)
     return result
 
-def video_types():
+def image_types():
+    lower = image_types_lower()
+    return lower + [x.upper() for x in lower] + [x.title() for x in lower]
+
+def video_types_lower():
     return ['3gp', 'avi', 'mp4', 'mpeg', 'mpg', 'mov', 'mts', 'qt', 'wmv']
+
+def video_types():
+    lower = video_types_lower()
+    return lower + [x.upper() for x in lower] + [x.title() for x in lower]
 
 def multiple():
     return QtCore.QCoreApplication.translate('Multiple', '<multiple>')
