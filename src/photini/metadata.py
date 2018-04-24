@@ -1177,7 +1177,7 @@ class Metadata(QtCore.QObject):
         'dimension_y'    : (('RA.WN', 'Exif.Image.ImageLength'),
                             ('RA.WN', 'Exif.Photo.PixelYDimension'),
                             ('RA.WN', 'Xmp.tiff.ImageLength'),
-                            ('RA.WN', 'Xmp.exif.PixelXDimension')),
+                            ('RA.WN', 'Xmp.exif.PixelYDimension')),
         'focal_length'   : (('RA.WA', 'Exif.Photo.FocalLength'),
                             ('RA.W0', 'Exif.Image.FocalLength'),
                             ('RA.WX', 'Xmp.exif.FocalLength')),
