@@ -1355,6 +1355,8 @@ class Metadata(QtCore.QObject):
             return
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self.create_side_car()
+            if self._sc and self._if:
+                self._sc.clone(self._if)
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         try:
