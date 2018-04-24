@@ -1418,12 +1418,11 @@ class Metadata(QtCore.QObject):
                 "%s has no attribute %s" % (self.__class__, name))
         # read data values
         values = []
-        for mode, tag in self._tag_list[name]:
-            if mode.split('.')[0] == 'RN':
+        for handler in self._sc, self._if:
+            if not handler:
                 continue
-            new_value = None
-            for handler in self._sc, self._if:
-                if not handler:
+            for mode, tag in self._tag_list[name]:
+                if mode.split('.')[0] == 'RN':
                     continue
                 try:
                     new_value = self._data_type[name].read(handler, tag)
@@ -1432,7 +1431,8 @@ class Metadata(QtCore.QObject):
                     continue
                 if new_value:
                     values.append((tag, new_value))
-                    break
+            if values:
+                break
         # choose result and merge in non-matching data so user can review it
         result = None
         if values:
