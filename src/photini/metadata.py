@@ -902,9 +902,11 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         return result
 
-    def get_string(self, tag):
+    def get_string(self, tag, no_infer=True):
         if isinstance(tag, tuple):
-            return list(map(self.get_string, tag))
+            return [self.get_string(x, no_infer=no_infer) for x in tag]
+        if no_infer and self._xmp_only and not self.is_xmp_tag(tag):
+            return None
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
             # get_tag_string is at no risk from non utf8 strings
@@ -918,9 +920,11 @@ class MetadataHandler(GExiv2.Metadata):
         # attempt to read raw data instead
         return self.get_raw(tag)
 
-    def get_multiple(self, tag):
+    def get_multiple(self, tag, no_infer=True):
         if isinstance(tag, tuple):
-            return list(map(self.get_multiple, tag))
+            return [self.get_multiple(x, no_infer=no_infer) for x in tag]
+        if no_infer and self._xmp_only and not self.is_xmp_tag(tag):
+            return None
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
             # get_tag_multiple is at no risk from non utf8 strings
@@ -1051,18 +1055,18 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
-            self.set_string(tag, other.get_string(tag))
-        if other.has_iptc():
-            # don't copy exiv2's invented IPTC tags from XMP file
-            for tag in other.get_iptc_tags():
-                self.set_multiple(tag, other.get_multiple(tag))
+            # allow exiv2 to infer Exif tags from XMP
+            self.set_string(tag, other.get_string(tag, no_infer=False))
+        for tag in other.get_iptc_tags():
+            # don't copy exiv2's inferred IPTC tags from XMP file
+            self.set_multiple(tag, other.get_multiple(tag))
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
             ns = tag.split('.')[1]
             if ns in ('exif', 'exifEX',
                       'tiff', 'aux') and self.get_supports_exif():
-                # exiv2 will already have supplied the equivalent Exiv tag
+                # exiv2 will already have supplied the equivalent Exif tag
                 pass
             elif self.get_tag_type(tag) == 'XmpText':
                 self.set_string(tag, other.get_string(tag))
