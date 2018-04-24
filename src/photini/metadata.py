@@ -1041,10 +1041,6 @@ class MetadataHandler(GExiv2.Metadata):
         # don't try to save to unwritable formats
         if not (self.get_supports_xmp() or self.get_supports_exif()):
             return False
-        # remove exiv2's synthesised non-XMP tags
-        if self._xmp_only:
-            self.clear_exif()
-            self.clear_iptc()
         try:
             self.save_file(self._path)
             if file_times:
@@ -1059,35 +1055,7 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
-            if self.get_supports_exif():
-                self.set_string(tag, other.get_string(tag))
-                continue
-            # copy Exif tag to XMP
-            pty = tag.split('.')[-1]
-            for ns in ('exif', 'exifEX', 'tiff', 'aux'):
-                xmp_tag = 'Xmp.' + ns + '.' + pty
-                if not self.get_tag_description(xmp_tag):
-                    continue
-                if pty in ('DateTimeOriginal', 'DateTimeDigitized', 'DateTime'):
-                    ss_tag = tag.replace('DateTime', 'SubSecTime')
-                    ss_tag = ss_tag.replace('Image', 'Photo')
-                    value = DateTime.from_exif((
-                        other.get_string(tag), other.get_string(ss_tag)))
-                    self.set_string(xmp_tag, value.to_xmp())
-                elif pty in ('ExifVersion', 'FlashpixVersion'):
-                    value = other.get_string(tag)
-                    value = map(chr, map(int, value.split()))
-                    self.set_string(xmp_tag, ''.join(value))
-                elif pty == 'GPSVersionID':
-                    value = other.get_string(tag).split()
-                    self.set_string(xmp_tag, '.'.join(value))
-                elif self.get_tag_type(xmp_tag) == 'XmpText':
-                    self.set_string(xmp_tag, other.get_string(tag))
-                else:
-                    self.set_multiple(xmp_tag, other.get_multiple(tag))
-                break
-            else:
-                logger.debug('not copied to XMP:' + tag)
+            self.set_string(tag, other.get_string(tag))
         for tag in other.get_iptc_tags():
             self.set_multiple(tag, other.get_multiple(tag))
         for tag in other.get_xmp_tags():
