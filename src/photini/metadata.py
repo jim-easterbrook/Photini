@@ -822,10 +822,6 @@ class MetadataHandler(GExiv2.Metadata):
         self.open_path(self._path)
         self._xmp_only = self.get_mime_type() in (
             'application/rdf+xml', 'application/postscript')
-        # remove exiv2's synthesised non-XMP tags
-        if self._xmp_only:
-            self.clear_exif()
-            self.clear_iptc()
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -1056,12 +1052,19 @@ class MetadataHandler(GExiv2.Metadata):
             if tag.startswith('Exif.Thumbnail'):
                 continue
             self.set_string(tag, other.get_string(tag))
-        for tag in other.get_iptc_tags():
-            self.set_multiple(tag, other.get_multiple(tag))
+        if other.has_iptc():
+            # don't copy exiv2's invented IPTC tags from XMP file
+            for tag in other.get_iptc_tags():
+                self.set_multiple(tag, other.get_multiple(tag))
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
-            if self.get_tag_type(tag) == 'XmpText':
+            ns = tag.split('.')[1]
+            if ns in ('exif', 'exifEX',
+                      'tiff', 'aux') and self.get_supports_exif():
+                # exiv2 will already have supplied the equivalent Exiv tag
+                pass
+            elif self.get_tag_type(tag) == 'XmpText':
                 self.set_string(tag, other.get_string(tag))
             else:
                 self.set_multiple(tag, other.get_multiple(tag))
