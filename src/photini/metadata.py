@@ -1330,6 +1330,8 @@ class Metadata(QtCore.QObject):
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         try:
+            if self._if and sc_mode == 'delete' and self._sc:
+                self._if.clone(self._sc)
             if self._sc:
                 # workaround for bug in exiv2 xmp timestamp altering
                 for name in ('date_digitised', 'date_modified', 'date_taken'):
@@ -1354,8 +1356,6 @@ class Metadata(QtCore.QObject):
                             handler.clear_value(tag)
                         else:
                             value.write(handler, tag)
-            if self._if and sc_mode == 'delete' and self._sc:
-                self._if.clone(self._sc)
             OK = False
             if self._if and if_mode:
                 OK = self._if.save(file_times)
