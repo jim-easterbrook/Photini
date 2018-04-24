@@ -1321,7 +1321,8 @@ class Metadata(QtCore.QObject):
             logger.exception(ex)
             self._sc = None
 
-    def save(self, if_mode, sc_mode, force_iptc, file_times):
+    def save(self, if_mode=True, sc_mode='auto',
+             force_iptc=False, file_times=None):
         if not self.dirty:
             return
         if (sc_mode == 'always' or not self._if) and not self._sc:
@@ -1369,7 +1370,8 @@ class Metadata(QtCore.QObject):
                             OK = False
                 if not OK and not self._sc:
                     # can't write to image so create side car
-                    self.save(False, 'always', force_iptc, file_times)
+                    self.save(if_mode=False, sc_mode='always',
+                              force_iptc=force_iptc, file_times=file_times)
                     return
             if sc_mode == 'delete' and self._sc and OK:
                 os.unlink(self._sc_path)

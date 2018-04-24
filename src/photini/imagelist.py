@@ -679,7 +679,9 @@ class ImageList(QtWidgets.QWidget):
                     file_times = image.file_times
                 else:
                     file_times = None
-                image.metadata.save(if_mode, sc_mode, force_iptc, file_times)
+                image.metadata.save(
+                    if_mode=if_mode, sc_mode=sc_mode,
+                    force_iptc=force_iptc, file_times=file_times)
         unsaved = False
         for image in self.images:
             if image.metadata.changed():
