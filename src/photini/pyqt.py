@@ -23,10 +23,18 @@ from collections import namedtuple
 from functools import wraps
 import logging
 import re
+import sys
 
 import six
 
 from photini.configstore import BaseConfigStore
+
+# workaround for Qt bug affecting QtWebEngine
+# https://bugreports.qt.io/browse/QTBUG-67537
+if sys.platform.startswith('linux'):
+    import ctypes
+    import ctypes.util
+    ctypes.CDLL(ctypes.util.find_library('GL'), ctypes.RTLD_GLOBAL)
 
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
