@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -25,7 +24,6 @@ import os
 import webbrowser
 
 import requests
-import six
 
 from photini.photinimap import PhotiniMap
 from photini.pyqt import (
@@ -33,14 +31,23 @@ from photini.pyqt import (
 
 logger = logging.getLogger(__name__)
 
+
+if QtWebEngineWidgets:
+    WebSettings = QtWebEngineWidgets.QWebEngineSettings
+else:
+    WebSettings = QtWebKit.QWebSettings
+
+
 class BingMap(PhotiniMap):
     def __init__(self, *arg, **kw):
         super(BingMap, self).__init__(*arg, **kw)
-        if not QtWebEngineWidgets:
+        if QtWebEngineWidgets:
             self.map.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-            self.map.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+                WebSettings.Accelerated2dCanvasEnabled, False)
+        self.map.settings().setAttribute(
+            WebSettings.LocalContentCanAccessRemoteUrls, True)
+        self.map.settings().setAttribute(
+            WebSettings.LocalContentCanAccessFileUrls, True)
 
     def get_page_elements(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
