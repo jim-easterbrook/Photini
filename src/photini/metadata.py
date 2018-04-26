@@ -1056,7 +1056,13 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
-            self.set_string(tag, other.get_string(tag))
+            # ignore inferred datetime values the exiv2 gets wrong
+            # (I think it's adding the local timezone offset)
+            if tag in ('Exif.Image.DateTime', 'Exif.Photo.DateTimeOriginal',
+                       'Exif.Photo.DateTimeDigitized'):
+                self.clear_tag(tag)
+            else:
+                self.set_string(tag, other.get_string(tag))
         # copy all XMP tags except inferred Exif tags
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
