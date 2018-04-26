@@ -1050,24 +1050,19 @@ class MetadataHandler(GExiv2.Metadata):
             return False
         return True
 
-    def clone(self, other):
-        # copy from other to self, ignoring thumbnails
+    def merge_sc(self, other):
+        # merge sidecar data into image file data, ignoring thumbnails
         # allow exiv2 to infer Exif tags from XMP
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
             self.set_string(tag, other.get_string(tag))
-        # don't copy exiv2's inferred IPTC tags from XMP file
-        if other.has_iptc():
-            for tag in other.get_iptc_tags():
-                self.set_multiple(tag, other.get_multiple(tag))
         # copy all XMP tags except inferred Exif tags
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
             ns = tag.split('.')[1]
-            if ns in ('exif', 'exifEX',
-                      'tiff', 'aux') and self.get_supports_exif():
+            if ns in ('exif', 'exifEX', 'tiff', 'aux'):
                 # exiv2 will already have supplied the equivalent Exif tag
                 pass
             elif self.get_tag_type(tag) == 'XmpText':
@@ -1298,6 +1293,17 @@ class Metadata(QtCore.QObject):
             logger.exception(ex)
         self.dirty = False
 
+    @classmethod
+    def clone(cls, path, other, *args, **kw):
+        if other._if:
+            # use exiv2 to clone image file metadata
+            other._if.save_file(path)
+        self = cls(path, *args, **kw)
+        if other._sc and self._if:
+            # merge in sidecar data
+            self._if.merge_sc(other._sc)
+        return self
+
     def _find_side_car(self, path):
         for base in (os.path.splitext(path)[0], path):
             for ext in ('.xmp', '.XMP'):
@@ -1337,7 +1343,7 @@ class Metadata(QtCore.QObject):
         self.character_set = 'utf_8'
         try:
             if self._if and sc_mode == 'delete' and self._sc:
-                self._if.clone(self._sc)
+                self._if.merge_sc(self._sc)
             if self._sc:
                 # workaround for bug in exiv2 xmp timestamp altering
                 for name in ('date_digitised', 'date_modified', 'date_taken'):
@@ -1397,24 +1403,6 @@ class Metadata(QtCore.QObject):
         if self._if:
             return self._if.get_mime_type()
         return None
-
-    def copy(self, other):
-        # copy from other to self, sidecar over-rides image
-        try:
-            if self._sc:
-                if other._if:
-                    self._sc.clone(other._if)
-                if other._sc:
-                    self._sc.clone(other._sc)
-            if self._if:
-                if other._if:
-                    self._if.clone(other._if)
-                if other._sc:
-                    self._if.clone(other._sc)
-        except Exception as ex:
-            logger.exception(ex)
-        self.dirty = True
-        self.unsaved.emit(self.dirty)
 
     def __getattr__(self, name):
         if name not in self._tag_list:

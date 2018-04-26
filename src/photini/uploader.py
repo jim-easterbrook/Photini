@@ -257,9 +257,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         return os.path.join(temp_dir, os.path.basename(image.path) + ext)
 
     def copy_metadata(self, image, path):
-        # copy metadata, forcing IPTC creation
-        md = Metadata(path)
-        md.copy(image.metadata)
+        # copy metadata
+        md = Metadata.clone(path, image.metadata)
+        # save metedata, forcing IPTC creation
+        md.dirty = True
         md.save(if_mode=True, sc_mode='none', force_iptc=True)
 
     def convert_to_jpeg(self, image):
