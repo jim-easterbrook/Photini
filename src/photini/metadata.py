@@ -902,11 +902,9 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         return result
 
-    def get_string(self, tag, no_infer=True):
+    def get_string(self, tag):
         if isinstance(tag, tuple):
-            return [self.get_string(x, no_infer=no_infer) for x in tag]
-        if no_infer and self._xmp_only and not self.is_xmp_tag(tag):
-            return None
+            return [self.get_string(x) for x in tag]
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
             # get_tag_string is at no risk from non utf8 strings
@@ -920,11 +918,9 @@ class MetadataHandler(GExiv2.Metadata):
         # attempt to read raw data instead
         return self.get_raw(tag)
 
-    def get_multiple(self, tag, no_infer=True):
+    def get_multiple(self, tag):
         if isinstance(tag, tuple):
-            return [self.get_multiple(x, no_infer=no_infer) for x in tag]
-        if no_infer and self._xmp_only and not self.is_xmp_tag(tag):
-            return None
+            return [self.get_multiple(x) for x in tag]
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
             # get_tag_multiple is at no risk from non utf8 strings
@@ -1032,6 +1028,11 @@ class MetadataHandler(GExiv2.Metadata):
             return False
         return super(MetadataHandler, self).get_supports_exif()
 
+    def get_supports_iptc(self):
+        if self._xmp_only:
+            return False
+        return super(MetadataHandler, self).get_supports_iptc()
+
     def has_iptc(self):
         if self._xmp_only:
             return False
@@ -1052,14 +1053,16 @@ class MetadataHandler(GExiv2.Metadata):
 
     def clone(self, other):
         # copy from other to self, ignoring thumbnails
+        # allow exiv2 to infer Exif tags from XMP
         for tag in other.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
-            # allow exiv2 to infer Exif tags from XMP
-            self.set_string(tag, other.get_string(tag, no_infer=False))
-        for tag in other.get_iptc_tags():
-            # don't copy exiv2's inferred IPTC tags from XMP file
-            self.set_multiple(tag, other.get_multiple(tag))
+            self.set_string(tag, other.get_string(tag))
+        # don't copy exiv2's inferred IPTC tags from XMP file
+        if other.has_iptc():
+            for tag in other.get_iptc_tags():
+                self.set_multiple(tag, other.get_multiple(tag))
+        # copy all XMP tags except inferred Exif tags
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
@@ -1348,11 +1351,14 @@ class Metadata(QtCore.QObject):
             for handler in (self._sc, self._if):
                 if not handler:
                     continue
-                save_iptc = force_iptc or handler.has_iptc()
+                omit_exif = not handler.get_supports_exif()
+                omit_iptc = not (handler.get_supports_iptc() and
+                                 (force_iptc or handler.has_iptc()))
                 for name in self._tag_list:
                     value = getattr(self, name)
                     for mode, tag in self._tag_list[name]:
-                        if not save_iptc and handler.is_iptc_tag(tag):
+                        if ((omit_exif and handler.is_exif_tag(tag)) or
+                            (omit_iptc and handler.is_iptc_tag(tag))):
                             continue
                         write_mode = mode.split('.')[1]
                         if write_mode == 'WN':
@@ -1421,8 +1427,13 @@ class Metadata(QtCore.QObject):
         for handler in self._sc, self._if:
             if not handler:
                 continue
+            omit_exif = not handler.get_supports_exif()
+            omit_iptc = not handler.get_supports_iptc()
             for mode, tag in self._tag_list[name]:
                 if mode.split('.')[0] == 'RN':
+                    continue
+                if ((omit_exif and handler.is_exif_tag(tag)) or
+                    (omit_iptc and handler.is_iptc_tag(tag))):
                     continue
                 try:
                     new_value = self._data_type[name].read(handler, tag)
