@@ -1319,6 +1319,9 @@ class Metadata(QtCore.QObject):
  </rdf:RDF>
 </x:xmpmeta>
 <?xpacket end="w"?>'''.format('Photini editor v' + __version__))
+            if self._if:
+                # let exiv2 copy as much metadata as it can into sidecar
+                self._if.save_file(self._sc_path)
             self._sc = MetadataHandler(self._sc_path)
         except Exception as ex:
             logger.exception(ex)
@@ -1330,8 +1333,6 @@ class Metadata(QtCore.QObject):
             return
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self.create_side_car()
-            if self._sc and self._if:
-                self._sc.clone(self._if)
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         try:
