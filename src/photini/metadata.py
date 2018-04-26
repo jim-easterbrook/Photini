@@ -1359,6 +1359,7 @@ class Metadata(QtCore.QObject):
                     for mode, tag in self._tag_list[name]:
                         if ((omit_exif and handler.is_exif_tag(tag)) or
                             (omit_iptc and handler.is_iptc_tag(tag))):
+                            handler.clear_value(tag)
                             continue
                         write_mode = mode.split('.')[1]
                         if write_mode == 'WN':
