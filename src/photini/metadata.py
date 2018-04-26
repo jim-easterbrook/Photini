@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -1342,7 +1341,7 @@ class Metadata(QtCore.QObject):
                 # workaround for bug in exiv2 xmp timestamp altering
                 for name in ('date_digitised', 'date_modified', 'date_taken'):
                     for mode, tag in self._tag_list[name]:
-                        if mode == 'RA.WA':
+                        if mode in ('RA.WA', 'RA.W0'):
                             self._sc.clear_value(tag)
                 self._sc.save(file_times)
             for handler in (self._sc, self._if):
