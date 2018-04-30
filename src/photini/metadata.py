@@ -474,8 +474,8 @@ class DateTime(MD_Dict):
         if not datetime_string:
             return None
         # separate date & time and remove separators
-        date_string = datetime_string[:10].replace(':', '')
-        time_string = datetime_string[11:].replace(':', '')
+        date_string = datetime_string[:10].replace(':', '').strip()
+        time_string = datetime_string[11:].replace(':', '').strip()
         # append sub seconds
         if len(file_value) > 1:
             sub_sec_string = file_value[1]
@@ -502,10 +502,11 @@ class DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_string, time_string = file_value
+        if date_string:
+            # remove separators (that shouldn't be there)
+            date_string = date_string.replace('-', '').strip()
         if not date_string:
             return None
-        # remove separators (that shouldn't be there)
-        date_string = date_string.replace('-', '')
         # remove missing values
         while len(date_string) > 4 and date_string[-2:] == '00':
             date_string = date_string[:-2]
@@ -516,7 +517,8 @@ class DateTime(MD_Dict):
             time_string = ''
         if time_string:
             # remove separators (that shouldn't be there)
-            time_string = time_string.replace(':', '')
+            time_string = time_string.replace(':', '').strip()
+        if time_string:
             # split off time zone
             tz_string = time_string[6:]
             time_string = time_string[:6]
