@@ -478,7 +478,7 @@ class DateTime(MD_Dict):
         time_string = datetime_string[11:].replace(':', '').strip()
         # append sub seconds
         if len(file_value) > 1:
-            sub_sec_string = file_value[1]
+            sub_sec_string = file_value[1].strip()
             if sub_sec_string:
                 time_string += '.' + sub_sec_string
         return cls.from_ISO_8601(date_string, time_string, '')
