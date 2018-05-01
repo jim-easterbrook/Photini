@@ -16,7 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
-Changes in v2018.02.0:
+Changes in v2018.5.0:
+  1/ Improved calculation of "35mm equivalent" focal length.
+  2/ Migrate spell check from PyEnchant to Gspell.
+  3/ Use environment variable to set location of config file.
+  4/ Copy more metadata to sidecar when it is created.
+  5/ Fix problem with QtWebEngine and some PyQt versions.
+  6/ Many other bug fixes and minor improvements.
+
+Changes in v2018.2.0:
   1/ All maps are faster and less buggy.
   2/ New Windows installer: Python 3.6, PyQt 5.10 (so Bing maps aerial view
      works properly).
