@@ -46,6 +46,7 @@ cities_cache = []
 
 class FacebookSession(UploaderSession):
     name = 'facebook'
+    origin = 'https://graph.facebook.com/'
     scope = {
         'read' : ('user_photos',),
         'write': ('user_photos', 'publish_actions'),
@@ -59,7 +60,7 @@ class FacebookSession(UploaderSession):
         if not self.api:
             self.api = OAuth2Session(token={'access_token': access_token})
         try:
-            permissions = self.get('https://graph.facebook.com/me/permissions')
+            permissions = self.get('me/permissions')
         except Exception:
             permissions = None
         if not permissions:
@@ -96,14 +97,12 @@ class FacebookSession(UploaderSession):
         return self.permitted(level)
 
     def get_user(self):
-        rsp = self.get('https://graph.facebook.com/me',
-                       params={'fields': 'name,picture'})
+        rsp = self.get('me', params={'fields': 'name,picture'})
         if not rsp:
             return None, None
         if rsp['picture']:
-            url = rsp['picture']['data']['url']
             try:
-                pic_rsp = self.api.get(url)
+                pic_rsp = self.api.get(rsp['picture']['data']['url'])
                 pic_rsp.raise_for_status()
                 return rsp['name'], pic_rsp.content
             except Exception as ex:
@@ -112,22 +111,18 @@ class FacebookSession(UploaderSession):
 
     def get_album(self, album_id, fields):
         picture = None
-        album = self.get(
-            'https://graph.facebook.com/' + album_id,
-            params={'fields': fields})
+        album = self.get(album_id, params={'fields': fields})
         if not album:
             return {}, picture
         if 'cover_photo' in album:
-            picture = self.get(
-                'https://graph.facebook.com/' + album['cover_photo']['id'],
-                params={'fields': 'picture'})
+            picture = self.get(album['cover_photo']['id'],
+                               params={'fields': 'picture'})
         if picture:
             picture = picture['picture']
         return album, picture
 
     def get_albums(self, fields):
-        albums = self.get(
-            'https://graph.facebook.com/me/albums', params={'fields': fields})
+        albums = self.get('me/albums', params={'fields': fields})
         while True:
             if not albums:
                 return
@@ -135,23 +130,22 @@ class FacebookSession(UploaderSession):
                 yield album
             if 'paging' not in albums or 'next' not in albums['paging']:
                 return
-            albums = self.get(albums['paging']['next'])
+            albums = self.get('', url=albums['paging']['next'])
 
     def get_places(self, latlong, distance, query):
-        places = self.get(
-            'https://graph.facebook.com/search',
-            params={'q'       : query,
-                    'type'    : 'place',
-                    'center'  : str(latlong),
-                    'distance': distance,
-                    'fields'  : 'category,id,location,name',
-                    })
+        params = {'q'       : query,
+                  'type'    : 'place',
+                  'center'  : str(latlong),
+                  'distance': distance,
+                  'fields'  : 'category,id,location,name',
+                  }
+        places = self.get('search', params=params)
         while places:
             for place in places['data']:
                 yield place
             if 'paging' not in places or 'next' not in places['paging']:
                 return
-            places = self.get(places['paging']['next'])
+            places = self.get('', url=places['paging']['next'])
 
     def distance(self, a, b):
         # calculate approximate separation in metres of two nearby
@@ -262,20 +256,21 @@ class FacebookSession(UploaderSession):
                 fields['place'] = nearest['id']
         data = MultipartEncoder(fields=fields)
         headers = {'Content-Type' : data.content_type}
-        url = 'https://graph.facebook.com/' + params['album_id'] + '/photos'
         try:
-            self.post(url, data=data, headers=headers)
+            self.post(
+                params['album_id'] + '/photos', data=data, headers=headers)
         except Exception as ex:
             return str(ex)
         return ''
 
-    def get(self, *arg, **kw):
-        rsp = self.api.get(*arg, **kw)
+    def get(self, path, url=None, **kw):
+        url = url or self.origin
+        rsp = self.api.get(url + path, **kw)
         rsp.raise_for_status()
         return rsp.json()
 
-    def post(self, *arg, **kw):
-        rsp = self.api.post(*arg, **kw)
+    def post(self, path, **kw):
+        rsp = self.api.post(self.origin + path, **kw)
         rsp.raise_for_status()
         return rsp.json()
 
@@ -564,8 +559,7 @@ class FacebookUploader(PhotiniUploader):
             data['location'] = location
         data['privacy'] = privacy.itemData(privacy.currentIndex())
         try:
-            album = self.session.post(
-                'https://graph.facebook.com/me/albums', data=data)
+            album = self.session.post('me/albums', data=data)
         except Exception as ex:
             logger.error(str(ex))
             self.refresh(force=True)
