@@ -24,7 +24,7 @@ var icon_off;
 
 function loadMap()
 {
-    map = L.map("mapDiv", {
+    map = L.map(document.getElementById("mapDiv"), {
         center: [initData.lat, initData.lng],
         zoom: initData.zoom,
         attributionControl: false,

@@ -33,7 +33,7 @@ from photini.pyqt import Busy, catch_all, QtCore, QtWidgets
 logger = logging.getLogger(__name__)
 
 class GoogleMap(PhotiniMap):
-    def get_page_elements(self):
+    def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:
             url += '.exp'
@@ -45,14 +45,11 @@ class GoogleMap(PhotiniMap):
                 name = match.group(1)
                 if name:
                     url += '&region=' + name
-        return {
-            'head': '',
-            'body': '''
+        return '''
     <script type="text/javascript"
-      src="{}" async defer>
+      src="{}" async>
     </script>
-'''.format(url),
-            }
+'''.format(url)
 
     def show_terms(self):
         # return widget to display map terms and conditions

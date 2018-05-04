@@ -49,7 +49,7 @@ class BingMap(PhotiniMap):
         self.map.settings().setAttribute(
             WebSettings.LocalContentCanAccessFileUrls, True)
 
-    def get_page_elements(self):
+    def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()
         if lang:
@@ -58,17 +58,14 @@ class BingMap(PhotiniMap):
             url += '&mkt=ngt'
         if self.app.test_mode:
             url += '&branch=experimental'
-        return {
-            'head': '''
+        return '''
     <script type="text/javascript">
       var api_key = "{}";
     </script>
     <script type="text/javascript"
-      src="{}" async defer>
+      src="{}" async>
     </script>
-'''.format(self.api_key, url),
-            'body': '',
-            }
+'''.format(self.api_key, url)
 
     def show_terms(self):
         # return widget to display map terms and conditions
