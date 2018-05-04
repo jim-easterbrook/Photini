@@ -59,13 +59,10 @@ class BingMap(PhotiniMap):
         if self.app.test_mode:
             url += '&branch=experimental'
         return '''
-    <script type="text/javascript">
-      var api_key = "{}";
-    </script>
     <script type="text/javascript"
       src="{}" async>
     </script>
-'''.format(self.api_key, url)
+'''.format(url)
 
     def show_terms(self):
         # return widget to display map terms and conditions
