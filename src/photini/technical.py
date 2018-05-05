@@ -38,6 +38,8 @@ class DropdownEdit(QtWidgets.QComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.addItem(self.tr('<clear>'), '<clear>')
         self.addItem('', None)
         self.setItemData(1, 0, Qt.UserRole - 1)
@@ -55,11 +57,20 @@ class DropdownEdit(QtWidgets.QComboBox):
         blocked = self.blockSignals(True)
         self.insertItem(self.count() - 3, text, str(data))
         self.blockSignals(blocked)
+        self.set_dropdown_width()
 
     def remove_item(self, data):
         blocked = self.blockSignals(True)
         self.removeItem(self.findData(str(data)))
         self.blockSignals(blocked)
+        self.set_dropdown_width()
+
+    def set_dropdown_width(self):
+        width = 0
+        metrics = self.fontMetrics()
+        for idx in range(self.count()):
+            width = max(width, metrics.width(self.itemText(idx)))
+        self.view().setMinimumWidth(width + 30)
 
     def known_value(self, value):
         if not value:
@@ -665,6 +676,7 @@ class Technical(QtWidgets.QWidget):
             self.tr('Orientation'), self.widgets['orientation'])
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
+        self.widgets['lens_model'].setMinimumWidth(200)
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(
             self.tr('<define new lens>'), '<add lens>')
