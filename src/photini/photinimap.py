@@ -683,7 +683,11 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.search(self.search_string)
             return
         view = self.edit_box.itemData(idx)
-        self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
+        if view[-1] is None:
+            self.JavaScript('setView({},{},{})'.format(
+                view[0], view[1], self.map_status['zoom']))
+        else:
+            self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
     def marker_click(self, marker_id):
         self.image_list.select_images(self.marker_images[marker_id])
