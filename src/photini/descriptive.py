@@ -26,8 +26,8 @@ import logging
 import six
 
 from photini.pyqt import (
-    catch_all, multiple_values, MultiLineEdit, Qt, QtCore, QtGui, QtWidgets,
-    qt_version_info, SingleLineEdit, Slider)
+    catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
+    QtWidgets, qt_version_info, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 
@@ -171,8 +171,9 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.edit = SingleLineEdit(spell_check=True)
         layout.addWidget(self.edit)
         # favourites drop down
-        self.favourites = QtWidgets.QComboBox()
+        self.favourites = ComboBox()
         self.update_favourites()
+        self.favourites.setFixedWidth(self.favourites.title_width())
         self.favourites.currentIndexChanged.connect(self.add_favourite)
         layout.addWidget(self.favourites)
         # adopt child widget methods and signals
@@ -198,6 +199,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         keywords.sort(key=lambda x: x.lower())
         for keyword in keywords:
             self.favourites.addItem(keyword)
+        self.favourites.set_dropdown_width()
 
     def update_league_table(self, images):
         for image in images:

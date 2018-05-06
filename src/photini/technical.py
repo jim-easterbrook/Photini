@@ -25,15 +25,15 @@ import math
 import re
 
 from photini.metadata import DateTime, LensSpec
-from photini.pyqt import (catch_all, multiple, multiple_values, Qt, QtCore,
-                          QtGui, QtWidgets, Slider, SquareButton)
+from photini.pyqt import (catch_all, ComboBox, multiple, multiple_values, Qt,
+                          QtCore, QtGui, QtWidgets, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
 
 # 'constant' used by some widgets to indicate they've been set to '<multiple>'
 MULTI = 'multi'
 
-class DropdownEdit(QtWidgets.QComboBox):
+class DropdownEdit(ComboBox):
     new_value = QtCore.pyqtSignal()
 
     def __init__(self, *arg, **kw):
@@ -64,13 +64,6 @@ class DropdownEdit(QtWidgets.QComboBox):
         self.removeItem(self.findData(str(data)))
         self.blockSignals(blocked)
         self.set_dropdown_width()
-
-    def set_dropdown_width(self):
-        width = 0
-        metrics = self.fontMetrics()
-        for idx in range(self.count()):
-            width = max(width, metrics.width(self.itemText(idx)))
-        self.view().setMinimumWidth(width + 30)
 
     def known_value(self, value):
         if not value:
