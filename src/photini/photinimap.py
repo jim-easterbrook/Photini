@@ -30,7 +30,7 @@ import six
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
+    catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
     QtWebKitWidgets, QtWidgets, set_symbol_font, SingleLineEdit, SquareButton)
 
 logger = logging.getLogger(__name__)
@@ -254,7 +254,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         # search
         self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
-        self.edit_box = QtWidgets.QComboBox()
+        self.edit_box = ComboBox()
         self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
@@ -660,13 +660,10 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.search_string = search_string
         self.clear_search()
         north, east, south, west = self.map_status['bounds']
-        width = 0
-        metrics = self.edit_box.fontMetrics()
         for result in self.geocode(search_string, north, east, south, west):
             north, east, south, west, name = result
             self.edit_box.addItem(name, (north, east, south, west))
-            width = max(width, metrics.width(name))
-        self.edit_box.view().setMinimumWidth(width + 30)
+        self.edit_box.set_dropdown_width()
         self.edit_box.showPopup()
 
     def clear_search(self):
