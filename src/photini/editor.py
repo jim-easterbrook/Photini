@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -49,6 +46,7 @@ from photini.googlemap import GoogleMap
 from photini.imagelist import ImageList
 from photini.importer import Importer
 from photini.loggerwindow import LoggerWindow
+from photini.mapboxmap import MapboxMap
 from photini.metadata import debug_metadata
 from photini.openstreetmap import OpenStreetMap
 try:
@@ -144,6 +142,9 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('Map (&Bing)'),
              'key'   : 'map_bing',
              'class' : BingMap},
+            {'name'  : self.tr('Map (&Mapbox)'),
+             'key'   : 'map_mapbox',
+             'class' : MapboxMap},
             {'name'  : self.tr('Map (&OSM)'),
              'key'   : 'map_osm',
              'class' : OpenStreetMap},

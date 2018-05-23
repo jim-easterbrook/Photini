@@ -35,3 +35,6 @@ app_id = MTY3NTczNDYwMzA0NzA1
 
 [openstreetmap]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
+
+[mapboxmap]
+api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1OcVozUTRiWEZ1WmpCeE9XSXljWEF6Tm1kNWIzaDNhbVVpZlEuTVBQUU5ZNDhrUTdVTGt0TUQ4VnFWdw==
