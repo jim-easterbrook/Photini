@@ -256,7 +256,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
         self.edit_box = ComboBox()
-        self.edit_box.setMinimumWidth(200)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.edit_box.lineEdit().setPlaceholderText(

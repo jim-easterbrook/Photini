@@ -421,12 +421,13 @@ class OffsetWidget(QtWidgets.QWidget):
 class LensSpecWidget(QtWidgets.QGroupBox):
     def __init__(self, *arg, **kw):
         super(LensSpecWidget, self).__init__(*arg, **kw)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(6, 0, 6, 0)
         self.layout().setVerticalSpacing(0)
         for text, col in (self.tr('min'), 1), (self.tr('max'), 2):
             label = QtWidgets.QLabel(text)
-            label.setMinimumWidth(50)
             label.setAlignment(Qt.AlignHCenter)
             self.layout().addWidget(label, 0, col)
         self.layout().addWidget(QtWidgets.QLabel(self.tr('Focal length')), 1, 0)
@@ -559,7 +560,8 @@ class NewLensDialog(QtWidgets.QDialog):
         self.layout().addWidget(button_box)
         # model
         self.lens_model = QtWidgets.QLineEdit()
-        self.lens_model.setMinimumWidth(250)
+        self.lens_model.setMinimumWidth(
+            self.lens_model.fontMetrics().width('x' * 35))
         panel.layout().addRow(self.tr('Model name'), self.lens_model)
         # maker
         self.lens_make = QtWidgets.QLineEdit()
@@ -669,7 +671,8 @@ class Technical(QtWidgets.QWidget):
             self.tr('Orientation'), self.widgets['orientation'])
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
-        self.widgets['lens_model'].setMinimumWidth(200)
+        self.widgets['lens_model'].setMinimumWidth(
+            self.widgets['lens_model'].fontMetrics().width('x' * 30))
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(
             self.tr('<define new lens>'), '<add lens>')

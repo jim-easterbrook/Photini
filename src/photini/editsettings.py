@@ -52,7 +52,8 @@ class EditSettings(QtWidgets.QDialog):
         self.copyright_text = SingleLineEdit(spell_check=True)
         self.copyright_text.set_value(
             self.config_store.get('user', 'copyright_text', ''))
-        self.copyright_text.setMinimumWidth(300)
+        self.copyright_text.setMinimumWidth(
+            self.copyright_text.fontMetrics().width('x' * 50))
         panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
         # creator name
         self.creator_name = SingleLineEdit(spell_check=True)

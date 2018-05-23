@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ class LoggerWindow(QtWidgets.QWidget):
         # main dialog area
         self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
-        self.text.setMinimumWidth(500)
+        self.text.setMinimumWidth(self.text.fontMetrics().width('x' * 70))
         self.layout().addWidget(self.text, 0, 0, 1, 3)
         # save button
         save_button = QtWidgets.QPushButton(self.tr('Save'))

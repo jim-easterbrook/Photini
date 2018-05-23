@@ -65,7 +65,7 @@ logger = logging.getLogger(__name__)
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
-        size.setWidth(max(size.width(), 90))
+        size.setWidth(max(size.width(), self.fontMetrics().width('x' * 13)))
         return size
 
 

@@ -523,7 +523,8 @@ class ImageList(QtWidgets.QWidget):
         self.size_slider.setPageStep(1)
         self.size_slider.setValue(self.thumb_size / 20)
         self.size_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-        self.size_slider.setMinimumWidth(140)
+        width = self.size_slider.sizeHint().width()
+        self.size_slider.setMinimumWidth(width * 7 // 4)
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 5)
 
