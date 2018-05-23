@@ -24,9 +24,12 @@ import logging
 import math
 import re
 
+import six
+
 from photini.metadata import DateTime, LensSpec
-from photini.pyqt import (catch_all, ComboBox, multiple, multiple_values, Qt,
-                          QtCore, QtGui, QtWidgets, Slider, SquareButton)
+from photini.pyqt import (
+    catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
+    QtWidgets, scale_font, set_symbol_font, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
 
@@ -364,20 +367,30 @@ class OffsetWidget(QtWidgets.QWidget):
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        spacing = self.layout().spacing()
+        self.layout().setSpacing(0)
         # offset value
         self.offset = QtWidgets.QTimeEdit()
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
+        self.layout().addSpacing(spacing)
         # time zone
         self.time_zone = TimeZoneWidget()
         self.time_zone.set_value([])
         self.layout().addWidget(self.time_zone)
+        self.layout().addSpacing(spacing)
         # add offset button
-        add_button = SquareButton('+')
+        add_button = SquareButton(six.unichr(0x002b))
+        add_button.setStyleSheet('QPushButton {padding: 0px}')
+        set_symbol_font(add_button)
+        scale_font(add_button, 170)
         add_button.clicked.connect(self.add)
         self.layout().addWidget(add_button)
         # subtract offset button
-        sub_button = SquareButton('-')
+        sub_button = SquareButton(six.unichr(0x2212))
+        sub_button.setStyleSheet('QPushButton {padding: 0px}')
+        set_symbol_font(sub_button)
+        scale_font(sub_button, 170)
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)
