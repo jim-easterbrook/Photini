@@ -28,7 +28,8 @@ import requests
 import six
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, qt_version_info
+from photini.pyqt import (
+    Busy, catch_all, Qt, QtCore, QtWidgets, qt_version_info, scale_font)
 
 logger = logging.getLogger(__name__)
 
@@ -53,23 +54,23 @@ class OpenStreetMap(PhotiniMap):
         layout = QtWidgets.QGridLayout()
         widget = QtWidgets.QPushButton(self.tr('Search powered by OpenCage'))
         widget.clicked.connect(self.load_tou_opencage)
-        widget.setStyleSheet('QPushButton { font-size: 9px }')
+        scale_font(widget, 66)
         layout.addWidget(widget, 0, 0)
         widget = QtWidgets.QPushButton(
             self.tr('Map powered by Leaflet {}').format(
                 self.map_status['version']))
         widget.clicked.connect(self.load_tou_leaflet)
-        widget.setStyleSheet('QPushButton { font-size: 9px }')
+        scale_font(widget, 66)
         layout.addWidget(widget, 0, 1)
         widget = QtWidgets.QPushButton(
             self.tr('Map data ©OpenStreetMap\ncontributors, licensed under ODbL'))
         widget.clicked.connect(self.load_tou_osm)
-        widget.setStyleSheet('QPushButton { font-size: 9px }')
+        scale_font(widget, 66)
         layout.addWidget(widget, 1, 0)
         widget = QtWidgets.QPushButton(
             self.tr('Map tiles by CARTO\nlicensed under CC BY 3.0'))
         widget.clicked.connect(self.load_tou_tiles)
-        widget.setStyleSheet('QPushButton { font-size: 9px }')
+        scale_font(widget, 66)
         layout.addWidget(widget, 1, 1)
         return layout
 

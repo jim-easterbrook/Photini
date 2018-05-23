@@ -42,7 +42,7 @@ except ImportError:
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
-    set_symbol_font, video_types)
+    scale_font, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 DRAG_MIMETYPE = 'application/x-photini-image'
@@ -84,13 +84,13 @@ class Image(QtWidgets.QFrame):
         # label to display file name
         self.label = QtWidgets.QLabel()
         self.label.setAlignment(Qt.AlignRight)
-        self.label.setStyleSheet("QLabel { font-size: 11px }")
+        scale_font(self.label, 80)
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtWidgets.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
-        self.status.setStyleSheet("QLabel { font-size: 11px }")
         set_symbol_font(self.status)
+        scale_font(self.status, 80)
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Plain)
         self.setObjectName("thumbnail")

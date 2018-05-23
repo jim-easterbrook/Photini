@@ -31,7 +31,8 @@ from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, set_symbol_font, SingleLineEdit, SquareButton)
+    QtWebKitWidgets, QtWidgets, scale_font, set_symbol_font, SingleLineEdit,
+    SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -140,8 +141,8 @@ class LocationInfo(QtWidgets.QWidget):
             'shown': LocationWidgets(self)
             }
         self.swap = SquareButton(six.unichr(0x21c4))
-        self.swap.setStyleSheet('QPushButton { font-size: 10px }')
         set_symbol_font(self.swap)
+        scale_font(self.swap, 80)
         layout.addWidget(self.swap, 0, 4)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
         layout.addWidget(label, 0, 1, 1, 2)

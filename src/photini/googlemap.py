@@ -28,7 +28,7 @@ import webbrowser
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, catch_all, QtCore, QtWidgets
+from photini.pyqt import Busy, catch_all, QtCore, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
 
@@ -55,11 +55,11 @@ class GoogleMap(PhotiniMap):
         # return widget to display map terms and conditions
         layout = QtWidgets.QVBoxLayout()
         widget = QtWidgets.QLabel(self.tr('Search powered by Google'))
-        widget.setStyleSheet('QLabel { font-size: 10px }')
+        scale_font(widget, 80)
         layout.addWidget(widget)
         widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
         widget.clicked.connect(self.load_tou)
-        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        scale_font(widget, 80)
         layout.addWidget(widget)
         return layout
 

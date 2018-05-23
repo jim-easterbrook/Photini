@@ -26,8 +26,8 @@ import webbrowser
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import (
-    Busy, catch_all, QtCore, QtGui, QtWebEngineWidgets, QtWebKit, QtWidgets)
+from photini.pyqt import (Busy, catch_all, QtCore, QtGui, QtWebEngineWidgets,
+                          QtWebKit, QtWidgets, scale_font)
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class BingMap(PhotiniMap):
         layout = QtWidgets.QVBoxLayout()
         widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
         widget.clicked.connect(self.load_tou)
-        widget.setStyleSheet('QPushButton { font-size: 10px }')
+        scale_font(widget, 80)
         layout.addWidget(widget)
         return layout
 

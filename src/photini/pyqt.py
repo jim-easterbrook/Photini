@@ -143,6 +143,16 @@ def set_symbol_font(widget):
         # probably on Windows, try a different font
         widget.setFont(QtGui.QFont("Segoe UI Symbol"))
 
+def scale_font(widget, scale):
+    font = widget.font()
+    size = font.pointSizeF()
+    if size < 0:
+        size = font.pixelSize()
+        font.setPixelSize(((size * scale) + 50) // 100)
+    else:
+        font.setPointSizeF(size * scale / 100.0)
+    widget.setFont(font)
+
 class Busy(object):
     @staticmethod
     def start():
