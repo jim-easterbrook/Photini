@@ -270,6 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
+        idx = 0
         for tab in self.tab_list:
             if not tab['class']:
                 self.app.config_store.set('tabs', tab['key'], 'True')
@@ -281,6 +282,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if 'object' not in tab:
                 tab['object'] = tab['class'](self.image_list)
             self.tabs.addTab(tab['object'], tab['name'])
+            self.tabs.setTabToolTip(idx, tab['name'].replace('&', ''))
+            idx += 1
         self.tabs.blockSignals(was_blocked)
         if current:
             self.tabs.setCurrentWidget(current)
