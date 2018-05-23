@@ -84,12 +84,12 @@ class Image(QtWidgets.QFrame):
         # label to display file name
         self.label = QtWidgets.QLabel()
         self.label.setAlignment(Qt.AlignRight)
-        self.label.setStyleSheet("QLabel { font-size: 12px }")
+        self.label.setStyleSheet("QLabel { font-size: 11px }")
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtWidgets.QLabel()
         self.status.setAlignment(Qt.AlignLeft)
-        self.status.setStyleSheet("QLabel { font-size: 12px }")
+        self.status.setStyleSheet("QLabel { font-size: 11px }")
         set_symbol_font(self.status)
         layout.addWidget(self.status, 1, 0)
         self.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Plain)
