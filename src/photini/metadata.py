@@ -47,6 +47,16 @@ GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
 def debug_metadata():
     GExiv2.log_set_level(GExiv2.LogLevel.INFO)
 
+
+XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about=""
+      {}/>
+  </rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>'''
+
 # recent versions of Exiv2 have these namespaces defined, but older versions
 # may not recognise them
 for prefix, name in (
@@ -54,6 +64,18 @@ for prefix, name in (
         ('video',   'http://www.video/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
+
+# Gexiv2 won't register the 'Iptc4xmpExt' namespace as its abbreviated
+# version 'iptcExt' is already defined. This kludge registers it by
+# reading some data with the full namespace
+data = XMP_WRAPPER.format(
+    'xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"')
+if six.PY2:
+    data = data.decode('utf-8')
+# open the data to register the namespace
+GExiv2.Metadata().open_buf(data.encode('utf-8'))
+del data
+
 
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
@@ -812,11 +834,6 @@ _max_bytes = {
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
-# extra Xmp namespaces we may need
-_extra_ns = {
-    'Iptc4xmpExt': 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/',
-    }
-
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path):
         super(MetadataHandler, self).__init__()
@@ -958,38 +975,18 @@ class MetadataHandler(GExiv2.Metadata):
             # create XMP structure/container
             container, subtag = tag.split('/')
             bag = container.partition('[')[0]
-            ns_prefix = subtag.partition(':')[0]
             no_bag = True
-            ns_defined = ns_prefix not in _extra_ns
             for t in self.get_xmp_tags():
                 if t.startswith(bag):
                     # file already has container
                     no_bag = False
-                if ns_prefix in t:
-                    # file has correct namespace defined
-                    ns_defined = True
+                    break
             if no_bag:
                 # create empty container
                 if '[' in container:
                     self.set_xmp_tag_struct(bag, GExiv2.StructureType.ALT)
                 else:
                     self.set_xmp_tag_struct(bag, GExiv2.StructureType.SEQ)
-            if not ns_defined:
-                # create some XMP data with the correct namespace
-                data = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description
-        xmlns:{}="{}">
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>'''.format(ns_prefix, _extra_ns[ns_prefix])
-                if six.PY2:
-                    data = data.decode('utf-8')
-                # open the data to register the correct namespace
-                md = GExiv2.Metadata()
-                md.open_buf(data.encode('utf-8'))
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):
@@ -1249,7 +1246,7 @@ class Metadata(QtCore.QObject):
                        'Iptc.Application2.CountryCode'))),
         'orientation'    : (('RA.WA', 'Exif.Image.Orientation'),
                             ('RA.WX', 'Xmp.tiff.Orientation')),
-        'rating'         : (('RA.WA', 'Xmp.xmp.rating'),
+        'rating'         : (('RA.WA', 'Xmp.xmp.Rating'),
                             ('RA.W0', 'Exif.Image.Rating'),
                             ('RA.W0', 'Exif.Image.RatingPercent'),
                             ('RA.W0', 'Xmp.MicrosoftPhoto.Rating')),
@@ -1326,19 +1323,14 @@ class Metadata(QtCore.QObject):
         self._sc_path = self._path + '.xmp'
         try:
             with open(self._sc_path, 'w') as of:
-                of.write('''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
- <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-  <rdf:Description rdf:about=""
-    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
-   xmp:CreatorTool="{}"/>
- </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>'''.format('Photini editor v' + __version__))
+                of.write(XMP_WRAPPER.format(
+                    'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
             if self._if:
                 # let exiv2 copy as much metadata as it can into sidecar
                 self._if.save_file(self._sc_path)
             self._sc = MetadataHandler(self._sc_path)
+            self._sc.set_string(
+                'Xmp.xmp.CreatorTool', 'Photini editor v' + __version__)
         except Exception as ex:
             logger.exception(ex)
             self._sc = None
