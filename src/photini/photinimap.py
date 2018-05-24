@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -37,12 +36,23 @@ from photini.pyqt import (
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
+
 if QtWebEngineWidgets:
-    WebPageBase = QtWebEngineWidgets.QWebEnginePage
+    class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+        def acceptNavigationRequest(self, url, type_, isMainFrame):
+            webbrowser.open_new(url.toString())
+            return False
+
+        def createWindow(self, type_):
+            return WebEnginePage(self)
+
+
+    WebPageBase = WebEnginePage
     WebViewBase = QtWebEngineWidgets.QWebEngineView
 else:
     WebPageBase = QtWebKitWidgets.QWebPage
     WebViewBase = QtWebKitWidgets.QWebView
+
 
 class WebPage(WebPageBase):
     def javaScriptConsoleMessage(self, msg, line, source):
