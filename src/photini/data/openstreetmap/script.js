@@ -33,6 +33,7 @@ function loadMap()
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
         {maxZoom: 18}).addTo(map);
     L.control.scale().addTo(map);
+    map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
     icon_on = new L.Icon.Default();
     icon_off = new L.Icon({
@@ -40,6 +41,10 @@ function loadMap()
     python.new_status({version: L.version});
     python.initialize_finished();
     newBounds();
+}
+
+function ignoreEvent(event)
+{
 }
 
 function newBounds(event)

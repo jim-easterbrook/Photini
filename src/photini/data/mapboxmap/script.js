@@ -39,6 +39,7 @@ function loadMap()
         "Aerial"  : satellite,
     };
     L.control.layers(baseMaps).addTo(map);
+    map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
     icon_on = new L.Icon.Default();
     icon_off = new L.Icon({
@@ -52,6 +53,10 @@ function loadMap()
 //    });
     python.initialize_finished();
     newBounds();
+}
+
+function ignoreEvent(event)
+{
 }
 
 function newBounds(event)
