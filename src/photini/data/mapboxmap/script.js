@@ -29,15 +29,17 @@ function loadMap()
     var outdoors = L.mapbox.tileLayer('mapbox.outdoors');
     var satellite = L.mapbox.tileLayer('mapbox.satellite');
     map = L.mapbox.map(document.getElementById("mapDiv"), 'mapbox.outdoors', {
-        center : [initData.lat, initData.lng],
-        zoom   : initData.zoom,
-        maxZoom: 18,
+        center   : [initData.lat, initData.lng],
+        zoom     : initData.zoom,
+        maxZoom  : 18,
+        tileLayer: false,
     });
     var baseMaps = {
         "Street"  : streets,
         "Outdoors": outdoors,
         "Aerial"  : satellite,
     };
+    outdoors.addTo(map);
     L.control.layers(baseMaps).addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
