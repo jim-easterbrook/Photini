@@ -51,27 +51,16 @@ class OpenStreetMap(PhotiniMap):
 
     def show_terms(self):
         # return widget to display map terms and conditions
-        layout = QtWidgets.QGridLayout()
+        layout = QtWidgets.QVBoxLayout()
         widget = QtWidgets.QPushButton(self.tr('Search powered by OpenCage'))
         widget.clicked.connect(self.load_tou_opencage)
-        scale_font(widget, 66)
-        layout.addWidget(widget, 0, 0)
+        scale_font(widget, 80)
+        layout.addWidget(widget)
         widget = QtWidgets.QPushButton(
-            self.tr('Map powered by Leaflet {}').format(
-                self.map_status['version']))
-        widget.clicked.connect(self.load_tou_leaflet)
-        scale_font(widget, 66)
-        layout.addWidget(widget, 0, 1)
-        widget = QtWidgets.QPushButton(
-            self.tr('Map data ©OpenStreetMap\ncontributors, licensed under ODbL'))
+            self.tr('Geodata © OpenStreetMap contributors'))
         widget.clicked.connect(self.load_tou_osm)
-        scale_font(widget, 66)
-        layout.addWidget(widget, 1, 0)
-        widget = QtWidgets.QPushButton(
-            self.tr('Map tiles by CARTO\nlicensed under CC BY 3.0'))
-        widget.clicked.connect(self.load_tou_tiles)
-        scale_font(widget, 66)
-        layout.addWidget(widget, 1, 1)
+        scale_font(widget, 80)
+        layout.addWidget(widget)
         return layout
 
     @QtCore.pyqtSlot()
@@ -81,18 +70,8 @@ class OpenStreetMap(PhotiniMap):
 
     @QtCore.pyqtSlot()
     @catch_all
-    def load_tou_leaflet(self):
-        webbrowser.open_new('http://leafletjs.com/')
-
-    @QtCore.pyqtSlot()
-    @catch_all
     def load_tou_osm(self):
         webbrowser.open_new('http://www.openstreetmap.org/copyright')
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_tou_tiles(self):
-        webbrowser.open_new('https://carto.com/attribution')
 
     def do_geocode(self, params):
         self.disable_search()

@@ -27,10 +27,8 @@ function loadMap()
         zoom: initData.zoom,
         mapTypeId: Microsoft.Maps.MapTypeId.road,
         disableBirdseye: true,
-        enableClickableLogo: false,
         enableSearchLogo: false,
         showLocateMeButton: false,
-        showTermsLink: false,
         navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
         };

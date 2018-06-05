@@ -52,21 +52,11 @@ class GoogleMap(PhotiniMap):
 '''.format(url)
 
     def show_terms(self):
-        # return widget to display map terms and conditions
         layout = QtWidgets.QVBoxLayout()
         widget = QtWidgets.QLabel(self.tr('Search powered by Google'))
         scale_font(widget, 80)
         layout.addWidget(widget)
-        widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
-        widget.clicked.connect(self.load_tou)
-        scale_font(widget, 80)
-        layout.addWidget(widget)
         return layout
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_tou(self):
-        webbrowser.open_new('http://www.google.com/help/terms_maps.html')
 
     def do_geocode(self, params):
         self.disable_search()

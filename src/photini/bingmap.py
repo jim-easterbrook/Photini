@@ -65,19 +65,8 @@ class BingMap(PhotiniMap):
 '''.format(url)
 
     def show_terms(self):
-        # return widget to display map terms and conditions
         layout = QtWidgets.QVBoxLayout()
-        widget = QtWidgets.QPushButton(self.tr('Terms of Use'))
-        widget.clicked.connect(self.load_tou)
-        scale_font(widget, 80)
-        layout.addWidget(widget)
         return layout
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_tou(self):
-        webbrowser.open_new(
-            'http://www.microsoft.com/maps/assets/docs/terms.aspx')
 
     def do_geocode(self, query='', params={}):
         self.disable_search()

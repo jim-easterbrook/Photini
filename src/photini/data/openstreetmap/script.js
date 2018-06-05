@@ -27,11 +27,15 @@ function loadMap()
     map = L.map(document.getElementById("mapDiv"), {
         center: [initData.lat, initData.lng],
         zoom: initData.zoom,
-        attributionControl: false,
         });
     L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
-        {maxZoom: 18}).addTo(map);
+        {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">' +
+                'OpenStreetMap</a> contributors | ' + 
+                'Imagery &copy; <a href="https://carto.com/attribution">CARTO</a>',
+            maxZoom: 18,
+        }).addTo(map);
     L.control.scale().addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
