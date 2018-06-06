@@ -305,7 +305,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.location_info.setEnabled(False)
         self.grid.addWidget(self.location_info, 3, 0, 1, 3)
         # load map button
-        self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', '\nLoad map\n'))
+        self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', 'Load map'))
         self.load_map.clicked.connect(self.initialise)
         self.grid.addWidget(self.load_map, 7, 0, 1, 3)
         # other init
