@@ -50,7 +50,7 @@ class BingMap(PhotiniMap):
             WebSettings.LocalContentCanAccessFileUrls, True)
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, '../map_pin_grey.png'))
-        self.drag_hotspot = 10, 33
+        self.drag_hotspot = 10, 35
 
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'

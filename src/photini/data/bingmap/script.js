@@ -129,7 +129,7 @@ function addMarker(id, lat, lng, active)
 {
     var marker = new Microsoft.Maps.Pushpin(
         new Microsoft.Maps.Location(lat, lng), {
-            anchor   : new Microsoft.Maps.Point(10, 33),
+            anchor   : new Microsoft.Maps.Point(10, 35),
             icon     : '../map_pin_grey.png',
             draggable: true
         });
