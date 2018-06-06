@@ -41,6 +41,7 @@ function loadMap()
     };
     outdoors.addTo(map);
     L.control.layers(baseMaps).addTo(map);
+    L.control.scale().addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
     icon_on = new L.Icon({
