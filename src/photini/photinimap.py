@@ -232,6 +232,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             'photini', 'data/' + name + '/')
         self.drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, 'grey_marker.png'))
+        self.drag_hotspot = None
         self.search_string = None
         self.map_loaded = False
         self.marker_images = {}
@@ -405,7 +406,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.grid.addLayout(show_terms, 7, 0, 1, 3)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        self.image_list.set_drag_to_map(self.drag_icon)
+        self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
         self.redraw_markers()
         self.display_coords()
 
@@ -418,7 +419,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         zoom = int(eval(self.app.config_store.get('map', 'zoom')))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
         self.redraw_markers()
-        self.image_list.set_drag_to_map(self.drag_icon)
+        self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
 
     def do_not_close(self):
         return False

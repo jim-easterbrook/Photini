@@ -108,9 +108,13 @@ function enableMarker(id, active)
 {
     var marker = findMarker(id)
     if (active)
-        marker.setOptions({color: 'Orchid', zIndex: 1});
+    {
+        markerLayer.remove(marker);
+        marker.setOptions({icon: '../map_pin_red.png'});
+        markerLayer.add(marker, 0);
+    }
     else
-        marker.setOptions({color: '#b0b0b0', zIndex: 0});
+        marker.setOptions({icon: '../map_pin_grey.png'});
 }
 
 function findMarker(id)
@@ -124,7 +128,11 @@ function findMarker(id)
 function addMarker(id, lat, lng, active)
 {
     var marker = new Microsoft.Maps.Pushpin(
-        new Microsoft.Maps.Location(lat, lng), {draggable: true});
+        new Microsoft.Maps.Location(lat, lng), {
+            anchor   : new Microsoft.Maps.Point(10, 33),
+            icon     : '../map_pin_grey.png',
+            draggable: true
+        });
     markerLayer.add(marker);
     marker.metadata = id;
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);

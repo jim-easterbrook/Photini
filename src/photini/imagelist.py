@@ -282,11 +282,11 @@ class Image(QtWidgets.QFrame):
                     paint.drawPixmap(
                         QtCore.QPoint(margin - (i * 4), i * 4), src_icon)
         drag.setPixmap(icon)
-        if src_h == src_w:
-            # round marker used in Bing maps version 8
-            drag.setHotSpot(QtCore.QPoint(src_w // 2, (src_h // 2) + margin))
+        if self.image_list.drag_hotspot:
+            x, y = self.image_list.drag_hotspot
         else:
-            drag.setHotSpot(QtCore.QPoint(src_w // 2, src_h + margin))
+            x, y = src_w // 2, src_h
+        drag.setHotSpot(QtCore.QPoint(x, y + margin))
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
@@ -528,8 +528,9 @@ class ImageList(QtWidgets.QWidget):
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 5)
 
-    def set_drag_to_map(self, icon):
+    def set_drag_to_map(self, icon, hotspot=None):
         self.drag_icon = icon
+        self.drag_hotspot = hotspot
 
     def get_image(self, path):
         for image in self.images:
