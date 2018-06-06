@@ -29,26 +29,13 @@ import requests
 import six
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import (Busy, catch_all, Qt, QtCore, QtWebEngineWidgets,
-                          QtWebKit, QtWidgets, qt_version_info, scale_font)
+from photini.pyqt import (Busy, catch_all, Qt, QtCore,
+                          QtWidgets, qt_version_info, scale_font)
 
 logger = logging.getLogger(__name__)
 
 
-if QtWebEngineWidgets:
-    WebSettings = QtWebEngineWidgets.QWebEngineSettings
-else:
-    WebSettings = QtWebKit.QWebSettings
-
-
 class MapboxMap(PhotiniMap):
-    def __init__(self, *arg, **kw):
-        super(MapboxMap, self).__init__(*arg, **kw)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessRemoteUrls, True)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessFileUrls, True)
-
     def get_head(self):
         return '''
     <script type="text/javascript"

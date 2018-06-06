@@ -26,29 +26,12 @@ import webbrowser
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import (Busy, catch_all, QtCore, QtWebEngineWidgets,
-                          QtWebKit, QtWidgets, scale_font)
+from photini.pyqt import Busy, catch_all, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
 
 
-if QtWebEngineWidgets:
-    WebSettings = QtWebEngineWidgets.QWebEngineSettings
-else:
-    WebSettings = QtWebKit.QWebSettings
-
-
 class BingMap(PhotiniMap):
-    def __init__(self, *arg, **kw):
-        super(BingMap, self).__init__(*arg, **kw)
-        if QtWebEngineWidgets:
-            self.map.settings().setAttribute(
-                WebSettings.Accelerated2dCanvasEnabled, False)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessRemoteUrls, True)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessFileUrls, True)
-
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()

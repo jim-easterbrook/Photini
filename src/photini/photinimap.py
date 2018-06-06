@@ -30,8 +30,8 @@ from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKitWidgets, QtWidgets, scale_font, set_symbol_font, SingleLineEdit,
-    SquareButton)
+    QtWebKit, QtWebKitWidgets, QtWidgets, scale_font, set_symbol_font,
+    SingleLineEdit, SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -48,9 +48,11 @@ if QtWebEngineWidgets:
 
 
     WebPageBase = WebEnginePage
+    WebSettings = QtWebEngineWidgets.QWebEngineSettings
     WebViewBase = QtWebEngineWidgets.QWebEngineView
 else:
     WebPageBase = QtWebKitWidgets.QWebPage
+    WebSettings = QtWebKit.QWebSettings
     WebViewBase = QtWebKitWidgets.QWebView
 
 
@@ -254,12 +256,18 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.map.page().setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
+            self.map.settings().setAttribute(
+                WebSettings.Accelerated2dCanvasEnabled, False)
         else:
             self.map.page().setLinkDelegationPolicy(
                 QtWebKitWidgets.QWebPage.DelegateAllLinks)
             self.map.page().linkClicked.connect(self.link_clicked)
             self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
                 self.java_script_window_object_cleared)
+        self.map.settings().setAttribute(
+            WebSettings.LocalContentCanAccessRemoteUrls, True)
+        self.map.settings().setAttribute(
+            WebSettings.LocalContentCanAccessFileUrls, True)
         self.map.setAcceptDrops(False)
         self.map.drop_text.connect(self.drop_text)
         self.addWidget(self.map)
