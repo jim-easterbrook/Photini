@@ -39,9 +39,10 @@ function loadMap()
     L.control.scale().addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
-    icon_on = new L.Icon.Default();
+    icon_on = new L.Icon({
+        iconUrl: '../map_pin_red.png', iconSize: [25, 35], iconAnchor: [10, 35]});
     icon_off = new L.Icon({
-        iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]});
+        iconUrl: '../map_pin_grey.png', iconSize: [25, 35], iconAnchor: [10, 35]});
     python.new_status({version: L.version});
     python.initialize_finished();
     newBounds();

@@ -26,7 +26,7 @@ import webbrowser
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import (Busy, catch_all, QtCore, QtGui, QtWebEngineWidgets,
+from photini.pyqt import (Busy, catch_all, QtCore, QtWebEngineWidgets,
                           QtWebKit, QtWidgets, scale_font)
 
 logger = logging.getLogger(__name__)
@@ -48,9 +48,6 @@ class BingMap(PhotiniMap):
             WebSettings.LocalContentCanAccessRemoteUrls, True)
         self.map.settings().setAttribute(
             WebSettings.LocalContentCanAccessFileUrls, True)
-        self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, '../map_pin_grey.png'))
-        self.drag_hotspot = 10, 35
 
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'

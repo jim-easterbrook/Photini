@@ -18,6 +18,8 @@
 
 var map;
 var markers = {};
+var icon_on;
+var icon_off;
 
 function loadMap()
 {
@@ -31,6 +33,9 @@ function loadMap()
         };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
+    var anchor = new google.maps.Point(10, 35);
+    icon_on = {anchor: anchor, url: '../map_pin_red.png'};
+    icon_off = {anchor: anchor, url: '../map_pin_grey.png'};
     python.initialize_finished();
 }
 
@@ -90,20 +95,15 @@ function enableMarker(id, active)
 {
     var marker = markers[id];
     if (active)
-        marker.setOptions({
-            icon: '',
-            zIndex: 1
-            });
+        marker.setOptions({icon: icon_on, zIndex: 1});
     else
-        marker.setOptions({
-            icon: 'grey_marker.png',
-            zIndex: 0
-            });
+        marker.setOptions({icon: icon_off, zIndex: 0});
 }
 
 function addMarker(id, lat, lng, active)
 {
     var marker = new google.maps.Marker({
+        icon: icon_off,
         position: new google.maps.LatLng(lat, lng),
         map: map,
         draggable: true,

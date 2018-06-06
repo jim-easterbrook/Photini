@@ -231,8 +231,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.script_dir = pkg_resources.resource_filename(
             'photini', 'data/' + name + '/')
         self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, 'grey_marker.png'))
-        self.drag_hotspot = None
+            os.path.join(self.script_dir, '../map_pin_grey.png'))
+        self.drag_hotspot = 10, 35
         self.search_string = None
         self.map_loaded = False
         self.marker_images = {}

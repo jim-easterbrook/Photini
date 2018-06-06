@@ -43,9 +43,10 @@ function loadMap()
     L.control.layers(baseMaps).addTo(map);
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
-    icon_on = new L.Icon.Default();
+    icon_on = new L.Icon({
+        iconUrl: '../map_pin_red.png', iconSize: [25, 35], iconAnchor: [10, 35]});
     icon_off = new L.Icon({
-        iconUrl: 'grey_marker.png', iconSize: [25, 40], iconAnchor: [13, 40]});
+        iconUrl: '../map_pin_grey.png', iconSize: [25, 35], iconAnchor: [10, 35]});
 //    mapboxgl.accessToken = initData.key;
 //    map = new mapboxgl.Map({
 //        container: document.getElementById("mapDiv"),
