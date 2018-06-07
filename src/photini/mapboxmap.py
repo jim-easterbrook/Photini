@@ -46,6 +46,8 @@ class MapboxMap(PhotiniMap):
     <script type="text/javascript">
       window.addEventListener('load', initialize);
     </script>
+    <script type="text/javascript" src="../openstreetmap/common.js" async>
+    </script>
 '''
 
     def show_terms(self):
