@@ -436,29 +436,33 @@ class FlowLayout(QtWidgets.QLayout):
 
     def minimumSize(self):
         size = QtCore.QSize()
-        for item in self.item_list:
-            size = size.expandedTo(item.minimumSize())
+        if self.item_list:
+            size = self.item_list[0].minimumSize()
         left, top, right, bottom = self.getContentsMargins()
         size += QtCore.QSize(left + right, top + bottom)
         return size
 
     def _do_layout(self, rect, test_only):
         left, top, right, bottom = self.getContentsMargins()
+        height_hint = top + bottom
+        if not self.item_list:
+            return height_hint
         effective_rect = rect.adjusted(left, top, -right, -bottom)
+        if self.item_list:
+            item_size = self.item_list[0].sizeHint()
+            item_h = item_size.height()
+            item_w = item_size.width()
+            columns = max(effective_rect.width() // item_w, 1)
+            rows = (len(self.item_list) + columns - 1) // columns
+            height_hint += rows * item_h
+        if test_only:
+            return height_hint
         x = effective_rect.x()
         y = effective_rect.y()
-        row_height = 0
-        for item in self.item_list:
-            item_size = item.sizeHint()
-            if x + item_size.width() > effective_rect.right() and row_height > 0:
-                x = effective_rect.x()
-                y += row_height
-                row_height = 0
-            if not test_only:
-                item.setGeometry(QtCore.QRect(QtCore.QPoint(x, y), item_size))
-            x += item_size.width()
-            row_height = max(row_height, item_size.height())
-        return y + row_height - rect.y() + bottom
+        for n, item in enumerate(self.item_list):
+            i, j = n % columns, n // columns
+            item.setGeometry(QtCore.QRect(
+                QtCore.QPoint(x + (i * item_w), y + (j * item_h)), item_size))
 
 
 class ImageList(QtWidgets.QWidget):
@@ -486,9 +490,9 @@ class ImageList(QtWidgets.QWidget):
         self.scroll_area = ScrollArea()
         self.scroll_area.dropped_images.connect(self.open_file_list)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
-        self.thumbnails = QtWidgets.QWidget()
-        self.thumbnails.setLayout(FlowLayout())
-        self.scroll_area.setWidget(self.thumbnails)
+        thumbnails = QtWidgets.QWidget()
+        thumbnails.setLayout(FlowLayout())
+        self.scroll_area.setWidget(thumbnails)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                         self.scroll_area, self.move_to_prev_thumb)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToNextChar,
@@ -638,7 +642,7 @@ class ImageList(QtWidgets.QWidget):
         self.image_list_changed.emit()
 
     def show_thumbnail(self, image, live=True):
-        self.thumbnails.layout().addWidget(image)
+        self.scroll_area.widget().layout().addWidget(image)
         if live:
             self.app.processEvents()
         image.load_thumbnail()
@@ -650,7 +654,7 @@ class ImageList(QtWidgets.QWidget):
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):
             return
-        layout = self.thumbnails.layout()
+        layout = self.scroll_area.widget().layout()
         for image in list(self.images):
             if all_files or image.get_selected():
                 self.images.remove(image)
