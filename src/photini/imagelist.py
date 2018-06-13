@@ -384,17 +384,26 @@ class ScrollArea(QtWidgets.QScrollArea):
         if event.mimeData().hasFormat('text/uri-list'):
             event.acceptProposedAction()
 
+    @catch_all
+    def resizeEvent(self, event):
+        super(ScrollArea, self).resizeEvent(event)
+        width = event.size().width()
+        height = event.size().height()
+        scrollbar = self.verticalScrollBar()
+        if not scrollbar.isVisible():
+            width -= scrollbar.width()
+        scrollbar = self.horizontalScrollBar()
+        if not scrollbar.isVisible():
+            height -= scrollbar.height()
+        self.widget().layout().set_viewport_size(QtCore.QSize(width, height))
+
 
 class FlowLayout(QtWidgets.QLayout):
-    """Left to right, top to bottom, fill available space Qt layout.
-
-    Python implementation, based on C++ example at
-    http://doc.qt.io/qt-4.8/qt-layouts-flowlayout-example.html
-
-    """
     def __init__(self, *arg, **kw):
         super(FlowLayout, self).__init__(*arg, **kw)
         self.item_list = []
+        self.viewport_size = QtCore.QSize()
+        self._do_layout(QtCore.QPoint(0, 0))
 
     def addItem(self, item):
         self.item_list.append(item)
@@ -422,43 +431,49 @@ class FlowLayout(QtWidgets.QLayout):
         return 0
 
     def hasHeightForWidth(self):
-        return True
-
-    def heightForWidth(self, width):
-        return self._do_layout(QtCore.QRect(0, 0, width, 0), True)
+        return False
 
     def setGeometry(self, rect):
         super(FlowLayout, self).setGeometry(rect)
-        self._do_layout(rect, False)
+        self._do_layout(rect.topLeft())
 
     def sizeHint(self):
-        return self.minimumSize()
+        return self.size_hint
 
     def minimumSize(self):
-        size = QtCore.QSize()
-        if self.item_list:
-            size = self.item_list[0].minimumSize()
-        left, top, right, bottom = self.getContentsMargins()
-        size += QtCore.QSize(left + right, top + bottom)
-        return size
+        return self.size_hint
 
-    def _do_layout(self, rect, test_only):
+    def set_viewport_size(self, size):
+        self.viewport_size = size
+        self._do_layout(QtCore.QPoint(0, 0))
+
+    def _do_layout(self, origin):
         left, top, right, bottom = self.getContentsMargins()
+        width_hint = left + right
         height_hint = top + bottom
-        if not self.item_list:
-            return height_hint
-        effective_rect = rect.adjusted(left, top, -right, -bottom)
         if self.item_list:
             item_size = self.item_list[0].sizeHint()
             item_h = item_size.height()
             item_w = item_size.width()
-            columns = max(effective_rect.width() // item_w, 1)
-            rows = (len(self.item_list) + columns - 1) // columns
+            scroll = self.parentWidget().parentWidget().parentWidget()
+            if self.viewport_size.height() - height_hint > item_h:
+                columns = max(
+                    (self.viewport_size.width() - width_hint) // item_w, 1)
+                rows = (len(self.item_list) + columns - 1) // columns
+                if scroll.horizontalScrollBar().isVisible():
+                    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+                    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            else:
+                columns = len(self.item_list)
+                rows = 1
+                if scroll.verticalScrollBar().isVisible():
+                    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+                    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            width_hint += columns * item_w
             height_hint += rows * item_h
-        if test_only:
-            return height_hint
-        x = effective_rect.x()
-        y = effective_rect.y()
+        self.size_hint = QtCore.QSize(width_hint, height_hint)
+        x = origin.x() + left
+        y = origin.y() + top
         for n, item in enumerate(self.item_list):
             i, j = n % columns, n // columns
             item.setGeometry(QtCore.QRect(
