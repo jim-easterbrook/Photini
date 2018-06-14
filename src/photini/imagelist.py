@@ -370,6 +370,13 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
+        widget = QtWidgets.QWidget()
+        self.thumbs = ThumbsLayout()
+        widget.setLayout(self.thumbs)
+        self.setWidget(widget)
+        # adopt some layout methods
+        self.add_widget = self.thumbs.addWidget
+        self.remove_widget = self.thumbs.removeWidget
 
     @catch_all
     def dropEvent(self, event):
@@ -395,12 +402,16 @@ class ScrollArea(QtWidgets.QScrollArea):
         scrollbar = self.horizontalScrollBar()
         if not scrollbar.isVisible():
             height -= scrollbar.height()
-        self.widget().layout().set_viewport_size(QtCore.QSize(width, height))
+        self.thumbs.set_viewport_size(QtCore.QSize(width, height))
 
 
-class FlowLayout(QtWidgets.QLayout):
+class ThumbsLayout(QtWidgets.QLayout):
+    """Multi-row fixed-width or single-row variable-width grid of
+    thumbnail widgets, according to height.
+
+    """
     def __init__(self, *arg, **kw):
-        super(FlowLayout, self).__init__(*arg, **kw)
+        super(ThumbsLayout, self).__init__(*arg, **kw)
         self.item_list = []
         self.viewport_size = QtCore.QSize()
         self._do_layout(QtCore.QPoint(0, 0))
@@ -434,7 +445,7 @@ class FlowLayout(QtWidgets.QLayout):
         return False
 
     def setGeometry(self, rect):
-        super(FlowLayout, self).setGeometry(rect)
+        super(ThumbsLayout, self).setGeometry(rect)
         self._do_layout(rect.topLeft())
 
     def sizeHint(self):
@@ -505,9 +516,6 @@ class ImageList(QtWidgets.QWidget):
         self.scroll_area = ScrollArea()
         self.scroll_area.dropped_images.connect(self.open_file_list)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
-        thumbnails = QtWidgets.QWidget()
-        thumbnails.setLayout(FlowLayout())
-        self.scroll_area.setWidget(thumbnails)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                         self.scroll_area, self.move_to_prev_thumb)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToNextChar,
@@ -657,7 +665,7 @@ class ImageList(QtWidgets.QWidget):
         self.image_list_changed.emit()
 
     def show_thumbnail(self, image, live=True):
-        self.scroll_area.widget().layout().addWidget(image)
+        self.scroll_area.add_widget(image)
         if live:
             self.app.processEvents()
         image.load_thumbnail()
@@ -669,11 +677,10 @@ class ImageList(QtWidgets.QWidget):
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):
             return
-        layout = self.scroll_area.widget().layout()
         for image in list(self.images):
             if all_files or image.get_selected():
                 self.images.remove(image)
-                layout.removeWidget(image)
+                self.scroll_area.remove_widget(image)
                 image.setParent(None)
         self.last_selected = None
         self.selection_anchor = None
