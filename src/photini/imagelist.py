@@ -367,16 +367,39 @@ class ScrollArea(QtWidgets.QScrollArea):
 
     def __init__(self, parent=None):
         super(ScrollArea, self).__init__(parent)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.multi_row = None
+        self.set_multi_row(True)
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
         widget = QtWidgets.QWidget()
-        self.thumbs = ThumbsLayout()
+        self.thumbs = ThumbsLayout(scroll_area=self)
         widget.setLayout(self.thumbs)
         self.setWidget(widget)
         # adopt some layout methods
         self.add_widget = self.thumbs.addWidget
         self.remove_widget = self.thumbs.removeWidget
+
+    def set_multi_row(self, multi_row):
+        if multi_row:
+            self.setMinimumHeight(0)
+        else:
+            scrollbar = self.horizontalScrollBar()
+            self.setMinimumHeight(
+                self.thumbs.sizeHint().height() + scrollbar.height())
+        if multi_row == self.multi_row:
+            return
+        self.multi_row = multi_row
+        if multi_row:
+            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        else:
+            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    def ensureWidgetVisible(self, widget):
+        left, top, right, bottom = self.thumbs.getContentsMargins()
+        super(ScrollArea, self).ensureWidgetVisible(
+            widget, max(left, right), max(top, bottom))
 
     @catch_all
     def dropEvent(self, event):
@@ -396,8 +419,8 @@ class ScrollArea(QtWidgets.QScrollArea):
         super(ScrollArea, self).resizeEvent(event)
         width = event.size().width()
         height = event.size().height()
-        scrollbar = self.verticalScrollBar()
-        if not scrollbar.isVisible():
+        if not self.multi_row:
+            scrollbar = self.verticalScrollBar()
             width -= scrollbar.width()
         scrollbar = self.horizontalScrollBar()
         if not scrollbar.isVisible():
@@ -410,8 +433,9 @@ class ThumbsLayout(QtWidgets.QLayout):
     thumbnail widgets, according to height.
 
     """
-    def __init__(self, *arg, **kw):
+    def __init__(self, *arg, scroll_area=None, **kw):
         super(ThumbsLayout, self).__init__(*arg, **kw)
+        self.scroll_area = scroll_area
         self.item_list = []
         self.viewport_size = QtCore.QSize()
         self._do_layout(QtCore.QPoint(0, 0))
@@ -466,29 +490,26 @@ class ThumbsLayout(QtWidgets.QLayout):
             item_size = self.item_list[0].sizeHint()
             item_h = item_size.height()
             item_w = item_size.width()
-            scroll = self.parentWidget().parentWidget().parentWidget()
-            if self.viewport_size.height() - height_hint > item_h:
+            multi_row = self.viewport_size.height() - height_hint > item_h
+            if multi_row:
                 columns = max(
                     (self.viewport_size.width() - width_hint) // item_w, 1)
                 rows = (len(self.item_list) + columns - 1) // columns
-                if scroll.horizontalScrollBar().isVisible():
-                    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
             else:
                 columns = len(self.item_list)
                 rows = 1
-                if scroll.verticalScrollBar().isVisible():
-                    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-                    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             width_hint += columns * item_w
             height_hint += rows * item_h
         self.size_hint = QtCore.QSize(width_hint, height_hint)
+        if not self.item_list:
+            return
         x = origin.x() + left
         y = origin.y() + top
         for n, item in enumerate(self.item_list):
             i, j = n % columns, n // columns
             item.setGeometry(QtCore.QRect(
                 QtCore.QPoint(x + (i * item_w), y + (j * item_h)), item_size))
+        self.scroll_area.set_multi_row(multi_row)
 
 
 class ImageList(QtWidgets.QWidget):
