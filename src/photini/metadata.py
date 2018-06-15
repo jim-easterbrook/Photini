@@ -98,16 +98,6 @@ class MD_Value(object):
     # Python 3 uses __bool__, Python 2 uses __nonzero__
     __nonzero__ = __bool__
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return super(MD_Value, self).__eq__(other)
-        return self == self.__class__(other)
-
-    def __ne__(self, other):
-        if isinstance(other, self.__class__):
-            return super(MD_Value, self).__ne__(other)
-        return self != self.__class__(other)
-
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
