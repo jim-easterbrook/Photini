@@ -237,7 +237,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.drag_hotspot = 10, 35
         self.search_string = None
         self.map_loaded = False
-        self.marker_images = {}
+        self.marker_info = {}
         self.map_status = {}
         self.dropped_images = []
         self.setChildrenCollapsible(False)
@@ -448,10 +448,9 @@ class PhotiniMap(QtWidgets.QSplitter):
     def marker_drop(self, lat, lng):
         for path in self.dropped_images:
             image = self.image_list.get_image(path)
-            self._remove_image(image)
             image.metadata.latlong = lat, lng
-            self._add_image(image)
         self.dropped_images = []
+        self.redraw_markers()
         self.display_coords()
         self.see_selection()
 
@@ -461,8 +460,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         text = self.coords.get_value().strip()
         if not text:
             for image in self.image_list.get_selected_images():
-                self._remove_image(image)
                 image.metadata.latlong = None
+            self.redraw_markers()
             return
         try:
             lat, lng = map(float, text.split(','))
@@ -470,9 +469,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.display_coords()
             return
         for image in self.image_list.get_selected_images():
-            self._remove_image(image)
             image.metadata.latlong = lat, lng
-            self._add_image(image)
+        self.redraw_markers()
         self.display_coords()
         self.see_selection()
 
@@ -566,64 +564,45 @@ class PhotiniMap(QtWidgets.QSplitter):
     def new_selection(self, selection):
         self.coords.setEnabled(bool(selection))
         self.location_info.setEnabled(bool(selection))
-        for marker_id, images in list(self.marker_images.items()):
-            selected = False
-            for image in list(images):
-                if image.metadata.latlong:
-                    selected = selected or image.selected
-                else:
-                    images.remove(image)
-            if images:
-                self.JavaScript(
-                    'enableMarker({:d},{:d})'.format(marker_id, selected))
-            else:
-                self.JavaScript('delMarker({:d})'.format(marker_id))
-                del self.marker_images[marker_id]
+        self.redraw_markers()
         self.display_coords()
         self.display_location()
         self.see_selection()
 
     def redraw_markers(self):
-        self.JavaScript('removeMarkers()')
-        self.marker_images = {}
-        for image in self.image_list.get_images():
-            self._add_image(image)
-
-    def _add_image(self, image):
         if not self.map_loaded:
             return
-        latlong = image.metadata.latlong
-        if not latlong:
-            return
-        for marker_id, images in self.marker_images.items():
-            if images[0].metadata.latlong == latlong:
-                if image.selected and not any([x.selected for x in images]):
-                    self.JavaScript(
-                        'enableMarker({:d},{:d})'.format(marker_id, True))
-                images.append(image)
-                return
-        for i in range(len(self.marker_images) + 2):
-            marker_id = i
-            if marker_id not in self.marker_images:
-                break
-        self.marker_images[marker_id] = [image]
-        self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
-            marker_id, latlong.lat, latlong.lon, image.selected))
-
-    def _remove_image(self, image):
-        for marker_id, images in self.marker_images.items():
-            if image in images:
-                break
-        else:
-            return
-        images.remove(image)
-        if images:
-            if image.selected and not any([x.selected for x in images]):
+        for info in self.marker_info.values():
+            info['images'] = []
+        for image in self.image_list.get_images():
+            latlong = image.metadata.latlong
+            if not latlong:
+                continue
+            for info in self.marker_info.values():
+                if info['latlong'] == (latlong.lat, latlong.lon):
+                    info['images'].append(image)
+                    break
+            else:
+                for i in range(len(self.marker_info) + 2):
+                    marker_id = i
+                    if marker_id not in self.marker_info:
+                        break
+                self.marker_info[marker_id] = {
+                    'images'  : [image],
+                    'latlong' : (latlong.lat, latlong.lon),
+                    'selected': image.selected,
+                    }
+                self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
+                    marker_id, latlong.lat, latlong.lon, image.selected))
+        for marker_id in list(self.marker_info.keys()):
+            info = self.marker_info[marker_id]
+            if not info['images']:
+                self.JavaScript('delMarker({:d})'.format(marker_id))
+                del self.marker_info[marker_id]
+            elif info['selected'] != any([x.selected for x in info['images']]):
+                info['selected'] = not info['selected']
                 self.JavaScript(
-                    'enableMarker({:d},{:d})'.format(marker_id, False))
-        else:
-            self.JavaScript('delMarker({:d})'.format(marker_id))
-            del self.marker_images[marker_id]
+                    'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -710,11 +689,13 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
     def marker_click(self, marker_id):
-        self.image_list.select_images(self.marker_images[marker_id])
+        self.image_list.select_images(self.marker_info[marker_id]['images'])
 
     def marker_drag(self, lat, lng, marker_id):
-        for image in self.marker_images[marker_id]:
+        info = self.marker_info[marker_id]
+        for image in info['images']:
             image.metadata.latlong = lat, lng
+        info['latlong'] = lat, lng
         self.display_coords()
 
     def JavaScript(self, command):
