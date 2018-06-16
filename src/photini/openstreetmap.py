@@ -27,6 +27,7 @@ import webbrowser
 import requests
 import six
 
+from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
 from photini.pyqt import (
     Busy, catch_all, Qt, QtCore, QtWidgets, qt_version_info, scale_font)
@@ -34,6 +35,10 @@ from photini.pyqt import (
 logger = logging.getLogger(__name__)
 
 class OpenStreetMap(PhotiniMap):
+    def __init__(self, *args, **kwds):
+        super(OpenStreetMap, self).__init__(*args, **kwds)
+        self.search_key = key_store.get('openstreetmap', 'api_key')
+
     def get_head(self):
         return '''
     <link rel="stylesheet"
@@ -76,7 +81,7 @@ class OpenStreetMap(PhotiniMap):
 
     def do_geocode(self, params):
         self.disable_search()
-        params['key'] = self.api_key
+        params['key'] = self.search_key
         params['abbrv'] = '1'
         params['no_annotations'] = '1'
         lang, encoding = locale.getdefaultlocale()
