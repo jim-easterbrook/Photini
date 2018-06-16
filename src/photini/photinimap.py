@@ -550,7 +550,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.auto_location.setEnabled(False)
         else:
             self.coords.set_value(values[0])
-            self.auto_location.setEnabled(self.map_loaded and bool(values[0]))
+            self.auto_location.setEnabled(
+                bool(values[0]) and not self.block_timer.isActive())
 
     def display_location(self):
         images = self.image_list.get_selected_images()
