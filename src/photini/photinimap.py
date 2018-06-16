@@ -304,10 +304,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
         self.grid.addWidget(self.location_info, 3, 0, 1, 3)
-        # load map button
-        self.load_map = QtWidgets.QPushButton(translate('PhotiniMap', 'Load map'))
-        self.load_map.clicked.connect(self.initialise)
-        self.grid.addWidget(self.load_map, 7, 0, 1, 3)
+        # terms and conditions
+        show_terms = self.show_terms()
+        self.grid.addLayout(show_terms, 7, 0, 1, 3)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
         self.splitterMoved.connect(self.new_split)
@@ -408,10 +407,6 @@ class PhotiniMap(QtWidgets.QSplitter):
     def initialize_finished(self):
         QtWidgets.QApplication.restoreOverrideCursor()
         self.map_loaded = True
-        self.grid.removeWidget(self.load_map)
-        self.load_map.setParent(None)
-        show_terms = self.show_terms()
-        self.grid.addLayout(show_terms, 7, 0, 1, 3)
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
@@ -422,6 +417,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.setSizes(
             eval(self.app.config_store.get('map', 'split', str(self.sizes()))))
         if not self.map_loaded:
+            self.initialise()
             return
         lat, lng = eval(self.app.config_store.get('map', 'centre'))
         zoom = int(eval(self.app.config_store.get('map', 'zoom')))
