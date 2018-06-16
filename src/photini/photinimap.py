@@ -612,12 +612,16 @@ class PhotiniMap(QtWidgets.QSplitter):
         if self.search_string:
             item = self.edit_box.model().item(1)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+            item = self.edit_box.model().item(2)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
         self.display_coords()
 
     def disable_search(self):
         self.edit_box.lineEdit().setEnabled(False)
         if self.search_string:
             item = self.edit_box.model().item(1)
+            item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
+            item = self.edit_box.model().item(2)
             item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
         self.auto_location.setEnabled(False)
         self.block_timer.start()
@@ -649,7 +653,7 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot()
     @catch_all
-    def search(self, search_string=None):
+    def search(self, search_string=None, bounded=True):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
             self.edit_box.clearEditText()
@@ -657,8 +661,11 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.search_string = search_string
         self.clear_search()
-        north, east, south, west = self.map_status['bounds']
-        for result in self.geocode(search_string, north, east, south, west):
+        if bounded:
+            bounds = self.map_status['bounds']
+        else:
+            bounds = None
+        for result in self.geocode(search_string, bounds=bounds):
             north, east, south, west, name = result
             self.edit_box.addItem(name, (north, east, south, west))
         self.edit_box.set_dropdown_width()
@@ -668,6 +675,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.clear()
         self.edit_box.addItem('')
         if self.search_string:
+            self.edit_box.addItem(translate('PhotiniMap', '<widen search>'))
             self.edit_box.addItem(translate('PhotiniMap', '<repeat search>'))
 
     @QtCore.pyqtSlot(int)
@@ -678,8 +686,12 @@ class PhotiniMap(QtWidgets.QSplitter):
         if idx == 0:
             return
         if self.search_string and idx == 1:
+            # widen search
+            self.search(search_string=self.search_string, bounded=False)
+            return
+        if self.search_string and idx == 2:
             # repeat search
-            self.search(self.search_string)
+            self.search(search_string=self.search_string)
             return
         view = self.edit_box.itemData(idx)
         if view[-1] is None:

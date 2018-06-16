@@ -131,20 +131,23 @@ class OpenStreetMap(PhotiniMap):
             address['country_code'] = address['country_code'].upper()
         return address
 
-    def geocode(self, search_string, north, east, south, west):
-        w = east - west
-        h = north - south
-        if min(w, h) < 10.0:
-            lat, lon = self.map_status['centre']
-            north = min(lat + 5.0,  90.0)
-            south = max(lat - 5.0, -90.0)
-            east = lon + 5.0
-            west = lon - 5.0
+    def geocode(self, search_string, bounds=None):
         params = {
             'q'     : search_string,
             'limit' : '20',
-            'bounds': '{!r},{!r},{!r},{!r}'.format(west, south, east, north),
             }
+        if bounds:
+            north, east, south, west = bounds
+            w = east - west
+            h = north - south
+            if min(w, h) < 10.0:
+                lat, lon = self.map_status['centre']
+                north = min(lat + 5.0,  90.0)
+                south = max(lat - 5.0, -90.0)
+                east = lon + 5.0
+                west = lon - 5.0
+            params['bounds'] = '{!r},{!r},{!r},{!r}'.format(
+                west, south, east, north)
         for result in self.do_geocode(params):
             yield (result['bounds']['northeast']['lat'],
                    result['bounds']['northeast']['lng'],

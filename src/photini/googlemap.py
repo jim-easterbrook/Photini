@@ -129,11 +129,14 @@ class GoogleMap(PhotiniMap):
                 address['country_code'] = item['short_name']
         return address
 
-    def geocode(self, search_string, north, east, south, west):
+    def geocode(self, search_string, bounds=None):
         params = {
             'address': search_string,
-            'bounds' : '{!r},{!r}|{!r},{!r}'.format(south, west, north, east),
             }
+        if bounds:
+            north, east, south, west = bounds
+            params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
+                south, west, north, east)
         for result in self.do_geocode(params):
             bounds = result['geometry']['viewport']
             yield (bounds['northeast']['lat'], bounds['northeast']['lng'],

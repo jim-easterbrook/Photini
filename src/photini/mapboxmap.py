@@ -112,19 +112,22 @@ class MapboxMap(PhotiniMap):
                 del address[key]
         return address
 
-    def geocode(self, search_string, north, east, south, west):
-        w = east - west
-        h = north - south
-        if min(w, h) < 10.0:
-            lat, lon = self.map_status['centre']
-            north = min(lat + 5.0,  90.0)
-            south = max(lat - 5.0, -90.0)
-            east = lon + 5.0
-            west = lon - 5.0
+    def geocode(self, search_string, bounds=None):
         params = {
             'limit': 10,
-            'bbox' : '{!r},{!r},{!r},{!r}'.format(west, south, east, north),
             }
+        if bounds:
+            north, east, south, west = bounds
+            w = east - west
+            h = north - south
+            if min(w, h) < 10.0:
+                lat, lon = self.map_status['centre']
+                north = min(lat + 5.0,  90.0)
+                south = max(lat - 5.0, -90.0)
+                east = lon + 5.0
+                west = lon - 5.0
+            params['bbox'] = '{!r},{!r},{!r},{!r}'.format(
+                west, south, east, north)
         for feature in self.do_geocode(search_string, params=params):
             if 'place_name' not in feature:
                 continue

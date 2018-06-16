@@ -105,12 +105,15 @@ class BingMap(PhotiniMap):
                 del address[key]
         return address
 
-    def geocode(self, search_string, north, east, south, west):
+    def geocode(self, search_string, bounds=None):
         params = {
             'q'     : search_string,
             'maxRes': 20,
-            'umv'   : '{!r},{!r},{!r},{!r}'.format(south, west, north, east),
             }
+        if bounds:
+            north, east, south, west = bounds
+            params['umv'] = '{!r},{!r},{!r},{!r}'.format(
+                south, west, north, east)
         for resource_set in self.do_geocode(params=params):
             for resource in resource_set['resources']:
                 south, west, north, east = resource['bbox']
