@@ -163,16 +163,16 @@ class LocationInfo(QtWidgets.QWidget):
         layout.addWidget(label, 0, 1, 1, 2)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
         layout.addWidget(label, 0, 3)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Street:')), 1, 0)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'City:')), 2, 0)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Province:')), 3, 0)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Country:')), 4, 0)
-        layout.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Region:')), 5, 0)
+        for j, text in enumerate((
+                translate('PhotiniMap', 'Street'),
+                translate('PhotiniMap', 'City'),
+                translate('PhotiniMap', 'Province'),
+                translate('PhotiniMap', 'Country'),
+                translate('PhotiniMap', 'Region'),
+                )):
+            widget = QtWidgets.QLabel(text)
+            widget.setAlignment(Qt.AlignRight)
+            layout.addWidget(widget, j + 1, 0)
         for ts, col in (('taken', 1), ('shown', 3)):
             layout.addWidget(self.members[ts]['sublocation'], 1, col, 1, 2)
             layout.addWidget(self.members[ts]['city'], 2, col, 1, 2)
@@ -247,12 +247,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.setChildrenCollapsible(False)
         left_side = QtWidgets.QWidget()
         self.addWidget(left_side)
-        self.grid = QtWidgets.QGridLayout()
-        self.grid.setContentsMargins(0, 0, 0, 0)
-        self.grid.setRowStretch(6, 1)
-        self.grid.setColumnStretch(1, 1)
-        self.grid.setColumnStretch(2, 1)
-        left_side.setLayout(self.grid)
+        left_side.setLayout(QtWidgets.QFormLayout())
+        left_side.layout().setContentsMargins(0, 0, 0, 0)
         # map
         self.map = WebView()
         self.map.setPage(WebPage(parent=self.map))
@@ -277,9 +273,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map.drop_text.connect(self.drop_text)
         self.addWidget(self.map)
         # search
-        self.grid.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Search:')), 0, 0)
         self.edit_box = ComboBox()
+        self.edit_box.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.edit_box.lineEdit().setPlaceholderText(
@@ -288,37 +284,42 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.grid.addWidget(self.edit_box, 0, 1, 1, 3)
+        left_side.layout().addRow(
+            translate('PhotiniMap', 'Search'), self.edit_box)
         # latitude & longitude
-        self.grid.addWidget(
-            QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long:')), 1, 0)
+        layout = QtWidgets.QHBoxLayout()
         self.coords = SingleLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
-        self.grid.addWidget(self.coords, 1, 1, 1, 2)
+        layout.addWidget(self.coords)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', six.unichr(0x21e8) + ' address'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        self.grid.addWidget(self.auto_location, 1, 3)
+        layout.addWidget(self.auto_location)
+        left_side.layout().addRow(
+            translate('PhotiniMap', 'Lat, long'), layout)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
         self.location_info['shown'].new_value.connect(self.new_location_shown)
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
-        self.grid.addWidget(self.location_info, 3, 0, 1, 4)
+        left_side.layout().addRow(self.location_info)
         # terms and conditions
-        widget = QtWidgets.QPushButton(self.tr('Search powered\nby OpenCage'))
+        layout = QtWidgets.QHBoxLayout()
+        widget = QtWidgets.QPushButton(
+            self.tr('Search && lookup\npowered by OpenCage'))
         widget.clicked.connect(self.load_tou_opencage)
         scale_font(widget, 80)
-        self.grid.addWidget(widget, 7, 0, 1, 2)
+        layout.addWidget(widget)
         widget = QtWidgets.QPushButton(
             self.tr('Geodata © OpenStreetMap\ncontributors'))
         widget.clicked.connect(self.load_tou_osm)
         scale_font(widget, 80)
-        self.grid.addWidget(widget, 7, 2, 1, 2)
+        layout.addWidget(widget)
+        left_side.layout().addRow(layout)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
         self.splitterMoved.connect(self.new_split)
