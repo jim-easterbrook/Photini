@@ -149,6 +149,8 @@ class LocationInfo(QtWidgets.QWidget):
         layout = QtWidgets.QGridLayout()
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setHorizontalSpacing(layout.horizontalSpacing() // 3)
+        layout.setVerticalSpacing(layout.verticalSpacing() // 3)
         self.members = {
             'taken': LocationWidgets(self),
             'shown': LocationWidgets(self)
