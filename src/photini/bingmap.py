@@ -19,19 +19,11 @@
 from __future__ import unicode_literals
 
 import locale
-import logging
-import os
-import webbrowser
 
-import requests
-
-from photini.openstreetmap import OpenStreetMap
-from photini.pyqt import Busy, catch_all, QtWidgets, scale_font
-
-logger = logging.getLogger(__name__)
+from photini.photinimap import PhotiniMap
 
 
-class BingMap(OpenStreetMap):
+class BingMap(PhotiniMap):
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()

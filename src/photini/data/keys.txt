@@ -34,6 +34,9 @@ api_key = QWtpcUV6eXNXeHZEM25rdXNEUFVHT0k2VS1FbG04R09xM1FVbG80azB0Q1d6cVRQQ1BMMn
 app_id = MTY3NTczNDYwMzA0NzA1
 
 [openstreetmap]
+api_key =
+
+[opencage]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
 
 [mapboxmap]

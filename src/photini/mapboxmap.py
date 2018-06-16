@@ -18,24 +18,10 @@
 
 from __future__ import unicode_literals
 
-import json
-import locale
-import logging
-import os
-import pprint
-import webbrowser
-
-import requests
-import six
-
-from photini.openstreetmap import OpenStreetMap
-from photini.pyqt import (Busy, catch_all, Qt, QtCore,
-                          QtWidgets, qt_version_info, scale_font)
-
-logger = logging.getLogger(__name__)
+from photini.photinimap import PhotiniMap
 
 
-class MapboxMap(OpenStreetMap):
+class MapboxMap(PhotiniMap):
     def get_head(self):
         return '''
     <script type="text/javascript"

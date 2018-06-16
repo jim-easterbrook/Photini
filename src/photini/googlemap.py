@@ -20,19 +20,12 @@
 from __future__ import unicode_literals
 
 import locale
-import logging
-import os
 import re
-import webbrowser
 
-import requests
+from photini.photinimap import PhotiniMap
 
-from photini.openstreetmap import OpenStreetMap
-from photini.pyqt import Busy, catch_all, QtCore, QtWidgets, scale_font
 
-logger = logging.getLogger(__name__)
-
-class GoogleMap(OpenStreetMap):
+class GoogleMap(PhotiniMap):
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:

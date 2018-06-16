@@ -19,26 +19,10 @@
 
 from __future__ import unicode_literals
 
-import locale
-import logging
-import os
-import webbrowser
-
-import requests
-import six
-
-from photini.configstore import key_store
 from photini.photinimap import PhotiniMap
-from photini.pyqt import (
-    Busy, catch_all, Qt, QtCore, QtWidgets, qt_version_info, scale_font)
 
-logger = logging.getLogger(__name__)
 
 class OpenStreetMap(PhotiniMap):
-    def __init__(self, *args, **kwds):
-        super(OpenStreetMap, self).__init__(*args, **kwds)
-        self.search_key = key_store.get('openstreetmap', 'api_key')
-
     def get_head(self):
         return '''
     <link rel="stylesheet"
@@ -54,108 +38,3 @@ class OpenStreetMap(PhotiniMap):
     </script>
     <script type="text/javascript" src="common.js" async></script>
 '''
-
-    def show_terms(self):
-        # return widget to display map terms and conditions
-        layout = QtWidgets.QVBoxLayout()
-        widget = QtWidgets.QPushButton(self.tr('Search powered by OpenCage'))
-        widget.clicked.connect(self.load_tou_opencage)
-        scale_font(widget, 80)
-        layout.addWidget(widget)
-        widget = QtWidgets.QPushButton(
-            self.tr('Geodata © OpenStreetMap contributors'))
-        widget.clicked.connect(self.load_tou_osm)
-        scale_font(widget, 80)
-        layout.addWidget(widget)
-        return layout
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_tou_opencage(self):
-        webbrowser.open_new('https://geocoder.opencagedata.com/')
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_tou_osm(self):
-        webbrowser.open_new('http://www.openstreetmap.org/copyright')
-
-    def do_geocode(self, params):
-        self.disable_search()
-        params['key'] = self.search_key
-        params['abbrv'] = '1'
-        params['no_annotations'] = '1'
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
-        with Busy():
-            try:
-                rsp = requests.get(
-                    'https://api.opencagedata.com/geocode/v1/json',
-                    params=params, timeout=5)
-            except Exception as ex:
-                logger.error(str(ex))
-                return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
-        rsp = rsp.json()
-        status = rsp['status']
-        if status['code'] != 200:
-            logger.error(
-                'Search error %d: %s', status['code'], status['message'])
-            return []
-        if rsp['total_results'] < 1:
-            logger.error('No results found')
-            return []
-        rate = rsp['rate']
-        self.block_timer.setInterval(
-            5000 * rate['limit'] // max(rate['remaining'], 1))
-        return rsp['results']
-
-    address_map = {
-        'world_region'  :('continent',),
-        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
-        'country_name'  :('country',),
-        'province_state':('region', 'county', 'state_district', 'state'),
-        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
-                          'suburb', 'town', 'city_district', 'city'),
-        'sublocation'   :('building', 'house_number',
-                          'footway', 'pedestrian', 'road', 'street', 'place'),
-        }
-
-    def reverse_geocode(self, coords):
-        results = self.do_geocode({'q': coords})
-        if not results:
-            return None
-        address = results[0]['components']
-        for key in ('political_union', 'postcode', 'road_reference',
-                    'road_reference_intl', 'state_code', '_type'):
-            if key in address:
-                del address[key]
-        if 'country_code' in address:
-            address['country_code'] = address['country_code'].upper()
-        return address
-
-    def geocode(self, search_string, bounds=None):
-        params = {
-            'q'     : search_string,
-            'limit' : '20',
-            }
-        if bounds:
-            north, east, south, west = bounds
-            w = east - west
-            h = north - south
-            if min(w, h) < 10.0:
-                lat, lon = self.map_status['centre']
-                north = min(lat + 5.0,  90.0)
-                south = max(lat - 5.0, -90.0)
-                east = lon + 5.0
-                west = lon - 5.0
-            params['bounds'] = '{!r},{!r},{!r},{!r}'.format(
-                west, south, east, north)
-        for result in self.do_geocode(params):
-            yield (result['bounds']['northeast']['lat'],
-                   result['bounds']['northeast']['lng'],
-                   result['bounds']['southwest']['lat'],
-                   result['bounds']['southwest']['lng'],
-                   result['formatted'])

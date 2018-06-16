@@ -18,20 +18,21 @@
 
 from __future__ import unicode_literals
 
-from collections import defaultdict
+import locale
 import logging
 import os
 import webbrowser
 
 import pkg_resources
+import requests
 import six
 
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel, QtWebEngineWidgets,
-    QtWebKit, QtWebKitWidgets, QtWidgets, scale_font, set_symbol_font,
-    SingleLineEdit, SquareButton)
+    Busy, catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel,
+    QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, scale_font,
+    set_symbol_font, SingleLineEdit, SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -230,6 +231,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.image_list = image_list
         name = self.__class__.__name__.lower()
         self.api_key = key_store.get(name, 'api_key')
+        self.search_key = key_store.get('opencage', 'api_key')
         self.script_dir = pkg_resources.resource_filename(
             'photini', 'data/' + name + '/')
         self.drag_icon = QtGui.QPixmap(
@@ -247,6 +249,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.grid.setContentsMargins(0, 0, 0, 0)
         self.grid.setRowStretch(6, 1)
         self.grid.setColumnStretch(1, 1)
+        self.grid.setColumnStretch(2, 1)
         left_side.setLayout(self.grid)
         # map
         self.map = WebView()
@@ -283,30 +286,37 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        self.grid.addWidget(self.edit_box, 0, 1, 1, 2)
+        self.grid.addWidget(self.edit_box, 0, 1, 1, 3)
         # latitude & longitude
         self.grid.addWidget(
             QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long:')), 1, 0)
         self.coords = SingleLineEdit()
         self.coords.editingFinished.connect(self.new_coords)
         self.coords.setEnabled(False)
-        self.grid.addWidget(self.coords, 1, 1)
+        self.grid.addWidget(self.coords, 1, 1, 1, 2)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', six.unichr(0x21e8) + ' address'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
-        self.grid.addWidget(self.auto_location, 1, 2)
+        self.grid.addWidget(self.auto_location, 1, 3)
         # location info
         self.location_info = LocationInfo()
         self.location_info['taken'].new_value.connect(self.new_location_taken)
         self.location_info['shown'].new_value.connect(self.new_location_shown)
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
-        self.grid.addWidget(self.location_info, 3, 0, 1, 3)
+        self.grid.addWidget(self.location_info, 3, 0, 1, 4)
         # terms and conditions
-        show_terms = self.show_terms()
-        self.grid.addLayout(show_terms, 7, 0, 1, 3)
+        widget = QtWidgets.QPushButton(self.tr('Search powered\nby OpenCage'))
+        widget.clicked.connect(self.load_tou_opencage)
+        scale_font(widget, 80)
+        self.grid.addWidget(widget, 7, 0, 1, 2)
+        widget = QtWidgets.QPushButton(
+            self.tr('Geodata © OpenStreetMap\ncontributors'))
+        widget.clicked.connect(self.load_tou_osm)
+        scale_font(widget, 80)
+        self.grid.addWidget(widget, 7, 2, 1, 2)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
         self.splitterMoved.connect(self.new_split)
@@ -314,6 +324,16 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.block_timer.setInterval(5000)
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_opencage(self):
+        webbrowser.open_new('https://geocoder.opencagedata.com/')
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_tou_osm(self):
+        webbrowser.open_new('http://www.openstreetmap.org/copyright')
 
     @catch_all
     def closeEvent(self, event):
@@ -621,6 +641,87 @@ class PhotiniMap(QtWidgets.QSplitter):
             item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
         self.auto_location.setEnabled(False)
         self.block_timer.start()
+
+    def do_geocode(self, params):
+        self.disable_search()
+        params['key'] = self.search_key
+        params['abbrv'] = '1'
+        params['no_annotations'] = '1'
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        with Busy():
+            try:
+                rsp = requests.get(
+                    'https://api.opencagedata.com/geocode/v1/json',
+                    params=params, timeout=5)
+            except Exception as ex:
+                logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            logger.error('Search error %d', rsp.status_code)
+            return []
+        rsp = rsp.json()
+        status = rsp['status']
+        if status['code'] != 200:
+            logger.error(
+                'Search error %d: %s', status['code'], status['message'])
+            return []
+        if rsp['total_results'] < 1:
+            logger.error('No results found')
+            return []
+        rate = rsp['rate']
+        self.block_timer.setInterval(
+            5000 * rate['limit'] // max(rate['remaining'], 1))
+        return rsp['results']
+
+    address_map = {
+        'world_region'  :('continent',),
+        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
+        'country_name'  :('country',),
+        'province_state':('region', 'county', 'state_district', 'state'),
+        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
+                          'suburb', 'town', 'city_district', 'city'),
+        'sublocation'   :('building', 'house_number',
+                          'footway', 'pedestrian', 'road', 'street', 'place'),
+        }
+
+    def reverse_geocode(self, coords):
+        results = self.do_geocode({'q': coords})
+        if not results:
+            return None
+        address = results[0]['components']
+        for key in ('political_union', 'postcode', 'road_reference',
+                    'road_reference_intl', 'state_code', '_type'):
+            if key in address:
+                del address[key]
+        if 'country_code' in address:
+            address['country_code'] = address['country_code'].upper()
+        return address
+
+    def geocode(self, search_string, bounds=None):
+        params = {
+            'q'     : search_string,
+            'limit' : '20',
+            }
+        if bounds:
+            north, east, south, west = bounds
+            w = east - west
+            h = north - south
+            if min(w, h) < 10.0:
+                lat, lon = self.map_status['centre']
+                north = min(lat + 5.0,  90.0)
+                south = max(lat - 5.0, -90.0)
+                east = lon + 5.0
+                west = lon - 5.0
+            params['bounds'] = '{!r},{!r},{!r},{!r}'.format(
+                west, south, east, north)
+        for result in self.do_geocode(params):
+            yield (result['bounds']['northeast']['lat'],
+                   result['bounds']['northeast']['lng'],
+                   result['bounds']['southwest']['lat'],
+                   result['bounds']['southwest']['lng'],
+                   result['formatted'])
 
     @QtCore.pyqtSlot()
     @catch_all
