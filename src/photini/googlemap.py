@@ -27,12 +27,12 @@ import webbrowser
 
 import requests
 
-from photini.photinimap import PhotiniMap
+from photini.openstreetmap import OpenStreetMap
 from photini.pyqt import Busy, catch_all, QtCore, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
 
-class GoogleMap(PhotiniMap):
+class GoogleMap(OpenStreetMap):
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:
@@ -50,95 +50,3 @@ class GoogleMap(PhotiniMap):
       src="{}" async>
     </script>
 '''.format(url)
-
-    def show_terms(self):
-        layout = QtWidgets.QVBoxLayout()
-        widget = QtWidgets.QLabel(self.tr('Search powered by Google'))
-        scale_font(widget, 80)
-        layout.addWidget(widget)
-        return layout
-
-    def do_geocode(self, params):
-        self.disable_search()
-        params['key'] = self.api_key
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
-        url = 'https://maps.googleapis.com/maps/api/geocode/json'
-        with Busy():
-            try:
-                rsp = requests.get(url, params=params, timeout=5)
-            except Exception as ex:
-                logger.error(str(ex))
-                return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
-        self.enable_search()
-        rsp = rsp.json()
-        if rsp['status'] != 'OK':
-            if 'error_message' in rsp:
-                logger.error(
-                    'Search error: %s: %s', rsp['status'], rsp['error_message'])
-            else:
-                logger.error('Search error: %s', rsp['status'])
-            return []
-        results = rsp['results']
-        if not results:
-            logger.error('No results found')
-            return []
-        return results
-
-    address_map = {
-        'country_code'  : ('country_code',),
-        'country_name'  : ('country',),
-        'province_state': ('administrative_area_level_3',
-                           'administrative_area_level_2',
-                           'administrative_area_level_1'),
-        'city'          : ('sublocality_level_2', 'sublocality_level_1',
-                           'sublocality', 'neighborhood', 'locality',
-                           'postal_town'),
-        'sublocation'   : ('establishment', 'point_of_interest', 'premise',
-                           'street_number', 'route'),
-        }
-
-    def reverse_geocode(self, coords):
-        results = self.do_geocode({'latlng': coords})
-        if not results:
-            return None
-        # the first result is the most specific
-        address_components = results[0]['address_components']
-        # merge in a street address if it's not the first result
-        for result in results[1:]:
-            if 'street_address' in result['types']:
-                address_components += result['address_components']
-        address = {}
-        for item in address_components:
-            type_name = ''
-            for name in item['types']:
-                if name == 'political':
-                    continue
-                if len(name) > len(type_name):
-                    type_name = name
-            if not type_name:
-                type_name = 'unknown'
-            if type_name in ('postal_code', 'postal_code_suffix'):
-                continue
-            address[type_name] = item['long_name']
-            if type_name == 'country':
-                address['country_code'] = item['short_name']
-        return address
-
-    def geocode(self, search_string, bounds=None):
-        params = {
-            'address': search_string,
-            }
-        if bounds:
-            north, east, south, west = bounds
-            params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
-                south, west, north, east)
-        for result in self.do_geocode(params):
-            bounds = result['geometry']['viewport']
-            yield (bounds['northeast']['lat'], bounds['northeast']['lng'],
-                   bounds['southwest']['lat'], bounds['southwest']['lng'],
-                   result['formatted_address'])
