@@ -25,13 +25,13 @@ import webbrowser
 
 import requests
 
-from photini.photinimap import PhotiniMap
+from photini.openstreetmap import OpenStreetMap
 from photini.pyqt import Busy, catch_all, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
 
 
-class BingMap(PhotiniMap):
+class BingMap(OpenStreetMap):
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()
@@ -46,75 +46,3 @@ class BingMap(PhotiniMap):
       src="{}" async>
     </script>
 '''.format(url)
-
-    def show_terms(self):
-        layout = QtWidgets.QVBoxLayout()
-        return layout
-
-    def do_geocode(self, query='', params={}):
-        self.disable_search()
-        params['key'] = self.map_status['session_id']
-        url = 'http://dev.virtualearth.net/REST/v1/Locations'
-        if query:
-            url += '/' + query
-        with Busy():
-            try:
-                rsp = requests.get(url, params=params, timeout=5)
-            except Exception as ex:
-                logger.error(str(ex))
-                return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
-        if rsp.headers['X-MS-BM-WS-INFO'] == '1':
-            logger.error('Server overload')
-        else:
-            # re-enable search immediately rather than after timeout
-            self.enable_search()
-        rsp = rsp.json()
-        if rsp['statusCode'] != 200:
-            logger.error('Search error %d: %s',
-                         rsp['statusCode'], rsp['statusDescription'])
-            return []
-        resource_sets = rsp['resourceSets']
-        if not resource_sets:
-            logger.error('No results found')
-            return []
-        return resource_sets
-
-    address_map = {
-        'country_code'  : ('countryRegionIso2',),
-        'country_name'  : ('countryRegion',),
-        'province_state': ('adminDistrict2', 'adminDistrict'),
-        'city'          : ('neighborhood', 'locality'),
-        'sublocation'   : ('landmark', 'addressLine'),
-        }
-
-    def reverse_geocode(self, coords):
-        query = coords
-        params = {
-            'inclnb': '1',
-            'incl'  : 'ciso2',
-            }
-        resource_sets = self.do_geocode(query=query, params=params)
-        if not resource_sets:
-            return None
-        address = resource_sets[0]['resources'][0]['address']
-        for key in ('formattedAddress', 'postalCode'):
-            if key in address:
-                del address[key]
-        return address
-
-    def geocode(self, search_string, bounds=None):
-        params = {
-            'q'     : search_string,
-            'maxRes': 20,
-            }
-        if bounds:
-            north, east, south, west = bounds
-            params['umv'] = '{!r},{!r},{!r},{!r}'.format(
-                south, west, north, east)
-        for resource_set in self.do_geocode(params=params):
-            for resource in resource_set['resources']:
-                south, west, north, east = resource['bbox']
-                yield north, east, south, west, resource['name']
