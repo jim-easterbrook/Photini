@@ -170,6 +170,13 @@ class Busy(object):
         Busy.stop()
 
 
+class CompactButton(QtWidgets.QPushButton):
+    def __init__(self, *args, **kwds):
+        super(CompactButton, self).__init__(*args, **kwds)
+        self.setStyleSheet('padding: 2px;')
+        scale_font(self, 80)
+
+
 class SpellingHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, *arg, **kw):
         super(SpellingHighlighter, self).__init__(*arg, **kw)

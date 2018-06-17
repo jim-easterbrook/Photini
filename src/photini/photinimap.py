@@ -30,7 +30,7 @@ import six
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    Busy, catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel,
+    Busy, catch_all, ComboBox, CompactButton, Qt, QtCore, QtGui, QtWebChannel,
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, scale_font,
     set_symbol_font, SingleLineEdit, SquareButton)
 
@@ -156,8 +156,8 @@ class LocationInfo(QtWidgets.QWidget):
             'shown': LocationWidgets(self)
             }
         self.swap = SquareButton(six.unichr(0x21c4))
+        self.swap.setStyleSheet('padding: 4px')
         set_symbol_font(self.swap)
-        scale_font(self.swap, 80)
         layout.addWidget(self.swap, 0, 4)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
         layout.addWidget(label, 0, 1, 1, 2)
@@ -286,6 +286,13 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.setEnabled(False)
         left_side.layout().addRow(
             translate('PhotiniMap', 'Search'), self.edit_box)
+        # search terms and conditions
+        terms = self.search_terms()
+        if terms:
+            left_side.layout().addRow(*terms)
+            divider = QtWidgets.QFrame()
+            divider.setFrameStyle(QtWidgets.QFrame.HLine)
+            left_side.layout().addRow(divider)
         # latitude & longitude
         layout = QtWidgets.QHBoxLayout()
         self.coords = SingleLineEdit()
@@ -295,6 +302,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', six.unichr(0x21e8) + ' address'))
+        self.auto_location.setStyleSheet('padding: 4px')
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
         layout.addWidget(self.auto_location)
@@ -307,17 +315,19 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.location_info.swap.clicked.connect(self.swap_locations)
         self.location_info.setEnabled(False)
         left_side.layout().addRow(self.location_info)
-        # terms and conditions
+        # address lookup (and default search) terms and conditions
         layout = QtWidgets.QHBoxLayout()
-        widget = QtWidgets.QPushButton(
-            self.tr('Search && lookup\npowered by OpenCage'))
+        if terms:
+            widget = CompactButton(
+                self.tr('Address lookup\npowered by OpenCage'))
+        else:
+            widget = CompactButton(
+                self.tr('Search && lookup\npowered by OpenCage'))
         widget.clicked.connect(self.load_tou_opencage)
-        scale_font(widget, 80)
         layout.addWidget(widget)
-        widget = QtWidgets.QPushButton(
+        widget = CompactButton(
             self.tr('Geodata © OpenStreetMap\ncontributors'))
         widget.clicked.connect(self.load_tou_osm)
-        scale_font(widget, 80)
         layout.addWidget(widget)
         left_side.layout().addRow(layout)
         # other init
@@ -327,6 +337,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.block_timer.setInterval(5000)
         self.block_timer.setSingleShot(True)
         self.block_timer.timeout.connect(self.enable_search)
+
+    def search_terms(self):
+        return None
 
     @QtCore.pyqtSlot()
     @catch_all

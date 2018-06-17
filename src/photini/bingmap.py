@@ -19,8 +19,14 @@
 from __future__ import unicode_literals
 
 import locale
+import logging
+
+import requests
 
 from photini.photinimap import PhotiniMap
+from photini.pyqt import Busy, QtWidgets, scale_font
+
+logger = logging.getLogger(__name__)
 
 
 class BingMap(PhotiniMap):
@@ -38,3 +44,53 @@ class BingMap(PhotiniMap):
       src="{}" async>
     </script>
 '''.format(url)
+
+    def search_terms(self):
+        widget = QtWidgets.QLabel(self.tr('Search powered by Bing'))
+        scale_font(widget, 80)
+        return '', widget
+
+    def do_bing_geocode(self, query='', params={}):
+        self.disable_search()
+        params['key'] = self.map_status['session_id']
+        url = 'http://dev.virtualearth.net/REST/v1/Locations'
+        if query:
+            url += '/' + query
+        with Busy():
+            try:
+                rsp = requests.get(url, params=params, timeout=5)
+            except Exception as ex:
+                logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            logger.error('Search error %d', rsp.status_code)
+            return []
+        if rsp.headers['X-MS-BM-WS-INFO'] == '1':
+            logger.error('Server overload')
+        else:
+            # re-enable search immediately rather than after timeout
+            self.enable_search()
+        rsp = rsp.json()
+        if rsp['statusCode'] != 200:
+            logger.error('Search error %d: %s',
+                         rsp['statusCode'], rsp['statusDescription'])
+            return []
+        resource_sets = rsp['resourceSets']
+        if not resource_sets:
+            logger.error('No results found')
+            return []
+        return resource_sets
+
+    def geocode(self, search_string, bounds=None):
+        params = {
+            'q'     : search_string,
+            'maxRes': 20,
+            }
+        if bounds:
+            north, east, south, west = bounds
+            params['umv'] = '{!r},{!r},{!r},{!r}'.format(
+                south, west, north, east)
+        for resource_set in self.do_bing_geocode(params=params):
+            for resource in resource_set['resources']:
+                south, west, north, east = resource['bbox']
+                yield north, east, south, west, resource['name']
