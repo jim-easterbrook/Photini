@@ -29,6 +29,7 @@ function loadMap()
         scaleControl: true,
         streetViewControl: false,
         zoom: initData.zoom,
+        maxZoom: 20,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);

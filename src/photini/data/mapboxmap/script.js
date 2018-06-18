@@ -25,7 +25,7 @@ function loadMap()
     map = L.mapbox.map(document.getElementById("mapDiv"), 'mapbox.outdoors', {
         center   : [initData.lat, initData.lng],
         zoom     : initData.zoom,
-        maxZoom  : 18,
+        maxZoom  : 20,
         tileLayer: false,
     });
     var baseMaps = {

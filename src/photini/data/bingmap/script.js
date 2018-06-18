@@ -29,6 +29,7 @@ function loadMap()
         disableBirdseye: true,
         enableSearchLogo: false,
         showLocateMeButton: false,
+        maxZoom: 20,
         navigationBarMode: Microsoft.Maps.NavigationBarMode.compact,
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
         };

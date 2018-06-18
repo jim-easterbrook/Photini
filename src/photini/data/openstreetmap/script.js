@@ -28,7 +28,7 @@ function loadMap()
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">' +
                 'OpenStreetMap</a> contributors | ' + 
                 'Imagery &copy; <a href="https://carto.com/attribution">CARTO</a>',
-            maxZoom: 18,
+            maxZoom: 20,
         }).addTo(map);
     commonLoad();
 }
