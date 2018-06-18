@@ -48,8 +48,6 @@ class MapboxMap(PhotiniMap):
 
     def search_terms(self):
         widget = CompactButton(self.tr('Search powered by Mapbox'))
-        widget.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         widget.clicked.connect(self.load_mapbox_tos)
         return '', widget
 

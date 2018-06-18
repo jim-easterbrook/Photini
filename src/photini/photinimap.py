@@ -249,6 +249,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.addWidget(left_side)
         left_side.setLayout(QtWidgets.QFormLayout())
         left_side.layout().setContentsMargins(0, 0, 0, 0)
+        left_side.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # map
         self.map = WebView()
         self.map.setPage(WebPage(parent=self.map))
@@ -274,8 +276,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.addWidget(self.map)
         # search
         self.edit_box = ComboBox()
-        self.edit_box.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.edit_box.lineEdit().setPlaceholderText(
@@ -293,6 +293,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             divider = QtWidgets.QFrame()
             divider.setFrameStyle(QtWidgets.QFrame.HLine)
             left_side.layout().addRow(divider)
+        left_side.layout().addItem(QtWidgets.QSpacerItem(
+            1, 1000, vPolicy=QtWidgets.QSizePolicy.Expanding))
         # latitude & longitude
         layout = QtWidgets.QHBoxLayout()
         self.coords = SingleLineEdit()
