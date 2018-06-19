@@ -697,30 +697,6 @@ class PhotiniMap(QtWidgets.QSplitter):
             5000 * rate['limit'] // max(rate['remaining'], 1))
         return rsp['results']
 
-    address_map = {
-        'world_region'  :('continent',),
-        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
-        'country_name'  :('country',),
-        'province_state':('region', 'county', 'state_district', 'state'),
-        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
-                          'suburb', 'town', 'city_district', 'city'),
-        'sublocation'   :('building', 'house_number',
-                          'footway', 'pedestrian', 'road', 'street', 'place'),
-        }
-
-    def reverse_geocode(self, coords):
-        results = self.do_geocode({'q': coords})
-        if not results:
-            return None
-        address = results[0]['components']
-        for key in ('political_union', 'postcode', 'road_reference',
-                    'road_reference_intl', 'road_type', 'state_code', '_type'):
-            if key in address:
-                del address[key]
-        if 'country_code' in address:
-            address['country_code'] = address['country_code'].upper()
-        return address
-
     def geocode(self, search_string, bounds=None):
         params = {
             'q'     : search_string,
@@ -745,13 +721,30 @@ class PhotiniMap(QtWidgets.QSplitter):
                    result['bounds']['southwest']['lng'],
                    result['formatted'])
 
+    address_map = {
+        'world_region'  :('continent',),
+        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
+        'country_name'  :('country',),
+        'province_state':('region', 'county', 'state_district', 'state'),
+        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
+                          'suburb', 'town', 'city_district', 'city'),
+        'sublocation'   :('building', 'house_number',
+                          'footway', 'pedestrian', 'road', 'street', 'place'),
+        'ignore'        :('political_union', 'postcode', 'road_reference',
+                          'road_reference_intl', 'road_type', 'state_code',
+                          '_type'),
+        }
+
     @QtCore.pyqtSlot()
     @catch_all
     def get_address(self):
-        coords = self.coords.get_value().replace(' ', '')
-        address = self.reverse_geocode(coords)
-        if not address:
+        results = self.do_geocode(
+            {'q': self.coords.get_value().replace(' ', '')})
+        if not results:
             return
+        address = results[0]['components']
+        if 'country_code' in address:
+            address['country_code'] = address['country_code'].upper()
         location = {}
         for iptc_key in self.address_map:
             element = []
@@ -762,7 +755,8 @@ class PhotiniMap(QtWidgets.QSplitter):
                     element.append(address[key])
                 del(address[key])
             location[iptc_key] = ', '.join(element)
-        # put remaining keys in sublocation
+        del location['ignore']
+        # put unknown keys in sublocation
         for key in address:
             location['sublocation'] = '{}: {}, {}'.format(
                 key, address[key], location['sublocation'])
