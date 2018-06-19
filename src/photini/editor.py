@@ -426,6 +426,8 @@ def main(argv=None):
         version += '\n  ' + flickr_version
     version += '\n  available styles: {}'.format(
         ', '.join(QtWidgets.QStyleFactory.keys()))
+    version += '\n  using style: {}'.format(
+        QtWidgets.QApplication.style().objectName())
     parser = OptionParser(
         usage=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'Usage: %prog [options] [file_name, ...]')),

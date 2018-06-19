@@ -173,7 +173,8 @@ class Busy(object):
 class CompactButton(QtWidgets.QPushButton):
     def __init__(self, *args, **kwds):
         super(CompactButton, self).__init__(*args, **kwds)
-        self.setStyleSheet('padding: 2px;')
+        if QtWidgets.QApplication.style().objectName() in ('breeze',):
+            self.setStyleSheet('padding: 2px;')
         scale_font(self, 80)
 
 

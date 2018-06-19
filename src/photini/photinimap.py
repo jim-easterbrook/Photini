@@ -155,14 +155,14 @@ class LocationInfo(QtWidgets.QWidget):
             'taken': LocationWidgets(self),
             'shown': LocationWidgets(self)
             }
-        self.swap = SquareButton(six.unichr(0x21c4))
-        self.swap.setStyleSheet('padding: 4px')
-        set_symbol_font(self.swap)
-        layout.addWidget(self.swap, 0, 4)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'camera'))
         layout.addWidget(label, 0, 1, 1, 2)
         label = QtWidgets.QLabel(translate('PhotiniMap', 'subject'))
         layout.addWidget(label, 0, 3)
+        self.swap = SquareButton(six.unichr(0x21c4))
+        self.swap.setFixedHeight(label.sizeHint().height())
+        set_symbol_font(self.swap)
+        layout.addWidget(self.swap, 0, 4)
         for j, text in enumerate((
                 translate('PhotiniMap', 'Street'),
                 translate('PhotiniMap', 'City'),
@@ -304,7 +304,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
             translate('PhotiniMap', six.unichr(0x21e8) + ' address'))
-        self.auto_location.setStyleSheet('padding: 4px')
+        self.auto_location.setFixedHeight(self.coords.height())
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
         layout.addWidget(self.auto_location)
