@@ -25,10 +25,10 @@ api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
 api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
 
 [googlemap]
-api_key = QUl6YVN5QTY0T1dXVEtfbk9ncWNoWWE0TDUyUWhmb3dGS0UzSXdn
+api_key = QUl6YVN5RFJoMDBhODFRUkw4NUc1bFBUbzRTeklsVkVtRkUzSmhR
 
 [bingmap]
-api_key = QWtpcUV6eXNXeHZEM25rdXNEUFVHT0k2VS1FbG04R09xM1FVbG80azB0Q1d6cVRQQ1BMMnpCLTZKeVd0cDhKWQ==
+api_key = QWhnN1VTcS1rYXdFdDEzMUpwdmZwQlVwaXZJY24tcHBpUXVHQjdtUVFUWGtvUEhaOUhoNDUyMUVkRXNUcUx1cA==
 
 [facebook]
 app_id = MTY3NTczNDYwMzA0NzA1
@@ -37,7 +37,7 @@ app_id = MTY3NTczNDYwMzA0NzA1
 api_key =
 
 [opencage]
-api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=\n
+api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
 api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1OcVozUTRiWEZ1WmpCeE9XSXljWEF6Tm1kNWIzaDNhbVVpZlEuTVBQUU5ZNDhrUTdVTGt0TUQ4VnFWdw==
