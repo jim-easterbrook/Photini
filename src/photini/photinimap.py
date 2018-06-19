@@ -660,6 +660,9 @@ class PhotiniMap(QtWidgets.QSplitter):
             item.setFlags(~(Qt.ItemIsSelectable | Qt.ItemIsEnabled))
         self.auto_location.setEnabled(False)
         self.block_timer.start()
+        focus = QtWidgets.QApplication.focusWidget()
+        if focus:
+            focus.clearFocus()
 
     def do_geocode(self, params):
         self.disable_search()
@@ -711,7 +714,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             return None
         address = results[0]['components']
         for key in ('political_union', 'postcode', 'road_reference',
-                    'road_reference_intl', 'state_code', '_type'):
+                    'road_reference_intl', 'road_type', 'state_code', '_type'):
             if key in address:
                 del address[key]
         if 'country_code' in address:
