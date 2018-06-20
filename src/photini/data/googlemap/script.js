@@ -158,13 +158,3 @@ function delMarker(id)
     markers[id].setMap(null);
     delete markers[id];
 }
-
-function removeMarkers()
-{
-    for (var id in markers)
-    {
-        google.maps.event.clearInstanceListeners(markers[id]);
-        markers[id].setMap(null);
-    }
-    markers = {};
-}

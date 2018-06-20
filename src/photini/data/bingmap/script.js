@@ -167,8 +167,3 @@ function delMarker(id)
     var marker = findMarker(id)
     markerLayer.remove(marker);
 }
-
-function removeMarkers()
-{
-    markerLayer.clear();
-}

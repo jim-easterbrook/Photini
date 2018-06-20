@@ -148,10 +148,3 @@ function delMarker(id)
     map.removeLayer(markers[id]);
     delete markers[id];
 }
-
-function removeMarkers()
-{
-    for (var id in markers)
-        markers[id].removeFrom(map);
-    markers = {};
-}
