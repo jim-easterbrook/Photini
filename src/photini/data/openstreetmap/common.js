@@ -55,12 +55,12 @@ function newBounds(event)
 
 function setView(lat, lng, zoom)
 {
-    map.setView([lat, lng], zoom);
+    map.setView([lat, lng], zoom, {animate: true});
 }
 
 function adjustBounds(north, east, south, west)
 {
-    map.fitBounds([[north, east], [south, west]]);
+    map.fitBounds([[north, east], [south, west]], {animate: true});
 }
 
 function fitPoints(points)
@@ -70,7 +70,7 @@ function fitPoints(points)
         return;
     map.fitBounds(bounds, {
         paddingTopLeft: [15, 50], paddingBottomRight: [15, 10],
-        maxZoom: map.getZoom()});
+        maxZoom: map.getZoom(), animate: true});
 }
 
 function enableMarker(id, active)
