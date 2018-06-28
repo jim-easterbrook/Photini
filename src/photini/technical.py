@@ -41,8 +41,6 @@ class DropdownEdit(ComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.addItem(self.tr('<clear>'), '<clear>')
         self.addItem('', None)
         self.setItemData(1, 0, Qt.UserRole - 1)
@@ -92,8 +90,6 @@ class DropdownEdit(ComboBox):
 class FloatEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(FloatEdit, self).__init__(*arg, **kw)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.multiple = multiple()
         self.setValidator(DoubleValidator())
         self._is_multiple = False
@@ -121,8 +117,6 @@ class FloatEdit(QtWidgets.QLineEdit):
 class IntEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
         super(IntEdit, self).__init__(*arg, **kw)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         self.multiple = multiple()
         self.setValidator(IntValidator())
         self._is_multiple = False
@@ -434,8 +428,6 @@ class OffsetWidget(QtWidgets.QWidget):
 class LensSpecWidget(QtWidgets.QGroupBox):
     def __init__(self, *arg, **kw):
         super(LensSpecWidget, self).__init__(*arg, **kw)
-        self.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(6, 0, 6, 0)
         self.layout().setVerticalSpacing(0)
@@ -669,6 +661,8 @@ class Technical(QtWidgets.QWidget):
         # other
         other_group = QtWidgets.QGroupBox(self.tr('Other'))
         other_group.setLayout(QtWidgets.QFormLayout())
+        other_group.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # orientation
         self.widgets['orientation'] = DropdownEdit()
         self.widgets['orientation'].add_item(self.tr('normal'), 1)
