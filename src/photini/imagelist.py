@@ -181,10 +181,17 @@ class Image(QtWidgets.QFrame):
                     if orientation in (2, 4, 5, 7):
                         transform = transform.scale(-1.0, 1.0)
                     qt_im = qt_im.transformed(transform)
-            # DCF spec says thumbnail must be 160 x 120 so pad picture
-            # to 4:3 aspect ratio
             w = qt_im.width()
             h = qt_im.height()
+            # use Qt's scaling (not high quality) to pre-shrink very
+            # large images, to avoid PIL "DecompressionBombWarning"
+            if max(w, h) >= 6000:
+                qt_im = qt_im.scaled(
+                    6000, 6000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                w = qt_im.width()
+                h = qt_im.height()
+            # DCF spec says thumbnail must be 160 x 120 so pad picture
+            # to 4:3 aspect ratio
             if w >= h:
                 new_h = int(0.5 + (float(w * 3) / 4.0))
                 new_w = int(0.5 + (float(h * 4) / 3.0))
