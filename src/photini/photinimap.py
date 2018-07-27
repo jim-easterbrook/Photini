@@ -754,12 +754,15 @@ class PhotiniMap(QtWidgets.QSplitter):
                 if address[key] not in element:
                     element.append(address[key])
                 del(address[key])
-            location[iptc_key] = ', '.join(element)
+            location[iptc_key] = ', '.join(element) or None
         del location['ignore']
         # put unknown keys in sublocation
         for key in address:
-            location['sublocation'] = '{}: {}, {}'.format(
-                key, address[key], location['sublocation'])
+            if location['sublocation']:
+                location['sublocation'] = '{}: {}, {}'.format(
+                    key, address[key], location['sublocation'])
+            else:
+                location['sublocation'] = '{}: {}'.format(key, address[key])
         for image in self.image_list.get_selected_images():
             image.metadata.location_taken = location
         self.display_location()
