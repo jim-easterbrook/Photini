@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 import locale
 import logging
 import os
+import pprint
 import webbrowser
 
 import pkg_resources
@@ -721,15 +722,26 @@ class PhotiniMap(QtWidgets.QSplitter):
                    result['bounds']['southwest']['lng'],
                    result['formatted'])
 
+    # Map OpenCage address components to IPTC address heirarchy. There
+    # are many possible components (user generated data) so any
+    # unrecognised ones are put in 'sublocation'. See
+    # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
         'world_region'  :('continent',),
         'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
-        'country_name'  :('country',),
-        'province_state':('region', 'county', 'state_district', 'state'),
-        'city'          :('hamlet', 'locality', 'neighbourhood', 'village',
-                          'suburb', 'town', 'city_district', 'city'),
-        'sublocation'   :('building', 'house_number',
-                          'footway', 'pedestrian', 'road', 'street', 'place'),
+        'country_name'  :('country', 'country_name'),
+        'province_state':('county', 'county_code', 'local_administrative_area',
+                          'state_district',
+                          'state', 'province',
+                          'region', 'island'),
+        'city'          :('village', 'locality', 'hamlet',
+                          'neighbourhood', 'city_district', 'suburb',
+                          'city', 'town'),
+        'sublocation'   :('house_number', 'street_number',
+                          'house', 'public_building', 'building',
+                          'road', 'pedestrian', 'path', 'residential',
+                          'street_name', 'street', 'footway',
+                          'place'),
         'ignore'        :('political_union', 'postcode', 'road_reference',
                           'road_reference_intl', 'road_type', 'state_code',
                           '_type'),
@@ -742,6 +754,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             {'q': self.coords.get_value().replace(' ', '')})
         if not results:
             return
+        pprint.pprint(results[0])
         address = results[0]['components']
         if 'country_code' in address:
             address['country_code'] = address['country_code'].upper()

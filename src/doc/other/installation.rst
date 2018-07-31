@@ -116,7 +116,7 @@ The easiest way to install the latest release of Photini is with the pip_ comman
 This will install Photini and any Python packages it requires.
 You can also use pip to install the optional dependencies when you install Photini::
 
-   sudo pip install photini[flickr,google,facebook,importer,spelling]
+   sudo pip install photini[flickr,google,importer,spelling]
 
 If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
 Either way, you then need to build and install Photini::
@@ -141,8 +141,6 @@ Feature                       Dependencies
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
 Google Photos upload          keyring_ 7.0+, `requests-oauthlib`_ 0.4+
-Facebook upload               keyring_ 7.0+, Pillow_ 2.0+,
-                              `requests-oauthlib`_ 0.4+, `requests-toolbelt`_ 0.4+
 Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
 ============================  =================

@@ -34,10 +34,6 @@ from photini.configstore import BaseConfigStore
 from photini.descriptive import Descriptive
 from photini.editsettings import EditSettings
 try:
-    from photini.facebook import FacebookUploader
-except ImportError:
-    FacebookUploader = None
-try:
     from photini.flickr import FlickrUploader
 except ImportError:
     FlickrUploader = None
@@ -154,9 +150,6 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('Google &Photos upload'),
              'key'   : 'picasa_upload',
              'class' : PicasaUploader},
-            {'name'  : self.tr('Faceboo&k upload'),
-             'key'   : 'facebook_upload',
-             'class' : FacebookUploader},
             {'name'  : self.tr('&Import photos'),
              'key'   : 'import_photos',
              'class' : Importer},
