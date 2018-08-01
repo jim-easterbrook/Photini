@@ -31,7 +31,7 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ and/or `Google Photos`_ with reuse of metadata.
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_69.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_141.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
