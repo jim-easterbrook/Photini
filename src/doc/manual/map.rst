@@ -105,5 +105,5 @@ This may be useful if you have files with "legacy" address metadata that should 
 
 .. image:: ../images/screenshot_143.png
 
-.. _OpenCage     : https://opencagedata.com/
+.. _OpenCage:      https://opencagedata.com/
 .. _OpenStreetMap: https://www.openstreetmap.org/about/
