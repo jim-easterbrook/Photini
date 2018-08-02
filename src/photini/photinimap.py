@@ -21,7 +21,6 @@ from __future__ import unicode_literals
 import locale
 import logging
 import os
-import pprint
 import webbrowser
 
 import pkg_resources
@@ -754,7 +753,6 @@ class PhotiniMap(QtWidgets.QSplitter):
             {'q': self.coords.get_value().replace(' ', '')})
         if not results:
             return
-        pprint.pprint(results[0])
         address = results[0]['components']
         if 'country_code' in address:
             address['country_code'] = address['country_code'].upper()

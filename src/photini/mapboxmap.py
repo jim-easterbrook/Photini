@@ -20,7 +20,6 @@ from __future__ import unicode_literals
 
 import locale
 import logging
-import pprint
 import webbrowser
 
 import requests
@@ -104,5 +103,3 @@ class MapboxMap(PhotiniMap):
             elif 'center' in feature:
                 east, north = feature['center']
                 yield north, east, None, None, feature['place_name']
-            else:
-                pprint.pprint(feature)
