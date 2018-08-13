@@ -99,7 +99,7 @@ def catch_all(func):
     @wraps(func)
     def wrapper(*args, **kwds):
         try:
-            func(*args, **kwds)
+            return func(*args, **kwds)
         except Exception as ex:
             logger.exception(ex)
     return wrapper
