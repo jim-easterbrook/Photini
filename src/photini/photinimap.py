@@ -31,8 +31,8 @@ from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     Busy, catch_all, ComboBox, CompactButton, Qt, QtCore, QtGui, QtWebChannel,
-    QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, scale_font,
-    set_symbol_font, SingleLineEdit, SquareButton)
+    QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
+    scale_font, set_symbol_font, SingleLineEdit, SquareButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -58,8 +58,13 @@ else:
 
 
 class WebPage(WebPageBase):
-    def javaScriptConsoleMessage(self, msg, line, source):
-        logger.error('%s line %d: %s', source, line, msg)
+    if qt_version_info >= (5, 6):
+        def javaScriptConsoleMessage(self, level, msg, line, source):
+            logger.log(logging.INFO + (level * 10),
+                       '%s line %d: %s', source, line, msg)
+    else:
+        def javaScriptConsoleMessage(self, msg, line, source):
+            logger.error('%s line %d: %s', source, line, msg)
 
 
 class WebView(WebViewBase):
