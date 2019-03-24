@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
+   Copyright (C)  2012-19  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -54,10 +54,11 @@ See the instructions at http://linuxg.net/how-to-install-photini-15-01-1-on-ubun
 Pascal Mons (https://launchpad.net/~anton+) also has a PPA with many photo applications, including Photini.
 See https://launchpad.net/~anton+/+archive/ubuntu/photo-video-apps/.
 
-OpenSUSE 42.2 or newer
-^^^^^^^^^^^^^^^^^^^^^^
+OpenSUSE
+^^^^^^^^
 
-Photini is available from the Packman community repository.
+Photini is part of the official release of Leap 15.0 and Tumbleweed versions and can be installed with YaST.
+For older versions it is available from the Packman community repository.
 It can be installed by clicking on this link: http://packman.links2linux.org/install/Photini
 
 Piecemeal installation
