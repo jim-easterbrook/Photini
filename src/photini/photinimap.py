@@ -732,7 +732,8 @@ class PhotiniMap(QtWidgets.QSplitter):
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
         'world_region'  :('continent',),
-        'country_code'  :('country_code', 'ISO_3166-1_alpha-2'),
+        'country_code'  :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
+                          'country_code'),
         'country_name'  :('country', 'country_name'),
         'province_state':('county', 'county_code', 'local_administrative_area',
                           'state_district',
@@ -770,7 +771,10 @@ class PhotiniMap(QtWidgets.QSplitter):
                 if address[key] not in element:
                     element.append(address[key])
                 del(address[key])
-            location[iptc_key] = ', '.join(element) or None
+            if element and iptc_key == 'country_code':
+                location[iptc_key] = element[0]
+            else:
+                location[iptc_key] = ', '.join(element) or None
         del location['ignore']
         # put unknown keys in sublocation
         for key in address:
