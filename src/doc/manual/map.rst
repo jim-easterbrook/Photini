@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
+   Copyright (C)  2012-19  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Geotagging
@@ -82,6 +82,7 @@ Typically ``city`` can be anything from a village to a metropolis, and ``street`
 ``Province`` would be a state in the USA or a county in the UK.
 ``Country`` is stored as a name and a 2 or 3 letter ISO code.
 ``Region`` appears to be rarely used but could be a continent or sub-continent.
+More detail about these can be found on the `IPTC web site <https://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/locations.htm>`_.
 
 Photini stores two addresses: ``camera`` is where the photographer was positioned and ``subject`` is the location being photographed.
 For example, a general view of the Eiffel Tower will almost certainly have been taken from somewhere else in Paris.
