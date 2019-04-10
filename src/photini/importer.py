@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -166,9 +163,8 @@ class CameraSource(object):
 def get_camera_list():
     if not gp:
         return []
-    context = gp.Context()
     camera_list = []
-    for name, addr in context.camera_autodetect():
+    for name, addr in gp.check_result(gp.gp_camera_autodetect()):
         camera_list.append((name, addr))
     camera_list.sort(key=lambda x: x[0])
     return camera_list
@@ -231,6 +227,8 @@ class Importer(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(Importer, self).__init__(parent)
         app = QtWidgets.QApplication.instance()
+        if gp and app.test_mode:
+            self.gp_log = gp.check_result(gp.use_python_logging())
         self.config_store = app.config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
