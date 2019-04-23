@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -741,13 +741,13 @@ class PhotiniMap(QtWidgets.QSplitter):
                           'region', 'island'),
         'city'          :('village', 'locality', 'hamlet',
                           'neighbourhood', 'city_district', 'suburb',
-                          'city', 'town'),
+                          'city', 'town', 'postcode'),
         'sublocation'   :('house_number', 'street_number',
                           'house', 'public_building', 'building',
                           'road', 'pedestrian', 'path', 'residential',
                           'street_name', 'street', 'footway',
                           'place'),
-        'ignore'        :('political_union', 'postcode', 'road_reference',
+        'ignore'        :('political_union', 'road_reference',
                           'road_reference_intl', 'road_type', 'state_code',
                           '_type'),
         }
