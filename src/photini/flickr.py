@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -111,7 +111,8 @@ class FlickrSession(UploaderSession):
             kwargs['description'] = description
         keywords = image.metadata.keywords
         if keywords:
-            kwargs['tags'] = ' '.join(['"' + x + '"' for x in keywords])
+            kwargs['tags'] = ' '.join(
+                ['"' + x.replace('"', '') + '"' for x in keywords])
         # upload photo
         try:
             rsp = self.api.upload(image.path, fileobj=fileobj, **kwargs)
