@@ -109,9 +109,10 @@ class FlickrSession(UploaderSession):
         description = image.metadata.description
         if description:
             kwargs['description'] = description
+        kwargs['tags'] = 'uploaded:by=photini'
         keywords = image.metadata.keywords
         if keywords:
-            kwargs['tags'] = ' '.join(
+            kwargs['tags'] += ' ' + ' '.join(
                 ['"' + x.replace('"', '') + '"' for x in keywords])
         # upload photo
         try:
