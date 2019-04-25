@@ -123,6 +123,9 @@ class FlickrSession(UploaderSession):
         if status != 'ok':
             return status
         photo_id = rsp.find('photoid').text
+        # store photo id in image keywords
+        image.metadata.keywords = (image.metadata.keywords or []) + [
+            'flickr:photo_id={}'.format(photo_id)]
         # set date and granularity
         date_taken = image.metadata.date_taken
         if date_taken:
