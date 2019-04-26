@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -868,11 +868,12 @@ class MetadataHandler(GExiv2.Metadata):
             except LookupError:
                 pass
         for tag in self.get_iptc_tags():
-            try:
-                value_list = self.get_multiple(tag)
-                self.set_multiple(tag, value_list)
-            except Exception as ex:
-                logger.exception(ex)
+            if self.get_tag_type(tag) == 'String':
+                try:
+                    value_list = self.get_multiple(tag)
+                    self.set_multiple(tag, value_list)
+                except Exception as ex:
+                    logger.exception(ex)
 
     def _decode_string(self, value):
         if not value:
