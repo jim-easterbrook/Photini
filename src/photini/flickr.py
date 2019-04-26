@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals
 
+from datetime import datetime, timedelta
 import logging
 import os
 import requests
@@ -198,6 +199,7 @@ class FlickrSession(UploaderSession):
 
 class FlickrUploadConfig(QtWidgets.QWidget):
     new_set = QtCore.pyqtSignal()
+    sync_metadata = QtCore.pyqtSignal()
 
     def __init__(self, *arg, **kw):
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
@@ -225,7 +227,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.hidden = QtWidgets.QCheckBox(self.tr('Hidden from search'))
         privacy_group.layout().addWidget(self.hidden)
         privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 0, 2, 1)
+        self.layout().addWidget(privacy_group, 0, 0, 3, 1)
         # content type
         self.content_type = {}
         content_group = QtWidgets.QGroupBox(self.tr('Content type'))
@@ -239,10 +241,14 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         content_group.layout().addWidget(self.content_type['other'])
         content_group.layout().addStretch(1)
         self.layout().addWidget(content_group, 0, 1)
+        # synchronise metadata
+        sync_button = QtWidgets.QPushButton(self.tr('Synchronise'))
+        sync_button.clicked.connect(self.sync_metadata)
+        self.layout().addWidget(sync_button, 1, 1)
         # create new set
         new_set_button = QtWidgets.QPushButton(self.tr('New album'))
         new_set_button.clicked.connect(self.new_set)
-        self.layout().addWidget(new_set_button, 1, 1)
+        self.layout().addWidget(new_set_button, 2, 1)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(self.tr('Add to albums'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
@@ -257,7 +263,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.sets_widget)
         self.sets_widget.setAutoFillBackground(False)
         sets_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(sets_group, 0, 2, 2, 1)
+        self.layout().addWidget(sets_group, 0, 2, 3, 1)
         self.layout().setColumnStretch(2, 1)
 
     @QtCore.pyqtSlot(bool)
@@ -312,6 +318,7 @@ class FlickrUploader(PhotiniUploader):
         self.upload_config = FlickrUploadConfig()
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
+        self.upload_config.sync_metadata.connect(self.sync_metadata)
         self.service_name = self.tr('Flickr')
         self.image_types = {
             'accepted': ('image/gif', 'image/jpeg', 'image/png',
@@ -369,6 +376,136 @@ class FlickrUploader(PhotiniUploader):
 
     def upload_finished(self):
         pass
+
+    def _find_on_flickr(self, image):
+        # get possible date range
+        if not image.metadata.date_taken:
+            return
+        precision = min(image.metadata.date_taken.precision, 6)
+        min_taken_date = image.metadata.date_taken.truncate_datetime(precision)
+        if precision >= 6:
+            max_taken_date = min_taken_date + timedelta(seconds=1)
+        elif precision >= 5:
+            max_taken_date = min_taken_date + timedelta(minutes=1)
+        elif precision >= 4:
+            max_taken_date = min_taken_date + timedelta(hours=1)
+        elif precision >= 3:
+            max_taken_date = min_taken_date + timedelta(days=1)
+        elif precision >= 2:
+            max_taken_date = min_taken_date + timedelta(days=31)
+        else:
+            max_taken_date = min_taken_date + timedelta(days=366)
+        max_taken_date -= timedelta(seconds=1)
+        # search Flickr
+        page = 1
+        while True:
+            with Busy():
+                rsp = self.session.people.getPhotos(
+                    user_id='me', page=page, extras='date_taken,url_t',
+                    format='parsed-json',
+                    min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
+                if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
+                    break
+            for photo in rsp['photos']['photo']:
+                yield photo
+            page += 1
+
+    def _find_local(self, photo, unknowns):
+        granularity = int(photo['datetakengranularity'])
+        min_taken_date = datetime.strptime(
+            photo['datetaken'], '%Y-%m-%d %H:%M:%S')
+        if granularity <= 0:
+            max_taken_date = min_taken_date + timedelta(seconds=1)
+        elif granularity <= 4:
+            max_taken_date = min_taken_date + timedelta(days=31)
+        else:
+            max_taken_date = min_taken_date + timedelta(days=366)
+        candidates = []
+        for candidate in unknowns:
+            if not candidate.metadata.date_taken:
+                continue
+            date_taken = candidate.metadata.date_taken.datetime
+            if date_taken < min_taken_date or date_taken > max_taken_date:
+                continue
+            candidates.append(candidate)
+        if not candidates:
+            return None
+        rsp = requests.get(photo['url_t'])
+        if rsp.status_code == 200:
+            flickr_icon = rsp.content
+        else:
+            logger.error('HTTP error %d (%s)', rsp.status_code, photo['url_t'])
+            return None
+        # get user to choose matching image file
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(self.tr('Select an image'))
+        dialog.setLayout(QtWidgets.QFormLayout())
+        dialog.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(flickr_icon)
+        label = QtWidgets.QLabel()
+        label.setPixmap(pixmap)
+        dialog.layout().addRow(label, QtWidgets.QLabel(self.tr(
+            'Which image file matches\nthis picture on Flickr?')))
+        divider = QtWidgets.QFrame()
+        divider.setFrameStyle(QtWidgets.QFrame.HLine)
+        dialog.layout().addRow(divider)
+        buttons = {}
+        for candidate in candidates:
+            label = QtWidgets.QLabel()
+            pixmap = candidate.image.pixmap()
+            if pixmap:
+                label.setPixmap(pixmap)
+            else:
+                label.setText(candidate.image.text())
+            button = QtWidgets.QPushButton(
+                os.path.basename(candidate.path))
+            button.setToolTip(candidate.path)
+            button.setCheckable(True)
+            button.clicked.connect(dialog.accept)
+            dialog.layout().addRow(label, button)
+            buttons[button] = candidate
+        button = QtWidgets.QPushButton(self.tr('No match'))
+        button.setDefault(True)
+        button.clicked.connect(dialog.reject)
+        dialog.layout().addRow('', button)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            for button, candidate in buttons.items():
+                if button.isChecked():
+                    return candidate
+        return None
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def sync_metadata(self):
+        if not self.authorise('write'):
+            self.refresh(force=True)
+            return
+        # make list of known photo ids
+        photo_ids = {}
+        unknowns = []
+        for image in self.image_list.get_selected_images():
+            for keyword in image.metadata.keywords or []:
+                name_pred, sep, value = keyword.partition('=')
+                if name_pred == 'flickr:photo_id':
+                    photo_ids[value] = image
+                    break
+            else:
+                unknowns.append(image)
+        # try to find unknowns on Flickr
+        for image in unknowns:
+            for photo in self._find_on_flickr(image):
+                if photo['id'] in photo_ids:
+                    continue
+                match = self._find_local(photo, unknowns)
+                if match:
+                    match.metadata.keywords = (
+                        match.metadata.keywords or []) + [
+                            'flickr:photo_id=' + photo['id']]
+                    photo_ids[photo['id']] = match
+                    unknowns.remove(match)
 
     @QtCore.pyqtSlot()
     @catch_all
