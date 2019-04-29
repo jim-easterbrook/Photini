@@ -57,11 +57,13 @@ XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 </x:xmpmeta>
 <?xpacket end="w"?>'''
 
-# recent versions of Exiv2 have these namespaces defined, but older versions
-# may not recognise them
+# Recent versions of Exiv2 have these namespaces defined, but older
+# versions may not recognise them. The xapGImg URL is invalid, but
+# Photini doesn't write xapGImg so it doesn't matter.
 for prefix, name in (
         ('exifEX',  'http://cipa.jp/exif/1.0/'),
         ('video',   'http://www.video/'),
+        ('xapGImg', 'http://ns.adobe.com/xxx/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
 
@@ -1263,6 +1265,9 @@ class Metadata(QtCore.QObject):
         'software'       : (('RA.WA', 'Exif.Image.ProcessingSoftware'),
                             ('RA.WA', ('Iptc.Application2.Program',
                                        'Iptc.Application2.ProgramVersion'))),
+        # Both xmpGImg and xapGImg namespaces are specified in different
+        # Adobe documents I've seen. xmpGImg appears to be more recent,
+        # so we write that but read either.
         'thumbnail'      : (('RA.WA', 'Exif.Thumbnail.Compression'),
                             ('RA.WX', ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
                                        'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
