@@ -919,7 +919,6 @@ class MetadataHandler(GExiv2.Metadata):
             # pgi returns an array of int instead of a bytes object
             if result and isinstance(result[0], int):
                 result = bytearray(result)
-            result = self._decode_string(result)
         except Exception as ex:
             logger.exception(ex)
             return None
@@ -928,6 +927,20 @@ class MetadataHandler(GExiv2.Metadata):
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return [self.get_string(x) for x in tag]
+        if self.get_tag_type(tag) == 'Comment':
+            result = self.get_raw(tag)
+            if not result:
+                return None
+            charset = result[:8].decode('ASCII').strip('\x00')
+            if charset.lower() in ('ascii', ''):
+                result = result[8:].decode('ASCII')
+            elif charset.lower() == 'unicode':
+                result = decode_UCS2(result[8:])
+            elif charset.lower() == 'jis':
+                result = result[8:].decode('euc_jp')
+            else:
+                result = result.decode('ASCII', 'replace')
+            return result.strip('\x00')
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
             # get_tag_string is at no risk from non utf8 strings
@@ -939,7 +952,7 @@ class MetadataHandler(GExiv2.Metadata):
             except UnicodeDecodeError as ex:
                 pass
         # attempt to read raw data instead
-        return self.get_raw(tag)
+        return self._decode_string(self.get_raw(tag))
 
     def get_multiple(self, tag):
         if isinstance(tag, tuple):
@@ -958,7 +971,7 @@ class MetadataHandler(GExiv2.Metadata):
         result = self.get_raw(tag)
         if not result:
             return []
-        return [result]
+        return [self._decode_string(result)]
 
     def set_string(self, tag, value):
         if isinstance(tag, tuple):
@@ -1177,6 +1190,7 @@ class Metadata(QtCore.QObject):
         'description'    : (('RA.WA', 'Exif.Image.ImageDescription'),
                             ('RA.W0', 'Exif.Image.XPComment'),
                             ('RA.W0', 'Exif.Image.XPSubject'),
+                            ('RA.W0', 'Exif.Photo.UserComment'),
                             ('RA.WA', 'Xmp.dc.description'),
                             ('RA.W0', 'Xmp.tiff.ImageDescription'),
                             ('RA.WA', 'Iptc.Application2.Caption')),
