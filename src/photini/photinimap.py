@@ -29,6 +29,7 @@ import six
 
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
+from photini.metadata import Location
 from photini.pyqt import (
     Busy, catch_all, ComboBox, CompactButton, Qt, QtCore, QtGui, QtWebChannel,
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
@@ -762,27 +763,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         address = results[0]['components']
         if 'country_code' in address:
             address['country_code'] = address['country_code'].upper()
-        location = {}
-        for iptc_key in self.address_map:
-            element = []
-            for key in self.address_map[iptc_key]:
-                if key not in address:
-                    continue
-                if address[key] not in element:
-                    element.append(address[key])
-                del(address[key])
-            if element and iptc_key == 'country_code':
-                location[iptc_key] = element[0]
-            else:
-                location[iptc_key] = ', '.join(element) or None
-        del location['ignore']
-        # put unknown keys in sublocation
-        for key in address:
-            if location['sublocation']:
-                location['sublocation'] = '{}: {}, {}'.format(
-                    key, address[key], location['sublocation'])
-            else:
-                location['sublocation'] = '{}: {}'.format(key, address[key])
+        location = Location.from_address(address, self.address_map)
         for image in self.image_list.get_selected_images():
             image.metadata.location_taken = location
         self.display_location()

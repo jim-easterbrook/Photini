@@ -287,6 +287,29 @@ class Location(MD_Dict):
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
 
+    @classmethod
+    def from_address(cls, address, key_map):
+        result = cls({})
+        for key in result:
+            result[key] = []
+        for key in key_map:
+            for foreign_key in key_map[key]:
+                if foreign_key not in address:
+                    continue
+                if key in result and address[foreign_key] not in result[key]:
+                    result[key].append(address[foreign_key])
+                del(address[foreign_key])
+        # only use one country code
+        result.country_code = result.country_code[:1]
+        # put unknown foreign keys in sublocation
+        for foreign_key in address:
+            result['sublocation'] = [
+                '{}: {}'.format(foreign_key, address[foreign_key])
+                ] + result['sublocation']
+        for key in result:
+            result[key] = ', '.join(result[key]) or None
+        return result
+
     def merge(self, info, tag, other):
         merged = False
         result = Location(self)
