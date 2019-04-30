@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -39,13 +39,23 @@ try:
 except ImportError:
     PIL = None
 
-from photini.metadata import Metadata
+from photini.metadata import Metadata, MultiString
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
     scale_font, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 DRAG_MIMETYPE = 'application/x-photini-image'
+
+
+class TableWidget(QtWidgets.QTableWidget):
+    @catch_all
+    def sizeHint(self):
+        h_hdr = self.horizontalHeader()
+        v_hdr = self.verticalHeader()
+        return QtCore.QSize(h_hdr.length() + v_hdr.sizeHint().width() + 4,
+                            v_hdr.length() + h_hdr.sizeHint().height() + 4)
+
 
 class Image(QtWidgets.QFrame):
     def __init__(self, path, image_list, thumb_size=80, *arg, **kw):
@@ -111,6 +121,54 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def save_metadata(self):
         self.image_list._save_files(images=[self])
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def diff_metadata(self):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(self.tr('Metadata differences'))
+        dialog.setLayout(QtWidgets.QVBoxLayout())
+        table = TableWidget()
+        table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                            QtWidgets.QSizePolicy.Expanding)
+        table.setColumnCount(2)
+        table.setHorizontalHeaderLabels(['new value', 'old value'])
+        labels = []
+        row = 0
+        md_list = (self.metadata, Metadata(self.path))
+        for key in ('title', 'description', 'keywords', 'rating',
+                    'copyright', 'creator',
+                    'date_taken', 'date_digitised', 'date_modified',
+                    'orientation',
+                    'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
+                    'focal_length', 'focal_length_35', 'aperture',
+                    'latlong', 'location_taken', 'location_shown'):
+            values = []
+            for md in md_list:
+                values.append(getattr(md, key))
+            if values[0] == values[1]:
+                continue
+            table.setRowCount(row + 1)
+            for n, value in enumerate(values):
+                if not value:
+                    value = ''
+                elif isinstance(value, MultiString):
+                    value = '\n'.join(value)
+                else:
+                    value = six.text_type(value)
+                item = QtWidgets.QTableWidgetItem(value)
+                table.setItem(row, n, item)
+            labels.append(key)
+            row += 1
+        table.setVerticalHeaderLabels(labels)
+        table.resizeColumnsToContents()
+        table.resizeRowsToContents()
+        dialog.layout().addWidget(table)
+        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addWidget(button_box)
+        dialog.exec_()
 
     def get_video_frame(self):
         if not cv2:
@@ -239,6 +297,7 @@ class Image(QtWidgets.QFrame):
         menu = QtWidgets.QMenu(self)
         menu.addAction(self.tr('Reload metadata'), self.reload_metadata)
         menu.addAction(self.tr('Save metadata'), self.save_metadata)
+        menu.addAction(self.tr('View changes'), self.diff_metadata)
         menu.addAction(self.tr('Regenerate thumbnail'), self.regenerate_thumbnail)
         action = menu.exec_(event.globalPos())
 
