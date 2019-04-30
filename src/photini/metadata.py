@@ -310,6 +310,13 @@ class Location(MD_Dict):
             result[key] = ', '.join(result[key]) or None
         return result
 
+    def __str__(self):
+        result = []
+        for key in self._keys:
+            if self[key]:
+                result.append('{}: {}'.format(key, self[key]))
+        return '\n'.join(result)
+
     def merge(self, info, tag, other):
         merged = False
         result = Location(self)
