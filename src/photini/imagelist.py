@@ -142,7 +142,8 @@ class Image(QtWidgets.QFrame):
                     'orientation',
                     'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
                     'focal_length', 'focal_length_35', 'aperture',
-                    'latlong', 'location_taken', 'location_shown'):
+                    'latlong', 'location_taken', 'location_shown',
+                    'thumbnail'):
             values = []
             for md in md_list:
                 values.append(getattr(md, key))

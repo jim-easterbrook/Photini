@@ -388,7 +388,10 @@ class Thumbnail(MD_Dict):
                 return None
             fmt = handler.get_tag_string(tag)
             fmt = ('TIFF', 'JPEG')[fmt == '6']
-            w, h = None, None
+            pixmap = QtGui.QPixmap()
+            pixmap.loadFromData(data)
+            w = pixmap.width()
+            h = pixmap.height()
         return cls((data, fmt, w, h))
 
     def write(self, handler, tag):
