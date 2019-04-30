@@ -165,18 +165,19 @@ class MD_Dict(MD_Value, dict):
         if other == self:
             return self
         ignored = False
-        for key in self:
+        result = MD_Dict(self)
+        for key in result:
             if not other[key]:
                 continue
-            if not self[key]:
-                self[key] = other[key]
-            elif other[key] != self[key]:
+            if not result[key]:
+                result[key] = other[key]
+            elif other[key] != result[key]:
                 ignored = True
         if ignored:
             self.log_ignored(info, tag, other)
         else:
             self.log_merged(info, tag, other)
-        return self
+        return result
 
 
 class LatLon(MD_Dict):
@@ -288,17 +289,19 @@ class Location(MD_Dict):
 
     def merge(self, info, tag, other):
         merged = False
-        for key in self:
+        result = Location(self)
+        for key in result:
             if not other[key]:
                 continue
-            if not self[key]:
-                self[key] = other[key]
+            if not result[key]:
+                result[key] = other[key]
                 merged = True
-            elif other[key] not in self[key]:
-                self[key] += ' // ' + other[key]
+            elif other[key] not in result[key]:
+                result[key] += ' // ' + other[key]
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
+            return result
         return self
 
 
@@ -601,26 +604,28 @@ class DateTime(MD_Dict):
         if other == self:
             return self
         merged = False
-        if other.datetime != self.datetime:
+        result = DateTime(self)
+        if other.datetime != result.datetime:
             # if datetime values differ, choose the one with more precision
-            if other.precision > self.precision:
+            if other.precision > result.precision:
                 self.log_replaced(info, tag, other)
                 return other
-            if other.datetime != self.truncate_datetime(other.precision):
+            if other.datetime != result.truncate_datetime(other.precision):
                 self.log_ignored(info, tag, other)
                 return self
         else:
             # some formats default to a higher precision than wanted
-            if self.precision < 7 and other.precision < self.precision:
-                self.precision = other.precision
+            if result.precision < 7 and other.precision < result.precision:
+                result.precision = other.precision
                 merged = True
         # don't trust IPTC time zone and Exif doesn't have time zone
-        if (other.tz_offset not in (None, self.tz_offset) and
+        if (other.tz_offset not in (None, result.tz_offset) and
                 MetadataHandler.is_xmp_tag(tag)):
-            self.tz_offset = other.tz_offset
+            result.tz_offset = other.tz_offset
             merged = True
         if merged:
             self.log_merged(info, tag, other)
+            return result
         return self
 
 
@@ -656,12 +661,14 @@ class MultiString(MD_Value, list):
 
     def merge(self, info, tag, other):
         merged = False
+        result = MultiString(self)
         for item in other:
-            if item not in self:
-                self.append(item)
+            if item not in result:
+                result.append(item)
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
+            return result
         return self
 
 
