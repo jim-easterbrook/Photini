@@ -964,6 +964,12 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         return result
 
+    _charset_map = {
+        'ascii'  : 'ascii',
+        'unicode': 'utf_16',
+        'jis'    : 'euc_jp',
+        }
+
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return [self.get_string(x) for x in tag]
@@ -971,15 +977,14 @@ class MetadataHandler(GExiv2.Metadata):
             result = self.get_raw(tag)
             if not result:
                 return None
-            charset = result[:8].decode('ASCII').strip('\x00')
-            if charset.lower() in ('ascii', ''):
-                result = result[8:].decode('ASCII')
-            elif charset.lower() == 'unicode':
-                result = decode_UCS2(result[8:])
-            elif charset.lower() == 'jis':
-                result = result[8:].decode('euc_jp')
+            charset = result[:8].decode(
+                'ascii', 'replace').strip('\x00').lower()
+            if charset in self._charset_map:
+                result = result[8:].decode(self._charset_map[charset])
+            elif charset == '':
+                result = self._decode_string(result[8:])
             else:
-                result = result.decode('ASCII', 'replace')
+                result = result.decode('ascii', 'replace')
             return result.strip('\x00')
         if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
                                         'Ascii', 'String', 'XmpText'):
