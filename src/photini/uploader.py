@@ -345,6 +345,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_list = []
         for image in self.image_list.get_selected_images():
             params = self.get_upload_params(image)
+            if not params:
+                continue
             convert = self.get_conversion_function(image)
             if convert == 'omit':
                 continue

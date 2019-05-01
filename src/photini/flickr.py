@@ -40,6 +40,9 @@ translate = QtCore.QCoreApplication.translate
 
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
+ID_TAG = 'flickr:photo_id'
+
+
 class FlickrSession(UploaderSession):
     name = 'flickr'
 
@@ -55,7 +58,8 @@ class FlickrSession(UploaderSession):
             token = flickrapi.auth.FlickrAccessToken(
                 token, token_secret, 'write')
             self.api = flickrapi.FlickrAPI(
-                api_key, api_secret, token=token, store_token=False)
+                api_key, api_secret, token=token, store_token=False,
+                format='parsed-json')
         return self.api.token_valid(perms='write')
 
     def get_auth_url(self, level):
@@ -63,7 +67,8 @@ class FlickrSession(UploaderSession):
         api_secret = key_store.get('flickr', 'api_secret')
         token = flickrapi.auth.FlickrAccessToken('', '', 'write')
         self.api = flickrapi.FlickrAPI(
-            api_key, api_secret, token=token, store_token=False)
+            api_key, api_secret, token=token, store_token=False,
+            format='parsed-json')
         self.api.get_request_token(oauth_callback='oob')
         return self.api.auth_url(perms='write')
 
@@ -81,12 +86,12 @@ class FlickrSession(UploaderSession):
 
     def get_user(self):
         result = None, None
-        rsp = self.api.auth.oauth.checkToken(format='parsed-json')
+        rsp = self.api.auth.oauth.checkToken()
         if rsp['stat'] != 'ok':
             return result
         user = rsp['oauth']['user']
         result = user['fullname'], None
-        rsp = self.api.people.getInfo(user_id=user['nsid'], format='parsed-json')
+        rsp = self.api.people.getInfo(user_id=user['nsid'])
         if rsp['stat'] != 'ok':
             return result
         person = rsp['person']
@@ -103,95 +108,99 @@ class FlickrSession(UploaderSession):
         return result
 
     def do_upload(self, fileobj, image_type, image, params):
-        fixed_params, add_to_sets = params
-        # collect metadata
-        kwargs = dict(fixed_params)
-        title = image.metadata.title
-        if title:
-            kwargs['title'] = title
-        description = image.metadata.description
-        if description:
-            kwargs['description'] = description
-        kwargs['tags'] = 'uploaded:by=photini'
-        keywords = image.metadata.keywords
-        if keywords:
-            kwargs['tags'] += ' ' + ' '.join(
-                ['"' + x.replace('"', '') + '"' for x in keywords])
-        # upload photo
-        try:
-            rsp = self.api.upload(image.path, fileobj=fileobj, **kwargs)
-        except Exception as ex:
-            return str(ex)
-        status = rsp.attrib['stat']
-        if status != 'ok':
-            return status
-        photo_id = rsp.find('photoid').text
+        if params['function']:
+            # upload or replace photo
+            kwargs = {
+                'filename': image.path,
+                'fileobj' : fileobj,
+                'format'  : 'etree'
+                }
+            if 'photo_id' in params:
+                kwargs['photo_id'] = params['photo_id']
+            try:
+                rsp = getattr(self.api, params['function'])(**kwargs)
+                status = rsp.attrib['stat']
+            except Exception as ex:
+                status = str(ex)
+            if status != 'ok':
+                return params['function'] + ' ' + status
+            photo_id = rsp.find('photoid').text
+        else:
+            # using a previously uploaded photo
+            photo_id = params['photo_id']
+        fileobj._callback(100)
         # store photo id in image keywords
-        image.metadata.keywords = (image.metadata.keywords or []) + [
-            'flickr:photo_id={}'.format(photo_id)]
-        # set date and granularity
-        date_taken = image.metadata.date_taken
-        if date_taken:
-            kwargs = {
-                'photo_id'  : photo_id,
-                'date_taken': date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S'),
-                }
-            if date_taken.precision <= 2:
-                kwargs['date_taken_granularity'] = 8 - (date_taken.precision * 2)
-            for attempt in range(3):
+        keyword = '{}={}'.format(ID_TAG, photo_id)
+        if not image.metadata.keywords:
+            image.metadata.keywords = [keyword]
+        elif keyword not in image.metadata.keywords:
+            image.metadata.keywords = image.metadata.keywords + [keyword]
+        # set metadata after uploading image
+        if not params['set_metadata']:
+            return ''
+        for key, function in (('permissions',  'setPerms'),
+                              ('content_type', 'setContentType'),
+                              ('hidden',       'setSafetyLevel'),
+                              ('meta',         'setMeta'),
+                              ('tags',         'setTags'),
+                              ('dates',        'setDates'),
+                              ('location',     'geo.setLocation')):
+            if key not in params:
+                continue
+            kwargs = params[key]
+            kwargs['photo_id'] = photo_id
+            try:
+                rsp = getattr(self.api.photos, function)(**kwargs)
+                status = rsp['stat']
+            except flickrapi.FlickrError as ex:
+                status = str(ex)
+            if status != 'ok':
+                return function + ' ' + status
+        # clear location?
+        if 'location' not in params and params['function'] != 'upload':
+            try:
+                rsp = self.api.photos.getInfo(photo_id=photo_id)
+                status = rsp['stat']
+            except flickrapi.FlickrError as ex:
+                status = str(ex)
+            if status != 'ok':
+                return 'getInfo ' + status
+            if 'location' in rsp['photo']:
                 try:
-                    rsp = self.api.photos_setDates(**kwargs)
-                    status = rsp.attrib['stat']
-                    if status == 'ok':
-                        break
+                    rsp = self.api.photos.geo.removeLocation(photo_id=photo_id)
+                    status = rsp['stat']
                 except flickrapi.FlickrError as ex:
                     status = str(ex)
-            else:
-                return status
-        # set location
-        latlon = image.metadata.latlong
-        if latlon:
-            kwargs = {
-                'photo_id': photo_id,
-                'lat'     : '{:.6f}'.format(latlon.lat),
-                'lon'     : '{:.6f}'.format(latlon.lon),
-                }
-            for attempt in range(3):
-                try:
-                    rsp = self.api.photos.geo.setLocation(**kwargs)
-                    status = rsp.attrib['stat']
-                    if status == 'ok':
-                        break
-                except flickrapi.FlickrError as ex:
-                    status = str(ex)
-            else:
-                return status
+                if status != 'ok':
+                    return 'geo.removeLocation ' + status
         # add to sets
-        for p_set in add_to_sets:
+        for p_set in params['sets']:
             if p_set['id']:
                 # add to existing set
+                kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
                 try:
-                    self.api.photosets_addPhoto(
-                        photo_id=photo_id, photoset_id=p_set['id'])
-                    continue
+                    rsp = self.api.photosets.addPhoto(**kwargs)
+                    status = rsp['stat']
                 except flickrapi.FlickrError as ex:
-                    logger.error('Add to photoset "%s" failed: %s',
-                                 p_set['title'], str(ex))
-                    p_set['id'] = None
+                    status = str(ex)
+                if status == 'ok':
+                    continue
+                logger.error(
+                    'Add to photoset "%s" failed: %s', p_set['title'], status)
+                p_set['id'] = None
             # create new set
+            kwargs = {'title'           : p_set['title'],
+                      'description'     : p_set['description'],
+                      'primary_photo_id': photo_id}
             try:
-                rsp = self.api.photosets_create(
-                    title=p_set['title'], description=p_set['description'],
-                    primary_photo_id=photo_id)
+                rsp = self.api.photosets_create(**kwargs)
+                status = rsp['stat']
             except flickrapi.FlickrError as ex:
-                logger.error('Create photoset "%s" failed: %s',
-                             p_set['title'], str(ex))
+                status = str(ex)
+            if status == 'ok':
                 continue
-            if rsp.attrib['stat'] == 'ok':
-                p_set['id'] = rsp.find('photoset').attrib['id']
-            else:
-                logger.error('Create photoset "%s" failed: %s',
-                             p_set['title'], rsp.attrib['stat'])
+            logger.error(
+                'Create photoset "%s" failed: %s', p_set['title'], status)
         return ''
 
     # delegate all other attributes to api object
@@ -274,25 +283,27 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
         self.privacy['family'].setEnabled(self.privacy['private'].isChecked())
 
-    def get_upload_params(self):
-        is_public = ('0', '1')[self.privacy['public'].isChecked()]
-        is_family = ('0', '1')[self.privacy['private'].isChecked() and
-                               self.privacy['family'].isChecked()]
-        is_friend = ('0', '1')[self.privacy['private'].isChecked() and
-                               self.privacy['friends'].isChecked()]
+    def get_fixed_params(self):
+        is_public = str(int(self.privacy['public'].isChecked()))
+        is_family = str(int(self.privacy['private'].isChecked() and
+                            self.privacy['family'].isChecked()))
+        is_friend = str(int(self.privacy['private'].isChecked() and
+                            self.privacy['friends'].isChecked()))
         if self.content_type['photo'].isChecked():
             content_type = '1'
         elif self.content_type['screenshot'].isChecked():
             content_type = '2'
         else:
             content_type = '3'
-        hidden = ('1', '2')[self.hidden.isChecked()]
+        hidden = str(int(self.hidden.isChecked()))
         return {
-            'is_public'    : is_public,
-            'is_friend'    : is_friend,
-            'is_family'    : is_family,
-            'content_type' : content_type,
-            'hidden'       : hidden,
+            'permissions': {
+                'is_public': is_public,
+                'is_friend': is_friend,
+                'is_family': is_family,
+                },
+            'content_type': {'content_type': content_type},
+            'hidden'      : {'hidden'      : hidden},
             }
 
     def clear_sets(self):
@@ -355,26 +366,108 @@ class FlickrUploader(PhotiniUploader):
         self.photosets = []
         self.upload_config.clear_sets()
         if self.connected:
-            sets = self.session.photosets_getList()
-            for item in sets.find('photosets').findall('photoset'):
-                title = item.find('title').text
-                description = item.find('description').text
+            sets = self.session.photosets.getList()
+            for item in sets['photosets']['photoset']:
+                title = item['title']['_content']
+                description = item['description']['_content']
                 widget = self.upload_config.add_set(title, description)
                 self.photosets.append({
-                    'id'    : item.attrib['id'],
+                    'id'    : item['id'],
                     'title' : title,
                     'widget': widget,
                     })
 
     def get_upload_params(self, image):
+        params = {
+            'function'    : 'upload',
+            'set_metadata': True,
+            }
         # get config params that apply to all photos
-        fixed_params = self.upload_config.get_upload_params()
+        params.update(self.upload_config.get_fixed_params())
+        # add title & description
+        params['meta'] = {
+            'title'      : image.metadata.title or image.name,
+            'description': image.metadata.description or '',
+            }
+        # add keywords
+        params['tags'] = {'tags': 'uploaded:by=photini'}
+        for keyword in image.metadata.keywords or []:
+            if not keyword.startswith(ID_TAG):
+                params['tags']['tags'] += ' "' + keyword.replace('"', '') + '"'
+        # add date_taken
+        date_taken = image.metadata.date_taken
+        if date_taken:
+            params['dates'] = {
+                'date_taken': date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+                }
+            if date_taken.precision <= 1:
+                params['dates']['date_taken_granularity'] = '6'
+            elif date_taken.precision <= 2:
+                params['dates']['date_taken_granularity'] = '4'
+        # add location
+        if image.metadata.latlong:
+            params['location'] = {
+                'lat': '{:.6f}'.format(image.metadata.latlong.lat),
+                'lon': '{:.6f}'.format(image.metadata.latlong.lon),
+                }
         # make list of sets to add photos to
-        add_to_sets = []
+        params['sets'] = []
         for item in self.photosets:
             if item['widget'].isChecked():
-                add_to_sets.append(item)
-        return fixed_params, add_to_sets
+                params['sets'].append(item)
+        # has image already been uploaded?
+        for keyword in image.metadata.keywords or []:
+            name_pred, sep, value = keyword.partition('=')
+            if name_pred == ID_TAG:
+                replace = self._replace_dialog(image)
+                if not replace or not any(replace.values()):
+                    return None
+                if replace['new_photo']:
+                    break
+                params['photo_id'] = value
+                params['set_metadata'] = replace['replace_metadata']
+                if replace['replace_image']:
+                    params['function'] = 'replace'
+                else:
+                    params['function'] = None
+                break
+        return params
+
+    def _replace_dialog(self, image):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(self.tr('Replace photo'))
+        dialog.setLayout(QtWidgets.QVBoxLayout())
+        message = QtWidgets.QPlainTextEdit(self.tr(
+            'File {0} has already been uploaded to Flickr.' +
+            ' Would you like to replace it?').format(
+                os.path.basename(image.path)))
+        dialog.layout().addWidget(message)
+        replace_metadata = QtWidgets.QCheckBox(self.tr('Replace metadata'))
+        replace_metadata.setChecked(True)
+        dialog.layout().addWidget(replace_metadata)
+        button_group = QtWidgets.QButtonGroup()
+        replace_image = QtWidgets.QCheckBox(self.tr('Replace image'))
+        button_group.addButton(replace_image)
+        dialog.layout().addWidget(replace_image)
+        new_photo = QtWidgets.QCheckBox(self.tr('Upload as new photo'))
+        button_group.addButton(new_photo)
+        dialog.layout().addWidget(new_photo)
+        no_upload = QtWidgets.QCheckBox(self.tr('No image upload'))
+        no_upload.setChecked(True)
+        button_group.addButton(no_upload)
+        dialog.layout().addWidget(no_upload)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addWidget(button_box)
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return None
+        return {
+            'replace_image'   : replace_image.isChecked(),
+            'replace_metadata': replace_metadata.isChecked(),
+            'new_photo'       : new_photo.isChecked(),
+            }
 
     def upload_finished(self):
         pass
@@ -404,7 +497,6 @@ class FlickrUploader(PhotiniUploader):
             with Busy():
                 rsp = self.session.people.getPhotos(
                     user_id='me', page=page, extras='date_taken,url_t',
-                    format='parsed-json',
                     min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
                     max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
                 if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
@@ -487,8 +579,7 @@ class FlickrUploader(PhotiniUploader):
 
     def _merge_metadata(self, photo_id, image):
         try:
-            rsp = self.session.photos.getInfo(
-                photo_id=photo_id, format='parsed-json')
+            rsp = self.session.photos.getInfo(photo_id=photo_id)
         except flickrapi.FlickrError as ex:
             logger.error(str(ex))
             return
@@ -504,7 +595,7 @@ class FlickrUploader(PhotiniUploader):
                 image.name + '(title)', 'flickr title', title)
         else:
             md.title = title
-        # symc description
+        # sync description
         description = h.unescape(photo['description']['_content'])
         if md.description:
             md.description = md.description.merge(
@@ -576,7 +667,7 @@ class FlickrUploader(PhotiniUploader):
         for image in self.image_list.get_selected_images():
             for keyword in image.metadata.keywords or []:
                 name_pred, sep, value = keyword.partition('=')
-                if name_pred == 'flickr:photo_id':
+                if name_pred == ID_TAG:
                     photo_ids[value] = image
                     break
             else:
@@ -590,7 +681,7 @@ class FlickrUploader(PhotiniUploader):
                 if match:
                     match.metadata.keywords = (
                         match.metadata.keywords or []) + [
-                            'flickr:photo_id=' + photo['id']]
+                            '{}={}'.format(ID_TAG, photo['id'])]
                     photo_ids[photo['id']] = match
                     unknowns.remove(match)
         # merge Flickr metadata into file
