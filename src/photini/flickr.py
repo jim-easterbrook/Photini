@@ -243,9 +243,9 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         content_group.layout().addStretch(1)
         self.layout().addWidget(content_group, 0, 1)
         # synchronise metadata
-        sync_button = QtWidgets.QPushButton(self.tr('Synchronise'))
-        sync_button.clicked.connect(self.sync_metadata)
-        self.layout().addWidget(sync_button, 1, 1)
+        self.sync_button = QtWidgets.QPushButton(self.tr('Synchronise'))
+        self.sync_button.clicked.connect(self.sync_metadata)
+        self.layout().addWidget(self.sync_button, 1, 1)
         # create new set
         new_set_button = QtWidgets.QPushButton(self.tr('New album'))
         new_set_button.clicked.connect(self.new_set)
@@ -628,3 +628,10 @@ class FlickrUploader(PhotiniUploader):
             'description' : description,
             'widget'      : widget,
             })
+
+    @QtCore.pyqtSlot(list)
+    @catch_all
+    def new_selection(self, selection):
+        super(FlickrUploader, self).new_selection(selection)
+        self.upload_config.sync_button.setEnabled(
+            len(selection) > 0 and self.connected)
