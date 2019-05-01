@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -84,10 +84,9 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtCore.pyqtSignal(float)
     upload_file_done = QtCore.pyqtSignal(object, six.text_type)
 
-    def __init__(self, session_factory, params):
+    def __init__(self, session_factory):
         super(UploadWorker, self).__init__()
         self.session = session_factory(auto_refresh=False)
-        self.params = params
         self.fileobj = None
         self.thread = QtCore.QThread(self)
         self.moveToThread(self.thread)
@@ -97,9 +96,9 @@ class UploadWorker(QtCore.QObject):
             self.fileobj.close()
             self.fileobj = None
 
-    @QtCore.pyqtSlot(object, object)
+    @QtCore.pyqtSlot(object, object, object)
     @catch_all
-    def upload_file(self, image, convert):
+    def upload_file(self, image, convert, params):
         if not self.session.permitted('write'):
             self.upload_file_done.emit(image, 'not permitted')
             return
@@ -110,7 +109,7 @@ class UploadWorker(QtCore.QObject):
         with open(path, 'rb') as f:
             self.fileobj = FileObjWithCallback(f, self.upload_progress.emit)
             error = self.session.do_upload(
-                self.fileobj, imghdr.what(path), image, self.params)
+                self.fileobj, imghdr.what(path), image, params)
         if convert:
             os.unlink(path)
         if self.fileobj:
@@ -120,7 +119,7 @@ class UploadWorker(QtCore.QObject):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    upload_file = QtCore.pyqtSignal(object, object)
+    upload_file = QtCore.pyqtSignal(object, object, object)
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
@@ -345,10 +344,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         # make list of items to upload
         self.upload_list = []
         for image in self.image_list.get_selected_images():
+            params = self.get_upload_params(image)
             convert = self.get_conversion_function(image)
             if convert == 'omit':
                 continue
-            self.upload_list.append((image, convert))
+            self.upload_list.append((image, convert, params))
         if not self.upload_list:
             self.upload_button.setChecked(False)
             return
@@ -357,7 +357,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_button.setChecked(False)
             return
         # start uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(self.session_factory, self.get_upload_params())
+        self.upload_worker = UploadWorker(self.session_factory)
         self.upload_file.connect(self.upload_worker.upload_file)
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
@@ -368,13 +368,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.next_upload()
 
     def next_upload(self):
-        image, convert = self.upload_list[self.uploads_done]
+        image, convert, params = self.upload_list[self.uploads_done]
         self.total_progress.setFormat('{} ({}/{}) %p%'.format(
             os.path.basename(image.path),
             1 + self.uploads_done, len(self.upload_list)))
         self.total_progress.setValue(0)
         QtWidgets.QApplication.processEvents()
-        self.upload_file.emit(image, convert)
+        self.upload_file.emit(image, convert, params)
 
     @QtCore.pyqtSlot(object, six.text_type)
     @catch_all

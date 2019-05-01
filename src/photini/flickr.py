@@ -103,8 +103,9 @@ class FlickrSession(UploaderSession):
         return result
 
     def do_upload(self, fileobj, image_type, image, params):
+        fixed_params, add_to_sets = params
         # collect metadata
-        kwargs = dict(params[0])
+        kwargs = dict(fixed_params)
         title = image.metadata.title
         if title:
             kwargs['title'] = title
@@ -166,7 +167,7 @@ class FlickrSession(UploaderSession):
             else:
                 return status
         # add to sets
-        for p_set in params[1]:
+        for p_set in add_to_sets:
             if p_set['id']:
                 # add to existing set
                 try:
@@ -365,7 +366,7 @@ class FlickrUploader(PhotiniUploader):
                     'widget': widget,
                     })
 
-    def get_upload_params(self):
+    def get_upload_params(self, image):
         # get config params that apply to all photos
         fixed_params = self.upload_config.get_upload_params()
         # make list of sets to add photos to
