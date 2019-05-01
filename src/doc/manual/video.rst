@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2017-18  Jim Easterbrook.
+   Copyright (C)  2017-19  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Video file handling
@@ -18,7 +18,7 @@ Most video files don't have thumbnails, but Photini may be able to create one if
 Right-click on the file and choose ``regenerate thumbnail`` from the popup menu.
 If Photini is able to generate a thumbnail it will store it in the XMP sidecar file.
 
-The :doc:`flickr` and :doc:`picasa` tabs can upload video files, but expect it to be slow.
+The :doc:`flickr` tab can upload video files, but expect it to be slow.
 Video files can be very large.
 
 Compiling Exiv2 on Linux

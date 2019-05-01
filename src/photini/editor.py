@@ -45,10 +45,6 @@ from photini.loggerwindow import LoggerWindow
 from photini.mapboxmap import MapboxMap
 from photini.metadata import debug_metadata
 from photini.openstreetmap import OpenStreetMap
-try:
-    from photini.picasa import PicasaUploader
-except ImportError:
-    PicasaUploader = None
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     using_qtwebengine)
@@ -147,9 +143,6 @@ class MainWindow(QtWidgets.QMainWindow):
             {'name'  : self.tr('&Flickr upload'),
              'key'   : 'flickr_upload',
              'class' : FlickrUploader},
-            {'name'  : self.tr('Google &Photos upload'),
-             'key'   : 'picasa_upload',
-             'class' : PicasaUploader},
             {'name'  : self.tr('&Import photos'),
              'key'   : 'import_photos',
              'class' : Importer},
