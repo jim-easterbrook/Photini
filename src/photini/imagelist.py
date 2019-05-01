@@ -131,11 +131,14 @@ class Image(QtWidgets.QFrame):
         table = TableWidget()
         table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
                             QtWidgets.QSizePolicy.Expanding)
-        table.setColumnCount(2)
-        table.setHorizontalHeaderLabels(['new value', 'old value'])
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels(
+            [self.tr('new value'), self.tr('undo'), self.tr('old value')])
         labels = []
         row = 0
-        md_list = (self.metadata, Metadata(self.path))
+        undo = {}
+        new_md = self.metadata
+        old_md = Metadata(self.path)
         for key in ('title', 'description', 'keywords', 'rating',
                     'copyright', 'creator',
                     'date_taken', 'date_digitised', 'date_modified',
@@ -144,9 +147,7 @@ class Image(QtWidgets.QFrame):
                     'focal_length', 'focal_length_35', 'aperture',
                     'latlong', 'location_taken', 'location_shown',
                     'thumbnail'):
-            values = []
-            for md in md_list:
-                values.append(getattr(md, key))
+            values = getattr(new_md, key), getattr(old_md, key)
             if values[0] == values[1]:
                 continue
             table.setRowCount(row + 1)
@@ -158,18 +159,36 @@ class Image(QtWidgets.QFrame):
                 else:
                     value = six.text_type(value)
                 item = QtWidgets.QTableWidgetItem(value)
-                table.setItem(row, n, item)
+                table.setItem(row, n * 2, item)
+            undo[key] = QtWidgets.QTableWidgetItem()
+            undo[key].setFlags(undo[key].flags() | Qt.ItemIsUserCheckable)
+            undo[key].setCheckState(False)
+            table.setItem(row, 1, undo[key])
             labels.append(key)
             row += 1
         table.setVerticalHeaderLabels(labels)
         table.resizeColumnsToContents()
         table.resizeRowsToContents()
         dialog.layout().addWidget(table)
-        button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
-        dialog.exec_()
+        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            return
+        changed = False
+        dirty = False
+        for key, widget in undo.items():
+            if widget.checkState() == Qt.Checked:
+                setattr(new_md, key, getattr(old_md, key))
+                changed = True
+            else:
+                dirty = True
+        if not dirty:
+            self.reload_metadata()
+        elif changed:
+            self.image_list.emit_selection()
 
     def get_video_frame(self):
         if not cv2:
