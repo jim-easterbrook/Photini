@@ -30,6 +30,7 @@ import time
 import flickrapi
 
 from photini.configstore import key_store
+from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
                           QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
@@ -477,6 +478,91 @@ class FlickrUploader(PhotiniUploader):
                     return candidate
         return None
 
+    _address_map = {
+        'country_name':   ('country',),
+        'province_state': ('county', 'region'),
+        'city':           ('neighbourhood', 'locality'),
+        }
+
+    def _merge_metadata(self, photo_id, image):
+        try:
+            rsp = self.session.photos.getInfo(
+                photo_id=photo_id, format='parsed-json')
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            return
+        if rsp['stat'] != 'ok':
+            return
+        photo = rsp['photo']
+        md = image.metadata
+        h = HTMLParser()
+        # sync title
+        title = h.unescape(photo['title']['_content'])
+        if md.title:
+            md.title = md.title.merge(
+                image.name + '(title)', 'flickr title', title)
+        else:
+            md.title = title
+        # symc description
+        description = h.unescape(photo['description']['_content'])
+        if md.description:
+            md.description = md.description.merge(
+                image.name + '(description)', 'flickr description', description)
+        else:
+            md.description = description
+        # sync keywords
+        tags = []
+        for tag in photo['tags']['tag']:
+            if tag['raw'] == 'uploaded:by=photini':
+                continue
+            if md.location_taken and tag['raw'] in (
+                    md.location_taken.country_code,
+                    md.location_taken.country_name,
+                    md.location_taken.province_state,
+                    md.location_taken.city):
+                continue
+            tags.append(tag['raw'])
+        md.keywords = md.keywords.merge(
+            image.name + '(keywords)', 'flickr tags', tags)
+        # sync location
+        if 'location' in photo:
+            location = photo['location']
+            latlong = LatLon((location['latitude'], location['longitude']))
+            if md.latlong:
+                md.latlong = md.latlong.merge(
+                    image.name + '(latlong)', 'flickr location', latlong)
+            else:
+                md.latlong = latlong
+            address = {}
+            for key in location:
+                if '_content' in location[key]:
+                    address[key] = location[key]['_content']
+            location_taken = Location.from_address(address, self._address_map)
+            if md.location_taken:
+                md.location_taken = md.location_taken.merge(
+                    image.name + '(location_taken)', 'flickr location',
+                    location_taken)
+            else:
+                md.location_taken = location_taken
+        # sync date_taken
+        if photo['dates']['takenunknown'] == '0':
+            granularity = int(photo['dates']['takengranularity'])
+            if granularity >= 6:
+                precision = 1
+            elif granularity >= 4:
+                precision = 2
+            else:
+                precision = 6
+            date_taken = DateTime((
+                datetime.strptime(
+                    photo['dates']['taken'], '%Y-%m-%d %H:%M:%S'),
+                precision, None))
+            if md.date_taken:
+                md.date_taken = md.date_taken.merge(
+                    image.name + '(date_taken)', 'flickr date taken', date_taken)
+            else:
+                md.date_taken = date_taken
+
     @QtCore.pyqtSlot()
     @catch_all
     def sync_metadata(self):
@@ -506,6 +592,10 @@ class FlickrUploader(PhotiniUploader):
                             'flickr:photo_id=' + photo['id']]
                     photo_ids[photo['id']] = match
                     unknowns.remove(match)
+        # merge Flickr metadata into file
+        with Busy():
+            for photo_id, image in photo_ids.items():
+                self._merge_metadata(photo_id, image)
 
     @QtCore.pyqtSlot()
     @catch_all
