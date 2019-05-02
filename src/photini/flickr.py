@@ -108,6 +108,7 @@ class FlickrSession(UploaderSession):
         return result
 
     def do_upload(self, fileobj, image_type, image, params):
+        photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
             kwargs = {
@@ -115,8 +116,8 @@ class FlickrSession(UploaderSession):
                 'fileobj' : fileobj,
                 'format'  : 'etree'
                 }
-            if 'photo_id' in params:
-                kwargs['photo_id'] = params['photo_id']
+            if photo_id:
+                kwargs['photo_id'] = photo_id
             try:
                 rsp = getattr(self.api, params['function'])(**kwargs)
                 status = rsp.attrib['stat']
@@ -125,9 +126,6 @@ class FlickrSession(UploaderSession):
             if status != 'ok':
                 return params['function'] + ' ' + status
             photo_id = rsp.find('photoid').text
-        else:
-            # using a previously uploaded photo
-            photo_id = params['photo_id']
         fileobj._callback(100)
         # store photo id in image keywords
         keyword = '{}={}'.format(ID_TAG, photo_id)
@@ -136,8 +134,6 @@ class FlickrSession(UploaderSession):
         elif keyword not in image.metadata.keywords:
             image.metadata.keywords = image.metadata.keywords + [keyword]
         # set metadata after uploading image
-        if not params['set_metadata']:
-            return ''
         for key, function in (('permissions',  'setPerms'),
                               ('content_type', 'setContentType'),
                               ('hidden',       'setSafetyLevel'),
@@ -145,7 +141,7 @@ class FlickrSession(UploaderSession):
                               ('tags',         'setTags'),
                               ('dates',        'setDates'),
                               ('location',     'geo.setLocation')):
-            if key not in params:
+            if key not in params or not params[key]:
                 continue
             kwargs = params[key]
             kwargs['photo_id'] = photo_id
@@ -156,8 +152,9 @@ class FlickrSession(UploaderSession):
                 status = str(ex)
             if status != 'ok':
                 return function + ' ' + status
-        # clear location?
-        if 'location' not in params and params['function'] != 'upload':
+        # existing photo may have a location that needs deleting
+        if params['function'] != 'upload' and (
+                'location' in params and not params['location']):
             try:
                 rsp = self.api.photos.getInfo(photo_id=photo_id)
                 status = rsp['stat']
@@ -173,10 +170,28 @@ class FlickrSession(UploaderSession):
                     status = str(ex)
                 if status != 'ok':
                     return 'geo.removeLocation ' + status
-        # add to sets
+        # add to or remove from sets
+        if 'sets' not in params:
+            return ''
+        current_sets = {}
+        if params['function'] != 'upload':
+            # get sets existing photo is in
+            try:
+                rsp = self.api.photos.getAllContexts(photo_id=photo_id)
+                status = rsp['stat']
+            except flickrapi.FlickrError as ex:
+                status = str(ex)
+            if status != 'ok':
+                return 'getAllContexts ' + status
+            if 'set' in rsp:
+                for p_set in rsp['set']:
+                    current_sets[p_set['id']] = p_set
         for p_set in params['sets']:
             if p_set['id']:
-                # add to existing set
+                # use existing set
+                if p_set['id'] in current_sets:
+                    del current_sets[p_set['id']]
+                    continue
                 kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
                 try:
                     rsp = self.api.photosets.addPhoto(**kwargs)
@@ -193,7 +208,7 @@ class FlickrSession(UploaderSession):
                       'description'     : p_set['description'],
                       'primary_photo_id': photo_id}
             try:
-                rsp = self.api.photosets_create(**kwargs)
+                rsp = self.api.photosets.create(**kwargs)
                 status = rsp['stat']
             except flickrapi.FlickrError as ex:
                 status = str(ex)
@@ -201,6 +216,18 @@ class FlickrSession(UploaderSession):
                 continue
             logger.error(
                 'Create photoset "%s" failed: %s', p_set['title'], status)
+        # remove from any other sets
+        for p_set in current_sets.values():
+            kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
+            try:
+                rsp = self.api.photosets.removePhoto(**kwargs)
+                status = rsp['stat']
+            except flickrapi.FlickrError as ex:
+                status = str(ex)
+            if status == 'ok':
+                continue
+            logger.error(
+                'Remove from photoset "%s" failed: %s', p_set['title'], status)
         return ''
 
     # delegate all other attributes to api object
@@ -381,73 +408,102 @@ class FlickrUploader(PhotiniUploader):
                     })
 
     def get_upload_params(self, image):
-        params = {
-            'function'    : 'upload',
-            'set_metadata': True,
-            }
-        # get config params that apply to all photos
-        params.update(self.upload_config.get_fixed_params())
-        # add title & description
-        params['meta'] = {
-            'title'      : image.metadata.title or image.name,
-            'description': image.metadata.description or '',
-            }
-        # add keywords
-        params['tags'] = {'tags': 'uploaded:by=photini'}
-        for keyword in image.metadata.keywords or []:
-            if not keyword.startswith(ID_TAG):
-                params['tags']['tags'] += ' "' + keyword.replace('"', '') + '"'
-        # add date_taken
-        date_taken = image.metadata.date_taken
-        if date_taken:
-            params['dates'] = {
-                'date_taken': date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+        option, photo_id = self._replace_dialog(image)
+        if not option or not any(option.values()):
+            # user chose to do nothing
+            return None
+        # set upload function
+        if option['new_photo']:
+            params = {'function': 'upload'}
+            photo_id = None
+        elif option['replace_image']:
+            params = {'function': 'replace'}
+        else:
+            params = {'function': None}
+        params['photo_id'] = photo_id
+        # set config params that apply to all photos
+        fixed_params = self.upload_config.get_fixed_params()
+        if option['new_photo'] or option['set_visibility']:
+            params['permissions'] = fixed_params['permissions']
+            params['hidden'] = fixed_params['hidden']
+        if option['new_photo'] or option['set_type']:
+            params['content_type'] = fixed_params['content_type']
+        # add metadata
+        if option['new_photo'] or option['set_metadata']:
+            # title & description
+            params['meta'] = {
+                'title'      : image.metadata.title or image.name,
+                'description': image.metadata.description or '',
                 }
-            if date_taken.precision <= 1:
-                params['dates']['date_taken_granularity'] = '6'
-            elif date_taken.precision <= 2:
-                params['dates']['date_taken_granularity'] = '4'
-        # add location
-        if image.metadata.latlong:
-            params['location'] = {
-                'lat': '{:.6f}'.format(image.metadata.latlong.lat),
-                'lon': '{:.6f}'.format(image.metadata.latlong.lon),
-                }
+            # keywords
+            params['tags'] = {'tags': 'uploaded:by=photini'}
+            for keyword in image.metadata.keywords or []:
+                if not keyword.startswith(ID_TAG):
+                    params['tags']['tags'] += ' "{}"'.format(
+                        keyword.replace('"', ''))
+            # date_taken
+            date_taken = image.metadata.date_taken
+            if date_taken:
+                params['dates'] = {
+                    'date_taken':
+                    date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S')
+                    }
+                if date_taken.precision <= 1:
+                    params['dates']['date_taken_granularity'] = '6'
+                elif date_taken.precision <= 2:
+                    params['dates']['date_taken_granularity'] = '4'
+            # location
+            if image.metadata.latlong:
+                params['location'] = {
+                    'lat': '{:.6f}'.format(image.metadata.latlong.lat),
+                    'lon': '{:.6f}'.format(image.metadata.latlong.lon),
+                    }
+            else:
+                # clear any existing location
+                params['location'] = None
         # make list of sets to add photos to
-        params['sets'] = []
-        for item in self.photosets:
-            if item['widget'].isChecked():
-                params['sets'].append(item)
-        # has image already been uploaded?
-        for keyword in image.metadata.keywords or []:
-            name_pred, sep, value = keyword.partition('=')
-            if name_pred == ID_TAG:
-                replace = self._replace_dialog(image)
-                if not replace or not any(replace.values()):
-                    return None
-                if replace['new_photo']:
-                    break
-                params['photo_id'] = value
-                params['set_metadata'] = replace['replace_metadata']
-                if replace['replace_image']:
-                    params['function'] = 'replace'
-                else:
-                    params['function'] = None
-                break
+        if option['new_photo'] or option['set_albums']:
+            params['sets'] = []
+            for item in self.photosets:
+                if item['widget'].isChecked():
+                    params['sets'].append(item)
         return params
 
     def _replace_dialog(self, image):
+        # has image already been uploaded?
+        for keyword in image.metadata.keywords or []:
+            name_pred, sep, photo_id = keyword.partition('=')
+            if name_pred == ID_TAG:
+                break
+        else:
+            # new upload
+            return {
+                'set_metadata'  : True,
+                'set_visibility': True,
+                'set_type'      : True,
+                'set_albums'    : True,
+                'replace_image' : False,
+                'new_photo'     : True,
+                }, None
+        # get user preferences
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(self.tr('Replace photo'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
-        message = QtWidgets.QPlainTextEdit(self.tr(
+        message = QtWidgets.QLabel(self.tr(
             'File {0} has already been uploaded to Flickr.' +
-            ' Would you like to replace it?').format(
+            ' How would you like to update it?').format(
                 os.path.basename(image.path)))
+        message.setWordWrap(True)
         dialog.layout().addWidget(message)
-        replace_metadata = QtWidgets.QCheckBox(self.tr('Replace metadata'))
-        replace_metadata.setChecked(True)
-        dialog.layout().addWidget(replace_metadata)
+        set_metadata = QtWidgets.QCheckBox(self.tr('Replace metadata'))
+        set_metadata.setChecked(True)
+        dialog.layout().addWidget(set_metadata)
+        set_visibility = QtWidgets.QCheckBox(self.tr('Change who can see it'))
+        dialog.layout().addWidget(set_visibility)
+        set_type = QtWidgets.QCheckBox(self.tr('Change content type'))
+        dialog.layout().addWidget(set_type)
+        set_albums = QtWidgets.QCheckBox(self.tr('Change album membership'))
+        dialog.layout().addWidget(set_albums)
         button_group = QtWidgets.QButtonGroup()
         replace_image = QtWidgets.QCheckBox(self.tr('Replace image'))
         button_group.addButton(replace_image)
@@ -465,12 +521,15 @@ class FlickrUploader(PhotiniUploader):
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
-            return None
+            return None, photo_id
         return {
-            'replace_image'   : replace_image.isChecked(),
-            'replace_metadata': replace_metadata.isChecked(),
-            'new_photo'       : new_photo.isChecked(),
-            }
+            'set_metadata'  : set_metadata.isChecked(),
+            'set_visibility': set_visibility.isChecked(),
+            'set_type'      : set_type.isChecked(),
+            'set_albums'    : set_albums.isChecked(),
+            'replace_image' : replace_image.isChecked(),
+            'new_photo'     : new_photo.isChecked(),
+            }, photo_id
 
     def upload_finished(self):
         pass
