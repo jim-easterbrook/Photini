@@ -339,8 +339,11 @@ class FlickrUploader(PhotiniUploader):
             'rejected': ('image/x-canon-cr2',),
             }
 
-    def get_conversion_function(self, image):
-        convert = super(FlickrUploader, self).get_conversion_function(image)
+    def get_conversion_function(self, image, params):
+        if not params['function']:
+            return None
+        convert = super(
+            FlickrUploader, self).get_conversion_function(image, params)
         if convert == 'omit':
             return convert
         max_size = 2 ** 30
