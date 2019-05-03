@@ -273,16 +273,22 @@ class Image(QtWidgets.QFrame):
             if w >= h:
                 new_h = int(0.5 + (float(w * 3) / 4.0))
                 new_w = int(0.5 + (float(h * 4) / 3.0))
+                if new_h > h:
+                    pad = (new_h - h) // 2
+                    qt_im = qt_im.copy(0, -pad, w, new_h)
+                elif new_w > w:
+                    pad = (new_w - w) // 2
+                    qt_im = qt_im.copy(-pad, 0, new_w, h)
+                w, h = 160, 120
             else:
                 new_h = int(0.5 + (float(w * 4) / 3.0))
                 new_w = int(0.5 + (float(h * 3) / 4.0))
-            if new_h > h:
-                pad = (new_h - h) // 2
-                qt_im = qt_im.copy(0, -pad, w, new_h)
-                w, h = 160, 120
-            elif new_w > w:
-                pad = (new_w - w) // 2
-                qt_im = qt_im.copy(-pad, 0, new_w, h)
+                if new_w > w:
+                    pad = (new_w - w) // 2
+                    qt_im = qt_im.copy(-pad, 0, new_w, h)
+                elif new_h > h:
+                    pad = (new_h - h) // 2
+                    qt_im = qt_im.copy(0, -pad, w, new_h)
                 w, h = 120, 160
             fmt = 'JPEG'
             if PIL:
