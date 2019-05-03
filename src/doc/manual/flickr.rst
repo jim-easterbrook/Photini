@@ -18,11 +18,11 @@ See :ref:`installation <installation-optional>` for more detail.
 .. image:: ../images/screenshot_150.png
 
 Initially most of the Flickr uploader tab is disabled.
-It's only usable after you've authorised Photini to access your Flickr account by clicking the ``Connect`` button.
+It's only usable after you've authorised Photini to access your Flickr account by clicking the ``Log in`` button.
 
 .. image:: ../images/screenshot_151.png
 
-The first time you click ``Connect`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
+The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
 You then copy a verification code from your browser to Photini.
 
 .. image:: ../images/screenshot_152.png
@@ -57,7 +57,7 @@ After uploading a photograph it is marked as having new metadata.
 
 .. image:: ../images/screenshot_158.png
 
-If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:photo_id=33879935888``.
+If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:photo_id=11-digit-number``.
 Photini uses this `triple tag`_ to store the Flickr photo id so it can be used to synchronise metadata later on, as described below.
 
 Synchronising local metadata to Flickr
@@ -75,7 +75,7 @@ If there is new metadata on Flickr then it is merged into the image's metadata.
 
 You can see what changed with the image's context menu ``View changes``.
 In this case Flickr has set its location city to "Chateau-Gontier" whereas I had set it to "Château-Gontier".
-I chose to ignore this suggestion.
+I chose to ignore this new metadata value.
 
 Synchronising Flickr metadata to local
 --------------------------------------
