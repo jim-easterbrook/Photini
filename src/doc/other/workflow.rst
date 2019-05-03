@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-15  Jim Easterbrook.
-   See the file DOC_LICENSE.txt for copying condidions.
+   Copyright (C)  2012-19  Jim Easterbrook.
+   See the file DOC_LICENSE.txt for copying conditions.
 
 Typical workflow
 ================
@@ -67,15 +67,13 @@ Amongst the commonly used image metadata items are the latitude and longitude of
 (Some people argue that it should be the position of the subject of the photograph, but what about photographs of the Moon?)
 Photini makes it easy to set the latitude and longitude of any photograph by dragging and dropping it onto a map.
 
-There are currently three map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing and Open Street Map.
+There are currently four map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing, Mapbox, and Open Street Map.
 (Each of these providers has terms and conditions you should read and accept before using their maps.)
 The maps differ in appearance, and show different levels of detail for different parts of the world.
 You should use the one that you like best, but it's very easy to switch to another at any time.
 
-Start by clicking the ``Load map`` button to connect to the map server and load an initial map.
 You may be able use the map's navigation and zoom controls to find the area you want, but usually you will need to use the search box.
-Click the drop down box arrow and select ``<new search>``.
-This clears the text allowing you to type in a search term such as the name of a town.
+Click on ``<new search>`` and type in a search term such as the name of a town.
 Note that the search is biased towards the current map location, so you might want to zoom out and pan to the right continent before searching.
 Type a search term into the box and hit return.
 A list of results should appear very soon, from which you can choose the one you want.

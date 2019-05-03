@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   Copyright (C)  2012-19  Jim Easterbrook.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Tag reference
 =============
@@ -68,6 +68,7 @@ Photini field          Exif tag                         XMP tag                 
 Title / Object Name    Exif.Image.XPTitle                                               Iptc.Application2.Headline
 Description / Caption  Exif.Image.XPComment             Xmp.tiff.ImageDescription
                        Exif.Image.XPSubject
+                       Exif.Photo.UserComment
 Keywords               Exif.Image.XPKeywords
 Copyright                                               Xmp.tiff.Copyright
 Creator / Artist       Exif.Image.XPAuthor              Xmp.tiff.Artist
