@@ -45,13 +45,14 @@ Dependencies
 ------------
 
 An "all in one" installer for Windows is available that installs Photini and all its dependencies.
+Some Linux distributions include Photini in their standard "repository".
 Users of other operating systems will need to install the following:
 
 *   Python, version 2.6+ (including Python 3): http://python.org/
 *   PyQt, version 4 or 5: http://www.riverbankcomputing.co.uk/software/pyqt/
 *   six, version 1.5+: https://pypi.python.org/pypi/six/
 *   appdirs, version 1.3+: http://pypi.python.org/pypi/appdirs/
-*   gexiv2 (GObject Exiv2 wrapper), version 0.5+: https://wiki.gnome.org/Projects/gexiv2
+*   gexiv2 (GObject Exiv2 wrapper), version 0.10+: https://wiki.gnome.org/Projects/gexiv2
 *   Python GObject bindings:
 
     *   PyGObject: https://wiki.gnome.org/Projects/PyGObject **or**

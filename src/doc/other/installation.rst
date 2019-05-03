@@ -17,7 +17,7 @@ The Windows installer creates a standalone Python installation with all the depe
 The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
 
 You can download the latest Windows installer from the `GitHub releases`_ page.
-Look for the most recent release with a ``.exe`` file listed in its downloads, e.g. ``photini-win32-2018.02.exe``.
+Look for the most recent release with a ``.exe`` file listed in its "assets", e.g. ``photini-win32-2018.2.1.exe``.
 This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
 The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
 
@@ -100,7 +100,7 @@ It has extra "introspection bindings" that allow it to be used by other language
 PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-[2] pgi_ is a pure Python alternative to PyGObject that I have found to be more reliable, despite its author's warnings about its experimental status.
+[2] pgi_ is a pure Python alternative to PyGObject_ that I have found to be more reliable, despite its author's warnings about its experimental status.
 If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
    sudo pip uninstall pgi
@@ -141,7 +141,6 @@ Feature                       Dependencies
 ============================  =================
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
-Google Photos upload          keyring_ 7.0+, `requests-oauthlib`_ 0.4+
 Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
 ============================  =================
