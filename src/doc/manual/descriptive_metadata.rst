@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
+   Copyright (C)  2012-19  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Descriptive metadata
@@ -15,7 +15,8 @@ The first time you do this Photini asks you to provide the name of the copyright
 This should probably be your name, but could be the name of a company.
 Type in the name and click ``OK``.
 
-The ``Auto`` button generates a standard copyright notice, but if you prefer a different wording you can edit the text manually.
+The ``Auto`` button generates a standard copyright notice.
+If you prefer a different wording you can change the template, as described in :doc:`configuration <configuration>`.
 
 .. image:: ../images/screenshot_08.png
 
@@ -34,7 +35,7 @@ I do this frequently to avoid losing any of my work.
 
 Next I set the title.
 Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box.
-Note that the title (and keywords) are stored in XMP but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tags` for more detail).
+Note that the title (and keywords) are stored in XMP but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
 You may prefer to leave the title and keywords fields blank.
 
 The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
