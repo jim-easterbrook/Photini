@@ -927,6 +927,8 @@ class MetadataHandler(GExiv2.Metadata):
                 continue
         return value.decode('utf_8', 'replace')
 
+    _parse_xmp_struct = re.compile('(.+?)(?:\[(\d+)\])?/')
+
     def clear_value(self, tag):
         if isinstance(tag, tuple):
             for sub_tag in tag:
@@ -936,16 +938,16 @@ class MetadataHandler(GExiv2.Metadata):
             return
         self.clear_tag(tag)
         if self.is_xmp_tag(tag) and '/' in tag:
-            # attempt to remove XMP structure/container
-            container, subtag = tag.split('/')
-            bag = container.partition('[')[0]
-            for t in self.get_xmp_tags():
-                if t.startswith(container + '/'):
-                    # bag is not empty
-                    return
-            if container != bag:
-                self.clear_tag(container)
-            self.clear_tag(bag)
+            # GExiv2 won't delete container, so leave a value in it
+            match = self._parse_xmp_struct.match(tag)
+            if match:
+                bag = match.group(1)
+                for t in self.get_xmp_tags():
+                    if t.startswith(bag):
+                        # container is not empty
+                        break
+                else:
+                    self.set_tag_string(tag, ' ')
 
     def get_raw(self, tag):
         try:
@@ -1018,6 +1020,12 @@ class MetadataHandler(GExiv2.Metadata):
             return []
         return [self._decode_string(result)]
 
+    _xmp_struct_type = {
+        'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
+        'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
+        'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
+        }
+
     def set_string(self, tag, value):
         if isinstance(tag, tuple):
             for sub_tag, sub_value in zip(tag, value):
@@ -1034,20 +1042,15 @@ class MetadataHandler(GExiv2.Metadata):
             value = value.encode('utf_8')
         if self.is_xmp_tag(tag) and '/' in tag:
             # create XMP structure/container
-            container, subtag = tag.split('/')
-            bag = container.partition('[')[0]
-            no_bag = True
-            for t in self.get_xmp_tags():
-                if t.startswith(bag):
-                    # file already has container
-                    no_bag = False
-                    break
-            if no_bag:
-                # create empty container
-                if '[' in container:
-                    self.set_xmp_tag_struct(bag, GExiv2.StructureType.ALT)
+            match = self._parse_xmp_struct.match(tag)
+            if match:
+                bag = match.group(1)
+                for t in self.get_xmp_tags():
+                    if t.startswith(bag):
+                        # container already exists
+                        break
                 else:
-                    self.set_xmp_tag_struct(bag, GExiv2.StructureType.SEQ)
+                    self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):
@@ -1446,6 +1449,9 @@ class Metadata(QtCore.QObject):
                     # check that data really was saved
                     saved_tags = MetadataHandler(self._path).get_all_tags()
                     for tag in self._if.get_all_tags():
+                        if tag in ('Exif.Image.GPSTag',):
+                            # some tags disappear with good reason
+                            continue
                         if tag not in saved_tags:
                             logger.warning('tag not saved: %s', tag)
                             OK = False
