@@ -156,7 +156,7 @@ class MD_Dict(MD_Value, dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+        file_value = [x and x.strip() or None for x in handler.get_string(tag)]
         if not any(file_value):
             return None
         return cls(file_value)
