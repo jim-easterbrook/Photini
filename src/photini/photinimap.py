@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+from collections import defaultdict
 import locale
 import logging
 import os
@@ -92,7 +93,7 @@ class WebView(WebViewBase):
 
 
 class LocationInfo(QtWidgets.QWidget):
-    new_value = QtCore.pyqtSignal(dict)
+    new_value = QtCore.pyqtSignal(object, dict)
 
     def __init__(self, *args, **kw):
         super(LocationInfo, self).__init__(*args, **kw)
@@ -113,27 +114,29 @@ class LocationInfo(QtWidgets.QWidget):
                 translate('PhotiniMap', 'Province'),
                 translate('PhotiniMap', 'Country'),
                 translate('PhotiniMap', 'Region'),
-                ), 1):
+                )):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['sublocation'], 1, 1, 1, 2)
-        layout.addWidget(self.members['city'], 2, 1, 1, 2)
-        layout.addWidget(self.members['province_state'], 3, 1, 1, 2)
-        layout.addWidget(self.members['country_name'], 4, 1)
-        layout.addWidget(self.members['country_code'], 4, 2)
-        layout.addWidget(self.members['world_region'], 5, 1, 1, 2)
+        layout.addWidget(self.members['sublocation'], 0, 1, 1, 2)
+        layout.addWidget(self.members['city'], 1, 1, 1, 2)
+        layout.addWidget(self.members['province_state'], 2, 1, 1, 2)
+        layout.addWidget(self.members['country_name'], 3, 1)
+        layout.addWidget(self.members['country_code'], 3, 2)
+        layout.addWidget(self.members['world_region'], 4, 1, 1, 2)
 
     def get_value(self):
         new_value = {}
         for key in self.members:
+            if self.members[key].is_multiple():
+                continue
             new_value[key] = self.members[key].get_value().strip() or None
         return new_value
 
     @QtCore.pyqtSlot()
     @catch_all
     def editing_finished(self):
-        self.new_value.emit(self.get_value())
+        self.new_value.emit(self, self.get_value())
 
 
 class CallHandler(QtCore.QObject):
@@ -262,13 +265,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         left_side.layout().addRow(
             translate('PhotiniMap', 'Lat, long'), layout)
         # location info
+        self.location_widgets = []
         self.location_info = QtWidgets.QTabWidget()
-        taken = LocationInfo()
-        taken.new_value.connect(self.new_location_taken)
-        self.location_info.addTab(taken, self.tr('camera'))
-        shown = LocationInfo()
-        shown.new_value.connect(self.new_location_shown)
-        self.location_info.addTab(shown, self.tr('subject'))
+        self.location_info.setElideMode(Qt.ElideLeft)
+        self.location_info.setMovable(True)
+        self.location_info.tabBar().tabMoved.connect(self.location_tab_moved)
         self.location_info.setEnabled(False)
         left_side.layout().addRow(self.location_info)
         # address lookup (and default search) terms and conditions
@@ -475,31 +476,61 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
+    @QtCore.pyqtSlot(int, int)
+    @catch_all
+    def location_tab_moved(self, idx_a, idx_b):
+        self.pending_move = idx_a, idx_b
+        # do actual swap when idle to avoid seg fault
+        QtCore.QTimer.singleShot(0, self._location_tab_moved)
+
     @QtCore.pyqtSlot()
     @catch_all
-    def swap_locations(self):
+    def _location_tab_moved(self):
+        idx_a, idx_b = self.pending_move
+        # swap data
         for image in self.image_list.get_selected_images():
-            image.metadata.location_taken, image.metadata.location_shown = (
-                image.metadata.location_shown, image.metadata.location_taken)
+            temp_a = dict(self._get_location(image, idx_a) or {})
+            temp_b = dict(self._get_location(image, idx_b) or {})
+            self._set_location(image, idx_a, temp_b)
+            self._set_location(image, idx_b, temp_a)
+        # adjust tab names
+        for idx in range(min(idx_a, idx_b), max(idx_a, idx_b) + 1):
+                self.set_tab_text(idx)
+        # display data
         self.display_location()
 
-    @QtCore.pyqtSlot(dict)
-    @catch_all
-    def new_location_taken(self, new_value):
-        self._new_location('location_taken', new_value)
+    def _get_location(self, image, idx):
+        if idx == 0:
+            return image.metadata.location_taken
+        elif not image.metadata.location_shown:
+            return None
+        elif idx <= len(image.metadata.location_shown):
+            return image.metadata.location_shown[idx - 1]
+        return None
 
-    @QtCore.pyqtSlot(dict)
-    @catch_all
-    def new_location_shown(self, new_value):
-        self._new_location('location_shown', new_value)
+    def _set_location(self, image, idx, location):
+        if idx == 0:
+            if image.metadata.location_taken != location:
+                image.metadata.location_taken = location
+        else:
+            location_list = []
+            for item in image.metadata.location_shown or []:
+                location_list.append(dict(item or {}))
+            while len(location_list) < idx:
+                location_list.append(None)
+            location_list[idx - 1] = location
+            if image.metadata.location_shown != location_list:
+                image.metadata.location_shown = location_list
+        self.display_location()
 
-    def _new_location(self, taken_shown, new_value):
-        if not any(new_value.values()):
-            new_value = None
+    @QtCore.pyqtSlot(object, dict)
+    @catch_all
+    def new_location(self, widget, new_value):
+        idx = self.location_info.indexOf(widget)
         for image in self.image_list.get_selected_images():
-            location = getattr(image.metadata, taken_shown)
-            if location != new_value:
-                setattr(image.metadata, taken_shown, new_value)
+            temp = dict(self._get_location(image, idx) or {})
+            temp.update(new_value)
+            self._set_location(image, idx, temp)
         self.display_location()
 
     def display_coords(self):
@@ -521,29 +552,60 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.auto_location.setEnabled(
                 bool(values[0]) and not self.block_timer.isActive())
 
+    def set_tab_text(self, idx):
+        if idx == 0:
+            text = self.tr('camera')
+        else:
+            text = self.tr('subject {}').format(idx)
+        self.location_info.setTabText(idx, text)
+
     def display_location(self):
         images = self.image_list.get_selected_images()
-        if not images:
-            for n in range(self.location_info.count()):
-                widget_group = self.location_info.widget(n)
-                for attr in widget_group.members:
-                    widget_group.members[attr].set_value(None)
-            return
-        for n, taken_shown in enumerate(('taken', 'shown')):
-            widget_group = self.location_info.widget(n)
-            for attr in widget_group.members:
-                values = []
+        # get required number of tabs
+        count = 0
+        for image in images:
+            if image.metadata.location_shown:
+                n = len(image.metadata.location_shown)
+                while n > 0 and not image.metadata.location_shown[n - 1]:
+                    n -= 1
+                count = max(count, n)
+        count += 2
+        # add or remove tabs
+        idx = self.location_info.count()
+        while idx < count:
+            if not self.location_widgets:
+                widget = LocationInfo()
+                widget.new_value.connect(self.new_location)
+                self.location_widgets.append(widget)
+            self.location_info.addTab(self.location_widgets.pop(), '')
+            self.set_tab_text(idx)
+            idx += 1
+        while idx > count:
+            idx -= 1
+            self.location_widgets.append(self.location_info.widget(idx))
+            self.location_info.removeTab(idx)
+        # display data
+        for idx in range(self.location_info.count()):
+            widget = self.location_info.widget(idx)
+            if images:
+                values = defaultdict(list)
                 for image in images:
-                    value = getattr(image.metadata, 'location_' + taken_shown)
-                    if value:
-                        value = value[attr]
-                    if value not in values:
-                        values.append(value)
-                if len(values) > 1:
-                    widget_group.members[attr].set_multiple(
-                        choices=filter(None, values))
-                else:
-                    widget_group.members[attr].set_value(values[0])
+                    location = self._get_location(image, idx) or {}
+                    for key in widget.members:
+                        value = None
+                        if key in location:
+                            value = location[key]
+                        if value not in values[key]:
+                            values[key].append(value)
+                for key in widget.members:
+                    if len(values[key]) > 1:
+                        widget.members[key].set_multiple(
+                            choices=filter(None, values[key]))
+                    else:
+                        widget.members[key].set_value(values[key][0])
+            else:
+                for key in widget.members:
+                    widget.members[key].set_value(None)
 
     @QtCore.pyqtSlot(list)
     @catch_all
@@ -708,10 +770,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         address = results[0]['components']
         if 'country_code' in address:
             address['country_code'] = address['country_code'].upper()
-        location = Location.from_address(address, self.address_map)
-        widget_group = self.location_info.widget(
-            self.location_info.currentIndex())
-        widget_group.new_value.emit(location)
+        self.new_location(self.location_info.currentWidget(),
+                          Location.from_address(address, self.address_map))
 
     @QtCore.pyqtSlot()
     @catch_all

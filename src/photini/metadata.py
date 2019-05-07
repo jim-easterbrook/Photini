@@ -156,7 +156,7 @@ class MD_Dict(MD_Value, dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = [x and x.strip() or None for x in handler.get_string(tag)]
+        file_value = handler.get_string(tag)
         if not any(file_value):
             return None
         return cls(file_value)
@@ -281,6 +281,9 @@ class Location(MD_Dict):
 
     def __init__(self, value):
         super(Location, self).__init__(value)
+        for key in self:
+            if self[key] and not self[key].strip():
+                self[key] = None
         if self.country_code:
             self.country_code = self.country_code.upper()
 
@@ -333,6 +336,67 @@ class Location(MD_Dict):
             self.log_merged(info, tag, other)
             return result
         return self
+
+
+class MultiLocation(list):
+    def __init__(self, value):
+        temp = []
+        for item in value:
+            if not item:
+                item  = None
+            elif not isinstance(item, Location):
+                item = Location(item)
+            temp.append(item)
+        while temp and not temp[-1]:
+            temp = temp[:-1]
+        super(MultiLocation, self).__init__(temp)
+
+    @staticmethod
+    def tag_n(tag, n):
+        result = []
+        for sub_tag in tag:
+            result.append(sub_tag.replace('1', str(n)))
+        return tuple(result)
+
+    @classmethod
+    def read(cls, handler, tag):
+        value = []
+        count = 1
+        while True:
+            file_value = Location.read(handler, cls.tag_n(tag, count))
+            if file_value is None:
+                break
+            value.append(file_value)
+            count += 1
+        return cls(value)
+
+    def write(self, handler, tag):
+        # ignore empty values at end of list
+        count = len(self)
+        while count > 0 and not self[count - 1]:
+            count -= 1
+        # delete file values beyond end of list
+        file_count = len(MultiLocation.read(handler, tag))
+        while file_count > count:
+            handler.clear_value(self.tag_n(tag, file_count))
+            file_count -= 1
+        # save list values
+        for n in range(count):
+            tag_n = self.tag_n(tag, n + 1)
+            if self[n]:
+                self[n].write(handler, tag_n)
+            else:
+                handler.clear_value(tag_n)
+                # save placeholder
+                handler.set_string(tag_n[0], ' ')
+
+    def __str__(self):
+        result = ''
+        for n, location in enumerate(self):
+            result += 'subject {}\n'.format(n + 1)
+            if location:
+                result += six.text_type(location) + '\n'
+        return result
 
 
 class LensSpec(MD_Dict):
@@ -1178,7 +1242,7 @@ class Metadata(QtCore.QObject):
         'lens_model'     : MD_String,
         'lens_serial'    : MD_String,
         'lens_spec'      : LensSpec,
-        'location_shown' : Location,
+        'location_shown' : MultiLocation,
         'location_taken' : Location,
         'orientation'    : MD_Int,
         'rating'         : Rating,
@@ -1291,14 +1355,16 @@ class Metadata(QtCore.QObject):
                        'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
                        'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
                        'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion')),),
+                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion',
+                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:LocationId')),),
         'location_taken' : (
             ('RA.WA', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
                        'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
                        'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
                        'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
                        'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion')),
+                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
+                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId')),
             ('RA.WA', ('Xmp.iptc.Location',
                        'Xmp.photoshop.City',
                        'Xmp.photoshop.State',
