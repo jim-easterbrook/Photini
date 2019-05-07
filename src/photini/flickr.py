@@ -186,13 +186,31 @@ class FlickrSession(UploaderSession):
             if 'set' in rsp:
                 for p_set in rsp['set']:
                     current_sets[p_set['id']] = p_set
-        for p_set in params['sets']:
-            if p_set['id']:
-                # use existing set
-                if p_set['id'] in current_sets:
-                    del current_sets[p_set['id']]
+        for widget in params['sets']:
+            photoset_id = widget.property('photoset_id')
+            title = widget.text().replace('&&', '&')
+            description = widget.toolTip()
+            if not photoset_id:
+                # create new set
+                kwargs = {'title'           : title,
+                          'description'     : description,
+                          'primary_photo_id': photo_id}
+                try:
+                    rsp = self.api.photosets.create(**kwargs)
+                    status = rsp['stat']
+                except flickrapi.FlickrError as ex:
+                    status = str(ex)
+                if status == 'ok':
+                    widget.setProperty('photoset_id', rsp['photoset']['id'])
                     continue
-                kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
+                logger.error(
+                    'Create photoset "%s" failed: %s', title, status)
+            elif photoset_id in current_sets:
+                # photo is already in the set
+                del current_sets[photoset_id]
+            else:
+                # use existing set
+                kwargs = {'photo_id': photo_id, 'photoset_id': photoset_id}
                 try:
                     rsp = self.api.photosets.addPhoto(**kwargs)
                     status = rsp['stat']
@@ -201,21 +219,7 @@ class FlickrSession(UploaderSession):
                 if status == 'ok':
                     continue
                 logger.error(
-                    'Add to photoset "%s" failed: %s', p_set['title'], status)
-                p_set['id'] = None
-            # create new set
-            kwargs = {'title'           : p_set['title'],
-                      'description'     : p_set['description'],
-                      'primary_photo_id': photo_id}
-            try:
-                rsp = self.api.photosets.create(**kwargs)
-                status = rsp['stat']
-            except flickrapi.FlickrError as ex:
-                status = str(ex)
-            if status == 'ok':
-                continue
-            logger.error(
-                'Create photoset "%s" failed: %s', p_set['title'], status)
+                    'Add to photoset "%s" failed: %s', title, status)
         # remove from any other sets
         for p_set in current_sets.values():
             kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
@@ -339,11 +343,19 @@ class FlickrUploadConfig(QtWidgets.QWidget):
                 self.sets_widget.layout().removeWidget(child)
                 child.setParent(None)
 
-    def add_set(self, title, description, index=-1):
+    def checked_sets(self):
+        result = []
+        for child in self.sets_widget.children():
+            if child.isWidgetType() and child.isChecked():
+                result.append(child)
+        return result
+
+    def add_set(self, title, description, photoset_id, index=-1):
         widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
         if description:
             h = HTMLParser()
             widget.setToolTip(h.unescape(description))
+        widget.setProperty('photoset_id', photoset_id)
         if index >= 0:
             self.sets_widget.layout().insertWidget(index, widget)
         else:
@@ -393,19 +405,13 @@ class FlickrUploader(PhotiniUploader):
         return 'omit'
 
     def get_album_list(self):
-        self.photosets = []
         self.upload_config.clear_sets()
         if self.connected:
             sets = self.session.photosets.getList()
             for item in sets['photosets']['photoset']:
-                title = item['title']['_content']
-                description = item['description']['_content']
-                widget = self.upload_config.add_set(title, description)
-                self.photosets.append({
-                    'id'    : item['id'],
-                    'title' : title,
-                    'widget': widget,
-                    })
+                self.upload_config.add_set(
+                    item['title']['_content'], item['description']['_content'],
+                    item['id'])
 
     def get_upload_params(self, image):
         option, photo_id = self._replace_dialog(image)
@@ -463,10 +469,7 @@ class FlickrUploader(PhotiniUploader):
                 params['location'] = None
         # make list of sets to add photos to
         if option['new_photo'] or option['set_albums']:
-            params['sets'] = []
-            for item in self.photosets:
-                if item['widget'].isChecked():
-                    params['sets'].append(item)
+            params['sets'] = self.upload_config.checked_sets()
         return params
 
     def _replace_dialog(self, image):
@@ -774,14 +777,8 @@ class FlickrUploader(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        widget = self.upload_config.add_set(title, description, index=0)
+        widget = self.upload_config.add_set(title, description, None, index=0)
         widget.setChecked(True)
-        self.photosets.insert(0, {
-            'id'          : None,
-            'title'       : title,
-            'description' : description,
-            'widget'      : widget,
-            })
 
     @QtCore.pyqtSlot(list)
     @catch_all
