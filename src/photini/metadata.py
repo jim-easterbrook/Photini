@@ -511,38 +511,36 @@ class DateTime(MD_Dict):
     def truncate_datetime(self, precision):
         return self.datetime.replace(**dict(self._replace[:7 - precision]))
 
+    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+
     @classmethod
-    def from_ISO_8601(cls, date_string, time_string, tz_string):
+    def from_ISO_8601(cls, datetime_string):
         """Sufficiently general ISO 8601 parser.
 
-        Inputs must be in "basic" format, i.e. no '-' or ':' separators.
+        Input must be in "extended" format, i.e. with separators.
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
-        # parse tz_string
-        if tz_string:
-            tz_offset = (int(tz_string[1:3]) * 60) + int(tz_string[3:])
-            if tz_string[0] == '-':
+        # extract time zone
+        if 'T' in datetime_string and datetime_string[-6] in ('+', '-'):
+            tz_offset = int(datetime_string[-2:]) + (
+                        int(datetime_string[-5:-3]) * 60)
+            if datetime_string[-6] == '-':
                 tz_offset = -tz_offset
+            datetime_string = datetime_string[:-6]
         else:
             tz_offset = None
-        if time_string == '000000':
-            # assume no time information
-            time_string = ''
-            tz_offset = None
-        datetime_string = date_string + time_string[:13]
-        precision = min((len(datetime_string) - 2) // 2, 7)
+        precision = min((len(datetime_string) - 1) // 3, 7)
         if precision <= 0:
             return None
-        fmt = ''.join(('%Y', '%m', '%d', '%H', '%M', '%S', '.%f')[:precision])
+        fmt = ''.join(cls._fmt_elements[:precision])
         return cls(
             (datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
-    def to_ISO_8601(self, fmt=('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f'),
-                    precision=None, time_zone=True):
+    def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
             precision = self.precision
-        fmt = ''.join(fmt[:precision])
+        fmt = ''.join(self._fmt_elements[:precision])
         datetime_string = self.datetime.strftime(fmt)
         if precision > 6:
             # truncate subsecond to 3 digits
@@ -600,9 +598,8 @@ class DateTime(MD_Dict):
         datetime_string = file_value[0]
         if not datetime_string:
             return None
-        # separate date & time and remove separators
-        date_string = datetime_string[:10].replace(':', '').strip()
-        time_string = datetime_string[11:].replace(':', '').strip()
+        date_string = datetime_string[:10].replace(':', '-')
+        time_string = datetime_string[11:]
         # append sub seconds
         if len(file_value) > 1:
             sub_sec_string = file_value[1]
@@ -610,16 +607,20 @@ class DateTime(MD_Dict):
                 sub_sec_string = sub_sec_string.strip()
             if sub_sec_string:
                 time_string += '.' + sub_sec_string
-        return cls.from_ISO_8601(date_string, time_string, '')
+        # check for no time
+        if time_string == '00:00:00':
+            datetime_string = date_string
+        else:
+            datetime_string = date_string + 'T' + time_string
+        return cls.from_ISO_8601(datetime_string)
 
     def to_exif(self):
-        datetime_string, sep, sub_sec_string = self.to_ISO_8601(
-            fmt=('%Y', ':%m', ':%d', ' %H', ':%M', ':%S', '.%f'),
-            time_zone=False).partition('.')
-        # pad out any missing values
-        #                   YYYY mm dd HH MM SS
-        datetime_string += '0000:01:01 00:00:00'[len(datetime_string):]
-        return datetime_string, sub_sec_string
+        datetime_string = self.to_ISO_8601(
+            precision=max(self.precision, 6), time_zone=False)
+        date_string = datetime_string[:10].replace('-', ':')
+        time_string = datetime_string[11:19]
+        sub_sec_string = datetime_string[20:]
+        return date_string + ' ' + time_string, sub_sec_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
     # respectively (time includes time zone offset). I suspect the exiv2
@@ -631,30 +632,21 @@ class DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_string, time_string = file_value
-        if date_string:
-            # remove separators (that shouldn't be there)
-            date_string = date_string.replace('-', '').strip()
         if not date_string:
             return None
         # remove missing values
         while len(date_string) > 4 and date_string[-2:] == '00':
-            date_string = date_string[:-2]
+            date_string = date_string[:-3]
         if date_string == '0000':
             return None
         # ignore time if date is not full precision
-        if len(date_string) < 8:
-            time_string = ''
+        if len(date_string) < 10:
+            time_string = None
         if time_string:
-            # remove separators (that shouldn't be there)
-            time_string = time_string.replace(':', '').strip()
-        if time_string:
-            # split off time zone
-            tz_string = time_string[6:]
-            time_string = time_string[:6]
+            datetime_string = date_string + 'T' + time_string
         else:
-            tz_string = ''
-            time_string = ''
-        return cls.from_ISO_8601(date_string, time_string, tz_string)
+            datetime_string = date_string
+        return cls.from_ISO_8601(datetime_string)
 
     def to_iptc(self):
         if self.precision <= 3:
@@ -678,18 +670,7 @@ class DateTime(MD_Dict):
     # time zone information optional.
     @classmethod
     def from_xmp(cls, file_value):
-        date_string, sep, time_string = file_value.partition('T')
-        if len(time_string) > 6 and time_string[-6] in ('+', '-'):
-            tz_string = time_string[-6:]
-            time_string = time_string[:-6]
-        elif len(time_string) > 1 and time_string[-1] == 'Z':
-            tz_string = '+00:00'
-            time_string = time_string[:-1]
-        else:
-            tz_string = ''
-        return cls.from_ISO_8601(
-            date_string.replace('-', ''), time_string.replace(':', ''),
-            tz_string.replace(':', ''))
+        return cls.from_ISO_8601(file_value)
 
     def to_xmp(self):
         precision = self.precision
