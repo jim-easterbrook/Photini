@@ -107,5 +107,9 @@ To set a ``subject`` location select the ``subject 1`` tab before doing an addre
 (An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)
 In this case the address lookup provides the right town, but I changed the ``street`` to the subject of the photograph rather than where I was standing.
 
+To reorder the subject locations, or to convert between camera and subject, you can drag any of the tabs to another position.
+If this results in the rightmost tab having data then another tab will be added.
+If the two rightmost tabs have no data then one of the empty tabs will be removed.
+
 .. _OpenCage:      https://opencagedata.com/
 .. _OpenStreetMap: https://www.openstreetmap.org/about/
