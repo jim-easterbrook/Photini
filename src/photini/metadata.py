@@ -324,17 +324,19 @@ class Location(MD_Dict):
 
     def merge(self, info, tag, other):
         merged = False
-        for key in self:
+        result = Location(self)
+        for key in result:
             if not other[key]:
                 continue
-            if not self[key]:
-                self[key] = other[key]
+            if not result[key]:
+                result[key] = other[key]
                 merged = True
-            elif other[key] not in self[key]:
-                self[key] += ' // ' + other[key]
+            elif other[key] not in result[key]:
+                result[key] += ' // ' + other[key]
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
+            return result
         return self
 
 
