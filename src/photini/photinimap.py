@@ -517,7 +517,6 @@ class PhotiniMap(QtWidgets.QSplitter):
                 location_list.append(None)
             location_list[idx - 1] = location
             image.metadata.location_shown = location_list
-        self.display_location()
 
     @QtCore.pyqtSlot(object, dict)
     @catch_all
@@ -527,7 +526,9 @@ class PhotiniMap(QtWidgets.QSplitter):
             temp = dict(self._get_location(image, idx) or {})
             temp.update(new_value)
             self._set_location(image, idx, temp)
-        self.display_location()
+        # new_location can be called when changing tab, so don't delete
+        # tabs until later
+        QtCore.QTimer.singleShot(0, self.display_location)
 
     def display_coords(self):
         images = self.image_list.get_selected_images()
