@@ -180,6 +180,14 @@ class CallHandler(QtCore.QObject):
             logger.exception(ex)
 
 
+class QTabBar(QtWidgets.QTabBar):
+    context_menu = QtCore.pyqtSignal(object)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu.emit(event)
+
+
 class PhotiniMap(QtWidgets.QSplitter):
     def __init__(self, image_list, parent=None):
         super(PhotiniMap, self).__init__(parent)
@@ -268,9 +276,12 @@ class PhotiniMap(QtWidgets.QSplitter):
         # location info
         self.location_widgets = []
         self.location_info = QtWidgets.QTabWidget()
+        tab_bar = QTabBar()
+        self.location_info.setTabBar(tab_bar)
+        tab_bar.context_menu.connect(self.location_tab_context_menu)
+        tab_bar.tabMoved.connect(self.location_tab_moved)
         self.location_info.setElideMode(Qt.ElideLeft)
         self.location_info.setMovable(True)
-        self.location_info.tabBar().tabMoved.connect(self.location_tab_moved)
         self.location_info.setEnabled(False)
         left_side.layout().addRow(self.location_info)
         # address lookup (and default search) terms and conditions
@@ -476,6 +487,49 @@ class PhotiniMap(QtWidgets.QSplitter):
         if not locations:
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
+
+    @QtCore.pyqtSlot(object)
+    @catch_all
+    def location_tab_context_menu(self, event):
+        idx = self.location_info.tabBar().tabAt(event.pos())
+        self.location_info.setCurrentIndex(idx)
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(self.tr('Duplicate location'), self.duplicate_location)
+        menu.addAction(self.tr('Delete location'), self.delete_location)
+        action = menu.exec_(event.globalPos())
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def duplicate_location(self):
+        idx = self.location_info.currentIndex()
+        for image in self.image_list.get_selected_images():
+            # duplicate data
+            location = Location(self._get_location(image, idx) or {})
+            # shuffle data up
+            location_list = list(image.metadata.location_shown or [])
+            location_list.insert(idx, location)
+            image.metadata.location_shown = location_list
+        # display data
+        self.display_location()
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def delete_location(self):
+        idx = self.location_info.currentIndex()
+        for image in self.image_list.get_selected_images():
+            # shuffle data down
+            location_list = list(image.metadata.location_shown or [])
+            if idx == 0:
+                if location_list:
+                    location = location_list[0]
+                else:
+                    location = None
+                image.metadata.location_taken = location
+            if idx <= len(location_list):
+                del location_list[max(idx - 1, 0)]
+            image.metadata.location_shown = location_list
+        # display data
+        self.display_location()
 
     @QtCore.pyqtSlot(int, int)
     @catch_all
