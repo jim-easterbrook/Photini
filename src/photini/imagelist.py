@@ -790,14 +790,23 @@ class ImageList(QtWidgets.QWidget):
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):
             return
-        for image in list(self.images):
-            if all_files or image.get_selected():
-                self.images.remove(image)
-                self.scroll_area.remove_widget(image)
-                image.setParent(None)
-        self.last_selected = None
-        self.selection_anchor = None
-        self.emit_selection()
+        if all_files:
+            close_list = list(self.images)
+        else:
+            close_list = self.get_selected_images()
+        if not close_list:
+            return
+        idx = self.images.index(close_list[0])
+        for image in close_list:
+            self.images.remove(image)
+            self.scroll_area.remove_widget(image)
+            image.setParent(None)
+        if 0 <= idx < len(self.images):
+            self.select_image(self.images[idx])
+        else:
+            self.last_selected = None
+            self.selection_anchor = None
+            self.emit_selection()
         self.image_list_changed.emit()
 
     @QtCore.pyqtSlot(bool)
