@@ -18,7 +18,7 @@
 
 from __future__ import unicode_literals
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import locale
 import logging
 import os
@@ -185,6 +185,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         super(PhotiniMap, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.image_list = image_list
+        self.geocode_cache = OrderedDict()
         name = self.__class__.__name__.lower()
         self.api_key = key_store.get(name, 'api_key')
         self.search_key = key_store.get('opencage', 'api_key')
@@ -674,6 +675,11 @@ class PhotiniMap(QtWidgets.QSplitter):
             focus.clearFocus()
 
     def do_geocode(self, params):
+        cache_key = params['q']
+        if 'bounds' in params:
+            cache_key += params['bounds']
+        if cache_key in self.geocode_cache:
+            return self.geocode_cache[cache_key]
         self.disable_search()
         params['key'] = self.search_key
         params['abbrv'] = '1'
@@ -704,6 +710,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         rate = rsp['rate']
         self.block_timer.setInterval(
             5000 * rate['limit'] // max(rate['remaining'], 1))
+        self.geocode_cache[cache_key] = rsp['results']
+        while len(self.geocode_cache) > 20:
+            self.geocode_cache.popitem(last=False)
         return rsp['results']
 
     def geocode(self, search_string, bounds=None):
@@ -761,7 +770,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             {'q': self.coords.get_value().replace(' ', '')})
         if not results:
             return
-        address = results[0]['components']
+        address = dict(results[0]['components'])
         if 'county_code' in address and 'county' in address:
             del address['county_code']
         if 'state_code' in address and 'state' in address:
