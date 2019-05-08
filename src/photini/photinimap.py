@@ -489,13 +489,13 @@ class PhotiniMap(QtWidgets.QSplitter):
         idx_a, idx_b = self.pending_move
         # swap data
         for image in self.image_list.get_selected_images():
-            temp_a = dict(self._get_location(image, idx_a) or {})
-            temp_b = dict(self._get_location(image, idx_b) or {})
+            temp_a = self._get_location(image, idx_a)
+            temp_b = self._get_location(image, idx_b)
             self._set_location(image, idx_a, temp_b)
             self._set_location(image, idx_b, temp_a)
         # adjust tab names
         for idx in range(min(idx_a, idx_b), max(idx_a, idx_b) + 1):
-                self.set_tab_text(idx)
+            self.set_tab_text(idx)
         # display data
         self.display_location()
 
@@ -510,17 +510,13 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def _set_location(self, image, idx, location):
         if idx == 0:
-            if image.metadata.location_taken != location:
-                image.metadata.location_taken = location
+            image.metadata.location_taken = location
         else:
-            location_list = []
-            for item in image.metadata.location_shown or []:
-                location_list.append(dict(item or {}))
+            location_list = list(image.metadata.location_shown or [])
             while len(location_list) < idx:
                 location_list.append(None)
             location_list[idx - 1] = location
-            if image.metadata.location_shown != location_list:
-                image.metadata.location_shown = location_list
+            image.metadata.location_shown = location_list
         self.display_location()
 
     @QtCore.pyqtSlot(object, dict)
@@ -565,12 +561,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         count = 0
         for image in images:
             if image.metadata.location_shown:
-                n = len(image.metadata.location_shown)
-                while n > 0 and not image.metadata.location_shown[n - 1]:
-                    n -= 1
-                count = max(count, n)
+                count = max(count, len(image.metadata.location_shown))
         count += 2
         # add or remove tabs
+        if self.location_info.currentIndex() >= count:
+            self.location_info.setCurrentIndex(count - 1)
         idx = self.location_info.count()
         while idx < count:
             if not self.location_widgets:
@@ -585,7 +580,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             self.location_widgets.append(self.location_info.widget(idx))
             self.location_info.removeTab(idx)
         # display data
-        for idx in range(self.location_info.count()):
+        for idx in range(count):
             widget = self.location_info.widget(idx)
             if images:
                 values = defaultdict(list)

@@ -154,13 +154,6 @@ class MD_Dict(MD_Value, dict):
     def __bool__(self):
         return any([x is not None for x in self.values()])
 
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not any(file_value):
-            return None
-        return cls(file_value)
-
     def merge(self, info, tag, other):
         if other == self:
             return self
@@ -287,6 +280,13 @@ class Location(MD_Dict):
         if self.country_code:
             self.country_code = self.country_code.upper()
 
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not any(file_value):
+            return None
+        return cls(file_value)
+
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
 
@@ -322,19 +322,17 @@ class Location(MD_Dict):
 
     def merge(self, info, tag, other):
         merged = False
-        result = Location(self)
-        for key in result:
+        for key in self:
             if not other[key]:
                 continue
-            if not result[key]:
-                result[key] = other[key]
+            if not self[key]:
+                self[key] = other[key]
                 merged = True
-            elif other[key] not in result[key]:
-                result[key] += ' // ' + other[key]
+            elif other[key] not in self[key]:
+                self[key] += ' // ' + other[key]
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return result
         return self
 
 
@@ -376,7 +374,10 @@ class MultiLocation(list):
         while count > 0 and not self[count - 1]:
             count -= 1
         # delete file values beyond end of list
-        file_count = len(MultiLocation.read(handler, tag))
+        file_count = count
+        while Location.read(
+                handler, self.tag_n(tag, file_count + 1)) is not None:
+            file_count += 1
         while file_count > count:
             handler.clear_value(self.tag_n(tag, file_count))
             file_count -= 1
