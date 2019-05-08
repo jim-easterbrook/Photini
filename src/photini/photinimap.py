@@ -740,20 +740,18 @@ class PhotiniMap(QtWidgets.QSplitter):
                           'country_code'),
         'country_name'  :('country', 'country_name'),
         'province_state':('county', 'county_code', 'local_administrative_area',
-                          'state_district',
-                          'state', 'province',
+                          'state_district', 'state', 'state_code', 'province',
                           'region', 'island'),
         'city'          :('village', 'locality', 'hamlet',
                           'neighbourhood', 'city_district', 'suburb',
                           'city', 'town', 'postcode'),
         'sublocation'   :('house_number', 'street_number',
-                          'house', 'public_building', 'building',
+                          'house', 'public_building', 'building', 'water',
                           'road', 'pedestrian', 'path', 'residential',
-                          'street_name', 'street', 'footway',
+                          'street_name', 'street', 'cycleway', 'footway',
                           'place'),
         'ignore'        :('political_union', 'road_reference',
-                          'road_reference_intl', 'road_type', 'state_code',
-                          '_type'),
+                          'road_reference_intl', 'road_type', '_type'),
         }
 
     @QtCore.pyqtSlot()
@@ -764,8 +762,10 @@ class PhotiniMap(QtWidgets.QSplitter):
         if not results:
             return
         address = results[0]['components']
-        if 'country_code' in address:
-            address['country_code'] = address['country_code'].upper()
+        if 'county_code' in address and 'county' in address:
+            del address['county_code']
+        if 'state_code' in address and 'state' in address:
+            del address['state_code']
         self.new_location(self.location_info.currentWidget(),
                           Location.from_address(address, self.address_map))
 

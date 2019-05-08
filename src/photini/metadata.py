@@ -306,6 +306,8 @@ class Location(MD_Dict):
         result.country_code = result.country_code[:1]
         # put unknown foreign keys in sublocation
         for foreign_key in address:
+            if address[foreign_key] in ' '.join(result['sublocation']):
+                continue
             result['sublocation'] = [
                 '{}: {}'.format(foreign_key, address[foreign_key])
                 ] + result['sublocation']
