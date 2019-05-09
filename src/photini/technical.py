@@ -36,108 +36,72 @@ logger = logging.getLogger(__name__)
 
 
 class DropdownEdit(ComboBox):
-    new_value = QtCore.pyqtSignal()
+    new_value = QtCore.pyqtSignal(object)
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
-        self.addItem(self.tr('<clear>'), '<clear>')
+        self.addItem(self.tr('<clear>'), None)
         self.addItem('', None)
         self.setItemData(1, 0, Qt.UserRole - 1)
-        self.addItem(multiple(), None)
+        self.addItem(multiple_values(), None)
         self.setItemData(2, 0, Qt.UserRole - 1)
-        self.currentIndexChanged.connect(self._new_value)
+        self.currentIndexChanged.connect(self.current_index_changed)
 
     @QtCore.pyqtSlot(int)
     @catch_all
-    def _new_value(self, index):
-        if index >= 0:
-            self.new_value.emit()
+    def current_index_changed(self, int):
+        self.new_value.emit(self.itemData(self.currentIndex()))
 
     def add_item(self, text, data):
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 3, text, str(data))
-        self.blockSignals(blocked)
+        self.insertItem(self.count() - 3, text, six.text_type(data))
         self.set_dropdown_width()
+        self.blockSignals(blocked)
 
     def remove_item(self, data):
         blocked = self.blockSignals(True)
-        self.removeItem(self.findData(str(data)))
-        self.blockSignals(blocked)
+        self.removeItem(self.findData(six.text_type(data)))
         self.set_dropdown_width()
+        self.blockSignals(blocked)
 
     def known_value(self, value):
         if not value:
             return True
-        return self.findData(str(value)) >= 0
+        return self.findData(six.text_type(value)) >= 0
 
     def set_value(self, value):
+        blocked = self.blockSignals(True)
         if not value:
             self.setCurrentIndex(self.count() - 2)
         else:
-            self.setCurrentIndex(self.findData(str(value)))
-
-    def get_value(self):
-        return self.itemData(self.currentIndex())
+            self.setCurrentIndex(self.findData(six.text_type(value)))
+        self.blockSignals(blocked)
 
     def set_multiple(self):
+        blocked = self.blockSignals(True)
         self.setCurrentIndex(self.count() - 1)
-
-    def is_multiple(self):
-        return self.currentIndex() == self.count() - 1
+        self.blockSignals(blocked)
 
 
-class FloatEdit(QtWidgets.QLineEdit):
+class NumberEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
-        super(FloatEdit, self).__init__(*arg, **kw)
-        self.multiple = multiple()
-        self.setValidator(DoubleValidator())
-        self._is_multiple = False
+        super(NumberEdit, self).__init__(*arg, **kw)
+        self.multiple = multiple_values()
+        self.get_value = self.text
 
     def set_value(self, value):
-        self._is_multiple = False
-        if not value:
-            self.clear()
-            self.setPlaceholderText('')
-        else:
+        self.setPlaceholderText(None)
+        if value:
             self.setText(str(value))
-
-    def get_value(self):
-        return self.text()
+        else:
+            self.clear()
 
     def set_multiple(self):
-        self._is_multiple = True
         self.setPlaceholderText(self.multiple)
         self.clear()
 
     def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-
-class IntEdit(QtWidgets.QLineEdit):
-    def __init__(self, *arg, **kw):
-        super(IntEdit, self).__init__(*arg, **kw)
-        self.multiple = multiple()
-        self.setValidator(IntValidator())
-        self._is_multiple = False
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if not value:
-            self.clear()
-        else:
-            self.setText(str(value))
-        self.setPlaceholderText('')
-
-    def get_value(self):
-        return self.text()
-
-    def set_multiple(self):
-        self._is_multiple = True
-        self.setPlaceholderText(self.multiple)
-        self.clear()
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
+        return self.placeholderText() == self.multiple and not self.get_value()
 
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
@@ -722,19 +686,23 @@ class Technical(QtWidgets.QWidget):
         other_group.layout().addRow(
             self.tr('Lens details'), self.widgets['lens_spec'])
         # focal length
-        self.widgets['focal_length'] = FloatEdit()
+        self.widgets['focal_length'] = NumberEdit()
+        self.widgets['focal_length'].setValidator(DoubleValidator())
         self.widgets['focal_length'].validator().setBottom(0.1)
         self.widgets['focal_length'].editingFinished.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.widgets['focal_length'])
         # 35mm equivalent focal length
-        self.widgets['focal_length_35'] = IntEdit()
+        self.widgets['focal_length_35'] = NumberEdit()
+        self.widgets['focal_length_35'].setValidator(IntValidator())
         self.widgets['focal_length_35'].validator().setBottom(1)
-        self.widgets['focal_length_35'].editingFinished.connect(self.new_focal_length_35)
+        self.widgets['focal_length_35'].editingFinished.connect(
+            self.new_focal_length_35)
         other_group.layout().addRow(
             self.tr('35mm equiv (mm)'), self.widgets['focal_length_35'])
         # aperture
-        self.widgets['aperture'] = FloatEdit()
+        self.widgets['aperture'] = NumberEdit()
+        self.widgets['aperture'].setValidator(DoubleValidator())
         self.widgets['aperture'].validator().setBottom(0.1)
         self.widgets['aperture'].editingFinished.connect(self.new_aperture)
         other_group.layout().addRow(
@@ -787,16 +755,9 @@ class Technical(QtWidgets.QWidget):
         else:
             self.date_widget[slave].set_enabled(True)
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(object)
     @catch_all
-    def new_orientation(self):
-        value = self.widgets['orientation'].get_value()
-        if value is None:
-            # multiple or blank value
-            self._update_orientation()
-            return
-        if value == '<clear>':
-            value = None
+    def new_orientation(self, value):
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
@@ -824,20 +785,13 @@ class Technical(QtWidgets.QWidget):
         self.lens_data.delete_model(model)
         self.widgets['lens_model'].remove_item(model)
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(object)
     @catch_all
-    def new_lens_model(self):
-        value = self.widgets['lens_model'].get_value()
-        if value is None:
-            # multiple or blank value
-            self._update_lens_model()
-            return
+    def new_lens_model(self, value):
         if value == '<add lens>':
             self._add_lens_model()
             self._update_lens_model()
             return
-        if value == '<clear>':
-            value = None
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
         self._update_lens_model()
