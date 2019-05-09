@@ -50,7 +50,7 @@ class DropdownEdit(ComboBox):
     @QtCore.pyqtSlot(int)
     @catch_all
     def current_index_changed(self, int):
-        self.new_value.emit(self.itemData(self.currentIndex()))
+        self.new_value.emit(self.get_value())
 
     def add_item(self, text, data):
         blocked = self.blockSignals(True)
@@ -77,6 +77,9 @@ class DropdownEdit(ComboBox):
             self.setCurrentIndex(self.findData(six.text_type(value)))
         self.blockSignals(blocked)
 
+    def get_value(self):
+        return self.itemData(self.currentIndex())
+
     def set_multiple(self):
         blocked = self.blockSignals(True)
         self.setCurrentIndex(self.count() - 1)
@@ -84,10 +87,24 @@ class DropdownEdit(ComboBox):
 
 
 class NumberEdit(QtWidgets.QLineEdit):
+    new_value = QtCore.pyqtSignal(six.text_type)
+
     def __init__(self, *arg, **kw):
         super(NumberEdit, self).__init__(*arg, **kw)
         self.multiple = multiple_values()
-        self.get_value = self.text
+        self.textEdited.connect(self.text_edited)
+        self.editingFinished.connect(self.editing_finished)
+
+    @QtCore.pyqtSlot(six.text_type)
+    @catch_all
+    def text_edited(self, text):
+        self.setPlaceholderText(None)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def editing_finished(self):
+        if self.placeholderText() != self.multiple:
+            self.new_value.emit(self.text())
 
     def set_value(self, value):
         self.setPlaceholderText(None)
@@ -99,9 +116,6 @@ class NumberEdit(QtWidgets.QLineEdit):
     def set_multiple(self):
         self.setPlaceholderText(self.multiple)
         self.clear()
-
-    def is_multiple(self):
-        return self.placeholderText() == self.multiple and not self.get_value()
 
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
@@ -689,22 +703,21 @@ class Technical(QtWidgets.QWidget):
         self.widgets['focal_length'] = NumberEdit()
         self.widgets['focal_length'].setValidator(DoubleValidator())
         self.widgets['focal_length'].validator().setBottom(0.1)
-        self.widgets['focal_length'].editingFinished.connect(self.new_focal_length)
+        self.widgets['focal_length'].new_value.connect(self.new_focal_length)
         other_group.layout().addRow(
             self.tr('Focal length (mm)'), self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = NumberEdit()
         self.widgets['focal_length_35'].setValidator(IntValidator())
         self.widgets['focal_length_35'].validator().setBottom(1)
-        self.widgets['focal_length_35'].editingFinished.connect(
-            self.new_focal_length_35)
+        self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
         other_group.layout().addRow(
             self.tr('35mm equiv (mm)'), self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = NumberEdit()
         self.widgets['aperture'].setValidator(DoubleValidator())
         self.widgets['aperture'].validator().setBottom(0.1)
-        self.widgets['aperture'].editingFinished.connect(self.new_aperture)
+        self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(
             self.tr('Aperture f/'), self.widgets['aperture'])
         self.layout().addWidget(other_group, 0, 1)
@@ -805,41 +818,35 @@ class Technical(QtWidgets.QWidget):
         model = self.lens_data.load_from_dialog(dialog)
         if not model:
             return
-        if self.widgets['lens_model'].findText(model) < 0:
+        if not self.widgets['lens_model'].known_value(model):
             self.widgets['lens_model'].add_item(model, model)
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(six.text_type)
     @catch_all
-    def new_aperture(self):
-        if not self.widgets['aperture'].is_multiple():
-            value = self.widgets['aperture'].get_value()
-            for image in self.image_list.get_selected_images():
-                image.metadata.aperture = value
+    def new_aperture(self, value):
+        for image in self.image_list.get_selected_images():
+            image.metadata.aperture = value
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(six.text_type)
     @catch_all
-    def new_focal_length(self):
-        if not self.widgets['focal_length'].is_multiple():
-            fl = self.widgets['focal_length'].get_value()
-            for image in self.image_list.get_selected_images():
-                # only update 35mm equiv if already set
-                if image.metadata.focal_length_35:
-                    image.metadata.focal_length_35 = self.calc_35(
-                        image.metadata, fl)
-                image.metadata.focal_length = fl
-            self._update_focal_length()
-            self._update_focal_length_35()
+    def new_focal_length(self, value):
+        for image in self.image_list.get_selected_images():
+            # only update 35mm equiv if already set
+            if image.metadata.focal_length_35:
+                image.metadata.focal_length_35 = self.calc_35(
+                    image.metadata, value)
+            image.metadata.focal_length = value
+        self._update_focal_length()
+        self._update_focal_length_35()
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(six.text_type)
     @catch_all
-    def new_focal_length_35(self):
-        if not self.widgets['focal_length_35'].is_multiple():
-            fl_35 = self.widgets['focal_length_35'].get_value()
-            for image in self.image_list.get_selected_images():
-                image.metadata.focal_length_35 = fl_35
-                self.set_crop_factor(image.metadata)
-            self._update_focal_length()
-            self._update_focal_length_35()
+    def new_focal_length_35(self, value):
+        for image in self.image_list.get_selected_images():
+            image.metadata.focal_length_35 = value
+            self.set_crop_factor(image.metadata)
+        self._update_focal_length()
+        self._update_focal_length_35()
 
     @QtCore.pyqtSlot(six.text_type, dict)
     @catch_all
@@ -909,9 +916,7 @@ class Technical(QtWidgets.QWidget):
             # new lens
             self.lens_data.load_from_image(model, images[0])
             self.widgets['lens_model'].add_item(model, model)
-        blocked = self.widgets['lens_model'].blockSignals(True)
         self.widgets['lens_model'].set_value(model)
-        self.widgets['lens_model'].blockSignals(blocked)
         tool_tip = ''
         if images[0].metadata.lens_make:
             tool_tip = images[0].metadata.lens_make + ' '
