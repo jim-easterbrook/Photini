@@ -274,35 +274,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         return self.specialValueText() == self.multiple
 
 
-class PrecisionSlider(Slider):
-    def __init__(self, *arg, **kw):
-        super(PrecisionSlider, self).__init__(*arg, **kw)
-        self._is_multiple = False
-        self.get_value = self.value
-        self.sliderPressed.connect(self.slider_pressed)
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def slider_pressed(self):
-        self._is_multiple = False
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if value is not None:
-            self.setValue(value)
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        value = self.value()
-        for choice in choices:
-            if choice is not None:
-                value = max(value, choice)
-        self.setValue(value)
-
-    def is_multiple(self):
-        return self._is_multiple
-
-
 class DateAndTimeWidget(QtWidgets.QGridLayout):
     new_value = QtCore.pyqtSignal(six.text_type, dict)
 
@@ -321,7 +292,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.addWidget(self.members['tz_offset'], 0, 2)
         # precision
         self.addWidget(QtWidgets.QLabel(self.tr('Precision:')), 1, 0)
-        self.members['precision'] = PrecisionSlider(Qt.Horizontal)
+        self.members['precision'] = Slider(Qt.Horizontal)
         self.members['precision'].setRange(1, 7)
         self.members['precision'].setPageStep(1)
         self.addWidget(self.members['precision'], 1, 1)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -329,9 +329,36 @@ class SingleLineEdit(MultiLineEdit):
 class Slider(QtWidgets.QSlider):
     editing_finished = QtCore.pyqtSignal()
 
+    def __init__(self, *arg, **kw):
+        super(Slider, self).__init__(*arg, **kw)
+        self._is_multiple = False
+        self.get_value = self.value
+        self.sliderPressed.connect(self.slider_pressed)
+
     def focusOutEvent(self, event):
         self.editing_finished.emit()
         super(Slider, self).focusOutEvent(event)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def slider_pressed(self):
+        self._is_multiple = False
+
+    def set_value(self, value):
+        self._is_multiple = False
+        if value is not None:
+            self.setValue(value)
+
+    def set_multiple(self, choices=[]):
+        self._is_multiple = True
+        value = self.value()
+        for choice in choices:
+            if choice is not None:
+                value = max(value, choice)
+        self.setValue(value)
+
+    def is_multiple(self):
+        return self._is_multiple
 
 
 class SquareButton(QtWidgets.QPushButton):
