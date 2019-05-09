@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,15 +27,13 @@ import re
 
 import six
 
-from photini.metadata import DateTime, LensSpec
+from photini.metadata import LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
     QtWidgets, scale_font, set_symbol_font, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
 
-# 'constant' used by some widgets to indicate they've been set to '<multiple>'
-MULTI = 'multi'
 
 class DropdownEdit(ComboBox):
     new_value = QtCore.pyqtSignal()
@@ -222,6 +220,9 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
+        # set fixed width
+        self.setValue(-8 * 60)
+        self.setFixedWidth(super(TimeZoneWidget, self).sizeHint().width())
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -325,10 +326,11 @@ class PrecisionSlider(Slider):
 
 
 class DateAndTimeWidget(QtWidgets.QGridLayout):
-    new_value = QtCore.pyqtSignal(dict)
+    new_value = QtCore.pyqtSignal(six.text_type, dict)
 
-    def __init__(self, *arg, **kw):
+    def __init__(self, name, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
+        self.name = name
         self.setContentsMargins(0, 0, 0, 0)
         self.setColumnStretch(3, 1)
         self.members = {}
@@ -367,7 +369,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
     @QtCore.pyqtSlot()
     @catch_all
     def editing_finished(self):
-        self.new_value.emit(self.get_value())
+        self.new_value.emit(self.name, self.get_value())
 
 
 class OffsetWidget(QtWidgets.QWidget):
@@ -630,6 +632,19 @@ class NewLensDialog(QtWidgets.QDialog):
                         '{:g}'.format(float(spec[key])))
 
 
+class DateLink(QtWidgets.QCheckBox):
+    new_link = QtCore.pyqtSignal(six.text_type)
+
+    def __init__(self, name, *arg, **kw):
+        super(DateLink, self).__init__(*arg, **kw)
+        self.name = name
+        self.clicked.connect(self._clicked)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def _clicked(self):
+        self.new_link.emit(self.name)
+
 class Technical(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(Technical, self).__init__(*arg, **kw)
@@ -644,32 +659,27 @@ class Technical(QtWidgets.QWidget):
         # date and time
         date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(QtWidgets.QFormLayout())
-        # taken
-        self.date_widget['taken'] = DateAndTimeWidget()
-        self.date_widget['taken'].new_value.connect(self.new_date_taken)
-        date_group.layout().addRow(self.tr('Taken'), self.date_widget['taken'])
-        # link taken & digitised
-        self.link_widget['taken', 'digitised'] = QtWidgets.QCheckBox(
+        # create date and link widgets
+        for master in self._master_slave:
+            self.date_widget[master] = DateAndTimeWidget(master)
+            self.date_widget[master].new_value.connect(self.new_date_value)
+            slave = self._master_slave[master]
+            if slave:
+                self.link_widget[master, slave] = DateLink(master)
+                self.link_widget[master, slave].new_link.connect(self.new_link)
+        self.link_widget['taken', 'digitised'].setText(
             self.tr("Link 'taken' and 'digitised'"))
-        self.link_widget[
-            'taken', 'digitised'].clicked.connect(self.new_link_digitised)
-        date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
-        # digitised
-        self.date_widget['digitised'] = DateAndTimeWidget()
-        self.date_widget['digitised'].new_value.connect(self.new_date_digitised)
-        date_group.layout().addRow(
-            self.tr('Digitised'), self.date_widget['digitised'])
-        # link digitised & modified
-        self.link_widget['digitised', 'modified'] = QtWidgets.QCheckBox(
+        self.link_widget['digitised', 'modified'].setText(
             self.tr("Link 'digitised' and 'modified'"))
-        self.link_widget[
-            'digitised', 'modified'].clicked.connect(self.new_link_modified)
+        # add to layout
+        date_group.layout().addRow(self.tr('Taken'),
+                                   self.date_widget['taken'])
+        date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
+        date_group.layout().addRow(self.tr('Digitised'),
+                                   self.date_widget['digitised'])
         date_group.layout().addRow('', self.link_widget['digitised', 'modified'])
-        # modified
-        self.date_widget['modified'] = DateAndTimeWidget()
-        self.date_widget['modified'].new_value.connect(self.new_date_modified)
-        date_group.layout().addRow(
-            self.tr('Modified'), self.date_widget['modified'])
+        date_group.layout().addRow(self.tr('Modified'),
+                                   self.date_widget['modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
@@ -735,36 +745,23 @@ class Technical(QtWidgets.QWidget):
         # disable until an image is selected
         self.setEnabled(False)
 
+    _master_slave = {
+        'taken'    : 'digitised',
+        'digitised': 'modified',
+        'modified' : None
+        }
+
     def refresh(self):
         pass
 
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(dict)
-    @catch_all
-    def new_date_taken(self, value):
-        self._new_date_value('taken', value)
-        if self.link_widget['taken', 'digitised'].isChecked():
-            self.new_date_digitised(value)
-
-    @QtCore.pyqtSlot(dict)
-    @catch_all
-    def new_date_digitised(self, value):
-        self._new_date_value('digitised', value)
-        if self.link_widget['digitised', 'modified'].isChecked():
-            self.new_date_modified(value)
-
-    @QtCore.pyqtSlot(dict)
-    @catch_all
-    def new_date_modified(self, value):
-        self._new_date_value('modified', value)
-
     @QtCore.pyqtSlot(timedelta, object)
     @catch_all
     def apply_offset(self, offset, tz_offset):
         for image in self.image_list.get_selected_images():
-            date_taken = image.metadata.date_taken
+            date_taken = dict(image.metadata.date_taken or {})
             if not date_taken:
                 continue
             date_taken.datetime += offset
@@ -774,34 +771,21 @@ class Technical(QtWidgets.QWidget):
                 date_taken.tz_offset += tz_offset
                 date_taken.tz_offset = min(date_taken.tz_offset, 15 * 60)
                 date_taken.tz_offset = max(date_taken.tz_offset, -14 * 60)
-            image.metadata.date_taken = date_taken
-            if self.link_widget['taken', 'digitised'].isChecked():
-                image.metadata.date_digitised = date_taken
-                if self.link_widget['digitised', 'modified'].isChecked():
-                    image.metadata.date_modified = date_taken
-        self._update_datetime('taken')
-        if self.link_widget['taken', 'digitised'].isChecked():
-            self._update_datetime('digitised')
-            if self.link_widget['digitised', 'modified'].isChecked():
-                self._update_datetime('modified')
+            self._set_date_value(image, 'taken', date_taken)
+        self._update_datetime()
 
-    @QtCore.pyqtSlot()
+    @QtCore.pyqtSlot(six.text_type)
     @catch_all
-    def new_link_digitised(self):
-        if self.link_widget['taken', 'digitised'].isChecked():
-            self.date_widget['digitised'].set_enabled(False)
-            self.new_date_digitised(self.date_widget['taken'].get_value())
+    def new_link(self, master):
+        slave = self._master_slave[master]
+        if self.link_widget[master, slave].isChecked():
+            self.date_widget[slave].set_enabled(False)
+            for image in self.image_list.get_selected_images():
+                temp = dict(getattr(image.metadata, 'date_' + master) or {})
+                self._set_date_value(image, slave, temp)
+            self._update_datetime()
         else:
-            self.date_widget['digitised'].set_enabled(True)
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def new_link_modified(self):
-        if self.link_widget['digitised', 'modified'].isChecked():
-            self.date_widget['modified'].set_enabled(False)
-            self.new_date_modified(self.date_widget['digitised'].get_value())
-        else:
-            self.date_widget['modified'].set_enabled(True)
+            self.date_widget[slave].set_enabled(True)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -903,24 +887,32 @@ class Technical(QtWidgets.QWidget):
             self._update_focal_length()
             self._update_focal_length_35()
 
-    def _new_date_value(self, key, new_value):
-        attribute = 'date_' + key
+    @QtCore.pyqtSlot(six.text_type, dict)
+    @catch_all
+    def new_date_value(self, key, new_value):
         for image in self.image_list.get_selected_images():
-            temp = dict(getattr(image.metadata, attribute) or {})
+            temp = dict(getattr(image.metadata, 'date_' + key) or {})
             temp.update(new_value)
             if 'datetime' not in temp:
                 continue
             if temp['datetime'] is None:
-                setattr(image.metadata, attribute, None)
-            else:
-                setattr(image.metadata, attribute, temp)
-        self._update_datetime(key)
+                temp = None
+            self._set_date_value(image, key, temp)
+        self._update_datetime()
 
-    def _update_datetime(self, name):
+    def _set_date_value(self, image, master, new_value):
+        while True:
+            setattr(image.metadata, 'date_' + master, new_value)
+            slave = self._master_slave[master]
+            if not slave or not self.link_widget[master, slave].isChecked():
+                break
+            master = slave
+
+    def _update_datetime(self):
         images = self.image_list.get_selected_images()
-        attribute = 'date_' + name
-        widget = self.date_widget[name]
-        if images:
+        for name in self.date_widget:
+            attribute = 'date_' + name
+            widget = self.date_widget[name]
             values = defaultdict(list)
             for image in images:
                 image_datetime = getattr(image.metadata, attribute) or {}
@@ -935,9 +927,6 @@ class Technical(QtWidgets.QWidget):
                     widget.members[key].set_multiple(choices=values[key])
                 else:
                     widget.members[key].set_value(values[key][0])
-        else:
-            for key in widget.members:
-                widget.members[key].set_value(None)
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
@@ -1133,21 +1122,21 @@ class Technical(QtWidgets.QWidget):
     @QtCore.pyqtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        for key in self.date_widget:
-            self._update_datetime(key)
         if not selection:
             self.setEnabled(False)
-            for key in self.widgets:
-                self.widgets[key].set_value(None)
+            for widget in self.date_widget.values():
+                for sub_widget in widget.members.values():
+                    sub_widget.set_value(None)
+            for widget in self.widgets.values():
+                widget.set_value(None)
             return
+        self._update_datetime()
         for master, slave in self.link_widget:
-            if (self.date_widget[slave].get_value() ==
-                                self.date_widget[master].get_value()):
-                self.date_widget[slave].set_enabled(False)
-                self.link_widget[master, slave].setChecked(True)
-            else:
-                self.date_widget[slave].set_enabled(True)
-                self.link_widget[master, slave].setChecked(False)
+            slave_value = self.date_widget[slave].get_value()
+            same = (len(slave_value) == 3 and
+                    slave_value == self.date_widget[master].get_value())
+            self.date_widget[slave].set_enabled(not same)
+            self.link_widget[master, slave].setChecked(same)
         self._update_orientation()
         self._update_lens_model()
         self._update_aperture()
