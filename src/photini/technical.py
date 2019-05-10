@@ -98,7 +98,7 @@ class NumberEdit(QtWidgets.QLineEdit):
     @QtCore.pyqtSlot(six.text_type)
     @catch_all
     def text_edited(self, text):
-        self.setPlaceholderText(None)
+        self.setPlaceholderText('')
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -107,7 +107,7 @@ class NumberEdit(QtWidgets.QLineEdit):
             self.new_value.emit(self.text())
 
     def set_value(self, value):
-        self.setPlaceholderText(None)
+        self.setPlaceholderText('')
         if value:
             self.setText(str(value))
         else:
@@ -169,7 +169,8 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.setSpecialValueText(' ')
             self.setMinimumDateTime(self.dateTime())
         else:
-            self.setSpecialValueText(None)
+            self.setSpecialValueText('')
+            txt = self.specialValueText()
             self.clearMinimumDateTime()
             self.setDateTime(value)
 
@@ -267,7 +268,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         self.setMinimum(self.value())
 
     def unset_multiple(self):
-        self.setSpecialValueText(None)
+        self.setSpecialValueText('')
         self.setMinimum(-14 * 60)
 
     def is_multiple(self):

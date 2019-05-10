@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -121,7 +121,7 @@ class RatingWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot(int)
     @catch_all
     def set_display(self, value):
-        self.display.setPlaceholderText(None)
+        self.display.setPlaceholderText('')
         if value == -2:
             self.display.clear()
         elif value == -1:
