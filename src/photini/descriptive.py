@@ -196,7 +196,8 @@ class KeywordsEditor(QtWidgets.QWidget):
 
     def update_league_table(self, images):
         for image in images:
-            value = image.metadata.keywords
+            value = list(filter(lambda x: not x.startswith('flickr:photo_id'),
+                                image.metadata.keywords or []))
             if not value:
                 continue
             for keyword in self.league_table:
