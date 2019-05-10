@@ -377,21 +377,23 @@ class OffsetWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def add(self):
-        value = self.offset.time()
-        offset = timedelta(
-            hours=value.hour(), minutes=value.minute(), seconds=value.second())
-        self.apply_offset.emit(offset, self.time_zone.get_value())
+        self.do_inc(False)
 
     @QtCore.pyqtSlot()
     @catch_all
     def sub(self):
+        self.do_inc(True)
+
+    def do_inc(self, negative):
         value = self.offset.time()
         offset = timedelta(
             hours=value.hour(), minutes=value.minute(), seconds=value.second())
         tz_offset = self.time_zone.get_value()
-        if tz_offset is not None:
-            tz_offset = -tz_offset
-        self.apply_offset.emit(-offset, tz_offset)
+        if negative:
+            if tz_offset is not None:
+                tz_offset = -tz_offset
+            offset = -offset
+        self.apply_offset.emit(offset, tz_offset)
 
 
 class LensSpecWidget(QtWidgets.QGroupBox):
@@ -717,13 +719,11 @@ class Technical(QtWidgets.QWidget):
             date_taken = dict(image.metadata.date_taken or {})
             if not date_taken:
                 continue
-            date_taken.datetime += offset
+            date_taken['datetime'] += offset
             if tz_offset is not None:
-                if date_taken.tz_offset is None:
-                    date_taken.tz_offset = 0
-                date_taken.tz_offset += tz_offset
-                date_taken.tz_offset = min(date_taken.tz_offset, 15 * 60)
-                date_taken.tz_offset = max(date_taken.tz_offset, -14 * 60)
+                tz = (date_taken['tz_offset'] or 0) + tz_offset
+                tz = min(max(tz, -14 * 60), 15 * 60)
+                date_taken['tz_offset'] = tz
             self._set_date_value(image, 'taken', date_taken)
         self._update_datetime()
 
