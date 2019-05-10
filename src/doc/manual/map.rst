@@ -103,9 +103,15 @@ It is usually necessary to edit the address quite a lot.
 
 .. image:: ../images/screenshot_143.png
 
-To set a ``subject`` location select the ``subject 1`` tab before doing an address lookup.
+Right-clicking on a location tab displays a context menu that allows the tab to be copied to a new tab or deleted.
+Copying the ``camera`` location is an easy way to initialise a ``subject`` location.
 (An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)
-In this case the address lookup provides the right town, but I changed the ``street`` to the subject of the photograph rather than where I was standing.
+
+.. image:: ../images/screenshot_144.png
+
+In this case most of the data is the same, but I changed the ``street`` to the subject of the photograph rather than where I was standing.
+
+.. image:: ../images/screenshot_145.png
 
 To reorder the subject locations, or to convert between camera and subject, you can drag any of the tabs to another position.
 If this results in the rightmost tab having data then another tab will be added.
