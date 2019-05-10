@@ -861,6 +861,17 @@ class Technical(QtWidgets.QWidget):
                 else:
                     widget.members[key].set_value(values[key][0])
 
+    def _update_links(self):
+        images = self.image_list.get_selected_images()
+        for master, slave in self.link_widget:
+            for image in images:
+                if (getattr(image.metadata, 'date_' + master) !=
+                        getattr(image.metadata, 'date_' + slave)):
+                    self.link_widget[master, slave].setChecked(False)
+                    break
+            else:
+                self.link_widget[master, slave].setChecked(True)
+
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
         if not images:
@@ -1062,12 +1073,7 @@ class Technical(QtWidgets.QWidget):
                 widget.set_value(None)
             return
         self._update_datetime()
-        for master, slave in self.link_widget:
-            slave_value = self.date_widget[slave].get_value()
-            same = (len(slave_value) == 3 and
-                    slave_value == self.date_widget[master].get_value())
-            self.date_widget[slave].set_enabled(not same)
-            self.link_widget[master, slave].setChecked(same)
+        self._update_links()
         self._update_orientation()
         self._update_lens_model()
         self._update_aperture()
