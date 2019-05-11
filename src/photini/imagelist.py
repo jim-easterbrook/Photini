@@ -232,6 +232,22 @@ class Image(QtWidgets.QFrame):
         qt_im._data = np_image
         return qt_im
 
+    def transform(self, pixmap, orientation):
+        orientation = (orientation or 1) - 1
+        if not orientation:
+            return pixmap
+        # need to rotate and or reflect image
+        transform = QtGui.QTransform()
+        if orientation & 0b001:
+            # reflect left-right
+            transform = transform.scale(-1.0, 1.0)
+        if orientation & 0b010:
+            transform = transform.rotate(180.0)
+        if orientation & 0b100:
+            # transpose horizontal & vertical
+            transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
+        return pixmap.transformed(transform)
+
     @QtCore.pyqtSlot()
     @catch_all
     def regenerate_thumbnail(self):
@@ -246,19 +262,7 @@ class Image(QtWidgets.QFrame):
                 return
             # reorient if required
             if self.file_type == 'image/x-canon-cr2':
-                orientation = self.metadata.orientation
-                if orientation and orientation > 1:
-                    # need to unrotate and or unreflect image
-                    transform = QtGui.QTransform()
-                    if orientation in (3, 4):
-                        transform = transform.rotate(180.0)
-                    elif orientation in (5, 6):
-                        transform = transform.rotate(-90.0)
-                    elif orientation in (7, 8):
-                        transform = transform.rotate(90.0)
-                    if orientation in (2, 4, 5, 7):
-                        transform = transform.scale(-1.0, 1.0)
-                    qt_im = qt_im.transformed(transform)
+                qt_im = self.transform(qt_im, self.metadata.orientation)
             w = qt_im.width()
             h = qt_im.height()
             # use Qt's scaling (not high quality) to pre-shrink very
@@ -426,19 +430,7 @@ class Image(QtWidgets.QFrame):
         if pixmap.isNull():
             self.image.setText(self.tr('No\nthumbnail\nin file'))
             return
-        orientation = self.metadata.orientation
-        if orientation and orientation > 1:
-            # need to rotate and or reflect image
-            transform = QtGui.QTransform()
-            if orientation in (3, 4):
-                transform = transform.rotate(180.0)
-            elif orientation in (5, 6):
-                transform = transform.rotate(90.0)
-            elif orientation in (7, 8):
-                transform = transform.rotate(-90.0)
-            if orientation in (2, 4, 5, 7):
-                transform = transform.scale(-1.0, 1.0)
-            pixmap = pixmap.transformed(transform)
+        pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(
             pixmap.scaled(self.thumb_size, self.thumb_size,
                           Qt.KeepAspectRatio, Qt.SmoothTransformation))
