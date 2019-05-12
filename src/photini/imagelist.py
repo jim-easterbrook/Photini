@@ -232,7 +232,7 @@ class Image(QtWidgets.QFrame):
         qt_im._data = np_image
         return qt_im
 
-    def transform(self, pixmap, orientation):
+    def transform(self, pixmap, orientation, inverse=False):
         orientation = (orientation or 1) - 1
         if not orientation:
             return pixmap
@@ -246,6 +246,8 @@ class Image(QtWidgets.QFrame):
         if orientation & 0b100:
             # transpose horizontal & vertical
             transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
+        if inverse:
+            transform = transform.transposed()
         return pixmap.transformed(transform)
 
     @QtCore.pyqtSlot()
@@ -258,11 +260,13 @@ class Image(QtWidgets.QFrame):
                 # use OpenCV to read first frame
                 qt_im = self.get_video_frame()
             if not qt_im or qt_im.isNull():
-                logger.error('Cannot read image data from %s', self.path)
+                logger.error('Cannot read %s image data from %s',
+                             self.file_type, self.path)
                 return
             # reorient if required
-            if self.file_type == 'image/x-canon-cr2':
-                qt_im = self.transform(qt_im, self.metadata.orientation)
+            if self.file_type in ('image/x-canon-cr2', 'image/x-nikon-nef'):
+                qt_im = self.transform(
+                    qt_im, self.metadata.orientation, inverse=True)
             w = qt_im.width()
             h = qt_im.height()
             # use Qt's scaling (not high quality) to pre-shrink very
