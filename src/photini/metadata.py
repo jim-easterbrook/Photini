@@ -530,6 +530,9 @@ class DateTime(MD_Dict):
             if datetime_string[-6] == '-':
                 tz_offset = -tz_offset
             datetime_string = datetime_string[:-6]
+        elif 'T' in datetime_string and datetime_string[-1] == 'Z':
+            tz_offset = 0
+            datetime_string = datetime_string[:-1]
         else:
             tz_offset = None
         precision = min((len(datetime_string) - 1) // 3, 7)
