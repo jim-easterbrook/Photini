@@ -281,7 +281,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
     def __init__(self, name, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
         self.name = name
-        self.setContentsMargins(0, 0, 0, 0)
+        self.setVerticalSpacing(0)
         self.setColumnStretch(3, 1)
         self.members = {}
         # date & time
@@ -602,7 +602,7 @@ class Technical(QtWidgets.QWidget):
         super(Technical, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
-        self.setLayout(QtWidgets.QGridLayout())
+        self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
         self.date_widget = {}
         self.link_widget = {}
@@ -636,7 +636,7 @@ class Technical(QtWidgets.QWidget):
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
         date_group.layout().addRow(self.tr('Adjust times'), self.offset_widget)
-        self.layout().addWidget(date_group, 0, 0)
+        self.layout().addWidget(date_group)
         # other
         other_group = QtWidgets.QGroupBox(self.tr('Other'))
         other_group.setLayout(QtWidgets.QFormLayout())
@@ -694,9 +694,7 @@ class Technical(QtWidgets.QWidget):
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(
             self.tr('Aperture f/'), self.widgets['aperture'])
-        self.layout().addWidget(other_group, 0, 1)
-        self.layout().setColumnStretch(0, 1)
-        self.layout().setColumnStretch(1, 1)
+        self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
 

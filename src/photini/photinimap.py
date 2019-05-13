@@ -100,8 +100,7 @@ class LocationInfo(QtWidgets.QWidget):
         layout = QtWidgets.QGridLayout()
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setHorizontalSpacing(layout.horizontalSpacing() // 3)
-        layout.setVerticalSpacing(layout.verticalSpacing() // 3)
+        layout.setVerticalSpacing(1)
         self.members = {}
         for key in ('sublocation', 'city', 'province_state',
                     'country_name', 'country_code', 'world_region'):
@@ -238,6 +237,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map.drop_text.connect(self.drop_text)
         self.addWidget(self.map)
         # search
+        search_layout = QtWidgets.QFormLayout()
+        search_layout.setContentsMargins(0, 0, 0, 0)
+        search_layout.setVerticalSpacing(0)
+        search_layout.setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         self.edit_box = ComboBox()
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
@@ -247,12 +251,13 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        left_side.layout().addRow(
-            translate('PhotiniMap', 'Search'), self.edit_box)
+        search_layout.addRow(translate('PhotiniMap', 'Search'), self.edit_box)
         # search terms and conditions
         terms = self.search_terms()
         if terms:
-            left_side.layout().addRow(*terms)
+            search_layout.addRow(*terms)
+        left_side.layout().addRow(search_layout)
+        if terms:
             divider = QtWidgets.QFrame()
             divider.setFrameStyle(QtWidgets.QFrame.HLine)
             left_side.layout().addRow(divider)
