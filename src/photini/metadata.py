@@ -1113,7 +1113,7 @@ class MetadataHandler(GExiv2.Metadata):
                         break
                 else:
                     if gi_version_info >= (0, 10, 3):
-                        self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
+                        self.set_xmp_tag_struct(bag, _xmp_struct_type[bag])
                     else:
                         super(MetadataHandler, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
