@@ -18,6 +18,7 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from collections import namedtuple
 import ctypes
 import os
 import site
@@ -57,9 +58,13 @@ except ImportError:
     Gspell = None
 
 # create version string
+gi_version_info = namedtuple(
+    'gi_version_info', ('major', 'minor', 'micro'))._make((
+        GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
+
 gi_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
-    ('PyGI', 'pgi')[using_pgi], gi.__version__, GExiv2.MAJOR_VERSION,
-    GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION, GObject._version)
+    ('PyGI', 'pgi')[using_pgi], gi.__version__, gi_version_info[0],
+    gi_version_info[1], gi_version_info[2], GObject._version)
 if Gspell:
     gi_version += ', Gspell {}'.format(Gspell._version)
 

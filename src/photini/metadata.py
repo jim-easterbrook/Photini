@@ -31,7 +31,7 @@ import sys
 import six
 
 from photini import __version__
-from photini.gi import GLib, GObject, GExiv2, using_pgi
+from photini.gi import gi_version_info, GLib, GObject, GExiv2, using_pgi
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -929,6 +929,13 @@ _max_bytes = {
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
+if gi_version_info >= (0, 10, 3):
+    _xmp_struct_type = {
+        'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
+        'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
+        'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
+        }
+
 class MetadataHandler(GExiv2.Metadata):
     def __init__(self, path):
         super(MetadataHandler, self).__init__()
@@ -1008,12 +1015,17 @@ class MetadataHandler(GExiv2.Metadata):
             if not result:
                 return None
             result = result.get_data()
-            # strip nul termination if present
-            if result and result[-1] == 0:
-                result = result[:-1]
-            # pgi returns an array of int instead of a bytes object
-            if result and isinstance(result[0], int):
-                result = bytearray(result)
+            if not result:
+                return None
+            if isinstance(result, list):
+                # pgi returns a list of ints, or ctypes pointers in some versions
+                if isinstance(result[0], int):
+                    result = bytearray(result)
+                else:
+                    # some other type we can't handle
+                    logger.info('Unknown data type %s in tag %s',
+                                type(result[0]), tag)
+                    return None
         except Exception as ex:
             logger.exception(ex)
             return None
@@ -1052,7 +1064,10 @@ class MetadataHandler(GExiv2.Metadata):
             except UnicodeDecodeError as ex:
                 pass
         # attempt to read raw data instead
-        return self._decode_string(self.get_raw(tag))
+        result = self.get_raw(tag)
+        if not result:
+            return None
+        return self._decode_string(result).strip('\x00')
 
     def get_multiple(self, tag):
         if isinstance(tag, tuple):
@@ -1071,13 +1086,7 @@ class MetadataHandler(GExiv2.Metadata):
         result = self.get_raw(tag)
         if not result:
             return []
-        return [self._decode_string(result)]
-
-    _xmp_struct_type = {
-        'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
-        'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
-        'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
-        }
+        return [self._decode_string(result).strip('\x00')]
 
     def set_string(self, tag, value):
         if isinstance(tag, tuple):
@@ -1103,7 +1112,10 @@ class MetadataHandler(GExiv2.Metadata):
                         # container already exists
                         break
                 else:
-                    self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
+                    if gi_version_info >= (0, 10, 3):
+                        self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
+                    else:
+                        super(MetadataHandler, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):
