@@ -1011,6 +1011,8 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_raw(self, tag):
         try:
+            if gi_version_info < (0, 10, 3):
+                return None
             result = self.get_tag_raw(tag)
             if not result:
                 return None
