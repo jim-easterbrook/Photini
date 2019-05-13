@@ -521,8 +521,8 @@ class ThumbsLayout(QtWidgets.QLayout):
     thumbnail widgets, according to height.
 
     """
-    def __init__(self, *arg, scroll_area=None, **kw):
-        super(ThumbsLayout, self).__init__(*arg, **kw)
+    def __init__(self, scroll_area=None, **kw):
+        super(ThumbsLayout, self).__init__(**kw)
         self.scroll_area = scroll_area
         self.item_list = []
         self.viewport_size = QtCore.QSize()
