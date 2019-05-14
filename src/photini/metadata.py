@@ -929,6 +929,23 @@ _max_bytes = {
     'Iptc.Envelope.CharacterSet'         :   32,
     }
 
+_repeatable = (
+    'Iptc.Application2.Byline',
+    'Iptc.Application2.BylineTitle',
+    'Iptc.Application2.Contact',
+    'Iptc.Application2.Keywords',
+    'Iptc.Application2.LocationCode',
+    'Iptc.Application2.LocationName',
+    'Iptc.Application2.ObjectAttribute',
+    'Iptc.Application2.ReferenceNumber',
+    'Iptc.Application2.ReferenceService',
+    'Iptc.Application2.Subject',
+    'Iptc.Application2.SuppCategory',
+    'Iptc.Application2.Writer',
+    'Iptc.Envelope.Destination',
+    'Iptc.Envelope.ProductId',
+    )
+
 if gi_version_info >= (0, 10, 3):
     _xmp_struct_type = {
         'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
@@ -972,8 +989,10 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in self.get_iptc_tags():
             if self.get_tag_type(tag) == 'String':
                 try:
-                    value_list = self.get_multiple(tag)
-                    self.set_multiple(tag, value_list)
+                    if tag in _repeatable:
+                        self.set_multiple(tag, self.get_multiple(tag))
+                    else:
+                        self.set_string(tag, self.get_string(tag))
                 except Exception as ex:
                     logger.exception(ex)
 
@@ -1013,10 +1032,7 @@ class MetadataHandler(GExiv2.Metadata):
         try:
             if gi_version_info < (0, 10, 3):
                 return None
-            result = self.get_tag_raw(tag)
-            if not result:
-                return None
-            result = result.get_data()
+            result = self.get_tag_raw(tag).get_data()
             if not result:
                 return None
             if isinstance(result, list):
@@ -1042,6 +1058,8 @@ class MetadataHandler(GExiv2.Metadata):
     def get_string(self, tag):
         if isinstance(tag, tuple):
             return [self.get_string(x) for x in tag]
+        if not self.has_tag(tag):
+            return None
         if self.get_tag_type(tag) == 'Comment':
             result = self.get_raw(tag)
             if not result:
@@ -1055,16 +1073,13 @@ class MetadataHandler(GExiv2.Metadata):
             else:
                 result = result.decode('ascii', 'replace')
             return result.strip('\x00')
-        if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
-                                        'Ascii', 'String', 'XmpText'):
-            # get_tag_string is at no risk from non utf8 strings
-            try:
-                result = self.get_tag_string(tag)
-                if six.PY2:
-                    result = self._decode_string(result)
-                return result
-            except UnicodeDecodeError as ex:
-                pass
+        try:
+            result = self.get_tag_string(tag)
+            if six.PY2:
+                result = self._decode_string(result)
+            return result
+        except UnicodeDecodeError as ex:
+            pass
         # attempt to read raw data instead
         result = self.get_raw(tag)
         if not result:
@@ -1074,16 +1089,19 @@ class MetadataHandler(GExiv2.Metadata):
     def get_multiple(self, tag):
         if isinstance(tag, tuple):
             return [self.get_multiple(x) for x in tag]
-        if six.PY2 or using_pgi or self.get_tag_type(tag) not in (
-                                        'Ascii', 'String', 'XmpText'):
-            # get_tag_multiple is at no risk from non utf8 strings
-            try:
-                result = self.get_tag_multiple(tag)
-                if six.PY2:
-                    result = list(map(self._decode_string, result))
-                return result
-            except UnicodeDecodeError as ex:
-                pass
+        if not self.has_tag(tag):
+            return []
+        if not (six.PY2 or using_pgi) and tag in (
+                'Iptc.Application2.Keywords',):
+            # PyGObject segfaults if strings are not utf8
+            return [self.get_string(tag)]
+        try:
+            result = self.get_tag_multiple(tag)
+            if six.PY2:
+                result = list(map(self._decode_string, result))
+            return result
+        except UnicodeDecodeError as ex:
+            pass
         # attempt to read raw data instead, only gets the first value
         result = self.get_raw(tag)
         if not result:
