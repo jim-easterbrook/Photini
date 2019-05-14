@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -57,16 +57,21 @@ try:
 except ImportError:
     Gspell = None
 
+if not GExiv2.initialize():
+    raise RuntimeError('Failed to initialise GExiv2')
+
+
 # create version string
 gi_version_info = namedtuple(
     'gi_version_info', ('major', 'minor', 'micro'))._make((
         GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
 
 gi_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
-    ('PyGI', 'pgi')[using_pgi], gi.__version__, gi_version_info[0],
+    ('PyGObject', 'pgi')[using_pgi], gi.__version__, gi_version_info[0],
     gi_version_info[1], gi_version_info[2], GObject._version)
 if Gspell:
     gi_version += ', Gspell {}'.format(Gspell._version)
+
 
 def GSListPtr_to_list(value):
     if isinstance(value, list):
