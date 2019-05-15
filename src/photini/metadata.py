@@ -1091,8 +1091,7 @@ class MetadataHandler(GExiv2.Metadata):
             return [self.get_multiple(x) for x in tag]
         if not self.has_tag(tag):
             return []
-        if not (six.PY2 or using_pgi) and tag in (
-                'Iptc.Application2.Keywords',):
+        if not six.PY2 and not using_pgi and self.is_iptc_tag(tag):
             # PyGObject segfaults if strings are not utf8
             return [self.get_string(tag)]
         try:
