@@ -57,9 +57,10 @@ try:
 except ImportError:
     Gspell = None
 
+# initialise GObject stuff
+GLib.set_prgname('Photini')
 if not GExiv2.initialize():
     raise RuntimeError('Failed to initialise GExiv2')
-
 
 # create version string
 gi_version_info = namedtuple(
