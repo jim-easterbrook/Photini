@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
+   Copyright (C)  2012-19  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Configuration
@@ -75,7 +75,6 @@ You can check which versions Photini is currently using by running it in a comma
    python -m photini.editor --version
 
 Setting the ``native_dialog`` option to ``False`` makes Photini use a Qt dialog to select files to open instead of the normal operating system dialog.
-This may be useful if your operating system has a case sensitive file filter, so selecting "Images" or "Videos" doesn't work properly if your files have upper case names.
 
 Note that there is no GUI to set these options.
 You may need to adjust them if Photini crashes on startup, in which case the GUI would be unusable.
