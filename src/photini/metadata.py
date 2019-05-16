@@ -31,7 +31,7 @@ import sys
 import six
 
 from photini import __version__
-from photini.gi import gi_version_info, GLib, GObject, GExiv2, using_pgi
+from photini.gi import gexiv2_version, GLib, GObject, GExiv2, using_pgi
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -946,7 +946,7 @@ _repeatable = (
     'Iptc.Envelope.ProductId',
     )
 
-if gi_version_info >= (0, 10, 3):
+if gexiv2_version >= (0, 10, 3):
     _xmp_struct_type = {
         'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
         'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
@@ -1030,7 +1030,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def get_raw(self, tag):
         try:
-            if gi_version_info < (0, 10, 3):
+            if gexiv2_version < (0, 10, 3):
                 return None
             result = self.get_tag_raw(tag).get_data()
             if not result:
@@ -1131,7 +1131,7 @@ class MetadataHandler(GExiv2.Metadata):
                         # container already exists
                         break
                 else:
-                    if gi_version_info >= (0, 10, 3):
+                    if gexiv2_version >= (0, 10, 3):
                         self.set_xmp_tag_struct(bag, _xmp_struct_type[bag])
                     else:
                         super(MetadataHandler, self).set_tag_string(bag, '')
