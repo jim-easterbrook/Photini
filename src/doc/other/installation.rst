@@ -61,6 +61,10 @@ Then run Photini::
 
    python3 -m photini.editor
 
+If you want to use Photini's spelling checker then you need to install ``Gspell`` and one or more dictionaries, for example::
+
+   pacman -S mingw-w64-x86_64-gspell mingw-w64-x86_64-aspell-en mingw-w64-x86_64-aspell-fr
+
 To create a desktop shortcut to run Photini, right-click on the desktop and select ``New -> Shortcut``.
 Set "location of the item" to the following::
 
