@@ -286,12 +286,14 @@ class Importer(QtWidgets.QWidget):
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
-        if sys.platform == 'win32':
-            import win32com.shell as ws
-            path = ws.shell.SHGetFolderPath(
-                0, ws.shellcon.CSIDL_MYPICTURES, None, 0)
-        else:
-            path = os.path.expanduser('~/Pictures')
+        path = os.path.expanduser('~/Pictures')
+        if not os.path.isdir(path) and sys.platform == 'win32':
+            try:
+                import win32com.shell as ws
+                path = ws.shell.SHGetFolderPath(
+                    0, ws.shellcon.CSIDL_MYPICTURES, None, 0)
+            except ImportError:
+                pass
         self.path_format.setText(
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
         self.refresh()
