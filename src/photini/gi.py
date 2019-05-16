@@ -20,6 +20,7 @@ from __future__ import absolute_import, unicode_literals
 
 from collections import namedtuple
 import ctypes
+import logging
 import os
 import site
 import sys
@@ -57,10 +58,30 @@ try:
 except ImportError:
     Gspell = None
 
+logger = logging.getLogger(__name__)
+
 # initialise GObject stuff
 GLib.set_prgname('Photini')
 if not GExiv2.initialize():
     raise RuntimeError('Failed to initialise GExiv2')
+GExiv2.log_use_glib_logging()
+
+# the numeric values of GLib.LogLevelFlags suggest ERROR is more severe
+# than CRITICAL, Python's logging has them the other way round
+_log_mapping = {
+    GLib.LogLevelFlags.LEVEL_DEBUG   : logging.DEBUG,
+    GLib.LogLevelFlags.LEVEL_INFO    : logging.INFO,
+    GLib.LogLevelFlags.LEVEL_MESSAGE : logging.INFO,
+    GLib.LogLevelFlags.LEVEL_WARNING : logging.WARNING,
+    GLib.LogLevelFlags.LEVEL_CRITICAL: logging.ERROR,
+    GLib.LogLevelFlags.LEVEL_ERROR   : logging.CRITICAL,
+    }
+
+def _gi_log_callback(log_domain, log_level, message, data):
+    logger.log(_log_mapping[log_level], message)
+
+GLib.log_set_handler(
+    None, GLib.LogLevelFlags.LEVEL_MASK, _gi_log_callback, None)
 
 # create version string
 gexiv2_version = namedtuple(

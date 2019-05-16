@@ -38,16 +38,6 @@ logger = logging.getLogger(__name__)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
-GExiv2.initialize()
-
-# we can't reroute GExiv2 messages to Python logging, so mute them...
-GExiv2.log_set_level(GExiv2.LogLevel.MUTE)
-
-# ...unless in test mode
-def debug_metadata():
-    GExiv2.log_set_level(GExiv2.LogLevel.INFO)
-
-
 XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">

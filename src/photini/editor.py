@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -43,7 +43,6 @@ from photini.imagelist import ImageList
 from photini.importer import Importer
 from photini.loggerwindow import LoggerWindow
 from photini.mapboxmap import MapboxMap
-from photini.metadata import debug_metadata
 from photini.openstreetmap import OpenStreetMap
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
@@ -109,9 +108,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
         self.app.test_mode = options.test
-        # set debug mode
-        if self.app.test_mode:
-            debug_metadata()
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
