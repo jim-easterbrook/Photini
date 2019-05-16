@@ -20,6 +20,7 @@ from __future__ import absolute_import, unicode_literals
 
 from collections import namedtuple
 import ctypes
+from functools import reduce
 import logging
 import os
 import site
@@ -83,7 +84,7 @@ if GLib.glib_version >= (2, 46):
         logger.log(_log_mapping[log_level], message)
 
     GLib.log_set_handler(
-        None, GLib.LogLevelFlags.LEVEL_MASK, _gi_log_callback, None)
+        None, reduce(lambda x, y: x|y, _log_mapping), _gi_log_callback, None)
 
 # create version string
 gexiv2_version = namedtuple(
