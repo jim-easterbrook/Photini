@@ -5,9 +5,9 @@
 Installation
 ============
 
-There are three ways to install Photini.
-On Windows you can use an all-in-one installer.
-On some Linux distributions you might be able to use your package manager to install everything, or you may be able to use the package manager to install Photini's dependencies and pip_ to install Photini.
+There are several ways to install Photini.
+On Windows you can use an all-in-one installer or you can use MSYS2_.
+On some Linux distributions you might be able to use your package manager to install everything.
 On other platforms you need to install several dependencies before installing Photini.
 
 All-in-one installer (Windows)
@@ -38,6 +38,37 @@ This needs to be run as administrator.
 Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
 
 If there is a new installer available then you should download it and use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
+
+MSYS2 (Windows)
+---------------
+
+"MSYS2 is a software distro and building platform for Windows."
+Installing Photini using MSYS2_ is easy.
+The following instructions assume you are using 64-bit Windows.
+If you are on a 32-bit machine you'll need to install the 32-bit versions of everything.
+
+First install MSYS2_ and update the packages as described on the MSYS2 homepage.
+Run the ``C:\msys64\mingw64.exe`` shell and use ``pacman`` to install Photini's dependencies::
+
+   pacman -S mingw-w64-x86_64-gexiv2 mingw-w64-x86_64-python3-gobject mingw-w64-x86_64-python3-pyqt5 mingw-w64-x86_64-python3-pip
+
+This will take some time as the Qt download is well over 1 GByte.
+Use pip_ to install Photini::
+
+   pip3 install photini flickrapi keyring
+
+Then run Photini::
+
+   python3 -m photini.editor
+
+To create a desktop shortcut to run Photini, right-click on the desktop and select ``New -> Shortcut``.
+Set "location of the item" to the following::
+
+   C:\msys64\mingw64\bin\python3w.exe -m photini.editor
+
+Choose a suitable name for the shortcut, such as Photini, and click "finish".
+Note the use of ``python3w.exe`` rather than ``python3.exe``.
+This runs Photini without opening a shell window.
 
 Package manager (some Linux distributions)
 ------------------------------------------
@@ -208,6 +239,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
 .. _Gspell:            https://wiki.gnome.org/Projects/gspell
 .. _keyring:           https://keyring.readthedocs.io/
+.. _MSYS2:             http://www.msys2.org/
 .. _NumPy:             http://www.numpy.org/
 .. _OpenCV:            http://opencv.org/
 .. _pgi:               https://pgi.readthedocs.io/
