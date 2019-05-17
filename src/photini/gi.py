@@ -59,7 +59,7 @@ try:
 except ImportError:
     Gspell = None
 
-logger = logging.getLogger(__name__)
+_glib_logger = logging.getLogger('GLib')
 
 # initialise GObject stuff
 GLib.set_prgname('Photini')
@@ -81,7 +81,7 @@ if GLib.glib_version >= (2, 46):
         }
 
     def _gi_log_callback(log_domain, log_level, message, data):
-        logger.log(_log_mapping[log_level], message)
+        _glib_logger.log(_log_mapping[log_level], message)
 
     GLib.log_set_handler(
         None, reduce(lambda x, y: x|y, _log_mapping), _gi_log_callback, None)

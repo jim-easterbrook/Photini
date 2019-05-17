@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -61,13 +61,15 @@ class StreamProxy(QtCore.QObject):
 
 
 class LoggerFilter(object):
-    def __init__(self, verbosity):
-        self.threshold = min(logging.ERROR, (6 - verbosity) * 10)
+    def __init__(self, threshold):
+        self.threshold = threshold
 
     def filter(self, record):
-        # reduce severity of non-Photini messages
-        if (record.levelno < self.threshold and
-                not record.name.startswith('photini')):
+        # raise threshold for non-Photini messages
+        threshold = self.threshold
+        if not record.name.startswith('photini'):
+            threshold += 10
+        if record.levelno < threshold:
             return 0
         return 1
 
@@ -97,7 +99,8 @@ class LoggerWindow(QtWidgets.QWidget):
         self.logger = logging.getLogger('')
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
-        self.logger.setLevel(max(logging.ERROR - (verbose * 10), 1))
+        threshold = max(logging.ERROR - (verbose * 10), 1)
+        self.logger.setLevel(threshold)
         self.stream_proxy = StreamProxy(self)
         self.stream_proxy.write_text.connect(self.write)
         self.stream_proxy.flush_text.connect(self.flush)
@@ -106,7 +109,7 @@ class LoggerWindow(QtWidgets.QWidget):
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
         if verbose > 0:
-            handler.addFilter(LoggerFilter(verbose))
+            handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
         # intercept stdout and stderr, if they exist
         if sys.stderr:
