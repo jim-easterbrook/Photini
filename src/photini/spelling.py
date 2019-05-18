@@ -1,9 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -67,6 +64,8 @@ class SpellCheck(QtCore.QObject):
             languages.sort()
             for lang in languages:
                 result.append((lang, lang))
+        else:
+            return None
         return result
 
     def current_language(self):

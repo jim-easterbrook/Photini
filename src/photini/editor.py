@@ -191,25 +191,31 @@ class MainWindow(QtWidgets.QMainWindow):
         languages = self.app.spell_check.available_languages()
         spelling_menu = self.menuBar().addMenu(self.tr('Spelling'))
         enable_action = QtWidgets.QAction(self.tr('Enable spell check'), self)
-        enable_action.setEnabled(bool(languages))
+        enable_action.setEnabled(languages is not None)
         enable_action.setCheckable(True)
         enable_action.setChecked(self.app.spell_check.enabled)
         enable_action.toggled.connect(self.app.spell_check.enable)
         spelling_menu.addAction(enable_action)
         language_menu = QtWidgets.QMenu(self.tr('Choose language'), self)
-        language_menu.setEnabled(bool(languages))
-        language_group = QtWidgets.QActionGroup(self)
+        language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
-        for name, code in languages:
-            if name != code:
-                name = code + ': ' + name
-            language_action = QtWidgets.QAction(name, self)
-            language_action.setCheckable(True)
-            language_action.setChecked(code == current_language)
-            language_action.setData(code)
-            language_action.setActionGroup(language_group)
+        if languages:
+            language_group = QtWidgets.QActionGroup(self)
+            for name, code in languages:
+                if name != code:
+                    name = code + ': ' + name
+                language_action = QtWidgets.QAction(name, self)
+                language_action.setCheckable(True)
+                language_action.setChecked(code == current_language)
+                language_action.setData(code)
+                language_action.setActionGroup(language_group)
+                language_menu.addAction(language_action)
+            language_group.triggered.connect(self.set_language)
+        else:
+            language_action = QtWidgets.QAction(
+                self.tr('No dictionary installed'), self)
+            language_action.setEnabled(False)
             language_menu.addAction(language_action)
-        language_group.triggered.connect(self.set_language)
         spelling_menu.addMenu(language_menu)
         # help menu
         help_menu = self.menuBar().addMenu(self.tr('Help'))
