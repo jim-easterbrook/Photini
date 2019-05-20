@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
 #  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -99,8 +98,8 @@ class LoggerWindow(QtWidgets.QWidget):
         self.logger = logging.getLogger('')
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
-        threshold = max(logging.ERROR - (verbose * 10), 1)
-        self.logger.setLevel(threshold)
+        threshold = logging.ERROR - (verbose * 10)
+        self.logger.setLevel(max(threshold, 1))
         self.stream_proxy = StreamProxy(self)
         self.stream_proxy.write_text.connect(self.write)
         self.stream_proxy.flush_text.connect(self.flush)
@@ -108,8 +107,7 @@ class LoggerWindow(QtWidgets.QWidget):
         handler.setFormatter(logging.Formatter(
             '%(asctime)s: %(levelname)s: %(name)s: %(message)s',
             datefmt='%H:%M:%S'))
-        if verbose > 0:
-            handler.addFilter(LoggerFilter(threshold))
+        handler.addFilter(LoggerFilter(threshold))
         self.logger.addHandler(handler)
         # intercept stdout and stderr, if they exist
         if sys.stderr:
