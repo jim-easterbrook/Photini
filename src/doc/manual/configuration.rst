@@ -28,20 +28,28 @@ Finally there is an option to preserve file timestamps.
 This allows Photini to write metadata to an image file without changing the file's "modification time" as displayed in a file browser.
 You may find this useful if you often use a browser to sort files by date.
 
+.. _configuration-spell:
+
 Spell checking
 ^^^^^^^^^^^^^^
 
 The ``Spelling`` menu allows you to enable or disable spell checking on Photini's text fields, and to select the language dictionary to use.
 The available languages depend on what dictionaries you have installed.
-Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate Aspell dictionary.
+Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate Aspell or Hunspell dictionary.
 
 Windows programs don't share spell checking dictionaries as easily as on Linux.
-I think the easiest way to install an extra language is to copy the dictionary files from another application such as LibreOffice_.
-Search the program's files for ``.dic`` files, e.g. ``C:\Program Files\LibreOffice\share\extensions\dict-en\en_ZA.dic``, then check any accompanying licence or copyright information before copying all the related files (e.g. ``en_ZA.dic``, ``en_ZA.aff``, and ``README_en_ZA.txt``) to Photini's dictionary folder, e.g. ``C:\Program Files (x86)\Photini\python-3.6.3\Lib\site-packages\gnome\share\enchant\myspell``.
-
 You may be able to find a suitable dictionary to download directly.
-There is a list of ispell dictionaries at https://www.cs.hmc.edu/~geoff/ispell-dictionaries.html that might help.
-To install one of these dictionaries, unpack the archive file (if necessary) and copy the ``.aff`` and ``.dic`` files to the Photini ``site-packages\gnome\share\enchant\myspell`` folder.
+There is a list of Aspell dictionaries at ftp://ftp.gnu.org/gnu/aspell/dict/0index.html that might help.
+Installing these may not be easy.
+You'll need to run a command shell as deswcribed in :doc:`../other/installation`.
+The ``tar.bz2`` files can be unpacked with the ``bsdtar`` command, for example::
+
+   bsdtar xf aspell-cy-0.50-3.tar.bz2
+
+Then you may need to compile the dictionary before installing it.
+There should be instructions provided with the dictionary.
+In this case I needed to install ``make`` and edit the ``Makefile`` to change the Windows paths to simpler Linux-like ones.
+As a last resort you can try coping the files to the dictionary folder ``/mingw64/lib/aspell-0.60``.
 
 Configuration file location
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
