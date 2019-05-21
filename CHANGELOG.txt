@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,14 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2019.5.0:
+  1/ Added thumbnail context menu item to show metadata changes.
+  2/ Use tabs to show 'camera' and multiple 'subject' addresses.
+  3/ Can now synchronise Flickr metadata with local picture file.
+  4/ Removed Google Photos uploader as the API it used is defunct.
+  5/ Improved reliability when using PyGObject instead of pgi.
+  6/ Improved error messages from GObject/GLib stuff.
 
 Changes in v2018.8.0:
   1/ Removed Facebook tab. Their API no longer allows photo uploads.
