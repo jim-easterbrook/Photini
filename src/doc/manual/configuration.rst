@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2012-19  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
 =============
@@ -41,7 +41,7 @@ Windows programs don't share spell checking dictionaries as easily as on Linux.
 You may be able to find a suitable dictionary to download directly.
 There is a list of Aspell dictionaries at ftp://ftp.gnu.org/gnu/aspell/dict/0index.html that might help.
 Installing these may not be easy.
-You'll need to run a command shell as deswcribed in :doc:`../other/installation`.
+You'll need to run a command shell as described in :doc:`../other/installation`.
 The ``tar.bz2`` files can be unpacked with the ``bsdtar`` command, for example::
 
    bsdtar xf aspell-cy-0.50-3.tar.bz2
@@ -49,7 +49,7 @@ The ``tar.bz2`` files can be unpacked with the ``bsdtar`` command, for example::
 Then you may need to compile the dictionary before installing it.
 There should be instructions provided with the dictionary.
 In this case I needed to install ``make`` and edit the ``Makefile`` to change the Windows paths to simpler Linux-like ones.
-As a last resort you can try coping the files to the dictionary folder ``/mingw64/lib/aspell-0.60``.
+As a last resort you can try copying the files to the dictionary folder ``/mingw64/lib/aspell-0.60``.
 
 Configuration file location
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
