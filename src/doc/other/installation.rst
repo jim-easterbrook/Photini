@@ -13,13 +13,16 @@ On other platforms you need to install several dependencies before installing Ph
 All-in-one installer (Windows)
 ------------------------------
 
-The Windows installer creates a standalone Python installation with all the dependencies needed to run Photini.
-The standalone Python interpreter is only used to run Photini, and should not conflict with any other Python version installed on your computer.
+The Windows installers create a standalone MSYS2_ installation with all the dependencies needed to run Photini.
+This is a cut-down MSYS2 and Python system, and should not conflict with any other Python version installed on your computer, or any other MSYS2 installation.
+
+Previous installers (from before May 2019) used a "portable Python" system based on WinPython_.
+If you have a Photini installation from one of these installers you should remove it using the "Programs and Features" control panel item, and ensure the installation folder (e.g. ``C:\Program Files (x86)\Photini`` has been removed, before using the new installer.
 
 You can download the latest Windows installer from the `GitHub releases`_ page.
-Look for the most recent release with a ``.exe`` file listed in its "assets", e.g. ``photini-win32-2018.2.1.exe``.
+Look for the most recent release with a ``.exe`` file listed in its "assets", e.g. ``photini-win64-2019.5.0.exe``.
 This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
-The installer is suitable for 32 bit and 64 bit Windows, and should work on any version since Windows XP.
+There are installers for 32 bit and 64 bit Windows, and they should work on any version since Windows XP.
 
 When you run the installer you will probably get a security warning because the installer is not signed by a recognised authority.
 This is unavoidable unless I purchase a certificate with which to sign the installer.
@@ -33,26 +36,54 @@ Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Before upgrading Photini you should check the `GitHub releases`_ page to see if a new Windows installer has been released since you last downloaded it.
-If it hasn't, then you can use the "upgrade Photini" command in the start menu.
-This needs to be run as administrator.
-Click on the "Start" icon, then select "All Programs", then "Photini", then right-click on "upgrade Photini" and choose "Run as administrator" from the context menu.
+If there is a new installer available then you should use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
 
-If there is a new installer available then you should download it and use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
+To upgrade an existing installation you need to run an MSYS2 "command shell".
+Open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``mingw64.exe`` program in the ``msys2`` folder (use ``mingw32.exe`` if you have a 32-bit installation).
+This program needs to be run as administrator.
+Use this command to upgrade Photini::
+
+   pip3 install -U photini
+
+If you would like to upgrade or install the Flickr uploader components you can also use pip_::
+
+   pip3 install -U flickrapi keyring
+
+Installing the spell checker components uses pacman_::
+
+   pacman -S mingw-w64-x86_64-gspell
+
+You'll also need to install one or more dictionaries.
+To get a list of available dictionaries::
+
+   pacman -Ss dictionar
+
+Note the use of ``dictionar`` as a search term - it matches ``dictionary`` or ``dictionaries``.
+To install the French dictionaries::
+
+   pacman -S mingw-w64-x86_64-aspell-fr
+
+The MSYS2 repositories only provide dictionaries for a few languages, but it is possible to install from other sources.
+See the :ref:`configuration page <configuration-spell>` for more information.
+
+When you've finished you can close the command shell with the ``exit`` command.
 
 MSYS2 (Windows)
 ---------------
 
-"MSYS2 is a software distro and building platform for Windows."
-Installing Photini using MSYS2_ is easy.
+An alternative to the Windows standalone installer is to use a full installation of MSYS2_.
+This is not that difficult to do, but will need about 10 GBytes of disc space, and an hour of your time.
 The following instructions assume you are using 64-bit Windows.
-If you are on a 32-bit machine you'll need to install the 32-bit versions of everything.
+If you are on a 32-bit machine you'll need to install the 32-bit (``i686`` instead of ``x86_64``) versions of everything.
 
 First install MSYS2_ and update the packages as described on the MSYS2 homepage.
-Run the ``C:\msys64\mingw64.exe`` shell and use ``pacman`` to install Photini's dependencies::
+Run the ``C:\msys64\mingw64.exe`` shell and use pacman_ to install Photini's dependencies::
 
    pacman -S mingw-w64-x86_64-gexiv2 mingw-w64-x86_64-python3-gobject mingw-w64-x86_64-python3-pyqt5 mingw-w64-x86_64-python3-pip
 
 This will take some time as the Qt download is well over 1 GByte.
+When it's finished you can free up some disc space with the ``pacman -Scc`` command.
+
 Use pip_ to install Photini::
 
    pip3 install photini flickrapi keyring
@@ -201,20 +232,22 @@ Troubleshooting
 ^^^^^^^^^^^^^^^
 
 If Photini fails to run for some reason you may be able to find out why by trying to run it in a command window.
-On Windows you need to open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``WinPython Command Prompt.exe`` program.
+On Windows you need to open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``mingw64.exe`` program in the ``msys2`` folder.
+This program needs to be run as administrator.
+(Use ``mingw32.exe`` if you have a 32-bit installation.)
 On Linux you can run any terminal or console program.
 
 Start the Photini program as follows.
 If it fails to run you should get some diagnostic information::
 
-   python -m photini.editor
+   python3 -m photini.editor
 
 If you need more help, please email jim@jim-easterbrook.me.uk.
 It would probably be helpful to copy any diagnostic messages into your email.
 I would also find it useful to know what version of Photini and some of its dependencies you are running.
 You can find out with the ``--version`` option::
 
-   python -m photini.editor --version
+   python3 -m photini.editor --version
 
 Some versions of PyQt may fail to work properly with Photini, even causing a crash at startup.
 If this happens you may be able to circumvent the problem by editing the :ref:`Photini configuration file <configuration-pyqt>` before running Photini.
@@ -246,6 +279,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _MSYS2:             http://www.msys2.org/
 .. _NumPy:             http://www.numpy.org/
 .. _OpenCV:            http://opencv.org/
+.. _pacman:            https://wiki.archlinux.org/index.php/Pacman
 .. _pgi:               https://pgi.readthedocs.io/
 .. _Pillow:            http://pillow.readthedocs.io/
 .. _pip:               https://pip.pypa.io/en/latest/
@@ -258,3 +292,4 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _requests:          https://github.com/kennethreitz/requests/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
 .. _requests-toolbelt: https://toolbelt.readthedocs.io/
+.. _WinPython:         http://winpython.github.io/
