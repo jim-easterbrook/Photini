@@ -12,6 +12,7 @@ def main():
             '/mingw64/lib/cmake',
             '/mingw64/lib/include',
             '/mingw64/lib/pkgconfig',
+            '/mingw64/lib/python2.7',
             '/mingw64/lib/python3.7/test',
             '/mingw64/share/doc',
             '/mingw64/share/gtk-doc',
