@@ -1,3 +1,1 @@
-This installer downloads some components, ensuring you get the latest versions. Please ensure your computer has a working internet connection during the installation process.
-
-Console windows will open while these components are downloaded and installed. This is nothing to worry about.
+This installer downloads some components, ensuring you get the latest versions. Please ensure your computer has a working internet connection during the installation process. A console window will open while these components are downloaded and installed. This is nothing to worry about.
