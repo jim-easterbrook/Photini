@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -377,6 +376,14 @@ class FlickrUploader(PhotiniUploader):
                          'video/mp4', 'video/quicktime', 'video/riff'),
             'rejected': ('image/x-canon-cr2',),
             }
+        self.replace_prefs = {
+            'set_metadata'  : True,
+            'set_visibility': False,
+            'set_type'      : False,
+            'set_albums'    : False,
+            'replace_image' : False,
+            'new_photo'     : False,
+            }
 
     def get_conversion_function(self, image, params):
         if not params['function']:
@@ -498,25 +505,29 @@ class FlickrUploader(PhotiniUploader):
                 os.path.basename(image.path)))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
-        set_metadata = QtWidgets.QCheckBox(self.tr('Replace metadata'))
-        set_metadata.setChecked(True)
-        dialog.layout().addWidget(set_metadata)
-        set_visibility = QtWidgets.QCheckBox(self.tr('Change who can see it'))
-        dialog.layout().addWidget(set_visibility)
-        set_type = QtWidgets.QCheckBox(self.tr('Change content type'))
-        dialog.layout().addWidget(set_type)
-        set_albums = QtWidgets.QCheckBox(self.tr('Change album membership'))
-        dialog.layout().addWidget(set_albums)
-        button_group = QtWidgets.QButtonGroup()
-        replace_image = QtWidgets.QCheckBox(self.tr('Replace image'))
-        button_group.addButton(replace_image)
-        dialog.layout().addWidget(replace_image)
-        new_photo = QtWidgets.QCheckBox(self.tr('Upload as new photo'))
-        button_group.addButton(new_photo)
-        dialog.layout().addWidget(new_photo)
+        widget = {}
+        widget['set_metadata'] = QtWidgets.QCheckBox(
+            self.tr('Replace metadata'))
+        widget['set_visibility'] = QtWidgets.QCheckBox(
+            self.tr('Change who can see it'))
+        widget['set_type'] = QtWidgets.QCheckBox(
+            self.tr('Change content type'))
+        widget['set_albums'] = QtWidgets.QCheckBox(
+            self.tr('Change album membership'))
+        widget['replace_image'] = QtWidgets.QCheckBox(
+            self.tr('Replace image'))
+        widget['new_photo'] = QtWidgets.QCheckBox(
+            self.tr('Upload as new photo'))
         no_upload = QtWidgets.QCheckBox(self.tr('No image upload'))
         no_upload.setChecked(True)
+        button_group = QtWidgets.QButtonGroup()
+        button_group.addButton(widget['replace_image'])
+        button_group.addButton(widget['new_photo'])
         button_group.addButton(no_upload)
+        for key in ('set_metadata', 'set_visibility', 'set_type',
+                    'set_albums', 'replace_image', 'new_photo'):
+            dialog.layout().addWidget(widget[key])
+            widget[key].setChecked(self.replace_prefs[key])
         dialog.layout().addWidget(no_upload)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -525,14 +536,9 @@ class FlickrUploader(PhotiniUploader):
         dialog.layout().addWidget(button_box)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return None, photo_id
-        return {
-            'set_metadata'  : set_metadata.isChecked(),
-            'set_visibility': set_visibility.isChecked(),
-            'set_type'      : set_type.isChecked(),
-            'set_albums'    : set_albums.isChecked(),
-            'replace_image' : replace_image.isChecked(),
-            'new_photo'     : new_photo.isChecked(),
-            }, photo_id
+        for key in self.replace_prefs:
+            self.replace_prefs[key] = widget[key].isChecked()
+        return dict(self.replace_prefs), photo_id
 
     def upload_finished(self):
         pass
