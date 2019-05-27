@@ -488,6 +488,7 @@ class DateTime(MD_Dict):
 
     def __init__(self, value):
         super(DateTime, self).__init__(value)
+        self.precision = self.precision or 7
         if not self.datetime:
             # use a well known 'zero'
             self.datetime = datetime(1970, 1, 1)
