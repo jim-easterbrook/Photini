@@ -115,7 +115,14 @@ class FlickrSession(UploaderSession):
                 'fileobj' : fileobj,
                 'format'  : 'etree'
                 }
-            if photo_id:
+            if params['function'] == 'upload':
+                # set some metadata with upload function
+                for key in ('permissions', 'content_type', 'hidden',
+                            'meta', 'tags'):
+                    if key in params and params[key]:
+                        kwargs.update(params[key])
+                        del(params[key])
+            else:
                 kwargs['photo_id'] = photo_id
             try:
                 rsp = getattr(self.api, params['function'])(**kwargs)
