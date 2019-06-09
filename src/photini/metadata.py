@@ -505,6 +505,7 @@ class DateTime(MD_Dict):
         return self.datetime.replace(**dict(self._replace[:7 - precision]))
 
     _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+    _separators = ((4, '-'), (7, '-'), (10, 'T'), (13, ':'), (16, ':'))
 
     @classmethod
     def from_ISO_8601(cls, datetime_string):
@@ -514,6 +515,13 @@ class DateTime(MD_Dict):
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
+        # fix any incorrect separators
+        for idx, sep in cls._separators:
+            if idx >= len(datetime_string):
+                break
+            if datetime_string[idx] != sep:
+                datetime_string = (datetime_string[:idx] + sep +
+                                   datetime_string[idx+1:])
         # extract time zone
         if 'T' in datetime_string and datetime_string[-6] in ('+', '-'):
             tz_offset = int(datetime_string[-2:]) + (
@@ -594,20 +602,16 @@ class DateTime(MD_Dict):
         datetime_string = file_value[0]
         if not datetime_string:
             return None
-        date_string = datetime_string[:10].replace(':', '-')
-        time_string = datetime_string[11:]
         # append sub seconds
         if len(file_value) > 1:
             sub_sec_string = file_value[1]
             if sub_sec_string:
                 sub_sec_string = sub_sec_string.strip()
             if sub_sec_string:
-                time_string += '.' + sub_sec_string
+                datetime_string += '.' + sub_sec_string
         # check for no time
-        if time_string == '00:00:00':
-            datetime_string = date_string
-        else:
-            datetime_string = date_string + 'T' + time_string
+        if datetime_string[11:] == '00:00:00':
+            datetime_string = datetime_string[:10]
         return cls.from_ISO_8601(datetime_string)
 
     def to_exif(self):
