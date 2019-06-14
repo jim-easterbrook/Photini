@@ -223,9 +223,9 @@ class PathFormatValidator(QtGui.QValidator):
         return os.path.abspath(inp)
 
 
-class Importer(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
-        super(Importer, self).__init__(parent)
+        super(TabWidget, self).__init__(parent)
         self.setObjectName(self.tr('&Import photos'))
         app = QtWidgets.QApplication.instance()
         if gp and app.test_mode:

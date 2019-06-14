@@ -31,9 +31,9 @@ from photini.pyqt import Busy, QtWidgets, scale_font
 logger = logging.getLogger(__name__)
 
 
-class GoogleMap(PhotiniMap):
+class TabWidget(PhotiniMap):
     def __init__(self, *arg, **kw):
-        super(GoogleMap, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('Map (&Google)'))
 
     def get_head(self):

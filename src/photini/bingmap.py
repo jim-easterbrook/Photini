@@ -29,9 +29,9 @@ from photini.pyqt import Busy, QtWidgets, scale_font
 logger = logging.getLogger(__name__)
 
 
-class BingMap(PhotiniMap):
+class TabWidget(PhotiniMap):
     def __init__(self, *arg, **kw):
-        super(BingMap, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('Map (&Bing)'))
 
     def get_head(self):

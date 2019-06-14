@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 import six
+import importlib
 import logging
 from optparse import OptionParser
 import os
@@ -29,26 +30,15 @@ import webbrowser
 
 import pkg_resources
 
-from photini.bingmap import BingMap
 from photini.configstore import BaseConfigStore
-from photini.descriptive import Descriptive
 from photini.editsettings import EditSettings
-try:
-    from photini.flickr import FlickrUploader
-except ImportError:
-    FlickrUploader = None
 from photini.gi import gi_version
-from photini.googlemap import GoogleMap
 from photini.imagelist import ImageList
-from photini.importer import Importer
 from photini.loggerwindow import LoggerWindow
-from photini.mapboxmap import MapboxMap
-from photini.openstreetmap import OpenStreetMap
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     using_qtwebengine)
 from photini.spelling import SpellCheck, spelling_version
-from photini.technical import Technical
 from photini import __version__, build
 
 logger = logging.getLogger(__name__)
@@ -119,26 +109,31 @@ class MainWindow(QtWidgets.QMainWindow):
         # prepare list of tabs and associated stuff
         self.tab_list = (
             {'key'   : 'descriptive_metadata',
-             'class' : Descriptive},
+             'module': 'photini.descriptive'},
             {'key'   : 'technical_metadata',
-             'class' : Technical},
+             'module': 'photini.technical'},
             {'key'   : 'map_google',
-             'class' : GoogleMap},
+             'module': 'photini.googlemap'},
             {'key'   : 'map_bing',
-             'class' : BingMap},
+             'module': 'photini.bingmap'},
             {'key'   : 'map_mapbox',
-             'class' : MapboxMap},
+             'module': 'photini.mapboxmap'},
             {'key'   : 'map_osm',
-             'class' : OpenStreetMap},
+             'module': 'photini.openstreetmap'},
             {'key'   : 'flickr_upload',
-             'class' : FlickrUploader},
+             'module': 'photini.flickr'},
             {'key'   : 'import_photos',
-             'class' : Importer},
+             'module': 'photini.importer'},
             )
         for tab in self.tab_list:
-            if not tab['class']:
+            try:
+                mod = importlib.import_module(tab['module'])
+                tab['object'] = mod.TabWidget(self.image_list)
+            except ImportError as ex:
+                print(str(ex))
+                tab['object'] = None
+            if not tab['object']:
                 continue
-            tab['object'] = tab['class'](self.image_list)
             tab['name'] = tab['object'].objectName()
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
@@ -174,14 +169,13 @@ class MainWindow(QtWidgets.QMainWindow):
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
+            if not tab['object']:
+                continue
             name = tab['name'].replace('&', '')
             tab['action'] = QtWidgets.QAction(name, self)
             tab['action'].setCheckable(True)
-            if tab['class']:
-                tab['action'].setChecked(
-                    eval(self.app.config_store.get('tabs', tab['key'], 'True')))
-            else:
-                tab['action'].setEnabled(False)
+            tab['action'].setChecked(
+                eval(self.app.config_store.get('tabs', tab['key'], 'True')))
             tab['action'].triggered.connect(self.add_tabs)
             options_menu.addAction(tab['action'])
         # spelling menu
@@ -257,7 +251,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.clear()
         idx = 0
         for tab in self.tab_list:
-            if not tab['class']:
+            if not tab['object']:
                 self.app.config_store.set('tabs', tab['key'], 'True')
                 continue
             use_tab = tab['action'].isChecked()
@@ -404,9 +398,11 @@ def main(argv=None):
         ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
     if spelling_version:
         version += '\n  ' + spelling_version
-    if FlickrUploader:
+    try:
         from photini.flickr import flickr_version
         version += '\n  ' + flickr_version
+    except ImportError:
+        pass
     version += '\n  available styles: {}'.format(
         ', '.join(QtWidgets.QStyleFactory.keys()))
     version += '\n  using style: {}'.format(

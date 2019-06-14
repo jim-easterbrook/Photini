@@ -596,9 +596,9 @@ class DateLink(QtWidgets.QCheckBox):
     def _clicked(self):
         self.new_link.emit(self.name)
 
-class Technical(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
-        super(Technical, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('&Technical metadata'))
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list

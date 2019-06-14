@@ -30,9 +30,9 @@ from photini.pyqt import Busy, catch_all, CompactButton, QtCore, QtWidgets
 logger = logging.getLogger(__name__)
 
 
-class MapboxMap(PhotiniMap):
+class TabWidget(PhotiniMap):
     def __init__(self, *arg, **kw):
-        super(MapboxMap, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('Map (&Mapbox)'))
 
     def get_head(self):

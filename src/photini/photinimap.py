@@ -193,7 +193,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.app = QtWidgets.QApplication.instance()
         self.image_list = image_list
         self.geocode_cache = OrderedDict()
-        name = self.__class__.__name__.lower()
+        name = self.__module__.split('.')[-1]
         self.api_key = key_store.get(name, 'api_key')
         self.search_key = key_store.get('opencage', 'api_key')
         self.script_dir = pkg_resources.resource_filename(

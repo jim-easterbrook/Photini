@@ -223,9 +223,9 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.editingFinished.emit()
 
 
-class Descriptive(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
-        super(Descriptive, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('&Descriptive metadata'))
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list

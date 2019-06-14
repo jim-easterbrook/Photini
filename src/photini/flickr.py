@@ -369,12 +369,12 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         return widget
 
 
-class FlickrUploader(PhotiniUploader):
+class TabWidget(PhotiniUploader):
     session_factory = FlickrSession
 
     def __init__(self, *arg, **kw):
         self.upload_config = FlickrUploadConfig()
-        super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
+        super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.setObjectName(self.tr('&Flickr upload'))
         self.upload_config.new_set.connect(self.new_set)
         self.upload_config.sync_metadata.connect(self.sync_metadata)
@@ -397,7 +397,7 @@ class FlickrUploader(PhotiniUploader):
         if not params['function']:
             return None
         convert = super(
-            FlickrUploader, self).get_conversion_function(image, params)
+            TabWidget, self).get_conversion_function(image, params)
         if convert == 'omit':
             return convert
         max_size = 2 ** 30
@@ -797,6 +797,6 @@ class FlickrUploader(PhotiniUploader):
     @QtCore.pyqtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        super(FlickrUploader, self).new_selection(selection)
+        super(TabWidget, self).new_selection(selection)
         self.upload_config.sync_button.setEnabled(
             len(selection) > 0 and self.connected)

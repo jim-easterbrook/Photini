@@ -21,9 +21,9 @@ from __future__ import unicode_literals
 from photini.photinimap import PhotiniMap
 
 
-class OpenStreetMap(PhotiniMap):
+class TabWidget(PhotiniMap):
     def __init__(self, *arg, **kw):
-        super(OpenStreetMap, self).__init__(*arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.setObjectName(self.tr('Map (&OSM)'))
 
     def get_head(self):
