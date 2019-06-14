@@ -118,31 +118,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list.new_metadata.connect(self.new_metadata)
         # prepare list of tabs and associated stuff
         self.tab_list = (
-            {'name'  : self.tr('&Descriptive metadata'),
-             'key'   : 'descriptive_metadata',
+            {'key'   : 'descriptive_metadata',
              'class' : Descriptive},
-            {'name'  : self.tr('&Technical metadata'),
-             'key'   : 'technical_metadata',
+            {'key'   : 'technical_metadata',
              'class' : Technical},
-            {'name'  : self.tr('Map (&Google)'),
-             'key'   : 'map_google',
+            {'key'   : 'map_google',
              'class' : GoogleMap},
-            {'name'  : self.tr('Map (&Bing)'),
-             'key'   : 'map_bing',
+            {'key'   : 'map_bing',
              'class' : BingMap},
-            {'name'  : self.tr('Map (&Mapbox)'),
-             'key'   : 'map_mapbox',
+            {'key'   : 'map_mapbox',
              'class' : MapboxMap},
-            {'name'  : self.tr('Map (&OSM)'),
-             'key'   : 'map_osm',
+            {'key'   : 'map_osm',
              'class' : OpenStreetMap},
-            {'name'  : self.tr('&Flickr upload'),
-             'key'   : 'flickr_upload',
+            {'key'   : 'flickr_upload',
              'class' : FlickrUploader},
-            {'name'  : self.tr('&Import photos'),
-             'key'   : 'import_photos',
+            {'key'   : 'import_photos',
              'class' : Importer},
             )
+        for tab in self.tab_list:
+            if not tab['class']:
+                continue
+            tab['object'] = tab['class'](self.image_list)
+            tab['name'] = tab['object'].objectName()
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
         open_action = QtWidgets.QAction(self.tr('Open images'), self)
@@ -267,8 +264,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.app.config_store.set('tabs', tab['key'], str(use_tab))
             if not use_tab:
                 continue
-            if 'object' not in tab:
-                tab['object'] = tab['class'](self.image_list)
             self.tabs.addTab(tab['object'], tab['name'])
             self.tabs.setTabToolTip(idx, tab['name'].replace('&', ''))
             idx += 1

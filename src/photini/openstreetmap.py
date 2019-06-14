@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,6 +22,10 @@ from photini.photinimap import PhotiniMap
 
 
 class OpenStreetMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(OpenStreetMap, self).__init__(*arg, **kw)
+        self.setObjectName(self.tr('Map (&OSM)'))
+
     def get_head(self):
         return '''
     <link rel="stylesheet"

@@ -226,6 +226,7 @@ class PathFormatValidator(QtGui.QValidator):
 class Importer(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(Importer, self).__init__(parent)
+        self.setObjectName(self.tr('&Import photos'))
         app = QtWidgets.QApplication.instance()
         if gp and app.test_mode:
             self.gp_log = gp.check_result(gp.use_python_logging())

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -31,6 +31,10 @@ logger = logging.getLogger(__name__)
 
 
 class MapboxMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(MapboxMap, self).__init__(*arg, **kw)
+        self.setObjectName(self.tr('Map (&Mapbox)'))
+
     def get_head(self):
         return '''
     <script type="text/javascript"

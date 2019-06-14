@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -600,6 +599,7 @@ class DateLink(QtWidgets.QCheckBox):
 class Technical(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(Technical, self).__init__(*arg, **kw)
+        self.setObjectName(self.tr('&Technical metadata'))
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())

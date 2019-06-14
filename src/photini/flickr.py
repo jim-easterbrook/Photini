@@ -375,6 +375,7 @@ class FlickrUploader(PhotiniUploader):
     def __init__(self, *arg, **kw):
         self.upload_config = FlickrUploadConfig()
         super(FlickrUploader, self).__init__(self.upload_config, *arg, **kw)
+        self.setObjectName(self.tr('&Flickr upload'))
         self.upload_config.new_set.connect(self.new_set)
         self.upload_config.sync_metadata.connect(self.sync_metadata)
         self.service_name = self.tr('Flickr')

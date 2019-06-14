@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -33,6 +32,10 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(GoogleMap, self).__init__(*arg, **kw)
+        self.setObjectName(self.tr('Map (&Google)'))
+
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:

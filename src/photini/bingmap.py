@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -30,6 +30,10 @@ logger = logging.getLogger(__name__)
 
 
 class BingMap(PhotiniMap):
+    def __init__(self, *arg, **kw):
+        super(BingMap, self).__init__(*arg, **kw)
+        self.setObjectName(self.tr('Map (&Bing)'))
+
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()
