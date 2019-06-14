@@ -127,14 +127,11 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         for tab in self.tab_list:
             try:
-                mod = importlib.import_module(tab['module'])
-                tab['object'] = mod.TabWidget(self.image_list)
+                tab['mod'] = importlib.import_module(tab['module'])
+                tab['name'] = tab['mod'].tab_name
             except ImportError as ex:
                 print(str(ex))
-                tab['object'] = None
-            if not tab['object']:
-                continue
-            tab['name'] = tab['object'].objectName()
+                tab['mod'] = None
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
         open_action = QtWidgets.QAction(self.tr('Open images'), self)
@@ -169,13 +166,17 @@ class MainWindow(QtWidgets.QMainWindow):
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
-            if not tab['object']:
-                continue
-            name = tab['name'].replace('&', '')
+            if tab['mod']:
+                name = tab['name'].replace('&', '')
+            else:
+                name = tab['module']
             tab['action'] = QtWidgets.QAction(name, self)
             tab['action'].setCheckable(True)
-            tab['action'].setChecked(
-                eval(self.app.config_store.get('tabs', tab['key'], 'True')))
+            if tab['mod']:
+                tab['action'].setChecked(
+                    eval(self.app.config_store.get('tabs', tab['key'], 'True')))
+            else:
+                tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
             options_menu.addAction(tab['action'])
         # spelling menu
@@ -251,13 +252,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.clear()
         idx = 0
         for tab in self.tab_list:
-            if not tab['object']:
+            if not tab['mod']:
                 self.app.config_store.set('tabs', tab['key'], 'True')
                 continue
             use_tab = tab['action'].isChecked()
             self.app.config_store.set('tabs', tab['key'], str(use_tab))
             if not use_tab:
                 continue
+            if 'object' not in tab:
+                tab['object'] = tab['mod'].TabWidget(self.image_list)
             self.tabs.addTab(tab['object'], tab['name'])
             self.tabs.setTabToolTip(idx, tab['name'].replace('&', ''))
             idx += 1

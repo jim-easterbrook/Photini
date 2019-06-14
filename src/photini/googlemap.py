@@ -26,16 +26,13 @@ import pkg_resources
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, QtWidgets, scale_font
+from photini.pyqt import Busy, QtCore, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
+tab_name = QtCore.QCoreApplication.translate('TabWidget', 'Map (&Google)')
 
 
 class TabWidget(PhotiniMap):
-    def __init__(self, *arg, **kw):
-        super(TabWidget, self).__init__(*arg, **kw)
-        self.setObjectName(self.tr('Map (&Google)'))
-
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
         if self.app.test_mode:

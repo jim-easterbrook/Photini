@@ -32,6 +32,7 @@ from photini.pyqt import (
     QtWidgets, scale_font, set_symbol_font, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
+tab_name = QtCore.QCoreApplication.translate('TabWidget', '&Technical metadata')
 
 
 class DropdownEdit(ComboBox):
@@ -599,7 +600,6 @@ class DateLink(QtWidgets.QCheckBox):
 class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
-        self.setObjectName(self.tr('&Technical metadata'))
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
