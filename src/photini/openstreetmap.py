@@ -21,10 +21,12 @@ from __future__ import unicode_literals
 from photini.photinimap import PhotiniMap
 from photini.pyqt import QtCore
 
-tab_name = QtCore.QCoreApplication.translate('TabWidget', 'Map (&OSM)')
-
 
 class TabWidget(PhotiniMap):
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&OSM)')
+
     def get_head(self):
         return '''
     <link rel="stylesheet"

@@ -28,10 +28,13 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, catch_all, CompactButton, QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
-tab_name = QtCore.QCoreApplication.translate('TabWidget', 'Map (&Mapbox)')
 
 
 class TabWidget(PhotiniMap):
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&Mapbox)')
+
     def get_head(self):
         return '''
     <script type="text/javascript"

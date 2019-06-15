@@ -127,11 +127,12 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         for tab in self.tab_list:
             try:
-                tab['mod'] = importlib.import_module(tab['module'])
-                tab['name'] = tab['mod'].tab_name
+                mod = importlib.import_module(tab['module'])
+                tab['class'] = mod.TabWidget
+                tab['name'] = tab['class'].tab_name()
             except ImportError as ex:
                 print(str(ex))
-                tab['mod'] = None
+                tab['class'] = None
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
         open_action = QtWidgets.QAction(self.tr('Open images'), self)
@@ -166,13 +167,13 @@ class MainWindow(QtWidgets.QMainWindow):
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
         for tab in self.tab_list:
-            if tab['mod']:
+            if tab['class']:
                 name = tab['name'].replace('&', '')
             else:
                 name = tab['module']
             tab['action'] = QtWidgets.QAction(name, self)
             tab['action'].setCheckable(True)
-            if tab['mod']:
+            if tab['class']:
                 tab['action'].setChecked(
                     eval(self.app.config_store.get('tabs', tab['key'], 'True')))
             else:
@@ -252,7 +253,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.clear()
         idx = 0
         for tab in self.tab_list:
-            if not tab['mod']:
+            if not tab['class']:
                 self.app.config_store.set('tabs', tab['key'], 'True')
                 continue
             use_tab = tab['action'].isChecked()
@@ -260,7 +261,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not use_tab:
                 continue
             if 'object' not in tab:
-                tab['object'] = tab['mod'].TabWidget(self.image_list)
+                tab['object'] = tab['class'](self.image_list)
             self.tabs.addTab(tab['object'], tab['name'])
             self.tabs.setTabToolTip(idx, tab['name'].replace('&', ''))
             idx += 1

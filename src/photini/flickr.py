@@ -36,7 +36,6 @@ from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
-tab_name = translate('TabWidget', '&Flickr upload')
 
 flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
@@ -372,6 +371,10 @@ class FlickrUploadConfig(QtWidgets.QWidget):
 
 class TabWidget(PhotiniUploader):
     session_factory = FlickrSession
+
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate('TabWidget', '&Flickr upload')
 
     def __init__(self, *arg, **kw):
         self.upload_config = FlickrUploadConfig()

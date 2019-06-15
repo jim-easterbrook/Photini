@@ -27,10 +27,13 @@ from photini.photinimap import PhotiniMap
 from photini.pyqt import Busy, QtCore, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
-tab_name = QtCore.QCoreApplication.translate('TabWidget', 'Map (&Bing)')
 
 
 class TabWidget(PhotiniMap):
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&Bing)')
+
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
         lang, encoding = locale.getdefaultlocale()

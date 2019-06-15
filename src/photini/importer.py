@@ -35,7 +35,6 @@ from photini.pyqt import (Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
                           QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
-tab_name = QtCore.QCoreApplication.translate('TabWidget', '&Import photos')
 
 
 class FolderSource(object):
@@ -226,6 +225,10 @@ class PathFormatValidator(QtGui.QValidator):
 
 
 class TabWidget(QtWidgets.QWidget):
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate('TabWidget', '&Import photos')
+
     def __init__(self, image_list, parent=None):
         super(TabWidget, self).__init__(parent)
         app = QtWidgets.QApplication.instance()

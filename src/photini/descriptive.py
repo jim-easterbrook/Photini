@@ -29,7 +29,7 @@ from photini.pyqt import (
     QtWidgets, qt_version_info, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
-tab_name = QtCore.QCoreApplication.translate('TabWidget', '&Descriptive metadata')
+
 
 class LineEdit(QtWidgets.QLineEdit):
     def __init__(self, *arg, **kw):
@@ -225,6 +225,11 @@ class KeywordsEditor(QtWidgets.QWidget):
 
 
 class TabWidget(QtWidgets.QWidget):
+    @staticmethod
+    def tab_name():
+        return QtCore.QCoreApplication.translate(
+            'TabWidget', '&Descriptive metadata')
+
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
