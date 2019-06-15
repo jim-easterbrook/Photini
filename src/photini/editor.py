@@ -23,6 +23,7 @@ import importlib
 import logging
 from optparse import OptionParser
 import os
+import pprint
 import sys
 from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
@@ -106,26 +107,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
+        # update config file
+        if self.app.config_store.config.has_section('tabs'):
+            conv = {
+                'descriptive_metadata': 'photini.descriptive',
+                'technical_metadata'  : 'photini.technical',
+                'map_google'          : 'photini.googlemap',
+                'map_bing'            : 'photini.bingmap',
+                'map_mapbox'          : 'photini.mapboxmap',
+                'map_osm'             : 'photini.openstreetmap',
+                'flickr_upload'       : 'photini.flickr',
+                'import_photos'       : 'photini.importer',
+                }
+            for key in self.app.config_store.config.options('tabs'):
+                if key in conv:
+                    self.app.config_store.set(
+                        'tabs', conv[key],
+                        self.app.config_store.get('tabs', key))
+                    self.app.config_store.config.remove_option('tabs', key)
         # prepare list of tabs and associated stuff
-        self.tab_list = (
-            {'key'   : 'descriptive_metadata',
-             'module': 'photini.descriptive'},
-            {'key'   : 'technical_metadata',
-             'module': 'photini.technical'},
-            {'key'   : 'map_google',
-             'module': 'photini.googlemap'},
-            {'key'   : 'map_bing',
-             'module': 'photini.bingmap'},
-            {'key'   : 'map_mapbox',
-             'module': 'photini.mapboxmap'},
-            {'key'   : 'map_osm',
-             'module': 'photini.openstreetmap'},
-            {'key'   : 'flickr_upload',
-             'module': 'photini.flickr'},
-            {'key'   : 'import_photos',
-             'module': 'photini.importer'},
-            )
-        for tab in self.tab_list:
+        self.tab_list = []
+        modules = ('photini.descriptive', 'photini.technical',
+                   'photini.googlemap',   'photini.bingmap',
+                   'photini.mapboxmap',   'photini.openstreetmap',
+                   'photini.flickr',      'photini.importer')
+        modules = eval(self.app.config_store.get(
+            'tabs', 'modules', pprint.pformat(modules)))
+        for module in modules:
+            tab = {'module': module}
             try:
                 mod = importlib.import_module(tab['module'])
                 tab['class'] = mod.TabWidget
@@ -133,6 +142,7 @@ class MainWindow(QtWidgets.QMainWindow):
             except ImportError as ex:
                 print(str(ex))
                 tab['class'] = None
+            self.tab_list.append(tab)
         # file menu
         file_menu = self.menuBar().addMenu(self.tr('File'))
         open_action = QtWidgets.QAction(self.tr('Open images'), self)
@@ -174,8 +184,8 @@ class MainWindow(QtWidgets.QMainWindow):
             tab['action'] = QtWidgets.QAction(name, self)
             tab['action'].setCheckable(True)
             if tab['class']:
-                tab['action'].setChecked(
-                    eval(self.app.config_store.get('tabs', tab['key'], 'True')))
+                tab['action'].setChecked(eval(
+                    self.app.config_store.get('tabs', tab['module'], 'True')))
             else:
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
@@ -254,10 +264,10 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = 0
         for tab in self.tab_list:
             if not tab['class']:
-                self.app.config_store.set('tabs', tab['key'], 'True')
+                self.app.config_store.set('tabs', tab['module'], 'True')
                 continue
             use_tab = tab['action'].isChecked()
-            self.app.config_store.set('tabs', tab['key'], str(use_tab))
+            self.app.config_store.set('tabs', tab['module'], str(use_tab))
             if not use_tab:
                 continue
             if 'object' not in tab:
