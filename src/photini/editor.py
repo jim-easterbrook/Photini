@@ -130,7 +130,8 @@ class MainWindow(QtWidgets.QMainWindow):
         modules = ('photini.descriptive', 'photini.technical',
                    'photini.googlemap',   'photini.bingmap',
                    'photini.mapboxmap',   'photini.openstreetmap',
-                   'photini.flickr',      'photini.importer')
+                   'photini.flickr',      'photini.googlephotos',
+                   'photini.importer')
         modules = eval(self.app.config_store.get(
             'tabs', 'modules', pprint.pformat(modules)))
         for module in modules:

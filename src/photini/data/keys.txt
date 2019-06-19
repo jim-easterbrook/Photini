@@ -20,6 +20,10 @@
 api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
 api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
 
+[googlephotos]
+client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29t
+client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
+
 [googlemap]
 api_key = QUl6YVN5RFJoMDBhODFRUkw4NUc1bFBUbzRTeklsVkVtRkUzSmhR
 
