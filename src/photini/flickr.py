@@ -440,11 +440,12 @@ class TabWidget(PhotiniUploader):
         return QtCore.QCoreApplication.translate('TabWidget', '&Flickr upload')
 
     def __init__(self, *arg, **kw):
+        self.service_name = QtCore.QCoreApplication.translate(
+            'TabWidget', 'Flickr')
         self.upload_config = FlickrUploadConfig()
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
         self.upload_config.sync_metadata.connect(self.sync_metadata)
-        self.service_name = self.tr('Flickr')
         self.image_types = {
             'accepted': ('image/gif', 'image/jpeg', 'image/png',
                          'video/mp4', 'video/quicktime', 'video/riff'),

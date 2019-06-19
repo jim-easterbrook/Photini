@@ -243,6 +243,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         # adjust spacing
         self.layout().setColumnStretch(2, 1)
         self.layout().setRowStretch(0, 1)
+        # initialise as not connected
+        self.connection_changed(False)
 
     def tr(self, *arg, **kw):
         return QtCore.QCoreApplication.translate('PhotiniUploader', *arg, **kw)
@@ -260,17 +262,17 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot(bool)
     @catch_all
     def connection_changed(self, connected):
-        with Busy():
-            if connected:
+        if connected:
+            with Busy():
                 self.show_user(*self.session.get_user())
                 self.show_album_list(self.session.get_albums())
-            else:
-                self.show_user(None, None)
-                self.show_album_list([])
-            self.user_connect.set_checked(connected)
-            self.upload_config.setEnabled(connected and not self.upload_worker)
-            self.user_connect.setEnabled(not self.upload_worker)
-            self.refresh()
+        else:
+            self.show_user(None, None)
+            self.show_album_list([])
+        self.user_connect.set_checked(connected)
+        self.upload_config.setEnabled(connected and not self.upload_worker)
+        self.user_connect.setEnabled(not self.upload_worker)
+        self.refresh()
 
     def refresh(self):
         # enable or disable upload button
