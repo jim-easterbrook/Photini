@@ -377,8 +377,7 @@ class StartStopButton(QtWidgets.QPushButton):
         super(StartStopButton, self).__init__(*arg, **kw)
         self.start_text = start_text
         self.stop_text = stop_text
-        self.setCheckable(True)
-        self.toggled.connect(self.toggle_text)
+        self.checked = False
         self.clicked.connect(self.do_clicked)
         # get a size big enough for either text
         self.setText(self.stop_text)
@@ -390,16 +389,19 @@ class StartStopButton(QtWidgets.QPushButton):
     def sizeHint(self):
         return self.minimum_size
 
-    @QtCore.pyqtSlot(bool)
-    def toggle_text(self, checked):
-        if checked:
+    def is_checked(self):
+        return self.checked
+
+    def set_checked(self, value):
+        self.checked = value
+        if self.checked:
             self.setText(self.stop_text)
         else:
             self.setText(self.start_text)
 
-    @QtCore.pyqtSlot(bool)
-    def do_clicked(self, checked):
-        if checked:
-            self.click_start.emit()
-        else:
+    @QtCore.pyqtSlot()
+    def do_clicked(self):
+        if self.checked:
             self.click_stop.emit()
+        else:
+            self.click_start.emit()

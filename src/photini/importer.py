@@ -287,6 +287,7 @@ class TabWidget(QtWidgets.QWidget):
         self.copy_button = StartStopButton(self.tr('Copy\nphotos'),
                                            self.tr('Stop\nimport'))
         self.copy_button.click_start.connect(self.copy_selected)
+        self.copy_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.copy_button)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         # final initialisation
@@ -515,10 +516,7 @@ class TabWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def copy_selected(self):
-        if self.import_in_progress:
-            # user has clicked while import is still cancelling
-            self.copy_button.setChecked(False)
-            return
+        self.copy_button.set_checked(True)
         self.import_in_progress = True
         copy_list = []
         for item in self.file_list_widget.selectedItems():
@@ -543,10 +541,15 @@ class TabWidget(QtWidgets.QWidget):
                                   last_item[1].isoformat(' '))
             self.image_list.done_opening(last_item[0])
         self.show_file_list()
-        self.copy_button.setChecked(False)
+        self.copy_button.set_checked(False)
         self.import_in_progress = False
 
     def abort_copy(self):
         # test if user has stopped copy or quit program
         QtCore.QCoreApplication.processEvents()
-        return not (self.copy_button.isChecked() and self.isVisible())
+        return not (self.import_in_progress and self.isVisible())
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def stop_copy(self):
+        self.import_in_progress = False

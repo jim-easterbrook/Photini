@@ -840,4 +840,4 @@ class TabWidget(PhotiniUploader):
     def new_selection(self, selection):
         super(TabWidget, self).new_selection(selection)
         self.upload_config.sync_button.setEnabled(
-            len(selection) > 0 and self.user_connect.isChecked())
+            len(selection) > 0 and self.user_connect.is_checked())

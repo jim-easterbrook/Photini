@@ -267,7 +267,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             else:
                 self.show_user(None, None)
                 self.show_album_list([])
-            self.user_connect.setChecked(connected)
+            self.user_connect.set_checked(connected)
             self.upload_config.setEnabled(connected and not self.upload_worker)
             self.user_connect.setEnabled(not self.upload_worker)
             self.refresh()
@@ -398,7 +398,6 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def start_upload(self):
         if not self.image_list.unsaved_files_dialog(with_discard=False):
-            self.upload_button.setChecked(False)
             return
         # make list of items to upload
         self.upload_list = []
@@ -413,6 +412,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if not self.upload_list:
             self.upload_button.setChecked(False)
             return
+        self.upload_button.set_checked(True)
         # start uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory)
         self.upload_file.connect(self.upload_worker.upload_file)
@@ -449,15 +449,15 @@ class PhotiniUploader(QtWidgets.QWidget):
                                       QtWidgets.QMessageBox.Retry)
             dialog.setDefaultButton(QtWidgets.QMessageBox.Retry)
             if dialog.exec_() == QtWidgets.QMessageBox.Abort:
-                self.upload_button.setChecked(False)
+                self.upload_button.set_checked(False)
         else:
             self.uploads_done += 1
-        if (self.upload_button.isChecked() and
+        if (self.upload_button.is_checked() and
                     self.uploads_done < len(self.upload_list)):
             # start uploading next file (or retry same file)
             self.next_upload()
             return
-        self.upload_button.setChecked(False)
+        self.upload_button.set_checked(False)
         self.total_progress.setValue(0)
         self.total_progress.setFormat('%p%')
         self.upload_config.setEnabled(True)
@@ -501,5 +501,5 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def new_selection(self, selection):
         self.upload_button.setEnabled(
-            self.upload_button.isChecked() or (
-                len(selection) > 0 and self.user_connect.isChecked()))
+            self.upload_button.is_checked() or (
+                len(selection) > 0 and self.user_connect.is_checked()))
