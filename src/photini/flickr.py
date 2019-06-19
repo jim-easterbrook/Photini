@@ -22,9 +22,10 @@ from datetime import datetime, timedelta
 import logging
 import os
 import requests
+import time
+
 import six
 from six.moves.html_parser import HTMLParser
-import time
 
 import flickrapi
 
@@ -45,54 +46,72 @@ ID_TAG = 'flickr:photo_id'
 class FlickrSession(UploaderSession):
     name = 'flickr'
 
-    def permitted(self, level):
-        stored_token = self.get_password()
-        if not stored_token:
-            self.api = None
-            return False
-        if not self.api:
-            api_key    = key_store.get('flickr', 'api_key')
-            api_secret = key_store.get('flickr', 'api_secret')
-            token, token_secret = stored_token.split('&')
-            token = flickrapi.auth.FlickrAccessToken(
-                token, token_secret, 'write')
-            self.api = flickrapi.FlickrAPI(
-                api_key, api_secret, token=token, store_token=False,
-                format='parsed-json')
-        return self.api.token_valid(perms='write')
-
-    def get_auth_url(self, level):
+    def connect(self):
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
-        token = flickrapi.auth.FlickrAccessToken('', '', 'write')
+        stored_token = self.get_password()
+        if stored_token:
+            token, token_secret = stored_token.split('&')
+        else:
+            token, token_secret = '', ''
+        token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
         self.api = flickrapi.FlickrAPI(
             api_key, api_secret, token=token, store_token=False,
             format='parsed-json')
-        self.api.get_request_token(oauth_callback='oob')
-        return self.api.auth_url(perms='write')
-
-    def get_access_token(self, auth_code, level):
+        self.cached_data = {}
         try:
-            self.api.get_access_token(auth_code)
+            if self.api.token_valid(perms='write'):
+                self.connection_changed.emit(True)
+                return True
         except flickrapi.FlickrError as ex:
             logger.error(str(ex))
-            self.api = None
-            return False
+        return False
+
+    def disconnect(self):
+        self.connection_changed.emit(False)
+
+    def get_auth_url(self, redirect_uri):
+        try:
+            self.api.get_request_token(oauth_callback=redirect_uri)
+            return self.api.auth_url(perms='write')
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
+        return ''
+
+    def get_access_token(self, result):
+        oauth_verifier = six.text_type(result['oauth_verifier'][0])
+        try:
+            self.api.get_access_token(oauth_verifier)
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
         token = self.api.token_cache.token
         self.set_password(token.token + '&' + token.token_secret)
-        self.api = None
-        return self.permitted(level)
+        self.connection_changed.emit(True)
 
     def get_user(self):
-        result = None, None
-        rsp = self.api.auth.oauth.checkToken()
-        if rsp['stat'] != 'ok':
-            return result
+        if 'user' in self.cached_data:
+            return self.cached_data['user']
+        self.cached_data['user'] = None, None
+        try:
+            rsp = self.api.auth.oauth.checkToken()
+            if rsp['stat'] != 'ok':
+                return self.cached_data['user']
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
+            return self.cached_data['user']
         user = rsp['oauth']['user']
-        result = user['fullname'], None
-        rsp = self.api.people.getInfo(user_id=user['nsid'])
-        if rsp['stat'] != 'ok':
-            return result
+        self.cached_data['user'] = user['fullname'], None
+        try:
+            rsp = self.api.people.getInfo(user_id=user['nsid'])
+            if rsp['stat'] != 'ok':
+                return self.cached_data['user']
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
+            return self.cached_data['user']
         person = rsp['person']
         if person['iconserver'] != '0':
             icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
@@ -101,10 +120,58 @@ class FlickrSession(UploaderSession):
             icon_url = 'https://www.flickr.com/images/buddyicon.gif'
         rsp = requests.get(icon_url)
         if rsp.status_code == 200:
-            result = user['fullname'], rsp.content
+            self.cached_data['user'] = user['fullname'], rsp.content
         else:
             logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
-        return result
+        return self.cached_data['user']
+
+    def get_albums(self):
+        if 'sets' in self.cached_data:
+            return self.cached_data['sets']
+        self.cached_data['sets'] = []
+        try:
+            sets = self.api.photosets.getList()
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
+            return self.cached_data['sets']
+        for item in sets['photosets']['photoset']:
+            self.cached_data['sets'].append((
+                item['title']['_content'], item['description']['_content'],
+                item['id']))
+        return self.cached_data['sets']
+
+    def get_info(self, photo_id):
+        try:
+            rsp = self.api.photos.getInfo(photo_id=photo_id)
+        except flickrapi.FlickrError as ex:
+            logger.error(str(ex))
+            self.disconnect()
+            return None
+        if rsp['stat'] != 'ok':
+            return None
+        return rsp['photo']
+
+    def find_photos(self, min_taken_date, max_taken_date):
+        # search Flickr
+        page = 1
+        while True:
+            with Busy():
+                try:
+                    rsp = self.api.people.getPhotos(
+                        user_id='me', page=page, extras='date_taken,url_t',
+                        min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                        max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
+                    if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
+                        return
+                except flickrapi.FlickrError as ex:
+                    logger.error(str(ex))
+                    self.disconnect()
+                    return
+            for photo in rsp['photos']['photo']:
+                yield photo
+            page += 1
+
 
     def do_upload(self, fileobj, image_type, image, params):
         photo_id = params['photo_id']
@@ -239,10 +306,6 @@ class FlickrSession(UploaderSession):
             logger.error(
                 'Remove from photoset "%s" failed: %s', p_set['title'], status)
         return ''
-
-    # delegate all other attributes to api object
-    def __getattr__(self, name):
-        return getattr(self.api, name)
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
@@ -422,14 +485,10 @@ class TabWidget(PhotiniUploader):
         dialog.exec_()
         return 'omit'
 
-    def get_album_list(self):
+    def show_album_list(self, albums):
         self.upload_config.clear_sets()
-        if self.connected:
-            sets = self.session.photosets.getList()
-            for item in sets['photosets']['photoset']:
-                self.upload_config.add_set(
-                    item['title']['_content'], item['description']['_content'],
-                    item['id'])
+        for item in albums:
+            self.upload_config.add_set(*item)
 
     def get_upload_params(self, image):
         option, photo_id = self._replace_dialog(image)
@@ -551,9 +610,6 @@ class TabWidget(PhotiniUploader):
             self.replace_prefs[key] = widget[key].isChecked()
         return dict(self.replace_prefs), photo_id
 
-    def upload_finished(self):
-        pass
-
     def _find_on_flickr(self, image):
         # get possible date range
         if not image.metadata.date_taken:
@@ -574,18 +630,8 @@ class TabWidget(PhotiniUploader):
             max_taken_date = min_taken_date + timedelta(days=366)
         max_taken_date -= timedelta(seconds=1)
         # search Flickr
-        page = 1
-        while True:
-            with Busy():
-                rsp = self.session.people.getPhotos(
-                    user_id='me', page=page, extras='date_taken,url_t',
-                    min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
-                if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
-                    break
-            for photo in rsp['photos']['photo']:
-                yield photo
-            page += 1
+        for photo in self.find_photos(min_taken_date, max_taken_date):
+            yield photo
 
     def _find_local(self, photo, unknowns):
         granularity = int(photo['datetakengranularity'])
@@ -660,14 +706,9 @@ class TabWidget(PhotiniUploader):
         }
 
     def _merge_metadata(self, photo_id, image):
-        try:
-            rsp = self.session.photos.getInfo(photo_id=photo_id)
-        except flickrapi.FlickrError as ex:
-            logger.error(str(ex))
+        photo = self.session.get_info(photo_id)
+        if not photo:
             return
-        if rsp['stat'] != 'ok':
-            return
-        photo = rsp['photo']
         md = image.metadata
         h = HTMLParser()
         # sync title
@@ -740,9 +781,6 @@ class TabWidget(PhotiniUploader):
     @QtCore.pyqtSlot()
     @catch_all
     def sync_metadata(self):
-        if not self.authorise('write'):
-            self.refresh(force=True)
-            return
         # make list of known photo ids
         photo_ids = {}
         unknowns = []
@@ -802,4 +840,4 @@ class TabWidget(PhotiniUploader):
     def new_selection(self, selection):
         super(TabWidget, self).new_selection(selection)
         self.upload_config.sync_button.setEnabled(
-            len(selection) > 0 and self.connected)
+            len(selection) > 0 and self.user_connect.isChecked())

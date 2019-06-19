@@ -22,10 +22,13 @@ from __future__ import unicode_literals
 import imghdr
 import logging
 import os
-import six
 import shutil
 import threading
 import webbrowser
+
+import six
+from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+from six.moves.urllib import parse
 
 import appdirs
 import keyring
@@ -37,21 +40,20 @@ from photini.pyqt import (
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
-class UploaderSession(object):
-    def __init__(self, auto_refresh=True):
-        self.auto_refresh = auto_refresh
-        self.api = None
+class UploaderSession(QtCore.QObject):
+    connection_changed = QtCore.pyqtSignal(bool)
 
+    @QtCore.pyqtSlot()
+    @catch_all
     def log_out(self):
         keyring.delete_password('photini', self.name)
-        self.api = None
+        self.disconnect()
 
     def get_password(self):
         return keyring.get_password('photini', self.name)
 
     def set_password(self, password):
-        if self.auto_refresh:
-            keyring.set_password('photini', self.name, password)
+        keyring.set_password('photini', self.name, password)
 
 
 class FileObjWithCallback(object):
@@ -86,7 +88,8 @@ class UploadWorker(QtCore.QObject):
 
     def __init__(self, session_factory):
         super(UploadWorker, self).__init__()
-        self.session = session_factory(auto_refresh=False)
+        self.session_factory = session_factory
+        self.session = None
         self.fileobj = None
         self.thread = QtCore.QThread(self)
         self.moveToThread(self.thread)
@@ -99,9 +102,9 @@ class UploadWorker(QtCore.QObject):
     @QtCore.pyqtSlot(object, object, object)
     @catch_all
     def upload_file(self, image, convert, params):
-        if not self.session.permitted('write'):
-            self.upload_file_done.emit(image, 'not permitted')
-            return
+        if not self.session:
+            self.session = self.session_factory()
+            self.session.connect()
         if convert:
             path = convert(image)
         else:
@@ -118,6 +121,77 @@ class UploadWorker(QtCore.QObject):
             self.upload_file_done.emit(image, error)
 
 
+class RequestHandler(BaseHTTPRequestHandler):
+    def log_message(self, format_, *args):
+        logger.debug(format_, *args)
+
+    @catch_all
+    def do_GET(self):
+        query = parse.urlsplit(self.path).query
+        result = parse.parse_qs(query)
+        logger.info('do_GET: %s', repr(result))
+        if result:
+            self.server.response.emit(result)
+        title = translate('PhotiniUploader', 'Close window')
+        text = translate(
+            'PhotiniUploader', 'You may now close this browser window.')
+        response = '''
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{title}</title>
+  </head>
+  <body>
+    <h1>{title}</h1>
+    <p>{text}</p>
+  </body>
+</html>
+'''.format(title=title, text=text)
+        response = response.encode('utf-8')
+        self.send_response(200)
+        self.send_header("Content-type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(response)))
+        self.end_headers()
+        self.wfile.write(response)
+
+
+class AuthServer(QtCore.QObject):
+    response = QtCore.pyqtSignal(dict)
+
+    def __init__(self, *args, **kwds):
+        super(AuthServer, self).__init__(*args, **kwds)
+        self.server = HTTPServer(('127.0.0.1', 0), RequestHandler)
+        self.server.timeout = 1
+        self.server.response = self.response
+        self.port = self.server.server_port
+        self.running = True
+        self.thread = QtCore.QThread(self)
+        self.moveToThread(self.thread)
+        self.thread.started.connect(self.start)
+        self.thread.finished.connect(self.stop)
+        self.thread.start()
+
+    def quit(self):
+        if self.running:
+            self.response.disconnect()
+            self.running = False
+            self.thread.quit()
+            self.thread.wait()
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def start(self):
+        while self.running:
+            self.server.handle_request()
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def stop(self):
+        self.server.server_close()
+
+
 class PhotiniUploader(QtWidgets.QWidget):
     upload_file = QtCore.pyqtSignal(object, object, object)
 
@@ -128,8 +202,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
+        self.session.connection_changed.connect(self.connection_changed)
         self.upload_worker = None
-        self.connected = False
+        self.auth_server = None
         # user details
         self.user = {}
         user_group = QtWidgets.QGroupBox(translate('PhotiniUploader', 'User'))
@@ -144,9 +219,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         user_group.layout().addStretch(1)
         self.layout().addWidget(user_group, 0, 0, 1, 2)
         # connect / disconnect button
-        self.user_connect = QtWidgets.QPushButton()
-        self.user_connect.setCheckable(True)
-        self.user_connect.clicked.connect(self.connect_user)
+        self.user_connect = StartStopButton(
+            translate('PhotiniUploader', 'Log in'),
+            translate('PhotiniUploader', 'Log out'))
+        self.user_connect.click_start.connect(self.log_in)
+        self.user_connect.click_stop.connect(self.session.log_out)
         self.layout().addWidget(self.user_connect, 1, 0, 1, 2)
         # 'service' specific widget
         self.layout().addWidget(upload_config_widget, 0, 2, 2, 2)
@@ -173,49 +250,31 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def shutdown(self):
+        if self.auth_server:
+            self.auth_server.quit()
         if self.upload_worker:
             self.upload_worker.abort_upload()
             self.upload_worker.thread.quit()
             self.upload_worker.thread.wait()
 
-    def refresh(self, force=False):
-        with Busy():
-            self.connected = (self.user_connect.isChecked() and
-                              self.session.permitted('read'))
-            if self.connected:
-                self.user_connect.setText(translate('PhotiniUploader', 'Log out'))
-                if force:
-                    # load_user_data can be slow, so only do it when forced
-                    try:
-                        self.load_user_data()
-                    except Exception as ex:
-                        logger.error(ex)
-                        self.connected = False
-            if not self.connected:
-                self.user_connect.setText(translate('PhotiniUploader', 'Log in'))
-                # clearing user data is quick so do it anyway
-                self.load_user_data()
-            self.user_connect.setChecked(self.connected)
-            self.upload_config.setEnabled(self.connected and not self.upload_worker)
-            self.user_connect.setEnabled(not self.upload_worker)
-            # enable or disable upload button
-            self.new_selection(self.image_list.get_selected_images())
-
     @QtCore.pyqtSlot(bool)
     @catch_all
-    def connect_user(self, connect):
-        if connect:
-            self.authorise('read')
-        else:
-            self.session.log_out()
-        self.refresh(force=True)
+    def connection_changed(self, connected):
+        with Busy():
+            if connected:
+                self.show_user(*self.session.get_user())
+                self.show_album_list(self.session.get_albums())
+            else:
+                self.show_user(None, None)
+                self.show_album_list([])
+            self.user_connect.setChecked(connected)
+            self.upload_config.setEnabled(connected and not self.upload_worker)
+            self.user_connect.setEnabled(not self.upload_worker)
+            self.refresh()
 
-    def load_user_data(self):
-        if self.connected:
-            self.show_user(*self.session.get_user())
-        else:
-            self.show_user(None, None)
-        self.get_album_list()
+    def refresh(self):
+        # enable or disable upload button
+        self.new_selection(self.image_list.get_selected_images())
 
     def do_not_close(self):
         if not self.upload_worker:
@@ -354,10 +413,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         if not self.upload_list:
             self.upload_button.setChecked(False)
             return
-        if not self.authorise('write'):
-            self.refresh(force=True)
-            self.upload_button.setChecked(False)
-            return
         # start uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory)
         self.upload_file.connect(self.upload_worker.upload_file)
@@ -407,7 +462,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.total_progress.setFormat('%p%')
         self.upload_config.setEnabled(True)
         self.user_connect.setEnabled(True)
-        self.upload_finished()
         self.upload_file.disconnect()
         self.upload_worker.upload_progress.disconnect()
         self.upload_worker.upload_file_done.disconnect()
@@ -415,40 +469,37 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker.thread.wait()
         self.upload_worker = None
         # enable or disable upload button
-        self.new_selection(self.image_list.get_selected_images())
+        self.refresh()
 
-    def auth_dialog(self, auth_url):
-        if webbrowser.open(auth_url, new=2, autoraise=0):
-            info_text = translate('PhotiniUploader', 'use your web browser')
-        else:
-            info_text = translate(
-                'PhotiniUploader', 'open "{0}" in a web browser').format(
-                    auth_url)
-        auth_code, OK = QtWidgets.QInputDialog.getText(
-            self,
-            translate('PhotiniUploader', 'Photini: authorise {}').format(
-                self.service_name),
-            translate('PhotiniUploader', """Please {0} to grant access to Photini,
-then enter the verification code:""").format(info_text))
-        if OK:
-            return six.text_type(auth_code).strip()
-        return None
+    @QtCore.pyqtSlot()
+    @catch_all
+    def log_in(self):
+        if not self.session.connect():
+            self.authorise()
 
-    def authorise(self, level):
+    def authorise(self):
         with Busy():
-            if self.session.permitted(level):
-                return True
             # do full authentication procedure
-            auth_url = self.session.get_auth_url(level)
-        auth_code = self.auth_dialog(auth_url)
-        if not auth_code:
-            return False
+            if self.auth_server:
+                self.auth_server.quit()
+            self.auth_server = AuthServer()
+            self.auth_server.response.connect(self.auth_response)
+            redirect_uri = 'http://127.0.0.1:' + str(self.auth_server.port)
+            auth_url = self.session.get_auth_url(redirect_uri)
+            if not webbrowser.open(auth_url, new=2, autoraise=0):
+                logger.error('Failed to open web browser')
+                self.auth_server.quit()
+
+    @QtCore.pyqtSlot(dict)
+    @catch_all
+    def auth_response(self, result):
+        self.auth_server.quit()
         with Busy():
-            return self.session.get_access_token(auth_code, level)
+            self.session.get_access_token(result)
 
     @QtCore.pyqtSlot(list)
     @catch_all
     def new_selection(self, selection):
         self.upload_button.setEnabled(
             self.upload_button.isChecked() or (
-                len(selection) > 0 and self.connected))
+                len(selection) > 0 and self.user_connect.isChecked()))
