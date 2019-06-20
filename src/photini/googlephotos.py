@@ -40,28 +40,34 @@ class GooglePhotosSession(UploaderSession):
     photos_url = 'https://photoslibrary.googleapis.com/'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 
-    def connect(self):
+    def connect(self, token=None):
         self.cached_data = {}
         refresh_token = self.get_password()
         if not refresh_token:
             return False
-        # create expired token
-        token = {
-            'access_token' : 'xxx',
-            'refresh_token': refresh_token,
-            'expires_in'   : -30,
-            }
+        if not token:
+            # create expired token
+            token = {
+                'access_token' : 'xxx',
+                'refresh_token': refresh_token,
+                'expires_in'   : -30,
+                }
         client_id = key_store.get('googlephotos', 'client_id')
         client_secret = key_store.get('googlephotos', 'client_secret')
-        self.api = OAuth2Session(client_id=client_id, token=token)
-        # refresh token
-        token = self.api.refresh_token(
-            self.oauth_url + 'v4/token',
-            client_id=client_id, client_secret=client_secret)
-        if 'access_token' in token:
-            self.connection_changed.emit(True)
-            return True
-        return False
+        auto_refresh_kwargs = {
+            'client_id'    : client_id,
+            'client_secret': client_secret,
+            }
+        token_url = self.oauth_url + 'v4/token'
+        self.api = OAuth2Session(
+            client_id=client_id, token=token, token_updater=self.save_token,
+            auto_refresh_kwargs=auto_refresh_kwargs,
+            auto_refresh_url=token_url)
+        if token['expires_in'] < 0:
+            # refresh token
+            self.api.refresh_token(token_url, **auto_refresh_kwargs)
+        self.connection_changed.emit(self.api.authorized)
+        return self.api.authorized
 
     def disconnect(self):
         self.connection_changed.emit(False)
@@ -78,18 +84,18 @@ class GooglePhotosSession(UploaderSession):
         code_verifier = ''
         while len(code_verifier) < 43:
             code_verifier += OAuth2Session().new_state()
-        self.params = {
+        self.auth_params = {
             'client_id'    : key_store.get('googlephotos', 'client_id'),
             'client_secret': key_store.get('googlephotos', 'client_secret'),
             'code_verifier': code_verifier,
             'redirect_uri' : redirect_uri,
             }
         url = 'https://accounts.google.com/o/oauth2/v2/auth'
-        url += '?client_id=' + self.params['client_id']
-        url += '&redirect_uri=' + self.params['redirect_uri']
+        url += '?client_id=' + self.auth_params['client_id']
+        url += '&redirect_uri=' + self.auth_params['redirect_uri']
         url += '&response_type=code'
         url += '&scope=' + urllib.parse.quote(' '.join(self.scope))
-        url += '&code_challenge=' + self.params['code_verifier']
+        url += '&code_challenge=' + self.auth_params['code_verifier']
         return url
 
     def get_access_token(self, result):
@@ -100,16 +106,17 @@ class GooglePhotosSession(UploaderSession):
             'code'      : result['code'][0],
             'grant_type': 'authorization_code',
             }
-        data.update(self.params)
+        data.update(self.auth_params)
         rsp = self.check_response(
             requests.post(self.oauth_url + 'v4/token', data=data, timeout=5))
         if 'access_token' not in rsp:
             logger.info('No access token received')
             return
-        self.set_password(rsp['refresh_token'])
-        self.api = OAuth2Session(
-            client_id=self.params['client_id'], token=rsp)
-        self.connection_changed.emit(True)
+        self.save_token(rsp)
+        self.connect(token=rsp)
+
+    def save_token(self, token):
+        self.set_password(token['refresh_token'])
 
     def get_user(self):
         if 'user' in self.cached_data:
