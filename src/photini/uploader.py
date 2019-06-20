@@ -486,12 +486,14 @@ class PhotiniUploader(QtWidgets.QWidget):
             if not webbrowser.open(auth_url, new=2, autoraise=0):
                 logger.error('Failed to open web browser')
                 self.auth_server.running = False
+                self.auth_server = None
                 self.auth_server_thread.quit()
 
     @QtCore.pyqtSlot(dict)
     @catch_all
     def auth_response(self, result):
         self.auth_server.running = False
+        self.auth_server = None
         self.auth_server_thread.quit()
         with Busy():
             self.session.get_access_token(result)
