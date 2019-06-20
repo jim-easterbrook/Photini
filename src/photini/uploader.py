@@ -163,12 +163,13 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
 
-class AuthServerWorker(QtCore.QObject):
+class AuthServer(QtCore.QObject):
     response = QtCore.pyqtSignal(dict)
 
     def __init__(self, *args, **kwds):
-        super(AuthServerWorker, self).__init__(*args, **kwds)
+        super(AuthServer, self).__init__(*args, **kwds)
         self.server = HTTPServer(('127.0.0.1', 0), RequestHandler)
+        self.port = self.server.server_port
         self.server.timeout = 1
         self.server.response = self.response
         self.running = True
@@ -179,21 +180,6 @@ class AuthServerWorker(QtCore.QObject):
         while self.running:
             self.server.handle_request()
         self.server.server_close()
-
-
-class AuthServer(QtCore.QThread):
-    def __init__(self, *args, **kwds):
-        super(AuthServer, self).__init__(*args, **kwds)
-        self.worker = AuthServerWorker()
-        self.port = self.worker.server.server_port
-        self.worker.moveToThread(self)
-        self.response = self.worker.response
-        self.started.connect(self.worker.start)
-        self.start()
-
-    def quit(self):
-        self.worker.running = False
-        super(AuthServer, self).quit()
 
 
 class PhotiniUploader(QtWidgets.QWidget):
@@ -257,8 +243,9 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def shutdown(self):
         if self.auth_server:
-            self.auth_server.quit()
-            self.auth_server.wait()
+            self.auth_server.running = False
+            self.auth_server_thread.quit()
+            self.auth_server_thread.wait()
         if self.upload_worker:
             self.upload_worker.abort_upload()
             self.upload_worker_thread.quit()
@@ -486,19 +473,26 @@ class PhotiniUploader(QtWidgets.QWidget):
         with Busy():
             # do full authentication procedure
             if self.auth_server:
-                self.auth_server.quit()
+                self.auth_server.running = False
+                self.auth_server_thread.quit()
             self.auth_server = AuthServer()
+            self.auth_server_thread = QtCore.QThread()
+            self.auth_server.moveToThread(self.auth_server_thread)
             self.auth_server.response.connect(self.auth_response)
+            self.auth_server_thread.started.connect(self.auth_server.start)
+            self.auth_server_thread.start()
             redirect_uri = 'http://127.0.0.1:' + str(self.auth_server.port)
             auth_url = self.session.get_auth_url(redirect_uri)
             if not webbrowser.open(auth_url, new=2, autoraise=0):
                 logger.error('Failed to open web browser')
-                self.auth_server.quit()
+                self.auth_server.running = False
+                self.auth_server_thread.quit()
 
     @QtCore.pyqtSlot(dict)
     @catch_all
     def auth_response(self, result):
-        self.auth_server.quit()
+        self.auth_server.running = False
+        self.auth_server_thread.quit()
         with Busy():
             self.session.get_access_token(result)
 
