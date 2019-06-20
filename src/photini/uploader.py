@@ -157,39 +157,37 @@ class RequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
 
-class AuthServer(QtCore.QObject):
+class AuthServerWorker(QtCore.QObject):
     response = QtCore.pyqtSignal(dict)
 
     def __init__(self, *args, **kwds):
-        super(AuthServer, self).__init__(*args, **kwds)
+        super(AuthServerWorker, self).__init__(*args, **kwds)
         self.server = HTTPServer(('127.0.0.1', 0), RequestHandler)
         self.server.timeout = 1
         self.server.response = self.response
-        self.port = self.server.server_port
         self.running = True
-        self.thread = QtCore.QThread(self)
-        self.moveToThread(self.thread)
-        self.thread.started.connect(self.start)
-        self.thread.finished.connect(self.stop)
-        self.thread.start()
-
-    def quit(self):
-        if self.running:
-            self.response.disconnect()
-            self.running = False
-            self.thread.quit()
-            self.thread.wait()
 
     @QtCore.pyqtSlot()
     @catch_all
     def start(self):
         while self.running:
             self.server.handle_request()
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def stop(self):
         self.server.server_close()
+
+
+class AuthServer(QtCore.QThread):
+    def __init__(self, *args, **kwds):
+        super(AuthServer, self).__init__(*args, **kwds)
+        self.worker = AuthServerWorker()
+        self.port = self.worker.server.server_port
+        self.worker.moveToThread(self)
+        self.response = self.worker.response
+        self.started.connect(self.worker.start)
+        self.start()
+
+    def quit(self):
+        self.worker.running = False
+        super(AuthServer, self).quit()
 
 
 class PhotiniUploader(QtWidgets.QWidget):
@@ -254,6 +252,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     def shutdown(self):
         if self.auth_server:
             self.auth_server.quit()
+            self.auth_server.wait()
         if self.upload_worker:
             self.upload_worker.abort_upload()
             self.upload_worker.thread.quit()
@@ -468,7 +467,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker.upload_progress.disconnect()
         self.upload_worker.upload_file_done.disconnect()
         self.upload_worker.thread.quit()
-        self.upload_worker.thread.wait()
         self.upload_worker = None
         # enable or disable upload button
         self.refresh()
