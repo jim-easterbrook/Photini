@@ -74,16 +74,17 @@ class FolderSource(object):
                 }
         return file_data
 
-    def copy_files(self, info_list):
+    def read_files(self, info_list):
         for info in info_list:
             if not os.path.isfile(info['path']):
-                yield None
+                yield info, None, 'not a file'
+                break
             dest_path = info['dest_path']
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
             shutil.copy2(info['path'], dest_path)
-            yield info
+            yield info, None, 'ok'
 
 
 class CameraSource(object):
@@ -104,8 +105,10 @@ class CameraSource(object):
         # check camera is the right model
         if camera.get_abilities().model != self.model:
             raise RuntimeError('Camera model mismatch')
-        yield camera
-        camera.exit()
+        try:
+            yield camera
+        finally:
+            camera.exit()
 
     def _list_files(self, camera, path='/'):
         result = []
@@ -144,21 +147,54 @@ class CameraSource(object):
                     }
         return file_data
 
-    def copy_files(self, info_list):
+    def read_files(self, info_list):
         with self.session() as camera:
             for info in info_list:
-                dest_path = info['dest_path']
-                dest_dir = os.path.dirname(dest_path)
+                dest_dir = os.path.dirname(info['dest_path'])
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
                 try:
                     camera_file = camera.file_get(
                         info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL)
-                    camera_file.save(dest_path)
+                    yield info, camera_file, 'ok'
                 except gp.GPhoto2Error as ex:
                     logger.error(str(ex))
-                    yield None
-                yield info
+                    yield info, None, str(ex)
+
+
+class FileReader(QtCore.QObject):
+    output = QtCore.pyqtSignal(dict, object, six.text_type)
+
+    def __init__(self, source, copy_list, *args, **kwds):
+        super(FileReader, self).__init__(*args, **kwds)
+        self.source = source
+        self.copy_list = copy_list
+        self.running = True
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def start(self):
+        status = 'ok'
+        for info, camera_file, status in self.source.read_files(self.copy_list):
+            if status != 'ok' or not self.running:
+                break
+            self.output.emit(info, camera_file, status)
+        self.output.emit({}, None, status)
+
+
+class FileWriter(QtCore.QObject):
+    output = QtCore.pyqtSignal(dict, object, six.text_type)
+
+    @QtCore.pyqtSlot(dict, object, six.text_type)
+    @catch_all
+    def input(self, info, camera_file, status):
+        if camera_file:
+            try:
+                camera_file.save(info['dest_path'])
+            except gp.GPhoto2Error as ex:
+                logger.error(str(ex))
+                status = str(ex)
+        self.output.emit(info, camera_file, status)
 
 
 def get_camera_list():
@@ -232,6 +268,7 @@ class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(TabWidget, self).__init__(parent)
         app = QtWidgets.QApplication.instance()
+        app.aboutToQuit.connect(self.shutdown)
         if gp and app.test_mode:
             self.gp_log = gp.check_result(gp.use_python_logging())
         self.config_store = app.config_store
@@ -243,7 +280,8 @@ class TabWidget(QtWidgets.QWidget):
         self.file_data = {}
         self.file_list = []
         self.source = None
-        self.import_in_progress = False
+        self.file_reader = None
+        self.file_writer = None
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -391,7 +429,7 @@ class TabWidget(QtWidgets.QWidget):
             self.source_selector.setCurrentIndex(0)
 
     def do_not_close(self):
-        if not self.import_in_progress:
+        if not self.file_reader:
             return False
         dialog = QtWidgets.QMessageBox()
         dialog.setWindowTitle(self.tr('Photini: import in progress'))
@@ -516,40 +554,61 @@ class TabWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def copy_selected(self):
-        self.copy_button.set_checked(True)
-        self.import_in_progress = True
         copy_list = []
         for item in self.file_list_widget.selectedItems():
             name = item.data(Qt.UserRole)
             copy_list.append(self.file_data[name])
-        last_item = None, datetime.min
-        with Busy():
-            for item in self.source.copy_files(copy_list):
-                if not item:
-                    self._fail()
-                    break
-                if self.abort_copy():
-                    break
-                self.image_list.open_file(item['dest_path'])
-                if self.abort_copy():
-                    break
-                if last_item[1] < item['timestamp']:
-                    last_item = item['dest_path'], item['timestamp']
-                QtCore.QCoreApplication.flush()
-        if last_item[0]:
-            self.config_store.set(self.config_section, 'last_transfer',
-                                  last_item[1].isoformat(' '))
-            self.image_list.done_opening(last_item[0])
-        self.show_file_list()
-        self.copy_button.set_checked(False)
-        self.import_in_progress = False
+        if not copy_list:
+            return
+        self.copy_button.set_checked(True)
+        self.last_file_copied = None, datetime.min
+        # start file writer in a thread
+        self.file_writer = FileWriter()
+        self.file_writer_thread = QtCore.QThread(self)
+        self.file_writer.moveToThread(self.file_writer_thread)
+        self.file_writer.output.connect(self.file_copied)
+        self.file_writer_thread.start()
+        # start file reader in another thread
+        self.file_reader = FileReader(self.source, copy_list)
+        self.file_reader_thread = QtCore.QThread(self)
+        self.file_reader.moveToThread(self.file_reader_thread)
+        self.file_reader.output.connect(self.file_writer.input)
+        self.file_reader_thread.started.connect(self.file_reader.start)
+        self.file_reader_thread.start()
 
-    def abort_copy(self):
-        # test if user has stopped copy or quit program
-        QtCore.QCoreApplication.processEvents()
-        return not (self.import_in_progress and self.isVisible())
+    @QtCore.pyqtSlot(dict, object, six.text_type)
+    @catch_all
+    def file_copied(self, info, camera_file, status):
+        if info:
+            self.image_list.open_file(info['dest_path'])
+            if self.last_file_copied[1] < info['timestamp']:
+                self.last_file_copied = info['dest_path'], info['timestamp']
+            return
+        self.copy_button.set_checked(False)
+        self.file_reader = None
+        self.file_writer = None
+        self.file_reader_thread.quit()
+        self.file_writer_thread.quit()
+        if self.last_file_copied[0]:
+            self.config_store.set(self.config_section, 'last_transfer',
+                                  self.last_file_copied[1].isoformat(' '))
+            self.image_list.done_opening(self.last_file_copied[0])
+        if status != 'ok':
+            self._fail()
+        self.show_file_list()
 
     @QtCore.pyqtSlot()
     @catch_all
     def stop_copy(self):
-        self.import_in_progress = False
+        if self.file_reader:
+            self.file_reader.running = False
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def shutdown(self):
+        if self.file_reader:
+            self.file_reader.running = False
+            self.file_reader_thread.quit()
+            self.file_writer_thread.quit()
+            self.file_reader_thread.wait()
+            self.file_writer_thread.wait()
