@@ -86,13 +86,17 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtCore.pyqtSignal(float)
     upload_file_done = QtCore.pyqtSignal(object, six.text_type)
 
-    def __init__(self, session_factory):
-        super(UploadWorker, self).__init__()
+    def __init__(self, session_factory, *args, **kwds):
+        super(UploadWorker, self).__init__(*args, **kwds)
         self.session_factory = session_factory
         self.session = None
         self.fileobj = None
-        self.thread = QtCore.QThread(self)
-        self.moveToThread(self.thread)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def start(self):
+        self.session = self.session_factory()
+        self.session.connect()
 
     def abort_upload(self):
         if self.fileobj:
@@ -102,23 +106,25 @@ class UploadWorker(QtCore.QObject):
     @QtCore.pyqtSlot(object, object, object)
     @catch_all
     def upload_file(self, image, convert, params):
-        if not self.session:
-            self.session = self.session_factory()
-            self.session.connect()
         if convert:
             path = convert(image)
         else:
             path = image.path
         with open(path, 'rb') as f:
             self.fileobj = FileObjWithCallback(f, self.upload_progress.emit)
-            error = self.session.do_upload(
-                self.fileobj, imghdr.what(path), image, params)
+            try:
+                error = self.session.do_upload(
+                    self.fileobj, imghdr.what(path), image, params)
+            except Exception as ex:
+                error = str(ex)
         if convert:
             os.unlink(path)
         if self.fileobj:
             self.fileobj = None
-            # upload wasn't aborted
             self.upload_file_done.emit(image, error)
+        else:
+            # upload was aborted
+            self.upload_file_done.emit(None, '')
 
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -255,8 +261,8 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.auth_server.wait()
         if self.upload_worker:
             self.upload_worker.abort_upload()
-            self.upload_worker.thread.quit()
-            self.upload_worker.thread.wait()
+            self.upload_worker_thread.quit()
+            self.upload_worker_thread.wait()
 
     @QtCore.pyqtSlot(bool)
     @catch_all
@@ -389,11 +395,10 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def stop_upload(self):
+        self.upload_button.set_checked(False)
         if self.upload_worker:
-            # invoke worker method in this thread as worker thread is busy
             self.upload_worker.abort_upload()
-            # reset GUI
-            self.upload_file_done(None, '')
+            self.upload_button.setEnabled(False)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -416,10 +421,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.set_checked(True)
         # start uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory)
+        self.upload_worker_thread = QtCore.QThread()
+        self.upload_worker.moveToThread(self.upload_worker_thread)
         self.upload_file.connect(self.upload_worker.upload_file)
         self.upload_worker.upload_progress.connect(self.total_progress.setValue)
         self.upload_worker.upload_file_done.connect(self.upload_file_done)
-        self.upload_worker.thread.start()
+        self.upload_worker_thread.started.connect(self.upload_worker.start)
+        self.upload_worker_thread.start()
         self.upload_config.setEnabled(False)
         self.user_connect.setEnabled(False)
         self.uploads_done = 0
@@ -463,10 +471,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.total_progress.setFormat('%p%')
         self.upload_config.setEnabled(True)
         self.user_connect.setEnabled(True)
-        self.upload_file.disconnect()
-        self.upload_worker.upload_progress.disconnect()
-        self.upload_worker.upload_file_done.disconnect()
-        self.upload_worker.thread.quit()
+        self.upload_worker_thread.quit()
         self.upload_worker = None
         # enable or disable upload button
         self.refresh()
