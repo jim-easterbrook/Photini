@@ -18,21 +18,16 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime, timedelta
 import logging
 import os
-import secrets
 import six
-import time
 import urllib
 
 import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.configstore import key_store
-from photini.metadata import DateTime, LatLon, Location
-from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtWidgets, SingleLineEdit)
+from photini.pyqt import catch_all, QtCore, QtWidgets
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -80,10 +75,13 @@ class GooglePhotosSession(UploaderSession):
         return rsp
 
     def get_auth_url(self, redirect_uri):
+        code_verifier = ''
+        while len(code_verifier) < 43:
+            code_verifier += OAuth2Session().new_state()
         self.params = {
             'client_id'    : key_store.get('googlephotos', 'client_id'),
             'client_secret': key_store.get('googlephotos', 'client_secret'),
-            'code_verifier': secrets.token_urlsafe(64),
+            'code_verifier': code_verifier,
             'redirect_uri' : redirect_uri,
             }
         url = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -265,12 +263,10 @@ class TabWidget(PhotiniUploader):
 
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate(
-            'TabWidget', 'Google &Photos upload')
+        return translate('TabWidget', 'Google &Photos upload')
 
     def __init__(self, *arg, **kw):
-        self.service_name = QtCore.QCoreApplication.translate(
-            'TabWidget', 'Google Photos')
+        self.service_name = translate('TabWidget', 'Google Photos')
         self.upload_config = GoogleUploadConfig()
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
