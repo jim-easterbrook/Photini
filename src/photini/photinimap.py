@@ -59,7 +59,7 @@ else:
     WebViewBase = QtWebKitWidgets.QWebView
 
 
-class WebPage(WebPageBase):
+class MapWebPage(WebPageBase):
     if qt_version_info >= (5, 6):
         def javaScriptConsoleMessage(self, level, msg, line, source):
             logger.log(logging.INFO + (level * 10),
@@ -69,24 +69,116 @@ class WebPage(WebPageBase):
             logger.error('%s line %d: %s', source, line, msg)
 
 
-class WebView(WebViewBase):
+class CallHandler(QtCore.QObject):
+    # Simple object (with no attributes) for JavaScript to send signals
+    # to. The signals then invoke the methods JavaScript wants to call.
+    do_initialize_finished = QtCore.pyqtSignal()
+    do_new_status = QtCore.pyqtSignal(QtCore.QVariant)
+    do_marker_click = QtCore.pyqtSignal(int)
+    do_marker_drag = QtCore.pyqtSignal(float, float, int)
+    do_marker_drop = QtCore.pyqtSignal(float, float)
+
+    @QtCore.pyqtSlot(int, six.text_type)
+    def log(self, level, message):
+        logger.log(level, message)
+
+    @QtCore.pyqtSlot()
+    def initialize_finished(self):
+        self.do_initialize_finished.emit()
+
+    @QtCore.pyqtSlot(QtCore.QVariant)
+    def new_status(self, status):
+        self.do_new_status.emit(status)
+
+    @QtCore.pyqtSlot(int)
+    def marker_click(self, marker_id):
+        self.do_marker_click.emit(marker_id)
+
+    @QtCore.pyqtSlot(float, float, int)
+    def marker_drag(self, lat, lng, marker_id):
+        self.do_marker_drag.emit(lat, lng, marker_id)
+
+    @QtCore.pyqtSlot(float, float)
+    def marker_drop(self, lat, lng):
+        self.do_marker_drop.emit(lat, lng)
+
+
+class MapWebView(WebViewBase):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
+
+    def __init__(self, *args, **kwds):
+        super(MapWebView, self).__init__(*args, **kwds)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
+        self.setPage(MapWebPage(parent=self))
+        if QtWebEngineWidgets:
+            self.settings().setAttribute(
+                WebSettings.Accelerated2dCanvasEnabled, False)
+        else:
+            self.page().setLinkDelegationPolicy(
+                QtWebKitWidgets.QWebPage.DelegateAllLinks)
+            self.page().linkClicked.connect(self.link_clicked)
+            self.page().mainFrame().javaScriptWindowObjectCleared.connect(
+                self.java_script_window_object_cleared)
+        self.settings().setAttribute(
+            WebSettings.LocalContentCanAccessRemoteUrls, True)
+        self.settings().setAttribute(
+            WebSettings.LocalContentCanAccessFileUrls, True)
+        self.web_channel = None
+        self.call_handler = CallHandler(parent=self)
+        # adopt call handler's signals
+        self.initialize_finished = self.call_handler.do_initialize_finished
+        self.new_status = self.call_handler.do_new_status
+        self.marker_click = self.call_handler.do_marker_click
+        self.marker_drag = self.call_handler.do_marker_drag
+        self.marker_drop = self.call_handler.do_marker_drop
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def java_script_window_object_cleared(self):
+        self.page().mainFrame().addToJavaScriptWindowObject(
+            'python', self.call_handler)
+
+    def setHtml(self, *args, **kwds):
+        super(MapWebView, self).setHtml(*args, **kwds)
+        if QtWebEngineWidgets:
+            self.web_channel = QtWebChannel.QWebChannel(parent=self)
+            self.page().setWebChannel(self.web_channel)
+            self.web_channel.registerObject('python', self.call_handler)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def shutdown(self):
+        if self.web_channel:
+            self.web_channel.deregisterObject(self.call_handler)
+
+    @QtCore.pyqtSlot(QtCore.QUrl)
+    @catch_all
+    def link_clicked(self, url):
+        if url.isLocalFile():
+            url.setScheme('http')
+        webbrowser.open_new(url.toString())
+
+    def do_java_script(self, command):
+        if QtWebEngineWidgets:
+            self.page().runJavaScript(command)
+        else:
+            self.page().mainFrame().evaluateJavaScript(command)
 
     @catch_all
     def dragEnterEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
-            return super(WebView, self).dragEnterEvent(event)
+            return super(MapWebView, self).dragEnterEvent(event)
         event.acceptProposedAction()
 
     @catch_all
     def dragMoveEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
-            return super(WebView, self).dragMoveEvent(event)
+            return super(MapWebView, self).dragMoveEvent(event)
 
     @catch_all
     def dropEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
-            return super(WebView, self).dropEvent(event)
+            return super(MapWebView, self).dropEvent(event)
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
@@ -138,47 +230,6 @@ class LocationInfo(QtWidgets.QWidget):
         self.new_value.emit(self, self.get_value())
 
 
-class CallHandler(QtCore.QObject):
-    @QtCore.pyqtSlot(int, six.text_type)
-    def log(self, level, message):
-        logger.log(level, message)
-
-    @QtCore.pyqtSlot()
-    def initialize_finished(self):
-        try:
-            self.parent().initialize_finished()
-        except Exception as ex:
-            logger.exception(ex)
-
-    @QtCore.pyqtSlot(QtCore.QVariant)
-    def new_status(self, status):
-        try:
-            self.parent().new_status(status)
-        except Exception as ex:
-            logger.exception(ex)
-
-    @QtCore.pyqtSlot(int)
-    def marker_click(self, marker_id):
-        try:
-            self.parent().marker_click(marker_id)
-        except Exception as ex:
-            logger.exception(ex)
-
-    @QtCore.pyqtSlot(float, float, int)
-    def marker_drag(self, lat, lng, marker_id):
-        try:
-            self.parent().marker_drag(lat, lng, marker_id)
-        except Exception as ex:
-            logger.exception(ex)
-
-    @QtCore.pyqtSlot(float, float)
-    def marker_drop(self, lat, lng):
-        try:
-            self.parent().marker_drop(lat, lng)
-        except Exception as ex:
-            logger.exception(ex)
-
-
 class QTabBar(QtWidgets.QTabBar):
     context_menu = QtCore.pyqtSignal(object)
 
@@ -214,27 +265,14 @@ class PhotiniMap(QtWidgets.QSplitter):
         left_side.layout().setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # map
-        self.map = WebView()
-        self.map.setPage(WebPage(parent=self.map))
-        self.call_handler = CallHandler(parent=self)
-        if QtWebEngineWidgets:
-            self.web_channel = QtWebChannel.QWebChannel(parent=self)
-            self.map.page().setWebChannel(self.web_channel)
-            self.web_channel.registerObject('python', self.call_handler)
-            self.map.settings().setAttribute(
-                WebSettings.Accelerated2dCanvasEnabled, False)
-        else:
-            self.map.page().setLinkDelegationPolicy(
-                QtWebKitWidgets.QWebPage.DelegateAllLinks)
-            self.map.page().linkClicked.connect(self.link_clicked)
-            self.map.page().mainFrame().javaScriptWindowObjectCleared.connect(
-                self.java_script_window_object_cleared)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessRemoteUrls, True)
-        self.map.settings().setAttribute(
-            WebSettings.LocalContentCanAccessFileUrls, True)
-        self.map.setAcceptDrops(False)
+        self.map = MapWebView()
+        self.map.initialize_finished.connect(self.initialize_finished)
+        self.map.new_status.connect(self.new_status)
+        self.map.marker_click.connect(self.marker_click)
+        self.map.marker_drag.connect(self.marker_drag)
+        self.map.marker_drop.connect(self.marker_drop)
         self.map.drop_text.connect(self.drop_text)
+        self.map.setAcceptDrops(False)
         self.addWidget(self.map)
         # search
         search_layout = QtWidgets.QFormLayout()
@@ -325,29 +363,10 @@ class PhotiniMap(QtWidgets.QSplitter):
     def load_tou_osm(self):
         webbrowser.open_new('http://www.openstreetmap.org/copyright')
 
-    @catch_all
-    def closeEvent(self, event):
-        if QtWebEngineWidgets:
-            self.web_channel.deRegisterObject(self.call_handler)
-        super(PhotiniMap, self).closeEvent(event)
-
     @QtCore.pyqtSlot(int, int)
     @catch_all
     def new_split(self, pos, index):
         self.app.config_store.set('map', 'split', str(self.sizes()))
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def java_script_window_object_cleared(self):
-        self.map.page().mainFrame().addToJavaScriptWindowObject(
-            "python", self.call_handler)
-
-    @QtCore.pyqtSlot(QtCore.QUrl)
-    @catch_all
-    def link_clicked(self, url):
-        if url.isLocalFile():
-            url.setScheme('http')
-        webbrowser.open_new(url.toString())
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -414,6 +433,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 
+    @QtCore.pyqtSlot()
+    @catch_all
     def initialize_finished(self):
         QtWidgets.QApplication.restoreOverrideCursor()
         self.map_loaded = True
@@ -438,6 +459,8 @@ class PhotiniMap(QtWidgets.QSplitter):
     def do_not_close(self):
         return False
 
+    @QtCore.pyqtSlot(QtCore.QVariant)
+    @catch_all
     def new_status(self, status):
         self.map_status.update(status)
         for key in ('centre', 'zoom'):
@@ -451,6 +474,8 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.dropped_images = eval(text)
         self.JavaScript('markerDrop({:d},{:d})'.format(x, y))
 
+    @QtCore.pyqtSlot(float, float)
+    @catch_all
     def marker_drop(self, lat, lng):
         for path in self.dropped_images:
             image = self.image_list.get_image(path)
@@ -886,9 +911,13 @@ class PhotiniMap(QtWidgets.QSplitter):
         else:
             self.JavaScript('adjustBounds({},{},{},{})'.format(*view))
 
+    @QtCore.pyqtSlot(int)
+    @catch_all
     def marker_click(self, marker_id):
         self.image_list.select_images(self.marker_info[marker_id]['images'])
 
+    @QtCore.pyqtSlot(float, float, int)
+    @catch_all
     def marker_drag(self, lat, lng, marker_id):
         info = self.marker_info[marker_id]
         for image in info['images']:
@@ -898,7 +927,4 @@ class PhotiniMap(QtWidgets.QSplitter):
 
     def JavaScript(self, command):
         if self.map_loaded:
-            if QtWebEngineWidgets:
-                self.map.page().runJavaScript(command)
-            else:
-                self.map.page().mainFrame().evaluateJavaScript(command)
+            self.map.do_java_script(command)
