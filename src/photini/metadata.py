@@ -251,14 +251,10 @@ class LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
-    def __eq__(self, other):
-        if other is None:
-            return False
-        return max(abs(other.lat - self.lat),
-                   abs(other.lon - self.lon)) <= 0.0000015
-
-    def __ne__(self, other):
-        return not (self == other)
+    def merge(self, info, tag, other):
+        if max(abs(other.lat - self.lat), abs(other.lon - self.lon)) > 0.0000015:
+            self.log_ignored(info, tag, other)
+        return self
 
 
 class Location(MD_Dict):
