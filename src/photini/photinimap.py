@@ -30,7 +30,7 @@ import six
 
 from photini.configstore import key_store
 from photini.imagelist import DRAG_MIMETYPE
-from photini.metadata import Location
+from photini.metadata import LatLon, Location
 from photini.pyqt import (
     Busy, catch_all, ComboBox, CompactButton, Qt, QtCore, QtGui, QtWebChannel,
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
@@ -708,7 +708,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             if not latlong:
                 continue
             for info in self.marker_info.values():
-                if info['latlong'] == (latlong.lat, latlong.lon):
+                if info['latlong'] == latlong:
                     info['images'].append(image)
                     break
             else:
@@ -718,7 +718,7 @@ class PhotiniMap(QtWidgets.QSplitter):
                         break
                 self.marker_info[marker_id] = {
                     'images'  : [image],
-                    'latlong' : (latlong.lat, latlong.lon),
+                    'latlong' : LatLon(latlong),
                     'selected': image.selected,
                     }
                 self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
@@ -922,7 +922,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         info = self.marker_info[marker_id]
         for image in info['images']:
             image.metadata.latlong = lat, lng
-        info['latlong'] = lat, lng
+        info['latlong'] = LatLon((lat, lng))
         self.display_coords()
 
     def JavaScript(self, command):
