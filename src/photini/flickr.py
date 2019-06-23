@@ -631,7 +631,7 @@ class TabWidget(PhotiniUploader):
             max_taken_date = min_taken_date + timedelta(days=366)
         max_taken_date -= timedelta(seconds=1)
         # search Flickr
-        for photo in self.find_photos(min_taken_date, max_taken_date):
+        for photo in self.session.find_photos(min_taken_date, max_taken_date):
             yield photo
 
     def _find_local(self, photo, unknowns):
