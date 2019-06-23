@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -138,7 +138,7 @@ function addMarker(id, lat, lng, active)
     marker.metadata = id;
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
-    Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDrag);
+    Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
     enableMarker(id, active);
 }
 
@@ -152,7 +152,14 @@ function markerDrag(event)
 {
     var marker = event.target;
     var loc = marker.getLocation();
-    python.marker_drag(loc.latitude, loc.longitude, marker.metadata);
+    python.marker_drag(loc.latitude, loc.longitude);
+}
+
+function markerDragEnd(event)
+{
+    var marker = event.target;
+    var loc = marker.getLocation();
+    python.marker_drag_end(loc.latitude, loc.longitude, marker.metadata);
 }
 
 function markerDrop(x, y)

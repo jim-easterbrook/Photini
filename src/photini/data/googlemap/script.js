@@ -117,7 +117,7 @@ function addMarker(id, lat, lng, active)
     google.maps.event.addListener(marker, 'click', markerClick);
     google.maps.event.addListener(marker, 'dragstart', markerClick);
     google.maps.event.addListener(marker, 'drag', markerDrag);
-    google.maps.event.addListener(marker, 'dragend', markerDrag);
+    google.maps.event.addListener(marker, 'dragend', markerDragEnd);
     enableMarker(id, active)
 }
 
@@ -136,7 +136,13 @@ function markerClick(event)
 function markerDrag(event)
 {
     var loc = event.latLng;
-    python.marker_drag(loc.lat(), loc.lng(), markerToId(this));
+    python.marker_drag(loc.lat(), loc.lng());
+}
+
+function markerDragEnd(event)
+{
+    var loc = event.latLng;
+    python.marker_drag_end(loc.lat(), loc.lng(), markerToId(this));
 }
 
 function markerDrop(x, y)

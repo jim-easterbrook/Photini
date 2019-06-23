@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -125,14 +125,14 @@ function markerDragStart(event)
 function markerDrag(event)
 {
     var loc = this.getLatLng();
-    python.marker_drag(loc.lat, loc.lng, markerToId(this));
+    python.marker_drag(loc.lat, loc.lng);
 }
 
 function markerDragEnd(event)
 {
     var loc = this.getLatLng();
     var id = markerToId(this);
-    python.marker_drag(loc.lat, loc.lng, id);
+    python.marker_drag_end(loc.lat, loc.lng, id);
     drag_id = -1;
     python.marker_click(id);
 }

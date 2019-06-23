@@ -75,7 +75,8 @@ class CallHandler(QtCore.QObject):
     do_initialize_finished = QtCore.pyqtSignal()
     do_new_status = QtCore.pyqtSignal(QtCore.QVariant)
     do_marker_click = QtCore.pyqtSignal(int)
-    do_marker_drag = QtCore.pyqtSignal(float, float, int)
+    do_marker_drag = QtCore.pyqtSignal(float, float)
+    do_marker_drag_end = QtCore.pyqtSignal(float, float, int)
     do_marker_drop = QtCore.pyqtSignal(float, float)
 
     @QtCore.pyqtSlot(int, six.text_type)
@@ -94,9 +95,13 @@ class CallHandler(QtCore.QObject):
     def marker_click(self, marker_id):
         self.do_marker_click.emit(marker_id)
 
+    @QtCore.pyqtSlot(float, float)
+    def marker_drag(self, lat, lng):
+        self.do_marker_drag.emit(lat, lng)
+
     @QtCore.pyqtSlot(float, float, int)
-    def marker_drag(self, lat, lng, marker_id):
-        self.do_marker_drag.emit(lat, lng, marker_id)
+    def marker_drag_end(self, lat, lng, marker_id):
+        self.do_marker_drag_end.emit(lat, lng, marker_id)
 
     @QtCore.pyqtSlot(float, float)
     def marker_drop(self, lat, lng):
@@ -130,6 +135,7 @@ class MapWebView(WebViewBase):
         self.new_status = self.call_handler.do_new_status
         self.marker_click = self.call_handler.do_marker_click
         self.marker_drag = self.call_handler.do_marker_drag
+        self.marker_drag_end = self.call_handler.do_marker_drag_end
         self.marker_drop = self.call_handler.do_marker_drop
 
     @QtCore.pyqtSlot()
@@ -148,8 +154,10 @@ class MapWebView(WebViewBase):
     @QtCore.pyqtSlot()
     @catch_all
     def shutdown(self):
+        self.settings().setAttribute(WebSettings.JavascriptEnabled, False)
         if self.web_channel:
             self.web_channel.deregisterObject(self.call_handler)
+            self.web_channel = None
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     @catch_all
@@ -270,6 +278,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map.new_status.connect(self.new_status)
         self.map.marker_click.connect(self.marker_click)
         self.map.marker_drag.connect(self.marker_drag)
+        self.map.marker_drag_end.connect(self.marker_drag_end)
         self.map.marker_drop.connect(self.marker_drop)
         self.map.drop_text.connect(self.drop_text)
         self.map.setAcceptDrops(False)
@@ -641,6 +650,8 @@ class PhotiniMap(QtWidgets.QSplitter):
             text = self.tr('subject {}').format(idx)
         self.location_info.setTabText(idx, text)
 
+    @QtCore.pyqtSlot()
+    @catch_all
     def display_location(self):
         images = self.image_list.get_selected_images()
         # get required number of tabs
@@ -916,9 +927,14 @@ class PhotiniMap(QtWidgets.QSplitter):
     def marker_click(self, marker_id):
         self.image_list.select_images(self.marker_info[marker_id]['images'])
 
+    @QtCore.pyqtSlot(float, float)
+    @catch_all
+    def marker_drag(self, lat, lng):
+        self.coords.set_value('{:.6f}, {:.6f}'.format(lat, lng))
+
     @QtCore.pyqtSlot(float, float, int)
     @catch_all
-    def marker_drag(self, lat, lng, marker_id):
+    def marker_drag_end(self, lat, lng, marker_id):
         info = self.marker_info[marker_id]
         for image in info['images']:
             image.metadata.latlong = lat, lng
