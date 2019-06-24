@@ -73,7 +73,7 @@ class CallHandler(QtCore.QObject):
     # Simple object (with no attributes) for JavaScript to send signals
     # to. The signals then invoke the methods JavaScript wants to call.
     do_initialize_finished = QtCore.pyqtSignal()
-    do_new_status = QtCore.pyqtSignal(QtCore.QVariant)
+    do_new_status = QtCore.pyqtSignal(dict)
     do_marker_click = QtCore.pyqtSignal(int)
     do_marker_drag = QtCore.pyqtSignal(float, float)
     do_marker_drag_end = QtCore.pyqtSignal(float, float, int)
@@ -239,7 +239,7 @@ class LocationInfo(QtWidgets.QWidget):
 
 
 class QTabBar(QtWidgets.QTabBar):
-    context_menu = QtCore.pyqtSignal(object)
+    context_menu = QtCore.pyqtSignal(QtGui.QContextMenuEvent)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -257,9 +257,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.search_key = key_store.get('opencage', 'api_key')
         self.script_dir = pkg_resources.resource_filename(
             'photini', 'data/' + name + '/')
-        self.drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, '../map_pin_grey.png'))
-        self.drag_hotspot = 10, 35
         self.search_string = None
         self.map_loaded = False
         self.marker_info = {}
@@ -449,7 +446,10 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map_loaded = True
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
+        drag_icon = QtGui.QPixmap(
+            os.path.join(self.script_dir, '../map_pin_grey.png'))
+        drag_hotspot = 10, 35
+        self.image_list.set_drag_to_map(drag_icon, drag_hotspot)
         self.redraw_markers()
         self.display_coords()
 
@@ -463,12 +463,11 @@ class PhotiniMap(QtWidgets.QSplitter):
         zoom = int(eval(self.app.config_store.get('map', 'zoom')))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
         self.redraw_markers()
-        self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
 
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(QtCore.QVariant)
+    @QtCore.pyqtSlot(dict)
     @catch_all
     def new_status(self, status):
         self.map_status.update(status)
@@ -527,7 +526,7 @@ class PhotiniMap(QtWidgets.QSplitter):
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
 
-    @QtCore.pyqtSlot(object)
+    @QtCore.pyqtSlot(QtGui.QContextMenuEvent)
     @catch_all
     def location_tab_context_menu(self, event):
         idx = self.location_info.tabBar().tabAt(event.pos())
