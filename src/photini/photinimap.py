@@ -33,33 +33,22 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.metadata import LatLon, Location
 from photini.pyqt import (
     Busy, catch_all, ComboBox, CompactButton, Qt, QtCore, QtGui, QtWebChannel,
-    QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
-    scale_font, set_symbol_font, SingleLineEdit, SquareButton)
+    QWebPage, QWebSettings, QWebView, QtWidgets, qt_version_info,
+    scale_font, set_symbol_font, SingleLineEdit, SquareButton, using_qtwebengine)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-if QtWebEngineWidgets:
-    class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+class MapWebPage(QWebPage):
+    if using_qtwebengine:
         def acceptNavigationRequest(self, url, type_, isMainFrame):
             webbrowser.open_new(url.toString())
             return False
 
         def createWindow(self, type_):
-            return WebEnginePage(self)
+            return MapWebPage(self)
 
-
-    WebPageBase = WebEnginePage
-    WebSettings = QtWebEngineWidgets.QWebEngineSettings
-    WebViewBase = QtWebEngineWidgets.QWebEngineView
-else:
-    WebPageBase = QtWebKitWidgets.QWebPage
-    WebSettings = QtWebKit.QWebSettings
-    WebViewBase = QtWebKitWidgets.QWebView
-
-
-class MapWebPage(WebPageBase):
     if qt_version_info >= (5, 6):
         def javaScriptConsoleMessage(self, level, msg, line, source):
             logger.log(logging.INFO + (level * 10),
@@ -108,26 +97,25 @@ class CallHandler(QtCore.QObject):
         self.do_marker_drop.emit(lat, lng)
 
 
-class MapWebView(WebViewBase):
+class MapWebView(QWebView):
     drop_text = QtCore.pyqtSignal(int, int, six.text_type)
 
     def __init__(self, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setPage(MapWebPage(parent=self))
-        if QtWebEngineWidgets:
+        if using_qtwebengine:
             self.settings().setAttribute(
-                WebSettings.Accelerated2dCanvasEnabled, False)
+                QWebSettings.Accelerated2dCanvasEnabled, False)
         else:
-            self.page().setLinkDelegationPolicy(
-                QtWebKitWidgets.QWebPage.DelegateAllLinks)
+            self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
             self.page().linkClicked.connect(self.link_clicked)
             self.page().mainFrame().javaScriptWindowObjectCleared.connect(
                 self.java_script_window_object_cleared)
         self.settings().setAttribute(
-            WebSettings.LocalContentCanAccessRemoteUrls, True)
+            QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.settings().setAttribute(
-            WebSettings.LocalContentCanAccessFileUrls, True)
+            QWebSettings.LocalContentCanAccessFileUrls, True)
         self.web_channel = None
         self.call_handler = CallHandler(parent=self)
         # adopt call handler's signals
@@ -146,7 +134,7 @@ class MapWebView(WebViewBase):
 
     def setHtml(self, *args, **kwds):
         super(MapWebView, self).setHtml(*args, **kwds)
-        if QtWebEngineWidgets:
+        if using_qtwebengine:
             self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.page().setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
@@ -154,7 +142,7 @@ class MapWebView(WebViewBase):
     @QtCore.pyqtSlot()
     @catch_all
     def shutdown(self):
-        self.settings().setAttribute(WebSettings.JavascriptEnabled, False)
+        self.settings().setAttribute(QWebSettings.JavascriptEnabled, False)
         if self.web_channel:
             self.web_channel.deregisterObject(self.call_handler)
             self.web_channel = None
@@ -167,7 +155,7 @@ class MapWebView(WebViewBase):
         webbrowser.open_new(url.toString())
 
     def do_java_script(self, command):
-        if QtWebEngineWidgets:
+        if using_qtwebengine:
             self.page().runJavaScript(command)
         else:
             self.page().mainFrame().evaluateJavaScript(command)
@@ -409,7 +397,7 @@ class PhotiniMap(QtWidgets.QSplitter):
 '''
         lat, lng = eval(self.app.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = int(eval(self.app.config_store.get('map', 'zoom', '11')))
-        if QtWebEngineWidgets:
+        if using_qtwebengine:
             initialize = '''
     <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">

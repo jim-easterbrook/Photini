@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2015-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -80,6 +79,16 @@ else:
     QtWebEngineWidgets = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
+
+if using_qtwebengine:
+    QWebPage = QtWebEngineWidgets.QWebEnginePage
+    QWebSettings = QtWebEngineWidgets.QWebEngineSettings
+    QWebView = QtWebEngineWidgets.QWebEngineView
+else:
+    QWebPage = QtWebKitWidgets.QWebPage
+    QWebSettings = QtWebKit.QWebSettings
+    QWebView = QtWebKitWidgets.QWebView
+
 
 style = config.get('pyqt', 'style')
 if style:
