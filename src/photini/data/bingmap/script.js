@@ -22,7 +22,6 @@ var markerLayer;
 function loadMap()
 {
     var mapOptions = {
-        credentials: initData.key,
         center: new Microsoft.Maps.Location(initData.lat, initData.lng),
         zoom: initData.zoom,
         mapTypeId: Microsoft.Maps.MapTypeId.road,

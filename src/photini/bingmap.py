@@ -36,6 +36,7 @@ class TabWidget(PhotiniMap):
 
     def get_head(self):
         url = 'http://www.bing.com/api/maps/mapcontrol?callback=initialize'
+        url += '&key=' + self.api_key
         lang, encoding = locale.getdefaultlocale()
         if lang:
             url += '&mkt={0},ngt'.format(lang.replace('_', '-'))
