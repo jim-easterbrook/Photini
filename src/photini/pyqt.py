@@ -58,13 +58,9 @@ if using_pyqt5:
             from PyQt5 import QtWebChannel, QtWebEngineWidgets
         except ImportError:
             using_qtwebengine = False
-    if using_qtwebengine:
-        QtWebKit = None
-        QtWebKitWidgets = None
-    else:
+    if not using_qtwebengine:
         from PyQt5 import QtWebKit, QtWebKitWidgets
         QtWebChannel = None
-        QtWebEngineWidgets = None
 else:
     import sip
     sip.setapi('QString', 2)
@@ -74,7 +70,6 @@ else:
     QtWidgets = QtGui
     QtWebKitWidgets = QtWebKit
     QtWebChannel = None
-    QtWebEngineWidgets = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
 
