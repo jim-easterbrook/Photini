@@ -65,8 +65,6 @@ if using_pyqt5:
         from PyQt5 import QtWebKit, QtWebKitWidgets
         QtWebChannel = None
         QtWebEngineWidgets = None
-    import sip
-    sip.setdestroyonexit(True)
 else:
     import sip
     sip.setapi('QString', 2)

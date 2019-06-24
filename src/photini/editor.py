@@ -378,7 +378,11 @@ details click the 'show details' button.</p>
         size = self.width(), self.height()
         self.app.config_store.set('main_window', 'size', str(size))
 
+
+app = None
+
 def main(argv=None):
+    global app
     if argv:
         sys.argv = argv
     # let PyQt handle its options (need at least one argument after options)
