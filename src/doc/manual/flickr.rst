@@ -20,10 +20,7 @@ See :ref:`installation <installation-optional>` for more detail.
 Initially most of the Flickr uploader tab is disabled.
 It's only usable after you've authorised Photini to access your Flickr account by clicking the ``Log in`` button.
 
-.. image:: ../images/screenshot_151.png
-
 The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
-You then copy a verification code from your browser to Photini.
 
 .. image:: ../images/screenshot_152.png
 
