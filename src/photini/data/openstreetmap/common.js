@@ -28,9 +28,9 @@ function commonLoad()
     map.on('contextmenu', ignoreEvent);
     map.on('moveend zoomend', newBounds);
     icon_on = new L.Icon({
-        iconUrl: '../map_pin_red.png', iconSize: [25, 35], iconAnchor: [10, 35]});
+        iconUrl: '../map_pin_red.png', iconSize: [25, 35], iconAnchor: [11, 35]});
     icon_off = new L.Icon({
-        iconUrl: '../map_pin_grey.png', iconSize: [25, 35], iconAnchor: [10, 35]});
+        iconUrl: '../map_pin_grey.png', iconSize: [25, 35], iconAnchor: [11, 35]});
     python.new_status({version: L.version});
     python.initialize_finished();
     newBounds();

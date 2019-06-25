@@ -436,7 +436,7 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map.setAcceptDrops(True)
         drag_icon = QtGui.QPixmap(
             os.path.join(self.script_dir, '../map_pin_grey.png'))
-        drag_hotspot = 10, 35
+        drag_hotspot = 11, 35
         self.image_list.set_drag_to_map(drag_icon, drag_hotspot)
         self.redraw_markers()
         self.display_coords()

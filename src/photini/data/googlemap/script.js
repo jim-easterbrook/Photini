@@ -38,7 +38,7 @@ function loadMap()
         };
     map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
     google.maps.event.addListener(map, 'idle', newBounds);
-    var anchor = new google.maps.Point(10, 35);
+    var anchor = new google.maps.Point(11, 35);
     icon_on = {anchor: anchor, url: '../map_pin_red.png'};
     icon_off = {anchor: anchor, url: '../map_pin_grey.png'};
     python.initialize_finished();
