@@ -166,7 +166,7 @@ It has extra "introspection bindings" that allow it to be used by other language
 PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-[2] pgi_ is a pure Python alternative to PyGObject_ that I have found to be more reliable, despite its author's warnings about its experimental status.
+[2] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
 If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
    sudo pip uninstall pgi
@@ -207,6 +207,7 @@ Feature                       Dependencies
 ============================  =================
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
+Google Photos upload          `requests-oauthlib`_
 Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
 ============================  =================
@@ -289,7 +290,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _python-gphoto2:    https://pypi.python.org/pypi/gphoto2/
 .. _PyPI:              https://pypi.python.org/pypi
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
-.. _requests:          https://github.com/kennethreitz/requests/
+.. _requests:          http://python-requests.org/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
 .. _requests-toolbelt: https://toolbelt.readthedocs.io/
 .. _WinPython:         http://winpython.github.io/

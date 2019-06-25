@@ -16,6 +16,7 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    technical_metadata
    map
    flickr
+   google_photos
    importer
    video
    configuration
