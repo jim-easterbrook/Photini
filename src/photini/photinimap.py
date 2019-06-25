@@ -250,7 +250,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.marker_info = {}
         self.map_status = {}
         self.dropped_images = []
-        self.cursor_hidden = False
         self.setChildrenCollapsible(False)
         left_side = QtWidgets.QWidget()
         self.addWidget(left_side)
@@ -917,17 +916,11 @@ class PhotiniMap(QtWidgets.QSplitter):
     @QtCore.pyqtSlot(float, float)
     @catch_all
     def marker_drag(self, lat, lng):
-        if not self.cursor_hidden:
-            QtWidgets.QApplication.setOverrideCursor(Qt.BlankCursor)
-            self.cursor_hidden = True
         self.coords.set_value('{:.6f}, {:.6f}'.format(lat, lng))
 
     @QtCore.pyqtSlot(float, float, int)
     @catch_all
     def marker_drag_end(self, lat, lng, marker_id):
-        if self.cursor_hidden:
-            QtWidgets.QApplication.restoreOverrideCursor()
-            self.cursor_hidden = False
         info = self.marker_info[marker_id]
         for image in info['images']:
             image.metadata.latlong = lat, lng
