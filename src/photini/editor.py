@@ -42,7 +42,15 @@ from photini.pyqt import (
 from photini.spelling import SpellCheck, spelling_version
 from photini import __version__, build
 
+try:
+    from photini.gpximporter import GpxImporter
+except ImportError as ex:
+    print(str(ex))
+    GpxImporter = None
+
+
 logger = logging.getLogger(__name__)
+
 
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
@@ -164,6 +172,14 @@ class MainWindow(QtWidgets.QMainWindow):
         close_all_action = QtWidgets.QAction(self.tr('Close all images'), self)
         close_all_action.triggered.connect(self.close_all_files)
         file_menu.addAction(close_all_action)
+        if GpxImporter:
+            file_menu.addSeparator()
+            self.import_gpx_action = QtWidgets.QAction(
+                self.tr('Import GPX file'), self)
+            self.import_gpx_action.triggered.connect(self.import_pgx_file)
+            file_menu.addAction(self.import_gpx_action)
+        else:
+            self.import_gpx_action = None
         file_menu.addSeparator()
         quit_action = QtWidgets.QAction(self.tr('Quit'), self)
         quit_action.setShortcuts(
@@ -296,6 +312,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def close_all_files(self):
         self.image_list.close_files(True)
 
+    @QtCore.pyqtSlot()
+    @catch_all
+    def import_pgx_file(self):
+        importer = GpxImporter()
+        importer.do_import(self)
+
     @catch_all
     def closeEvent(self, event):
         for n in range(self.tabs.count()):
@@ -366,6 +388,8 @@ details click the 'show details' button.</p>
     @catch_all
     def new_selection(self, selection):
         self.close_action.setEnabled(len(selection) > 0)
+        if self.import_gpx_action:
+            self.import_gpx_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
 
     @QtCore.pyqtSlot(bool)
