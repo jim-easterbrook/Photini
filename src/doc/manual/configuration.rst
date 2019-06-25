@@ -130,5 +130,39 @@ Note that after doing this you can not set a different style on the command line
    native_dialog = True
    style = breeze
 
+.. _configuration-tabs:
+
+Tab order
+^^^^^^^^^
+
+Photini's tabs can be enabled or disabled with the ``Options`` menu as described above, but their order is set in the configuration file.
+The ``[tabs]`` section has a ``modules`` entry which lists the modules to be imported for each tab.
+You can reorder the tabs by reordering this list, or disable a tab permanently by removing its module from the list.
+
+.. code-block:: guess
+
+   [tabs]
+   modules = ('photini.descriptive',
+            'photini.technical',
+            'photini.googlemap',
+            'photini.bingmap',
+            'photini.mapboxmap',
+            'photini.openstreetmap',
+            'photini.flickr',
+            'photini.googlephotos',
+            'photini.importer')
+   photini.descriptive = True
+   photini.technical = True
+   photini.googlemap = True
+   photini.bingmap = True
+   photini.mapboxmap = True
+   photini.openstreetmap = True
+   photini.flickr = True
+   photini.googlephotos = True
+   photini.importer = True
+
+You could even use a tab provided by another Python package by adding its module name to the list.
+See :doc:`extending` for more information.
+
 .. _LibreOffice:            https://www.libreoffice.org/
 .. _Metadata Working Group: http://www.metadataworkinggroup.org/specs/

@@ -20,4 +20,5 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    importer
    video
    configuration
+   extending
    tags
