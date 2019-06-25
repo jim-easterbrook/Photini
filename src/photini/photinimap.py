@@ -451,7 +451,6 @@ class PhotiniMap(QtWidgets.QSplitter):
         lat, lng = eval(self.app.config_store.get('map', 'centre'))
         zoom = int(eval(self.app.config_store.get('map', 'zoom')))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
-        self.redraw_markers()
 
     def do_not_close(self):
         return False
