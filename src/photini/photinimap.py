@@ -102,7 +102,6 @@ class MapWebView(QWebView):
 
     def __init__(self, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
-        QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setPage(MapWebPage(parent=self))
         if using_qtwebengine:
             self.settings().setAttribute(
@@ -116,7 +115,6 @@ class MapWebView(QWebView):
             QWebSettings.LocalContentCanAccessRemoteUrls, True)
         self.settings().setAttribute(
             QWebSettings.LocalContentCanAccessFileUrls, True)
-        self.web_channel = None
         self.call_handler = CallHandler(parent=self)
         # adopt call handler's signals
         self.initialize_finished = self.call_handler.do_initialize_finished
@@ -138,14 +136,6 @@ class MapWebView(QWebView):
             self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.page().setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def shutdown(self):
-        self.settings().setAttribute(QWebSettings.JavascriptEnabled, False)
-        if self.web_channel:
-            self.web_channel.deregisterObject(self.call_handler)
-            self.web_channel = None
 
     @QtCore.pyqtSlot(QtCore.QUrl)
     @catch_all
