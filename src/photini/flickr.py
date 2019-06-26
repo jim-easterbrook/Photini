@@ -22,10 +22,14 @@ from datetime import datetime, timedelta
 import logging
 import os
 import requests
-import time
+import sys
 
 import six
-from six.moves.html_parser import HTMLParser
+if sys.version_info >= (3, 4):
+    import html
+else:
+    from six.moves.html_parser import HTMLParser
+    html = HTMLParser()
 
 import flickrapi
 
@@ -422,8 +426,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
     def add_set(self, title, description, photoset_id, index=-1):
         widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
         if description:
-            h = HTMLParser()
-            widget.setToolTip(h.unescape(description))
+            widget.setToolTip(html.unescape(description))
         widget.setProperty('photoset_id', photoset_id)
         if index >= 0:
             self.sets_widget.layout().insertWidget(index, widget)
@@ -711,16 +714,15 @@ class TabWidget(PhotiniUploader):
         if not photo:
             return
         md = image.metadata
-        h = HTMLParser()
         # sync title
-        title = h.unescape(photo['title']['_content'])
+        title = html.unescape(photo['title']['_content'])
         if md.title:
             md.title = md.title.merge(
                 image.name + '(title)', 'flickr title', title)
         else:
             md.title = title
         # sync description
-        description = h.unescape(photo['description']['_content'])
+        description = html.unescape(photo['description']['_content'])
         if md.description:
             md.description = md.description.merge(
                 image.name + '(description)', 'flickr description', description)
