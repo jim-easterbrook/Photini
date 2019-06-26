@@ -132,9 +132,9 @@ function markerDragEnd(event)
 {
     var loc = this.getLatLng();
     var id = markerToId(this);
+    this.setIcon(icon_on);
     python.marker_drag_end(loc.lat, loc.lng, id);
     drag_id = -1;
-    python.marker_click(id);
 }
 
 function markerDrop(x, y)
