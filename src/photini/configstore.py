@@ -47,9 +47,11 @@ class BaseConfigStore(object):
         self.file_name = os.path.join(config_dir, name + '.ini')
         if os.path.isfile(self.file_name):
             if six.PY2:
-                self.config.readfp(open(self.file_name, 'r'))
+                with open(self.file_name, 'r') as fp:
+                    self.config.readfp(fp)
             else:
-                self.config.readfp(open(self.file_name, 'r', encoding='utf-8'))
+                with open(self.file_name, 'r', encoding='utf-8') as fp:
+                    self.config.read_file(fp)
         self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
