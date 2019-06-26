@@ -48,7 +48,7 @@ An "all in one" installer for Windows is available that installs Photini and all
 Some Linux distributions include Photini in their standard "repository".
 Users of other operating systems will need to install the following:
 
-*   Python, version 2.6+ (including Python 3): http://python.org/
+*   Python, version 2.7+ or 3.2+: http://python.org/
 *   PyQt, version 4 or 5: http://www.riverbankcomputing.co.uk/software/pyqt/
 *   six, version 1.5+: https://pypi.python.org/pypi/six/
 *   appdirs, version 1.3+: http://pypi.python.org/pypi/appdirs/

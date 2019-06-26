@@ -145,7 +145,7 @@ You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
 ==============  =================  ============================  =================
 Package         Minimum version    Typical Linux package name    PyPI package name
 ==============  =================  ============================  =================
-Python_         2.6 (3 preferred)  python3
+Python_         2.7 or 3.2         python3
 PyQt_           4 (5 preferred)    python3-qt5 or python3-pyqt5  PyQt5
                                    (qt5-webkit may also be
                                    needed)
