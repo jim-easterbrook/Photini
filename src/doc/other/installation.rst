@@ -210,6 +210,7 @@ Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_
 Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
+Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
 [1] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
@@ -275,6 +276,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _flickrapi:         https://stuvel.eu/flickrapi/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
+.. _gpxpy:             https://pypi.org/project/gpxpy/
 .. _Gspell:            https://wiki.gnome.org/Projects/gspell
 .. _keyring:           https://keyring.readthedocs.io/
 .. _MSYS2:             http://www.msys2.org/

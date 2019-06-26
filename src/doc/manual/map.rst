@@ -67,6 +67,22 @@ Selecting another map tab will show the same location but with data and imagery 
 
 .. image:: ../images/screenshot_139.png
 
+GPX file import
+---------------
+
+If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions.
+If you have installed gpxpy_ then Photini's ``File`` menu should have an ``Import GPX file`` item.
+
+First you need to export your GPS log as a ``GPX`` (GPS eXchange format) file, then transfer the .gpx file to somewhere Photini will be able to read it.
+Make sure your images have the correct time zone set so that Photini can calculate their UTC timestamps.
+Select the images you want to set the locations of, then click the ``Import GPX file`` menu item.
+After opening your GPX file Photini will set the location of each selected image within the GPS track's time span to the logged point that has the nearest timestamp.
+This is unlikely to be the exact location where you took the photograph, so you will almost certainly want to adjust the positions by dragging markers on the map.
+
+.. note::
+   This is a recent addition to Photini and has not been extensively tested.
+   I'd be interested to hear if you find it useful.
+
 Address lookup
 --------------
 
@@ -117,5 +133,6 @@ To reorder the subject locations, or to convert between camera and subject, you 
 If this results in the rightmost tab having data then another tab will be added.
 If the two rightmost tabs have no data then one of the empty tabs will be removed.
 
+.. _gpxpy:         https://github.com/tkrajina/gpxpy
 .. _OpenCage:      https://opencagedata.com/
 .. _OpenStreetMap: https://www.openstreetmap.org/about/
