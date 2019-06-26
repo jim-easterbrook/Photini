@@ -27,6 +27,7 @@ import pprint
 import sys
 from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
+import warnings
 import webbrowser
 
 import pkg_resources
@@ -465,6 +466,9 @@ def main(argv=None):
         help=six.text_type(QtCore.QCoreApplication.translate(
             'main', 'increase number of logging messages')))
     options, args = parser.parse_args()
+    # ensure warnings are visible in test mode
+    if options.test:
+        warnings.simplefilter('default')
     # create GUI and run application event loop
     main = MainWindow(options, args)
     main.show()
