@@ -46,11 +46,13 @@ class BaseConfigStore(object):
             os.makedirs(config_dir, mode=stat.S_IRWXU)
         self.file_name = os.path.join(config_dir, name + '.ini')
         if os.path.isfile(self.file_name):
-            if six.PY2:
-                with open(self.file_name, 'r') as fp:
+            kwds = {}
+            if not six.PY2:
+                kwds['encoding'] = 'utf=8'
+            with open(self.file_name, 'r', **kwds) as fp:
+                if six.PY2:
                     self.config.readfp(fp)
-            else:
-                with open(self.file_name, 'r', encoding='utf-8') as fp:
+                else:
                     self.config.read_file(fp)
         self.has_section = self.config.has_section
 
@@ -86,10 +88,11 @@ class BaseConfigStore(object):
     def save(self):
         if not self.dirty:
             return
-        if six.PY2:
-            self.config.write(open(self.file_name, 'w'))
-        else:
-            self.config.write(open(self.file_name, 'w', encoding='utf-8'))
+        kwds = {}
+        if not six.PY2:
+            kwds['encoding'] = 'utf=8'
+        with open(self.file_name, 'w', **kwds) as fp:
+            self.config.write(fp)
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
         self.dirty = False
 
