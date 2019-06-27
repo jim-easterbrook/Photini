@@ -50,6 +50,10 @@ ID_TAG = 'flickr:photo_id'
 class FlickrSession(UploaderSession):
     name = 'flickr'
 
+    def __init__(self, *arg, **kwds):
+        super(FlickrSession, self).__init__(*arg, **kwds)
+        self.api = None
+
     def connect(self):
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
@@ -73,6 +77,10 @@ class FlickrSession(UploaderSession):
 
     def disconnect(self):
         self.connection_changed.emit(False)
+        if self.api:
+            # undocumented way to close Flickr connection cleanly
+            self.api.flickr_oauth.session.close()
+            self.api = None
 
     def get_auth_url(self, redirect_uri):
         try:

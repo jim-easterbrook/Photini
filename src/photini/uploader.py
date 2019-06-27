@@ -242,6 +242,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def shutdown(self):
+        self.session.disconnect()
         if self.auth_server:
             self.auth_server.running = False
             self.auth_server_thread.quit()

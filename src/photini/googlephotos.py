@@ -40,6 +40,10 @@ class GooglePhotosSession(UploaderSession):
     photos_url = 'https://photoslibrary.googleapis.com/'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 
+    def __init__(self, *arg, **kwds):
+        super(GooglePhotosSession, self).__init__(*arg, **kwds)
+        self.api = None
+
     def connect(self, token=None):
         self.cached_data = {}
         refresh_token = self.get_password()
@@ -71,6 +75,9 @@ class GooglePhotosSession(UploaderSession):
 
     def disconnect(self):
         self.connection_changed.emit(False)
+        if self.api:
+            self.api.close()
+            self.api = None
 
     def check_response(self, rsp, decode=True):
         if rsp.status_code != 200:
