@@ -728,17 +728,18 @@ class TabWidget(QtWidgets.QWidget):
                 date_taken['tz_offset'] = tz
             self._set_date_value(image, 'taken', date_taken)
         self._update_datetime()
+        self._update_links()
 
     @QtCore.pyqtSlot(six.text_type)
     @catch_all
     def new_link(self, master):
         slave = self._master_slave[master]
         if self.link_widget[master, slave].isChecked():
-            self.date_widget[slave].set_enabled(False)
             for image in self.image_list.get_selected_images():
                 temp = dict(getattr(image.metadata, 'date_' + master) or {})
                 self._set_date_value(image, slave, temp)
             self._update_datetime()
+            self._update_links()
         else:
             self.date_widget[slave].set_enabled(True)
 
@@ -870,9 +871,11 @@ class TabWidget(QtWidgets.QWidget):
                 if (getattr(image.metadata, 'date_' + master) !=
                         getattr(image.metadata, 'date_' + slave)):
                     self.link_widget[master, slave].setChecked(False)
+                    self.date_widget[slave].set_enabled(True)
                     break
             else:
                 self.link_widget[master, slave].setChecked(True)
+                self.date_widget[slave].set_enabled(False)
 
     def _update_orientation(self):
         images = self.image_list.get_selected_images()
