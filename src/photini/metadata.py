@@ -101,9 +101,18 @@ class MD_Value(object):
         handler.set_string(tag, six.text_type(self))
 
     def merge(self, info, tag, other):
-        if self != other:
+        result, merged, ignored = self.merge_item(self, other)
+        if ignored:
             self.log_ignored(info, tag, other)
+        elif merged:
+            self.log_merged(info, tag, other)
+            return self.__class__(result)
         return self
+
+    def merge_item(self, this, other):
+        if other == this:
+            return this, False, False
+        return this, False, True
 
     def log_merged(self, info, tag, value):
         logger.info('%s: merged %s', info, tag)
@@ -156,20 +165,21 @@ class MD_Dict(MD_Value, dict):
     def merge(self, info, tag, other):
         if other == self:
             return self
-        ignored = False
         result = dict(self)
         for key in result:
             if other[key] is None:
                 continue
             if result[key] is None:
                 result[key] = other[key]
-            elif other[key] != result[key]:
-                ignored = True
-        if ignored:
-            self.log_ignored(info, tag, other)
-        else:
-            self.log_merged(info, tag, other)
-        return MD_Dict(result)
+                merged, ignored = True, False
+            else:
+                result[key], merged, ignored = self.merge_item(
+                                                        result[key], other[key])
+            if ignored:
+                self.log_ignored(info + '[' + key + ']', tag, other)
+            elif merged:
+                self.log_merged(info + '[' + key + ']', tag, other)
+        return self.__class__(result)
 
 
 class LatLon(MD_Dict):
@@ -261,10 +271,10 @@ class LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
-    def merge(self, info, tag, other):
-        if max(abs(other.lat - self.lat), abs(other.lon - self.lon)) > 0.0000015:
-            self.log_ignored(info, tag, other)
-        return self
+    def merge_item(self, this, other):
+        if abs(other - this) < 0.0000015:
+            return this, False, False
+        return this, False, True
 
 
 class Location(MD_Dict):
@@ -323,22 +333,10 @@ class Location(MD_Dict):
                 result.append('{}: {}'.format(key, self[key]))
         return '\n'.join(result)
 
-    def merge(self, info, tag, other):
-        merged = False
-        result = dict(self)
-        for key in result:
-            if not other[key]:
-                continue
-            if not result[key]:
-                result[key] = other[key]
-                merged = True
-            elif other[key] not in result[key]:
-                result[key] += ' // ' + other[key]
-                merged = True
-        if merged:
-            self.log_merged(info, tag, other)
-            return Location(result)
-        return self
+    def merge_item(self, this, other):
+        if other in this:
+            return this, False, False
+        return this + ' // ' + other, True, False
 
 
 class MultiLocation(tuple):
@@ -697,8 +695,6 @@ class DateTime(MD_Dict):
     def merge(self, info, tag, other):
         if other == self:
             return self
-        merged = False
-        result = dict(self)
         if other.datetime != self.datetime:
             # if datetime values differ, choose the one with more precision
             if other.precision > self.precision:
@@ -708,20 +704,15 @@ class DateTime(MD_Dict):
                                             self.datetime, other.precision):
                 self.log_ignored(info, tag, other)
                 return self
-        else:
+        result = dict(self)
+        if self.precision < 7 and other.precision < self.precision:
             # some formats default to a higher precision than wanted
-            if self.precision < 7 and other.precision < self.precision:
-                result['precision'] = other.precision
-                merged = True
+            result['precision'] = other.precision
         # don't trust IPTC time zone and Exif doesn't have time zone
         if (other.tz_offset not in (None, self.tz_offset) and
                 MetadataHandler.is_xmp_tag(tag)):
             result['tz_offset'] = other.tz_offset
-            merged = True
-        if merged:
-            self.log_merged(info, tag, other)
-            return DateTime(result)
-        return self
+        return DateTime(result)
 
 
 class MultiString(MD_Value, tuple):
@@ -787,11 +778,10 @@ class MD_String(MD_Value, six.text_type):
     def write(self, handler, tag):
         handler.set_string(tag, self)
 
-    def merge(self, info, tag, other):
-        if other in self:
-            return self
-        self.log_merged(info, tag, other)
-        return MD_String(self + ' // ' + other)
+    def merge_item(self, this, other):
+        if other in this:
+            return this, False, False
+        return this + ' // ' + other, True, False
 
 
 class CharacterSet(MD_String):
@@ -895,10 +885,10 @@ class Aperture(MD_Rational):
             '{:d}/{:d}'.format(self.numerator, self.denominator),
             '{:d}/{:d}'.format(apex.numerator, apex.denominator)))
 
-    def merge(self, info, tag, other):
-        if (min(other, self) / max(other, self)) < 0.95:
-            self.log_ignored(info, tag, other)
-        return self
+    def merge_item(self, this, other):
+        if (min(other, this) / max(other, this)) > 0.95:
+            return this, False, False
+        return this, False, True
 
 
 class Rating(MD_Value, float):
