@@ -710,12 +710,12 @@ class DateTime(MD_Dict):
         return self
 
 
-class MultiString(MD_Value, list):
-    def __init__(self, value):
+class MultiString(MD_Value, tuple):
+    def __new__(cls, value):
         if isinstance(value, six.string_types):
             value = value.split(';')
         value = filter(bool, [x.strip() for x in value])
-        super(MultiString, self).__init__(value)
+        return super(MultiString, cls).__new__(cls, value)
 
     @classmethod
     def read(cls, handler, tag):
@@ -742,14 +742,14 @@ class MultiString(MD_Value, list):
 
     def merge(self, info, tag, other):
         merged = False
-        result = MultiString(self)
+        result = list(self)
         for item in other:
             if item not in result:
                 result.append(item)
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return result
+            return MultiString(result)
         return self
 
 
