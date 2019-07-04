@@ -217,7 +217,7 @@ class FlickrSession(UploaderSession):
         if not image.metadata.keywords:
             image.metadata.keywords = [keyword]
         elif keyword not in image.metadata.keywords:
-            image.metadata.keywords = image.metadata.keywords + [keyword]
+            image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
         for key, function in (('permissions',  'setPerms'),
                               ('content_type', 'setContentType'),
@@ -811,7 +811,7 @@ class TabWidget(PhotiniUploader):
                     continue
                 match = self._find_local(photo, unknowns)
                 if match:
-                    match.metadata.keywords = (
+                    match.metadata.keywords = list(
                         match.metadata.keywords or []) + [
                             '{}={}'.format(ID_TAG, photo['id'])]
                     photo_ids[photo['id']] = match
