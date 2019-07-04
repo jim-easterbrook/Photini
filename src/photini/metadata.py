@@ -77,9 +77,6 @@ def safe_fraction(value):
             return Fraction(0.0)
     return Fraction(value).limit_denominator(1000000)
 
-def decode_UCS2(value):
-    value = bytearray(map(int, value.split()))
-    return value.decode('utf_16', errors='ignore').strip('\x00')
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
@@ -730,8 +727,6 @@ class MultiString(MD_Value, tuple):
             file_value = handler.get_string(tag)
         if not file_value:
             return None
-        if handler.get_tag_type(tag) == 'Byte':
-            file_value = decode_UCS2(file_value)
         return cls(file_value)
 
     def write(self, handler, tag):
@@ -767,8 +762,6 @@ class MD_String(MD_Value, six.text_type):
                 file_value = file_value[0]
         else:
             file_value = handler.get_string(tag)
-        if file_value and handler.get_tag_type(tag) == 'Byte':
-            file_value = decode_UCS2(file_value)
         if file_value:
             file_value = six.text_type(file_value).strip()
         if not file_value:
@@ -1059,7 +1052,16 @@ class MetadataHandler(GExiv2.Metadata):
             return [self.get_string(x) for x in tag]
         if not self.has_tag(tag):
             return None
-        if self.get_tag_type(tag) == 'Comment':
+        if tag in ('Exif.Image.XPTitle',  'Exif.Image.XPComment',
+                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
+                   'Exif.Image.XPSubject'):
+            # UCS2 encoded Exif data
+            result = self.get_raw(tag)
+            if not result:
+                return None
+            return result.decode('utf_16', errors='ignore').strip('\x00')
+        if tag == 'Exif.Photo.UserComment':
+            # first 8 bytes should be the encoding charset
             result = self.get_raw(tag)
             if not result:
                 return None
