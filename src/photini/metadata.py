@@ -125,9 +125,16 @@ class MD_Dict(MD_Value, dict):
         if isinstance(value, (tuple, list)):
             value = zip(self._keys, value)
         # initialise all keys to None
-        super(MD_Dict, self).__init__(dict.fromkeys(self._keys))
+        result = dict.fromkeys(self._keys)
         # update with any supplied values
-        self.update(value)
+        result.update(value)
+        # let sub-classes do any data manipulation
+        result = self.convert(result)
+        super(MD_Dict, self).__init__(result)
+
+    @staticmethod
+    def convert(value):
+        return value
 
     def __getattr__(self, name):
         if name in self:
@@ -136,10 +143,12 @@ class MD_Dict(MD_Value, dict):
             "{} has no attribute {}".format(self.__class__, name))
 
     def __setattr__(self, name, value):
-        if name in self:
-            self[name] = value
-            return
-        super(MD_Dict, self).__setattr__(name, value)
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
+
+    def __setitem__(self, key, value):
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
 
     def __bool__(self):
         return any([x is not None for x in self.values()])
@@ -148,11 +157,11 @@ class MD_Dict(MD_Value, dict):
         if other == self:
             return self
         ignored = False
-        result = MD_Dict(self)
+        result = dict(self)
         for key in result:
-            if not other[key]:
+            if other[key] is None:
                 continue
-            if not result[key]:
+            if result[key] is None:
                 result[key] = other[key]
             elif other[key] != result[key]:
                 ignored = True
@@ -160,17 +169,18 @@ class MD_Dict(MD_Value, dict):
             self.log_ignored(info, tag, other)
         else:
             self.log_merged(info, tag, other)
-        return result
+        return MD_Dict(result)
 
 
 class LatLon(MD_Dict):
     # simple class to store latitude and longitude
     _keys = ('lat', 'lon')
 
-    def __init__(self, value):
-        super(LatLon, self).__init__(value)
-        self.lat = round(float(self.lat), 6)
-        self.lon = round(float(self.lon), 6)
+    @staticmethod
+    def convert(value):
+        for key in value:
+            value[key] = round(float(value[key]), 6)
+        return value
 
     @classmethod
     def read(cls, handler, tag):
@@ -262,13 +272,14 @@ class Location(MD_Dict):
     _keys = ('sublocation', 'city', 'province_state',
              'country_name', 'country_code', 'world_region')
 
-    def __init__(self, value):
-        super(Location, self).__init__(value)
-        for key in self:
-            if self[key] and not self[key].strip():
-                self[key] = None
-        if self.country_code:
-            self.country_code = self.country_code.upper()
+    @staticmethod
+    def convert(value):
+        for key in value:
+            if value[key] and not value[key].strip():
+                value[key] = None
+        if value['country_code']:
+            value['country_code'] = value['country_code'].upper()
+        return value
 
     @classmethod
     def read(cls, handler, tag):
@@ -314,7 +325,7 @@ class Location(MD_Dict):
 
     def merge(self, info, tag, other):
         merged = False
-        result = Location(self)
+        result = dict(self)
         for key in result:
             if not other[key]:
                 continue
@@ -326,7 +337,7 @@ class Location(MD_Dict):
                 merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return result
+            return Location(result)
         return self
 
 
@@ -398,12 +409,11 @@ class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
 
-    def __init__(self, value):
-        super(LensSpec, self).__init__(value)
-        self.min_fl = safe_fraction(self.min_fl)
-        self.max_fl = safe_fraction(self.max_fl)
-        self.min_fl_fn = safe_fraction(self.min_fl_fn)
-        self.max_fl_fn = safe_fraction(self.max_fl_fn)
+    @staticmethod
+    def convert(value):
+        for key in value:
+            value[key] = safe_fraction(value[key])
+        return value
 
     @classmethod
     def read(cls, handler, tag):
@@ -486,23 +496,26 @@ class DateTime(MD_Dict):
     # tz_offset is stored in minutes
     _keys = ('datetime', 'precision', 'tz_offset')
 
-    def __init__(self, value):
-        super(DateTime, self).__init__(value)
-        self.precision = self.precision or 7
-        if not self.datetime:
+    @classmethod
+    def convert(cls, value):
+        value['precision'] = value['precision'] or 7
+        if not value['datetime']:
             # use a well known 'zero'
-            self.datetime = datetime(1970, 1, 1)
+            value['datetime'] = datetime(1970, 1, 1)
         else:
-            self.datetime = self.truncate_datetime(self.precision)
-        if self.precision <= 3:
-            self.tz_offset = None
+            value['datetime'] = cls.truncate_datetime(
+                value['datetime'], value['precision'])
+        if value['precision'] <= 3:
+            value['tz_offset'] = None
+        return value
 
     _replace = (('microsecond', 0), ('second', 0),
                 ('minute',      0), ('hour',   0),
                 ('day',         1), ('month',  1))
 
-    def truncate_datetime(self, precision):
-        return self.datetime.replace(**dict(self._replace[:7 - precision]))
+    @classmethod
+    def truncate_datetime(cls, date_time, precision):
+        return date_time.replace(**dict(cls._replace[:7 - precision]))
 
     _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
     _separators = ((4, '-'), (7, '-'), (10, 'T'), (13, ':'), (16, ':'))
@@ -685,28 +698,29 @@ class DateTime(MD_Dict):
         if other == self:
             return self
         merged = False
-        result = DateTime(self)
-        if other.datetime != result.datetime:
+        result = dict(self)
+        if other.datetime != self.datetime:
             # if datetime values differ, choose the one with more precision
-            if other.precision > result.precision:
+            if other.precision > self.precision:
                 self.log_replaced(info, tag, other)
                 return other
-            if other.datetime != result.truncate_datetime(other.precision):
+            if other.datetime != self.truncate_datetime(
+                                            self.datetime, other.precision):
                 self.log_ignored(info, tag, other)
                 return self
         else:
             # some formats default to a higher precision than wanted
-            if result.precision < 7 and other.precision < result.precision:
-                result.precision = other.precision
+            if self.precision < 7 and other.precision < self.precision:
+                result['precision'] = other.precision
                 merged = True
         # don't trust IPTC time zone and Exif doesn't have time zone
-        if (other.tz_offset not in (None, result.tz_offset) and
+        if (other.tz_offset not in (None, self.tz_offset) and
                 MetadataHandler.is_xmp_tag(tag)):
-            result.tz_offset = other.tz_offset
+            result['tz_offset'] = other.tz_offset
             merged = True
         if merged:
             self.log_merged(info, tag, other)
-            return result
+            return DateTime(result)
         return self
 
 
@@ -1593,9 +1607,11 @@ class Metadata(QtCore.QObject):
         for tag, value in values:
             result = result.merge(info, tag, value)
         # merge in camera timezone if needed
-        if (result and name.startswith('date_') and
+        if (isinstance(result, DateTime) and
                             result.tz_offset is None and self.timezone):
-            result.tz_offset = self.timezone
+            result = dict(result)
+            result['tz_offset'] = self.timezone
+            result = DateTime(result)
             logger.info('%s: merged camera timezone offset', info)
         # add value to object attributes so __getattr__ doesn't get
         # called again
