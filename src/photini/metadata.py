@@ -293,8 +293,8 @@ class Location(MD_Dict):
 
     @classmethod
     def from_address(cls, address, key_map):
-        result = cls({})
-        for key in result:
+        result = {}
+        for key in cls._keys:
             result[key] = []
         for key in key_map:
             for foreign_key in key_map[key]:
@@ -304,7 +304,7 @@ class Location(MD_Dict):
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code
-        result.country_code = result.country_code[:1]
+        result['country_code'] = result['country_code'][:1]
         # put unknown foreign keys in sublocation
         for foreign_key in address:
             if address[foreign_key] in ' '.join(result['sublocation']):
@@ -314,7 +314,7 @@ class Location(MD_Dict):
                 ] + result['sublocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
-        return result
+        return cls(result)
 
     def __str__(self):
         result = []
@@ -341,18 +341,18 @@ class Location(MD_Dict):
         return self
 
 
-class MultiLocation(list):
-    def __init__(self, value):
+class MultiLocation(tuple):
+    def __new__(cls, value):
         temp = []
         for item in value:
             if not item:
-                item  = None
+                item = None
             elif not isinstance(item, Location):
                 item = Location(item)
             temp.append(item)
         while temp and not temp[-1]:
             temp = temp[:-1]
-        super(MultiLocation, self).__init__(temp)
+        return super(MultiLocation, cls).__new__(cls, temp)
 
     @staticmethod
     def tag_n(tag, n):
