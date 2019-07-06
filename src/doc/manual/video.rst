@@ -48,7 +48,7 @@ After extracting the archive (e.g. ``tar xf exiv2-0.27.1-Source.tar.gz``) change
 
 Before compiling Exiv2 it's worth finding out where its files are put by the standard system installer::
 
-   jim@mole ~/Documents/exiv2-trunk $ dpkg-query -L libexiv2-14
+   jim@mole ~/Documents/exiv2-0.27.1-Source $ dpkg-query -L libexiv2-14
    /.
    /usr
    /usr/share
@@ -60,11 +60,10 @@ Before compiling Exiv2 it's worth finding out where its files are put by the sta
    /usr/lib/x86_64-linux-gnu
    /usr/lib/x86_64-linux-gnu/libexiv2.so.14.0.0
    /usr/lib/x86_64-linux-gnu/libexiv2.so.14
-   jim@mole ~/Documents/exiv2-trunk $ 
+   jim@mole ~/Documents/exiv2-0.27.1-Source $
 
-This shows that the ``configure`` "installation prefix" should be set to ``/usr`` rather than the default ``/usr/local``.
+This shows that the "installation prefix" should be set to ``/usr`` rather than the default ``/usr/local``.
 In addition, the "library directory" is ``/usr/lib/x86_64-linux-gnu`` instead of the more usual ``/usr/lib``.
-Finally, to enable video support we need to set the ``--enable-video`` option::
 
    jim@mole ~/Documents/exiv2-0.27.1-Source $ mkdir build
    jim@mole ~/Documents/exiv2-0.27.1-Source $ cd build
