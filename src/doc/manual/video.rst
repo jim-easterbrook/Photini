@@ -9,9 +9,9 @@ Although designed primarily for use with still images Photini can also be used w
 The :doc:`image_selector` ``Open images`` dialogue normally shows image files only (``.jpg``, ``.gif``, etc.) but has a drop down selector to choose video files (``.mov``, ``.mp4``, etc.) instead, or all file types.
 
 The Exiv2_ metadata library cannot write to video files, so Photini will always use XMP sidecars for the metadata you write.
-There is an option when compiling Exiv2 that enables it to read some metadata from video files.
+There is an option when compiling some versions of Exiv2 that enables it to read some metadata from video files.
 This may enable Photini to read date & time, and possibly GPS location data.
-It is unlikely that the Exiv2 library installed with your operating system has been compiled with video capability, so you may need to compile it yourself.
+It is unlikely that the Exiv2 library installed with your operating system has been compiled with video capability, so you will probably need to compile it yourself.
 
 Most video files don't have thumbnails, but Photini may be able to create one if you have `OpenCV`_ installed on your computer.
 (See :ref:`installation - optional dependencies<installation-optional>`.)
@@ -43,7 +43,8 @@ You can test if you already have video support by attempting to open a video fil
 Clearly this version of Exiv2 cannot read video files.
 
 The source code of Exiv2 can be downloaded from http://exiv2.org/download.html.
-After extracting the archive (e.g. ``tar xf exiv2-0.26-trunk.tar.gz``) change to the ``exiv2-trunk`` directory.
+Video support is deprecated in version 0.27.1 and will probably be removed in a later version.
+After extracting the archive (e.g. ``tar xf exiv2-0.27.1-Source.tar.gz``) change to the ``exiv2-0.27.1-Source`` directory.
 
 Before compiling Exiv2 it's worth finding out where its files are put by the standard system installer::
 
@@ -65,15 +66,17 @@ This shows that the ``configure`` "installation prefix" should be set to ``/usr`
 In addition, the "library directory" is ``/usr/lib/x86_64-linux-gnu`` instead of the more usual ``/usr/lib``.
 Finally, to enable video support we need to set the ``--enable-video`` option::
 
-   jim@mole ~/Documents/exiv2-trunk $ ./configure --enable-video --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+   jim@mole ~/Documents/exiv2-0.27.1-Source $ mkdir build
+   jim@mole ~/Documents/exiv2-0.27.1-Source $ cd build
+   jim@mole ~/Documents/exiv2-0.27.1-Source/build $ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib/x86_64-linux-gnu -DEXIV2_ENABLE_VIDEO=yes -DEXIV2_BUILD_SAMPLES=no ..
 
-You may need to install some more dependencies before ``configure`` will run correctly.
+You may need to install some more dependencies before ``cmake`` will run correctly.
 Don't forget to install the "development headers" versions of packages such as ``libexpat``.
 
 After configuration is successful you can compile and install::
 
-   jim@mole ~/Documents/exiv2-trunk $ make
-   jim@mole ~/Documents/exiv2-trunk $ sudo make install
+   jim@mole ~/Documents/exiv2-0.27.1-Source/build $ make
+   jim@mole ~/Documents/exiv2-0.27.1-Source/build $ sudo make install
 
 Once compiled and installed we can try opening a video file again::
 
