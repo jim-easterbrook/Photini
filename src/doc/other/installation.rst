@@ -207,7 +207,7 @@ Feature                       Dependencies
 ============================  =================
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
-Google Photos upload          `requests-oauthlib`_
+Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
 Import GPS logger file        gpxpy_ 1.3.5+
