@@ -228,6 +228,9 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.search_key = key_store.get('opencage', 'api_key')
         self.script_dir = pkg_resources.resource_filename(
             'photini', 'data/' + name + '/')
+        self.drag_icon = QtGui.QPixmap(
+            os.path.join(self.script_dir, '../map_pin_grey.png'))
+        self.drag_hotspot = 11, 35
         self.search_string = None
         self.map_loaded = False
         self.marker_info = {}
@@ -412,16 +415,13 @@ class PhotiniMap(QtWidgets.QSplitter):
         self.map_loaded = True
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        drag_icon = QtGui.QPixmap(
-            os.path.join(self.script_dir, '../map_pin_grey.png'))
-        drag_hotspot = 11, 35
-        self.image_list.set_drag_to_map(drag_icon, drag_hotspot)
         self.redraw_markers()
         self.display_coords()
 
     def refresh(self):
         self.setSizes(
             eval(self.app.config_store.get('map', 'split', str(self.sizes()))))
+        self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
         if not self.map_loaded:
             self.initialise()
             return
