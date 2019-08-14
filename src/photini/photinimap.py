@@ -49,22 +49,23 @@ class MapWebPage(QWebPage):
         def javaScriptConsoleMessage(self, msg, line, source):
             logger.error('%s line %d: %s', source, line, msg)
 
-    def acceptNavigationRequest(self, url, type_, isMainFrame):
-        if url.isLocalFile():
-            url.setScheme('http')
-        webbrowser.open_new(url.toString())
-        return False
-
 
 class MapWebEnginePage(MapWebPage):
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebEnginePage, self).__init__(*args, **kwds)
         self.web_channel = QtWebChannel.QWebChannel(parent=self)
         self.setWebChannel(self.web_channel)
-        self.web_channel.registerObject('python', call_handler)
+        if call_handler:
+            self.web_channel.registerObject('python', call_handler)
+
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
+        if url.isLocalFile():
+            url.setScheme('http')
+        webbrowser.open_new(url.toString())
+        return False
 
     def createWindow(self, type_):
-        return MapWebPage(self)
+        return MapWebEnginePage(None, parent=self)
 
     def do_java_script(self, command):
         self.runJavaScript(command)
