@@ -18,6 +18,7 @@
 
 var map;
 var markerLayer;
+var trackLayer;
 
 function loadMap()
 {
@@ -35,6 +36,8 @@ function loadMap()
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
     markerLayer = new Microsoft.Maps.Layer('markers');
     map.layers.insert(markerLayer);
+    trackLayer = new Microsoft.Maps.Layer('tracks');
+    map.layers.insert(trackLayer);
     Microsoft.Maps.Events.addHandler(markerLayer, 'click', markerClick);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     map.getCredentials(newCredentials);
@@ -102,6 +105,21 @@ function fitPoints(points)
             mapBounds.center.longitude + d_long)});
     else
         map.setView({center: bounds.center});
+}
+
+function plotTrack(latlngs)
+{
+    var lines = [];
+    for (var j = 0; j < latlngs.length; j++)
+    {
+        var track = latlngs[j];
+        var locations = [];
+        for (var i = 0; i < track.length; i++)
+            locations.push(new Microsoft.Maps.Location(track[i][0], track[i][1]));
+        lines.push(new Microsoft.Maps.Polyline(locations, {strokeColor: 'red'}));
+    }
+    trackLayer.add(lines);
+    map.setView({bounds: Microsoft.Maps.LocationRect.fromShapes(lines)});
 }
 
 function enableMarker(id, active)

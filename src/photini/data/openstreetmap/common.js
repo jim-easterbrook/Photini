@@ -73,6 +73,15 @@ function fitPoints(points)
         maxZoom: map.getZoom(), animate: true});
 }
 
+function plotTrack(latlngs)
+{
+    var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+    var bounds = polyline.getBounds();
+    if (map.getBounds().contains(bounds))
+        return;
+    map.fitBounds(bounds);
+}
+
 function enableMarker(id, active)
 {
     var marker = markers[id];

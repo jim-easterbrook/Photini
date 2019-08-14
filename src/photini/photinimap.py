@@ -706,6 +706,12 @@ class PhotiniMap(QtWidgets.QSplitter):
                 self.JavaScript(
                     'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
 
+    def plot_track(self, tracks):
+        latlngs = []
+        for t in tracks:
+            latlngs.append([[x[1], x[2]] for x in t])
+        self.JavaScript('plotTrack({!r})'.format(latlngs))
+
     @QtCore.pyqtSlot()
     @catch_all
     def enable_search(self):

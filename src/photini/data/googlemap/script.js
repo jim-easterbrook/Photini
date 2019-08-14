@@ -96,6 +96,28 @@ function fitPoints(points)
         map.panTo(bounds.getCenter());
 }
 
+function plotTrack(latlngs)
+{
+    var bounds = new google.maps.LatLngBounds();
+    for (var j = 0; j < latlngs.length; j++)
+    {
+        var track = latlngs[j];
+        var path = [];
+        for (var i = 0; i < track.length; i++)
+        {
+            var point = new google.maps.LatLng(track[i][0], track[i][1]);
+            bounds.extend(point);
+            path.push(point);
+        }
+        var line = new google.maps.Polyline({
+            map: map,
+            path: path,
+            strokeColor: 'red',
+            });
+    }
+    map.fitBounds(bounds);
+}
+
 function enableMarker(id, active)
 {
     var marker = markers[id];
