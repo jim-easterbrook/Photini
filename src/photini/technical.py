@@ -215,7 +215,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             self.set_value(self.valueFromText(action.iconText()))
 
     def validate(self, text, pos):
-        if self.is_multiple():
+        if self.specialValueText() == ' ':
             self.unset_multiple()
             text = text[pos - 1]
         if not text.strip():
