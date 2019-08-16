@@ -88,6 +88,8 @@ class FolderSource(object):
 
 
 class CameraSource(object):
+    image_types = ['.' + x for x in image_types_lower() + video_types_lower()]
+
     def __init__(self, model, port_name):
         self.model = model
         self.port_name = port_name
@@ -114,7 +116,9 @@ class CameraSource(object):
         result = []
         # get files
         for name, value in camera.folder_list_files(path):
-            result.append(os.path.join(path, name))
+            base, ext = os.path.splitext(name)
+            if ext.lower() in self.image_types:
+                result.append(os.path.join(path, name))
         # get folders
         folders = []
         for name, value in camera.folder_list_folders(path):
