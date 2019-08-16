@@ -62,7 +62,7 @@ class MapWebEnginePage(MapWebPage):
         if type_ == QWebPage.NavigationTypeLinkClicked:
             if url.isLocalFile():
                 url.setScheme('http')
-            webbrowser.open_new(url.toString())
+            webbrowser.open_new_tab(url.toString())
             return False
         return super(MapWebEnginePage, self).acceptNavigationRequest(
             url, type_, isMainFrame)
@@ -94,7 +94,7 @@ class MapWebKitPage(MapWebPage):
     def link_clicked(self, url):
         if url.isLocalFile():
             url.setScheme('http')
-        webbrowser.open_new(url.toString())
+        webbrowser.open_new_tab(url.toString())
 
     def do_java_script(self, command):
         self.mainFrame().evaluateJavaScript(command)
@@ -338,12 +338,12 @@ class PhotiniMap(QtWidgets.QSplitter):
     @QtCore.pyqtSlot()
     @catch_all
     def load_tou_opencage(self):
-        webbrowser.open_new('https://geocoder.opencagedata.com/')
+        webbrowser.open_new_tab('https://geocoder.opencagedata.com/')
 
     @QtCore.pyqtSlot()
     @catch_all
     def load_tou_osm(self):
-        webbrowser.open_new('http://www.openstreetmap.org/copyright')
+        webbrowser.open_new_tab('http://www.openstreetmap.org/copyright')
 
     @QtCore.pyqtSlot(int, int)
     @catch_all

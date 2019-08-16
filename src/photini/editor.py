@@ -301,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     @catch_all
     def open_docs(self):
-        webbrowser.open_new('http://photini.readthedocs.io/')
+        webbrowser.open_new_tab('http://photini.readthedocs.io/')
 
     @QtCore.pyqtSlot()
     @catch_all

@@ -57,7 +57,7 @@ class TabWidget(PhotiniMap):
     @QtCore.pyqtSlot()
     @catch_all
     def load_mapbox_tos(self):
-        webbrowser.open_new('https://www.mapbox.com/tos/')
+        webbrowser.open_new_tab('https://www.mapbox.com/tos/')
 
     def do_mapbox_geocode(self, query, params={}):
         self.disable_search()
