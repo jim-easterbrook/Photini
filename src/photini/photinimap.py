@@ -50,14 +50,6 @@ class MapWebPage(QWebPage):
             logger.error('%s line %d: %s', source, line, msg)
 
 
-class BrowserProxyWebPage(QWebPage):
-    def acceptNavigationRequest(self, url, type_, isMainFrame):
-        if url.isLocalFile():
-            url.setScheme('http')
-        webbrowser.open_new(url.toString())
-        return False
-
-
 class MapWebEnginePage(MapWebPage):
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebEnginePage, self).__init__(*args, **kwds)
@@ -66,8 +58,17 @@ class MapWebEnginePage(MapWebPage):
         if call_handler:
             self.web_channel.registerObject('python', call_handler)
 
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
+        if type_ == QWebPage.NavigationTypeLinkClicked:
+            if url.isLocalFile():
+                url.setScheme('http')
+            webbrowser.open_new(url.toString())
+            return False
+        return super(MapWebEnginePage, self).acceptNavigationRequest(
+            url, type_, isMainFrame)
+
     def createWindow(self, type_):
-        return BrowserProxyWebPage(parent=self)
+        return MapWebEnginePage(None, parent=self)
 
     def do_java_script(self, command):
         self.runJavaScript(command)
