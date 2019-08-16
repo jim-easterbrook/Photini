@@ -51,24 +51,25 @@ class MapWebPage(QWebPage):
 
 
 class MapWebEnginePage(MapWebPage):
-    def __init__(self, call_handler, *args, **kwds):
-        super(MapWebEnginePage, self).__init__(*args, **kwds)
+    def set_call_handler(self, call_handler):
         self.web_channel = QtWebChannel.QWebChannel(parent=self)
         self.setWebChannel(self.web_channel)
-        if call_handler:
-            self.web_channel.registerObject('python', call_handler)
+        self.web_channel.registerObject('python', call_handler)
 
     def acceptNavigationRequest(self, url, type_, isMainFrame):
         if type_ == QWebPage.NavigationTypeLinkClicked:
             if url.isLocalFile():
                 url.setScheme('http')
             webbrowser.open_new_tab(url.toString())
+            # delete temporary child created by createWindow
+            if isinstance(self.parent(), MapWebEnginePage):
+                self.deleteLater()
             return False
         return super(MapWebEnginePage, self).acceptNavigationRequest(
             url, type_, isMainFrame)
 
     def createWindow(self, type_):
-        return MapWebEnginePage(None, parent=self)
+        return MapWebEnginePage(parent=self)
 
     def do_java_script(self, command):
         self.runJavaScript(command)
@@ -139,7 +140,8 @@ class MapWebView(QWebView):
         super(MapWebView, self).__init__(*args, **kwds)
         # set view's page
         if using_qtwebengine:
-            self.setPage(MapWebEnginePage(call_handler, parent=self))
+            self.setPage(MapWebEnginePage(parent=self))
+            self.page().set_call_handler(call_handler)
             self.settings().setAttribute(
                 QWebSettings.Accelerated2dCanvasEnabled, False)
         else:
