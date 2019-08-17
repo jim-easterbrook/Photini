@@ -22,7 +22,6 @@ from collections import defaultdict, OrderedDict
 import locale
 import logging
 import os
-import webbrowser
 
 import pkg_resources
 import requests
@@ -60,7 +59,7 @@ class MapWebEnginePage(MapWebPage):
         if type_ == QWebPage.NavigationTypeLinkClicked:
             if url.isLocalFile():
                 url.setScheme('http')
-            webbrowser.open_new_tab(url.toString())
+            QtGui.QDesktopServices.openUrl(url)
             # delete temporary child created by createWindow
             if isinstance(self.parent(), MapWebEnginePage):
                 self.deleteLater()
@@ -95,7 +94,7 @@ class MapWebKitPage(MapWebPage):
     def link_clicked(self, url):
         if url.isLocalFile():
             url.setScheme('http')
-        webbrowser.open_new_tab(url.toString())
+        QtGui.QDesktopServices.openUrl(url)
 
     def do_java_script(self, command):
         self.mainFrame().evaluateJavaScript(command)
@@ -340,12 +339,14 @@ class PhotiniMap(QtWidgets.QSplitter):
     @QtCore.pyqtSlot()
     @catch_all
     def load_tou_opencage(self):
-        webbrowser.open_new_tab('https://geocoder.opencagedata.com/')
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
+            'https://geocoder.opencagedata.com/'))
 
     @QtCore.pyqtSlot()
     @catch_all
     def load_tou_osm(self):
-        webbrowser.open_new_tab('http://www.openstreetmap.org/copyright')
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
+            'http://www.openstreetmap.org/copyright'))
 
     @QtCore.pyqtSlot(int, int)
     @catch_all

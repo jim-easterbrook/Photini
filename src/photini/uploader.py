@@ -24,7 +24,6 @@ import logging
 import os
 import shutil
 import threading
-import webbrowser
 
 import six
 from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -484,7 +483,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.auth_server_thread.start()
             redirect_uri = 'http://127.0.0.1:' + str(self.auth_server.port)
             auth_url = self.session.get_auth_url(redirect_uri)
-            if not webbrowser.open(auth_url, new=2, autoraise=0):
+            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
                 logger.error('Failed to open web browser')
                 self.auth_server.running = False
                 self.auth_server = None

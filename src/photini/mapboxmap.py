@@ -20,12 +20,12 @@ from __future__ import unicode_literals
 
 import locale
 import logging
-import webbrowser
 
 import requests
 
 from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, catch_all, CompactButton, QtCore, QtWidgets
+from photini.pyqt import (
+    Busy, catch_all, CompactButton, QtCore, QtGui, QtWidgets)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,8 @@ class TabWidget(PhotiniMap):
     @QtCore.pyqtSlot()
     @catch_all
     def load_mapbox_tos(self):
-        webbrowser.open_new_tab('https://www.mapbox.com/tos/')
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
+            'https://www.mapbox.com/tos/'))
 
     def do_mapbox_geocode(self, query, params={}):
         self.disable_search()

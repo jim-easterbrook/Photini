@@ -27,7 +27,6 @@ import mimetypes
 import os
 from six import BytesIO
 from six.moves.urllib.parse import unquote
-import webbrowser
 
 try:
     import cv2
@@ -394,7 +393,7 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
-        webbrowser.open(self.path)
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.path))
 
     @QtCore.pyqtSlot(bool)
     @catch_all

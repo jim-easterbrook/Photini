@@ -28,7 +28,6 @@ import sys
 from six.moves.urllib.request import getproxies
 from six.moves.urllib.parse import urlparse
 import warnings
-import webbrowser
 
 import pkg_resources
 
@@ -301,7 +300,8 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     @catch_all
     def open_docs(self):
-        webbrowser.open_new_tab('http://photini.readthedocs.io/')
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
+            'http://photini.readthedocs.io/'))
 
     @QtCore.pyqtSlot()
     @catch_all
