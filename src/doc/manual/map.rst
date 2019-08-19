@@ -73,11 +73,20 @@ GPX file import
 If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions.
 If you have installed gpxpy_ then Photini's ``File`` menu should have an ``Import GPX file`` item.
 
-First you need to export your GPS log as a ``GPX`` (GPS eXchange format) file, then transfer the .gpx file to somewhere Photini will be able to read it.
+First you need to export your GPS log as a ``GPX`` (GPS eXchange format) file, then transfer the .gpx file to your computer.
 Make sure your images have the correct time zone set so that Photini can calculate their UTC timestamps.
 Select the images you want to set the locations of, then click the ``Import GPX file`` menu item.
-After opening your GPX file Photini will set the location of each selected image within the GPS track's time span to the logged point that has the nearest timestamp.
-This is unlikely to be the exact location where you took the photograph, so you will almost certainly want to adjust the positions by dragging markers on the map.
+
+After opening your GPX file you can set some options to filter out inaccurate points.
+``Max time between points`` allows Photini to detect gaps in the log, e.g. when you were in a building and lost the GPS signal.
+``Max dilution of precision`` allows you to ignore points where the "dilution of precision" (see `Wikipedia <https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_) is too large.
+You may need to experiment to find the best value for your GPS device.
+The final option selects whether to plot the track on the current map tab.
+This is still experimental, and there isn't an option to delete the plot, but it may be useful when setting the previous two parameters.
+
+Photini will use the GPS track to estimate the location of each selected image with a timestamp near enough to that of a logged position.
+Linear interpolation or extrapolation is used, based on the timestamps of the two nearest logged positions.
+The result is unlikely to be the exact location where you took the photograph, so you will almost certainly want to adjust the positions by dragging markers on the map.
 
 .. note::
    This is a recent addition to Photini and has not been extensively tested.
