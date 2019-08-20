@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2019.8.0:
+  1/ Added new Google Photos uploader.
+  2/ Improved login process for both uploaders.
+  3/ Added GPX file (GPS track) importer to set approximate locations.
+  4/ Made Photini extendable - can add tabs from other packages.
+  5/ Improved reliability of maps, uploaders, and importer.
+
 Changes in v2019.5.0:
   1/ Added thumbnail context menu item to show metadata changes.
   2/ Use tabs to show 'camera' and multiple 'subject' addresses.
