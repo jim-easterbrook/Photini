@@ -587,6 +587,14 @@ class TabWidget(QtWidgets.QWidget):
             self.image_list.open_file(info['dest_path'])
             if self.last_file_copied[1] < info['timestamp']:
                 self.last_file_copied = info['dest_path'], info['timestamp']
+            for n in range(self.file_list_widget.count()):
+                item = self.file_list_widget.item(n)
+                if item.data(Qt.UserRole) == info['name']:
+                    item.setFlags(Qt.NoItemFlags)
+                    self.file_list_widget.scrollToItem(
+                        item, QtWidgets.QAbstractItemView.PositionAtTop)
+                    self.selection_changed()
+                    break
             return
         self.copy_button.set_checked(False)
         self.file_reader = None
