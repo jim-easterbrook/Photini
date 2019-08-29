@@ -74,17 +74,17 @@ class FolderSource(object):
                 }
         return file_data
 
-    def copy_files(self, info_list):
+    def copy_files(self, info_list, move):
         for info in info_list:
-            if not os.path.isfile(info['path']):
-                yield info, 'not a file'
-                break
             dest_path = info['dest_path']
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
-            shutil.copy2(info['path'], dest_path)
-            yield info, 'ok'
+            if move:
+                shutil.move(info['path'], dest_path)
+            else:
+                shutil.copy2(info['path'], dest_path)
+            yield info
 
 
 class CameraSource(object):
@@ -151,39 +151,42 @@ class CameraSource(object):
                     }
         return file_data
 
-    def copy_files(self, info_list):
+    def copy_files(self, info_list, move):
         with self.session() as camera:
             for info in info_list:
                 dest_dir = os.path.dirname(info['dest_path'])
                 if not os.path.isdir(dest_dir):
                     os.makedirs(dest_dir)
-                try:
-                    camera_file = camera.file_get(
-                        info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL)
-                    camera_file.save(info['dest_path'])
-                    yield info, 'ok'
-                except gp.GPhoto2Error as ex:
-                    logger.error(str(ex))
-                    yield info, str(ex)
+                camera_file = camera.file_get(
+                    info['folder'], info['name'], gp.GP_FILE_TYPE_NORMAL)
+                camera_file.save(info['dest_path'])
+                if move:
+                    camera.file_delete(info['folder'], info['name'])
+                yield info
 
 
 class FileCopier(QtCore.QObject):
     output = QtCore.pyqtSignal(dict, six.text_type)
 
-    def __init__(self, source, copy_list, *args, **kwds):
+    def __init__(self, source, copy_list, move, *args, **kwds):
         super(FileCopier, self).__init__(*args, **kwds)
         self.source = source
         self.copy_list = copy_list
+        self.move = move
         self.running = True
 
     @QtCore.pyqtSlot()
     @catch_all
     def start(self):
         status = 'ok'
-        for info, status in self.source.copy_files(self.copy_list):
-            self.output.emit(info, status)
-            if status != 'ok' or not self.running:
-                break
+        try:
+            for info in self.source.copy_files(self.copy_list, self.move):
+                self.output.emit(info, status)
+                if not self.running:
+                    break
+        except Exception as ex:
+            status = str(ex)
+            logger.error(status)
         self.output.emit({}, status)
 
 
@@ -310,8 +313,14 @@ class TabWidget(QtWidgets.QWidget):
         select_new = QtWidgets.QPushButton(self.tr('Select\nnew'))
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
+        # copy buttons
+        self.move_button = StartStopButton(self.tr('Move\nphotos'),
+                                           self.tr('Stop\nmove'))
+        self.move_button.click_start.connect(self.move_selected)
+        self.move_button.click_stop.connect(self.stop_copy)
+        buttons.addWidget(self.move_button)
         self.copy_button = StartStopButton(self.tr('Copy\nphotos'),
-                                           self.tr('Stop\nimport'))
+                                           self.tr('Stop\ncopy'))
         self.copy_button.click_start.connect(self.copy_selected)
         self.copy_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.copy_button)
@@ -500,7 +509,9 @@ class TabWidget(QtWidgets.QWidget):
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
         self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
-        self.copy_button.setEnabled(count > 0)
+        if not self.file_copier:
+            self.move_button.setEnabled(count > 0)
+            self.copy_button.setEnabled(count > 0)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -543,17 +554,34 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     @catch_all
-    def copy_selected(self):
+    def move_selected(self):
+        self.copy_selected(move=True)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def copy_selected(self, move=False):
         copy_list = []
         for item in self.file_list_widget.selectedItems():
             name = item.data(Qt.UserRole)
-            copy_list.append(self.file_data[name])
+            info = self.file_data[name]
+            if (move and 'path' in info and
+                    self.image_list.get_image(info['path'])):
+                # don't rename an open file
+                logger.warning(
+                    'Please close image %s before moving it', info['name'])
+            else:
+                copy_list.append(info)
         if not copy_list:
             return
-        self.copy_button.set_checked(True)
+        if move:
+            self.move_button.set_checked(True)
+            self.copy_button.setEnabled(False)
+        else:
+            self.copy_button.set_checked(True)
+            self.move_button.setEnabled(False)
         self.last_file_copied = None, datetime.min
         # start file copier in a separate thread
-        self.file_copier = FileCopier(self.source, copy_list)
+        self.file_copier = FileCopier(self.source, copy_list, move)
         self.file_copier_thread = QtCore.QThread(self)
         self.file_copier.moveToThread(self.file_copier_thread)
         self.file_copier.output.connect(self.file_copied)
@@ -565,6 +593,7 @@ class TabWidget(QtWidgets.QWidget):
     def file_copied(self, info, status):
         if not info:
             # copier thread has finished
+            self.move_button.set_checked(False)
             self.copy_button.set_checked(False)
             self.file_copier = None
             self.file_copier_thread.quit()
@@ -572,7 +601,7 @@ class TabWidget(QtWidgets.QWidget):
                 self.config_store.set(self.config_section, 'last_transfer',
                                       self.last_file_copied[1].isoformat(' '))
                 self.image_list.done_opening(self.last_file_copied[0])
-            self.show_file_list()
+            self.list_files()
             return
         if status != 'ok':
             self._fail()
