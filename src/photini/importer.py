@@ -403,9 +403,9 @@ class TabWidget(QtWidgets.QWidget):
         # save current selection
         idx = self.source_selector.currentIndex()
         if idx >= 0:
-            old_item_data = self.source_selector.itemData(idx)
+            old_item_text = self.source_selector.itemText(idx)
         else:
-            old_item_data = None
+            old_item_text = None
         # rebuild list
         self.source_selector.clear()
         self.source_selector.addItem(
@@ -423,8 +423,8 @@ class TabWidget(QtWidgets.QWidget):
         # restore saved selection
         new_idx = -1
         for idx in range(self.source_selector.count()):
-            item_data = self.source_selector.itemData(idx)
-            if item_data == old_item_data:
+            item_text = self.source_selector.itemText(idx)
+            if item_text == old_item_text:
                 new_idx = idx
                 self.source_selector.setCurrentIndex(idx)
                 break
