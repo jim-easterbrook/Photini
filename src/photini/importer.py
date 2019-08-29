@@ -318,7 +318,6 @@ class TabWidget(QtWidgets.QWidget):
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
         self.selected_count = QtWidgets.QLabel()
-        self.selection_changed()
         buttons.addWidget(self.selected_count)
         select_all = QtWidgets.QPushButton(self.tr('Select\nall'))
         select_all.clicked.connect(self.select_all)
@@ -332,6 +331,7 @@ class TabWidget(QtWidgets.QWidget):
         self.copy_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.copy_button)
         self.layout().addLayout(buttons, 0, 1, 2, 1)
+        self.selection_changed()
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
         path = os.path.expanduser('~/Pictures')
@@ -515,6 +515,7 @@ class TabWidget(QtWidgets.QWidget):
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
         self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
+        self.copy_button.setEnabled(count > 0)
 
     @QtCore.pyqtSlot()
     @catch_all
