@@ -181,9 +181,9 @@ class FileCopier(QtCore.QObject):
     def start(self):
         status = 'ok'
         for info, status in self.source.copy_files(self.copy_list):
+            self.output.emit(info, status)
             if status != 'ok' or not self.running:
                 break
-            self.output.emit(info, status)
         self.output.emit({}, status)
 
 
@@ -563,29 +563,31 @@ class TabWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot(dict, six.text_type)
     @catch_all
     def file_copied(self, info, status):
-        if info:
-            self.image_list.open_file(info['dest_path'])
-            if self.last_file_copied[1] < info['timestamp']:
-                self.last_file_copied = info['dest_path'], info['timestamp']
-            for n in range(self.file_list_widget.count()):
-                item = self.file_list_widget.item(n)
-                if item.data(Qt.UserRole) == info['name']:
-                    item.setFlags(Qt.NoItemFlags)
-                    self.file_list_widget.scrollToItem(
-                        item, QtWidgets.QAbstractItemView.PositionAtTop)
-                    self.selection_changed()
-                    break
+        if not info:
+            # copier thread has finished
+            self.copy_button.set_checked(False)
+            self.file_copier = None
+            self.file_copier_thread.quit()
+            if self.last_file_copied[0]:
+                self.config_store.set(self.config_section, 'last_transfer',
+                                      self.last_file_copied[1].isoformat(' '))
+                self.image_list.done_opening(self.last_file_copied[0])
+            self.show_file_list()
             return
-        self.copy_button.set_checked(False)
-        self.file_copier = None
-        self.file_copier_thread.quit()
-        if self.last_file_copied[0]:
-            self.config_store.set(self.config_section, 'last_transfer',
-                                  self.last_file_copied[1].isoformat(' '))
-            self.image_list.done_opening(self.last_file_copied[0])
         if status != 'ok':
             self._fail()
-        self.show_file_list()
+            return
+        self.image_list.open_file(info['dest_path'])
+        if self.last_file_copied[1] < info['timestamp']:
+            self.last_file_copied = info['dest_path'], info['timestamp']
+        for n in range(self.file_list_widget.count()):
+            item = self.file_list_widget.item(n)
+            if item.data(Qt.UserRole) == info['name']:
+                item.setFlags(Qt.NoItemFlags)
+                self.file_list_widget.scrollToItem(
+                    item, QtWidgets.QAbstractItemView.PositionAtTop)
+                self.selection_changed()
+                break
 
     @QtCore.pyqtSlot()
     @catch_all
