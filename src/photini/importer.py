@@ -80,10 +80,15 @@ class FolderSource(object):
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
+            sc_file = Metadata.find_side_car(info['path'])
             if move:
                 shutil.move(info['path'], dest_path)
+                if sc_file:
+                    shutil.move(sc_file, dest_path + '.xmp')
             else:
                 shutil.copy2(info['path'], dest_path)
+                if sc_file:
+                    shutil.copy2(sc_file, dest_path + '.xmp')
             yield info
 
 

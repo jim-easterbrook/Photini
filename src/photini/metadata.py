@@ -1438,7 +1438,7 @@ class Metadata(QtCore.QObject):
         super(Metadata, self).__init__(*args, **kw)
         # create metadata handlers for image file and/or sidecar
         self._path = path
-        self._sc_path = self._find_side_car(path)
+        self._sc_path = self.find_side_car(path)
         self._sc = None
         if self._sc_path:
             try:
@@ -1466,7 +1466,8 @@ class Metadata(QtCore.QObject):
             self._if.merge_sc(other._sc)
         return self
 
-    def _find_side_car(self, path):
+    @staticmethod
+    def find_side_car(path):
         for base in (os.path.splitext(path)[0], path):
             for ext in ('.xmp', '.XMP'):
                 result = base + ext
