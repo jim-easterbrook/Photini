@@ -31,8 +31,9 @@ except ImportError:
     gp = None
 
 from photini.metadata import Metadata
-from photini.pyqt import (Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
-                          QtWidgets, StartStopButton, video_types_lower)
+from photini.pyqt import (
+    Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
+    QtWidgets, qt_version_info, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
 
@@ -333,14 +334,12 @@ class TabWidget(QtWidgets.QWidget):
         self.selection_changed()
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
-        path = os.path.expanduser('~/Pictures')
-        if not os.path.isdir(path) and sys.platform == 'win32':
-            try:
-                import win32com.shell as ws
-                path = ws.shell.SHGetFolderPath(
-                    0, ws.shellcon.CSIDL_MYPICTURES, None, 0)
-            except ImportError:
-                pass
+        if qt_version_info >= (5, 0):
+            path = QtCore.QStandardPaths.writableLocation(
+                QtCore.QStandardPaths.PicturesLocation)
+        else:
+            path = QtGui.QDesktopServices.storageLocation(
+                QtGui.QDesktopServices.PicturesLocation)
         self.path_format.setText(
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
         self.refresh()
