@@ -99,6 +99,7 @@ Licence
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz
 | Polish translation by "itdawid"
+| Czech translation by Pavel Fric
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
