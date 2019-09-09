@@ -25,10 +25,10 @@ client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMu
 client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
 
 [googlemap]
-api_key = QUl6YVN5RFJoMDBhODFRUkw4NUc1bFBUbzRTeklsVkVtRkUzSmhR
+api_key = QUl6YVN5QjRoaTRBM253VGVDQmNIUF9aOEVTVWxHQlBiWWdCalRF
 
 [bingmap]
-api_key = QWhnN1VTcS1rYXdFdDEzMUpwdmZwQlVwaXZJY24tcHBpUXVHQjdtUVFUWGtvUEhaOUhoNDUyMUVkRXNUcUx1cA==
+api_key = QXBrNm1mS2FYdGNnLTd1ckFwcU1rM2c5NU1vdVBvYk5XNlBCdlQyUDZsb2pMdFNzS0lUZ29EZGZQWjhKMUNDaA==
 
 [openstreetmap]
 api_key =
@@ -37,4 +37,4 @@ api_key =
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
-api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1OcVozUTRiWEZ1WmpCeE9XSXljWEF6Tm1kNWIzaDNhbVVpZlEuTVBQUU5ZNDhrUTdVTGt0TUQ4VnFWdw==
+api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1OcVozSnlhVGh5TkRBM2NUa3lkM0F6Wlc0MU5teDBZblFpZlEudi1yZjBXMWU1WHJaWF9OMThTR0dsQQ==
