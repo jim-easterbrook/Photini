@@ -193,6 +193,12 @@ Either way, you then need to build and install Photini::
 
 You will also need to install the remaining Python packages.
 
+If you have downloaded the Photini source you can run it without installing, using the ``run_photini.py`` script::
+
+   python src/run_photini.py
+
+This can be useful during development as the script should also work within an IDE.
+
 .. _installation-optional:
 
 Optional dependencies
