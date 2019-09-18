@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-18  Jim Easterbrook.
+   Copyright (C)  2015-19  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -104,12 +104,16 @@ Formatting strings
    You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
 
 Carriage returns
-   Some of Photini's buttons split their labels over two lines to stop the button being too wide.
-   You should split your translation about halfway through so it also has two lines.
+   Some of Photini's buttons split their labels over two or more lines to stop the button being too wide.
+   You should split your translation in similar size pieces so it has the same number of lines.
 
 HTML markup
    Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string.
    The Transifex web page includes a "copy source string" button that can help with this.
+
+   Some strings such as ``<multiple values>`` are not HTML.
+   The angle brackets ``<>`` are used to indicate data with a special meaning.
+   These strings should usually be translated.
 
 Keyboard shortcuts
    Some strings include a single ampersand character ``&`` immediately before a letter that is used as a keyboard shortcut.
