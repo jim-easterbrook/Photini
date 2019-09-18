@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-18  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   Copyright (C)  2012-19  Jim Easterbrook.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image importer
 ==============
@@ -35,7 +35,7 @@ Note that Photini stores a different target format for each camera or source fol
 This can be useful if you have two cameras that use the same file names.
 For example, I use ``/home/jim/Pictures/from_camera/%Y/%Y_%m_%d/100D_{name}`` for my DSLR to rename files from ``IMG_9999.JPG`` to ``100D_IMG_9999.JPG`` so they don't clash with files from my compact camera, which also uses names like ``IMG_9999.JPG``.
 
-.. image:: ../images/screenshot_31.png
+.. image:: ../images/screenshot_180.png
 
 After connecting one or more cameras and pressing the ``refresh`` button, a camera can be chosen from the ``<select source>`` drop down list.
 Photini then fetches a list of all the files stored on the camera, which can take some time.
@@ -47,17 +47,27 @@ Photini lists all the image files in the source folder and all its sub-folders, 
 The list is displayed in the central area, with the location where the file would be stored.
 It is sorted by name or date, as selected by the buttons below the image thumbnail area. 
 
-.. image:: ../images/screenshot_32.png
+.. image:: ../images/screenshot_181.png
 
 When the ``Target format`` has been set to match where previous images were put, images that have already been copied to the computer are non selectable (shown in light grey).
 
-.. image:: ../images/screenshot_33.png
+.. image:: ../images/screenshot_182.png
 
 The remaining images can be selected by clicking on them, or by using the ``Select all`` button (to select all uncopied images) or ``Select new`` button (to select images newer than the last ones copied).
 
-.. image:: ../images/screenshot_34.png
+.. image:: ../images/screenshot_183.png
 
 Clicking the ``Copy photos`` button copies the selected images to the computer and loads them into Photini.
 To avoid overloading Photini you should be careful not to select too many images before clicking on ``Copy photos``.
 
-.. image:: ../images/screenshot_35.png
+The ``Move photos`` button moves image files instead of copying them.
+This is probably not useful with a camera source, but can be used to reorganise your photo files by moving them to different directories, perhaps renaming them as well.
+
+.. image:: ../images/screenshot_184.png
+
+As each file is copied it is shown in grey on the file list and the selected file count decreases.
+
+.. image:: ../images/screenshot_185.png
+
+After copying all the files the file list is refreshed, which may take some time.
+Now that all the files have been copied from the camera none can be selected.
