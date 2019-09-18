@@ -145,7 +145,7 @@ class LUpdate(Command):
     description = 'extract localizable strings from Photini program code'
     user_options = [
         ('locale=', 'l',
-         'locale for the new localized catalog'),
+         'locale for a new localized catalog'),
         ('output-dir=', 'o',
          'directory for the output file'),
         ('project-file=', 'p',
@@ -161,8 +161,6 @@ class LUpdate(Command):
         self.project_file = None
 
     def finalize_options(self):
-        if not self.locale:
-            raise DistutilsOptionError('no locale specified')
         if not self.output_dir:
             raise DistutilsOptionError('no output directory specified')
         if not self.project_file:
@@ -178,24 +176,33 @@ class LUpdate(Command):
                 inputs.append(os.path.join(self.input_dir, name))
         inputs.sort()
         self.mkpath(self.output_dir)
-        output_file = os.path.join(
-            self.output_dir, 'photini.' + self.locale + '.ts')
+        outputs = []
+        for name in os.listdir(self.output_dir):
+            if name.startswith('photini.'):
+                outputs.append(os.path.join(self.output_dir, name))
+        if self.locale:
+            output_file = os.path.join(
+                self.output_dir, 'photini.' + self.locale + '.ts')
+            if output_file not in outputs:
+                outputs.append(output_file)
+        outputs.sort()
         # workaround for UTF-8 bug in pylupdate
-        if os.path.exists(output_file):
-            bak_file = output_file + '.bak'
-            os.rename(output_file, bak_file)
-            with open(bak_file, 'r') as src:
-                with open(output_file, 'w') as dst:
-                    for line in src.readlines():
-                        dst.write(line.replace(
-                            '<message>', '<message encoding="UTF-8">'))
-            os.unlink(bak_file)
+        for output_file in outputs:
+            if os.path.exists(output_file):
+                bak_file = output_file + '.bak'
+                os.rename(output_file, bak_file)
+                with open(bak_file, 'r') as src:
+                    with open(output_file, 'w') as dst:
+                        for line in src.readlines():
+                            dst.write(line.replace(
+                                '<message>', '<message encoding="UTF-8">'))
+                os.unlink(bak_file)
         with open(self.project_file, 'w') as proj:
             proj.write('''SOURCES = {}
 TRANSLATIONS = {}
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
-'''.format(' '.join(inputs), output_file))
+'''.format(' '.join(inputs), ' '.join(outputs)))
         args = ['-verbose', self.project_file]
         try:
             self.spawn(['pylupdate5'] + args)
