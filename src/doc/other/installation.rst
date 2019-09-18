@@ -188,6 +188,7 @@ You can also use pip to install the optional dependencies when you install Photi
 If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
 Either way, you then need to build and install Photini::
 
+   python setup.py lrelease
    python setup.py build
    sudo python setup.py install
 
