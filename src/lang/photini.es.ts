@@ -1,6 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="2.0" language="es" sourcelanguage="en_GB">
 <context>
+    <name>Address</name>
+    <message>
+        <location filename="../photini/address.py" line="48"/>
+        <source>Street</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="48"/>
+        <source>City</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="48"/>
+        <source>Province</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="48"/>
+        <source>Country</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="48"/>
+        <source>Region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="91"/>
+        <source>&amp;Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="107"/>
+        <source>Get address from lat, long</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="158"/>
+        <source>Duplicate location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="160"/>
+        <source>Delete location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="253"/>
+        <source>camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/address.py" line="255"/>
+        <source>subject {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>BingMap</name>
+    <message>
+        <location filename="../photini/bingmap.py" line="81"/>
+        <source>Search powered by Bing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/bingmap.py" line="92"/>
+        <source>Map (&amp;Bing)</source>
+        <translation type="unfinished">Mapa (&amp;Bing)</translation>
+    </message>
+</context>
+<context>
     <name>DateAndTimeWidget</name>
     <message>
         <location filename="../photini/technical.py" line="295"/>
@@ -150,6 +221,19 @@
         <location filename="../photini/flickr.py" line="380"/>
         <source>Add to albums</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GoogleMap</name>
+    <message>
+        <location filename="../photini/googlemap.py" line="84"/>
+        <source>Search powered by Google</source>
+        <translation type="unfinished">Búsqueda proveída por Google</translation>
+    </message>
+    <message>
+        <location filename="../photini/googlemap.py" line="96"/>
+        <source>Map (&amp;Google)</source>
+        <translation type="unfinished">Mapa (&amp;Google)</translation>
     </message>
 </context>
 <context>
@@ -366,92 +450,92 @@ in file</source>
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../photini/editor.py" line="89"/>
+        <location filename="../photini/editor.py" line="90"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini editor de metadatos fotográficos</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="156"/>
+        <location filename="../photini/editor.py" line="159"/>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="157"/>
+        <location filename="../photini/editor.py" line="160"/>
         <source>Open images</source>
         <translation>Abrir imágenes</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="161"/>
+        <location filename="../photini/editor.py" line="164"/>
         <source>Save images with new data</source>
         <translation>Guardar imágenes con nuevos datos</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="167"/>
+        <location filename="../photini/editor.py" line="170"/>
         <source>Close selected images</source>
         <translation>Cerrar imágenes seleccionadas</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="172"/>
+        <location filename="../photini/editor.py" line="175"/>
         <source>Close all images</source>
         <translation>Cerrar todas las imágenes</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="177"/>
+        <location filename="../photini/editor.py" line="180"/>
         <source>Import GPX file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="184"/>
+        <location filename="../photini/editor.py" line="187"/>
         <source>Quit</source>
         <translation>Salir</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="191"/>
+        <location filename="../photini/editor.py" line="194"/>
         <source>Options</source>
         <translation>Opciones</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="192"/>
+        <location filename="../photini/editor.py" line="195"/>
         <source>Settings</source>
         <translation>Configuración</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="212"/>
+        <location filename="../photini/editor.py" line="215"/>
         <source>Spelling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="213"/>
+        <location filename="../photini/editor.py" line="216"/>
         <source>Enable spell check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="219"/>
+        <location filename="../photini/editor.py" line="222"/>
         <source>Choose language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="235"/>
+        <location filename="../photini/editor.py" line="238"/>
         <source>No dictionary installed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="241"/>
+        <location filename="../photini/editor.py" line="244"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="242"/>
+        <location filename="../photini/editor.py" line="245"/>
         <source>About Photini</source>
         <translation>Acerca de Photini</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="246"/>
+        <location filename="../photini/editor.py" line="249"/>
         <source>Photini documentation</source>
         <translation>Documentación de Photini</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="346"/>
+        <location filename="../photini/editor.py" line="349"/>
         <source>
 &lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
 &lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
@@ -473,9 +557,22 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="367"/>
+        <location filename="../photini/editor.py" line="370"/>
         <source>Photini: about</source>
         <translation>Photini: acerca de</translation>
+    </message>
+</context>
+<context>
+    <name>MapboxMap</name>
+    <message>
+        <location filename="../photini/mapboxmap.py" line="88"/>
+        <source>Search powered by Mapbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/mapboxmap.py" line="105"/>
+        <source>Map (&amp;Mapbox)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -535,94 +632,63 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
     </message>
 </context>
 <context>
+    <name>OpenCage</name>
+    <message>
+        <location filename="../photini/opencage.py" line="146"/>
+        <source>Search powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../photini/opencage.py" line="148"/>
+        <source>Address lookup powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <location filename="../photini/opencage.py" line="151"/>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OpenStreetMap</name>
+    <message>
+        <location filename="../photini/openstreetmap.py" line="31"/>
+        <source>Map (&amp;OSM)</source>
+        <translation type="unfinished">Mapa (&amp;OSM)</translation>
+    </message>
+</context>
+<context>
     <name>PhotiniMap</name>
     <message>
-        <location filename="../photini/photinimap.py" line="188"/>
-        <source>Street</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="188"/>
-        <source>City</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="188"/>
-        <source>Province</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="188"/>
-        <source>Country</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="188"/>
-        <source>Region</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="269"/>
+        <location filename="../photini/photinimap.py" line="267"/>
         <source>&lt;new search&gt;</source>
         <translation>&lt;nueva búsqueda&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="275"/>
+        <location filename="../photini/photinimap.py" line="261"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="300"/>
+        <location filename="../photini/photinimap.py" line="193"/>
         <source>Lat, long</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="316"/>
-        <source>Address lookup
-powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="319"/>
-        <source>Search &amp;&amp; lookup
-powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <location filename="../photini/photinimap.py" line="323"/>
-        <source>Geodata © OpenStreetMap
-contributors</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="507"/>
-        <source>Duplicate location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="508"/>
-        <source>Delete location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="619"/>
-        <source>camera</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="621"/>
-        <source>subject {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="877"/>
+        <location filename="../photini/photinimap.py" line="491"/>
         <source>&lt;widen search&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../photini/photinimap.py" line="878"/>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repetir la búsqueda&gt;</translation>
+        <translation type="obsolete">&lt;repetir la búsqueda&gt;</translation>
+    </message>
+    <message>
+        <location filename="../photini/photinimap.py" line="493"/>
+        <source>&lt;repeat search&gt;</source>
+        <comment>repeat</comment>
+        <translation type="unfinished">&lt;repetir la búsqueda&gt;</translation>
     </message>
 </context>
 <context>
@@ -771,12 +837,7 @@ contributors</source>
     <message>
         <location filename="../photini/bingmap.py" line="35"/>
         <source>Map (&amp;Bing)</source>
-        <translation>Mapa (&amp;Bing)</translation>
-    </message>
-    <message>
-        <location filename="../photini/bingmap.py" line="54"/>
-        <source>Search powered by Bing</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Mapa (&amp;Bing)</translation>
     </message>
     <message>
         <location filename="../photini/descriptive.py" line="230"/>
@@ -927,12 +988,12 @@ this picture on Flickr?</source>
     <message>
         <location filename="../photini/googlemap.py" line="37"/>
         <source>Map (&amp;Google)</source>
-        <translation>Mapa (&amp;Google)</translation>
+        <translation type="obsolete">Mapa (&amp;Google)</translation>
     </message>
     <message>
         <location filename="../photini/googlemap.py" line="58"/>
         <source>Search powered by Google</source>
-        <translation>Búsqueda proveída por Google</translation>
+        <translation type="obsolete">Búsqueda proveída por Google</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="282"/>
@@ -1063,19 +1124,9 @@ selected</source>
         </translation>
     </message>
     <message>
-        <location filename="../photini/mapboxmap.py" line="36"/>
-        <source>Map (&amp;Mapbox)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../photini/mapboxmap.py" line="53"/>
-        <source>Search powered by Mapbox</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../photini/openstreetmap.py" line="28"/>
         <source>Map (&amp;OSM)</source>
-        <translation>Mapa (&amp;OSM)</translation>
+        <translation type="obsolete">Mapa (&amp;OSM)</translation>
     </message>
     <message>
         <location filename="../photini/technical.py" line="603"/>
@@ -1216,22 +1267,22 @@ selected</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../photini/editor.py" line="454"/>
+        <location filename="../photini/editor.py" line="457"/>
         <source>Usage: %prog [options] [file_name, ...]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="454"/>
+        <location filename="../photini/editor.py" line="457"/>
         <source>Photini photo metadata editor</source>
         <translation>Photini editor de metadatos fotográficos</translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="460"/>
+        <location filename="../photini/editor.py" line="463"/>
         <source>test new features or API versions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../photini/editor.py" line="464"/>
+        <location filename="../photini/editor.py" line="467"/>
         <source>increase number of logging messages</source>
         <translation>aumentar el número de mensajes del registro</translation>
     </message>
