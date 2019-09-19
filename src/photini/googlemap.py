@@ -22,19 +22,81 @@ import locale
 import logging
 import re
 
-import pkg_resources
 import requests
 
-from photini.photinimap import PhotiniMap
-from photini.pyqt import Busy, QtCore, QtWidgets, scale_font
+from photini.configstore import key_store
+from photini.photinimap import GeocoderBase, PhotiniMap
+from photini.pyqt import Busy, Qt, QtCore, QtWidgets, scale_font
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
+
+
+class GoogleGeocoder(GeocoderBase):
+    api_key = key_store.get('googlemap', 'api_key')
+    interval = 50
+
+    def do_geocode(self, params):
+        params['key'] = self.api_key
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        url = 'https://maps.googleapis.com/maps/api/geocode/json'
+        with Busy():
+            self.rate_limit()
+            try:
+                rsp = requests.get(url, params=params, timeout=5)
+            except Exception as ex:
+                logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            logger.error('Search error %d', rsp.status_code)
+            return []
+        rsp = rsp.json()
+        if rsp['status'] != 'OK':
+            if 'error_message' in rsp:
+                logger.error(
+                    'Search error: %s: %s', rsp['status'], rsp['error_message'])
+            else:
+                logger.error('Search error: %s', rsp['status'])
+            return []
+        results = rsp['results']
+        if not results:
+            logger.error('No results found')
+            return []
+        return results
+
+    def search(self, search_string, map_status, bounds=None):
+        params = {
+            'address': search_string,
+            }
+        if bounds:
+            north, east, south, west = bounds
+            params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
+                south, west, north, east)
+        for result in self.do_geocode(params):
+            bounds = result['geometry']['viewport']
+            yield (bounds['northeast']['lat'], bounds['northeast']['lng'],
+                   bounds['southwest']['lat'], bounds['southwest']['lng'],
+                   result['formatted_address'])
+
+    def search_terms(self):
+        widget = QtWidgets.QLabel(
+            translate('GoogleMap', 'Search powered by Google'))
+        widget.setAlignment(Qt.AlignRight)
+        scale_font(widget, 80)
+        return [widget]
 
 
 class TabWidget(PhotiniMap):
+    api_key = key_store.get('googlemap', 'api_key')
+
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&Google)')
+        return translate('GoogleMap', 'Map (&Google)')
+
+    def get_geocoder(self):
+        return GoogleGeocoder(parent=self)
 
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
@@ -53,53 +115,3 @@ class TabWidget(PhotiniMap):
       src="{}" async>
     </script>
 '''.format(url)
-
-    def search_terms(self):
-        widget = QtWidgets.QLabel(self.tr('Search powered by Google'))
-        scale_font(widget, 80)
-        return '', widget
-
-    def do_google_geocode(self, params):
-        self.disable_search()
-        params['key'] = self.api_key
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
-        url = 'https://maps.googleapis.com/maps/api/geocode/json'
-        with Busy():
-            try:
-                rsp = requests.get(url, params=params, timeout=5)
-            except Exception as ex:
-                logger.error(str(ex))
-                return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
-        self.enable_search()
-        rsp = rsp.json()
-        if rsp['status'] != 'OK':
-            if 'error_message' in rsp:
-                logger.error(
-                    'Search error: %s: %s', rsp['status'], rsp['error_message'])
-            else:
-                logger.error('Search error: %s', rsp['status'])
-            return []
-        results = rsp['results']
-        if not results:
-            logger.error('No results found')
-            return []
-        return results
-
-    def geocode(self, search_string, bounds=None):
-        params = {
-            'address': search_string,
-            }
-        if bounds:
-            north, east, south, west = bounds
-            params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
-                south, west, north, east)
-        for result in self.do_google_geocode(params):
-            bounds = result['geometry']['viewport']
-            yield (bounds['northeast']['lat'], bounds['northeast']['lng'],
-                   bounds['southwest']['lat'], bounds['southwest']['lng'],
-                   result['formatted_address'])

@@ -23,9 +23,14 @@ from photini.pyqt import QtCore
 
 
 class TabWidget(PhotiniMap):
+    api_key = ''
+
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&OSM)')
+        return QtCore.QCoreApplication.translate('OpenStreetMap', 'Map (&OSM)')
+
+    def get_geocoder(self):
+        return self.app.open_cage
 
     def get_head(self):
         return '''

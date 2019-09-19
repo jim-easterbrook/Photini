@@ -36,6 +36,7 @@ from photini.editsettings import EditSettings
 from photini.gi import gi_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
+from photini.opencage import OpenCage
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     using_qtwebengine)
@@ -106,6 +107,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
+        self.app.open_cage = OpenCage(parent=self)
         self.app.test_mode = options.test
         # restore size
         size = self.width(), self.height()
@@ -124,6 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'map_bing'            : 'photini.bingmap',
                 'map_mapbox'          : 'photini.mapboxmap',
                 'map_osm'             : 'photini.openstreetmap',
+                'address'             : 'photini.address',
                 'flickr_upload'       : 'photini.flickr',
                 'import_photos'       : 'photini.importer',
                 }
@@ -135,11 +138,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.app.config_store.config.remove_option('tabs', key)
         # prepare list of tabs and associated stuff
         self.tab_list = []
-        modules = ('photini.descriptive', 'photini.technical',
-                   'photini.googlemap',   'photini.bingmap',
-                   'photini.mapboxmap',   'photini.openstreetmap',
-                   'photini.flickr',      'photini.googlephotos',
-                   'photini.importer')
+        modules = ('photini.descriptive',  'photini.technical',
+                   'photini.googlemap',    'photini.bingmap',
+                   'photini.mapboxmap',    'photini.openstreetmap',
+                   'photini.address',      'photini.flickr',
+                   'photini.googlephotos', 'photini.importer')
         modules = eval(self.app.config_store.get(
             'tabs', 'modules', pprint.pformat(modules)))
         for module in modules:

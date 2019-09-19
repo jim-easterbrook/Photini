@@ -23,17 +23,89 @@ import logging
 
 import requests
 
-from photini.photinimap import PhotiniMap
+from photini.configstore import key_store
+from photini.photinimap import GeocoderBase, PhotiniMap
 from photini.pyqt import (
     Busy, catch_all, CompactButton, QtCore, QtGui, QtWidgets)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
+
+
+class MapboxGeocoder(GeocoderBase):
+    api_key = key_store.get('mapboxmap', 'api_key')
+
+    def do_geocode(self, query, params={}):
+        params['access_token'] = self.api_key
+        params['autocomplete '] = 'false'
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        query += '.json'
+        url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
+        with Busy():
+            self.rate_limit()
+            try:
+                rsp = requests.get(url, params=params, timeout=5)
+            except Exception as ex:
+                logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            logger.error('Search error %d', rsp.status_code)
+            return []
+        self.block_timer.setInterval(
+            self.interval * 600 // max(int(rsp.headers['X-Rate-Limit-Limit']), 1))
+        rsp = rsp.json()
+        return rsp['features']
+
+    def search(self, search_string, map_status, bounds=None):
+        params = {
+            'limit': 10,
+            }
+        if bounds:
+            north, east, south, west = bounds
+            w = east - west
+            h = north - south
+            if min(w, h) < 10.0:
+                lat, lon = map_status['centre']
+                north = min(lat + 5.0,  90.0)
+                south = max(lat - 5.0, -90.0)
+                east = lon + 5.0
+                west = lon - 5.0
+            params['bbox'] = '{!r},{!r},{!r},{!r}'.format(
+                west, south, east, north)
+        for feature in self.do_geocode(search_string, params=params):
+            if 'place_name' not in feature:
+                continue
+            if 'bbox' in feature:
+                west, south, east, north = feature['bbox']
+                yield north, east, south, west, feature['place_name']
+            elif 'center' in feature:
+                east, north = feature['center']
+                yield north, east, None, None, feature['place_name']
+
+    def search_terms(self):
+        widget = CompactButton(
+            translate('MapboxMap', 'Search powered by Mapbox'))
+        widget.clicked.connect(self.load_mapbox_tos)
+        return [widget]
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def load_mapbox_tos(self):
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl('https://www.mapbox.com/tos/'))
 
 
 class TabWidget(PhotiniMap):
+    api_key = key_store.get('mapboxmap', 'api_key')
+
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('TabWidget', 'Map (&Mapbox)')
+        return translate('MapboxMap', 'Map (&Mapbox)')
+
+    def get_geocoder(self):
+        return MapboxGeocoder(parent=self)
 
     def get_head(self):
         return '''
@@ -48,63 +120,3 @@ class TabWidget(PhotiniMap):
     <script type="text/javascript" src="../openstreetmap/common.js" async>
     </script>
 '''
-
-    def search_terms(self):
-        widget = CompactButton(self.tr('Search powered by Mapbox'))
-        widget.clicked.connect(self.load_mapbox_tos)
-        return '', widget
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def load_mapbox_tos(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
-            'https://www.mapbox.com/tos/'))
-
-    def do_mapbox_geocode(self, query, params={}):
-        self.disable_search()
-        params['access_token'] = self.api_key
-        params['autocomplete '] = 'false'
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
-        query += '.json'
-        url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + query
-        with Busy():
-            try:
-                rsp = requests.get(url, params=params, timeout=5)
-            except Exception as ex:
-                logger.error(str(ex))
-                return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
-        self.block_timer.setInterval(
-            5000 * 600 // max(int(rsp.headers['X-Rate-Limit-Limit']), 1))
-        rsp = rsp.json()
-        return rsp['features']
-
-    def geocode(self, search_string, bounds=None):
-        params = {
-            'limit': 10,
-            }
-        if bounds:
-            north, east, south, west = bounds
-            w = east - west
-            h = north - south
-            if min(w, h) < 10.0:
-                lat, lon = self.map_status['centre']
-                north = min(lat + 5.0,  90.0)
-                south = max(lat - 5.0, -90.0)
-                east = lon + 5.0
-                west = lon - 5.0
-            params['bbox'] = '{!r},{!r},{!r},{!r}'.format(
-                west, south, east, north)
-        for feature in self.do_mapbox_geocode(search_string, params=params):
-            if 'place_name' not in feature:
-                continue
-            if 'bbox' in feature:
-                west, south, east, north = feature['bbox']
-                yield north, east, south, west, feature['place_name']
-            elif 'center' in feature:
-                east, north = feature['center']
-                yield north, east, None, None, feature['place_name']
