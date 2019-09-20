@@ -59,7 +59,7 @@ class GoogleGeocoder(GeocoderBase):
             return []
         return results
 
-    def get_altitude(self, coords, map_status):
+    def get_altitude(self, coords):
         params = {'locations': coords.replace(' ', '')}
         results = self.query(
             'https://maps.googleapis.com/maps/api/elevation/json', params)
@@ -67,7 +67,7 @@ class GoogleGeocoder(GeocoderBase):
             return results[0]['elevation']
         return None
 
-    def search(self, search_string, map_status, bounds=None):
+    def search(self, search_string, bounds=None):
         params = {'address': search_string}
         lang, encoding = locale.getdefaultlocale()
         if lang:

@@ -35,6 +35,7 @@ class BingGeocoder(GeocoderBase):
     interval = 50
 
     def query(self, url, params):
+        params['key'] = self.api_key
         with Busy():
             self.rate_limit()
             try:
@@ -59,9 +60,8 @@ class BingGeocoder(GeocoderBase):
             return []
         return resource_sets
 
-    def get_altitude(self, coords, map_status):
+    def get_altitude(self, coords):
         params = {
-            'key'    : map_status['session_id'],
             'points' : coords.replace(' ', ''),
             'heights': 'sealevel',
             }
@@ -71,9 +71,8 @@ class BingGeocoder(GeocoderBase):
             return resource_sets[0]['resources'][0]['elevations'][0]
         return None
 
-    def search(self, search_string, map_status, bounds=None):
+    def search(self, search_string, bounds=None):
         params = {
-            'key'   : map_status['session_id'],
             'query' : search_string,
             'maxRes': 20,
             }
@@ -123,3 +122,10 @@ class TabWidget(PhotiniMap):
       src="{}" async>
     </script>
 '''.format(url)
+
+    @catch_all
+    def new_status(self, status):
+        super(TabWidget, self).new_status(status)
+        if 'session_id' in status:
+            # use map session key to make API calls non-billable
+            self.geocoder.api_key = status['session_id']

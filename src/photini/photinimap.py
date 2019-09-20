@@ -507,9 +507,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def get_altitude(self):
-        altitude = self.geocoder.get_altitude(
-            self.coords.get_value(), self.map_status)
-        print('get_altitude', altitude)
+        altitude = self.geocoder.get_altitude(self.coords.get_value())
         if altitude is not None:
             self.new_altitude(round(altitude, 1))
 
@@ -527,8 +525,7 @@ class PhotiniMap(QtWidgets.QWidget):
             bounds = self.map_status['bounds']
         else:
             bounds = None
-        for result in self.geocoder.search(
-                search_string, self.map_status, bounds=bounds):
+        for result in self.geocoder.search(search_string, bounds=bounds):
             north, east, south, west, name = result
             self.edit_box.addItem(name, (north, east, south, west))
         self.edit_box.set_dropdown_width()

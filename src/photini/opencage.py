@@ -82,21 +82,21 @@ class OpenCage(GeocoderBase):
             self.geocode_cache.popitem(last=False)
         return rsp['results']
 
-    def search(self, search_string, map_status, bounds=None):
+    def search(self, search_string, bounds=None):
         params = {
             'q'     : search_string,
             'limit' : '20',
             }
         if bounds:
             north, east, south, west = bounds
-            w = east - west
-            h = north - south
-            if min(w, h) < 10.0:
-                lat, lon = map_status['centre']
-                north = min(lat + 5.0,  90.0)
-                south = max(lat - 5.0, -90.0)
-                east = lon + 5.0
-                west = lon - 5.0
+            margin = (10.0 + west - east) / 2.0
+            if margin > 0.0:
+                east += margin
+                west -= margin
+            margin = (10.0 + south - north) / 2.0
+            if margin > 0.0:
+                north = min(north + margin,  90.0)
+                south = max(south - margin, -90.0)
             params['bounds'] = '{!r},{!r},{!r},{!r}'.format(
                 west, south, east, north)
         for result in self.do_geocode(params):
