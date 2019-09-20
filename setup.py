@@ -203,7 +203,7 @@ TRANSLATIONS = {}
 CODECFORTR = UTF-8
 CODECFORSRC = UTF-8
 '''.format(' '.join(inputs), ' '.join(outputs)))
-        args = ['-verbose', self.project_file]
+        args = ['-verbose', '-noobsolete', self.project_file]
         try:
             self.spawn(['pylupdate5'] + args)
         except DistutilsExecError:
