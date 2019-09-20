@@ -44,6 +44,7 @@ from photini.pyqt import (
     scale_font, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 DRAG_MIMETYPE = 'application/x-photini-image'
 
 
@@ -125,14 +126,15 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def diff_metadata(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Metadata differences'))
+        dialog.setWindowTitle(translate('ImageList', 'Metadata differences'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         table = TableWidget()
         table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
                             QtWidgets.QSizePolicy.Expanding)
         table.setColumnCount(3)
-        table.setHorizontalHeaderLabels(
-            [self.tr('new value'), self.tr('undo'), self.tr('old value')])
+        table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
+                                         translate('ImageList', 'undo'),
+                                         translate('ImageList', 'old value')])
         labels = []
         row = 0
         undo = {}
@@ -328,10 +330,14 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
-        menu.addAction(self.tr('Reload metadata'), self.reload_metadata)
-        menu.addAction(self.tr('Save metadata'), self.save_metadata)
-        menu.addAction(self.tr('View changes'), self.diff_metadata)
-        menu.addAction(self.tr('Regenerate thumbnail'), self.regenerate_thumbnail)
+        menu.addAction(translate('ImageList', 'Reload metadata'),
+                       self.reload_metadata)
+        menu.addAction(translate('ImageList', 'Save metadata'),
+                       self.save_metadata)
+        menu.addAction(translate('ImageList', 'View changes'),
+                       self.diff_metadata)
+        menu.addAction(translate('ImageList', 'Regenerate thumbnail'),
+                       self.regenerate_thumbnail)
         action = menu.exec_(event.globalPos())
 
     @catch_all
@@ -431,7 +437,7 @@ class Image(QtWidgets.QFrame):
         if thumb:
             pixmap.loadFromData(thumb.data)
         if pixmap.isNull():
-            self.image.setText(self.tr('No\nthumbnail\nin file'))
+            self.image.setText(translate('ImageList', 'No\nthumbnail\nin file'))
             return
         pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(

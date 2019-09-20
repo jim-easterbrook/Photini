@@ -137,9 +137,9 @@ class RequestHandler(BaseHTTPRequestHandler):
         logger.info('do_GET: %s', repr(result))
         if result:
             self.server.response.emit(result)
-        title = translate('PhotiniUploader', 'Close window')
+        title = translate('UploaderTabsAll', 'Close window')
         text = translate(
-            'PhotiniUploader', 'You may now close this browser window.')
+            'UploaderTabsAll', 'You may now close this browser window.')
         response = '''
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
@@ -196,7 +196,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.auth_server = None
         # user details
         self.user = {}
-        user_group = QtWidgets.QGroupBox(translate('PhotiniUploader', 'User'))
+        user_group = QtWidgets.QGroupBox(translate('UploaderTabsAll', 'User'))
         user_group.setLayout(QtWidgets.QVBoxLayout())
         self.user_photo = QtWidgets.QLabel()
         self.user_photo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
@@ -209,8 +209,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.layout().addWidget(user_group, 0, 0, 1, 2)
         # connect / disconnect button
         self.user_connect = StartStopButton(
-            translate('PhotiniUploader', 'Log in'),
-            translate('PhotiniUploader', 'Log out'))
+            translate('UploaderTabsAll', 'Log in'),
+            translate('UploaderTabsAll', 'Log out'))
         self.user_connect.click_start.connect(self.log_in)
         self.user_connect.click_stop.connect(self.session.log_out)
         self.layout().addWidget(self.user_connect, 1, 0, 1, 2)
@@ -218,15 +218,15 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.layout().addWidget(upload_config_widget, 0, 2, 2, 2)
         # upload button
         self.upload_button = StartStopButton(
-            translate('PhotiniUploader', 'Start upload'),
-            translate('PhotiniUploader', 'Stop upload'))
+            translate('UploaderTabsAll', 'Start upload'),
+            translate('UploaderTabsAll', 'Stop upload'))
         self.upload_button.setEnabled(False)
         self.upload_button.click_start.connect(self.start_upload)
         self.upload_button.click_stop.connect(self.stop_upload)
         self.layout().addWidget(self.upload_button, 2, 3)
         # progress bar
         self.layout().addWidget(
-            QtWidgets.QLabel(translate('PhotiniUploader', 'Progress')), 2, 0)
+            QtWidgets.QLabel(translate('UploaderTabsAll', 'Progress')), 2, 0)
         self.total_progress = QtWidgets.QProgressBar()
         self.layout().addWidget(self.total_progress, 2, 1, 1, 2)
         # adjust spacing
@@ -236,7 +236,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.connection_changed(False)
 
     def tr(self, *arg, **kw):
-        return QtCore.QCoreApplication.translate('PhotiniUploader', *arg, **kw)
+        return QtCore.QCoreApplication.translate('UploaderTabsAll', *arg, **kw)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -275,12 +275,12 @@ class PhotiniUploader(QtWidgets.QWidget):
             return False
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
-            'PhotiniUploader', 'Photini: upload in progress'))
+            'UploaderTabsAll', 'Photini: upload in progress'))
         dialog.setText(translate(
-            'PhotiniUploader',
+            'UploaderTabsAll',
             '<h3>Upload to {} has not finished.</h3>').format(self.service_name))
         dialog.setInformativeText(
-            translate('PhotiniUploader', 'Closing now will terminate the upload.'))
+            translate('UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(
             QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
@@ -291,11 +291,11 @@ class PhotiniUploader(QtWidgets.QWidget):
     def show_user(self, name, picture):
         if name:
             self.user_name.setText(translate(
-                'PhotiniUploader',
+                'UploaderTabsAll',
                 'Logged in as {0} on {1}').format(name, self.service_name))
         else:
             self.user_name.setText(translate(
-                'PhotiniUploader',
+                'UploaderTabsAll',
                 'Not logged in to {}').format(self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
@@ -345,28 +345,28 @@ class PhotiniUploader(QtWidgets.QWidget):
             return None
         if not self.is_convertible(image):
             msg = translate(
-                'PhotiniUploader',
+                'UploaderTabsAll',
                 'File "{0}" is of type "{1}", which {2} does not' +
                 ' accept and Photini cannot convert.')
             buttons = QtWidgets.QMessageBox.Ignore
         elif (self.image_types['rejected'] == '*' or
               image.file_type in self.image_types['rejected']):
             msg = translate(
-                'PhotiniUploader',
+                'UploaderTabsAll',
                 'File "{0}" is of type "{1}", which {2} does not' +
                 ' accept. Would you like to convert it to JPEG?')
             buttons = QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore
         else:
             msg = translate(
-                'PhotiniUploader',
+                'UploaderTabsAll',
                 'File "{0}" is of type "{1}", which {2} may not' +
                 ' handle correctly. Would you like to convert it to JPEG?')
             buttons = QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
-            translate('PhotiniUploader', 'Photini: incompatible type'))
+            translate('UploaderTabsAll', 'Photini: incompatible type'))
         dialog.setText(
-            translate('PhotiniUploader', '<h3>Incompatible image type.</h3>'))
+            translate('UploaderTabsAll', '<h3>Incompatible image type.</h3>'))
         dialog.setInformativeText(msg.format(os.path.basename(image.path),
                                              image.file_type, self.service_name))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
@@ -435,9 +435,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         if error:
             dialog = QtWidgets.QMessageBox(self)
             dialog.setWindowTitle(translate(
-                'PhotiniUploader', 'Photini: upload error'))
+                'UploaderTabsAll', 'Photini: upload error'))
             dialog.setText(translate(
-                'PhotiniUploader', '<h3>File "{}" upload failed.</h3>').format(
+                'UploaderTabsAll', '<h3>File "{}" upload failed.</h3>').format(
                     os.path.basename(image.path)))
             dialog.setInformativeText(error)
             dialog.setIcon(QtWidgets.QMessageBox.Warning)

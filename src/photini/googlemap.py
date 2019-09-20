@@ -85,7 +85,7 @@ class GoogleGeocoder(GeocoderBase):
 
     def search_terms(self):
         widget = QtWidgets.QLabel(
-            translate('GoogleMap', 'Search and altitude lookup')
+            translate('MapTabGoogle', 'Search and altitude lookup')
             + '\npowered by Google')
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
@@ -97,7 +97,7 @@ class TabWidget(PhotiniMap):
 
     @staticmethod
     def tab_name():
-        return translate('GoogleMap', 'Map (&Google)')
+        return translate('MapTabGoogle', 'Map (&Google)')
 
     def get_geocoder(self):
         return GoogleGeocoder(parent=self)

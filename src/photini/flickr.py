@@ -330,50 +330,63 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         # privacy settings
         self.privacy = {}
-        privacy_group = QtWidgets.QGroupBox(self.tr('Who can see the photos?'))
+        privacy_group = QtWidgets.QGroupBox(
+            translate('FlickrTab', 'Who can see the photos?'))
         privacy_group.setLayout(QtWidgets.QVBoxLayout())
-        self.privacy['private'] = QtWidgets.QRadioButton(self.tr('Only you'))
+        self.privacy['private'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Only you'))
         privacy_group.layout().addWidget(self.privacy['private'])
         ff_group = QtWidgets.QGroupBox()
         ff_group.setFlat(True)
         ff_group.setLayout(QtWidgets.QVBoxLayout())
         ff_group.layout().setContentsMargins(10, 0, 0, 0)
-        self.privacy['friends'] = QtWidgets.QCheckBox(self.tr('Your friends'))
+        self.privacy['friends'] = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'Your friends'))
         ff_group.layout().addWidget(self.privacy['friends'])
-        self.privacy['family'] = QtWidgets.QCheckBox(self.tr('Your family'))
+        self.privacy['family'] = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'Your family'))
         ff_group.layout().addWidget(self.privacy['family'])
         privacy_group.layout().addWidget(ff_group)
-        self.privacy['public'] = QtWidgets.QRadioButton(self.tr('Anyone'))
+        self.privacy['public'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Anyone'))
         self.privacy['public'].toggled.connect(self.enable_ff)
         self.privacy['public'].setChecked(True)
         privacy_group.layout().addWidget(self.privacy['public'])
-        self.hidden = QtWidgets.QCheckBox(self.tr('Hidden from search'))
+        self.hidden = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'Hidden from search'))
         privacy_group.layout().addWidget(self.hidden)
         privacy_group.layout().addStretch(1)
         self.layout().addWidget(privacy_group, 0, 0, 3, 1)
         # content type
         self.content_type = {}
-        content_group = QtWidgets.QGroupBox(self.tr('Content type'))
+        content_group = QtWidgets.QGroupBox(
+            translate('FlickrTab', 'Content type'))
         content_group.setLayout(QtWidgets.QVBoxLayout())
-        self.content_type['photo'] = QtWidgets.QRadioButton(self.tr('Photo'))
+        self.content_type['photo'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Photo'))
         self.content_type['photo'].setChecked(True)
         content_group.layout().addWidget(self.content_type['photo'])
-        self.content_type['screenshot'] = QtWidgets.QRadioButton(self.tr('Screenshot'))
+        self.content_type['screenshot'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Screenshot'))
         content_group.layout().addWidget(self.content_type['screenshot'])
-        self.content_type['other'] = QtWidgets.QRadioButton(self.tr('Art/Illustration'))
+        self.content_type['other'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Art/Illustration'))
         content_group.layout().addWidget(self.content_type['other'])
         content_group.layout().addStretch(1)
         self.layout().addWidget(content_group, 0, 1)
         # synchronise metadata
-        self.sync_button = QtWidgets.QPushButton(self.tr('Synchronise'))
+        self.sync_button = QtWidgets.QPushButton(
+            translate('FlickrTab', 'Synchronise'))
         self.sync_button.clicked.connect(self.sync_metadata)
         self.layout().addWidget(self.sync_button, 1, 1)
         # create new set
-        new_set_button = QtWidgets.QPushButton(self.tr('New album'))
+        new_set_button = QtWidgets.QPushButton(
+            translate('FlickrTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
         self.layout().addWidget(new_set_button, 2, 1)
         # list of sets widget
-        sets_group = QtWidgets.QGroupBox(self.tr('Add to albums'))
+        sets_group = QtWidgets.QGroupBox(
+            translate('FlickrTab', 'Add to albums'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
@@ -448,11 +461,10 @@ class TabWidget(PhotiniUploader):
 
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('TabWidget', '&Flickr upload')
+        return translate('FlickrTab', '&Flickr upload')
 
     def __init__(self, *arg, **kw):
-        self.service_name = QtCore.QCoreApplication.translate(
-            'TabWidget', 'Flickr')
+        self.service_name = translate('FlickrTab', 'Flickr')
         self.upload_config = FlickrUploadConfig()
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
@@ -484,11 +496,11 @@ class TabWidget(PhotiniUploader):
             return convert
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
-            translate('PhotiniUploader', 'Photini: too large'))
+            translate('FlickrTab', 'Photini: too large'))
         dialog.setText(
-            translate('PhotiniUploader', '<h3>File too large.</h3>'))
+            translate('FlickrTab', '<h3>File too large.</h3>'))
         dialog.setInformativeText(
-            translate('PhotiniUploader',
+            translate('FlickrTab',
                       'File "{0}" has {1} bytes and exceeds Flickr\'s limit' +
                       ' of {2} bytes.').format(
                           os.path.basename(image.path), size, max_size))
@@ -579,28 +591,29 @@ class TabWidget(PhotiniUploader):
                 }, None
         # get user preferences
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Replace photo'))
+        dialog.setWindowTitle(translate('FlickrTab', 'Replace photo'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
-        message = QtWidgets.QLabel(self.tr(
-            'File {0} has already been uploaded to Flickr.' +
+        message = QtWidgets.QLabel(translate(
+            'FlickrTab', 'File {0} has already been uploaded to Flickr.'
             ' How would you like to update it?').format(
                 os.path.basename(image.path)))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
         widget = {}
         widget['set_metadata'] = QtWidgets.QCheckBox(
-            self.tr('Replace metadata'))
+            translate('FlickrTab', 'Replace metadata'))
         widget['set_visibility'] = QtWidgets.QCheckBox(
-            self.tr('Change who can see it'))
+            translate('FlickrTab', 'Change who can see it'))
         widget['set_type'] = QtWidgets.QCheckBox(
-            self.tr('Change content type'))
+            translate('FlickrTab', 'Change content type'))
         widget['set_albums'] = QtWidgets.QCheckBox(
-            self.tr('Change album membership'))
+            translate('FlickrTab', 'Change album membership'))
         widget['replace_image'] = QtWidgets.QCheckBox(
-            self.tr('Replace image'))
+            translate('FlickrTab', 'Replace image'))
         widget['new_photo'] = QtWidgets.QCheckBox(
-            self.tr('Upload as new photo'))
-        no_upload = QtWidgets.QCheckBox(self.tr('No image upload'))
+            translate('FlickrTab', 'Upload as new photo'))
+        no_upload = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'No image upload'))
         no_upload.setChecked(True)
         button_group = QtWidgets.QButtonGroup()
         button_group.addButton(widget['replace_image'])
@@ -674,7 +687,7 @@ class TabWidget(PhotiniUploader):
             return None
         # get user to choose matching image file
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Select an image'))
+        dialog.setWindowTitle(translate('FlickrTab', 'Select an image'))
         dialog.setLayout(QtWidgets.QFormLayout())
         dialog.layout().setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
@@ -682,8 +695,8 @@ class TabWidget(PhotiniUploader):
         pixmap.loadFromData(flickr_icon)
         label = QtWidgets.QLabel()
         label.setPixmap(pixmap)
-        dialog.layout().addRow(label, QtWidgets.QLabel(self.tr(
-            'Which image file matches\nthis picture on Flickr?')))
+        dialog.layout().addRow(label, QtWidgets.QLabel(translate(
+            'FlickrTab', 'Which image file matches\nthis picture on Flickr?')))
         divider = QtWidgets.QFrame()
         divider.setFrameStyle(QtWidgets.QFrame.HLine)
         dialog.layout().addRow(divider)
@@ -702,7 +715,7 @@ class TabWidget(PhotiniUploader):
             button.clicked.connect(dialog.accept)
             dialog.layout().addRow(label, button)
             buttons[button] = candidate
-        button = QtWidgets.QPushButton(self.tr('No match'))
+        button = QtWidgets.QPushButton(translate('FlickrTab', 'No match'))
         button.setDefault(True)
         button.clicked.connect(dialog.reject)
         dialog.layout().addRow('', button)
@@ -825,14 +838,15 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Create new Flickr album'))
+        dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
         dialog.setLayout(QtWidgets.QFormLayout())
         title = SingleLineEdit(spell_check=True)
-        dialog.layout().addRow(self.tr('Title'), title)
+        dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
         description = MultiLineEdit(spell_check=True)
-        dialog.layout().addRow(self.tr('Description'), description)
-        dialog.layout().addRow(QtWidgets.QLabel(
-            self.tr('Album will be created when photos are uploaded')))
+        dialog.layout().addRow(translate(
+            'FlickrTab', 'Description'), description)
+        dialog.layout().addRow(QtWidgets.QLabel(translate(
+            'FlickrTab', 'Album will be created when photos are uploaded')))
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)

@@ -32,6 +32,7 @@ from photini.pyqt import (
     QtWidgets, scale_font, set_symbol_font, Slider, SquareButton)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class DropdownEdit(ComboBox):
@@ -39,7 +40,7 @@ class DropdownEdit(ComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
-        self.addItem(self.tr('<clear>'), None)
+        self.addItem(translate('TechnicalTab', '<clear>'), None)
         self.addItem('', None)
         self.setItemData(1, 0, Qt.UserRole - 1)
         self.addItem(multiple_values(), None)
@@ -291,7 +292,8 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.members['tz_offset'] = TimeZoneWidget()
         self.addWidget(self.members['tz_offset'], 0, 2)
         # precision
-        self.addWidget(QtWidgets.QLabel(self.tr('Precision:')), 1, 0)
+        self.addWidget(
+            QtWidgets.QLabel(translate('TechnicalTab', 'Precision:')), 1, 0)
         self.members['precision'] = Slider(Qt.Horizontal)
         self.members['precision'].setRange(1, 7)
         self.members['precision'].setPageStep(1)
@@ -401,12 +403,15 @@ class LensSpecWidget(QtWidgets.QGroupBox):
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(6, 0, 6, 0)
         self.layout().setVerticalSpacing(0)
-        for text, col in (self.tr('min'), 1), (self.tr('max'), 2):
+        for text, col in ((translate('TechnicalTab', 'min'), 1),
+                          (translate('TechnicalTab', 'max'), 2)):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignHCenter)
             self.layout().addWidget(label, 0, col)
-        self.layout().addWidget(QtWidgets.QLabel(self.tr('Focal length')), 1, 0)
-        self.layout().addWidget(QtWidgets.QLabel(self.tr('Max aperture')), 2, 0)
+        self.layout().addWidget(
+            QtWidgets.QLabel(translate('TechnicalTab', 'Focal length')), 1, 0)
+        self.layout().addWidget(
+            QtWidgets.QLabel(translate('TechnicalTab', 'Max aperture')), 2, 0)
         self.multiple = QtWidgets.QLabel(multiple_values())
         self.layout().addWidget(self.multiple, 1, 1, 2, 2)
         self.multiple.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
@@ -519,7 +524,7 @@ class LensData(object):
 class NewLensDialog(QtWidgets.QDialog):
     def __init__(self, images, *arg, **kw):
         super(NewLensDialog, self).__init__(*arg, **kw)
-        self.setWindowTitle(self.tr('Photini: define lens'))
+        self.setWindowTitle(translate('TechnicalTab', 'Photini: define lens'))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         scroll_area = QtWidgets.QScrollArea()
@@ -537,34 +542,41 @@ class NewLensDialog(QtWidgets.QDialog):
         self.lens_model = QtWidgets.QLineEdit()
         self.lens_model.setMinimumWidth(
             self.lens_model.fontMetrics().width('x' * 35))
-        panel.layout().addRow(self.tr('Model name'), self.lens_model)
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Model name'), self.lens_model)
         # maker
         self.lens_make = QtWidgets.QLineEdit()
-        panel.layout().addRow(self.tr("Maker's name"), self.lens_make)
+        panel.layout().addRow(
+            translate('TechnicalTab', "Maker's name"), self.lens_make)
         # serial number
         self.lens_serial = QtWidgets.QLineEdit()
-        panel.layout().addRow(self.tr('Serial number'), self.lens_serial)
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Serial number'), self.lens_serial)
         ## spec has four items
         self.lens_spec = {}
         # min focal length
         self.lens_spec['min_fl'] = QtWidgets.QLineEdit()
         self.lens_spec['min_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        panel.layout().addRow(self.tr('Minimum focal length (mm)'),
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Minimum focal length (mm)'),
                               self.lens_spec['min_fl'])
         # min focal length aperture
         self.lens_spec['min_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['min_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
-        panel.layout().addRow(self.tr('Aperture at min. focal length f/'),
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Aperture at min. focal length f/'),
                               self.lens_spec['min_fl_fn'])
         # max focal length
         self.lens_spec['max_fl'] = QtWidgets.QLineEdit()
         self.lens_spec['max_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        panel.layout().addRow(self.tr('Maximum focal length (mm)'),
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Maximum focal length (mm)'),
                               self.lens_spec['max_fl'])
         # max focal length aperture
         self.lens_spec['max_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['max_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
-        panel.layout().addRow(self.tr('Aperture at max. focal length f/'),
+        panel.layout().addRow(
+            translate('TechnicalTab', 'Aperture at max. focal length f/'),
                               self.lens_spec['max_fl_fn'])
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
@@ -599,8 +611,7 @@ class DateLink(QtWidgets.QCheckBox):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate(
-            'TabWidget', '&Technical metadata')
+        return translate('TechnicalTab', '&Technical metadata')
 
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
@@ -613,7 +624,8 @@ class TabWidget(QtWidgets.QWidget):
         # store lens data in another object
         self.lens_data = LensData()
         # date and time
-        date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
+        date_group = QtWidgets.QGroupBox(
+            translate('TechnicalTab', 'Date and time'))
         date_group.setLayout(QtWidgets.QFormLayout())
         # create date and link widgets
         for master in self._master_slave:
@@ -624,80 +636,89 @@ class TabWidget(QtWidgets.QWidget):
                 self.link_widget[master, slave] = DateLink(master)
                 self.link_widget[master, slave].new_link.connect(self.new_link)
         self.link_widget['taken', 'digitised'].setText(
-            self.tr("Link 'taken' and 'digitised'"))
+            translate('TechnicalTab', "Link 'taken' and 'digitised'"))
         self.link_widget['digitised', 'modified'].setText(
-            self.tr("Link 'digitised' and 'modified'"))
+            translate('TechnicalTab', "Link 'digitised' and 'modified'"))
         # add to layout
-        date_group.layout().addRow(self.tr('Taken'),
+        date_group.layout().addRow(translate('TechnicalTab', 'Taken'),
                                    self.date_widget['taken'])
         date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
-        date_group.layout().addRow(self.tr('Digitised'),
+        date_group.layout().addRow(translate('TechnicalTab', 'Digitised'),
                                    self.date_widget['digitised'])
         date_group.layout().addRow('', self.link_widget['digitised', 'modified'])
-        date_group.layout().addRow(self.tr('Modified'),
+        date_group.layout().addRow(translate('TechnicalTab', 'Modified'),
                                    self.date_widget['modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
-        date_group.layout().addRow(self.tr('Adjust times'), self.offset_widget)
+        date_group.layout().addRow(
+            translate('TechnicalTab', 'Adjust times'), self.offset_widget)
         self.layout().addWidget(date_group)
         # other
-        other_group = QtWidgets.QGroupBox(self.tr('Other'))
+        other_group = QtWidgets.QGroupBox(translate('TechnicalTab', 'Other'))
         other_group.setLayout(QtWidgets.QFormLayout())
         other_group.layout().setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # orientation
         self.widgets['orientation'] = DropdownEdit()
-        self.widgets['orientation'].add_item(self.tr('normal'), 1)
-        self.widgets['orientation'].add_item(self.tr('rotate -90'), 6)
-        self.widgets['orientation'].add_item(self.tr('rotate +90'), 8)
-        self.widgets['orientation'].add_item(self.tr('rotate 180'), 3)
-        self.widgets['orientation'].add_item(self.tr('reflect left-right'), 2)
-        self.widgets['orientation'].add_item(self.tr('reflect top-bottom'), 4)
-        self.widgets['orientation'].add_item(self.tr('reflect tr-bl'), 5)
-        self.widgets['orientation'].add_item(self.tr('reflect tl-br'), 7)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'normal'), 1)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'rotate -90'), 6)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'rotate +90'), 8)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'rotate 180'), 3)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'reflect left-right'), 2)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'reflect top-bottom'), 4)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'reflect tr-bl'), 5)
+        self.widgets['orientation'].add_item(
+            translate('TechnicalTab', 'reflect tl-br'), 7)
         self.widgets['orientation'].new_value.connect(self.new_orientation)
-        other_group.layout().addRow(
-            self.tr('Orientation'), self.widgets['orientation'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
         self.widgets['lens_model'].setMinimumWidth(
             self.widgets['lens_model'].fontMetrics().width('x' * 30))
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widgets['lens_model'].add_item(
-            self.tr('<define new lens>'), '<add lens>')
+        self.widgets['lens_model'].add_item(translate(
+            'TechnicalTab', '<define new lens>'), '<add lens>')
         for model in self.lens_data.lenses:
             self.widgets['lens_model'].add_item(model, model)
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
         self.widgets['lens_model'].customContextMenuRequested.connect(
             self.remove_lens_model)
-        other_group.layout().addRow(
-            self.tr('Lens model'), self.widgets['lens_model'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Lens model'), self.widgets['lens_model'])
         # lens specification
         self.widgets['lens_spec'] = LensSpecWidget()
-        other_group.layout().addRow(
-            self.tr('Lens details'), self.widgets['lens_spec'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Lens details'), self.widgets['lens_spec'])
         # focal length
         self.widgets['focal_length'] = NumberEdit()
         self.widgets['focal_length'].setValidator(DoubleValidator())
         self.widgets['focal_length'].validator().setBottom(0.1)
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
-        other_group.layout().addRow(
-            self.tr('Focal length (mm)'), self.widgets['focal_length'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Focal length (mm)'), self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = NumberEdit()
         self.widgets['focal_length_35'].setValidator(IntValidator())
         self.widgets['focal_length_35'].validator().setBottom(1)
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
-        other_group.layout().addRow(
-            self.tr('35mm equiv (mm)'), self.widgets['focal_length_35'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', '35mm equiv (mm)'), self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = NumberEdit()
         self.widgets['aperture'].setValidator(DoubleValidator())
         self.widgets['aperture'].validator().setBottom(0.1)
         self.widgets['aperture'].new_value.connect(self.new_aperture)
-        other_group.layout().addRow(
-            self.tr('Aperture f/'), self.widgets['aperture'])
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Aperture f/'), self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
@@ -759,8 +780,8 @@ class TabWidget(QtWidgets.QWidget):
         for model in self.lens_data.lenses:
             if model == current_model:
                 continue
-            action = QtWidgets.QAction(
-                self.tr('Remove lens "{}"').format(model), self)
+            action = QtWidgets.QAction(translate(
+                'TechnicalTab', 'Remove lens "{}"').format(model), self)
             action.setData(model)
             menu.addAction(action)
         if menu.isEmpty():
@@ -951,9 +972,10 @@ class TabWidget(QtWidgets.QWidget):
             if make_changes:
                 pass
             elif QtWidgets.QMessageBox.question(
-                    self, self.tr('Update aperture & focal length'),
-                    self.tr('Adjust image aperture and focal length to' +
-                            ' agree with lens specification?'),
+                    self,
+                    translate('TechnicalTab', 'Update aperture & focal length'),
+                    translate('TechnicalTab', 'Adjust image aperture and focal'
+                              ' length to agree with lens specification?'),
                     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                     QtWidgets.QMessageBox.No
                     ) == QtWidgets.QMessageBox.No:

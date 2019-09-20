@@ -228,11 +228,13 @@ class GoogleUploadConfig(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # create new set
-        new_set_button = QtWidgets.QPushButton(self.tr('New album'))
+        new_set_button = QtWidgets.QPushButton(
+            translate('GooglePhotosTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
         self.layout().addWidget(new_set_button, 2, 1)
         # list of sets widget
-        sets_group = QtWidgets.QGroupBox(self.tr('Add to albums'))
+        sets_group = QtWidgets.QGroupBox(
+            translate('GooglePhotosTab', 'Add to albums'))
         sets_group.setLayout(QtWidgets.QVBoxLayout())
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
@@ -277,10 +279,10 @@ class TabWidget(PhotiniUploader):
 
     @staticmethod
     def tab_name():
-        return translate('TabWidget', 'Google &Photos upload')
+        return translate('GooglePhotosTab', 'Google &Photos upload')
 
     def __init__(self, *arg, **kw):
-        self.service_name = translate('TabWidget', 'Google Photos')
+        self.service_name = translate('GooglePhotosTab', 'Google Photos')
         self.upload_config = GoogleUploadConfig()
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
@@ -301,13 +303,13 @@ class TabWidget(PhotiniUploader):
             return convert
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
-            translate('PhotiniUploader', 'Photini: large file'))
+            translate('GooglePhotosTab', 'Photini: large file'))
         dialog.setText(
-            translate('PhotiniUploader', '<h3>Large file.</h3>'))
+            translate('GooglePhotosTab', '<h3>Large file.</h3>'))
         dialog.setInformativeText(
-            translate('PhotiniUploader',
-                      'File "{0}" is over 25MB. Remember that Photini ' +
-                      'uploads count towards storage in your Google Account. ' +
+            translate('GooglePhotosTab',
+                      'File "{0}" is over 25MB. Remember that Photini '
+                      'uploads count towards storage in your Google Account. '
                       'Upload it anyway?').format(os.path.basename(image.path)))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(
@@ -339,8 +341,8 @@ class TabWidget(PhotiniUploader):
     @catch_all
     def new_set(self):
         title, OK = QtWidgets.QInputDialog.getText(
-            self, self.tr('Album title'),
-            self.tr('Please enter a title for the album'))
+            self, translate('GooglePhotosTab', 'Album title'),
+            translate('GooglePhotosTab', 'Please enter a title for the album'))
         if not OK or not title:
             return
         album = self.session.new_album(title)

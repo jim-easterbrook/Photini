@@ -36,6 +36,7 @@ from photini.pyqt import (
     QtWidgets, qt_version_info, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class FolderSource(object):
@@ -262,7 +263,7 @@ class PathFormatValidator(QtGui.QValidator):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('TabWidget', '&Import photos')
+        return translate('ImporterTab', '&Import photos')
 
     def __init__(self, image_list, parent=None):
         super(TabWidget, self).__init__(parent)
@@ -286,17 +287,18 @@ class TabWidget(QtWidgets.QWidget):
         self.source_selector = QtWidgets.QComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
         box.addWidget(self.source_selector)
-        refresh_button = QtWidgets.QPushButton(self.tr('refresh'))
+        refresh_button = QtWidgets.QPushButton(
+            translate('ImporterTab', 'refresh'))
         refresh_button.clicked.connect(self.refresh)
         box.addWidget(refresh_button)
         box.setStretch(0, 1)
-        form.addRow(self.tr('Source'), box)
+        form.addRow(translate('ImporterTab', 'Source'), box)
         # path format
         self.path_format = QtWidgets.QLineEdit()
         self.path_format.setValidator(PathFormatValidator())
         self.path_format.textChanged.connect(self.nm.new_format)
         self.path_format.editingFinished.connect(self.path_format_finished)
-        form.addRow(self.tr('Target format'), self.path_format)
+        form.addRow(translate('ImporterTab', 'Target format'), self.path_format)
         # path example
         self.path_example = QtWidgets.QLabel()
         self.nm.new_example.connect(self.path_example.setText)
@@ -313,20 +315,24 @@ class TabWidget(QtWidgets.QWidget):
         buttons.addStretch(1)
         self.selected_count = QtWidgets.QLabel()
         buttons.addWidget(self.selected_count)
-        select_all = QtWidgets.QPushButton(self.tr('Select\nall'))
+        select_all = QtWidgets.QPushButton(
+            translate('ImporterTab', 'Select\nall'))
         select_all.clicked.connect(self.select_all)
         buttons.addWidget(select_all)
-        select_new = QtWidgets.QPushButton(self.tr('Select\nnew'))
+        select_new = QtWidgets.QPushButton(
+            translate('ImporterTab', 'Select\nnew'))
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
         # copy buttons
-        self.move_button = StartStopButton(self.tr('Move\nphotos'),
-                                           self.tr('Stop\nmove'))
+        self.move_button = StartStopButton(
+            translate('ImporterTab', 'Move\nphotos'),
+            translate('ImporterTab', 'Stop\nmove'))
         self.move_button.click_start.connect(self.move_selected)
         self.move_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.move_button)
-        self.copy_button = StartStopButton(self.tr('Copy\nphotos'),
-                                           self.tr('Stop\ncopy'))
+        self.copy_button = StartStopButton(
+            translate('ImporterTab', 'Copy\nphotos'),
+            translate('ImporterTab', 'Stop\ncopy'))
         self.copy_button.click_start.connect(self.copy_selected)
         self.copy_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.copy_button)
@@ -372,7 +378,7 @@ class TabWidget(QtWidgets.QWidget):
         else:
             directory = ''
         root = QtWidgets.QFileDialog.getExistingDirectory(
-            self, self.tr("Select root folder"), directory)
+            self, translate('ImporterTab', "Select root folder"), directory)
         if not root:
             self._fail()
             return
@@ -407,17 +413,18 @@ class TabWidget(QtWidgets.QWidget):
         # rebuild list
         self.source_selector.clear()
         self.source_selector.addItem(
-            self.tr('<select source>'), self._new_file_list)
+            translate('ImporterTab', '<select source>'), self._new_file_list)
         for model, port_name in get_camera_list():
             self.source_selector.addItem(
-                self.tr('camera: {0}').format(model),
+                translate('ImporterTab', 'camera: {0}').format(model),
                 (CameraSource(model, port_name), 'importer ' + model))
         for root in eval(self.config_store.get('importer', 'folders', '[]')):
             if os.path.isdir(root):
                 self.source_selector.addItem(
-                    self.tr('folder: {0}').format(root),
+                    translate('ImporterTab', 'folder: {0}').format(root),
                     (FolderSource(root), 'importer folder ' + root))
-        self.source_selector.addItem(self.tr('<add a folder>'), self.add_folder)
+        self.source_selector.addItem(
+            translate('ImporterTab', '<add a folder>'), self.add_folder)
         # restore saved selection
         new_idx = -1
         for idx in range(self.source_selector.count()):
@@ -434,10 +441,12 @@ class TabWidget(QtWidgets.QWidget):
         if not self.file_copier:
             return False
         dialog = QtWidgets.QMessageBox()
-        dialog.setWindowTitle(self.tr('Photini: import in progress'))
-        dialog.setText(self.tr('<h3>Importing photos has not finished.</h3>'))
-        dialog.setInformativeText(
-            self.tr('Closing now will terminate the import.'))
+        dialog.setWindowTitle(translate(
+            'ImporterTab', 'Photini: import in progress'))
+        dialog.setText(translate(
+            'ImporterTab', '<h3>Importing photos has not finished.</h3>'))
+        dialog.setInformativeText(translate(
+            'ImporterTab', 'Closing now will terminate the import.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(
             QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
@@ -512,7 +521,8 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
-        self.selected_count.setText(self.tr('%n file(s)\nselected', '', count))
+        self.selected_count.setText(
+            translate('ImporterTab', '%n file(s)\nselected', '', count))
         if not self.file_copier:
             self.move_button.setEnabled(count > 0)
             self.copy_button.setEnabled(count > 0)

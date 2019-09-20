@@ -27,7 +27,7 @@ class TabWidget(PhotiniMap):
 
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate('OpenStreetMap', 'Map (&OSM)')
+        return QtCore.QCoreApplication.translate('MapTabOSM', 'Map (&OSM)')
 
     def get_geocoder(self):
         return self.app.open_cage

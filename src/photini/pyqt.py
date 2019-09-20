@@ -90,6 +90,7 @@ config.save()
 del config, style
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
@@ -134,10 +135,10 @@ def video_types():
     return lower + [x.upper() for x in lower] + [x.title() for x in lower]
 
 def multiple():
-    return QtCore.QCoreApplication.translate('Multiple', '<multiple>')
+    return translate('Common', '<multiple>')
 
 def multiple_values():
-    return QtCore.QCoreApplication.translate('Multiple', '<multiple values>')
+    return translate('Common', '<multiple values>')
 
 def set_symbol_font(widget):
     widget.setFont(QtGui.QFont('DejaVu Sans'))

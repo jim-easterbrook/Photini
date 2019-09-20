@@ -46,11 +46,11 @@ class LocationInfo(QtWidgets.QWidget):
             self.members[key].editingFinished.connect(self.editing_finished)
         self.members['country_code'].setMaximumWidth(40)
         for j, text in enumerate((
-                translate('Address', 'Street'),
-                translate('Address', 'City'),
-                translate('Address', 'Province'),
-                translate('Address', 'Country'),
-                translate('Address', 'Region'),
+                translate('AddressTab', 'Street'),
+                translate('AddressTab', 'City'),
+                translate('AddressTab', 'Province'),
+                translate('AddressTab', 'Country'),
+                translate('AddressTab', 'Region'),
                 )):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignRight)
@@ -88,7 +88,7 @@ class QTabBar(QtWidgets.QTabBar):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return translate('Address', '&Address')
+        return translate('AddressTab', '&Address')
 
     def __init__(self, image_list, parent=None):
         super(TabWidget, self).__init__(parent)
@@ -105,7 +105,7 @@ class TabWidget(QtWidgets.QWidget):
         left_side.addWidget(self.coords, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
-            translate('Address', 'Get address from lat, long'))
+            translate('AddressTab', 'Get address from lat, long'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
         left_side.addWidget(self.auto_location, 1, 0, 1, 2)
@@ -155,10 +155,10 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.tabBar().tabAt(event.pos())
         self.location_info.setCurrentIndex(idx)
         menu = QtWidgets.QMenu(self)
-        menu.addAction(
-            translate('Address', 'Duplicate location'), self.duplicate_location)
-        menu.addAction(
-            translate('Address', 'Delete location'), self.delete_location)
+        menu.addAction(translate(
+            'AddressTab', 'Duplicate location'), self.duplicate_location)
+        menu.addAction(translate(
+            'AddressTab', 'Delete location'), self.delete_location)
         action = menu.exec_(event.globalPos())
 
     @QtCore.pyqtSlot()
@@ -250,9 +250,9 @@ class TabWidget(QtWidgets.QWidget):
 
     def set_tab_text(self, idx):
         if idx == 0:
-            text = translate('Address', 'camera')
+            text = translate('AddressTab', 'camera')
         else:
-            text = translate('Address', 'subject {}').format(idx)
+            text = translate('AddressTab', 'subject {}').format(idx)
         self.location_info.setTabText(idx, text)
 
     @QtCore.pyqtSlot()

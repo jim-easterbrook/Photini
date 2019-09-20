@@ -29,6 +29,7 @@ from photini.pyqt import (
     QtWidgets, qt_version_info, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class LineEdit(QtWidgets.QLineEdit):
@@ -85,7 +86,7 @@ class LineEditWithAuto(QtWidgets.QWidget):
         self.edit = LineEdit()
         layout.addWidget(self.edit)
         # auto complete button
-        self.auto = QtWidgets.QPushButton(self.tr('Auto'))
+        self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
         layout.addWidget(self.auto)
         # adopt child widget methods and signals
         self.set_value = self.edit.set_value
@@ -125,7 +126,7 @@ class RatingWidget(QtWidgets.QWidget):
         if value == -2:
             self.display.clear()
         elif value == -1:
-            self.display.setText(self.tr('reject'))
+            self.display.setText(translate('DescriptiveTab', 'reject'))
         else:
             self.display.setText((six.unichr(0x2605) * value) +
                                  (six.unichr(0x2606) * (5 - value)))
@@ -178,7 +179,7 @@ class KeywordsEditor(QtWidgets.QWidget):
 
     def update_favourites(self):
         self.favourites.clear()
-        self.favourites.addItem(self.tr('<favourites>'))
+        self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
         keywords = list(self.league_table.keys())
         keywords.sort(key=lambda x: self.league_table[x], reverse=True)
         # limit size of league_table by deleting lowest scoring
@@ -227,8 +228,7 @@ class KeywordsEditor(QtWidgets.QWidget):
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
-        return QtCore.QCoreApplication.translate(
-            'TabWidget', '&Descriptive metadata')
+        return translate('DescriptiveTab', '&Descriptive metadata')
 
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
@@ -241,31 +241,36 @@ class TabWidget(QtWidgets.QWidget):
         # title
         self.widgets['title'] = SingleLineEdit(spell_check=True)
         self.widgets['title'].editingFinished.connect(self.new_title)
-        self.form.addRow(self.tr('Title / Object Name'), self.widgets['title'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # description
         self.widgets['description'] = MultiLineEdit(spell_check=True)
         self.widgets['description'].editingFinished.connect(self.new_description)
-        self.form.addRow(
-            self.tr('Description / Caption'), self.widgets['description'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Description / Caption'), self.widgets['description'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor()
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
-        self.form.addRow(self.tr('Keywords'), self.widgets['keywords'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Keywords'), self.widgets['keywords'])
         self.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
         self.widgets['rating'] = RatingWidget()
         self.widgets['rating'].editing_finished.connect(self.new_rating)
-        self.form.addRow(self.tr('Rating'), self.widgets['rating'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Rating'), self.widgets['rating'])
         # copyright
         self.widgets['copyright'] = LineEditWithAuto()
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
-        self.form.addRow(self.tr('Copyright'), self.widgets['copyright'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Copyright'), self.widgets['copyright'])
         # creator
         self.widgets['creator'] = LineEditWithAuto()
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
-        self.form.addRow(self.tr('Creator / Artist'), self.widgets['creator'])
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Creator / Artist'), self.widgets['creator'])
         # disable until an image is selected
         self.setEnabled(False)
 
@@ -319,8 +324,9 @@ class TabWidget(QtWidgets.QWidget):
         name = self.config_store.get('user', 'copyright_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
-                self, self.tr('Photini: input name'),
-                self.tr("Please type in the copyright holder's name"),
+                self, translate('DescriptiveTab', 'Photini: input name'),
+                translate('DescriptiveTab',
+                          "Please type in the copyright holder's name"),
                 text=self.config_store.get('user', 'creator_name', ''))
             if OK and name:
                 self.config_store.set('user', 'copyright_name', name)
@@ -328,7 +334,8 @@ class TabWidget(QtWidgets.QWidget):
                 name = ''
         copyright_text = self.config_store.get(
             'user', 'copyright_text',
-            self.tr('Copyright ©{year} {name}. All rights reserved.'))
+            translate('DescriptiveTab',
+                      'Copyright ©{year} {name}. All rights reserved.'))
         for image in self.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
             if date_taken is None:
@@ -345,8 +352,8 @@ class TabWidget(QtWidgets.QWidget):
         name = self.config_store.get('user', 'creator_name')
         if not name:
             name, OK = QtWidgets.QInputDialog.getText(
-                self, self.tr('Photini: input name'),
-                self.tr("Please type in the creator's name"),
+                self, translate('DescriptiveTab', 'Photini: input name'),
+                translate('DescriptiveTab', "Please type in the creator's name"),
                 text=self.config_store.get('user', 'copyright_name', ''))
             if OK and name:
                 self.config_store.set('user', 'creator_name', name)

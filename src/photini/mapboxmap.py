@@ -86,7 +86,7 @@ class MapboxGeocoder(GeocoderBase):
 
     def search_terms(self):
         widget = CompactButton(
-            translate('MapboxMap', 'Search powered by Mapbox'))
+            translate('MapTabMapbox', 'Search powered by Mapbox'))
         widget.clicked.connect(self.load_mapbox_tos)
         return [widget]
 
@@ -102,7 +102,7 @@ class TabWidget(PhotiniMap):
 
     @staticmethod
     def tab_name():
-        return translate('MapboxMap', 'Map (&Mapbox)')
+        return translate('MapTabMapbox', 'Map (&Mapbox)')
 
     def get_geocoder(self):
         return MapboxGeocoder(parent=self)

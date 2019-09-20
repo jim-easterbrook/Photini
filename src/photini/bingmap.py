@@ -47,7 +47,8 @@ class BingGeocoder(GeocoderBase):
             logger.error('Search error %d', rsp.status_code)
             return []
         if rsp.headers['X-MS-BM-WS-INFO'] == '1':
-            logger.error(self.tr('Server overload, please try again'))
+            logger.error(translate(
+                'MapTabBing', 'Server overload, please try again'))
             self.block_timer.start(5000)
         rsp = rsp.json()
         if rsp['statusCode'] != 200:
@@ -91,7 +92,7 @@ class BingGeocoder(GeocoderBase):
 
     def search_terms(self):
         widget = QtWidgets.QLabel(translate(
-            'BingMap', 'Search and altitude lookup\nprovided by Bing'))
+            'MapTabBing', 'Search and altitude lookup\nprovided by Bing'))
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
         return [widget]
@@ -102,7 +103,7 @@ class TabWidget(PhotiniMap):
 
     @staticmethod
     def tab_name():
-        return translate('BingMap', 'Map (&Bing)')
+        return translate('MapTabBing', 'Map (&Bing)')
 
     def get_geocoder(self):
         return BingGeocoder(parent=self)

@@ -191,7 +191,7 @@ class LatLongDisplay(SingleLineEdit):
     def __init__(self, image_list, *args, **kwds):
         super(LatLongDisplay, self).__init__(*args, **kwds)
         self.image_list = image_list
-        self.label = QtWidgets.QLabel(translate('PhotiniMap', 'Lat, long'))
+        self.label = QtWidgets.QLabel(translate('MapTabsAll', 'Lat, long'))
         self.label.setAlignment(Qt.AlignRight)
         self.setFixedWidth(170)
         self.setEnabled(False)
@@ -259,7 +259,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.coords.changed.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
         # altitude
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
+        label = QtWidgets.QLabel(translate('MapTabsAll', 'Altitude'))
         label.setAlignment(Qt.AlignRight)
         left_side.addWidget(label, 1, 0)
         self.altitude = NumberEdit()
@@ -268,18 +268,18 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(self.altitude, 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
             self.altitude_button = QtWidgets.QPushButton(
-                translate('PhotiniMap', 'Get altitude from map'))
+                translate('MapTabsAll', 'Get altitude from map'))
             self.altitude_button.clicked.connect(self.get_altitude)
             left_side.addWidget(self.altitude_button, 2, 1)
         # search
-        label = QtWidgets.QLabel(translate('PhotiniMap', 'Search'))
+        label = QtWidgets.QLabel(translate('MapTabsAll', 'Search'))
         label.setAlignment(Qt.AlignRight)
         left_side.addWidget(label, 3, 0)
         self.edit_box = ComboBox()
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
         self.edit_box.lineEdit().setPlaceholderText(
-            translate('PhotiniMap', '<new search>'))
+            translate('MapTabsAll', '<new search>'))
         self.edit_box.lineEdit().returnPressed.connect(self.search)
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
@@ -536,9 +536,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.addItem('')
         if self.search_string:
             self.edit_box.addItem(
-                translate('PhotiniMap', '<widen search>'), 'widen')
+                translate('MapTabsAll', '<widen search>'), 'widen')
             self.edit_box.addItem(
-                translate('PhotiniMap', '<repeat search>', 'repeat'))
+                translate('MapTabsAll', '<repeat search>', 'repeat'))
 
     @QtCore.pyqtSlot(int)
     @catch_all

@@ -51,6 +51,7 @@ except ImportError as ex:
 
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -87,7 +88,8 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
-        self.setWindowTitle(self.tr("Photini photo metadata editor"))
+        self.setWindowTitle(translate(
+            'MenuBar', "Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(pkg_resources.resource_string(
             'photini', 'data/icons/48/photini.png'))
@@ -156,43 +158,46 @@ class MainWindow(QtWidgets.QMainWindow):
                 tab['class'] = None
             self.tab_list.append(tab)
         # file menu
-        file_menu = self.menuBar().addMenu(self.tr('File'))
-        open_action = QtWidgets.QAction(self.tr('Open images'), self)
+        file_menu = self.menuBar().addMenu(translate('MenuBar', 'File'))
+        open_action = QtWidgets.QAction(
+            translate('MenuBar', 'Open images'), self)
         open_action.setShortcuts(QtGui.QKeySequence.Open)
         open_action.triggered.connect(self.image_list.open_files)
         file_menu.addAction(open_action)
         self.save_action = QtWidgets.QAction(
-            self.tr('Save images with new data'), self)
+            translate('MenuBar', 'Save images with new data'), self)
         self.save_action.setShortcuts(QtGui.QKeySequence.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
         file_menu.addAction(self.save_action)
         self.close_action = QtWidgets.QAction(
-            self.tr('Close selected images'), self)
+            translate('MenuBar', 'Close selected images'), self)
         self.close_action.setEnabled(False)
         self.close_action.triggered.connect(self.close_files)
         file_menu.addAction(self.close_action)
-        close_all_action = QtWidgets.QAction(self.tr('Close all images'), self)
+        close_all_action = QtWidgets.QAction(
+            translate('MenuBar', 'Close all images'), self)
         close_all_action.triggered.connect(self.close_all_files)
         file_menu.addAction(close_all_action)
         if GpxImporter:
             file_menu.addSeparator()
             self.import_gpx_action = QtWidgets.QAction(
-                self.tr('Import GPX file'), self)
+                translate('MenuBar', 'Import GPX file'), self)
             self.import_gpx_action.triggered.connect(self.import_pgx_file)
             file_menu.addAction(self.import_gpx_action)
         else:
             self.import_gpx_action = None
         file_menu.addSeparator()
-        quit_action = QtWidgets.QAction(self.tr('Quit'), self)
+        quit_action = QtWidgets.QAction(translate('MenuBar', 'Quit'), self)
         quit_action.setShortcuts(
             [QtGui.QKeySequence.Quit, QtGui.QKeySequence.Close])
         quit_action.triggered.connect(
             QtWidgets.QApplication.instance().closeAllWindows)
         file_menu.addAction(quit_action)
         # options menu
-        options_menu = self.menuBar().addMenu(self.tr('Options'))
-        settings_action = QtWidgets.QAction(self.tr('Settings'), self)
+        options_menu = self.menuBar().addMenu(translate('MenuBar', 'Options'))
+        settings_action = QtWidgets.QAction(
+            translate('MenuBar', 'Settings'), self)
         settings_action.triggered.connect(self.edit_settings)
         options_menu.addAction(settings_action)
         options_menu.addSeparator()
@@ -212,14 +217,16 @@ class MainWindow(QtWidgets.QMainWindow):
             options_menu.addAction(tab['action'])
         # spelling menu
         languages = self.app.spell_check.available_languages()
-        spelling_menu = self.menuBar().addMenu(self.tr('Spelling'))
-        enable_action = QtWidgets.QAction(self.tr('Enable spell check'), self)
+        spelling_menu = self.menuBar().addMenu(translate('MenuBar', 'Spelling'))
+        enable_action = QtWidgets.QAction(
+            translate('MenuBar', 'Enable spell check'), self)
         enable_action.setEnabled(languages is not None)
         enable_action.setCheckable(True)
         enable_action.setChecked(self.app.spell_check.enabled)
         enable_action.toggled.connect(self.app.spell_check.enable)
         spelling_menu.addAction(enable_action)
-        language_menu = QtWidgets.QMenu(self.tr('Choose language'), self)
+        language_menu = QtWidgets.QMenu(
+            translate('MenuBar', 'Choose language'), self)
         language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
         if languages:
@@ -236,17 +243,19 @@ class MainWindow(QtWidgets.QMainWindow):
             language_group.triggered.connect(self.set_language)
         else:
             language_action = QtWidgets.QAction(
-                self.tr('No dictionary installed'), self)
+                translate('MenuBar', 'No dictionary installed'), self)
             language_action.setEnabled(False)
             language_menu.addAction(language_action)
         spelling_menu.addMenu(language_menu)
         # help menu
-        help_menu = self.menuBar().addMenu(self.tr('Help'))
-        about_action = QtWidgets.QAction(self.tr('About Photini'), self)
+        help_menu = self.menuBar().addMenu(translate('MenuBar', 'Help'))
+        about_action = QtWidgets.QAction(
+            translate('MenuBar', 'About Photini'), self)
         about_action.triggered.connect(self.about)
         help_menu.addAction(about_action)
         help_menu.addSeparator()
-        help_action = QtWidgets.QAction(self.tr('Photini documentation'), self)
+        help_action = QtWidgets.QAction(
+            translate('MenuBar', 'Photini documentation'), self)
         help_action.triggered.connect(self.open_docs)
         help_menu.addAction(help_action)
         # main application area
@@ -346,7 +355,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     @catch_all
     def about(self):
-        text = self.tr("""
+        text = translate('MenuBar', """
 <table width="100%"><tr>
 <td align="center" width="70%">
 <h1>Photini</h1>
@@ -367,7 +376,7 @@ details click the 'show details' button.</p>
             pkg_resources.resource_filename(
                 'photini', 'data/icons/128/photini.png'))
         dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(self.tr('Photini: about'))
+        dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)
         licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
         dialog.setDetailedText(licence.decode('utf-8'))
@@ -455,19 +464,19 @@ def main(argv=None):
     version += '\n  using style: {}'.format(
         QtWidgets.QApplication.style().objectName())
     parser = OptionParser(
-        usage=six.text_type(QtCore.QCoreApplication.translate(
-            'main', 'Usage: %prog [options] [file_name, ...]')),
+        usage=six.text_type(translate(
+            'CLIHelp', 'Usage: %prog [options] [file_name, ...]')),
         version=version,
-        description=six.text_type(QtCore.QCoreApplication.translate(
-            'main', 'Photini photo metadata editor')))
+        description=six.text_type(translate(
+            'CLIHelp', 'Photini photo metadata editor')))
     parser.add_option(
         '-t', '--test', action='store_true',
-        help=six.text_type(QtCore.QCoreApplication.translate(
-            'main', 'test new features or API versions')))
+        help=six.text_type(translate(
+            'CLIHelp', 'test new features or API versions')))
     parser.add_option(
         '-v', '--verbose', action='count', default=0,
-        help=six.text_type(QtCore.QCoreApplication.translate(
-            'main', 'increase number of logging messages')))
+        help=six.text_type(translate(
+            'CLIHelp', 'increase number of logging messages')))
     options, args = parser.parse_args()
     # ensure warnings are visible in test mode
     if options.test:
