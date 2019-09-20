@@ -61,7 +61,7 @@ The one called ``photini`` contains the text strings used by the Photini program
 (The others, beginning with ``doc``, contain the Photini documentation.)
 Click on the ``photini`` resource, then the language you want to work on, then click on the ``translate`` button.
 This displays a translation editing page where you can click on a text string to be translated and then type in your translation.
-See the :ref:`notes below <localisation-program-notes>` for things to be aware of when translating the program strings.
+See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
 
 When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
 Transifex doesn't automatically notify me of new translations.
@@ -73,7 +73,9 @@ Offline translation
 Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
 For example, if you are going to translate Photini into Dutch::
 
-   tx pull -l nl
+   tx pull -l nl -f
+
+(The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
 
 Now update (or initialise if it doesn't exist) the translation file with the current program strings::
 
@@ -83,10 +85,13 @@ Now you can open the translation file in your chosen editor, for example::
 
    linguist-qt5 src/lang/photini.nl.ts
 
-See the notes below for things to be aware of when translating the program strings.
+See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
 
 If you have a Transifex account then you should upload your translation as it progresses.
-This will ensure that your work isn't accidentally duplicated by other translators.
+This will ensure that your work isn't accidentally duplicated by other translators::
+
+   tx push -t -l nl
+
 When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk) so that I can update Transifex and the GitHub repository.
 
 .. _localisation-program-notes:
@@ -136,14 +141,15 @@ Testing your translation
 If you've been working online then the Transifex client is used to download your translated strings.
 For example, if you've been working on a Dutch translation with the language code ``nl``::
 
-   tx pull -l nl
+   tx pull -l nl -f
 
 The translation file (e.g. ``src/lang/photini.nl.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
 (Or ``lrelease``, which may be in ``libqt4-linguist``.)
 
-You can easily compile all the language files with setup.py::
+You can easily update and compile all the language files with setup.py::
 
+   python setup.py lupdate
    python setup.py lrelease
 
 Now you can install Photini with your new translation(s)::
@@ -162,13 +168,13 @@ Translating the documentation
 -----------------------------
 
 Translating Photini's documentation is a lot more work than translating the program itself.
-The `"Read the Docs <https://readthedocs.org/>`_ web site can host multiple languages, and I would welcome the chance to add documentation of Photini in other languages.
+The `"Read the Docs" <https://readthedocs.org/>`_ web site can host multiple languages, and I would welcome the chance to add documentation of Photini in other languages.
 
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
 On the Transifex site Photini's documentation is in the resources that have names beginning with ``doc``.
-See the :ref:`notes below <localisation-documentation-notes>` for things to be aware of when translating the documentation.
+See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
@@ -176,7 +182,7 @@ Offline translation
 Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
 For example, if you are going to translate the documentation into Dutch::
 
-   tx pull -l nl
+   tx pull -l nl -f
 
 The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project.
 The documentation text to be translated is extracted from its source into several ``.pot`` "template" files::
@@ -197,10 +203,13 @@ Now you can open the translation file in your chosen editor, for example::
 
    linguist-qt5 src/lang/doc/nl/LC_MESSAGES/manual.po
 
-See the notes below for things to be aware of when translating the documentation.
+See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
 If you have a Transifex account then you should upload your translation as it progresses.
-This will ensure that your work isn't accidentally duplicated by other translators.
+This will ensure that your work isn't accidentally duplicated by other translators::
+
+   tx push -t -l nl
+
 When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk) so that I can update Transifex and the GitHub repository.
 
 .. _localisation-documentation-notes:
@@ -223,7 +232,7 @@ Short cross references, e.g. ``:doc:`tags```
    These should not be translated.
 
 Long cross references, e.g. ``:ref:`installation <installation-optional>```
-   The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link caption.
+   The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
 
 External links, e.g. ```Flickr <http://www.flickr.com/>`_``
    The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
@@ -236,7 +245,7 @@ Testing your translation
 The Transifex client is used to download your translated strings.
 For example, if you've been working on a Dutch translation with the language code ``nl``::
 
-   tx pull -l nl
+   tx pull -l nl -f
 
 If you install `Sphinx <http://sphinx-doc.org/index.html>`_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::

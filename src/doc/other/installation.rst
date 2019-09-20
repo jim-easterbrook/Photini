@@ -183,25 +183,31 @@ The easiest way to install the latest release of Photini is with the pip_ comman
 This will install Photini and any Python packages it requires.
 You can also use pip to install the optional dependencies when you install Photini::
 
-   sudo pip install photini[flickr,google,importer,spelling]
+   sudo pip install photini[flickr,google,importer]
 
-If you prefer to install the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip file and then unpack it.
-Either way, you then need to build and install Photini::
+If you prefer to use the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip or tar.gz file and then unpack it.
+Then set your working directory to the Photini top level directory before continuing.
 
-   python setup.py lrelease
-   python setup.py build
-   sudo python setup.py install
-
-The first step ``python setup.py lrelease`` is only needed if you wish to use a translation file and have installed the Qt "linguist" software.
-See :ref:`localisation-program-testing` for more information about using translations.
-
-You will also need to install the remaining Python packages.
-
-If you have downloaded the Photini source you can run it without installing, using the ``run_photini.py`` script::
+You can run Photini without installing it, using the ``run_photini.py`` script::
 
    python src/run_photini.py
 
 This can be useful during development as the script should also work within an IDE.
+
+The development version can be built and installed in the usual way::
+
+   python setup.py build
+   sudo python setup.py install
+
+You will need to install the optional dependencies separately.
+
+If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
+
+   python setup.py lupdate
+   python setup.py lrelease
+
+This requires the Qt "linguist" software to be installed.
+See :ref:`localisation-program-testing` for more information about using translations.
 
 .. _installation-optional:
 
