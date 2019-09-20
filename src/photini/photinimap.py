@@ -312,8 +312,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def initialise(self):
-        page = '''
-<!DOCTYPE html>
+        page = '''<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -326,41 +325,38 @@ class PhotiniMap(QtWidgets.QWidget):
       var initData = {{key: "{key}", lat: {lat}, lng: {lng}, zoom: {zoom}}};
     </script>
 {initialize}
+    <script type="text/javascript" src="script.js"></script>
 {head}
-    <script type="text/javascript" src="script.js" async></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
   </body>
-</html>
-'''
+</html>'''
         lat, lng = eval(self.app.config_store.get('map', 'centre', '(51.0, 0.0)'))
         zoom = int(eval(self.app.config_store.get('map', 'zoom', '11')))
         if using_qtwebengine:
-            initialize = '''
-    <script type="text/javascript"
+            initialize = '''    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>
     <script type="text/javascript">
       var python;
       function initialize()
       {
-          new QWebChannel(qt.webChannelTransport, function (channel) {
-              python = channel.objects.python;
-              loadMap();
-              });
+          new QWebChannel(qt.webChannelTransport, doLoadMap);
       }
-    </script>
-'''
+      function doLoadMap(channel)
+      {
+          python = channel.objects.python;
+          loadMap();
+      }
+    </script>'''
         else:
-            initialize = '''
-    <script type="text/javascript">
+            initialize = '''    <script type="text/javascript">
       function initialize()
       {
           loadMap();
       }
-    </script>
-'''
+    </script>'''
         page = page.format(lat=lat, lng=lng, zoom=zoom, initialize=initialize,
                            key=self.api_key, head=self.get_head())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
@@ -373,7 +369,6 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.redraw_markers()
-##        self.coords.refresh()
 
     def refresh(self):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
