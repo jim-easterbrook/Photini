@@ -853,6 +853,29 @@ class MD_Rational(MD_Value, Fraction):
         return six.text_type(float(self))
 
 
+class Altitude(MD_Rational):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not all(file_value):
+            return None
+        altitude, ref = file_value
+        altitude = safe_fraction(altitude)
+        if ref == '1':
+            altitude = -altitude
+        return cls(altitude)
+
+    def write(self, handler, tag):
+        numerator, denominator = self.numerator, self.denominator
+        if numerator < 0:
+            numerator = -numerator
+            ref = '1'
+        else:
+            ref = '0'
+        handler.set_string(
+            tag, ('{:d}/{:d}'.format(numerator, denominator), ref))
+
+
 class Aperture(MD_Rational):
     # store FNumber and APEX aperture as fractions
     # only FNumber is presented to the user, either is computed if missing
@@ -1244,6 +1267,7 @@ class Metadata(QtCore.QObject):
 
     # type of each Photini data field's data
     _data_type = {
+        'altitude'       : Altitude,
         'aperture'       : Aperture,
         'camera_model'   : MD_String,
         'character_set'  : CharacterSet,
@@ -1281,6 +1305,10 @@ class Metadata(QtCore.QObject):
     # write mode (WA (always), WX (if Exif not supported), W0 (clear the
     # tag), or WN (never).
     _tag_list = {
+        'altitude'       : (('RA.WA', ('Exif.GPSInfo.GPSAltitude',
+                                       'Exif.GPSInfo.GPSAltitudeRef')),
+                            ('RA.WX', ('Xmp.exif.GPSAltitude',
+                                       'Xmp.exif.GPSAltitudeRef'))),
         'aperture'       : (('RA.WA', ('Exif.Photo.FNumber',
                                        'Exif.Photo.ApertureValue')),
                             ('RA.W0', ('Exif.Image.FNumber',

@@ -34,10 +34,7 @@ translate = QtCore.QCoreApplication.translate
 class BingGeocoder(GeocoderBase):
     interval = 50
 
-    def do_geocode(self, query='', params={}):
-        url = 'http://dev.virtualearth.net/REST/v1/Locations'
-        if query:
-            url += '/' + query
+    def query(self, url, params):
         with Busy():
             self.rate_limit()
             try:
@@ -49,7 +46,7 @@ class BingGeocoder(GeocoderBase):
             logger.error('Search error %d', rsp.status_code)
             return []
         if rsp.headers['X-MS-BM-WS-INFO'] == '1':
-            logger.error('Server overload')
+            logger.error(self.tr('Server overload, please try again'))
             self.block_timer.start(5000)
         rsp = rsp.json()
         if rsp['statusCode'] != 200:
@@ -62,23 +59,40 @@ class BingGeocoder(GeocoderBase):
             return []
         return resource_sets
 
+    def get_altitude(self, coords, map_status):
+        params = {
+            'key'    : map_status['session_id'],
+            'points' : coords.replace(' ', ''),
+            'heights': 'sealevel',
+            }
+        resource_sets = self.query(
+            'http://dev.virtualearth.net/REST/v1/Elevation/List', params)
+        if resource_sets:
+            return resource_sets[0]['resources'][0]['elevations'][0]
+        return None
+
     def search(self, search_string, map_status, bounds=None):
         params = {
             'key'   : map_status['session_id'],
-            'q'     : search_string,
+            'query' : search_string,
             'maxRes': 20,
             }
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['culture'] = lang.replace('_', '-')
         if bounds:
             north, east, south, west = bounds
-            params['umv'] = '{!r},{!r},{!r},{!r}'.format(
+            params['userMapView'] = '{!r},{!r},{!r},{!r}'.format(
                 south, west, north, east)
-        for resource_set in self.do_geocode(params=params):
+        for resource_set in self.query(
+                'http://dev.virtualearth.net/REST/v1/Locations', params):
             for resource in resource_set['resources']:
                 south, west, north, east = resource['bbox']
                 yield north, east, south, west, resource['name']
 
     def search_terms(self):
-        widget = QtWidgets.QLabel(translate('BingMap', 'Search powered by Bing'))
+        widget = QtWidgets.QLabel(translate(
+            'BingMap', 'Search and altitude lookup\nprovided by Bing'))
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
         return [widget]

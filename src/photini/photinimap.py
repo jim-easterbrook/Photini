@@ -32,6 +32,7 @@ from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel,
     QWebPage, QWebSettings, QWebView, QtWidgets, qt_version_info,
     SingleLineEdit, using_qtwebengine)
+from photini.technical import DoubleValidator, NumberEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -257,10 +258,23 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(self.coords.label, 0, 0)
         self.coords.changed.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
+        # altitude
+        label = QtWidgets.QLabel(translate('PhotiniMap', 'Altitude'))
+        label.setAlignment(Qt.AlignRight)
+        left_side.addWidget(label, 1, 0)
+        self.altitude = NumberEdit()
+        self.altitude.setValidator(DoubleValidator())
+        self.altitude.new_value.connect(self.new_altitude)
+        left_side.addWidget(self.altitude, 1, 1)
+        if hasattr(self.geocoder, 'get_altitude'):
+            self.altitude_button = QtWidgets.QPushButton(
+                translate('PhotiniMap', 'Get altitude from map'))
+            self.altitude_button.clicked.connect(self.get_altitude)
+            left_side.addWidget(self.altitude_button, 2, 1)
         # search
         label = QtWidgets.QLabel(translate('PhotiniMap', 'Search'))
         label.setAlignment(Qt.AlignRight)
-        left_side.addWidget(label, 1, 0)
+        left_side.addWidget(label, 3, 0)
         self.edit_box = ComboBox()
         self.edit_box.setEditable(True)
         self.edit_box.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
@@ -270,12 +284,12 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.activated.connect(self.goto_search_result)
         self.clear_search()
         self.edit_box.setEnabled(False)
-        left_side.addWidget(self.edit_box, 1, 1)
+        left_side.addWidget(self.edit_box, 3, 1)
         # search terms and conditions
         for n, widget in enumerate(self.geocoder.search_terms()):
-            left_side.addWidget(widget, n+2, 0, 1, 2)
+            left_side.addWidget(widget, n+4, 0, 1, 2)
         left_side.setColumnStretch(1, 1)
-        left_side.setRowStretch(5, 1)
+        left_side.setRowStretch(7, 1)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
@@ -292,6 +306,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def image_list_changed(self):
         self.redraw_markers()
         self.coords.refresh()
+        self.update_altitude()
         self.see_selection()
 
     @QtCore.pyqtSlot()
@@ -358,7 +373,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.redraw_markers()
-        self.coords.refresh()
+##        self.coords.refresh()
 
     def refresh(self):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
@@ -400,7 +415,32 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def new_coords(self):
         self.redraw_markers()
+        self.update_altitude()
         self.see_selection()
+
+    @QtCore.pyqtSlot(six.text_type)
+    @catch_all
+    def new_altitude(self, value):
+        for image in self.image_list.get_selected_images():
+            image.metadata.altitude = value
+        self.update_altitude()
+
+    def update_altitude(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            self.altitude.set_value(None)
+            self.altitude.setEnabled(False)
+            return
+        values = []
+        for image in images:
+            value = image.metadata.altitude
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.altitude.set_multiple(choices=filter(None, values))
+        else:
+            self.altitude.set_value(values[0])
+        self.altitude.setEnabled(True)
 
     def see_selection(self):
         locations = []
@@ -420,6 +460,7 @@ class PhotiniMap(QtWidgets.QWidget):
     def new_selection(self, selection):
         self.redraw_markers()
         self.coords.refresh()
+        self.update_altitude()
         self.see_selection()
 
     def redraw_markers(self):
@@ -465,6 +506,15 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     @catch_all
+    def get_altitude(self):
+        altitude = self.geocoder.get_altitude(
+            self.coords.get_value(), self.map_status)
+        print('get_altitude', altitude)
+        if altitude is not None:
+            self.new_altitude(round(altitude, 1))
+
+    @QtCore.pyqtSlot()
+    @catch_all
     def search(self, search_string=None, bounded=True):
         if not search_string:
             search_string = self.edit_box.lineEdit().text()
@@ -501,6 +551,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if idx == 0:
             return
         data = self.edit_box.itemData(idx)
+        if data is None:
+            return
         if data == 'widen':
             # widen search
             self.search(search_string=self.search_string, bounded=False)

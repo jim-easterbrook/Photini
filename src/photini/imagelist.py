@@ -144,7 +144,7 @@ class Image(QtWidgets.QFrame):
                     'orientation',
                     'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
                     'focal_length', 'focal_length_35', 'aperture',
-                    'latlong', 'location_taken', 'location_shown',
+                    'latlong', 'altitude', 'location_taken', 'location_shown',
                     'thumbnail'):
             values = getattr(new_md, key), getattr(old_md, key)
             if values[0] == values[1]:

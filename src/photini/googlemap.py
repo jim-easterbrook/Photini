@@ -36,12 +36,8 @@ class GoogleGeocoder(GeocoderBase):
     api_key = key_store.get('googlemap', 'api_key')
     interval = 50
 
-    def do_geocode(self, params):
+    def query(self, url, params):
         params['key'] = self.api_key
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
-        url = 'https://maps.googleapis.com/maps/api/geocode/json'
         with Busy():
             self.rate_limit()
             try:
@@ -49,9 +45,6 @@ class GoogleGeocoder(GeocoderBase):
             except Exception as ex:
                 logger.error(str(ex))
                 return []
-        if rsp.status_code >= 400:
-            logger.error('Search error %d', rsp.status_code)
-            return []
         rsp = rsp.json()
         if rsp['status'] != 'OK':
             if 'error_message' in rsp:
@@ -66,15 +59,25 @@ class GoogleGeocoder(GeocoderBase):
             return []
         return results
 
+    def get_altitude(self, coords, map_status):
+        params = {'locations': coords.replace(' ', '')}
+        results = self.query(
+            'https://maps.googleapis.com/maps/api/elevation/json', params)
+        if results:
+            return results[0]['elevation']
+        return None
+
     def search(self, search_string, map_status, bounds=None):
-        params = {
-            'address': search_string,
-            }
+        params = {'address': search_string}
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
         if bounds:
             north, east, south, west = bounds
             params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
                 south, west, north, east)
-        for result in self.do_geocode(params):
+        for result in self.query(
+                'https://maps.googleapis.com/maps/api/geocode/json', params):
             bounds = result['geometry']['viewport']
             yield (bounds['northeast']['lat'], bounds['northeast']['lng'],
                    bounds['southwest']['lat'], bounds['southwest']['lng'],
@@ -82,7 +85,8 @@ class GoogleGeocoder(GeocoderBase):
 
     def search_terms(self):
         widget = QtWidgets.QLabel(
-            translate('GoogleMap', 'Search powered by Google'))
+            translate('GoogleMap', 'Search and altitude lookup')
+            + '\npowered by Google')
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
         return [widget]
