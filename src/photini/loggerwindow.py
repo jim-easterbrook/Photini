@@ -27,6 +27,7 @@ from photini.pyqt import catch_all, qt_version_info, QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
 
+
 class OutputInterceptor(object):
     def __init__(self, name, stream):
         self.logger = logging.getLogger(name)
@@ -78,22 +79,20 @@ class LoggerWindow(QtWidgets.QWidget):
         super(LoggerWindow, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
         self.setWindowTitle(self.tr("Photini error logging"))
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setRowStretch(0, 1)
-        self.layout().setColumnStretch(0, 1)
+        self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
         self.text.setMinimumWidth(self.text.fontMetrics().width('x' * 70))
-        self.layout().addWidget(self.text, 0, 0, 1, 3)
-        # save button
-        save_button = QtWidgets.QPushButton(self.tr('Save'))
-        save_button.clicked.connect(self.save)
-        self.layout().addWidget(save_button, 1, 1)
-        # dismiss button
-        dismiss_button = QtWidgets.QPushButton(self.tr('Dismiss'))
-        dismiss_button.clicked.connect(self.hide)
-        self.layout().addWidget(dismiss_button, 1, 2)
+        self.layout().addWidget(self.text)
+        # buttons
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Close)
+        button_box.button(
+            QtWidgets.QDialogButtonBox.Save).clicked.connect(self.save)
+        button_box.button(
+            QtWidgets.QDialogButtonBox.Close).clicked.connect(self.hide)
+        self.layout().addWidget(button_box)
         # Python logger
         self.logger = logging.getLogger('')
         for handler in list(self.logger.handlers):
@@ -130,8 +129,9 @@ class LoggerWindow(QtWidgets.QWidget):
             os.path.expanduser('~/photini_log.txt'))
         if qt_version_info >= (5, 0):
             file_name = file_name[0]
-        with open(file_name, 'w') as of:
-            of.write(self.text.toPlainText())
+        if file_name:
+            with open(file_name, 'w') as of:
+                of.write(self.text.toPlainText())
 
     @QtCore.pyqtSlot(str)
     def write(self, msg):
