@@ -20,7 +20,6 @@ from __future__ import unicode_literals
 
 import locale
 import logging
-import re
 
 import requests
 
@@ -109,11 +108,10 @@ class TabWidget(PhotiniMap):
         url += '&key=' + self.api_key
         lang, encoding = locale.getdefaultlocale()
         if lang:
-            match = re.match('[a-zA-Z]+[-_]([A-Z]+)', lang)
-            if match:
-                name = match.group(1)
-                if name:
-                    url += '&region=' + name
+            language, sep, region = lang.replace('_', '-').partition('-')
+            url += '&language=' + language
+            if region:
+                url += '&region=' + region
         return '''    <script type="text/javascript"
       src="{}" async>
     </script>'''.format(url)
