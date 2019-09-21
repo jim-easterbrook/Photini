@@ -271,6 +271,8 @@ class PhotiniMap(QtWidgets.QWidget):
                 translate('MapTabsAll', 'Get altitude from map'))
             self.altitude_button.clicked.connect(self.get_altitude)
             left_side.addWidget(self.altitude_button, 2, 1)
+        else:
+            self.altitude_button = None
         # search
         label = QtWidgets.QLabel(translate('MapTabsAll', 'Search'))
         label.setAlignment(Qt.AlignRight)
@@ -422,6 +424,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if not images:
             self.altitude.set_value(None)
             self.altitude.setEnabled(False)
+            if self.altitude_button:
+                self.altitude_button.setEnabled(False)
             return
         values = []
         for image in images:
@@ -429,10 +433,12 @@ class PhotiniMap(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.altitude.set_multiple(choices=filter(None, values))
+            self.altitude.set_multiple()
         else:
             self.altitude.set_value(values[0])
         self.altitude.setEnabled(True)
+        if self.altitude_button:
+            self.altitude_button.setEnabled(bool(self.coords.get_value()))
 
     def see_selection(self):
         locations = []
