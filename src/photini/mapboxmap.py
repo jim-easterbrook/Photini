@@ -109,9 +109,9 @@ class TabWidget(PhotiniMap):
 
     def get_head(self):
         return '''    <link rel="stylesheet"
-      href="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css" />
+      href="https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.css" />
     <script type="text/javascript"
-      src="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js">
+      src="https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.js">
     </script>
     <script type="text/javascript">
       L.mapbox.accessToken = "{key}";
