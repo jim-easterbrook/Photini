@@ -523,6 +523,23 @@ class DateTime(MD_Dict):
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
+        # extract time zone
+        if len(datetime_string) >= 19 and datetime_string[-6] in ('+', '-'):
+            tz_offset = int(datetime_string[-2:]) + (
+                        int(datetime_string[-5:-3]) * 60)
+            if datetime_string[-6] == '-':
+                tz_offset = -tz_offset
+            datetime_string = datetime_string[:-6]
+        elif len(datetime_string) >= 16 and datetime_string[-3] in ('+', '-'):
+            tz_offset = int(datetime_string[-2:]) * 60
+            if datetime_string[-3] == '-':
+                tz_offset = -tz_offset
+            datetime_string = datetime_string[:-3]
+        elif len(datetime_string) >= 14 and datetime_string[-1] == 'Z':
+            tz_offset = 0
+            datetime_string = datetime_string[:-1]
+        else:
+            tz_offset = None
         # fix any incorrect separators
         for idx, sep in cls._separators:
             if idx >= len(datetime_string):
@@ -530,18 +547,6 @@ class DateTime(MD_Dict):
             if datetime_string[idx] != sep:
                 datetime_string = (datetime_string[:idx] + sep +
                                    datetime_string[idx+1:])
-        # extract time zone
-        if 'T' in datetime_string and datetime_string[-6] in ('+', '-'):
-            tz_offset = int(datetime_string[-2:]) + (
-                        int(datetime_string[-5:-3]) * 60)
-            if datetime_string[-6] == '-':
-                tz_offset = -tz_offset
-            datetime_string = datetime_string[:-6]
-        elif 'T' in datetime_string and datetime_string[-1] == 'Z':
-            tz_offset = 0
-            datetime_string = datetime_string[:-1]
-        else:
-            tz_offset = None
         precision = min((len(datetime_string) - 1) // 3, 7)
         if precision <= 0:
             return None
