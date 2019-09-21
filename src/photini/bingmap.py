@@ -113,9 +113,10 @@ class TabWidget(PhotiniMap):
         url += '&key=' + self.api_key
         lang, encoding = locale.getdefaultlocale()
         if lang:
-            url += '&mkt={0},ngt'.format(lang.replace('_', '-'))
-        else:
-            url += '&mkt=ngt'
+            culture = lang.replace('_', '-')
+            url += '&setMkt=' + culture
+            language, sep, region = culture.partition('-')
+            url += '&setLang=' + language
         if self.app.test_mode:
             url += '&branch=experimental'
         return '''    <script type="text/javascript"
