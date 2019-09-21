@@ -118,11 +118,9 @@ class TabWidget(PhotiniMap):
             url += '&mkt=ngt'
         if self.app.test_mode:
             url += '&branch=experimental'
-        return '''
-    <script type="text/javascript"
+        return '''    <script type="text/javascript"
       src="{}" async>
-    </script>
-'''.format(url)
+    </script>'''.format(url)
 
     @catch_all
     def new_status(self, status):

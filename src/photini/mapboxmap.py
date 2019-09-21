@@ -108,15 +108,13 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        return '''
+        return '''    <link rel="stylesheet"
+      href="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css" />
     <script type="text/javascript"
       src="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.js">
     </script>
-    <link rel="stylesheet"
-      href="https://api.mapbox.com/mapbox.js/v3.1.1/mapbox.css" />
     <script type="text/javascript">
-      window.addEventListener('load', initialize);
+      L.mapbox.accessToken = "{key}";
     </script>
-    <script type="text/javascript" src="../openstreetmap/common.js" async>
-    </script>
-'''
+    <script type="text/javascript" src="../openstreetmap/common.js">
+    </script>'''.format(key=self.api_key)

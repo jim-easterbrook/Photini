@@ -114,8 +114,6 @@ class TabWidget(PhotiniMap):
                 name = match.group(1)
                 if name:
                     url += '&region=' + name
-        return '''
-    <script type="text/javascript"
+        return '''    <script type="text/javascript"
       src="{}" async>
-    </script>
-'''.format(url)
+    </script>'''.format(url)

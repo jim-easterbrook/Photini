@@ -33,17 +33,12 @@ class TabWidget(PhotiniMap):
         return self.app.open_cage
 
     def get_head(self):
-        return '''
-    <link rel="stylesheet"
+        return '''    <link rel="stylesheet"
       href="https://unpkg.com/leaflet@1/dist/leaflet.css" />
     <script type="text/javascript">
       var L_NO_TOUCH = true;
     </script>
     <script type="text/javascript"
-      src="https://unpkg.com/leaflet@1/dist/leaflet.js" async>
+      src="https://unpkg.com/leaflet@1/dist/leaflet.js">
     </script>
-    <script type="text/javascript">
-      window.addEventListener('load', initialize);
-    </script>
-    <script type="text/javascript" src="common.js" async></script>
-'''
+    <script type="text/javascript" src="common.js"></script>'''

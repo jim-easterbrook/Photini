@@ -20,11 +20,11 @@ var map;
 var markerLayer;
 var trackLayer;
 
-function loadMap()
+function loadMap(lat, lng, zoom)
 {
     var mapOptions = {
-        center: new Microsoft.Maps.Location(initData.lat, initData.lng),
-        zoom: initData.zoom,
+        center: new Microsoft.Maps.Location(lat, lng),
+        zoom: zoom,
         mapTypeId: Microsoft.Maps.MapTypeId.road,
         disableBirdseye: true,
         enableSearchLogo: false,

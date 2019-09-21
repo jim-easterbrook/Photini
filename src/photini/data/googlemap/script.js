@@ -21,14 +21,14 @@ var markers = {};
 var icon_on;
 var icon_off;
 
-function loadMap()
+function loadMap(lat, lng, zoom)
 {
     var mapOptions = {
-        center: new google.maps.LatLng(initData.lat, initData.lng),
+        center: new google.maps.LatLng(lat, lng),
         fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
-        zoom: initData.zoom,
+        zoom: zoom,
         maxZoom: 20,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         mapTypeControl: true,

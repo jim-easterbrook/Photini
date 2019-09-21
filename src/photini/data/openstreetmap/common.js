@@ -22,6 +22,8 @@ var markers = {};
 var icon_on;
 var icon_off;
 
+window.addEventListener('load', initialize);
+
 function commonLoad()
 {
     L.control.scale().addTo(map);

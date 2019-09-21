@@ -16,15 +16,14 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-function loadMap()
+function loadMap(lat, lng, zoom)
 {
-    L.mapbox.accessToken = initData.key;
     var streets = L.mapbox.tileLayer('mapbox.streets');
     var outdoors = L.mapbox.tileLayer('mapbox.outdoors');
     var satellite = L.mapbox.tileLayer('mapbox.satellite');
     map = L.mapbox.map(document.getElementById("mapDiv"), 'mapbox.outdoors', {
-        center   : [initData.lat, initData.lng],
-        zoom     : initData.zoom,
+        center   : [lat, lng],
+        zoom     : zoom,
         maxZoom  : 20,
         tileLayer: false,
     });

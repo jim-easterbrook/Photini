@@ -321,12 +321,9 @@ class PhotiniMap(QtWidgets.QWidget):
       html, body {{ height: 100%; margin: 0; padding: 0 }}
       #mapDiv {{ position: relative; width: 100%; height: 100% }}
     </style>
-    <script type="text/javascript">
-      var initData = {{key: "{key}", lat: {lat}, lng: {lng}, zoom: {zoom}}};
-    </script>
 {initialize}
-    <script type="text/javascript" src="script.js"></script>
 {head}
+    <script type="text/javascript" src="script.js"></script>
   </head>
   <body ondragstart="return false">
     <div id="mapDiv"></div>
@@ -341,24 +338,24 @@ class PhotiniMap(QtWidgets.QWidget):
     <script type="text/javascript">
       var python;
       function initialize()
-      {
+      {{
           new QWebChannel(qt.webChannelTransport, doLoadMap);
-      }
+      }}
       function doLoadMap(channel)
-      {
+      {{
           python = channel.objects.python;
-          loadMap();
-      }
+          loadMap({lat}, {lng}, {zoom});
+      }}
     </script>'''
         else:
             initialize = '''    <script type="text/javascript">
       function initialize()
-      {
-          loadMap();
-      }
+      {{
+          loadMap({lat}, {lng}, {zoom});
+      }}
     </script>'''
-        page = page.format(lat=lat, lng=lng, zoom=zoom, initialize=initialize,
-                           key=self.api_key, head=self.get_head())
+        initialize = initialize.format(lat=lat, lng=lng, zoom=zoom)
+        page = page.format(initialize=initialize, head=self.get_head())
         QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
         self.map.setHtml(page, QtCore.QUrl.fromLocalFile(self.script_dir))
 

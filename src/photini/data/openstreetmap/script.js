@@ -16,11 +16,11 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
-function loadMap()
+function loadMap(lat, lng, zoom)
 {
     map = L.map(document.getElementById("mapDiv"), {
-        center: [initData.lat, initData.lng],
-        zoom: initData.zoom,
+        center: [lat, lng],
+        zoom: zoom,
         });
     L.tileLayer(
         'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',
