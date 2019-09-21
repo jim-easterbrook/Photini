@@ -583,10 +583,7 @@ class DateTime(MD_Dict):
         if handler.is_iptc_tag(tag):
             return cls.from_iptc(file_value)
         if tag.startswith('Xmp.video'):
-            try:
-                time_stamp = int(file_value)
-            except ValueError:
-                return None
+            time_stamp = int(file_value)
             if time_stamp == 0:
                 return None
             # assume date should be in range 1970 to 2034
@@ -1612,6 +1609,10 @@ class Metadata(QtCore.QObject):
                     continue
                 try:
                     new_value = self._data_type[name].read(handler, tag)
+                except ValueError as ex:
+                    logger.error('{}({}), {}: {}'.format(
+                        os.path.basename(handler._path), name, tag, str(ex)))
+                    continue
                 except Exception as ex:
                     logger.exception(ex)
                     continue
