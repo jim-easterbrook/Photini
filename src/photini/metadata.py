@@ -513,7 +513,6 @@ class DateTime(MD_Dict):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
     _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
-    _separators = ((4, '-'), (7, '-'), (10, 'T'), (13, ':'), (16, ':'))
 
     @classmethod
     def from_ISO_8601(cls, datetime_string):
@@ -540,17 +539,18 @@ class DateTime(MD_Dict):
             datetime_string = datetime_string[:-1]
         else:
             tz_offset = None
-        # fix any incorrect separators
-        for idx, sep in cls._separators:
-            if idx >= len(datetime_string):
-                break
-            if datetime_string[idx] != sep:
-                datetime_string = (datetime_string[:idx] + sep +
-                                   datetime_string[idx+1:])
+        # compute precision from string length
         precision = min((len(datetime_string) - 1) // 3, 7)
         if precision <= 0:
             return None
-        fmt = ''.join(cls._fmt_elements[:precision])
+        # set format to use same separators
+        fmt = list(cls._fmt_elements[:precision])
+        for n, idx in (1, 4), (2, 7), (3, 10):
+            if n >= precision:
+                break
+            if fmt[n][0] != datetime_string[idx]:
+                fmt[n] = datetime_string[idx] + fmt[n][1:]
+        fmt = ''.join(fmt)
         return cls(
             (datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
