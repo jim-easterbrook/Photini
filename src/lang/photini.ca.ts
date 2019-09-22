@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="ca" sourcelanguage="en_GB">
+<!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -31,12 +30,12 @@
     <message>
         <location filename="../photini/address.py" line="91"/>
         <source>&amp;Address</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Adreça</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="107"/>
         <source>Get address from lat, long</source>
-        <translation type="unfinished"></translation>
+        <translation>Obtenir adreça a partir de lat, long</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="158"/>
@@ -87,12 +86,12 @@
     <message>
         <location filename="../photini/pyqt.py" line="138"/>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;multiple&gt;</translation>
+        <translation>&lt;multiple&gt;</translation>
     </message>
     <message>
         <location filename="../photini/pyqt.py" line="141"/>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished">&lt;multiple values&gt;</translation>
+        <translation>&lt;multiple values&gt;</translation>
     </message>
 </context>
 <context>
@@ -110,12 +109,12 @@
     <message>
         <location filename="../photini/descriptive.py" line="182"/>
         <source>&lt;favourites&gt;</source>
-        <translation type="unfinished">&lt;favourites&gt;</translation>
+        <translation>&lt;favourites&gt;</translation>
     </message>
     <message>
         <location filename="../photini/descriptive.py" line="231"/>
         <source>&amp;Descriptive metadata</source>
-        <translation>Metadada &amp;descriptiva</translation>
+        <translation>Metadades &amp;descriptives</translation>
     </message>
     <message>
         <location filename="../photini/descriptive.py" line="244"/>
@@ -157,7 +156,7 @@
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Poseu el nom del propietari del copyright</translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../photini/descriptive.py" line="336"/>
         <source>Copyright ©{year} {name}. All rights reserved.</source>
         <translation>Copyright ©{year} {name}. Tots els drets reservats.</translation>
@@ -296,12 +295,12 @@
     <message>
         <location filename="../photini/flickr.py" line="387"/>
         <source>New album</source>
-        <translation type="unfinished"></translation>
+        <translation>Nou àlbum</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="392"/>
         <source>Add to albums</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegir a àlbums</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="468"/>
@@ -416,12 +415,12 @@ en aquesta foto a Flickr?</translation>
     <message>
         <location filename="../photini/googlephotos.py" line="233"/>
         <source>New album</source>
-        <translation type="unfinished"></translation>
+        <translation>Nou àlbum</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="238"/>
         <source>Add to albums</source>
-        <translation type="unfinished"></translation>
+        <translation>Afegir a àlbums</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="284"/>
@@ -666,7 +665,7 @@ copia</translation>
     <message>
         <location filename="../photini/importer.py" line="417"/>
         <source>&lt;select source&gt;</source>
-        <translation type="unfinished">&lt;select source&gt;</translation>
+        <translation>&lt;select source&gt;</translation>
     </message>
     <message>
         <location filename="../photini/importer.py" line="420"/>
@@ -681,7 +680,7 @@ copia</translation>
     <message>
         <location filename="../photini/importer.py" line="428"/>
         <source>&lt;add a folder&gt;</source>
-        <translation type="unfinished">&lt;add a folder&gt;</translation>
+        <translation>&lt;add a folder&gt;</translation>
     </message>
     <message>
         <location filename="../photini/importer.py" line="446"/>
@@ -713,22 +712,12 @@ triats</numerusform>
 <context>
     <name>LoggerWindow</name>
     <message>
-        <location filename="../photini/loggerwindow.py" line="80"/>
+        <location filename="../photini/loggerwindow.py" line="81"/>
         <source>Photini error logging</source>
         <translation>Registre d&apos;errors de Photini</translation>
     </message>
     <message>
-        <location filename="../photini/loggerwindow.py" line="90"/>
-        <source>Save</source>
-        <translation>Desa</translation>
-    </message>
-    <message>
-        <location filename="../photini/loggerwindow.py" line="94"/>
-        <source>Dismiss</source>
-        <translation>Descarta</translation>
-    </message>
-    <message>
-        <location filename="../photini/loggerwindow.py" line="128"/>
+        <location filename="../photini/loggerwindow.py" line="127"/>
         <source>Save log file</source>
         <translation>Guarda el registre d&apos;errors</translation>
     </message>
@@ -738,13 +727,14 @@ triats</numerusform>
     <message>
         <location filename="../photini/bingmap.py" line="50"/>
         <source>Server overload, please try again</source>
-        <translation type="unfinished"></translation>
+        <translation>Sobrecàrrega del servidor, torneu-ho a provar</translation>
     </message>
     <message>
         <location filename="../photini/bingmap.py" line="94"/>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca i consulta d&apos;alçada
+funcionant amb Bing</translation>
     </message>
     <message>
         <location filename="../photini/bingmap.py" line="106"/>
@@ -755,12 +745,12 @@ provided by Bing</source>
 <context>
     <name>MapTabGoogle</name>
     <message>
-        <location filename="../photini/googlemap.py" line="87"/>
+        <location filename="../photini/googlemap.py" line="86"/>
         <source>Search and altitude lookup</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca i consulta d&apos;alçada</translation>
     </message>
     <message>
-        <location filename="../photini/googlemap.py" line="100"/>
+        <location filename="../photini/googlemap.py" line="99"/>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
     </message>
@@ -781,7 +771,7 @@ provided by Bing</source>
 <context>
     <name>MapTabOSM</name>
     <message>
-        <location filename="../photini/openstreetmap.py" line="31"/>
+        <location filename="../photini/openstreetmap.py" line="28"/>
         <source>Map (&amp;OSM)</source>
         <translation>Mapa (&amp;OSM)</translation>
     </message>
@@ -796,33 +786,33 @@ provided by Bing</source>
     <message>
         <location filename="../photini/photinimap.py" line="262"/>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Alçada</translation>
     </message>
     <message>
         <location filename="../photini/photinimap.py" line="270"/>
         <source>Get altitude from map</source>
-        <translation type="unfinished"></translation>
+        <translation>Obté alçada a partir del mapa</translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="275"/>
+        <location filename="../photini/photinimap.py" line="277"/>
         <source>Search</source>
         <translation>Cerca</translation>
     </message>
     <message>
-        <location filename="../photini/photinimap.py" line="281"/>
+        <location filename="../photini/photinimap.py" line="283"/>
         <source>&lt;new search&gt;</source>
-        <translation type="unfinished">&lt;new search&gt;</translation>
+        <translation>&lt;new search&gt;</translation>
+    </message>
+    <message>
+        <location filename="../photini/photinimap.py" line="536"/>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;widen search&gt;</translation>
     </message>
     <message>
         <location filename="../photini/photinimap.py" line="538"/>
-        <source>&lt;widen search&gt;</source>
-        <translation type="unfinished">&lt;widen search&gt;</translation>
-    </message>
-    <message>
-        <location filename="../photini/photinimap.py" line="540"/>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="unfinished">&lt;repeat search&gt;</translation>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -968,7 +958,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
         <source>Address lookup powered by OpenCage</source>
         <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
     </message>
-    <message>
+    <message encoding="UTF-8">
         <location filename="../photini/opencage.py" line="151"/>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodades © OpenStreetMap contributors</translation>
@@ -979,7 +969,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
     <message>
         <location filename="../photini/technical.py" line="43"/>
         <source>&lt;clear&gt;</source>
-        <translation type="unfinished">&lt;clear&gt;</translation>
+        <translation>&lt;clear&gt;</translation>
     </message>
     <message>
         <location filename="../photini/technical.py" line="296"/>
@@ -1084,7 +1074,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
     <message>
         <location filename="../photini/technical.py" line="655"/>
         <source>Adjust times</source>
-        <translation>Ajustar hores</translation>
+        <translation>Ajusta hores</translation>
     </message>
     <message>
         <location filename="../photini/technical.py" line="659"/>
@@ -1139,7 +1129,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
     <message>
         <location filename="../photini/technical.py" line="689"/>
         <source>&lt;define new lens&gt;</source>
-        <translation type="unfinished">&lt;define new lens&gt;</translation>
+        <translation>&lt;define new lens&gt;</translation>
     </message>
     <message>
         <location filename="../photini/technical.py" line="696"/>
