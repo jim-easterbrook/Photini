@@ -24,6 +24,7 @@ import os
 
 import requests
 
+from photini.metadata import Location
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import catch_all, Qt, QtCore, QtGui, QtWidgets, SingleLineEdit
 
