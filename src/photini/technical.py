@@ -95,6 +95,21 @@ class NumberEdit(QtWidgets.QLineEdit):
         self.textEdited.connect(self.text_edited)
         self.editingFinished.connect(self.editing_finished)
 
+    @catch_all
+    def contextMenuEvent(self, event):
+        if self.placeholderText() != self.multiple or not self.choices:
+            return super(NumberEdit, self).contextMenuEvent(event)
+        menu = self.createStandardContextMenu()
+        suggestion_group = QtWidgets.QActionGroup(menu)
+        sep = menu.insertSeparator(menu.actions()[0])
+        for suggestion in self.choices:
+            action = QtWidgets.QAction(
+                six.text_type(suggestion), suggestion_group)
+            menu.insertAction(sep, action)
+        action = menu.exec_(event.globalPos())
+        if action and action.actionGroup() == suggestion_group:
+            self.set_value(action.iconText())
+
     @QtCore.pyqtSlot(six.text_type)
     @catch_all
     def text_edited(self, text):
@@ -113,7 +128,8 @@ class NumberEdit(QtWidgets.QLineEdit):
         else:
             self.clear()
 
-    def set_multiple(self):
+    def set_multiple(self, choices=[]):
+        self.choices = choices
         self.setPlaceholderText(self.multiple)
         self.clear()
 

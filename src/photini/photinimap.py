@@ -433,7 +433,7 @@ class PhotiniMap(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.altitude.set_multiple()
+            self.altitude.set_multiple(choices=filter(None, values))
         else:
             self.altitude.set_value(values[0])
         self.altitude.setEnabled(True)
