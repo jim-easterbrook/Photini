@@ -1014,47 +1014,59 @@ class TabWidget(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
-        value = images[0].metadata.aperture
-        for image in images[1:]:
-            if image.metadata.aperture != value:
-                self.widgets['aperture'].set_multiple()
-                return
-        self.widgets['aperture'].set_value(value)
+        values = []
+        for image in images:
+            value = image.metadata.aperture
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets['aperture'].set_multiple(choices=filter(None, values))
+        else:
+            self.widgets['aperture'].set_value(values[0])
 
     def _update_focal_length(self):
         images = self.image_list.get_selected_images()
         if not images:
             return
-        value = images[0].metadata.focal_length
-        for image in images[1:]:
-            if image.metadata.focal_length != value:
-                self.widgets['focal_length'].set_multiple()
-                return
-        self.widgets['focal_length'].set_value(value)
+        values = []
+        for image in images:
+            value = image.metadata.focal_length
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets['focal_length'].set_multiple(
+                choices=filter(None, values))
+        else:
+            self.widgets['focal_length'].set_value(values[0])
 
     def _update_focal_length_35(self):
         images = self.image_list.get_selected_images()
         if not images:
             return
         # display real value if it exists
-        value = images[0].metadata.focal_length_35
-        for image in images[1:]:
-            if image.metadata.focal_length_35 != value:
-                self.widgets['focal_length_35'].set_multiple()
-                return
-        self.widgets['focal_length_35'].set_value(value)
-        if value:
+        values = []
+        for image in images:
+            value = image.metadata.focal_length_35
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets['focal_length_35'].set_multiple(
+                choices=filter(None, values))
+        else:
+            self.widgets['focal_length_35'].set_value(values[0])
+        if values[0]:
             return
         # otherwise display calculated value
-        value = self.calc_35(images[0].metadata)
-        for image in images[1:]:
-            fl_35 = self.calc_35(image.metadata)
-            if fl_35 != value:
-                self.widgets['focal_length_35'].set_multiple()
-                return
-        if value:
-            # display as placeholder so it's shown faintly
-            self.widgets['focal_length_35'].setPlaceholderText(str(value))
+        values = []
+        for image in images:
+            value = self.calc_35(image.metadata)
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets['focal_length_35'].set_multiple(
+                choices=filter(None, values))
+        elif values[0]:
+            self.widgets['focal_length_35'].setPlaceholderText(str(values[0]))
 
     def set_crop_factor(self, md):
         if not md.camera_model:
