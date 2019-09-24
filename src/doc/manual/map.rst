@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2012-19  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Geotagging
 ==========
@@ -59,6 +59,10 @@ When several photographs have location metadata Photini will pan the map (and zo
 Selected images are shown with coloured markers.
 Unselected images are shown with grey markers.
 
+The ``Get altitude from map`` button sets the photograph's altitude (in metres) from its latitude and longitude, using data from the map provider.
+Not all map providers have altitude data, and the accuracy varies quite a lot.
+You can edit the value to correct it.
+
 .. image:: ../images/screenshot_137.png
 
 Selecting another map tab will show the same location but with data and imagery from a different provider.
@@ -67,19 +71,21 @@ Selecting another map tab will show the same location but with data and imagery 
 
 .. image:: ../images/screenshot_139.png
 
+.. image:: ../images/screenshot_140.png
+
 GPX file import
 ---------------
 
 If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions.
 If you have installed gpxpy_ then Photini's ``File`` menu should have an ``Import GPX file`` item.
 
-First you need to export your GPS log as a ``GPX`` (GPS eXchange format) file, then transfer the .gpx file to your computer.
-Make sure your images have the correct time zone set so that Photini can calculate their UTC timestamps.
+First you need to export your GPS log as a GPX_ (GPS eXchange format) file, then transfer the .gpx file to your computer.
+Make sure your images have the correct time zone set so that Photini can calculate their UTC_ timestamps.
 Select the images you want to set the locations of, then click the ``Import GPX file`` menu item.
 
 After opening your GPX file you can set some options to filter out inaccurate points.
 ``Max time between points`` allows Photini to detect gaps in the log, e.g. when you were in a building and lost the GPS signal.
-``Max dilution of precision`` allows you to ignore points where the "dilution of precision" (see `Wikipedia <https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_) is too large.
+``Max dilution of precision`` allows you to ignore points where the "`dilution of precision <https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_" is too large.
 You may need to experiment to find the best value for your GPS device.
 The final option selects whether to plot the track on the current map tab.
 This is still experimental, and there isn't an option to delete the plot, but it may be useful when setting the previous two parameters.
@@ -92,56 +98,6 @@ The result is unlikely to be the exact location where you took the photograph, s
    This is a recent addition to Photini and has not been extensively tested.
    I'd be interested to hear if you find it useful.
 
-Address lookup
---------------
-
-Photograph metadata can include textual address elements as well as the latitude & longitude.
-These are stored in a 5-level hierarchy: ``street``, ``city``, ``province``, ``country`` and ``region``.
-The meaning of these terms is rather loose, especially when out in the countryside, and there's no requirement to fill them all in.
-Typically ``city`` can be anything from a village to a metropolis, and ``street`` is a more specific location, e.g. "23 Abdication Avenue".
-``Province`` would be a state in the USA or a county in the UK.
-``Country`` is stored as a name and a 2 or 3 letter ISO code.
-``Region`` appears to be rarely used but could be a continent or sub-continent.
-More detail about these can be found on the `IPTC web site <https://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/locations.htm>`_.
-
-Photini stores two types of address: ``camera`` is where the photographer was positioned and ``subject`` is a location being photographed.
-For example, a general view of the Eiffel Tower will almost certainly have been taken from somewhere else in Paris.
-This separation of camera and subject addresses was added to the IPTC specification in 2009, but you may still have software that only recognises "legacy" address metadata.
-In this case you should not use the ``subject`` tabs or ``region`` fields.
-(Note that although the address metadata is standardised by the IPTC, it's actually stored in the XMP data.)
-
-.. image:: ../images/screenshot_140.png
-
-The ``⇨ address`` button uses "reverse geocoding" to convert latitude & longitude into a hierarchical address.
-This is a rather imprecise process so you may need to edit the results yourself.
-All the map tabs use the same address lookup service provided by OpenCage_, using data from OpenStreetMap_.
-Other providers don't allow lookup results to be permanently stored.
-
-.. image:: ../images/screenshot_141.png
-
-It's easier to see the address data if you drag the divider between address data and map to the right.
-Here you can see there is some duplication as a result of the imprecision of address lookup.
-
-.. image:: ../images/screenshot_142.png
-
-It is usually necessary to edit the address quite a lot.
-
-.. image:: ../images/screenshot_143.png
-
-Right-clicking on a location tab displays a context menu that allows the tab to be copied to a new tab or deleted.
-Copying the ``camera`` location is an easy way to initialise a ``subject`` location.
-(An empty ``subject 2`` tab is immediately created, in case the photograph has more than one subject.)
-
-.. image:: ../images/screenshot_144.png
-
-In this case most of the data is the same, but I changed the ``street`` to the subject of the photograph rather than where I was standing.
-
-.. image:: ../images/screenshot_145.png
-
-To reorder the subject locations, or to convert between camera and subject, you can drag any of the tabs to another position.
-If this results in the rightmost tab having data then another tab will be added.
-If the two rightmost tabs have no data then one of the empty tabs will be removed.
-
 .. _gpxpy:         https://github.com/tkrajina/gpxpy
-.. _OpenCage:      https://opencagedata.com/
-.. _OpenStreetMap: https://www.openstreetmap.org/about/
+.. _GPX:           https://en.wikipedia.org/wiki/GPS_Exchange_Format
+.. _UTC:           https://en.wikipedia.org/wiki/Coordinated_Universal_Time

@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2012-19  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 User manual
 ===========
@@ -15,6 +15,7 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    descriptive_metadata
    technical_metadata
    map
+   address
    flickr
    google_photos
    importer
