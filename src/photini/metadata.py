@@ -523,18 +523,18 @@ class DateTime(MD_Dict):
 
         """
         # extract time zone
-        if len(datetime_string) >= 19 and datetime_string[-6] in ('+', '-'):
-            tz_offset = int(datetime_string[-2:]) + (
-                        int(datetime_string[-5:-3]) * 60)
-            if datetime_string[-6] == '-':
+        tz_idx = datetime_string.find('+', 13)
+        if tz_idx < 0:
+            tz_idx = datetime_string.find('-', 13)
+        if tz_idx >= 0:
+            tz_string = datetime_string[tz_idx:]
+            datetime_string = datetime_string[:tz_idx]
+            tz_offset = int(tz_string[1:3]) * 60
+            if len(tz_string) >= 5:
+                tz_offset += int(tz_string[-2:])
+            if tz_string[0] == '-':
                 tz_offset = -tz_offset
-            datetime_string = datetime_string[:-6]
-        elif len(datetime_string) >= 16 and datetime_string[-3] in ('+', '-'):
-            tz_offset = int(datetime_string[-2:]) * 60
-            if datetime_string[-3] == '-':
-                tz_offset = -tz_offset
-            datetime_string = datetime_string[:-3]
-        elif len(datetime_string) >= 14 and datetime_string[-1] == 'Z':
+        elif datetime_string[-1] == 'Z':
             tz_offset = 0
             datetime_string = datetime_string[:-1]
         else:
