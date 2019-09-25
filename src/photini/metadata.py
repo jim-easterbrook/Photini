@@ -448,8 +448,12 @@ class Thumbnail(MD_Dict):
             h = int(h)
         else:
             data = handler.get_exif_thumbnail()
+            if using_pgi and isinstance(data, tuple):
+                # get_exif_thumbnail returns (OK, data) tuple
+                data = data[data[0]]
             if not data:
                 return None
+            data = bytearray(data)
             fmt = handler.get_tag_string(tag)
             fmt = ('TIFF', 'JPEG')[fmt == '6']
             pixmap = QtGui.QPixmap()
@@ -709,7 +713,7 @@ class DateTime(MD_Dict):
             result['precision'] = other.precision
         # don't trust IPTC time zone and Exif doesn't have time zone
         if (other.tz_offset not in (None, self.tz_offset) and
-                MetadataHandler.is_xmp_tag(tag)):
+                Exiv2Metadata.is_xmp_tag(tag)):
             result['tz_offset'] = other.tz_offset
         return DateTime(result)
 
@@ -928,26 +932,9 @@ class Rating(MD_Value, float):
             handler.set_string(tag, six.text_type(self))
 
 
-class MetadataHandler(GExiv2.Metadata):
-    _repeatable = (
-        'Iptc.Application2.Byline',
-        'Iptc.Application2.BylineTitle',
-        'Iptc.Application2.Contact',
-        'Iptc.Application2.Keywords',
-        'Iptc.Application2.LocationCode',
-        'Iptc.Application2.LocationName',
-        'Iptc.Application2.ObjectAttribute',
-        'Iptc.Application2.ReferenceNumber',
-        'Iptc.Application2.ReferenceService',
-        'Iptc.Application2.Subject',
-        'Iptc.Application2.SuppCategory',
-        'Iptc.Application2.Writer',
-        'Iptc.Envelope.Destination',
-        'Iptc.Envelope.ProductId',
-        )
-
+class Exiv2Metadata(GExiv2.Metadata):
     def __init__(self, path):
-        super(MetadataHandler, self).__init__()
+        super(Exiv2Metadata, self).__init__()
         self._path = path
         # read metadata from file
         self.open_path(self._path)
@@ -1136,7 +1123,7 @@ class MetadataHandler(GExiv2.Metadata):
                     if gexiv2_version >= (0, 10, 3):
                         self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
                     else:
-                        super(MetadataHandler, self).set_tag_string(bag, '')
+                        super(Exiv2Metadata, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):
@@ -1189,17 +1176,6 @@ class MetadataHandler(GExiv2.Metadata):
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
-    def get_exif_thumbnail(self):
-        thumb = super(MetadataHandler, self).get_exif_thumbnail()
-        if using_pgi and isinstance(thumb, tuple):
-            # get_exif_thumbnail returns (OK, data) tuple
-            thumb = thumb[thumb[0]]
-        if thumb:
-            return bytearray(thumb)
-        return None
-
-
-class Exiv2Metadata(MetadataHandler):
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs, where tag can be a tuple of tags. The mode is a
     # string containing the read mode (RA (always), or RN (never)) and
@@ -1407,6 +1383,23 @@ class Exiv2Metadata(MetadataHandler):
 
 
 class ImageMetadata(Exiv2Metadata):
+    _repeatable = (
+        'Iptc.Application2.Byline',
+        'Iptc.Application2.BylineTitle',
+        'Iptc.Application2.Contact',
+        'Iptc.Application2.Keywords',
+        'Iptc.Application2.LocationCode',
+        'Iptc.Application2.LocationName',
+        'Iptc.Application2.ObjectAttribute',
+        'Iptc.Application2.ReferenceNumber',
+        'Iptc.Application2.ReferenceService',
+        'Iptc.Application2.Subject',
+        'Iptc.Application2.SuppCategory',
+        'Iptc.Application2.Writer',
+        'Iptc.Envelope.Destination',
+        'Iptc.Envelope.ProductId',
+        )
+
     def __init__(self, *args, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
         xmp_only = self.get_mime_type() in (
