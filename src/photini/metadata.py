@@ -200,7 +200,7 @@ class LatLon(MD_Dict):
             return None
         if not all(file_value):
             return None
-        if handler.is_exif_tag(tag[0]):
+        if handler.is_exif_tag(tag):
             return cls((cls.from_exif_part(file_value[0], file_value[1]),
                         cls.from_exif_part(file_value[2], file_value[3])))
         else:
@@ -208,7 +208,7 @@ class LatLon(MD_Dict):
                         cls.from_xmp_part(file_value[1])))
 
     def write(self, handler, tag):
-        if handler.is_exif_tag(tag[0]):
+        if handler.is_exif_tag(tag):
             lat_string, negative = self.to_exif_part(self.lat)
             lat_ref = 'NS'[negative]
             lon_string, negative = self.to_exif_part(self.lon)
@@ -289,14 +289,14 @@ class Location(MD_Dict):
         return value
 
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+    def read(cls, handler, tag, idx=1):
+        file_value = handler.get_string(tag, idx=idx)
         if not any(file_value):
             return None
         return cls(file_value)
 
-    def write(self, handler, tag):
-        handler.set_string(tag, [self[x] for x in self._keys])
+    def write(self, handler, tag, idx=1):
+        handler.set_string(tag, [self[x] for x in self._keys], idx=idx)
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -349,19 +349,12 @@ class MultiLocation(tuple):
             temp = temp[:-1]
         return super(MultiLocation, cls).__new__(cls, temp)
 
-    @staticmethod
-    def tag_n(tag, n):
-        result = []
-        for sub_tag in tag:
-            result.append(sub_tag.replace('1', str(n)))
-        return tuple(result)
-
     @classmethod
     def read(cls, handler, tag):
         value = []
         count = 1
         while True:
-            file_value = Location.read(handler, cls.tag_n(tag, count))
+            file_value = Location.read(handler, tag, idx=count)
             if file_value is None:
                 break
             value.append(file_value)
@@ -375,21 +368,20 @@ class MultiLocation(tuple):
             count -= 1
         # delete file values beyond end of list
         file_count = count
-        while Location.read(
-                handler, self.tag_n(tag, file_count + 1)) is not None:
+        while Location.read(handler, tag, idx=file_count + 1) is not None:
             file_count += 1
         while file_count > count:
-            handler.clear_value(self.tag_n(tag, file_count))
+            handler.clear_value(tag, idx=file_count)
             file_count -= 1
         # save list values
         for n in range(count):
-            tag_n = self.tag_n(tag, n + 1)
             if self[n]:
-                self[n].write(handler, tag_n)
+                self[n].write(handler, tag, idx=n + 1)
             else:
-                handler.clear_value(tag_n)
+                handler.clear_value(tag, idx=n + 1)
                 # save placeholder
-                handler.set_string(tag_n[0], ' ')
+                handler.set_string(
+                    handler._multi_tags[tag][0].format(idx=n + 1), ' ')
 
     def __str__(self):
         result = ''
@@ -963,11 +955,14 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     _parse_xmp_struct = re.compile('(.+?)(?:\[(\d+)\])?/')
 
-    def clear_value(self, tag):
-        if isinstance(tag, tuple):
-            for sub_tag in tag:
-                self.clear_value(sub_tag)
+    def clear_value(self, tag, idx=1):
+        if tag in self._multi_tags:
+            for sub_tag in self._multi_tags[tag]:
+                self._clear_value(sub_tag.format(idx=idx))
             return
+        self._clear_value(tag)
+
+    def _clear_value(self, tag):
         if not self.has_tag(tag):
             return
         self.clear_tag(tag)
@@ -1010,9 +1005,13 @@ class Exiv2Metadata(GExiv2.Metadata):
         'jis'    : 'euc_jp',
         }
 
-    def get_string(self, tag):
-        if isinstance(tag, tuple):
-            return [self.get_string(x) for x in tag]
+    def get_string(self, tag, idx=1):
+        if tag in self._multi_tags:
+            return [self._get_string(sub_tag.format(idx=idx))
+                    for sub_tag in self._multi_tags[tag]]
+        return self._get_string(tag)
+
+    def _get_string(self, tag):
         if not self.has_tag(tag):
             return None
         if tag in ('Exif.Image.XPTitle',  'Exif.Image.XPComment',
@@ -1050,9 +1049,13 @@ class Exiv2Metadata(GExiv2.Metadata):
             return None
         return self._decode_string(result).strip('\x00')
 
-    def get_multiple(self, tag):
-        if isinstance(tag, tuple):
-            return [self.get_multiple(x) for x in tag]
+    def get_multiple(self, tag, idx=1):
+        if tag in self._multi_tags:
+            return [self._get_multiple(sub_tag.format(idx=idx))
+                    for sub_tag in self._multi_tags[tag]]
+        return self._get_multiple(tag)
+
+    def _get_multiple(self, tag):
         if not self.has_tag(tag):
             return []
         if not six.PY2 and not using_pgi and self.is_iptc_tag(tag):
@@ -1096,11 +1099,14 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
             }
 
-    def set_string(self, tag, value):
-        if isinstance(tag, tuple):
-            for sub_tag, sub_value in zip(tag, value):
-                self.set_string(sub_tag, sub_value)
+    def set_string(self, tag, value, idx=1):
+        if tag in self._multi_tags:
+            for sub_tag, sub_value in zip(self._multi_tags[tag], value):
+                self._set_string(sub_tag.format(idx=idx), sub_value)
             return
+        self._set_string(tag, value)
+
+    def _set_string(self, tag, value):
         if not value:
             self.clear_value(tag)
             return
@@ -1126,11 +1132,14 @@ class Exiv2Metadata(GExiv2.Metadata):
                         super(Exiv2Metadata, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
 
-    def set_multiple(self, tag, value):
-        if isinstance(tag, tuple):
-            for sub_tag, sub_value in zip(tag, value):
-                self.set_multiple(sub_tag, sub_value)
+    def set_multiple(self, tag, value, idx=1):
+        if tag in self._multi_tags:
+            for sub_tag, sub_value in zip(self._multi_tags[tag], value):
+                self._set_multiple(sub_tag.format(idx=idx), sub_value)
             return
+        self._set_multiple(tag, value)
+
+    def _set_multiple(self, tag, value):
         if not value:
             self.clear_value(tag)
             return
@@ -1141,24 +1150,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         elif six.PY2:
             value = [x.encode('utf_8') for x in value]
         self.set_tag_multiple(tag, value)
-
-    @staticmethod
-    def is_exif_tag(tag):
-        if isinstance(tag, tuple):
-            tag = tag[0]
-        return GExiv2.Metadata.is_exif_tag(tag)
-
-    @staticmethod
-    def is_iptc_tag(tag):
-        if isinstance(tag, tuple):
-            tag = tag[0]
-        return GExiv2.Metadata.is_iptc_tag(tag)
-
-    @staticmethod
-    def is_xmp_tag(tag):
-        if isinstance(tag, tuple):
-            tag = tag[0]
-        return GExiv2.Metadata.is_xmp_tag(tag)
 
     def save(self, file_times):
         # don't try to save to unwritable formats
@@ -1176,6 +1167,72 @@ class Exiv2Metadata(GExiv2.Metadata):
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
 
+    # some tags are always read & written in groups, but are represented
+    # by a single name
+    _multi_tags = {
+        'Exif.GPSInfo.GPSAltitude': (
+            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
+        'Exif.GPSInfo.GPSCoordinates': (
+            'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
+            'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
+        'Exif.Image.DateTime': (
+            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
+        'Exif.Image.DateTimeOriginal': ('Exif.Photo.DateTimeOriginal',),
+        'Exif.Image.FNumber': (
+            'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
+        'Exif.Photo.DateTimeDigitized': (
+            'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
+        'Exif.Photo.DateTimeOriginal': (
+            'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
+        'Exif.Photo.FNumber': (
+            'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
+        'Iptc.Application2.DateCreated': (
+            'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
+        'Iptc.Application2.DigitizationDate': (
+            'Iptc.Application2.DigitizationDate',
+            'Iptc.Application2.DigitizationTime'),
+        'Iptc.Application2.Location': (
+            'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
+            'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
+            'Iptc.Application2.CountryCode'),
+        'Iptc.Application2.Program': (
+            'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
+        'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
+        'Xmp.exif.GPSAltitude': (
+            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
+        'Xmp.exif.GPSCoordinates': (
+            'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
+        'Xmp.iptc.Location': (
+            'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
+            'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
+        'Xmp.iptcExt.LocationShown': (
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:City',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:CountryName',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
+            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
+        'Xmp.iptcExt.LocationCreated': (
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
+            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.xmp.Thumbnails': (
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:image',
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:height'),
+        'Xmp.xmp.ThumbnailsAp': (
+            'Xmp.xmp.Thumbnails[1]/xapGImg:image',
+            'Xmp.xmp.Thumbnails[1]/xapGImg:format',
+            'Xmp.xmp.Thumbnails[1]/xapGImg:width',
+            'Xmp.xmp.Thumbnails[1]/xapGImg:height'),
+        }
+
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs, where tag can be a tuple of tags. The mode is a
     # string containing the read mode (RA (always), or RN (never)) and
@@ -1183,16 +1240,11 @@ class Exiv2Metadata(GExiv2.Metadata):
     # tag), or WN (never).
     # The order of the tags sets the precedence when values conflict.
     _tag_list = {
-        'altitude'       : (('RA.WA', ('Exif.GPSInfo.GPSAltitude',
-                                       'Exif.GPSInfo.GPSAltitudeRef')),
-                            ('RA.WX', ('Xmp.exif.GPSAltitude',
-                                       'Xmp.exif.GPSAltitudeRef'))),
-        'aperture'       : (('RA.WA', ('Exif.Photo.FNumber',
-                                       'Exif.Photo.ApertureValue')),
-                            ('RA.W0', ('Exif.Image.FNumber',
-                                       'Exif.Image.ApertureValue')),
-                            ('RA.WX', ('Xmp.exif.FNumber',
-                                       'Xmp.exif.ApertureValue'))),
+        'altitude'       : (('RA.WA', 'Exif.GPSInfo.GPSAltitude'),
+                            ('RA.WX', 'Xmp.exif.GPSAltitude')),
+        'aperture'       : (('RA.WA', 'Exif.Photo.FNumber'),
+                            ('RA.W0', 'Exif.Image.FNumber'),
+                            ('RA.WX', 'Xmp.exif.FNumber')),
         'camera_model'   : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Xmp.video.Model')),
@@ -1206,26 +1258,21 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WA', 'Xmp.dc.creator'),
                             ('RA.W0', 'Xmp.tiff.Artist'),
                             ('RA.WA', 'Iptc.Application2.Byline')),
-        'date_digitised' : (('RA.WA', ('Exif.Photo.DateTimeDigitized',
-                                       'Exif.Photo.SubSecTimeDigitized')),
+        'date_digitised' : (('RA.WA', 'Exif.Photo.DateTimeDigitized'),
                             ('RA.WA', 'Xmp.xmp.CreateDate'),
                             ('RA.W0', 'Xmp.exif.DateTimeDigitized'),
                             ('RA.WN', 'Xmp.video.DateUTC'),
-                            ('RA.WA', ('Iptc.Application2.DigitizationDate',
-                                       'Iptc.Application2.DigitizationTime'))),
-        'date_modified'  : (('RA.WA', ('Exif.Image.DateTime',
-                                       'Exif.Photo.SubSecTime')),
+                            ('RA.WA', 'Iptc.Application2.DigitizationDate')),
+        'date_modified'  : (('RA.WA', 'Exif.Image.DateTime'),
                             ('RA.WA', 'Xmp.xmp.ModifyDate'),
                             ('RA.WN', 'Xmp.video.ModificationDate'),
                             ('RA.W0', 'Xmp.tiff.DateTime')),
-        'date_taken'     : (('RA.WA', ('Exif.Photo.DateTimeOriginal',
-                                       'Exif.Photo.SubSecTimeOriginal')),
-                            ('RA.W0', ('Exif.Image.DateTimeOriginal',)),
+        'date_taken'     : (('RA.WA', 'Exif.Photo.DateTimeOriginal'),
+                            ('RA.W0', 'Exif.Image.DateTimeOriginal'),
                             ('RA.WA', 'Xmp.photoshop.DateCreated'),
                             ('RA.W0', 'Xmp.exif.DateTimeOriginal'),
                             ('RA.WN', 'Xmp.video.DateUTC'),
-                            ('RA.WA', ('Iptc.Application2.DateCreated',
-                                       'Iptc.Application2.TimeCreated'))),
+                            ('RA.WA', 'Iptc.Application2.DateCreated')),
         'description'    : (('RA.WA', 'Exif.Image.ImageDescription'),
                             ('RA.W0', 'Exif.Image.XPComment'),
                             ('RA.W0', 'Exif.Image.XPSubject'),
@@ -1249,12 +1296,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         'keywords'       : (('RA.WA', 'Xmp.dc.subject'),
                             ('RA.WA', 'Iptc.Application2.Keywords'),
                             ('RA.W0', 'Exif.Image.XPKeywords')),
-        'latlong'        : (('RA.WA', ('Exif.GPSInfo.GPSLatitude',
-                                       'Exif.GPSInfo.GPSLatitudeRef',
-                                       'Exif.GPSInfo.GPSLongitude',
-                                       'Exif.GPSInfo.GPSLongitudeRef')),
-                            ('RA.WX', ('Xmp.exif.GPSLatitude',
-                                       'Xmp.exif.GPSLongitude')),
+        'latlong'        : (('RA.WA', 'Exif.GPSInfo.GPSCoordinates'),
+                            ('RA.WX', 'Xmp.exif.GPSCoordinates'),
                             ('RA.WN', 'Xmp.video.GPSCoordinates')),
         'lens_make'      : (('RA.WA', 'Exif.Photo.LensMake'),
                             ('RA.WX', 'Xmp.exifEX.LensMake')),
@@ -1276,32 +1319,10 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RN.W0', 'Exif.CanonCs.ShortFocal'),
                             ('RN.W0', 'Exif.CanonCs.MaxAperture'),
                             ('RN.W0', 'Exif.CanonCs.MinAperture')),
-        'location_shown' : (
-            ('RA.WA', ('Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:Sublocation',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:City',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:ProvinceState',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryName',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:CountryCode',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:WorldRegion',
-                       'Xmp.iptcExt.LocationShown[1]/Iptc4xmpExt:LocationId')),),
-        'location_taken' : (
-            ('RA.WA', ('Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
-                       'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId')),
-            ('RA.WA', ('Xmp.iptc.Location',
-                       'Xmp.photoshop.City',
-                       'Xmp.photoshop.State',
-                       'Xmp.photoshop.Country',
-                       'Xmp.iptc.CountryCode')),
-            ('RA.WA', ('Iptc.Application2.SubLocation',
-                       'Iptc.Application2.City',
-                       'Iptc.Application2.ProvinceState',
-                       'Iptc.Application2.CountryName',
-                       'Iptc.Application2.CountryCode'))),
+        'location_shown' : (('RA.WA', 'Xmp.iptcExt.LocationShown'),),
+        'location_taken' : (('RA.WA', 'Xmp.iptcExt.LocationCreated'),
+                            ('RA.WA', 'Xmp.iptc.Location'),
+                            ('RA.WA', 'Iptc.Application2.Location')),
         'orientation'    : (('RA.WA', 'Exif.Image.Orientation'),
                             ('RA.WX', 'Xmp.tiff.Orientation')),
         'rating'         : (('RA.WA', 'Xmp.xmp.Rating'),
@@ -1318,20 +1339,13 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WN', 'Exif.Photo.FocalPlaneResolutionUnit'),
                             ('RA.WN', 'Xmp.exif.FocalPlaneResolutionUnit')),
         'software'       : (('RA.WA', 'Exif.Image.ProcessingSoftware'),
-                            ('RA.WA', ('Iptc.Application2.Program',
-                                       'Iptc.Application2.ProgramVersion'))),
+                            ('RA.WA', 'Iptc.Application2.Program')),
         # Both xmpGImg and xapGImg namespaces are specified in different
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
         'thumbnail'      : (('RA.WA', 'Exif.Thumbnail.Compression'),
-                            ('RA.WX', ('Xmp.xmp.Thumbnails[1]/xmpGImg:image',
-                                       'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
-                                       'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
-                                       'Xmp.xmp.Thumbnails[1]/xmpGImg:height')),
-                            ('RA.W0', ('Xmp.xmp.Thumbnails[1]/xapGImg:image',
-                                       'Xmp.xmp.Thumbnails[1]/xapGImg:format',
-                                       'Xmp.xmp.Thumbnails[1]/xapGImg:width',
-                                       'Xmp.xmp.Thumbnails[1]/xapGImg:height'))),
+                            ('RA.WX', 'Xmp.xmp.Thumbnails'),
+                            ('RA.W0', 'Xmp.xmp.ThumbnailsAp')),
         'timezone'       : (('RA.WN', 'Exif.Image.TimeZoneOffset'),
                             ('RA.WN', 'Exif.CanonTi.TimeZone'),
                             ('RA.WN', 'Exif.NikonWt.Timezone')),
