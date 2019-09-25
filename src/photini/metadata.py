@@ -479,7 +479,7 @@ class Thumbnail(MD_Dict):
             if not six.PY2:
                 data = data.decode('ASCII')
             handler.set_string(tag, (data, 'JPEG', str(self.w), str(self.h)))
-        elif handler.get_supports_exif():
+        elif handler.supports_exif:
             handler.set_exif_thumbnail_from_buffer(self.data)
 
     def __str__(self):
@@ -951,8 +951,6 @@ class MetadataHandler(GExiv2.Metadata):
         self._path = path
         # read metadata from file
         self.open_path(self._path)
-        self._xmp_only = self.get_mime_type() in (
-            'application/rdf+xml', 'application/postscript')
         # make list of possible character encodings
         self._encodings = []
         for name in ('utf_8', 'latin_1'):
@@ -965,28 +963,6 @@ class MetadataHandler(GExiv2.Metadata):
                     self._encodings.append(name)
             except LookupError:
                 pass
-        # convert IPTC data to UTF-8
-        if not self.has_iptc():
-            return
-        current_encoding = CharacterSet.read(self, 'Iptc.Envelope.CharacterSet')
-        if current_encoding:
-            if current_encoding == 'utf_8':
-                return
-            try:
-                name = codecs.lookup(current_encoding).name
-                if name not in self._encodings:
-                    self._encodings.insert(0, name)
-            except LookupError:
-                pass
-        for tag in self.get_iptc_tags():
-            if self.get_tag_type(tag) == 'String':
-                try:
-                    if tag in self._repeatable:
-                        self.set_multiple(tag, self.get_multiple(tag))
-                    else:
-                        self.set_string(tag, self.get_string(tag))
-                except Exception as ex:
-                    logger.exception(ex)
 
     def _decode_string(self, value):
         if not value:
@@ -1197,24 +1173,9 @@ class MetadataHandler(GExiv2.Metadata):
             tag = tag[0]
         return GExiv2.Metadata.is_xmp_tag(tag)
 
-    def get_supports_exif(self):
-        if self._xmp_only:
-            return False
-        return super(MetadataHandler, self).get_supports_exif()
-
-    def get_supports_iptc(self):
-        if self._xmp_only:
-            return False
-        return super(MetadataHandler, self).get_supports_iptc()
-
-    def has_iptc(self):
-        if self._xmp_only:
-            return False
-        return super(MetadataHandler, self).has_iptc()
-
     def save(self, file_times):
         # don't try to save to unwritable formats
-        if not (self.get_supports_xmp() or self.get_supports_exif()):
+        if not (self.get_supports_xmp() or self.supports_exif):
             return False
         try:
             self.save_file(self._path)
@@ -1224,32 +1185,6 @@ class MetadataHandler(GExiv2.Metadata):
             logger.exception(ex)
             return False
         return True
-
-    def merge_sc(self, other):
-        # merge sidecar data into image file data, ignoring thumbnails
-        # allow exiv2 to infer Exif tags from XMP
-        for tag in other.get_exif_tags():
-            if tag.startswith('Exif.Thumbnail'):
-                continue
-            # ignore inferred datetime values the exiv2 gets wrong
-            # (I think it's adding the local timezone offset)
-            if tag in ('Exif.Image.DateTime', 'Exif.Photo.DateTimeOriginal',
-                       'Exif.Photo.DateTimeDigitized'):
-                self.clear_tag(tag)
-            else:
-                self.set_string(tag, other.get_string(tag))
-        # copy all XMP tags except inferred Exif tags
-        for tag in other.get_xmp_tags():
-            if tag.startswith('Xmp.xmp.Thumbnails'):
-                continue
-            ns = tag.split('.')[1]
-            if ns in ('exif', 'exifEX', 'tiff', 'aux'):
-                # exiv2 will already have supplied the equivalent Exif tag
-                pass
-            elif self.get_tag_type(tag) == 'XmpText':
-                self.set_string(tag, other.get_string(tag))
-            else:
-                self.set_multiple(tag, other.get_multiple(tag))
 
     def get_all_tags(self):
         return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
@@ -1264,48 +1199,13 @@ class MetadataHandler(GExiv2.Metadata):
         return None
 
 
-class Metadata(QtCore.QObject):
-    unsaved = QtCore.pyqtSignal(bool)
-
-    # type of each Photini data field's data
-    _data_type = {
-        'altitude'       : Altitude,
-        'aperture'       : Aperture,
-        'camera_model'   : MD_String,
-        'character_set'  : CharacterSet,
-        'copyright'      : MD_String,
-        'creator'        : MultiString,
-        'date_digitised' : DateTime,
-        'date_modified'  : DateTime,
-        'date_taken'     : DateTime,
-        'description'    : MD_String,
-        'dimension_x'    : MD_Int,
-        'dimension_y'    : MD_Int,
-        'focal_length'   : MD_Rational,
-        'focal_length_35': MD_Int,
-        'keywords'       : MultiString,
-        'latlong'        : LatLon,
-        'lens_make'      : MD_String,
-        'lens_model'     : MD_String,
-        'lens_serial'    : MD_String,
-        'lens_spec'      : LensSpec,
-        'location_shown' : MultiLocation,
-        'location_taken' : Location,
-        'orientation'    : MD_Int,
-        'rating'         : Rating,
-        'resolution_x'   : MD_Rational,
-        'resolution_y'   : MD_Rational,
-        'resolution_unit': MD_Int,
-        'software'       : Software,
-        'thumbnail'      : Thumbnail,
-        'timezone'       : Timezone,
-        'title'          : MD_String,
-        }
+class Exiv2Metadata(MetadataHandler):
     # Mapping of tags to Photini data fields Each field has a list of
     # (mode, tag) pairs, where tag can be a tuple of tags. The mode is a
     # string containing the read mode (RA (always), or RN (never)) and
     # write mode (WA (always), WX (if Exif not supported), W0 (clear the
     # tag), or WN (never).
+    # The order of the tags sets the precedence when values conflict.
     _tag_list = {
         'altitude'       : (('RA.WA', ('Exif.GPSInfo.GPSAltitude',
                                        'Exif.GPSInfo.GPSAltitudeRef')),
@@ -1464,25 +1364,215 @@ class Metadata(QtCore.QObject):
                             ('RA.W0', 'Exif.Image.XPTitle'),
                             ('RA.W0', 'Iptc.Application2.Headline')),
         }
+
+    def read(self, name, type_):
+        result = []
+        omit_exif = not self.supports_exif
+        omit_iptc = not self.supports_iptc
+        for mode, tag in self._tag_list[name]:
+            if mode.split('.')[0] == 'RN':
+                continue
+            if ((omit_exif and self.is_exif_tag(tag)) or
+                (omit_iptc and self.is_iptc_tag(tag))):
+                continue
+            try:
+                value = type_.read(self, tag)
+            except ValueError as ex:
+                logger.error('{}({}), {}: {}'.format(
+                    os.path.basename(self._path), name, tag, str(ex)))
+                continue
+            except Exception as ex:
+                logger.exception(ex)
+                continue
+            if value:
+                result.append((tag, value))
+        return result
+
+    def write(self, name, value, force_iptc):
+        omit_exif = not self.supports_exif
+        omit_iptc = not (self.supports_iptc and (force_iptc or self.using_iptc))
+        for mode, tag in self._tag_list[name]:
+            write_mode = mode.split('.')[1]
+            if write_mode == 'WN':
+                continue
+            if ((omit_exif and self.is_exif_tag(tag)) or
+                (omit_iptc and self.is_iptc_tag(tag))):
+                self.clear_value(tag)
+                continue
+            if ((not value) or (write_mode == 'W0') or
+                (write_mode == 'WX' and self.supports_exif)):
+                self.clear_value(tag)
+            else:
+                value.write(self, tag)
+
+
+class ImageMetadata(Exiv2Metadata):
+    def __init__(self, *args, **kwds):
+        super(ImageMetadata, self).__init__(*args, **kwds)
+        xmp_only = self.get_mime_type() in (
+            'application/rdf+xml', 'application/postscript')
+        if xmp_only:
+            self.supports_exif = False
+            self.supports_iptc = False
+            self.using_iptc = False
+        else:
+            self.supports_exif = self.get_supports_exif()
+            self.supports_iptc = self.get_supports_iptc()
+            self.using_iptc = self.has_iptc()
+        # convert IPTC data to UTF-8
+        if not self.using_iptc:
+            return
+        current_encoding = CharacterSet.read(self, 'Iptc.Envelope.CharacterSet')
+        if current_encoding:
+            if current_encoding == 'utf_8':
+                return
+            try:
+                name = codecs.lookup(current_encoding).name
+                if name not in self._encodings:
+                    self._encodings.insert(0, name)
+            except LookupError:
+                pass
+        for tag in self.get_iptc_tags():
+            if self.get_tag_type(tag) == 'String':
+                try:
+                    if tag in self._repeatable:
+                        self.set_multiple(tag, self.get_multiple(tag))
+                    else:
+                        self.set_string(tag, self.get_string(tag))
+                except Exception as ex:
+                    logger.exception(ex)
+
+    @classmethod
+    def open_old(cls, path):
+        try:
+            return cls(path)
+        except GLib.Error:
+            # expected if unrecognised file format
+            return None
+        except Exception as ex:
+            logger.exception(ex)
+            return None
+
+    def merge_sc(self, other):
+        # merge sidecar data into image file data, ignoring thumbnails
+        # allow exiv2 to infer Exif tags from XMP
+        for tag in other.get_exif_tags():
+            if tag.startswith('Exif.Thumbnail'):
+                continue
+            # ignore inferred datetime values the exiv2 gets wrong
+            # (I think it's adding the local timezone offset)
+            if tag in ('Exif.Image.DateTime', 'Exif.Photo.DateTimeOriginal',
+                       'Exif.Photo.DateTimeDigitized'):
+                self.clear_tag(tag)
+            else:
+                self.set_string(tag, other.get_string(tag))
+        # copy all XMP tags except inferred Exif tags
+        for tag in other.get_xmp_tags():
+            if tag.startswith('Xmp.xmp.Thumbnails'):
+                continue
+            ns = tag.split('.')[1]
+            if ns in ('exif', 'exifEX', 'tiff', 'aux'):
+                # exiv2 will already have supplied the equivalent Exif tag
+                pass
+            elif self.get_tag_type(tag) == 'XmpText':
+                self.set_string(tag, other.get_string(tag))
+            else:
+                self.set_multiple(tag, other.get_multiple(tag))
+
+
+class SidecarMetadata(Exiv2Metadata):
+    supports_exif = False
+    supports_iptc = False
+    using_iptc = False
+
+    @classmethod
+    def open_old(cls, path):
+        for base in (os.path.splitext(path)[0], path):
+            for ext in ('.xmp', '.XMP', '.Xmp'):
+                sc_path = base + ext
+                if os.path.exists(sc_path):
+                    try:
+                        return cls(sc_path)
+                    except Exception as ex:
+                        logger.exception(ex)
+                        return None
+        return None
+
+    @classmethod
+    def open_new(cls, path, image_md):
+        sc_path = path + '.xmp'
+        try:
+            with open(sc_path, 'w') as of:
+                of.write(XMP_WRAPPER.format(
+                    'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
+            if image_md:
+                # let exiv2 copy as much metadata as it can into sidecar
+                image_md.save_file(sc_path)
+            self = cls(sc_path)
+            self.set_string(
+                'Xmp.xmp.CreatorTool', 'Photini editor v' + __version__)
+            return self
+        except Exception as ex:
+            logger.exception(ex)
+            return None
+
+    def delete(self):
+        os.unlink(self._path)
+        return None
+
+    def clear_dates(self):
+        # workaround for bug in exiv2 xmp timestamp altering
+        for name in ('date_digitised', 'date_modified', 'date_taken'):
+            for mode, tag in self._tag_list[name]:
+                if mode in ('RA.WA', 'RA.W0'):
+                    self.clear_value(tag)
+        self.save(None)
+
+
+class Metadata(QtCore.QObject):
+    unsaved = QtCore.pyqtSignal(bool)
+
+    # type of each Photini data field's data
+    _data_type = {
+        'altitude'       : Altitude,
+        'aperture'       : Aperture,
+        'camera_model'   : MD_String,
+        'character_set'  : CharacterSet,
+        'copyright'      : MD_String,
+        'creator'        : MultiString,
+        'date_digitised' : DateTime,
+        'date_modified'  : DateTime,
+        'date_taken'     : DateTime,
+        'description'    : MD_String,
+        'dimension_x'    : MD_Int,
+        'dimension_y'    : MD_Int,
+        'focal_length'   : MD_Rational,
+        'focal_length_35': MD_Int,
+        'keywords'       : MultiString,
+        'latlong'        : LatLon,
+        'lens_make'      : MD_String,
+        'lens_model'     : MD_String,
+        'lens_serial'    : MD_String,
+        'lens_spec'      : LensSpec,
+        'location_shown' : MultiLocation,
+        'location_taken' : Location,
+        'orientation'    : MD_Int,
+        'rating'         : Rating,
+        'resolution_x'   : MD_Rational,
+        'resolution_y'   : MD_Rational,
+        'resolution_unit': MD_Int,
+        'software'       : Software,
+        'thumbnail'      : Thumbnail,
+        'timezone'       : Timezone,
+        'title'          : MD_String,
+        }
+
     def __init__(self, path, *args, **kw):
         super(Metadata, self).__init__(*args, **kw)
         # create metadata handlers for image file and/or sidecar
         self._path = path
-        self._sc_path = self.find_side_car(path)
-        self._sc = None
-        if self._sc_path:
-            try:
-                self._sc = MetadataHandler(self._sc_path)
-            except Exception as ex:
-                logger.exception(ex)
-        self._if = None
-        try:
-            self._if = MetadataHandler(path)
-        except GLib.Error:
-            # expected if unrecognised file format
-            pass
-        except Exception as ex:
-            logger.exception(ex)
+        self._sc = SidecarMetadata.open_old(path)
+        self._if = ImageMetadata.open_old(path)
         self.dirty = False
 
     @classmethod
@@ -1496,37 +1586,12 @@ class Metadata(QtCore.QObject):
             self._if.merge_sc(other._sc)
         return self
 
-    @staticmethod
-    def find_side_car(path):
-        for base in (os.path.splitext(path)[0], path):
-            for ext in ('.xmp', '.XMP'):
-                result = base + ext
-                if os.path.exists(result):
-                    return result
-        return None
-
-    def create_side_car(self):
-        self._sc_path = self._path + '.xmp'
-        try:
-            with open(self._sc_path, 'w') as of:
-                of.write(XMP_WRAPPER.format(
-                    'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
-            if self._if:
-                # let exiv2 copy as much metadata as it can into sidecar
-                self._if.save_file(self._sc_path)
-            self._sc = MetadataHandler(self._sc_path)
-            self._sc.set_string(
-                'Xmp.xmp.CreatorTool', 'Photini editor v' + __version__)
-        except Exception as ex:
-            logger.exception(ex)
-            self._sc = None
-
     def save(self, if_mode=True, sc_mode='auto',
              force_iptc=False, file_times=None):
         if not self.dirty:
             return
         if (sc_mode == 'always' or not self._if) and not self._sc:
-            self.create_side_car()
+            self._sc = SidecarMetadata.open_new(self._path, self._if)
         self.software = 'Photini editor v' + __version__
         self.character_set = 'utf_8'
         try:
@@ -1534,38 +1599,19 @@ class Metadata(QtCore.QObject):
                 self._if.merge_sc(self._sc)
             if self._sc:
                 # workaround for bug in exiv2 xmp timestamp altering
-                for name in ('date_digitised', 'date_modified', 'date_taken'):
-                    for mode, tag in self._tag_list[name]:
-                        if mode in ('RA.WA', 'RA.W0'):
-                            self._sc.clear_value(tag)
-                self._sc.save(file_times)
+                self._sc.clear_dates()
             for handler in (self._sc, self._if):
                 if not handler:
                     continue
-                omit_exif = not handler.get_supports_exif()
-                omit_iptc = not (handler.get_supports_iptc() and
-                                 (force_iptc or handler.has_iptc()))
-                for name in self._tag_list:
+                for name in self._data_type:
                     value = getattr(self, name)
-                    for mode, tag in self._tag_list[name]:
-                        if ((omit_exif and handler.is_exif_tag(tag)) or
-                            (omit_iptc and handler.is_iptc_tag(tag))):
-                            handler.clear_value(tag)
-                            continue
-                        write_mode = mode.split('.')[1]
-                        if write_mode == 'WN':
-                            continue
-                        if ((not value) or (write_mode == 'W0') or
-                            (write_mode == 'WX' and handler.get_supports_exif())):
-                            handler.clear_value(tag)
-                        else:
-                            value.write(handler, tag)
+                    handler.write(name, value, force_iptc)
             OK = False
             if self._if and if_mode:
                 OK = self._if.save(file_times)
                 if OK:
                     # check that data really was saved
-                    saved_tags = MetadataHandler(self._path).get_all_tags()
+                    saved_tags = ImageMetadata.open_old(self._path).get_all_tags()
                     for tag in self._if.get_all_tags():
                         if tag in ('Exif.Image.GPSTag',):
                             # some tags disappear with good reason
@@ -1579,8 +1625,7 @@ class Metadata(QtCore.QObject):
                               force_iptc=force_iptc, file_times=file_times)
                     return
             if sc_mode == 'delete' and self._sc and OK:
-                os.unlink(self._sc_path)
-                self._sc = None
+                self._sc = self._sc.delete()
             if self._sc:
                 OK = self._sc.save(file_times)
         except Exception as ex:
@@ -1596,7 +1641,7 @@ class Metadata(QtCore.QObject):
         return None
 
     def __getattr__(self, name):
-        if name not in self._tag_list:
+        if name not in self._data_type:
             raise AttributeError(
                 "%s has no attribute %s" % (self.__class__, name))
         # read data values
@@ -1604,25 +1649,7 @@ class Metadata(QtCore.QObject):
         for handler in self._sc, self._if:
             if not handler:
                 continue
-            omit_exif = not handler.get_supports_exif()
-            omit_iptc = not handler.get_supports_iptc()
-            for mode, tag in self._tag_list[name]:
-                if mode.split('.')[0] == 'RN':
-                    continue
-                if ((omit_exif and handler.is_exif_tag(tag)) or
-                    (omit_iptc and handler.is_iptc_tag(tag))):
-                    continue
-                try:
-                    new_value = self._data_type[name].read(handler, tag)
-                except ValueError as ex:
-                    logger.error('{}({}), {}: {}'.format(
-                        os.path.basename(handler._path), name, tag, str(ex)))
-                    continue
-                except Exception as ex:
-                    logger.exception(ex)
-                    continue
-                if new_value:
-                    values.append((tag, new_value))
+            values = handler.read(name, self._data_type[name])
             if values:
                 break
         # choose result and merge in non-matching data so user can review it
@@ -1646,7 +1673,7 @@ class Metadata(QtCore.QObject):
         return result
 
     def __setattr__(self, name, value):
-        if name not in self._tag_list:
+        if name not in self._data_type:
             return super(Metadata, self).__setattr__(name, value)
         if value in (None, '', [], {}):
             value = None
