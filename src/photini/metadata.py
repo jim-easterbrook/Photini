@@ -928,49 +928,24 @@ class Rating(MD_Value, float):
             handler.set_string(tag, six.text_type(self))
 
 
-# maximum length of Iptc data
-_max_bytes = {
-    'Iptc.Application2.Byline'           :   32,
-    'Iptc.Application2.Caption'          : 2000,
-    'Iptc.Application2.City'             :   32,
-    'Iptc.Application2.Copyright'        :  128,
-    'Iptc.Application2.CountryCode'      :    3,
-    'Iptc.Application2.CountryName'      :   64,
-    'Iptc.Application2.Headline'         :  256,
-    'Iptc.Application2.Keywords'         :   64,
-    'Iptc.Application2.ObjectName'       :   64,
-    'Iptc.Application2.Program'          :   32,
-    'Iptc.Application2.ProgramVersion'   :   10,
-    'Iptc.Application2.ProvinceState'    :   32,
-    'Iptc.Application2.SubLocation'      :   32,
-    'Iptc.Envelope.CharacterSet'         :   32,
-    }
-
-_repeatable = (
-    'Iptc.Application2.Byline',
-    'Iptc.Application2.BylineTitle',
-    'Iptc.Application2.Contact',
-    'Iptc.Application2.Keywords',
-    'Iptc.Application2.LocationCode',
-    'Iptc.Application2.LocationName',
-    'Iptc.Application2.ObjectAttribute',
-    'Iptc.Application2.ReferenceNumber',
-    'Iptc.Application2.ReferenceService',
-    'Iptc.Application2.Subject',
-    'Iptc.Application2.SuppCategory',
-    'Iptc.Application2.Writer',
-    'Iptc.Envelope.Destination',
-    'Iptc.Envelope.ProductId',
-    )
-
-if gexiv2_version >= (0, 10, 3):
-    _xmp_struct_type = {
-        'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
-        'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
-        'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
-        }
-
 class MetadataHandler(GExiv2.Metadata):
+    _repeatable = (
+        'Iptc.Application2.Byline',
+        'Iptc.Application2.BylineTitle',
+        'Iptc.Application2.Contact',
+        'Iptc.Application2.Keywords',
+        'Iptc.Application2.LocationCode',
+        'Iptc.Application2.LocationName',
+        'Iptc.Application2.ObjectAttribute',
+        'Iptc.Application2.ReferenceNumber',
+        'Iptc.Application2.ReferenceService',
+        'Iptc.Application2.Subject',
+        'Iptc.Application2.SuppCategory',
+        'Iptc.Application2.Writer',
+        'Iptc.Envelope.Destination',
+        'Iptc.Envelope.ProductId',
+        )
+
     def __init__(self, path):
         super(MetadataHandler, self).__init__()
         self._path = path
@@ -1006,7 +981,7 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in self.get_iptc_tags():
             if self.get_tag_type(tag) == 'String':
                 try:
-                    if tag in _repeatable:
+                    if tag in self._repeatable:
                         self.set_multiple(tag, self.get_multiple(tag))
                     else:
                         self.set_string(tag, self.get_string(tag))
@@ -1133,6 +1108,31 @@ class MetadataHandler(GExiv2.Metadata):
             return []
         return [self._decode_string(result).strip('\x00')]
 
+    # maximum length of Iptc data
+    _max_bytes = {
+        'Iptc.Application2.Byline'           :   32,
+        'Iptc.Application2.Caption'          : 2000,
+        'Iptc.Application2.City'             :   32,
+        'Iptc.Application2.Copyright'        :  128,
+        'Iptc.Application2.CountryCode'      :    3,
+        'Iptc.Application2.CountryName'      :   64,
+        'Iptc.Application2.Headline'         :  256,
+        'Iptc.Application2.Keywords'         :   64,
+        'Iptc.Application2.ObjectName'       :   64,
+        'Iptc.Application2.Program'          :   32,
+        'Iptc.Application2.ProgramVersion'   :   10,
+        'Iptc.Application2.ProvinceState'    :   32,
+        'Iptc.Application2.SubLocation'      :   32,
+        'Iptc.Envelope.CharacterSet'         :   32,
+        }
+
+    if gexiv2_version >= (0, 10, 3):
+        _xmp_struct_type = {
+            'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
+            'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
+            'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
+            }
+
     def set_string(self, tag, value):
         if isinstance(tag, tuple):
             for sub_tag, sub_value in zip(tag, value):
@@ -1141,8 +1141,8 @@ class MetadataHandler(GExiv2.Metadata):
         if not value:
             self.clear_value(tag)
             return
-        if tag in _max_bytes:
-            value = value.encode('utf_8')[:_max_bytes[tag]]
+        if tag in self._max_bytes:
+            value = value.encode('utf_8')[:self._max_bytes[tag]]
             if not six.PY2:
                 value = value.decode('utf_8', errors='ignore')
         elif six.PY2:
@@ -1158,7 +1158,7 @@ class MetadataHandler(GExiv2.Metadata):
                         break
                 else:
                     if gexiv2_version >= (0, 10, 3):
-                        self.set_xmp_tag_struct(bag, _xmp_struct_type[bag])
+                        self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
                     else:
                         super(MetadataHandler, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
@@ -1171,8 +1171,8 @@ class MetadataHandler(GExiv2.Metadata):
         if not value:
             self.clear_value(tag)
             return
-        if self.is_iptc_tag(tag) and tag in _max_bytes:
-            value = [x.encode('utf_8')[:_max_bytes[tag]] for x in value]
+        if self.is_iptc_tag(tag) and tag in self._max_bytes:
+            value = [x.encode('utf_8')[:self._max_bytes[tag]] for x in value]
             if not six.PY2:
                 value = [x.decode('utf_8') for x in value]
         elif six.PY2:
