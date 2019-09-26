@@ -22,17 +22,14 @@ from __future__ import unicode_literals
 import six
 from datetime import datetime
 import imghdr
+import json
 import logging
 import mimetypes
 import os
+import subprocess
 from six import BytesIO
 from six.moves.urllib.parse import unquote
 
-try:
-    import cv2
-    import numpy as np
-except ImportError:
-    cv2 = None
 try:
     import PIL.Image as PIL
 except ImportError:
@@ -191,48 +188,6 @@ class Image(QtWidgets.QFrame):
         elif changed:
             self.image_list.emit_selection()
 
-    def get_video_frame(self):
-        if not cv2:
-            return
-        video = cv2.VideoCapture(self.path)
-        if not video.isOpened():
-            return
-        OK, cv_image = video.read()
-        if not OK:
-            return
-        height, width, channel = cv_image.shape
-        fmt = QtGui.QImage.Format_RGB888
-        # need to pad to 4 pixel multiple
-        new_width = width - (width % -4)
-        if channel == 4:
-            # assume BGRA
-            fmt = QtGui.QImage.Format_ARGB32
-            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
-            np_image[ : , :width, 0] = cv_image[ : , : , 3]
-            np_image[ : , :width, 1] = cv_image[ : , : , 2]
-            np_image[ : , :width, 2] = cv_image[ : , : , 1]
-            np_image[ : , :width, 3] = cv_image[ : , : , 0]
-        elif channel == 3:
-            # assume BGR
-            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
-            np_image[ : , :width, 0] = cv_image[ : , : , 2]
-            np_image[ : , :width, 1] = cv_image[ : , : , 1]
-            np_image[ : , :width, 2] = cv_image[ : , : , 0]
-        elif channel == 1:
-            # assume Y
-            channel = 3
-            np_image = np.empty((height, new_width, channel), dtype=np.uint8)
-            np_image[ : , :width, 0] = cv_image[ : , : , 0]
-            np_image[ : , :width, 1] = cv_image[ : , : , 0]
-            np_image[ : , :width, 2] = cv_image[ : , : , 0]
-        else:
-            return
-        bpl = new_width * channel
-        qt_im = QtGui.QImage(np_image.data, width, height, bpl, fmt)
-        # attach np_image so it isn't deleted until qt_im is
-        qt_im._data = np_image
-        return qt_im
-
     def transform(self, pixmap, orientation, inverse=False):
         orientation = (orientation or 1) - 1
         if not orientation:
@@ -254,78 +209,147 @@ class Image(QtWidgets.QFrame):
     @QtCore.pyqtSlot()
     @catch_all
     def regenerate_thumbnail(self):
+        # DCF spec says thumbnail must be 160 x 120, so other aspect
+        # ratios are padded with black
         with Busy():
-            # get Qt image first
-            qt_im = QtGui.QImage(self.path)
-            if self.file_type.startswith('video') and qt_im.isNull():
-                # use OpenCV to read first frame
-                qt_im = self.get_video_frame()
-            if not qt_im or qt_im.isNull():
-                logger.error('Cannot read %s image data from %s',
-                             self.file_type, self.path)
-                return
-            # reorient if required
-            if self.file_type in ('image/x-canon-cr2', 'image/x-nikon-nef'):
-                qt_im = self.transform(
-                    qt_im, self.metadata.orientation, inverse=True)
-            w = qt_im.width()
-            h = qt_im.height()
-            # use Qt's scaling (not high quality) to pre-shrink very
-            # large images, to avoid PIL "DecompressionBombWarning"
-            if max(w, h) >= 6000:
-                qt_im = qt_im.scaled(
-                    6000, 6000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-                w = qt_im.width()
-                h = qt_im.height()
-            # DCF spec says thumbnail must be 160 x 120 so pad picture
-            # to 4:3 aspect ratio
-            if w >= h:
-                new_h = int(0.5 + (float(w * 3) / 4.0))
-                new_w = int(0.5 + (float(h * 4) / 3.0))
-                if new_h > h:
-                    pad = (new_h - h) // 2
-                    qt_im = qt_im.copy(0, -pad, w, new_h)
-                elif new_w > w:
-                    pad = (new_w - w) // 2
-                    qt_im = qt_im.copy(-pad, 0, new_w, h)
-                w, h = 160, 120
-            else:
-                new_h = int(0.5 + (float(w * 4) / 3.0))
-                new_w = int(0.5 + (float(h * 3) / 4.0))
-                if new_w > w:
-                    pad = (new_w - w) // 2
-                    qt_im = qt_im.copy(-pad, 0, new_w, h)
-                elif new_h > h:
-                    pad = (new_h - h) // 2
-                    qt_im = qt_im.copy(0, -pad, w, new_h)
-                w, h = 120, 160
-            fmt = 'JPEG'
-            if PIL:
-                # convert Qt image to PIL image
-                buf = QtCore.QBuffer()
-                buf.open(QtCore.QIODevice.WriteOnly)
-                qt_im.save(buf, 'PPM')
-                data = BytesIO(buf.data().data())
-                pil_im = PIL.open(data)
-                # scale PIL image
-                pil_im = pil_im.resize((w, h), PIL.ANTIALIAS)
-                # save image to memory
-                data = BytesIO()
-                pil_im.save(data, fmt)
-                data = data.getvalue()
-            else:
-                # scale Qt image - not as good quality as PIL
-                qt_im = qt_im.scaled(
-                    w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-                # save image to memory
-                buf = QtCore.QBuffer()
-                buf.open(QtCore.QIODevice.WriteOnly)
-                qt_im.save(buf, fmt)
-                data = buf.data().data()
+            data = None
+            if self.file_type not in ('image/x-canon-cr2', 'image/x-nikon-nef'):
+                # first try using FFmpeg to make thumbnail
+                data, fmt, w, h = self.make_thumb_ffmpeg()
+            if not data:
+                # use PIL or Qt
+                qt_im = self.get_qt_image()
+                if not qt_im:
+                    return
+                if PIL:
+                    data, fmt, w, h = self.make_thumb_PIL(qt_im)
+                else:
+                    data, fmt, w, h = self.make_thumb_Qt(qt_im)
             # set thumbnail
             self.metadata.thumbnail = data, fmt, w, h
             # reload thumbnail
             self.load_thumbnail()
+
+    def make_thumb_ffmpeg(self):
+        # target dimensions
+        w, h = 160, 120
+        # get input dimensions
+        cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning',
+               '-show_entries', 'stream=width,height,duration',
+               '-select_streams', 'v:0', '-print_format', 'json', self.path]
+        p = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = p.communicate()
+        if p.returncode:
+            if not six.PY2:
+                error = error.decode('utf_8')
+            logger.error('ffprobe: {}'.format(error))
+            return None, 'JPEG', w, h
+        dims = json.loads(output)['streams'][0]
+        width = dims['width']
+        height = dims['height']
+        if 'duration' in dims:
+            duration = float(dims['duration'])
+        else:
+            duration = 0.0
+        # use ffmpeg to make scaled, padded, single frame JPEG
+        quality = 1
+        while True:
+            cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'warning']
+            skip = int(min(duration / 2, 10.0))
+            if skip > 0:
+                cmd += ['-ss', str(skip)]
+            cmd += ['-i', self.path, '-an', '-vframes', '1']
+            if width < height:
+                w, h = h, w
+            cmd += ['-vf', ('scale={w}:{h}:force_original_aspect_ratio=decrease,'
+                            'pad={w}:{h}:(ow-iw)/2:(oh-ih)/2').format(w=w, h=h)]
+            cmd += ['-sws_flags', 'sinc', '-f', 'image2pipe',
+                    '-vcodec', 'mjpeg', '-q:v', str(quality), 'pipe:1']
+            p = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            data, error = p.communicate()
+            if p.returncode:
+                if not six.PY2:
+                    error = error.decode('utf_8')
+                logger.error('ffmpeg: {}'.format(error))
+                return None, 'JPEG', w, h
+            if len(data) < 50000:
+                break
+            quality += 1
+        return data, 'JPEG', w, h
+
+    def get_qt_image(self):
+        qt_im = QtGui.QImage(self.path)
+        if not qt_im or qt_im.isNull():
+            logger.error('Cannot read %s image data from %s',
+                         self.file_type, self.path)
+            return None
+        # reorient if required
+        if self.file_type in ('image/x-canon-cr2', 'image/x-nikon-nef'):
+            qt_im = self.transform(
+                qt_im, self.metadata.orientation, inverse=True)
+        w = qt_im.width()
+        h = qt_im.height()
+        if max(w, h) > 6000:
+            # use Qt's scaling (not high quality) to pre-shrink very
+            # large images, to avoid PIL "DecompressionBombWarning"
+            return qt_im.scaled(
+                6000, 6000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            w = qt_im.width()
+            h = qt_im.height()
+        # pad image to 4:3 (or 3:4) aspect ratio
+        if w >= h:
+            new_h = int(0.5 + (float(w * 3) / 4.0))
+            new_w = int(0.5 + (float(h * 4) / 3.0))
+            if new_h > h:
+                pad = (new_h - h) // 2
+                qt_im = qt_im.copy(0, -pad, w, new_h)
+            elif new_w > w:
+                pad = (new_w - w) // 2
+                qt_im = qt_im.copy(-pad, 0, new_w, h)
+        else:
+            new_h = int(0.5 + (float(w * 4) / 3.0))
+            new_w = int(0.5 + (float(h * 3) / 4.0))
+            if new_w > w:
+                pad = (new_w - w) // 2
+                qt_im = qt_im.copy(-pad, 0, new_w, h)
+            elif new_h > h:
+                pad = (new_h - h) // 2
+                qt_im = qt_im.copy(0, -pad, w, new_h)
+        return qt_im
+
+    def make_thumb_PIL(self, qt_im):
+        w, h = 160, 120
+        if qt_im.width() < qt_im.height():
+            w, h = h, w
+        # convert Qt image to PIL image
+        buf = QtCore.QBuffer()
+        buf.open(QtCore.QIODevice.WriteOnly)
+        qt_im.save(buf, 'PPM')
+        data = BytesIO(buf.data().data())
+        pil_im = PIL.open(data)
+        # scale PIL image
+        pil_im.thumbnail((w, h), PIL.ANTIALIAS)
+        # save image to memory
+        data = BytesIO()
+        fmt = 'JPEG'
+        pil_im.save(data, fmt)
+        return (data.getvalue(), fmt) + pil_im.size
+
+    def make_thumb_Qt(self, qt_im):
+        w, h = 160, 120
+        if qt_im.width() < qt_im.height():
+            w, h = h, w
+        # scale Qt image - not as good quality as PIL
+        qt_im = qt_im.scaled(
+            w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        # save image to memory
+        buf = QtCore.QBuffer()
+        buf.open(QtCore.QIODevice.WriteOnly)
+        fmt = 'JPEG'
+        qt_im.save(buf, fmt)
+        return buf.data().data(), fmt, qt_im.width(), qt_im.height()
 
     @catch_all
     def contextMenuEvent(self, event):
