@@ -1030,13 +1030,16 @@ class Metadata(QtCore.QObject):
         super(Metadata, self).__init__(*args, **kw)
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
-        self._vf = FFMPEGMetadata.open_old(path)
+        self._vf = None
         self._sc = SidecarMetadata.open_old(path)
         self._if = ImageMetadata.open_old(path)
         if self._if:
             # convert IPTC data to UTF-8
             self._if.convert_IPTC(
                 CharacterSet.read(self._if, 'Iptc.Envelope.CharacterSet'))
+        mime_type = self.get_mime_type()
+        if not (mime_type and mime_type.split('/')[0] == 'image'):
+            self._vf = FFMPEGMetadata.open_old(path)
         self.dirty = False
 
     @classmethod
