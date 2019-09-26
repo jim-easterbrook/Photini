@@ -16,7 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime, timedelta
 import logging
 import os
 
@@ -124,10 +123,7 @@ class GpxImporter(QtCore.QObject):
         for image in parent.image_list.get_selected_images():
             if not image.metadata.date_taken:
                 continue
-            time_stamp = image.metadata.date_taken.datetime
-            tz_offset = image.metadata.date_taken.tz_offset
-            if tz_offset:
-                time_stamp -= timedelta(minutes=tz_offset)
+            time_stamp = image.metadata.date_taken.to_utc()
             if len(points) < 2:
                 lo, hi = 0, 0
             elif time_stamp < points[0][0]:

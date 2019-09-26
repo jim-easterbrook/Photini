@@ -19,7 +19,7 @@
 from __future__ import unicode_literals
 
 import codecs
-from datetime import datetime
+from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
@@ -744,10 +744,15 @@ class DateTime(MD_Dict):
     def __str__(self):
         return self.to_ISO_8601()
 
+    def to_utc(self):
+        if self.tz_offset:
+            return self.datetime - timedelta(minutes=self.tz_offset)
+        return self.datetime
+
     def merge(self, info, tag, other):
         if other == self:
             return self
-        if other.datetime != self.datetime:
+        if other.datetime != self.datetime and other.to_utc() != self.to_utc():
             # if datetime values differ, choose the one with more precision
             if other.precision > self.precision:
                 self.log_replaced(info, tag, other)
