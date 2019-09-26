@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2019  Jim Easterbrook  jim@jim-easterbrook.me.uk
