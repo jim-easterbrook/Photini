@@ -224,16 +224,13 @@ Feature                       Dependencies
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
-Thumbnail creation[1]         NumPy_ 1.8+, OpenCV_ 3.0+, Pillow_ 2.0+
+Thumbnail creation[1]         FFmpeg_, Pillow_ 2.0+
 Import photos from camera[2]  `python-gphoto2`_ 0.10+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
 [1] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
-The NumPy and OpenCV packages are only required to generate thumbnails from video files.
-You may still find that Photini can't read image data from video files.
-Running it from the command line (see troubleshooting_) may show why.
-(The OpenCV library writes messages to the console rather than raise a Python exception.)
+FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.
 
 [2]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed.
 Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
@@ -289,6 +286,7 @@ If you would like to have a local copy of the Photini documentation, and have do
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
 .. _Exiv2:             http://exiv2.org/
+.. _FFmpeg:       https://ffmpeg.org/
 .. _flickrapi:         https://stuvel.eu/flickrapi/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases

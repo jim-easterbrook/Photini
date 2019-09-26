@@ -1,6 +1,6 @@
 .. This is part of the Photini documentation.
    Copyright (C)  2017-19  Jim Easterbrook.
-   See the file ../DOC_LICENSE.txt for copying condidions.
+   See the file ../DOC_LICENSE.txt for copying conditions.
 
 Video file handling
 ===================
@@ -9,12 +9,14 @@ Although designed primarily for use with still images Photini can also be used w
 The :doc:`image_selector` ``Open images`` dialogue normally shows image files only (``.jpg``, ``.gif``, etc.) but has a drop down selector to choose video files (``.mov``, ``.mp4``, etc.) instead, or all file types.
 
 The Exiv2_ metadata library cannot write to video files, so Photini will always use XMP sidecars for the metadata you write.
-There is an option when compiling some versions of Exiv2 that enables it to read some metadata from video files.
-This may enable Photini to read date & time, and possibly GPS location data.
+Video files can also be rather large, so rewriting them could take some time.
+
+Photini can read some metadata from video files if you have installed FFmpeg_ on your computer.
+(See :ref:`installation - optional dependencies<installation-optional>`.)
+An alternative is to compile Exiv2_ with video reading capability, but this is only available in some versions of Exiv2.
 It is unlikely that the Exiv2 library installed with your operating system has been compiled with video capability, so you will probably need to compile it yourself.
 
-Most video files don't have thumbnails, but Photini may be able to create one if you have `OpenCV`_ installed on your computer.
-(See :ref:`installation - optional dependencies<installation-optional>`.)
+Most video files don't have thumbnails, but Photini may be able to create one if you have FFmpeg_ installed on your computer.
 Right-click on the file and choose ``regenerate thumbnail`` from the popup menu.
 If Photini is able to generate a thumbnail it will store it in the XMP sidecar file.
 
@@ -63,7 +65,7 @@ Before compiling Exiv2 it's worth finding out where its files are put by the sta
    jim@mole ~/Documents/exiv2-0.27.1-Source $
 
 This shows that the "installation prefix" should be set to ``/usr`` rather than the default ``/usr/local``.
-In addition, the "library directory" is ``/usr/lib/x86_64-linux-gnu`` instead of the more usual ``/usr/lib``.
+In addition, the "library directory" is ``/usr/lib/x86_64-linux-gnu`` instead of the more usual ``/usr/lib``. ::
 
    jim@mole ~/Documents/exiv2-0.27.1-Source $ mkdir build
    jim@mole ~/Documents/exiv2-0.27.1-Source $ cd build
@@ -161,4 +163,4 @@ You can check what version of GExiv2 Photini is using as follows::
    jim@mole ~/Documents/gexiv2-0.10.6 $ 
 
 .. _Exiv2:        http://www.exiv2.org/
-.. _OpenCV:       http://opencv.org/
+.. _FFmpeg:       https://ffmpeg.org/
