@@ -1001,7 +1001,7 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     _charset_map = {
         'ascii'  : 'ascii',
-        'unicode': 'utf_16',
+        'unicode': 'utf_16_be',
         'jis'    : 'euc_jp',
         }
 
@@ -1226,7 +1226,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height'),
-        'Xmp.xmp.ThumbnailsAp': (
+        'Xmp.xmp.ThumbnailsXap': (
             'Xmp.xmp.Thumbnails[1]/xapGImg:image',
             'Xmp.xmp.Thumbnails[1]/xapGImg:format',
             'Xmp.xmp.Thumbnails[1]/xapGImg:width',
@@ -1345,7 +1345,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         # so we write that but read either.
         'thumbnail'      : (('RA.WA', 'Exif.Thumbnail.Compression'),
                             ('RA.WX', 'Xmp.xmp.Thumbnails'),
-                            ('RA.W0', 'Xmp.xmp.ThumbnailsAp')),
+                            ('RA.W0', 'Xmp.xmp.ThumbnailsXap')),
         'timezone'       : (('RA.WN', 'Exif.Image.TimeZoneOffset'),
                             ('RA.WN', 'Exif.CanonTi.TimeZone'),
                             ('RA.WN', 'Exif.NikonWt.Timezone')),
