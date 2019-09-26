@@ -26,6 +26,10 @@ import math
 import os
 import re
 
+try:
+    import ffmpeg
+except ImportError:
+    ffmpeg = None
 import six
 
 from photini import __version__
@@ -34,6 +38,89 @@ from photini.pyqt import QtCore, QtGui
 from photini.exiv2 import ImageMetadata, SidecarMetadata
 
 logger = logging.getLogger(__name__)
+
+
+class FFMPEGMetadata(object):
+    _tag_list = {
+        'altitude':       ('com.apple.quicktime.location.ISO6709',
+                           'location'),
+        'camera_model':   ('model',
+                           'Model',
+                           'com.apple.quicktime.model'),
+        'copyright':      ('com.apple.quicktime.copyright',
+                           'copyright',
+                           'Copyright'),
+        'creator':        ('com.apple.quicktime.author',
+                           'artist'),
+        'date_digitised': ('DateTimeDigitized',),
+        'date_modified':  ('DateTime',),
+        'date_taken':     ('com.apple.quicktime.creationdate',
+                           'date',
+                           'creation_time',
+                           'DateTimeOriginal'),
+        'description':    ('comment',),
+        'latlong':        ('com.apple.quicktime.location.ISO6709',
+                           'location'),
+        'rating':         ('com.apple.quicktime.rating.user',),
+        }
+
+    def __init__(self, path):
+        self._path = path
+        self.md = {}
+        raw = ffmpeg.probe(path)
+        if 'format' in raw and 'tags' in raw['format']:
+            self.md.update(self.read_tags('format', raw['format']['tags']))
+        if 'streams' in raw:
+            for stream in raw['streams']:
+                if 'tags' in stream:
+                    self.md.update(self.read_tags(
+                        'stream[{}]'.format(stream['index']), stream['tags']))
+
+    def read_tags(self, label, tags):
+        result = {}
+        for key, value in tags.items():
+            result['ffmpeg/{}/{}'.format(label, key)] = value
+        return result
+
+    @classmethod
+    def open_old(cls, path):
+        if not ffmpeg:
+            return None
+        try:
+            return cls(path)
+        except Exception as ex:
+            logger.exception(ex)
+            return None
+
+    def read(self, name, type_):
+        if name not in self._tag_list:
+            return []
+        result = []
+        for part_tag in self._tag_list[name]:
+            for tag in self.md:
+                if tag.split('/')[2] != part_tag:
+                    continue
+                try:
+                    value = type_.read(self, tag)
+                except ValueError as ex:
+                    logger.error('{}({}), {}: {}'.format(
+                        os.path.basename(self._path), name, tag, str(ex)))
+                    continue
+                except Exception as ex:
+                    logger.exception(ex)
+                    continue
+                if value:
+                    result.append((tag, value))
+        return result
+
+    def get_string(self, tag):
+        if tag in self.md:
+            return self.md[tag]
+        return None
+
+    @staticmethod
+    def get_tag_type(tag):
+        return 'FFMpeg'
 
 
 def safe_fraction(value):
@@ -159,7 +246,8 @@ class LatLon(MD_Dict):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
-        if tag == 'Xmp.video.GPSCoordinates':
+        if (isinstance(handler, FFMPEGMetadata)
+                or tag == 'Xmp.video.GPSCoordinates'):
             if file_value:
                 match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
                 if match:
@@ -546,6 +634,8 @@ class DateTime(MD_Dict):
         file_value = handler.get_string(tag)
         if not file_value:
             return None
+        if isinstance(handler, FFMPEGMetadata):
+            return cls.from_ISO_8601(file_value)
         if handler.is_exif_tag(tag):
             return cls.from_exif(file_value)
         if handler.is_iptc_tag(tag):
@@ -822,6 +912,13 @@ class Altitude(MD_Rational):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
+        if isinstance(handler, FFMPEGMetadata):
+            if file_value:
+                match = re.match(
+                    r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
+                if match:
+                    return cls(match.group(3))
+            return None
         if not all(file_value):
             return None
         altitude, ref = file_value
@@ -931,8 +1028,9 @@ class Metadata(QtCore.QObject):
 
     def __init__(self, path, *args, **kw):
         super(Metadata, self).__init__(*args, **kw)
-        # create metadata handlers for image file and/or sidecar
+        # create metadata handlers for image file, video file, and sidecar
         self._path = path
+        self._vf = FFMPEGMetadata.open_old(path)
         self._sc = SidecarMetadata.open_old(path)
         self._if = ImageMetadata.open_old(path)
         if self._if:
@@ -1012,7 +1110,7 @@ class Metadata(QtCore.QObject):
                 "%s has no attribute %s" % (self.__class__, name))
         # read data values
         values = []
-        for handler in self._sc, self._if:
+        for handler in self._sc, self._vf, self._if:
             if not handler:
                 continue
             values = handler.read(name, self._data_type[name])

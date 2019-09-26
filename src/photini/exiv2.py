@@ -374,11 +374,10 @@ class Exiv2Metadata(GExiv2.Metadata):
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
-    # (mode, tag) pairs, where tag can be a tuple of tags. The mode is a
-    # string containing the read mode (RA (always), or RN (never)) and
-    # write mode (WA (always), WX (if Exif not supported), W0 (clear the
-    # tag), or WN (never).
-    # The order of the tags sets the precedence when values conflict.
+    # (mode, tag) pairs. The mode is a string containing the read mode
+    # (RA (always), or RN (never)) and write mode (WA (always), WX (if
+    # Exif not supported), W0 (clear the tag), or WN (never). The order
+    # of the tags sets the precedence when values conflict.
     _tag_list = {
         'altitude'       : (('RA.WA', 'Exif.GPSInfo.GPSAltitude'),
                             ('RA.WX', 'Xmp.exif.GPSAltitude')),
