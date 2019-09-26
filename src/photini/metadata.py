@@ -21,15 +21,13 @@ from __future__ import unicode_literals
 import codecs
 from datetime import datetime, timedelta
 from fractions import Fraction
+import json
 import logging
 import math
 import os
 import re
+import subprocess
 
-try:
-    import ffmpeg
-except ImportError:
-    ffmpeg = None
 import six
 
 from photini import __version__
@@ -67,7 +65,16 @@ class FFMPEGMetadata(object):
     def __init__(self, path):
         self._path = path
         self.md = {}
-        raw = ffmpeg.probe(path)
+        cmd = ['ffprobe', '-hide_banner', '-show_format', '-show_streams',
+               '-loglevel', 'warning', '-print_format', 'json', path]
+        p = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = p.communicate()
+        if p.returncode:
+            if not six.PY2:
+                error = error.decode('utf_8')
+            raise RuntimeError('ffprobe: {}'.format(error))
+        raw = json.loads(output)
         if 'format' in raw and 'tags' in raw['format']:
             self.md.update(self.read_tags('format', raw['format']['tags']))
         if 'streams' in raw:
@@ -84,13 +91,16 @@ class FFMPEGMetadata(object):
 
     @classmethod
     def open_old(cls, path):
-        if not ffmpeg:
-            return None
         try:
             return cls(path)
+        except RuntimeError as ex:
+            logger.error(str(ex))
+        except FileNotFoundError as ex:
+            # ffmpeg not installed
+            logger.debug(str(ex))
         except Exception as ex:
             logger.exception(ex)
-            return None
+        return None
 
     def read(self, name, type_):
         if name not in self._tag_list:
