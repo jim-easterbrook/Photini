@@ -22,11 +22,9 @@ from __future__ import unicode_literals
 import six
 from datetime import datetime
 import imghdr
-import json
 import logging
 import mimetypes
 import os
-import subprocess
 from six import BytesIO
 from six.moves.urllib.parse import unquote
 
@@ -35,6 +33,7 @@ try:
 except ImportError:
     PIL = None
 
+from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata, MultiString
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
@@ -231,50 +230,30 @@ class Image(QtWidgets.QFrame):
             self.load_thumbnail()
 
     def make_thumb_ffmpeg(self):
-        # target dimensions
-        w, h = 160, 120
         # get input dimensions
-        cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning',
-               '-show_entries', 'stream=width,height,duration',
-               '-select_streams', 'v:0', '-print_format', 'json', self.path]
-        p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = p.communicate()
-        if p.returncode:
-            if not six.PY2:
-                error = error.decode('utf_8')
-            logger.error('ffprobe: {}'.format(error))
-            return None, 'JPEG', w, h
-        dims = json.loads(output)['streams'][0]
+        dims = FFmpeg.get_dimensions(self.path)
+        if not dims:
+            return None, 'JPEG', 0, 0
         width = dims['width']
         height = dims['height']
         if 'duration' in dims:
             duration = float(dims['duration'])
         else:
             duration = 0.0
+        skip = int(min(duration / 2, 10.0))
+        # target dimensions
+        w, h = 160, 120
+        if width < height:
+            w, h = h, w
         # use ffmpeg to make scaled, padded, single frame JPEG
         quality = 1
         while True:
-            cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'warning']
-            skip = int(min(duration / 2, 10.0))
-            if skip > 0:
-                cmd += ['-ss', str(skip)]
-            cmd += ['-i', self.path, '-an', '-vframes', '1']
-            if width < height:
-                w, h = h, w
-            cmd += ['-vf', ('scale={w}:{h}:force_original_aspect_ratio=decrease,'
-                            'pad={w}:{h}:(ow-iw)/2:(oh-ih)/2').format(w=w, h=h)]
-            cmd += ['-sws_flags', 'sinc', '-f', 'image2pipe',
-                    '-vcodec', 'mjpeg', '-q:v', str(quality), 'pipe:1']
-            p = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            data, error = p.communicate()
-            if p.returncode:
-                if not six.PY2:
-                    error = error.decode('utf_8')
-                logger.error('ffmpeg: {}'.format(error))
-                return None, 'JPEG', w, h
-            if len(data) < 50000:
+            try:
+                data = FFmpeg.make_thumbnail(self.path, w, h, skip, quality)
+            except Exception as ex:
+                logger.error(str(ex))
+                return None, 'JPEG', 0, 0
+            if not data or len(data) < 50000:
                 break
             quality += 1
         return data, 'JPEG', w, h

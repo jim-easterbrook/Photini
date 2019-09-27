@@ -21,12 +21,10 @@ from __future__ import unicode_literals
 import codecs
 from datetime import datetime, timedelta
 from fractions import Fraction
-import json
 import logging
 import math
 import os
 import re
-import subprocess
 
 import six
 
@@ -34,6 +32,7 @@ from photini import __version__
 from photini.gi import using_pgi
 from photini.pyqt import QtCore, QtGui
 from photini.exiv2 import ImageMetadata, SidecarMetadata
+from photini.ffmpeg import FFmpeg
 
 logger = logging.getLogger(__name__)
 
@@ -65,16 +64,7 @@ class FFMPEGMetadata(object):
     def __init__(self, path):
         self._path = path
         self.md = {}
-        cmd = ['ffprobe', '-hide_banner', '-show_format', '-show_streams',
-               '-loglevel', 'warning', '-print_format', 'json', path]
-        p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = p.communicate()
-        if p.returncode:
-            if not six.PY2:
-                error = error.decode('utf_8')
-            raise RuntimeError('ffprobe: {}'.format(error))
-        raw = json.loads(output)
+        raw = FFmpeg.ffprobe(path)
         if 'format' in raw and 'tags' in raw['format']:
             self.md.update(self.read_tags('format', raw['format']['tags']))
         if 'streams' in raw:
@@ -95,9 +85,6 @@ class FFMPEGMetadata(object):
             return cls(path)
         except RuntimeError as ex:
             logger.error(str(ex))
-        except FileNotFoundError as ex:
-            # ffmpeg not installed
-            logger.debug(str(ex))
         except Exception as ex:
             logger.exception(ex)
         return None

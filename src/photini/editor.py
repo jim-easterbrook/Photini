@@ -31,8 +31,10 @@ import warnings
 
 import pkg_resources
 
+from photini import __version__, build
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
+from photini.ffmpeg import ffmpeg_version
 from photini.gi import gi_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
@@ -41,7 +43,6 @@ from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
     using_qtwebengine)
 from photini.spelling import SpellCheck, spelling_version
-from photini import __version__, build
 
 try:
     from photini.gpximporter import GpxImporter
@@ -454,6 +455,8 @@ def main(argv=None):
         ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
     if spelling_version:
         version += '\n  ' + spelling_version
+    if ffmpeg_version:
+        version += '\n  ' + ffmpeg_version
     try:
         from photini.flickr import flickr_version
         version += '\n  ' + flickr_version
