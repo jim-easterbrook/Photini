@@ -1037,10 +1037,6 @@ class Metadata(QtCore.QObject):
         self._vf = None
         self._sc = SidecarMetadata.open_old(path)
         self._if = ImageMetadata.open_old(path)
-        if self._if:
-            # convert IPTC data to UTF-8
-            self._if.convert_IPTC(
-                CharacterSet.read(self._if, 'Iptc.Envelope.CharacterSet'))
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             self._vf = FFMPEGMetadata.open_old(path)

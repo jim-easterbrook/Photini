@@ -72,7 +72,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         self.open_path(self._path)
         # make list of possible character encodings
         self._encodings = []
-        for name in ('utf_8', 'latin_1'):
+        for name in ('utf_8', 'latin_1', 'ascii'):
             self._encodings.append(codecs.lookup(name).name)
         char_set = locale.getdefaultlocale()[1]
         if char_set:
@@ -119,9 +119,11 @@ class Exiv2Metadata(GExiv2.Metadata):
                     self.set_tag_string(tag, ' ')
 
     def get_raw(self, tag):
+        if not self.has_tag(tag):
+            return None
+        if gexiv2_version < (0, 10, 3):
+            return self.get_tag_string(tag)
         try:
-            if gexiv2_version < (0, 10, 3):
-                return None
             result = self.get_tag_raw(tag).get_data()
             if not result:
                 return None
@@ -198,9 +200,6 @@ class Exiv2Metadata(GExiv2.Metadata):
     def _get_multiple(self, tag):
         if not self.has_tag(tag):
             return []
-        if not six.PY2 and not using_pgi and self.is_iptc_tag(tag):
-            # PyGObject segfaults if strings are not utf8
-            return [self.get_string(tag)]
         try:
             result = self.get_tag_multiple(tag)
             if six.PY2:
@@ -565,27 +564,26 @@ class ImageMetadata(Exiv2Metadata):
             self.supports_exif = self.get_supports_exif()
             self.supports_iptc = self.get_supports_iptc()
             self.using_iptc = self.has_iptc()
-
-    def convert_IPTC(self, current_encoding):
         # convert IPTC data to UTF-8
         if not self.using_iptc:
             return
-        if current_encoding:
-            if current_encoding == 'utf_8':
-                return
-            try:
-                name = codecs.lookup(current_encoding).name
-                if name not in self._encodings:
-                    self._encodings.insert(0, name)
-            except LookupError:
-                pass
+        if self.get_raw('Iptc.Envelope.CharacterSet') == b'\x1b%G':
+            # already definitely using utf-8
+            return
         for tag in self.get_iptc_tags():
             if self.get_tag_type(tag) == 'String':
                 try:
                     if tag in self._repeatable:
-                        self.set_multiple(tag, self.get_multiple(tag))
+                        if not six.PY2 and not using_pgi:
+                            # PyGObject segfaults if strings are not utf8
+                            logger.debug('potential multi-data loss %s %s',
+                                         os.path.basename(self._path), tag)
+                            value = [self._get_string(tag)]
+                        else:
+                            value = self._get_multiple(tag)
+                        self._set_multiple(tag, value)
                     else:
-                        self.set_string(tag, self.get_string(tag))
+                        self._set_string(tag, self._get_string(tag))
                 except Exception as ex:
                     logger.exception(ex)
 
