@@ -21,9 +21,7 @@ from __future__ import unicode_literals
 
 import six
 from datetime import datetime
-import imghdr
 import logging
-import mimetypes
 import os
 from six import BytesIO
 from six.moves.urllib.parse import unquote
@@ -67,16 +65,7 @@ class Image(QtWidgets.QFrame):
         self.file_times = (os.path.getatime(self.path),
                            os.path.getmtime(self.path))
         # set file type
-        self.file_type = self.metadata.get_mime_type()
-        if not self.file_type:
-            self.file_type = mimetypes.guess_type(self.path)[0]
-        if not self.file_type:
-            self.file_type = imghdr.what(self.path)
-            if self.file_type:
-                self.file_type = 'image/' + self.file_type
-        # anything not recognised is assumed to be 'raw'
-        if not self.file_type:
-            self.file_type = 'image/raw'
+        self.file_type = self.metadata.mime_type
         # sub widgets
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
@@ -212,7 +201,9 @@ class Image(QtWidgets.QFrame):
         # ratios are padded with black
         with Busy():
             data = None
-            if self.file_type not in ('image/x-canon-cr2', 'image/x-nikon-nef'):
+            if self.file_type not in (
+                    'application/postscript',
+                    'image/x-canon-cr2', 'image/x-nikon-nef'):
                 # first try using FFmpeg to make thumbnail
                 data, fmt, w, h = self.make_thumb_ffmpeg()
             if not data:

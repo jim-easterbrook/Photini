@@ -21,8 +21,10 @@ from __future__ import unicode_literals
 import codecs
 from datetime import datetime, timedelta
 from fractions import Fraction
+import imghdr
 import logging
 import math
+import mimetypes
 import os
 import re
 
@@ -1039,8 +1041,8 @@ class Metadata(QtCore.QObject):
             # convert IPTC data to UTF-8
             self._if.convert_IPTC(
                 CharacterSet.read(self._if, 'Iptc.Envelope.CharacterSet'))
-        mime_type = self.get_mime_type()
-        if not (mime_type and mime_type.split('/')[0] == 'image'):
+        self.mime_type = self.get_mime_type()
+        if self.mime_type.split('/')[0] == 'video':
             self._vf = FFMPEGMetadata.open_old(path)
         self.dirty = False
 
@@ -1105,9 +1107,19 @@ class Metadata(QtCore.QObject):
             self.unsaved.emit(self.dirty)
 
     def get_mime_type(self):
+        result = None
         if self._if:
-            return self._if.get_mime_type()
-        return None
+            result = self._if.get_mime_type()
+        if not result:
+            result = mimetypes.guess_type(self._path)[0]
+        if not result:
+            result = imghdr.what(self._path)
+            if result:
+                result = 'image/' + result
+        # anything not recognised is assumed to be 'raw'
+        if not result:
+            result = 'image/raw'
+        return result
 
     def __getattr__(self, name):
         if name not in self._data_type:
