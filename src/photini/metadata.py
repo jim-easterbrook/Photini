@@ -488,7 +488,7 @@ class Thumbnail(MD_Dict):
             if not all((data, fmt, w, h)):
                 return None
             if not six.PY2:
-                data = bytes(data, 'ASCII')
+                data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
             w = int(w)
             h = int(h)
@@ -527,7 +527,7 @@ class Thumbnail(MD_Dict):
                 self.h = pixmap.height()
             data = codecs.encode(data, 'base64_codec')
             if not six.PY2:
-                data = data.decode('ASCII')
+                data = data.decode('ascii')
             handler.set_string(tag, (data, 'JPEG', str(self.w), str(self.h)))
         elif handler.supports_exif:
             handler.set_exif_thumbnail_from_buffer(self.data)
@@ -836,28 +836,6 @@ class MD_String(MD_Value, six.text_type):
         return this + ' // ' + other, True, False
 
 
-class CharacterSet(MD_String):
-    known_encodings = {
-        'ascii'   : '\x1b(B',
-        'latin_1' : '\x1b/A',
-        'latin1'  : '\x1b.A',
-        'utf_8'   : '\x1b%G',
-        }
-
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        for charset, encoding in cls.known_encodings.items():
-            if encoding == file_value:
-                return cls(charset)
-        if file_value:
-            logger.warning('Unknown character encoding "%s"', repr(file_value))
-        return None
-
-    def write(self, handler, tag):
-        handler.set_string(tag, self.known_encodings[self])
-
-
 class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
@@ -1000,7 +978,6 @@ class Metadata(QtCore.QObject):
         'altitude'       : Altitude,
         'aperture'       : Aperture,
         'camera_model'   : MD_String,
-        'character_set'  : CharacterSet,
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,
@@ -1060,7 +1037,6 @@ class Metadata(QtCore.QObject):
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self._sc = SidecarMetadata.open_new(self._path, self._if)
         self.software = 'Photini editor v' + __version__
-        self.character_set = 'utf_8'
         try:
             if self._if and sc_mode == 'delete' and self._sc:
                 self._if.merge_sc(self._sc)

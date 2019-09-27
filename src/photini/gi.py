@@ -107,6 +107,6 @@ def GSListPtr_to_list(value):
         result = []
         for i in range(value.length):
             c_str = ctypes.c_char_p(value.nth_data(i))
-            result.append(c_str.value.decode('utf_8'))
+            result.append(c_str.value.decode('utf-8'))
         return result
     return []

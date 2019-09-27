@@ -115,7 +115,7 @@ def image_types_lower():
         'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
         ]
     for fmt in QtGui.QImageReader.supportedImageFormats():
-        ext = fmt.data().decode('utf_8').lower()
+        ext = fmt.data().decode('utf-8').lower()
         if ext not in result:
             result.append(ext)
     for ext in ('ico', 'xcf'):

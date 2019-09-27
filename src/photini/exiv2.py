@@ -71,9 +71,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         # read metadata from file
         self.open_path(self._path)
         # make list of possible character encodings
-        self._encodings = []
-        for name in ('utf_8', 'latin_1', 'ascii'):
-            self._encodings.append(codecs.lookup(name).name)
+        self._encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
         if char_set:
             try:
@@ -91,7 +89,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                 return value.decode(encoding)
             except UnicodeDecodeError:
                 continue
-        return value.decode('utf_8', 'replace')
+        return value.decode('utf-8', 'replace')
 
     _parse_xmp_struct = re.compile('(.+?)(?:\[(\d+)\])?/')
 
@@ -143,7 +141,7 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     _charset_map = {
         'ascii'  : 'ascii',
-        'unicode': 'utf_16_be',
+        'unicode': 'utf-16-be',
         'jis'    : 'euc_jp',
         }
 
@@ -163,7 +161,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             result = self.get_raw(tag)
             if not result:
                 return None
-            return result.decode('utf_16', errors='ignore').strip('\x00')
+            return result.decode('utf-16-le', errors='ignore').strip('\x00')
         if tag == 'Exif.Photo.UserComment':
             # first 8 bytes should be the encoding charset
             result = self.get_raw(tag)
@@ -250,11 +248,11 @@ class Exiv2Metadata(GExiv2.Metadata):
             self.clear_value(tag)
             return
         if tag in self._max_bytes:
-            value = value.encode('utf_8')[:self._max_bytes[tag]]
+            value = value.encode('utf-8')[:self._max_bytes[tag]]
             if not six.PY2:
-                value = value.decode('utf_8', errors='ignore')
+                value = value.decode('utf-8', errors='ignore')
         elif six.PY2:
-            value = value.encode('utf_8')
+            value = value.encode('utf-8')
         if self.is_xmp_tag(tag) and '/' in tag:
             # create XMP structure/container
             match = self._parse_xmp_struct.match(tag)
@@ -283,11 +281,11 @@ class Exiv2Metadata(GExiv2.Metadata):
             self.clear_value(tag)
             return
         if self.is_iptc_tag(tag) and tag in self._max_bytes:
-            value = [x.encode('utf_8')[:self._max_bytes[tag]] for x in value]
+            value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
             if not six.PY2:
-                value = [x.decode('utf_8') for x in value]
+                value = [x.decode('utf-8') for x in value]
         elif six.PY2:
-            value = [x.encode('utf_8') for x in value]
+            value = [x.encode('utf-8') for x in value]
         self.set_tag_multiple(tag, value)
 
     def save(self, file_times):
@@ -386,7 +384,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         'camera_model'   : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Xmp.video.Model')),
-        'character_set'  : (('RA.WA', 'Iptc.Envelope.CharacterSet'),),
         'copyright'      : (('RA.WA', 'Exif.Image.Copyright'),
                             ('RA.WA', 'Xmp.dc.rights'),
                             ('RA.W0', 'Xmp.tiff.Copyright'),
@@ -552,6 +549,14 @@ class ImageMetadata(Exiv2Metadata):
         'Iptc.Envelope.ProductId',
         )
 
+    _iptc_encodings = {
+        'ascii'    : (b'\x1b\x28\x42',),
+        'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
+        'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
+        'utf-16-be': (b'\x1b\x25\x2f\x4c',),
+        'utf-32-be': (b'\x1b\x25\x2f\x46',),
+        }
+
     def __init__(self, *args, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
         xmp_only = self.get_mime_type() in (
@@ -564,18 +569,31 @@ class ImageMetadata(Exiv2Metadata):
             self.supports_exif = self.get_supports_exif()
             self.supports_iptc = self.get_supports_iptc()
             self.using_iptc = self.has_iptc()
-        # convert IPTC data to UTF-8
+        # convert IPTC data to utf-8
         if not self.using_iptc:
             return
-        if self.get_raw('Iptc.Envelope.CharacterSet') == b'\x1b%G':
-            # already definitely using utf-8
+        iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
+        for charset, codes in self._iptc_encodings.items():
+            if iptc_charset_code in codes:
+                iptc_charset = charset
+                break
+        else:
+            iptc_charset = None
+        if iptc_charset in ('utf-8', 'ascii'):
+            # no need to translate anything
+            self._set_string('Iptc.Envelope.CharacterSet',
+                             self._iptc_encodings['utf-8'][0].decode('ascii'))
             return
+        if iptc_charset:
+            # temporarily make it the only member of self._encodings
+            old_encodings = self._encodings
+            self._encodings = [iptc_charset]
         for tag in self.get_iptc_tags():
             if self.get_tag_type(tag) == 'String':
                 try:
                     if tag in self._repeatable:
                         if not six.PY2 and not using_pgi:
-                            # PyGObject segfaults if strings are not utf8
+                            # PyGObject segfaults if strings are not utf-8
                             logger.debug('potential multi-data loss %s %s',
                                          os.path.basename(self._path), tag)
                             value = [self._get_string(tag)]
@@ -586,6 +604,12 @@ class ImageMetadata(Exiv2Metadata):
                         self._set_string(tag, self._get_string(tag))
                 except Exception as ex:
                     logger.exception(ex)
+        if iptc_charset:
+            # restore self._encodings
+            self._encodings = old_encodings
+        # set character set to utf-8 from now on
+        self._set_string('Iptc.Envelope.CharacterSet',
+                         self._iptc_encodings['utf-8'][0].decode('ascii'))
 
     @classmethod
     def open_old(cls, path):

@@ -48,7 +48,7 @@ class BaseConfigStore(object):
         if os.path.isfile(self.file_name):
             kwds = {}
             if not six.PY2:
-                kwds['encoding'] = 'utf=8'
+                kwds['encoding'] = 'utf-8'
             with open(self.file_name, 'r', **kwds) as fp:
                 if six.PY2:
                     self.config.readfp(fp)
@@ -90,7 +90,7 @@ class BaseConfigStore(object):
             return
         kwds = {}
         if not six.PY2:
-            kwds['encoding'] = 'utf=8'
+            kwds['encoding'] = 'utf-8'
         with open(self.file_name, 'w', **kwds) as fp:
             self.config.write(fp)
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
@@ -130,10 +130,10 @@ class KeyStore(object):
     def get(self, section, option):
         value = self.config.get(section, option)
         if not six.PY2:
-            value = value.encode('ASCII')
+            value = value.encode('ascii')
         value = codecs.decode(value, 'base64_codec')
         if not six.PY2:
-            return value.decode('ASCII')
+            return value.decode('ascii')
         return value
 
 

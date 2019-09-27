@@ -28,7 +28,7 @@ try:
     ffmpeg_version = subprocess.check_output(
         ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-version'])
     if not six.PY2:
-        ffmpeg_version = ffmpeg_version.decode('utf_8')
+        ffmpeg_version = ffmpeg_version.decode('utf-8')
     ffmpeg_version = ffmpeg_version.splitlines()[0]
 except OSError as ex:
     print('ffmpeg not found')
@@ -48,7 +48,7 @@ class FFmpeg(object):
         output, error = p.communicate()
         if p.returncode:
             if not six.PY2:
-                error = error.decode('utf_8')
+                error = error.decode('utf-8')
             raise RuntimeError('ffprobe: {}'.format(error))
         return json.loads(output)
 
@@ -79,6 +79,6 @@ class FFmpeg(object):
         output, error = p.communicate()
         if p.returncode:
             if not six.PY2:
-                error = error.decode('utf_8')
+                error = error.decode('utf-8')
             raise RuntimeError('ffmpeg: {}'.format(error))
         return output
