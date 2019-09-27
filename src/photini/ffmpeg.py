@@ -37,11 +37,12 @@ except OSError as ex:
 
 class FFmpeg(object):
     @staticmethod
-    def ffprobe(path):
+    def ffprobe(path, options=['-show_format', '-show_streams']):
         if not ffmpeg_version:
             return {}
-        cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning',
-               '-show_format', '-show_streams', '-print_format', 'json', path]
+        cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning']
+        cmd += options
+        cmd += ['-print_format', 'json', path]
         p = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = p.communicate()
@@ -55,17 +56,11 @@ class FFmpeg(object):
     def get_dimensions(path):
         if not ffmpeg_version:
             return {}
-        cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning',
-               '-show_entries', 'stream=width,height,duration',
-               '-select_streams', 'v:0', '-print_format', 'json', path]
-        p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = p.communicate()
-        if p.returncode:
-            if not six.PY2:
-                error = error.decode('utf_8')
-            raise RuntimeError('ffprobe: {}'.format(error))
-        return json.loads(output)['streams'][0]
+        return FFmpeg.ffprobe(
+            path, options=[
+                '-show_entries', 'stream=width,height,duration',
+                '-select_streams', 'v:0']
+            )['streams'][0]
 
     @staticmethod
     def make_thumbnail(path, w, h, skip, quality):
