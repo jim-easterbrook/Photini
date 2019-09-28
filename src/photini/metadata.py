@@ -492,7 +492,7 @@ class Thumbnail(MD_Dict):
             data = codecs.decode(data, 'base64_codec')
             w = int(w)
             h = int(h)
-        else:
+        elif handler.is_exif_tag(tag):
             data = handler.get_exif_thumbnail()
             if using_pgi and isinstance(data, tuple):
                 # get_exif_thumbnail returns (OK, data) tuple
@@ -529,7 +529,7 @@ class Thumbnail(MD_Dict):
             if not six.PY2:
                 data = data.decode('ascii')
             handler.set_string(tag, (data, 'JPEG', str(self.w), str(self.h)))
-        elif handler.supports_exif:
+        elif handler.is_exif_tag(tag):
             handler.set_exif_thumbnail_from_buffer(self.data)
 
     def __str__(self):
@@ -1037,8 +1037,6 @@ class Metadata(QtCore.QObject):
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self._sc = SidecarMetadata.open_new(self._path, self._if)
         self.software = 'Photini editor v' + __version__
-        if self._if and force_iptc:
-            self._if.set_iptc_charset()
         try:
             if self._if and sc_mode == 'delete' and self._sc:
                 self._if.merge_sc(self._sc)
@@ -1050,20 +1048,10 @@ class Metadata(QtCore.QObject):
                     continue
                 for name in self._data_type:
                     value = getattr(self, name)
-                    handler.write(name, value, force_iptc)
+                    handler.write(name, value)
             OK = False
             if self._if and if_mode:
-                OK = self._if.save(file_times)
-                if OK:
-                    # check that data really was saved
-                    saved_tags = ImageMetadata.open_old(self._path).get_all_tags()
-                    for tag in self._if.get_all_tags():
-                        if tag in ('Exif.Image.GPSTag',):
-                            # some tags disappear with good reason
-                            continue
-                        if tag not in saved_tags:
-                            logger.warning('tag not saved: %s', tag)
-                            OK = False
+                OK = self._if.save(file_times=file_times, force_iptc=force_iptc)
                 if not OK and not self._sc:
                     # can't write to image so create side car
                     self.save(if_mode=False, sc_mode='always',
@@ -1072,7 +1060,7 @@ class Metadata(QtCore.QObject):
             if sc_mode == 'delete' and self._sc and OK:
                 self._sc = self._sc.delete()
             if self._sc:
-                OK = self._sc.save(file_times)
+                OK = self._sc.save(file_times=file_times)
         except Exception as ex:
             logger.exception(ex)
             return
