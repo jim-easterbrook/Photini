@@ -581,33 +581,39 @@ class ImageMetadata(Exiv2Metadata):
             iptc_charset = None
         if iptc_charset in ('utf-8', 'ascii'):
             # no need to translate anything
-            self._set_string('Iptc.Envelope.CharacterSet',
-                             self._iptc_encodings['utf-8'][0].decode('ascii'))
+            self.set_iptc_charset()
             return
         if iptc_charset:
             # temporarily make it the only member of self._encodings
             old_encodings = self._encodings
             self._encodings = [iptc_charset]
+        # transcode every string tag except Iptc.Envelope.CharacterSet
+        tags = ['Iptc.Envelope.CharacterSet']
         for tag in self.get_iptc_tags():
-            if self.get_tag_type(tag) == 'String':
-                try:
-                    if tag in self._repeatable:
-                        if not six.PY2 and not using_pgi:
-                            # PyGObject segfaults if strings are not utf-8
-                            logger.debug('potential multi-data loss %s %s',
-                                         os.path.basename(self._path), tag)
-                            value = [self._get_string(tag)]
-                        else:
-                            value = self._get_multiple(tag)
-                        self._set_multiple(tag, value)
+            if tag not in tags and self.get_tag_type(tag) == 'String':
+                tags.append(tag)
+        for tag in tags[1:]:
+            try:
+                if tag in self._repeatable:
+                    if not six.PY2 and not using_pgi:
+                        # PyGObject segfaults if strings are not utf-8
+                        logger.debug('potential multi-data loss %s %s',
+                                     os.path.basename(self._path), tag)
+                        value = [self._get_string(tag)]
                     else:
-                        self._set_string(tag, self._get_string(tag))
-                except Exception as ex:
-                    logger.exception(ex)
+                        value = self._get_multiple(tag)
+                    self._set_multiple(tag, value)
+                else:
+                    self._set_string(tag, self._get_string(tag))
+            except Exception as ex:
+                logger.exception(ex)
         if iptc_charset:
             # restore self._encodings
             self._encodings = old_encodings
         # set character set to utf-8 from now on
+        self.set_iptc_charset()
+
+    def set_iptc_charset(self):
         self._set_string('Iptc.Envelope.CharacterSet',
                          self._iptc_encodings['utf-8'][0].decode('ascii'))
 

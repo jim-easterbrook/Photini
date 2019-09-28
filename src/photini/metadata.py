@@ -1037,6 +1037,8 @@ class Metadata(QtCore.QObject):
         if (sc_mode == 'always' or not self._if) and not self._sc:
             self._sc = SidecarMetadata.open_new(self._path, self._if)
         self.software = 'Photini editor v' + __version__
+        if self._if and force_iptc:
+            self._if.set_iptc_charset()
         try:
             if self._if and sc_mode == 'delete' and self._sc:
                 self._if.merge_sc(self._sc)
