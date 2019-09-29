@@ -119,9 +119,9 @@ class Exiv2Metadata(GExiv2.Metadata):
     def get_raw(self, tag):
         if not self.has_tag(tag):
             return None
-        if gexiv2_version < (0, 10, 3):
-            return self.get_tag_string(tag)
         try:
+            if gexiv2_version < (0, 10, 3):
+                return self.get_tag_string(tag)
             result = self.get_tag_raw(tag).get_data()
             if not result:
                 return None
@@ -209,6 +209,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         result = self.get_raw(tag)
         if not result:
             return []
+        logger.info('potential multi-data loss %s %s',
+                    os.path.basename(self._path), tag)
         return [self._decode_string(result).strip('\x00')]
 
     # maximum length of Iptc data
@@ -596,6 +598,7 @@ class ImageMetadata(Exiv2Metadata):
             old_encodings = self._encodings
             self._encodings = [iptc_charset]
         # transcode every string tag except Iptc.Envelope.CharacterSet
+        logger.info('Transcoding IPTC data to UTF-8')
         tags = ['Iptc.Envelope.CharacterSet']
         for tag in self.get_iptc_tags():
             if tag not in tags and self.get_tag_type(tag) == 'String':
@@ -605,8 +608,8 @@ class ImageMetadata(Exiv2Metadata):
                 if tag in self._repeatable:
                     if not six.PY2 and not using_pgi:
                         # PyGObject segfaults if strings are not utf-8
-                        logger.debug('potential multi-data loss %s %s',
-                                     os.path.basename(self._path), tag)
+                        logger.info('potential multi-data loss %s %s',
+                                    os.path.basename(self._path), tag)
                         value = [self._get_string(tag)]
                     else:
                         value = self._get_multiple(tag)
