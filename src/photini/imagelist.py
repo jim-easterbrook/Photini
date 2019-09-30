@@ -236,6 +236,8 @@ class Image(QtWidgets.QFrame):
         w, h = 160, 120
         if width < height:
             w, h = h, w
+        if self.metadata.orientation in (6, 8):
+            w, h = h, w
         # use ffmpeg to make scaled, padded, single frame JPEG
         quality = 1
         while True:
@@ -433,7 +435,8 @@ class Image(QtWidgets.QFrame):
         if pixmap.isNull():
             self.image.setText(translate('ImageList', 'No\nthumbnail\nin file'))
             return
-        pixmap = self.transform(pixmap, self.metadata.orientation)
+        if self.file_type.split('/')[0] != 'video':
+            pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(
             pixmap.scaled(self.thumb_size, self.thumb_size,
                           Qt.KeepAspectRatio, Qt.SmoothTransformation))

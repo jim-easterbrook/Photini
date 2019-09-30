@@ -60,6 +60,7 @@ class FFMPEGMetadata(object):
         'description':    ('comment',),
         'latlong':        ('com.apple.quicktime.location.ISO6709',
                            'location'),
+        'orientation':    ('rotate',),
         'rating':         ('com.apple.quicktime.rating.user',),
         }
 
@@ -855,6 +856,28 @@ class MD_Int(MD_Value, int):
     pass
 
 
+class Orientation(MD_Int):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if file_value is None:
+            return None
+        if isinstance(handler, FFMPEGMetadata):
+            file_value = int(file_value)
+            if file_value == 0:
+                file_value = 1
+            elif file_value == 90:
+                file_value = 8
+            elif file_value == 180:
+                file_value = 3
+            elif file_value == -90:
+                file_value = 6
+            else:
+                logger.error('unrecognised %s value %s', tag, file_value)
+                file_value = None
+        return cls(file_value)
+
+
 class Timezone(MD_Int):
     @classmethod
     def read(cls, handler, tag):
@@ -989,7 +1012,7 @@ class Metadata(QtCore.QObject):
         'lens_spec'      : LensSpec,
         'location_shown' : MultiLocation,
         'location_taken' : Location,
-        'orientation'    : MD_Int,
+        'orientation'    : Orientation,
         'rating'         : Rating,
         'resolution_x'   : MD_Rational,
         'resolution_y'   : MD_Rational,
