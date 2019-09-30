@@ -405,14 +405,15 @@ class MultiLocation(tuple):
 
     @classmethod
     def read(cls, handler, tag):
+        count = 0
+        for t in handler.get_xmp_tags():
+            if t.startswith(tag):
+                match = re.search('\[(\d+)\]', t)
+                if match:
+                    count = max(count, int(match.group(1)))
         value = []
-        count = 1
-        while True:
-            file_value = Location.read(handler, tag, idx=count)
-            if file_value is None:
-                break
-            value.append(file_value)
-            count += 1
+        for n in range(count):
+            value.append(Location.read(handler, tag, idx=n + 1))
         return cls(value)
 
     def write(self, handler, tag):
@@ -432,10 +433,7 @@ class MultiLocation(tuple):
             if self[n]:
                 self[n].write(handler, tag, idx=n + 1)
             else:
-                handler.clear_value(tag, idx=n + 1)
-                # save placeholder
-                handler.set_string(
-                    handler._multi_tags[tag][0].format(idx=n + 1), ' ')
+                handler.clear_value(tag, idx=n + 1, place_holder=True)
 
     def __str__(self):
         result = ''
@@ -789,12 +787,10 @@ class MultiString(MD_Value, tuple):
         return cls(file_value)
 
     def write(self, handler, tag):
-        if handler.is_exif_tag(tag):
-            handler.set_string(tag, ';'.join(self))
-        elif handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
+        if handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
             handler.set_multiple(tag, self)
         else:
-            handler.set_string(tag, self)
+            handler.set_string(tag, ';'.join(self))
 
     def __str__(self):
         return '; '.join(self)
@@ -840,13 +836,10 @@ class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
-        if isinstance(file_value, list):
-            program, version = file_value
-            if not program:
-                return None
-            if version:
-                program += ' v' + version
-            return cls(program)
+        if handler.is_iptc_tag(tag):
+            file_value, version = file_value
+            if file_value and version:
+                file_value += ' v' + version
         if not file_value:
             return None
         return cls(file_value)

@@ -22,7 +22,6 @@ import codecs
 import locale
 import logging
 import os
-import re
 
 import six
 
@@ -91,12 +90,13 @@ class Exiv2Metadata(GExiv2.Metadata):
                 continue
         return value.decode('utf-8', 'replace')
 
-    _parse_xmp_struct = re.compile('(.+?)(?:\[(\d+)\])?/')
-
-    def clear_value(self, tag, idx=1):
+    def clear_value(self, tag, idx=1, place_holder=False):
         if tag in self._multi_tags:
-            for sub_tag in self._multi_tags[tag]:
-                self._clear_value(sub_tag.format(idx=idx))
+            for t in self._multi_tags[tag]:
+                sub_tag = t.format(idx=idx)
+                self._clear_value(sub_tag)
+            if place_holder:
+                self.set_tag_string(sub_tag, ' ')
             return
         self._clear_value(tag)
 
@@ -104,17 +104,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not self.has_tag(tag):
             return
         self.clear_tag(tag)
-        if self.is_xmp_tag(tag) and '/' in tag:
-            # GExiv2 won't delete container, so leave a value in it
-            match = self._parse_xmp_struct.match(tag)
-            if match:
-                bag = match.group(1)
-                for t in self.get_xmp_tags():
-                    if t.startswith(bag):
-                        # container is not empty
-                        break
-                else:
-                    self.set_tag_string(tag, ' ')
 
     def get_raw(self, tag):
         if not self.has_tag(tag):
@@ -240,6 +229,18 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     def set_string(self, tag, value, idx=1):
         if tag in self._multi_tags:
+            sub_tag = self._multi_tags[tag][0].format(idx=idx)
+            if any(value) and '/' in sub_tag:
+                # create XMP structure/container
+                for t in self.get_xmp_tags():
+                    if t.startswith(tag):
+                        # container already exists
+                        break
+                else:
+                    if gexiv2_version >= (0, 10, 3):
+                        self.set_xmp_tag_struct(tag, self._xmp_struct_type[tag])
+                    else:
+                        self.set_tag_string(tag, '')
             for sub_tag, sub_value in zip(self._multi_tags[tag], value):
                 self._set_string(sub_tag.format(idx=idx), sub_value)
             return
@@ -255,20 +256,6 @@ class Exiv2Metadata(GExiv2.Metadata):
                 value = value.decode('utf-8', errors='ignore')
         elif six.PY2:
             value = value.encode('utf-8')
-        if self.is_xmp_tag(tag) and '/' in tag:
-            # create XMP structure/container
-            match = self._parse_xmp_struct.match(tag)
-            if match:
-                bag = match.group(1)
-                for t in self.get_xmp_tags():
-                    if t.startswith(bag):
-                        # container already exists
-                        break
-                else:
-                    if gexiv2_version >= (0, 10, 3):
-                        self.set_xmp_tag_struct(bag, self._xmp_struct_type[bag])
-                    else:
-                        super(Exiv2Metadata, self).set_tag_string(bag, '')
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value, idx=1):
