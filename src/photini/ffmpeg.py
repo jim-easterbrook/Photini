@@ -69,7 +69,7 @@ class FFmpeg(object):
         cmd = ['ffmpeg', '-hide_banner', '-loglevel', 'warning']
         if skip > 0:
             cmd += ['-ss', str(skip)]
-        cmd += ['-i', path, '-an', '-vframes', '1']
+        cmd += ['-noautorotate', '-i', path, '-an', '-vframes', '1']
         cmd += ['-vf', ('scale={w}:{h}:force_original_aspect_ratio=decrease,'
                         'pad={w}:{h}:(ow-iw)/2:(oh-ih)/2').format(w=w, h=h)]
         cmd += ['-sws_flags', 'sinc', '-f', 'image2pipe',

@@ -867,11 +867,11 @@ class Orientation(MD_Int):
             if file_value == 0:
                 file_value = 1
             elif file_value == 90:
-                file_value = 8
+                file_value = 6
             elif file_value == 180:
                 file_value = 3
             elif file_value == -90:
-                file_value = 6
+                file_value = 8
             else:
                 logger.error('unrecognised %s value %s', tag, file_value)
                 file_value = None
