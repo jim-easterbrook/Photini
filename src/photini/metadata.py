@@ -600,8 +600,7 @@ class DateTime(MD_Dict):
             if fmt[n][0] != datetime_string[idx]:
                 fmt[n] = datetime_string[idx] + fmt[n][1:]
         fmt = ''.join(fmt)
-        return cls(
-            (datetime.strptime(datetime_string, fmt), precision, tz_offset))
+        return datetime.strptime(datetime_string, fmt), precision, tz_offset
 
     def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
@@ -633,7 +632,7 @@ class DateTime(MD_Dict):
         if not file_value:
             return None
         if isinstance(handler, FFMPEGMetadata):
-            return cls.from_ISO_8601(file_value)
+            return cls(cls.from_ISO_8601(file_value))
         if handler.is_exif_tag(tag):
             return cls.from_exif(file_value)
         if handler.is_iptc_tag(tag):
@@ -670,10 +669,14 @@ class DateTime(MD_Dict):
                 sub_sec_string = sub_sec_string.strip()
             if sub_sec_string:
                 datetime_string += '.' + sub_sec_string
+        # do conversion
+        date_time, precision, tz_offset = cls.from_ISO_8601(datetime_string)
         # check for no time
-        if datetime_string[11:] == '00:00:00':
-            datetime_string = datetime_string[:10]
-        return cls.from_ISO_8601(datetime_string)
+        if (date_time.hour == 0 and date_time.minute == 0
+                and date_time.second == 0 and date_time.microsecond == 0):
+            precision = 3
+            tz_offset = None
+        return cls((date_time, precision, tz_offset))
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
@@ -707,7 +710,7 @@ class DateTime(MD_Dict):
             datetime_string = date_string + 'T' + time_string
         else:
             datetime_string = date_string
-        return cls.from_ISO_8601(datetime_string)
+        return cls(cls.from_ISO_8601(datetime_string))
 
     def to_iptc(self):
         if self.precision <= 3:
@@ -731,7 +734,10 @@ class DateTime(MD_Dict):
     # time zone information optional.
     @classmethod
     def from_xmp(cls, file_value):
-        return cls.from_ISO_8601(file_value)
+        date_time, precision, tz_offset = cls.from_ISO_8601(file_value)
+        if precision == 5 and date_time.minute == 0:
+            precision = 4
+        return cls((date_time, precision, tz_offset))
 
     def to_xmp(self):
         precision = self.precision
@@ -750,15 +756,25 @@ class DateTime(MD_Dict):
     def merge(self, info, tag, other):
         if other == self:
             return self
-        if other.datetime != self.datetime and other.to_utc() != self.to_utc():
-            # if datetime values differ, choose the one with more precision
+        if other.datetime != self.datetime:
+            # datetime values differ, choose self or other
+            if (self.tz_offset in (None, 0)) != (other.tz_offset in (None, 0)):
+                if self.tz_offset in (None, 0):
+                    # other has "better" time zone info so choose it
+                    self.log_replaced(info, tag, other)
+                    return other
+                # self has better time zone info
+                self.log_ignored(info, tag, other)
+                return self
             if other.precision > self.precision:
+                # other has higher precision so choose it
                 self.log_replaced(info, tag, other)
                 return other
             if other.datetime != self.truncate_datetime(
                                             self.datetime, other.precision):
                 self.log_ignored(info, tag, other)
-                return self
+            return self
+        # datetime values agree, merge other info
         result = dict(self)
         if self.precision < 7 and other.precision < self.precision:
             # some formats default to a higher precision than wanted
