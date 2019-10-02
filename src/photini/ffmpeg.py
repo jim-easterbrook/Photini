@@ -50,6 +50,8 @@ class FFmpeg(object):
             if not six.PY2:
                 error = error.decode('utf-8')
             raise RuntimeError('ffprobe: {}'.format(error))
+        if not six.PY2:
+            output = output.decode('utf-8')
         return json.loads(output)
 
     @staticmethod
