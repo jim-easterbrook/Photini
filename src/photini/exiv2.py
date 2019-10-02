@@ -109,8 +109,20 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not self.has_tag(tag):
             return None
         try:
-            if gexiv2_version < (0, 10, 3):
-                return self.get_tag_string(tag)
+            if gexiv2_version < (1, 10, 3):
+                try:
+                    result = self.get_tag_string(tag)
+                except UnicodeDecodeError:
+                    return None
+                if not result:
+                    return None
+                if self.get_tag_type(tag) == 'Byte':
+                    # data is a string of space separated numbers
+                    result = b''.join(
+                        map(six.int2byte, map(int, result.split())))
+                elif not six.PY2:
+                    result = result.encode('ascii')
+                return result
             result = self.get_tag_raw(tag).get_data()
             if not result:
                 return None
@@ -170,7 +182,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             if six.PY2:
                 result = self._decode_string(result)
             return result
-        except UnicodeDecodeError as ex:
+        except UnicodeDecodeError:
             pass
         # attempt to read raw data instead
         result = self.get_raw(tag)
@@ -192,7 +204,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             if six.PY2:
                 result = list(map(self._decode_string, result))
             return result
-        except UnicodeDecodeError as ex:
+        except UnicodeDecodeError:
             pass
         # attempt to read raw data instead, only gets the first value
         result = self.get_raw(tag)
