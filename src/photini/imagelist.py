@@ -200,12 +200,8 @@ class Image(QtWidgets.QFrame):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
         # ratios are padded with black
         with Busy():
-            data = None
-            if self.file_type not in (
-                    'application/postscript',
-                    'image/x-canon-cr2', 'image/x-nikon-nef'):
-                # first try using FFmpeg to make thumbnail
-                data, fmt, w, h = self.make_thumb_ffmpeg()
+            # first try using FFmpeg to make thumbnail
+            data, fmt, w, h = self.make_thumb_ffmpeg()
             if not data:
                 # use PIL or Qt
                 qt_im = self.get_qt_image()
@@ -222,7 +218,11 @@ class Image(QtWidgets.QFrame):
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
-        dims = FFmpeg.get_dimensions(self.path)
+        try:
+            dims = FFmpeg.get_dimensions(self.path)
+        except Exception as ex:
+            logger.error(str(ex))
+            dims = {}
         if not dims:
             return None, 'JPEG', 0, 0
         width = dims['width']

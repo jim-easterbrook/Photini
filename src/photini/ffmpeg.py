@@ -49,6 +49,7 @@ class FFmpeg(object):
         if p.returncode:
             if not six.PY2:
                 error = error.decode('utf-8')
+            error = error.splitlines()[0]
             raise RuntimeError('ffprobe: {}'.format(error))
         if not six.PY2:
             output = output.decode('utf-8')
@@ -82,5 +83,6 @@ class FFmpeg(object):
         if p.returncode:
             if not six.PY2:
                 error = error.decode('utf-8')
+            error = error.splitlines()[0]
             raise RuntimeError('ffmpeg: {}'.format(error))
         return output
