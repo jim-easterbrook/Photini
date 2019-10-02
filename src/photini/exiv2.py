@@ -625,7 +625,7 @@ class ImageMetadata(Exiv2Metadata):
     def open_old(cls, path):
         try:
             return cls(path)
-        except GLib.Error:
+        except GLib.GError:
             # expected if unrecognised file format
             return None
         except Exception as ex:
