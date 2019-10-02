@@ -300,6 +300,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map.drop_text.connect(self.drop_text)
         self.map.setAcceptDrops(False)
         self.layout().addWidget(self.map)
+        self.layout().setStretch(1, 1)
         # other init
         self.image_list.image_list_changed.connect(self.image_list_changed)
 
