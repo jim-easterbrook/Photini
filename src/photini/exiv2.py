@@ -109,7 +109,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not self.has_tag(tag):
             return None
         try:
-            if gexiv2_version < (1, 10, 3):
+            if gexiv2_version < (0, 10, 3):
                 try:
                     result = self.get_tag_string(tag)
                 except UnicodeDecodeError:
@@ -118,10 +118,14 @@ class Exiv2Metadata(GExiv2.Metadata):
                     return None
                 if self.get_tag_type(tag) == 'Byte':
                     # data is a string of space separated numbers
-                    result = b''.join(
-                        map(six.int2byte, map(int, result.split())))
-                elif not six.PY2:
-                    result = result.encode('ascii')
+                    return b''.join(map(six.int2byte, map(int, result.split())))
+                if self.get_tag_type(tag) == 'Comment':
+                    # GExiv2 adds original charset information
+                    parts = result.split('"')
+                    if parts[0] == 'charset=':
+                        result = parts[2][1:]
+                if not six.PY2:
+                    result = result.encode('ascii', 'backslashreplace')
                 return result
             result = self.get_tag_raw(tag).get_data()
             if not result:
