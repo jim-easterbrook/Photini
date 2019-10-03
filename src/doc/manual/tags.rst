@@ -9,7 +9,7 @@ This section lists the "mapping" from Photini's field names (such as "Title / Ob
 The tag names are those used by the Exiv2 library.
 See http://exiv2.org/metadata.html for more detail.
 
-As far as possible Photini follows the `Metadata Working Group <http://www.metadataworkinggroup.org/>`_ (MWG) `Guidelines for Handling Image Metadata <http://www.metadataworkinggroup.org/specs/>`_.
+As far as possible Photini follows the `Metadata Working Group <https://en.wikipedia.org/wiki/Metadata_Working_Group>`_ (MWG) "Guidelines for Handling Image Metadata".
 These specify the mapping between tags in Exif, XMP and IPTC, and say how software should reconcile any differences between information stored in equivalent tags.
 
 Primary tags

@@ -16,7 +16,7 @@ The ``copyright text`` entry has place-holders where the photograph's "taken" ye
 You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
 
 The next items adjust how Photini uses "sidecar" files and IPTC metadata.
-The `Metadata Working Group`_ recommends that IPTC metadata is not written to files unless already present.
+The `Metadata Working Group`_ recommended that IPTC metadata is not written to files unless already present.
 Photini has an option to always write IPTC metadata.
 You may need this if you use some other software that reads IPTC but not Exif or XMP.
 
@@ -167,4 +167,4 @@ You could even use a tab provided by another Python package by adding its module
 See :doc:`extending` for more information.
 
 .. _LibreOffice:            https://www.libreoffice.org/
-.. _Metadata Working Group: http://www.metadataworkinggroup.org/specs/
+.. _Metadata Working Group: https://en.wikipedia.org/wiki/Metadata_Working_Group
