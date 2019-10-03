@@ -141,13 +141,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.app.config_store.config.remove_option('tabs', key)
         # prepare list of tabs and associated stuff
         self.tab_list = []
-        modules = ('photini.descriptive',  'photini.technical',
-                   'photini.googlemap',    'photini.bingmap',
-                   'photini.mapboxmap',    'photini.openstreetmap',
-                   'photini.address',      'photini.flickr',
-                   'photini.googlephotos', 'photini.importer')
+        default_modules = ['photini.descriptive',  'photini.technical',
+                           'photini.googlemap',    'photini.bingmap',
+                           'photini.mapboxmap',    'photini.openstreetmap',
+                           'photini.address',      'photini.flickr',
+                           'photini.googlephotos', 'photini.importer']
         modules = eval(self.app.config_store.get(
-            'tabs', 'modules', pprint.pformat(modules)))
+            'tabs', 'modules', pprint.pformat(default_modules)))
+        for n, module in enumerate(default_modules):
+            if module not in modules:
+                modules = list(modules)
+                modules.insert(n, module)
+                self.app.config_store.set(
+                    'tabs', 'modules', pprint.pformat(modules))
         for module in modules:
             tab = {'module': module}
             try:

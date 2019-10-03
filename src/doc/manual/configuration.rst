@@ -137,26 +137,28 @@ Tab order
 
 Photini's tabs can be enabled or disabled with the ``Options`` menu as described above, but their order is set in the configuration file.
 The ``[tabs]`` section has a ``modules`` entry which lists the modules to be imported for each tab.
-You can reorder the tabs by reordering this list, or disable a tab permanently by removing its module from the list.
+You can reorder the tabs by reordering this list.
 
 .. code-block:: guess
 
    [tabs]
-   modules = ('photini.descriptive',
+   modules = ['photini.descriptive',
             'photini.technical',
             'photini.googlemap',
             'photini.bingmap',
             'photini.mapboxmap',
             'photini.openstreetmap',
+            'photini.address',
             'photini.flickr',
             'photini.googlephotos',
-            'photini.importer')
+            'photini.importer']
    photini.descriptive = True
    photini.technical = True
    photini.googlemap = True
    photini.bingmap = True
    photini.mapboxmap = True
    photini.openstreetmap = True
+   photini.address = True
    photini.flickr = True
    photini.googlephotos = True
    photini.importer = True
