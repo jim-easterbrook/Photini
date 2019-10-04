@@ -47,6 +47,8 @@ Latitude, longitude    Exif.GPSInfo.GPSLatitude          Xmp.exif.GPSLatitude
                        Exif.GPSInfo.GPSLatitudeRef       Xmp.exif.GPSLongitude
                        Exif.GPSInfo.GPSLongitude
                        Exif.GPSInfo.GPSLongitudeRef
+Altitude               Exif.GPSInfo.GPSAltitude          Xmp.exif.GPSAltitude
+                       Exif.GPSInfo.GPSAltitudeRef       Xmp.exif.GPSAltitudeRef
 Camera address                                           Xmp.iptcExt.LocationCreated
                                                          Xmp.iptc.Location               Iptc.Application2.SubLocation
                                                          Xmp.photoshop.City              Iptc.Application2.City
@@ -79,7 +81,6 @@ Aperture               Exif.Image.FNumber               Xmp.exif.ApertureValue
                        Exif.Image.ApertureValue
                        Exif.Photo.ApertureValue
 Focal length           Exif.Image.FocalLength
-Lens maker name
 Lens model name        Exif.Canon.LensModel
                        Exif.OlympusEq.LensModel
 Lens serial number     Exif.OlympusEq.LensSerialNumber
