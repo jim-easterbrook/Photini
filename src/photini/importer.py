@@ -67,10 +67,15 @@ class FolderSource(object):
                 timestamp = datetime.fromtimestamp(os.path.getmtime(path))
             else:
                 timestamp = timestamp.datetime
+            if metadata._sc:
+                sc_path = metadata._sc._path
+            else:
+                sc_path = None
             name = os.path.basename(path)
             file_data[name] = {
                 'camera'    : metadata.camera_model,
                 'path'      : path,
+                'sc_path'   : sc_path,
                 'name'      : name,
                 'timestamp' : timestamp,
                 }
@@ -82,7 +87,7 @@ class FolderSource(object):
             dest_dir = os.path.dirname(dest_path)
             if not os.path.isdir(dest_dir):
                 os.makedirs(dest_dir)
-            sc_file = Metadata.find_side_car(info['path'])
+            sc_file = info['sc_path']
             if move:
                 shutil.move(info['path'], dest_path)
                 if sc_file:
@@ -458,6 +463,8 @@ class TabWidget(QtWidgets.QWidget):
     def new_selection(self, selection):
         pass
 
+    @QtCore.pyqtSlot()
+    @catch_all
     def list_files(self):
         file_data = {}
         if self.source:
