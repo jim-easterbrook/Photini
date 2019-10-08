@@ -655,28 +655,36 @@ class DateTime(MD_Dict):
         else:
             handler.set_string(tag, self.to_xmp())
 
-    # Exif datetime is always full resolution and valid. Assume a time
-    # of 00:00:00 is a None value though.
+    # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
+    # shown in 24-hour format, and the date and time separated by one
+    # blank character [20.H]. When the date and time are unknown, all
+    # the character spaces except colons (":") may be filled with blank
+    # characters.
+
+    # Although the standard says "all", I've seen examples where some of
+    # the values are spaces, e.g. "2004:01:  :  :  ". I assume this
+    # represents a reduced precision. In Photini we write a full
+    # resolution datetime, but treat "00:00:00" as a None time value.
     @classmethod
     def from_exif(cls, file_value):
         datetime_string = file_value[0]
         if not datetime_string:
             return None
+        # check for blank values
+        while datetime_string[-2:] == '  ':
+            datetime_string = datetime_string[:-3]
+        # check for zero time
+        if len(datetime_string) == 19 and datetime_string[-8:] == '00:00:00':
+            datetime_string = datetime_string[:-9]
         # append sub seconds
-        if len(file_value) > 1:
+        if len(datetime_string) == 19 and len(file_value) > 1:
             sub_sec_string = file_value[1]
             if sub_sec_string:
                 sub_sec_string = sub_sec_string.strip()
             if sub_sec_string:
                 datetime_string += '.' + sub_sec_string
         # do conversion
-        date_time, precision, tz_offset = cls.from_ISO_8601(datetime_string)
-        # check for no time
-        if (date_time.hour == 0 and date_time.minute == 0
-                and date_time.second == 0 and date_time.microsecond == 0):
-            precision = 3
-            tz_offset = None
-        return cls((date_time, precision, tz_offset))
+        return cls(cls.from_ISO_8601(datetime_string))
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
