@@ -600,7 +600,8 @@ class DateTime(MD_Dict):
             if fmt[n][0] != datetime_string[idx]:
                 fmt[n] = datetime_string[idx] + fmt[n][1:]
         fmt = ''.join(fmt)
-        return datetime.strptime(datetime_string, fmt), precision, tz_offset
+        return cls((
+            datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
     def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
@@ -632,7 +633,7 @@ class DateTime(MD_Dict):
         if not file_value:
             return None
         if isinstance(handler, FFMPEGMetadata):
-            return cls(cls.from_ISO_8601(file_value))
+            return cls.from_ISO_8601(file_value)
         if handler.is_exif_tag(tag):
             return cls.from_exif(file_value)
         if handler.is_iptc_tag(tag):
@@ -687,7 +688,7 @@ class DateTime(MD_Dict):
             if sub_sec_string:
                 datetime_string += '.' + sub_sec_string
         # do conversion
-        return cls(cls.from_ISO_8601(datetime_string))
+        return cls.from_ISO_8601(datetime_string)
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
@@ -721,7 +722,7 @@ class DateTime(MD_Dict):
             datetime_string = date_string + 'T' + time_string
         else:
             datetime_string = date_string
-        return cls(cls.from_ISO_8601(datetime_string))
+        return cls.from_ISO_8601(datetime_string)
 
     def to_iptc(self):
         if self.precision <= 3:
@@ -745,10 +746,10 @@ class DateTime(MD_Dict):
     # time zone information optional.
     @classmethod
     def from_xmp(cls, file_value):
-        date_time, precision, tz_offset = cls.from_ISO_8601(file_value)
-        if precision == 5 and date_time.minute == 0:
-            precision = 4
-        return cls((date_time, precision, tz_offset))
+        self = cls.from_ISO_8601(file_value)
+        if self and self.precision == 5 and self.date_time.minute == 0:
+            return cls((self.date_time, 4, self.tz_offset))
+        return self
 
     def to_xmp(self):
         precision = self.precision
