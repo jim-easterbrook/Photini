@@ -676,6 +676,9 @@ class DateTime(MD_Dict):
         # check for zero time
         if len(datetime_string) == 19 and datetime_string[-8:] == '00:00:00':
             datetime_string = datetime_string[:-9]
+            if datetime_string == '0000:00:00':
+                # all zeros, used by some programs to indicate missing value
+                return None
         # append sub seconds
         if len(datetime_string) == 19 and len(file_value) > 1:
             sub_sec_string = file_value[1]
