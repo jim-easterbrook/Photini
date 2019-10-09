@@ -62,6 +62,7 @@ class FFMPEGMetadata(object):
                            'location'),
         'orientation':    ('rotate',),
         'rating':         ('com.apple.quicktime.rating.user',),
+        'title':          ('title',),
         }
 
     def __init__(self, path):
