@@ -361,6 +361,8 @@ class TabWidget(QtWidgets.QWidget):
     def new_source(self, idx):
         self.source = None
         item_data = self.source_selector.itemData(idx)
+        if not item_data:
+            return
         if callable(item_data):
             # a special 'source' that's actually a method to call
             (item_data)()
