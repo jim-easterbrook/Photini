@@ -139,20 +139,8 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         super(DateTimeEdit, self).__init__(*arg, **kw)
         self.precision = 1
         self.multiple = multiple_values()
-        self.minimum_size = None
-
-    @catch_all
-    def sizeHint(self):
-        if self.isVisible() and self.minimum_size is None:
-            # get size at full precision
-            self.set_precision(7)
-            self.set_value(QtCore.QDateTime.currentDateTime())
-            self.minimum_size = super(DateTimeEdit, self).sizeHint()
-            # clear display
-            self.set_value(None)
-        if self.minimum_size is None:
-            return super(DateTimeEdit, self).sizeHint()
-        return self.minimum_size
+        self.setFixedWidth(
+            self.fontMetrics().width('8888-88-88 88:88:88.888+++++'))
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -202,7 +190,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.precision = value
             self.setDisplayFormat(
                 ''.join(('yyyy', '-MM', '-dd',
-                         ' hh', ':mm', ':ss', '.zzz ')[:self.precision]))
+                         ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
     def set_multiple(self, choices=[]):
         self.choices = choices
@@ -220,9 +208,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
-        # set fixed width
-        self.setValue(-8 * 60)
-        self.setFixedWidth(super(TimeZoneWidget, self).sizeHint().width())
+        self.setFixedWidth(self.fontMetrics().width('+80:00+++++'))
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -356,6 +342,8 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().setSpacing(0)
         # offset value
         self.offset = QtWidgets.QTimeEdit()
+        self.offset.setFixedWidth(
+            self.offset.fontMetrics().width('h:88 m:88 s:88+++++'))
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
