@@ -29,7 +29,8 @@ import six
 from photini.metadata import LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
-    QtWidgets, scale_font, set_symbol_font, Slider, SquareButton)
+    QtWidgets, scale_font, set_symbol_font, Slider, SquareButton,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -140,7 +141,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         self.precision = 1
         self.multiple = multiple_values()
         self.setFixedWidth(
-            self.fontMetrics().width('8888-88-88 88:88:88.888+++++'))
+            width_for_text(self, '8888-88-88 88:88:88.888++++++'))
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -208,7 +209,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
-        self.setFixedWidth(self.fontMetrics().width('+80:00+++++'))
+        self.setFixedWidth(width_for_text(self, '+80:00+++++'))
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -343,7 +344,7 @@ class OffsetWidget(QtWidgets.QWidget):
         # offset value
         self.offset = QtWidgets.QTimeEdit()
         self.offset.setFixedWidth(
-            self.offset.fontMetrics().width('h:88 m:88 s:88+++++'))
+            width_for_text(self.offset, 'h:88 m:88 s:88++++++'))
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
@@ -550,7 +551,7 @@ class NewLensDialog(QtWidgets.QDialog):
         # model
         self.lens_model = QtWidgets.QLineEdit()
         self.lens_model.setMinimumWidth(
-            self.lens_model.fontMetrics().width('x' * 35))
+            width_for_text(self.lens_model, 'x' * 35))
         panel.layout().addRow(
             translate('TechnicalTab', 'Model name'), self.lens_model)
         # maker
@@ -692,7 +693,7 @@ class TabWidget(QtWidgets.QWidget):
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
         self.widgets['lens_model'].setMinimumWidth(
-            self.widgets['lens_model'].fontMetrics().width('x' * 30))
+            width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(translate(
             'TechnicalTab', '<define new lens>'), '<add lens>')

@@ -23,7 +23,8 @@ import logging.handlers
 import os
 import sys
 
-from photini.pyqt import catch_all, qt_version_info, QtCore, QtWidgets
+from photini.pyqt import (
+    catch_all, qt_version_info, QtCore, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ class LoggerWindow(QtWidgets.QWidget):
         # main dialog area
         self.text = QtWidgets.QTextEdit()
         self.text.setReadOnly(True)
-        self.text.setMinimumWidth(self.text.fontMetrics().width('x' * 70))
+        self.text.setMinimumWidth(width_for_text(self.text, 'x' * 70))
         self.layout().addWidget(self.text)
         # buttons
         button_box = QtWidgets.QDialogButtonBox(

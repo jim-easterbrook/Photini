@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-18  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -21,9 +21,11 @@ from __future__ import unicode_literals
 
 import logging
 
-from photini.pyqt import catch_all, Qt, QtCore, QtWidgets, SingleLineEdit
+from photini.pyqt import (
+    catch_all, Qt, QtCore, QtWidgets, SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
+
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
@@ -53,7 +55,7 @@ class EditSettings(QtWidgets.QDialog):
         self.copyright_text.set_value(
             self.config_store.get('user', 'copyright_text', ''))
         self.copyright_text.setMinimumWidth(
-            self.copyright_text.fontMetrics().width('x' * 50))
+            width_for_text(self.copyright_text, 'x' * 50))
         panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
         # creator name
         self.creator_name = SingleLineEdit(spell_check=True)

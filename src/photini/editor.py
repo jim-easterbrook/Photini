@@ -41,7 +41,7 @@ from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
-    using_qtwebengine)
+    using_qtwebengine, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -58,7 +58,7 @@ translate = QtCore.QCoreApplication.translate
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
-        size.setWidth(max(size.width(), self.fontMetrics().width('x' * 13)))
+        size.setWidth(max(size.width(), width_for_text(self, 'x' * 13)))
         return size
 
 

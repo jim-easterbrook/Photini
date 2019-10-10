@@ -156,6 +156,11 @@ def scale_font(widget, scale):
         font.setPointSizeF(size * scale / 100.0)
     widget.setFont(font)
 
+def width_for_text(widget, text):
+    rect = widget.fontMetrics().boundingRect(text)
+    return rect.width()
+
+
 class Busy(object):
     @staticmethod
     def start():
