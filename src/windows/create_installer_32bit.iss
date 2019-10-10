@@ -2,7 +2,7 @@
 #define PythonW "{app}\msys2\mingw32\bin\python3w.exe";
 #define Shell "{app}\msys2\usr\bin\env.exe";
 #define SrcDir "C:\photini32"
-#define Version "2019.5.1"
+#define Version "2019.10.0"
 
 [Setup]
 VersionInfoVersion={#Version}
@@ -24,7 +24,7 @@ LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
 SetupIconFile=icon.ico
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=8718000
+ExtraDiskSpaceRequired=8684130
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -53,22 +53,26 @@ Name: "{commondesktop}\Photini"; Filename: "{#PythonW}"; \
 Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
-Name: "flickr"; Description: "Flickr uploader"; Types: custom; \
-  ExtraDiskSpaceRequired: 1927146
+Name: "uploader"; Description: "Upload to photo sharing services"; Types: custom; \
+  ExtraDiskSpaceRequired: 1450539
+Name: "uploader/flickr"; Description: "Flickr uploader"; Types: custom; \
+  ExtraDiskSpaceRequired: 428238; Flags: dontinheritcheck
+Name: "uploader/google"; Description: "Google Photos uploader"; Types: custom; \
+  ExtraDiskSpaceRequired: 0; Flags: dontinheritcheck
 Name: "spell"; Description: "Spelling checker"; Types: custom; \
-  ExtraDiskSpaceRequired: 199674251; Flags: checkablealone
+  ExtraDiskSpaceRequired: 286778209; Flags: checkablealone
 Name: "spell/en"; Description: "English dictionaries"; Types: custom; \
-  ExtraDiskSpaceRequired: 4275875; Flags: dontinheritcheck
+  ExtraDiskSpaceRequired: 4275851; Flags: dontinheritcheck
 Name: "spell/fr"; Description: "French dictionaries"; Types: custom; \
-  ExtraDiskSpaceRequired: 17766464; Flags: dontinheritcheck
+  ExtraDiskSpaceRequired: 17766440; Flags: dontinheritcheck
 Name: "spell/de"; Description: "German dictionaries"; Types: custom; \
-  ExtraDiskSpaceRequired: 6051161; Flags: dontinheritcheck
+  ExtraDiskSpaceRequired: 6051212; Flags: dontinheritcheck
 Name: "spell/ru"; Description: "Russian dictionary"; Types: custom; \
-  ExtraDiskSpaceRequired: 5906420; Flags: dontinheritcheck
+  ExtraDiskSpaceRequired: 5906396; Flags: dontinheritcheck
 Name: "spell/es"; Description: "Spanish dictionary"; Types: custom; \
-  ExtraDiskSpaceRequired: 1468667; Flags: dontinheritcheck
-Name: "opencv"; Description: "Video thumbnail creation"; Types: custom; \
-  ExtraDiskSpaceRequired: 587508036
+  ExtraDiskSpaceRequired: 1468643; Flags: dontinheritcheck
+Name: "ffmpeg"; Description: "Video file reading"; Types: custom; \
+  ExtraDiskSpaceRequired: 154102022
 
 [Code]
 function GetInstallOptions(Param: String): String;
