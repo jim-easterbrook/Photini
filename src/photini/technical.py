@@ -139,14 +139,19 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         super(DateTimeEdit, self).__init__(*arg, **kw)
         self.precision = 1
         self.multiple = multiple_values()
-        # get size at full precision
-        self.set_value(QtCore.QDateTime.currentDateTime())
-        self.set_precision(7)
-        self.minimum_size = super(DateTimeEdit, self).sizeHint()
-        # clear display
-        self.set_value(None)
+        self.minimum_size = None
 
+    @catch_all
     def sizeHint(self):
+        if self.isVisible() and self.minimum_size is None:
+            # get size at full precision
+            self.set_precision(7)
+            self.set_value(QtCore.QDateTime.currentDateTime())
+            self.minimum_size = super(DateTimeEdit, self).sizeHint()
+            # clear display
+            self.set_value(None)
+        if self.minimum_size is None:
+            return super(DateTimeEdit, self).sizeHint()
         return self.minimum_size
 
     @catch_all
@@ -197,7 +202,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
             self.precision = value
             self.setDisplayFormat(
                 ''.join(('yyyy', '-MM', '-dd',
-                         ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
+                         ' hh', ':mm', ':ss', '.zzz ')[:self.precision]))
 
     def set_multiple(self, choices=[]):
         self.choices = choices
