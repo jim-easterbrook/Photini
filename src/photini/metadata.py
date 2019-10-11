@@ -748,8 +748,8 @@ class DateTime(MD_Dict):
     @classmethod
     def from_xmp(cls, file_value):
         self = cls.from_ISO_8601(file_value)
-        if self and self.precision == 5 and self.date_time.minute == 0:
-            return cls((self.date_time, 4, self.tz_offset))
+        if self and self.precision == 5 and self.datetime.minute == 0:
+            return cls((self.datetime, 4, self.tz_offset))
         return self
 
     def to_xmp(self):
