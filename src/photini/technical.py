@@ -137,11 +137,17 @@ class NumberEdit(QtWidgets.QLineEdit):
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
     def __init__(self, *arg, **kw):
-        super(DateTimeEdit, self).__init__(*arg, **kw)
         self.precision = 1
         self.multiple = multiple_values()
-        self.setFixedWidth(
-            width_for_text(self, '8888-88-88 88:88:88.888++++++'))
+        super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.set_precision(7)
+
+    @catch_all
+    def sizeHint(self):
+        size = super(DateTimeEdit, self).sizeHint()
+        if self.precision == 7 and not self.is_multiple():
+            self.setFixedSize(size)
+        return size
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -204,12 +210,18 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
 
 class TimeZoneWidget(QtWidgets.QSpinBox):
     def __init__(self, *arg, **kw):
-        super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.multiple = multiple()
+        super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
-        self.setFixedWidth(width_for_text(self, '+80:00+++++'))
+
+    @catch_all
+    def sizeHint(self):
+        size = super(TimeZoneWidget, self).sizeHint()
+        if not self.is_multiple():
+            self.setFixedSize(size)
+        return size
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -343,8 +355,6 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().setSpacing(0)
         # offset value
         self.offset = QtWidgets.QTimeEdit()
-        self.offset.setFixedWidth(
-            width_for_text(self.offset, 'h:88 m:88 s:88++++++'))
         self.offset.setDisplayFormat("'h:'hh 'm:'mm 's:'ss")
         self.layout().addWidget(self.offset)
         self.layout().addSpacing(spacing)
