@@ -100,6 +100,9 @@ Qt applications can have their appearance changed by selecting different "styles
 Normally a style is automatically chosen that suits the operating system, but you may want to override this if you prefer something different.
 For example, on one of my computers the default style doesn't draw lines round the grouped elements on the uploader tabs, so I change the style to one that does.
 
+The choice of style affects how some "widgets" are drawn.
+If you find problems such as date or timezone values (on the "technical metadata" tab) being partly hidden then it might be worth trying another style.
+
 To find out what styles are available on your computer you can use Photini's ``--version`` flag.
 (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)
 You can then try one of these styles as follows::
