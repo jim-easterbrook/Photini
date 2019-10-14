@@ -387,6 +387,17 @@ class OffsetWidget(QtWidgets.QWidget):
         self.offset.editingFinished.connect(self.new_value)
         self.time_zone.editingFinished.connect(self.new_value)
 
+    @catch_all
+    def showEvent(self, event):
+        super(OffsetWidget, self).showEvent(event)
+        # On some Windows versions the initial sizeHint calculation is
+        # wrong. Redoing it after the widget becomes visible gets a
+        # better result. Calling setSpecialValueText is also required.
+        self.offset.setSpecialValueText('')
+        self.offset.updateGeometry()
+        self.time_zone.setSpecialValueText(' ')
+        self.time_zone.updateGeometry()
+
     @QtCore.pyqtSlot()
     @catch_all
     def new_value(self):
