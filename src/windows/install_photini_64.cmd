@@ -9,11 +9,11 @@ SET group=mingw-w64-x86_64
 %bash% "python3 -m pip install -U --no-cache-dir --disable-pip-version-check photini || sleep 300"
 
 FOR %%G IN (%*) DO (
-  IF %%G==uploader/flickr (
-    %bash% "python3 -m pip install -U --no-cache-dir --disable-pip-version-check flickrapi keyring || sleep 300"
-  )
-  IF %%G==uploader/google (
+  IF %%G==uploader (
     %bash% "python3 -m pip install -U --no-cache-dir --disable-pip-version-check requests-oauthlib keyring || sleep 300"
+  )
+  IF %%G==uploader/flickr (
+    %bash% "python3 -m pip install -U --no-cache-dir --disable-pip-version-check flickrapi || sleep 300"
   )
   IF %%G==spell (
     %bash% "pacman -S --noconfirm %group%-gspell || sleep 300"
