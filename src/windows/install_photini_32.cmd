@@ -34,7 +34,7 @@ FOR %%G IN (%*) DO (
     %bash% "pacman -S --noconfirm %group%-aspell-es || sleep 300"
   )
   IF %%G==ffmpeg (
-    %bash% "pacman -S --noconfirm %group%-{ffmpeg} || sleep 300"
+    %bash% "pacman -S --noconfirm %group%-ffmpeg || sleep 300"
   )
 )
 
