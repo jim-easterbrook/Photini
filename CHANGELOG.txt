@@ -16,6 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2019.10.0:
+  1/ GPS coords address lookup is now on a separate tab.
+  2/ Map tabs now display altitude as well as latitude & longitude.
+  3/ File count shows progress during import.
+  4/ Added 'move files' option to importer.
+  5/ Added Czech and Catalan localisations.
+  6/ Better handling of some non-standard metadata values.
+  7/ Use FFmpeg instead of Exiv2 to read video file metadata.
+  8/ Updated Windows installers, including GPX file reader and FFmpeg option.
+
 Changes in v2019.8.0:
   1/ Added new Google Photos uploader.
   2/ Improved login process for both uploaders.
