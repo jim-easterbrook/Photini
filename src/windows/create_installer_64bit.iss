@@ -53,23 +53,23 @@ Name: "{commondesktop}\Photini"; Filename: "{#PythonW}"; \
 Name: "custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
-Name: "uploader"; Description: "Upload to photo sharing services"; Types: custom; \
+Name: "upload"; Description: "Upload to photo sharing services"; Types: custom; \
   ExtraDiskSpaceRequired: 1450539
-Name: "uploader/flickr"; Description: "Flickr uploader"; Types: custom; \
+Name: "upload\flickr"; Description: "Flickr uploader"; Types: custom; \
   ExtraDiskSpaceRequired: 428238; Flags: dontinheritcheck
-Name: "uploader/google"; Description: "Google Photos uploader"; Types: custom; \
+Name: "upload\google"; Description: "Google Photos uploader"; Types: custom; \
   ExtraDiskSpaceRequired: 0; Flags: dontinheritcheck
 Name: "spell"; Description: "Spelling checker"; Types: custom; \
   ExtraDiskSpaceRequired: 286778209; Flags: checkablealone
-Name: "spell/en"; Description: "English dictionaries"; Types: custom; \
+Name: "spell\en"; Description: "English dictionaries"; Types: custom; \
   ExtraDiskSpaceRequired: 4275851; Flags: dontinheritcheck
-Name: "spell/fr"; Description: "French dictionaries"; Types: custom; \
+Name: "spell\fr"; Description: "French dictionaries"; Types: custom; \
   ExtraDiskSpaceRequired: 17766440; Flags: dontinheritcheck
-Name: "spell/de"; Description: "German dictionaries"; Types: custom; \
+Name: "spell\de"; Description: "German dictionaries"; Types: custom; \
   ExtraDiskSpaceRequired: 6051212; Flags: dontinheritcheck
-Name: "spell/ru"; Description: "Russian dictionary"; Types: custom; \
+Name: "spell\ru"; Description: "Russian dictionary"; Types: custom; \
   ExtraDiskSpaceRequired: 5906396; Flags: dontinheritcheck
-Name: "spell/es"; Description: "Spanish dictionary"; Types: custom; \
+Name: "spell\es"; Description: "Spanish dictionary"; Types: custom; \
   ExtraDiskSpaceRequired: 1468643; Flags: dontinheritcheck
 Name: "ffmpeg"; Description: "Video file reading"; Types: custom; \
   ExtraDiskSpaceRequired: 154102022
