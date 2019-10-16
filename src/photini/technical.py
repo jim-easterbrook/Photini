@@ -528,7 +528,8 @@ class LensData(object):
             lens_id = '({}){}'.format(make, lens_id)
         if serial:
             lens_id = '{}({})'.format(lens_id, serial)
-        lens_id = lens_id.replace(' ', '')
+        if lens_id:
+            lens_id = lens_id.replace(' ', '')
         return lens_id
 
     def get_name(self, lens_id):

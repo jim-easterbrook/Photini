@@ -33,7 +33,7 @@ import six
 from photini import __version__
 from photini.gi import using_pgi
 from photini.pyqt import QtCore, QtGui
-from photini.exiv2 import ImageMetadata, SidecarMetadata
+from photini.exiv2 import ImageMetadata, SidecarMetadata, VideoHeaderMetadata
 from photini.ffmpeg import FFmpeg
 
 logger = logging.getLogger(__name__)
@@ -1061,6 +1061,10 @@ class Metadata(QtCore.QObject):
         self._if = ImageMetadata.open_old(path)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
+            vhm = VideoHeaderMetadata.open_old(path)
+            if vhm and self._if:
+                vhm.merge_segment(self._if)
+            self._if = vhm
             self._vf = FFMPEGMetadata.open_old(path)
         self.dirty = False
 

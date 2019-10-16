@@ -64,11 +64,15 @@ del data
 
 
 class Exiv2Metadata(GExiv2.Metadata):
-    def __init__(self, path):
+    def __init__(self, path, buf=None):
         super(Exiv2Metadata, self).__init__()
         self._path = path
-        # read metadata from file
-        self.open_path(self._path)
+        if buf:
+            # read metadata from buffer
+            self.open_buf(buf)
+        else:
+            # read metadata from file
+            self.open_path(self._path)
         # make list of possible character encodings
         self._encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -648,7 +652,7 @@ class ImageMetadata(Exiv2Metadata):
                        'Exif.Photo.DateTimeDigitized'):
                 self.clear_tag(tag)
             else:
-                self.set_string(tag, other.get_string(tag))
+                self._set_string(tag, other._get_string(tag))
         # copy all XMP tags except inferred Exif tags
         for tag in other.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
@@ -658,9 +662,63 @@ class ImageMetadata(Exiv2Metadata):
                 # exiv2 will already have supplied the equivalent Exif tag
                 pass
             elif self.get_tag_type(tag) == 'XmpText':
-                self.set_string(tag, other.get_string(tag))
+                self._set_string(tag, other._get_string(tag))
             else:
-                self.set_multiple(tag, other.get_multiple(tag))
+                self._set_multiple(tag, other._get_multiple(tag))
+
+
+class VideoHeaderMetadata(ImageMetadata):
+    @classmethod
+    def open_old(cls, path):
+        # scan first 256 KB of file for embedded JPEG images
+        with open(path, 'rb') as f:
+            data = f.read(256 * 1024)
+        result = None
+        soi = 0
+        while True:
+            soi = data.find(b'\xff\xd8\xff', soi)
+            if soi < 0:
+                break
+            eoi = data.find(b'\xff\xd9', soi + 6)
+            if eoi < 0:
+                break
+            try:
+                segment = cls(path, buf=data[soi:eoi])
+            except GLib.GError:
+                # expected if unrecognised data format
+                segment = None
+            except Exception as ex:
+                logger.exception(ex)
+                segment = None
+            if segment and len(segment.get_all_tags()) > 1:
+                if result:
+                    result.merge_segment(segment)
+                else:
+                    result = segment
+                    result.segment = soi, eoi
+            soi += 3
+        return result
+
+    def merge_segment(self, other):
+        for tag in other.get_all_tags():
+            other_value = other._get_string(tag)
+            if not self.has_tag(tag):
+                self._set_string(tag, other_value)
+            elif self._get_string(tag) != other_value:
+                logger.warning('Ignoring repeated video header tag %s: %s',
+                               tag, other_value)
+
+    def save(self, *args, **kwds):
+        # definitely read-only
+        return False
+
+    def get_exif_thumbnail(self):
+        if not self.segment:
+            return None
+        soi, eoi = self.segment
+        with open(self._path, 'rb') as f:
+            data = f.read(eoi)
+        return data[soi:]
 
 
 class SidecarMetadata(Exiv2Metadata):
