@@ -985,10 +985,12 @@ class Aperture(MD_Rational):
         return self
 
     def write(self, handler, tag):
-        apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
-        handler.set_string(tag, (
-            '{:d}/{:d}'.format(self.numerator, self.denominator),
-            '{:d}/{:d}'.format(apex.numerator, apex.denominator)))
+        file_value = ['{:d}/{:d}'.format(self.numerator, self.denominator)]
+        if self != 0:
+            apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
+            file_value.append(
+                '{:d}/{:d}'.format(apex.numerator, apex.denominator))
+        handler.set_string(tag, file_value)
 
     def merge_item(self, this, other):
         if (min(other, this) / max(other, this)) > 0.95:
