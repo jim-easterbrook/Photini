@@ -496,60 +496,104 @@ class LensData(object):
     def __init__(self):
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
-        self.lenses.sort()
+        # update config
+        for section in self.config_store.config.sections():
+            if section.startswith('lens '):
+                lens_id = section[5:]
+                if lens_id not in self.lenses:
+                    self.lenses.append(lens_id)
+        for old_id in list(self.lenses):
+            section = 'lens ' + old_id
+            values = {}
+            for key in ('lens_model', 'lens_make', 'lens_serial', 'lens_spec'):
+                values[key] = self.config_store.get(section, key) or None
+            if not values['lens_model']:
+                values['lens_model'] = old_id
+            new_id = self.get_id(values['lens_model'], values['lens_make'],
+                                 values['lens_serial'])
+            if new_id in self.lenses:
+                continue
+            self.delete_model(old_id)
+            section = 'lens ' + new_id
+            for key in ('lens_model', 'lens_make', 'lens_serial', 'lens_spec'):
+                if values[key] is not None:
+                    self.config_store.set(section, key, values[key])
+            self.lenses.append(new_id)
+        self.lenses.sort(key=self.get_name)
 
-    def delete_model(self, model):
-        if model not in self.lenses:
+    @staticmethod
+    def get_id(model, make, serial):
+        lens_id = model
+        if make and make not in lens_id:
+            lens_id = '({}){}'.format(make, lens_id)
+        if serial:
+            lens_id = '{}({})'.format(lens_id, serial)
+        lens_id = lens_id.replace(' ', '')
+        return lens_id
+
+    def get_name(self, lens_id):
+        section = 'lens ' + lens_id
+        name = self.config_store.get(section, 'lens_model')
+        make = self.config_store.get(section, 'lens_make')
+        if make and make not in name:
+            name = make + ' ' + name
+        return name
+
+    def delete_model(self, lens_id):
+        if lens_id not in self.lenses:
             return
-        self.config_store.remove_section('lens ' + model)
-        self.lenses.remove(model)
+        self.config_store.remove_section('lens ' + lens_id)
+        self.lenses.remove(lens_id)
         self.config_store.set('technical', 'lenses', repr(self.lenses))
 
-    def save_to_image(self, model, image):
-        image.metadata.lens_model = model
-        if not model:
-            for item in ('lens_make', 'lens_serial', 'lens_spec'):
+    def save_to_image(self, lens_id, image):
+        if not lens_id:
+            for item in ('lens_model', 'lens_make', 'lens_serial', 'lens_spec'):
                 setattr(image.metadata, item, None)
             return
-        section = 'lens ' + model
-        for item in ('lens_make', 'lens_serial', 'lens_spec'):
+        section = 'lens ' + lens_id
+        for item in ('lens_model', 'lens_make', 'lens_serial', 'lens_spec'):
             value = self.config_store.get(section, item) or None
             if item == 'lens_spec' and value and ',' not in value:
                 value = ','.join(value.split())
                 self.config_store.set(section, item, value)
             setattr(image.metadata, item, value)
 
-    def load_from_image(self, model, image):
-        section = 'lens ' + model
-        for item in ('lens_make', 'lens_serial', 'lens_spec'):
+    def load_from_image(self, lens_id, image):
+        section = 'lens ' + lens_id
+        for item in ('lens_model', 'lens_make', 'lens_serial', 'lens_spec'):
             value = getattr(image.metadata, item)
             if value:
                 self.config_store.set(section, item, str(value))
-        if model not in self.lenses:
-            self.lenses.append(model)
-        self.lenses.sort()
+        if lens_id not in self.lenses:
+            self.lenses.append(lens_id)
+        self.lenses.sort(key=self.get_name)
         self.config_store.set('technical', 'lenses', repr(self.lenses))
 
     def load_from_dialog(self, dialog):
-        model = dialog.lens_model.text()
+        model = dialog.lens_model.text().strip()
         if not model:
             return None
-        min_fl = dialog.lens_spec['min_fl'].text()
+        min_fl = dialog.lens_spec['min_fl'].text().strip()
         if not min_fl:
             return None
-        max_fl = dialog.lens_spec['max_fl'].text() or min_fl
-        min_fl_fn = dialog.lens_spec['min_fl_fn'].text() or '0'
-        max_fl_fn = dialog.lens_spec['max_fl_fn'].text() or min_fl_fn
+        max_fl = dialog.lens_spec['max_fl'].text().strip() or min_fl
+        min_fl_fn = dialog.lens_spec['min_fl_fn'].text().strip() or '0'
+        max_fl_fn = dialog.lens_spec['max_fl_fn'].text().strip() or min_fl_fn
         lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
-        section = 'lens ' + model
-        self.config_store.set(section, 'lens_make', dialog.lens_make.text())
-        self.config_store.set(section, 'lens_serial', dialog.lens_serial.text())
+        make = dialog.lens_make.text().strip()
+        serial = dialog.lens_serial.text().strip()
+        lens_id = self.get_id(model, make, serial)
+        section = 'lens ' + lens_id
+        self.config_store.set(section, 'lens_model', model)
+        self.config_store.set(section, 'lens_make', make)
+        self.config_store.set(section, 'lens_serial', serial)
         self.config_store.set(section, 'lens_spec', str(lens_spec))
-        if model not in self.lenses:
-            self.lenses.append(model)
-        self.lenses.sort()
+        if lens_id not in self.lenses:
+            self.lenses.append(lens_id)
+        self.lenses.sort(key=self.get_name)
         self.config_store.set('technical', 'lenses', repr(self.lenses))
-        return model
+        return lens_id
 
 
 class NewLensDialog(QtWidgets.QDialog):
@@ -718,8 +762,9 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(translate(
             'TechnicalTab', '<define new lens>'), '<add lens>')
-        for model in self.lens_data.lenses:
-            self.widgets['lens_model'].add_item(model, model)
+        for lens_id in self.lens_data.lenses:
+            self.widgets['lens_model'].add_item(
+                self.lens_data.get_name(lens_id), lens_id)
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
         self.widgets['lens_model'].customContextMenuRequested.connect(
             self.remove_lens_model)
@@ -806,14 +851,15 @@ class TabWidget(QtWidgets.QWidget):
     @QtCore.pyqtSlot(QtCore.QPoint)
     @catch_all
     def remove_lens_model(self, pos):
-        current_model = self.widgets['lens_model'].get_value()
+        current_lens_id = self.widgets['lens_model'].get_value()
         menu = QtWidgets.QMenu()
-        for model in self.lens_data.lenses:
-            if model == current_model:
+        for lens_id in self.lens_data.lenses:
+            if lens_id == current_lens_id:
                 continue
             action = QtWidgets.QAction(translate(
-                'TechnicalTab', 'Remove lens "{}"').format(model), self)
-            action.setData(model)
+                'TechnicalTab', 'Remove lens "{}"').format(
+                    self.lens_data.get_name(lens_id)), self)
+            action.setData(lens_id)
             menu.addAction(action)
         if menu.isEmpty():
             # no deletable lenses
@@ -821,9 +867,9 @@ class TabWidget(QtWidgets.QWidget):
         action = menu.exec_(self.widgets['lens_model'].mapToGlobal(pos))
         if not action:
             return
-        model = action.data()
-        self.lens_data.delete_model(model)
-        self.widgets['lens_model'].remove_item(model)
+        lens_id = action.data()
+        self.lens_data.delete_model(lens_id)
+        self.widgets['lens_model'].remove_item(lens_id)
 
     @QtCore.pyqtSlot(object)
     @catch_all
@@ -842,11 +888,12 @@ class TabWidget(QtWidgets.QWidget):
             self.image_list.get_selected_images(), parent=self)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
-        model = self.lens_data.load_from_dialog(dialog)
-        if not model:
+        lens_id = self.lens_data.load_from_dialog(dialog)
+        if not lens_id:
             return
-        if not self.widgets['lens_model'].known_value(model):
-            self.widgets['lens_model'].add_item(model, model)
+        if not self.widgets['lens_model'].known_value(lens_id):
+            self.widgets['lens_model'].add_item(
+                self.lens_data.get_name(lens_id), lens_id)
 
     @QtCore.pyqtSlot(six.text_type)
     @catch_all
@@ -946,24 +993,26 @@ class TabWidget(QtWidgets.QWidget):
         if not images:
             return
         model = images[0].metadata.lens_model
+        make = images[0].metadata.lens_make
+        serial = images[0].metadata.lens_serial
         for image in images[1:]:
-            if image.metadata.lens_model != model:
+            if (image.metadata.lens_model != model or
+                    image.metadata.lens_make != make or
+                    image.metadata.lens_serial != serial):
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 self.widgets['lens_model'].setToolTip('')
                 return
-        if not self.widgets['lens_model'].known_value(model):
+        lens_id = self.lens_data.get_id(model, make, serial)
+        if not self.widgets['lens_model'].known_value(lens_id):
             # new lens
-            self.lens_data.load_from_image(model, images[0])
-            self.widgets['lens_model'].add_item(model, model)
-        self.widgets['lens_model'].set_value(model)
+            self.lens_data.load_from_image(lens_id, images[0])
+            self.widgets['lens_model'].add_item(
+                self.lens_data.get_name(lens_id), lens_id)
+        self.widgets['lens_model'].set_value(lens_id)
         tool_tip = ''
-        if images[0].metadata.lens_make:
-            tool_tip = images[0].metadata.lens_make + ' '
-        if images[0].metadata.lens_model:
-            tool_tip += images[0].metadata.lens_model + ' '
-        if images[0].metadata.lens_serial:
-            tool_tip += '(' + images[0].metadata.lens_serial + ')'
+        if serial:
+            tool_tip = 'Serial number: ' + serial
         self.widgets['lens_model'].setToolTip(tool_tip)
 
     def _update_lens_spec(self):
