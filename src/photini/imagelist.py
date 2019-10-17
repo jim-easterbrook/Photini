@@ -393,7 +393,8 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self.path))
+        print('mouseDoubleClickEvent', self.path)
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
 
     @QtCore.pyqtSlot(bool)
     @catch_all
