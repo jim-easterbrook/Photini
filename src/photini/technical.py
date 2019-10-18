@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -640,7 +641,7 @@ class NewLensDialog(QtWidgets.QDialog):
         self.lens_spec['min_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['min_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
         panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at min. focal length f/'),
+            translate('TechnicalTab', 'Aperture at min. focal length ƒ/'),
                               self.lens_spec['min_fl_fn'])
         # max focal length
         self.lens_spec['max_fl'] = QtWidgets.QLineEdit()
@@ -652,7 +653,7 @@ class NewLensDialog(QtWidgets.QDialog):
         self.lens_spec['max_fl_fn'] = QtWidgets.QLineEdit()
         self.lens_spec['max_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
         panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at max. focal length f/'),
+            translate('TechnicalTab', 'Aperture at max. focal length ƒ/'),
                               self.lens_spec['max_fl_fn'])
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
@@ -795,7 +796,7 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['aperture'].validator().setBottom(0.1)
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(translate(
-            'TechnicalTab', 'Aperture f/'), self.widgets['aperture'])
+            'TechnicalTab', 'Aperture ƒ/'), self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
