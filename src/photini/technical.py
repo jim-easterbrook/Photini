@@ -136,6 +136,69 @@ class NumberEdit(QtWidgets.QLineEdit):
         self.clear()
 
 
+class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
+    new_value = QtCore.pyqtSignal(float)
+
+    def __init__(self, *arg, **kw):
+        super(DoubleSpinBox, self).__init__(*arg, **kw)
+        self.multiple = multiple_values()
+        self.editingFinished.connect(self.editing_finished)
+        self.valueChanged.connect(self.value_changed)
+
+    class ContextAction(QtWidgets.QAction):
+        def __init__(self, value, parent):
+            super(DoubleSpinBox.ContextAction, self).__init__(
+                six.text_type(value), parent)
+            self.setData(value)
+            self.triggered.connect(self.set_value)
+
+        @QtCore.pyqtSlot()
+        @catch_all
+        def set_value(self):
+            self.parent().setValue(self.data())
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        if self.specialValueText() and self.choices:
+            QtCore.QTimer.singleShot(0, self.extend_context_menu)
+        return super(DoubleSpinBox, self).contextMenuEvent(event)
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def extend_context_menu(self):
+        menu = self.findChild(QtWidgets.QMenu)
+        if not menu:
+            return
+        top_action = menu.actionAt(QtCore.QPoint())
+        sep = menu.insertSeparator(top_action)
+        for suggestion in self.choices:
+            menu.insertAction(sep, self.ContextAction(suggestion, self))
+
+    @QtCore.pyqtSlot(float)
+    @catch_all
+    def value_changed(self, value):
+        if self.specialValueText():
+            self.setSpecialValueText('')
+
+    @QtCore.pyqtSlot()
+    @catch_all
+    def editing_finished(self):
+        if not self.specialValueText():
+            self.new_value.emit(self.value())
+
+    def set_value(self, value):
+        self.setSpecialValueText('')
+        if value is None:
+            self.clear()
+        else:
+            self.setValue(value)
+
+    def set_multiple(self, choices=[]):
+        self.choices = choices
+        self.setValue(self.minimum())
+        self.setSpecialValueText(self.multiple)
+
+
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
     def __init__(self, *arg, **kw):
         self.precision = 1
@@ -791,12 +854,14 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', '35mm equiv (mm)'), self.widgets['focal_length_35'])
         # aperture
-        self.widgets['aperture'] = NumberEdit()
-        self.widgets['aperture'].setValidator(DoubleValidator())
-        self.widgets['aperture'].validator().setBottom(0.1)
+        self.widgets['aperture'] = DoubleSpinBox()
+        self.widgets['aperture'].setMinimum(0.0)
+        self.widgets['aperture'].setButtonSymbols(DoubleSpinBox.NoButtons)
+        self.widgets['aperture'].setSingleStep(0.01)
+        self.widgets['aperture'].setPrefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(translate(
-            'TechnicalTab', 'Aperture ƒ/'), self.widgets['aperture'])
+            'TechnicalTab', 'Aperture'), self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
@@ -897,7 +962,7 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets['lens_model'].add_item(
                 self.lens_data.get_name(lens_id), lens_id)
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtCore.pyqtSlot(float)
     @catch_all
     def new_aperture(self, value):
         for image in self.image_list.get_selected_images():
