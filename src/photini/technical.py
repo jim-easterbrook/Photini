@@ -967,7 +967,7 @@ class TabWidget(QtWidgets.QWidget):
         for image in self.image_list.get_selected_images():
             self.lens_data.save_to_image(value, image)
         self._update_lens_model()
-        self._update_lens_spec()
+        self._update_lens_spec(adjust_afl=True)
 
     def _add_lens_model(self):
         dialog = NewLensDialog(
@@ -1102,7 +1102,7 @@ class TabWidget(QtWidgets.QWidget):
             tool_tip = 'Serial number: ' + serial
         self.widgets['lens_model'].setToolTip(tool_tip)
 
-    def _update_lens_spec(self):
+    def _update_lens_spec(self, adjust_afl=False):
         images = self.image_list.get_selected_images()
         if not images:
             return
@@ -1113,14 +1113,11 @@ class TabWidget(QtWidgets.QWidget):
                 self.widgets['lens_spec'].set_multiple()
                 return
         self.widgets['lens_spec'].set_value(spec)
-        if not spec:
+        if not (adjust_afl and spec):
             return
         make_changes = False
         for image in images:
-            if image.metadata.aperture:
-                new_aperture = image.metadata.aperture
-            else:
-                new_aperture = 0
+            new_aperture = image.metadata.aperture or 0
             new_fl = image.metadata.focal_length or 0
             if new_fl <= spec.min_fl:
                 new_fl = spec.min_fl
