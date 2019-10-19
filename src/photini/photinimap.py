@@ -32,7 +32,7 @@ from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtWebChannel,
     QWebPage, QWebSettings, QWebView, QtWidgets, qt_version_info,
     SingleLineEdit, using_qtwebengine)
-from photini.technical import DoubleValidator, NumberEdit
+from photini.technical import DoubleSpinBox
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -262,8 +262,11 @@ class PhotiniMap(QtWidgets.QWidget):
         label = QtWidgets.QLabel(translate('MapTabsAll', 'Altitude'))
         label.setAlignment(Qt.AlignRight)
         left_side.addWidget(label, 1, 0)
-        self.altitude = NumberEdit()
-        self.altitude.setValidator(DoubleValidator())
+        self.altitude = DoubleSpinBox()
+        self.altitude.setRange(-20000, 20000)
+        self.altitude.setSingleStep(0.1)
+        self.altitude.setDecimals(4)
+        self.altitude.setSuffix(' m')
         self.altitude.new_value.connect(self.new_altitude)
         left_side.addWidget(self.altitude, 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
@@ -413,7 +416,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.update_altitude()
         self.see_selection()
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtCore.pyqtSlot(object)
     @catch_all
     def new_altitude(self, value):
         for image in self.image_list.get_selected_images():

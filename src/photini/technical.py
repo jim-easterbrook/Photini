@@ -88,54 +88,6 @@ class DropdownEdit(ComboBox):
         self.blockSignals(blocked)
 
 
-class NumberEdit(QtWidgets.QLineEdit):
-    new_value = QtCore.pyqtSignal(six.text_type)
-
-    def __init__(self, *arg, **kw):
-        super(NumberEdit, self).__init__(*arg, **kw)
-        self.multiple = multiple_values()
-        self.textEdited.connect(self.text_edited)
-        self.editingFinished.connect(self.editing_finished)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        if self.placeholderText() != self.multiple or not self.choices:
-            return super(NumberEdit, self).contextMenuEvent(event)
-        menu = self.createStandardContextMenu()
-        suggestion_group = QtWidgets.QActionGroup(menu)
-        sep = menu.insertSeparator(menu.actions()[0])
-        for suggestion in self.choices:
-            action = QtWidgets.QAction(
-                six.text_type(suggestion), suggestion_group)
-            menu.insertAction(sep, action)
-        action = menu.exec_(event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.iconText())
-
-    @QtCore.pyqtSlot(six.text_type)
-    @catch_all
-    def text_edited(self, text):
-        self.setPlaceholderText('')
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def editing_finished(self):
-        if self.placeholderText() != self.multiple:
-            self.new_value.emit(self.text())
-
-    def set_value(self, value):
-        self.setPlaceholderText('')
-        if value:
-            self.setText(str(value))
-        else:
-            self.clear()
-
-    def set_multiple(self, choices=[]):
-        self.choices = choices
-        self.setPlaceholderText(self.multiple)
-        self.clear()
-
-
 class AugmentSpinBox(object):
     new_value = QtCore.pyqtSignal(object)
 
