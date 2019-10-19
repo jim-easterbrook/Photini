@@ -922,12 +922,15 @@ class Timezone(MD_Int):
 
 
 class MD_Rational(MD_Value, Fraction):
+    def __new__(cls, value):
+        return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
+
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
         if not file_value:
             return None
-        return cls(safe_fraction(file_value))
+        return cls(file_value)
 
     def write(self, handler, tag):
         handler.set_string(
@@ -980,7 +983,6 @@ class Aperture(MD_Rational):
             apex = safe_fraction(apex)
         if not f_number:
             f_number = 2.0 ** (apex / 2.0)
-        f_number = safe_fraction(f_number)
         self = cls(f_number)
         if apex:
             self.apex = apex
