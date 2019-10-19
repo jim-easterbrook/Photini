@@ -184,17 +184,23 @@ class AugmentSpinBox(object):
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         super(IntSpinBox, self).__init__(*arg, **kw)
+        self.setSingleStep(1)
+        lim = (2 ** 31) - 1
+        self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
 
 
-class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         super(DoubleSpinBox, self).__init__(*arg, **kw)
+        self.setSingleStep(0.1)
+        self.setDecimals(4)
+        lim = (2 ** 31) - 1
+        self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
 
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
-        return str(value)
+        return str(round(value, self.decimals()))
 
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
@@ -637,34 +643,28 @@ class NewLensDialog(QtWidgets.QDialog):
         self.lens_spec = {}
         # min focal length
         self.lens_spec['min_fl'] = DoubleSpinBox()
-        self.lens_spec['min_fl'].setRange(0, 10000)
+        self.lens_spec['min_fl'].setMinimum(0.0)
         self.lens_spec['min_fl'].setSingleStep(1.0)
-        self.lens_spec['min_fl'].setDecimals(4)
         self.lens_spec['min_fl'].setSuffix(' mm')
         panel.layout().addRow(translate('TechnicalTab', 'Minimum focal length'),
                               self.lens_spec['min_fl'])
         # min focal length aperture
         self.lens_spec['min_fl_fn'] = DoubleSpinBox()
         self.lens_spec['min_fl_fn'].setMinimum(0.0)
-        self.lens_spec['min_fl_fn'].setSingleStep(0.1)
-        self.lens_spec['min_fl_fn'].setDecimals(4)
         self.lens_spec['min_fl_fn'].setPrefix('ƒ/')
         panel.layout().addRow(
             translate('TechnicalTab', 'Aperture at min. focal length'),
             self.lens_spec['min_fl_fn'])
         # max focal length
         self.lens_spec['max_fl'] = DoubleSpinBox()
-        self.lens_spec['max_fl'].setRange(0, 10000)
+        self.lens_spec['max_fl'].setMinimum(0.0)
         self.lens_spec['max_fl'].setSingleStep(1.0)
-        self.lens_spec['max_fl'].setDecimals(4)
         self.lens_spec['max_fl'].setSuffix(' mm')
         panel.layout().addRow(translate('TechnicalTab', 'Maximum focal length'),
                               self.lens_spec['max_fl'])
         # max focal length aperture
         self.lens_spec['max_fl_fn'] = DoubleSpinBox()
         self.lens_spec['max_fl_fn'].setMinimum(0.0)
-        self.lens_spec['max_fl_fn'].setSingleStep(0.1)
-        self.lens_spec['max_fl_fn'].setDecimals(4)
         self.lens_spec['max_fl_fn'].setPrefix('ƒ/')
         panel.layout().addRow(
             translate('TechnicalTab', 'Aperture at max. focal length'),
@@ -791,17 +791,14 @@ class TabWidget(QtWidgets.QWidget):
             'TechnicalTab', 'Lens details'), self.widgets['lens_spec'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox()
-        self.widgets['focal_length'].setRange(0.1, 10000)
-        self.widgets['focal_length'].setSingleStep(0.1)
-        self.widgets['focal_length'].setDecimals(4)
+        self.widgets['focal_length'].setMinimum(0.0)
         self.widgets['focal_length'].setSuffix(' mm')
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Focal length'), self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox()
-        self.widgets['focal_length_35'].setRange(1, 10000)
-        self.widgets['focal_length_35'].setSingleStep(1)
+        self.widgets['focal_length_35'].setMinimum(0)
         self.widgets['focal_length_35'].setSuffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
         other_group.layout().addRow(translate(
@@ -809,8 +806,6 @@ class TabWidget(QtWidgets.QWidget):
         # aperture
         self.widgets['aperture'] = DoubleSpinBox()
         self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].setSingleStep(0.1)
-        self.widgets['aperture'].setDecimals(4)
         self.widgets['aperture'].setPrefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(translate(
