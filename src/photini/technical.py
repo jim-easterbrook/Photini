@@ -142,6 +142,9 @@ class AugmentSpinBox(object):
     @QtCore.pyqtSlot()
     @catch_all
     def editing_finished(self):
+        self.get_value(emit=True)
+
+    def get_value(self, emit=False):
         value = self.value()
         if value == self.minimum():
             special_value_text = self.specialValueText()
@@ -150,7 +153,9 @@ class AugmentSpinBox(object):
             elif special_value_text:
                 # still multiple, so no new value
                 return
-        self.new_value.emit(value)
+        if emit:
+            self.new_value.emit(value)
+        return value
 
     def set_value(self, value, faint=False):
         if value is None:
@@ -523,22 +528,6 @@ class LensSpecWidget(QtWidgets.QGroupBox):
         self.multiple.show()
 
 
-class DoubleValidator(QtGui.QDoubleValidator):
-    def validate(self, input_, pos):
-        # accept empty string as valid, to allow metadata to be cleared
-        if input_ == '':
-            return QtGui.QValidator.Acceptable, input_, pos
-        return super(DoubleValidator, self).validate(input_, pos)
-
-
-class IntValidator(QtGui.QIntValidator):
-    def validate(self, input_, pos):
-        # accept empty string as valid, to allow metadata to be cleared
-        if input_ == '':
-            return QtGui.QValidator.Acceptable, input_, pos
-        return super(IntValidator, self).validate(input_, pos)
-
-
 class LensData(object):
     def __init__(self):
         self.config_store = QtWidgets.QApplication.instance().config_store
@@ -622,12 +611,12 @@ class LensData(object):
         model = dialog.lens_model.text().strip()
         if not model:
             return None
-        min_fl = dialog.lens_spec['min_fl'].text().strip()
+        min_fl = dialog.lens_spec['min_fl'].get_value()
         if not min_fl:
             return None
-        max_fl = dialog.lens_spec['max_fl'].text().strip() or min_fl
-        min_fl_fn = dialog.lens_spec['min_fl_fn'].text().strip() or '0'
-        max_fl_fn = dialog.lens_spec['max_fl_fn'].text().strip() or min_fl_fn
+        max_fl = dialog.lens_spec['max_fl'].get_value() or min_fl
+        min_fl_fn = dialog.lens_spec['min_fl_fn'].get_value() or 0
+        max_fl_fn = dialog.lens_spec['max_fl_fn'].get_value() or min_fl_fn
         lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
         make = dialog.lens_make.text().strip()
         serial = dialog.lens_serial.text().strip()
@@ -655,6 +644,8 @@ class NewLensDialog(QtWidgets.QDialog):
         self.layout().addWidget(scroll_area)
         panel = QtWidgets.QWidget()
         panel.setLayout(QtWidgets.QFormLayout())
+        panel.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # ok & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -678,29 +669,39 @@ class NewLensDialog(QtWidgets.QDialog):
         ## spec has four items
         self.lens_spec = {}
         # min focal length
-        self.lens_spec['min_fl'] = QtWidgets.QLineEdit()
-        self.lens_spec['min_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Minimum focal length (mm)'),
+        self.lens_spec['min_fl'] = DoubleSpinBox()
+        self.lens_spec['min_fl'].setRange(0, 10000)
+        self.lens_spec['min_fl'].setSingleStep(1.0)
+        self.lens_spec['min_fl'].setDecimals(4)
+        self.lens_spec['min_fl'].setSuffix(' mm')
+        panel.layout().addRow(translate('TechnicalTab', 'Minimum focal length'),
                               self.lens_spec['min_fl'])
         # min focal length aperture
-        self.lens_spec['min_fl_fn'] = QtWidgets.QLineEdit()
-        self.lens_spec['min_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
+        self.lens_spec['min_fl_fn'] = DoubleSpinBox()
+        self.lens_spec['min_fl_fn'].setMinimum(0.0)
+        self.lens_spec['min_fl_fn'].setSingleStep(0.1)
+        self.lens_spec['min_fl_fn'].setDecimals(4)
+        self.lens_spec['min_fl_fn'].setPrefix('ƒ/')
         panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at min. focal length ƒ/'),
-                              self.lens_spec['min_fl_fn'])
+            translate('TechnicalTab', 'Aperture at min. focal length'),
+            self.lens_spec['min_fl_fn'])
         # max focal length
-        self.lens_spec['max_fl'] = QtWidgets.QLineEdit()
-        self.lens_spec['max_fl'].setValidator(QtGui.QDoubleValidator(bottom=0.0))
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Maximum focal length (mm)'),
+        self.lens_spec['max_fl'] = DoubleSpinBox()
+        self.lens_spec['max_fl'].setRange(0, 10000)
+        self.lens_spec['max_fl'].setSingleStep(1.0)
+        self.lens_spec['max_fl'].setDecimals(4)
+        self.lens_spec['max_fl'].setSuffix(' mm')
+        panel.layout().addRow(translate('TechnicalTab', 'Maximum focal length'),
                               self.lens_spec['max_fl'])
         # max focal length aperture
-        self.lens_spec['max_fl_fn'] = QtWidgets.QLineEdit()
-        self.lens_spec['max_fl_fn'].setValidator(DoubleValidator(bottom=0.0))
+        self.lens_spec['max_fl_fn'] = DoubleSpinBox()
+        self.lens_spec['max_fl_fn'].setMinimum(0.0)
+        self.lens_spec['max_fl_fn'].setSingleStep(0.1)
+        self.lens_spec['max_fl_fn'].setDecimals(4)
+        self.lens_spec['max_fl_fn'].setPrefix('ƒ/')
         panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at max. focal length ƒ/'),
-                              self.lens_spec['max_fl_fn'])
+            translate('TechnicalTab', 'Aperture at max. focal length'),
+            self.lens_spec['max_fl_fn'])
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
         # fill in any values we can from existing metadata
@@ -714,8 +715,7 @@ class NewLensDialog(QtWidgets.QDialog):
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
                 if spec and spec[key]:
-                    self.lens_spec[key].setText(
-                        '{:g}'.format(float(spec[key])))
+                    self.lens_spec[key].set_value(spec[key])
 
 
 class DateLink(QtWidgets.QCheckBox):
@@ -824,7 +824,7 @@ class TabWidget(QtWidgets.QWidget):
             'TechnicalTab', 'Lens details'), self.widgets['lens_spec'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox()
-        self.widgets['focal_length'].setMinimum(0.1)
+        self.widgets['focal_length'].setRange(0.1, 10000)
         self.widgets['focal_length'].setSingleStep(0.1)
         self.widgets['focal_length'].setDecimals(4)
         self.widgets['focal_length'].setSuffix(' mm')
@@ -833,7 +833,7 @@ class TabWidget(QtWidgets.QWidget):
             'TechnicalTab', 'Focal length'), self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox()
-        self.widgets['focal_length_35'].setMinimum(1)
+        self.widgets['focal_length_35'].setRange(1, 10000)
         self.widgets['focal_length_35'].setSingleStep(1)
         self.widgets['focal_length_35'].setSuffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
