@@ -141,17 +141,14 @@ class AugmentSpinBox(object):
     @QtCore.pyqtSlot()
     @catch_all
     def editing_finished(self):
+        if self.is_multiple():
+            return
         self.get_value(emit=True)
 
     def get_value(self, emit=False):
         value = self.value()
-        if value == self.minimum():
-            special_value_text = self.specialValueText()
-            if special_value_text == ' ':
-                value = None
-            elif special_value_text:
-                # still multiple, so no new value
-                return
+        if value == self.minimum() and self.specialValueText():
+            value = None
         if emit:
             self.new_value.emit(value)
         return value
@@ -190,6 +187,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.setButtonSymbols(self.NoButtons)
 
 
+class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         super(DoubleSpinBox, self).__init__(*arg, **kw)
         self.setSingleStep(0.1)
@@ -298,7 +296,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         return QtGui.QValidator.Invalid, text, pos
 
     def valueFromText(self, text):
-        print('valueFromText "{}"'.format(text))
         if not text.strip():
             return 0
         hours, sep, minutes = text.partition(':')
@@ -312,6 +309,8 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         return (hours * 60) + minutes
 
     def textFromValue(self, value):
+        if value is None:
+            return ''
         if value < 0:
             sign = '-'
             value = -value
