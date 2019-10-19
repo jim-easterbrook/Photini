@@ -94,13 +94,12 @@ class AugmentSpinBox(object):
     def __init__(self, *arg, **kw):
         super(AugmentSpinBox, self).__init__(*arg, **kw)
         self.multiple = multiple_values()
-        self.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        self.last_value = 0
         self.editingFinished.connect(self.editing_finished)
 
     class ContextAction(QtWidgets.QAction):
-        def __init__(self, value, parent):
-            super(AugmentSpinBox.ContextAction, self).__init__(
-                six.text_type(value), parent)
+        def __init__(self, label, value, parent):
+            super(AugmentSpinBox.ContextAction, self).__init__(label, parent)
             self.setData(value)
             self.triggered.connect(self.set_value)
 
@@ -123,19 +122,19 @@ class AugmentSpinBox(object):
         top_action = menu.actionAt(QtCore.QPoint())
         sep = menu.insertSeparator(top_action)
         for suggestion in self.choices:
-            menu.insertAction(sep, self.ContextAction(suggestion, self))
+            menu.insertAction(sep, self.ContextAction(
+                self.textFromValue(suggestion), suggestion, self))
 
     def keyPressEvent(self, event):
         if self.specialValueText():
-            self.setSpecialValueText('')
-            self.clear()
+            self.set_value(self.last_value)
+            self.selectAll()
         return super(self.__class__, self).keyPressEvent(event)
 
     def fixup(self, text):
         if not self.cleanText():
             # user has deleted the value
-            self.setValue(self.minimum())
-            self.setSpecialValueText(' ')
+            self.set_value(None)
             return ''
         return super(self.__class__, self).fixup(text)
 
@@ -165,6 +164,7 @@ class AugmentSpinBox(object):
         else:
             self.setSpecialValueText('')
             self.setValue(value)
+            self.last_value = value
             if faint:
                 self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
             else:
@@ -176,12 +176,22 @@ class AugmentSpinBox(object):
         self.setSpecialValueText(self.multiple)
         self.setStyleSheet('QAbstractSpinBox {}')
 
+    def is_multiple(self):
+        return (self.value() == self.minimum()
+                and self.specialValueText() == self.multiple)
+
 
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
-    pass
+    def __init__(self, *arg, **kw):
+        super(IntSpinBox, self).__init__(*arg, **kw)
+        self.setButtonSymbols(self.NoButtons)
 
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
+    def __init__(self, *arg, **kw):
+        super(DoubleSpinBox, self).__init__(*arg, **kw)
+        self.setButtonSymbols(self.NoButtons)
+
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
         return str(value)
@@ -260,9 +270,8 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         return self.specialValueText() == self.multiple
 
 
-class TimeZoneWidget(QtWidgets.QSpinBox):
+class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
-        self.multiple = multiple()
         super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
@@ -275,24 +284,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
             self.setFixedSize(size)
         return size
 
-    @catch_all
-    def contextMenuEvent(self, event):
-        if not self.is_multiple():
-            return super(TimeZoneWidget, self).contextMenuEvent(event)
-        menu = QtWidgets.QMenu(self)
-        for suggestion in self.choices:
-            if suggestion is not None:
-                menu.addAction(self.textFromValue(suggestion))
-        action = menu.exec_(event.globalPos())
-        if action:
-            self.set_value(self.valueFromText(action.iconText()))
-
     def validate(self, text, pos):
-        if self.specialValueText() == ' ':
-            self.unset_multiple()
-            text = text[pos - 1]
-        if not text.strip():
-            return QtGui.QValidator.Acceptable, text, pos
         if re.match('[+-]?\d{1,2}(:\d{0,2})?$', text):
             return QtGui.QValidator.Acceptable, text, pos
         if re.match('[+-]?$', text):
@@ -300,9 +292,9 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         return QtGui.QValidator.Invalid, text, pos
 
     def valueFromText(self, text):
+        print('valueFromText "{}"'.format(text))
         if not text.strip():
-            self.set_value(None)
-            return self.value()
+            return 0
         hours, sep, minutes = text.partition(':')
         hours = int(hours)
         if minutes:
@@ -320,31 +312,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox):
         else:
             sign = '+'
         return '{}{:02d}:{:02d}'.format(sign, value // 60, value % 60)
-
-    def get_value(self):
-        if self.specialValueText() == ' ':
-            return None
-        return self.value()
-
-    def set_value(self, value):
-        if value is None:
-            self.setSpecialValueText(' ')
-            self.setMinimum(self.value())
-        else:
-            self.unset_multiple()
-            self.setValue(value)
-
-    def set_multiple(self, choices=[]):
-        self.choices = choices
-        self.setSpecialValueText(self.multiple)
-        self.setMinimum(self.value())
-
-    def unset_multiple(self):
-        self.setSpecialValueText('')
-        self.setMinimum(-14 * 60)
-
-    def is_multiple(self):
-        return self.specialValueText() == self.multiple
 
 
 class DateAndTimeWidget(QtWidgets.QGridLayout):
