@@ -136,17 +136,18 @@ class NumberEdit(QtWidgets.QLineEdit):
         self.clear()
 
 
-class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
+class AugmentSpinBox(object):
     new_value = QtCore.pyqtSignal(object)
 
     def __init__(self, *arg, **kw):
-        super(DoubleSpinBox, self).__init__(*arg, **kw)
+        super(AugmentSpinBox, self).__init__(*arg, **kw)
         self.multiple = multiple_values()
+        self.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
         self.editingFinished.connect(self.editing_finished)
 
     class ContextAction(QtWidgets.QAction):
         def __init__(self, value, parent):
-            super(DoubleSpinBox.ContextAction, self).__init__(
+            super(AugmentSpinBox.ContextAction, self).__init__(
                 six.text_type(value), parent)
             self.setData(value)
             self.triggered.connect(self.set_value)
@@ -159,7 +160,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
     def contextMenuEvent(self, event):
         if self.specialValueText() and self.choices:
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
-        return super(DoubleSpinBox, self).contextMenuEvent(event)
+        return super(self.__class__, self).contextMenuEvent(event)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -176,7 +177,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
         if self.specialValueText():
             self.setSpecialValueText('')
             self.clear()
-        return super(DoubleSpinBox, self).keyPressEvent(event)
+        return super(self.__class__, self).keyPressEvent(event)
 
     def fixup(self, text):
         if not self.cleanText():
@@ -184,11 +185,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
             self.setValue(self.minimum())
             self.setSpecialValueText(' ')
             return ''
-        return super(DoubleSpinBox, self).fixup(text)
-
-    def textFromValue(self, value):
-        # don't use QDoubleSpinBox's fixed number of decimals
-        return str(value)
+        return super(self.__class__, self).fixup(text)
 
     @QtCore.pyqtSlot()
     @catch_all
@@ -203,18 +200,34 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
                 return
         self.new_value.emit(value)
 
-    def set_value(self, value):
+    def set_value(self, value, faint=False):
         if value is None:
             self.setValue(self.minimum())
             self.setSpecialValueText(' ')
+            self.setStyleSheet('QAbstractSpinBox {}')
         else:
             self.setSpecialValueText('')
             self.setValue(value)
+            if faint:
+                self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
+            else:
+                self.setStyleSheet('QAbstractSpinBox {}')
 
     def set_multiple(self, choices=[]):
         self.choices = choices
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
+        self.setStyleSheet('QAbstractSpinBox {}')
+
+
+class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
+    pass
+
+
+class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
+    def textFromValue(self, value):
+        # don't use QDoubleSpinBox's fixed number of decimals
+        return str(value)
 
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit):
@@ -858,23 +871,25 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Lens details'), self.widgets['lens_spec'])
         # focal length
-        self.widgets['focal_length'] = NumberEdit()
-        self.widgets['focal_length'].setValidator(DoubleValidator())
-        self.widgets['focal_length'].validator().setBottom(0.1)
+        self.widgets['focal_length'] = DoubleSpinBox()
+        self.widgets['focal_length'].setMinimum(0.1)
+        self.widgets['focal_length'].setSingleStep(0.1)
+        self.widgets['focal_length'].setDecimals(4)
+        self.widgets['focal_length'].setSuffix(' mm')
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
         other_group.layout().addRow(translate(
-            'TechnicalTab', 'Focal length (mm)'), self.widgets['focal_length'])
+            'TechnicalTab', 'Focal length'), self.widgets['focal_length'])
         # 35mm equivalent focal length
-        self.widgets['focal_length_35'] = NumberEdit()
-        self.widgets['focal_length_35'].setValidator(IntValidator())
-        self.widgets['focal_length_35'].validator().setBottom(1)
+        self.widgets['focal_length_35'] = IntSpinBox()
+        self.widgets['focal_length_35'].setMinimum(1)
+        self.widgets['focal_length_35'].setSingleStep(1)
+        self.widgets['focal_length_35'].setSuffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
         other_group.layout().addRow(translate(
-            'TechnicalTab', '35mm equiv (mm)'), self.widgets['focal_length_35'])
+            'TechnicalTab', '35mm equiv'), self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox()
         self.widgets['aperture'].setMinimum(0.0)
-        self.widgets['aperture'].setButtonSymbols(DoubleSpinBox.NoButtons)
         self.widgets['aperture'].setSingleStep(0.1)
         self.widgets['aperture'].setDecimals(4)
         self.widgets['aperture'].setPrefix('ƒ/')
@@ -988,7 +1003,7 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.aperture = value
         self._update_aperture()
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtCore.pyqtSlot(object)
     @catch_all
     def new_focal_length(self, value):
         for image in self.image_list.get_selected_images():
@@ -1000,7 +1015,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_focal_length()
         self._update_focal_length_35()
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtCore.pyqtSlot(object)
     @catch_all
     def new_focal_length_35(self, value):
         for image in self.image_list.get_selected_images():
@@ -1214,7 +1229,7 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets['focal_length_35'].set_multiple(
                 choices=filter(None, values))
         elif values[0]:
-            self.widgets['focal_length_35'].setPlaceholderText(str(values[0]))
+            self.widgets['focal_length_35'].set_value(values[0], faint=True)
 
     def set_crop_factor(self, md):
         if not md.camera_model:
