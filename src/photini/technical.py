@@ -137,13 +137,12 @@ class NumberEdit(QtWidgets.QLineEdit):
 
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
-    new_value = QtCore.pyqtSignal(float)
+    new_value = QtCore.pyqtSignal(object)
 
     def __init__(self, *arg, **kw):
         super(DoubleSpinBox, self).__init__(*arg, **kw)
         self.multiple = multiple_values()
         self.editingFinished.connect(self.editing_finished)
-        self.valueChanged.connect(self.value_changed)
 
     class ContextAction(QtWidgets.QAction):
         def __init__(self, value, parent):
@@ -157,7 +156,6 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
         def set_value(self):
             self.parent().setValue(self.data())
 
-    @catch_all
     def contextMenuEvent(self, event):
         if self.specialValueText() and self.choices:
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
@@ -174,23 +172,43 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox):
         for suggestion in self.choices:
             menu.insertAction(sep, self.ContextAction(suggestion, self))
 
-    @QtCore.pyqtSlot(float)
-    @catch_all
-    def value_changed(self, value):
+    def keyPressEvent(self, event):
         if self.specialValueText():
             self.setSpecialValueText('')
+            self.clear()
+        return super(DoubleSpinBox, self).keyPressEvent(event)
+
+    def fixup(self, text):
+        if not self.cleanText():
+            # user has deleted the value
+            self.setValue(self.minimum())
+            self.setSpecialValueText(' ')
+            return ''
+        return super(DoubleSpinBox, self).fixup(text)
+
+    def textFromValue(self, value):
+        # don't use QDoubleSpinBox's fixed number of decimals
+        return str(value)
 
     @QtCore.pyqtSlot()
     @catch_all
     def editing_finished(self):
-        if not self.specialValueText():
-            self.new_value.emit(self.value())
+        value = self.value()
+        if value == self.minimum():
+            special_value_text = self.specialValueText()
+            if special_value_text == ' ':
+                value = None
+            elif special_value_text:
+                # still multiple, so no new value
+                return
+        self.new_value.emit(value)
 
     def set_value(self, value):
-        self.setSpecialValueText('')
         if value is None:
-            self.clear()
+            self.setValue(self.minimum())
+            self.setSpecialValueText(' ')
         else:
+            self.setSpecialValueText('')
             self.setValue(value)
 
     def set_multiple(self, choices=[]):
@@ -857,7 +875,8 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['aperture'] = DoubleSpinBox()
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].setButtonSymbols(DoubleSpinBox.NoButtons)
-        self.widgets['aperture'].setSingleStep(0.01)
+        self.widgets['aperture'].setSingleStep(0.1)
+        self.widgets['aperture'].setDecimals(4)
         self.widgets['aperture'].setPrefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)
         other_group.layout().addRow(translate(
@@ -962,11 +981,12 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets['lens_model'].add_item(
                 self.lens_data.get_name(lens_id), lens_id)
 
-    @QtCore.pyqtSlot(float)
+    @QtCore.pyqtSlot(object)
     @catch_all
     def new_aperture(self, value):
         for image in self.image_list.get_selected_images():
             image.metadata.aperture = value
+        self._update_aperture()
 
     @QtCore.pyqtSlot(six.text_type)
     @catch_all
