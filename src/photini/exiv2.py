@@ -405,6 +405,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WX', 'Xmp.exif.FNumber')),
         'camera_model'   : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
+                            ('RA.WN', 'Exif.Canon.ModelID'),
                             ('RA.WN', 'Xmp.video.Model')),
         'copyright'      : (('RA.WA', 'Exif.Image.Copyright'),
                             ('RA.WA', 'Xmp.dc.rights'),

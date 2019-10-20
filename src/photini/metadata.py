@@ -864,6 +864,22 @@ class MD_String(MD_Value, six.text_type):
         return this + ' // ' + other, True, False
 
 
+class CameraModel(MD_String):
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        if file_value == 'unknown':
+            return None
+        if tag == 'Exif.Canon.ModelID':
+            file_value = 'Canon_ID-' + file_value
+        return cls(file_value)
+
+    def merge_item(self, this, other):
+        return this, False, False
+
+
 class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
@@ -1028,7 +1044,7 @@ class Metadata(QtCore.QObject):
     _data_type = {
         'altitude'       : Altitude,
         'aperture'       : Aperture,
-        'camera_model'   : MD_String,
+        'camera_model'   : CameraModel,
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,
