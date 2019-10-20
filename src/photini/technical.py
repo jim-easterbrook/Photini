@@ -1155,34 +1155,31 @@ class TabWidget(QtWidgets.QWidget):
                 'crop factor', md.camera_model, str(crop_factor))
 
     def get_crop_factor(self, md):
-        crop_factor = None
-        if md.focal_length and md.focal_length_35:
-            crop_factor = float(md.focal_length_35) / md.focal_length
-            if md.camera_model:
-                self.config_store.set(
-                    'crop factor', md.camera_model, str(crop_factor))
-        if md.camera_model and not crop_factor:
-            crop_factor = eval(self.config_store.get(
-                'crop factor', md.camera_model, 'None'))
-        if not crop_factor and (md.resolution_x and md.resolution_x > 0 and
-                                md.resolution_y and md.resolution_y > 0 and
-                                md.dimension_x and md.dimension_x > 0 and
-                                md.dimension_y and md.dimension_y > 0):
-            # calculate from image size and resolution
-            w = md.dimension_x / md.resolution_x
-            h = md.dimension_y / md.resolution_y
-            d = math.sqrt((h ** 2) + (w ** 2))
-            if md.resolution_unit == 3:
-                # unit is cm
-                d *= 10.0
-            elif md.resolution_unit in (None, 1, 2):
-                # unit is (assumed to be) inches
-                d *= 25.4
-            # 35 mm film diagonal is 43.27 mm
-            crop_factor = 43.27 / d
-            if md.camera_model:
-                self.config_store.set(
-                    'crop factor', md.camera_model, str(crop_factor))
+        if md.camera_model:
+            crop_factor = self.config_store.get('crop factor', md.camera_model)
+            if crop_factor:
+                return eval(crop_factor)
+        if not all((md.resolution_x, md.resolution_y,
+                    md.dimension_x, md.dimension_y)):
+            return None
+        if (md.resolution_x <= 0 or md.resolution_y <= 0 or
+                md.dimension_x <= 0 or md.dimension_y <= 0):
+            return None
+        # calculate from image size and resolution
+        w = md.dimension_x / md.resolution_x
+        h = md.dimension_y / md.resolution_y
+        d = math.sqrt((h ** 2) + (w ** 2))
+        if md.resolution_unit == 3:
+            # unit is cm
+            d *= 10.0
+        elif md.resolution_unit in (None, 1, 2):
+            # unit is (assumed to be) inches
+            d *= 25.4
+        # 35 mm film diagonal is 43.27 mm
+        crop_factor = round(43.27 / d, 4)
+        if md.camera_model:
+            self.config_store.set(
+                'crop factor', md.camera_model, str(crop_factor))
         return crop_factor
 
     def calc_35(self, md, value=None):
