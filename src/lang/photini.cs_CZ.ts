@@ -970,209 +970,204 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
 <context>
     <name>TechnicalTab</name>
     <message>
-        <location filename="../photini/technical.py" line="44"/>
+        <location filename="../photini/technical.py" line="45"/>
         <source>&lt;clear&gt;</source>
         <translation>&lt;clear&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="316"/>
+        <location filename="../photini/technical.py" line="338"/>
         <source>Precision:</source>
         <translation>Přesnost:</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="438"/>
+        <location filename="../photini/technical.py" line="462"/>
         <source>min</source>
         <translation>min</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="438"/>
+        <location filename="../photini/technical.py" line="462"/>
         <source>max</source>
         <translation>max</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="443"/>
+        <location filename="../photini/technical.py" line="797"/>
         <source>Focal length</source>
         <translation>Ohnisková vzdálenost</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="445"/>
+        <location filename="../photini/technical.py" line="469"/>
         <source>Max aperture</source>
         <translation>Největší clona</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="559"/>
+        <location filename="../photini/technical.py" line="612"/>
         <source>Photini: define lens</source>
         <translation>Stanovit objektiv</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="577"/>
+        <location filename="../photini/technical.py" line="632"/>
         <source>Model name</source>
         <translation>Název modelu</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="581"/>
+        <location filename="../photini/technical.py" line="636"/>
         <source>Maker&apos;s name</source>
         <translation>Název výrobce</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="585"/>
+        <location filename="../photini/technical.py" line="640"/>
         <source>Serial number</source>
         <translation>Sériové číslo</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="592"/>
-        <source>Minimum focal length (mm)</source>
-        <translation>Nejmenší ohnisková vzdálenost (mm)</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="598"/>
-        <source>Aperture at min. focal length f/</source>
-        <translation>Clona při nejmenší ohniskové vzdálenosti f/</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="604"/>
-        <source>Maximum focal length (mm)</source>
-        <translation>Největší ohnisková vzdálenost (mm)</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="610"/>
-        <source>Aperture at max. focal length f/</source>
-        <translation>Clona při největší ohniskové vzdálenosti f/</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="646"/>
+        <location filename="../photini/technical.py" line="704"/>
         <source>&amp;Technical metadata</source>
         <translation>&amp;Technické popisné údaje</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="659"/>
+        <location filename="../photini/technical.py" line="717"/>
         <source>Date and time</source>
         <translation>Datum a čas</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="670"/>
+        <location filename="../photini/technical.py" line="728"/>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
         <translation>Odkaz vzat a digitalizován</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="672"/>
+        <location filename="../photini/technical.py" line="730"/>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
         <translation>Odkaz digitalizován a změněn</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="675"/>
+        <location filename="../photini/technical.py" line="733"/>
         <source>Taken</source>
         <translation>Vzat</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="678"/>
+        <location filename="../photini/technical.py" line="736"/>
         <source>Digitised</source>
         <translation>Digitalizován</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="681"/>
+        <location filename="../photini/technical.py" line="739"/>
         <source>Modified</source>
         <translation>Změněn</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="686"/>
+        <location filename="../photini/technical.py" line="744"/>
         <source>Adjust times</source>
         <translation>Upravit časy</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="690"/>
+        <location filename="../photini/technical.py" line="748"/>
         <source>Other</source>
         <translation>Jiné</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="696"/>
+        <location filename="../photini/technical.py" line="754"/>
         <source>normal</source>
         <translation>Normální</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="698"/>
+        <location filename="../photini/technical.py" line="756"/>
         <source>rotate -90</source>
         <translation>Otočit o -90°</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="700"/>
+        <location filename="../photini/technical.py" line="758"/>
         <source>rotate +90</source>
         <translation>Otočit o +90°</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="702"/>
+        <location filename="../photini/technical.py" line="760"/>
         <source>rotate 180</source>
         <translation>Otočit o 180°</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="704"/>
+        <location filename="../photini/technical.py" line="762"/>
         <source>reflect left-right</source>
         <translation>Odrážet vlevo-vpravo</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="706"/>
+        <location filename="../photini/technical.py" line="764"/>
         <source>reflect top-bottom</source>
         <translation>Odrážet nahoře-dole</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="708"/>
+        <location filename="../photini/technical.py" line="766"/>
         <source>reflect tr-bl</source>
         <translation>Odrážet tr-bl</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="710"/>
+        <location filename="../photini/technical.py" line="768"/>
         <source>reflect tl-br</source>
         <translation>Odrážet tl-br</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="713"/>
+        <location filename="../photini/technical.py" line="771"/>
         <source>Orientation</source>
         <translation>Natočení</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="720"/>
+        <location filename="../photini/technical.py" line="778"/>
         <source>&lt;define new lens&gt;</source>
         <translation>&lt;define new lens&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="727"/>
+        <location filename="../photini/technical.py" line="786"/>
         <source>Lens model</source>
         <translation>Model objektivu</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="731"/>
+        <location filename="../photini/technical.py" line="790"/>
         <source>Lens details</source>
         <translation>Podrobnosti objektivu</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="738"/>
-        <source>Focal length (mm)</source>
-        <translation>Ohnisková vzdálenost (mm)</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="745"/>
-        <source>35mm equiv (mm)</source>
-        <translation>35 mm equiv (mm)</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="752"/>
-        <source>Aperture f/</source>
-        <translation>Clona f/</translation>
-    </message>
-    <message>
-        <location filename="../photini/technical.py" line="815"/>
+        <location filename="../photini/technical.py" line="874"/>
         <source>Remove lens &quot;{}&quot;</source>
         <translation>Odstranit objektiv &quot;{}&quot;</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="1007"/>
+        <location filename="../photini/technical.py" line="1068"/>
         <source>Update aperture &amp; focal length</source>
         <translation>Aktualizovat clonu a ohniskovou vzdálenost</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="1007"/>
+        <location filename="../photini/technical.py" line="1068"/>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
         <translation>Upravit clonu obrázku a ohniskovou délku, aby souhlasily se specifikací objektivu?</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="649"/>
+        <source>Minimum focal length</source>
+        <translation>Nejmenší ohnisková vzdálenost</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="655"/>
+        <source>Aperture at min. focal length</source>
+        <translation>Clona při nejmenší ohniskové vzdálenosti</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="663"/>
+        <source>Maximum focal length</source>
+        <translation>Největší ohnisková vzdálenost</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="669"/>
+        <source>Aperture at max. focal length</source>
+        <translation>Clona při největší ohniskové vzdálenosti</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="804"/>
+        <source>35mm equiv</source>
+        <translation>35 mm equiv</translation>
+    </message>
+    <message>
+        <location filename="../photini/technical.py" line="811"/>
+        <source>Aperture</source>
+        <translation>Clona</translation>
     </message>
 </context>
 <context>
