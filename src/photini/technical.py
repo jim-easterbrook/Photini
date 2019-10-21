@@ -93,8 +93,6 @@ class AugmentSpinBox(object):
 
     def __init__(self, *arg, **kw):
         super(AugmentSpinBox, self).__init__(*arg, **kw)
-        self.multiple = multiple_values()
-        self.last_value = 0
         self.editingFinished.connect(self.editing_finished)
 
     class ContextAction(QtWidgets.QAction):
@@ -108,6 +106,7 @@ class AugmentSpinBox(object):
         def set_value(self):
             self.parent().setValue(self.data())
 
+    @catch_all
     def contextMenuEvent(self, event):
         if self.specialValueText() and self.choices:
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
@@ -125,12 +124,21 @@ class AugmentSpinBox(object):
             menu.insertAction(sep, self.ContextAction(
                 self.textFromValue(suggestion), suggestion, self))
 
+    @catch_all
     def keyPressEvent(self, event):
         if self.specialValueText():
-            self.set_value(self.last_value)
+            self.set_value(self.default_value)
             self.selectAll()
         return super(self.__class__, self).keyPressEvent(event)
 
+    @catch_all
+    def stepBy(self, steps):
+        if self.specialValueText():
+            self.set_value(self.default_value)
+            self.selectAll()
+        return super(self.__class__, self).stepBy(steps)
+
+    @catch_all
     def fixup(self, text):
         if not self.cleanText():
             # user has deleted the value
@@ -153,25 +161,18 @@ class AugmentSpinBox(object):
             self.new_value.emit(value)
         return value
 
-    def set_value(self, value, faint=False):
+    def set_value(self, value):
         if value is None:
             self.setValue(self.minimum())
             self.setSpecialValueText(' ')
-            self.setStyleSheet('QAbstractSpinBox {}')
         else:
             self.setSpecialValueText('')
             self.setValue(value)
-            self.last_value = value
-            if faint:
-                self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
-            else:
-                self.setStyleSheet('QAbstractSpinBox {}')
 
     def set_multiple(self, choices=[]):
         self.choices = list(filter(None, choices))
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
-        self.setStyleSheet('QAbstractSpinBox {}')
 
     def is_multiple(self):
         return (self.value() == self.minimum()
@@ -180,15 +181,25 @@ class AugmentSpinBox(object):
 
 class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
+        self.default_value = 0
+        self.multiple = multiple_values()
         super(IntSpinBox, self).__init__(*arg, **kw)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
 
+    def set_faint(self, faint):
+        if faint:
+            self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
+        else:
+            self.setStyleSheet('QAbstractSpinBox {}')
+
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
+        self.default_value = 0
+        self.multiple = multiple_values()
         super(DoubleSpinBox, self).__init__(*arg, **kw)
         self.setSingleStep(0.1)
         self.setDecimals(4)
@@ -196,6 +207,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
 
+    @catch_all
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
         return str(round(value, self.decimals()))
@@ -203,7 +215,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
     def __init__(self, *arg, **kw):
-        self.precision = 1
+        self.default_value = QtCore.QDate.currentDate()
         self.multiple = multiple_values()
         # rename some methods for compatibility with AugmentSpinBox
         self.cleanText = self.text
@@ -212,6 +224,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.precision = 1
         self.set_precision(7)
 
     @catch_all
@@ -246,8 +259,9 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
 
 class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
-        super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.default_value = 0
         self.multiple = multiple()
+        super(TimeZoneWidget, self).__init__(*arg, **kw)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
@@ -259,6 +273,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
             self.setFixedSize(size)
         return size
 
+    @catch_all
     def validate(self, text, pos):
         if re.match('[+-]?\d{1,2}(:\d{0,2})?$', text):
             return QtGui.QValidator.Acceptable, text, pos
@@ -266,6 +281,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
             return QtGui.QValidator.Intermediate, text, pos
         return QtGui.QValidator.Invalid, text, pos
 
+    @catch_all
     def valueFromText(self, text):
         if not text.strip():
             return 0
@@ -279,6 +295,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
             minutes = 0
         return (hours * 60) + minutes
 
+    @catch_all
     def textFromValue(self, value):
         if value is None:
             return ''
@@ -1091,6 +1108,7 @@ class TabWidget(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
+        self.widgets['focal_length_35'].set_faint(False)
         # display real value if it exists
         values = []
         for image in images:
@@ -1112,7 +1130,8 @@ class TabWidget(QtWidgets.QWidget):
         if len(values) > 1:
             self.widgets['focal_length_35'].set_multiple(choices=values)
         elif values[0]:
-            self.widgets['focal_length_35'].set_value(values[0], faint=True)
+            self.widgets['focal_length_35'].set_faint(True)
+            self.widgets['focal_length_35'].set_value(values[0])
 
     def set_crop_factor(self, md):
         if not md.camera_model:
