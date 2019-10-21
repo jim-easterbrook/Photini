@@ -213,9 +213,17 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         return str(round(value, self.decimals()))
 
 
+class CalendarWidget(QtWidgets.QCalendarWidget):
+    @catch_all
+    def showEvent(self, event):
+        if self.selectedDate() == self.minimumDate():
+            self.setSelectedDate(QtCore.QDate.currentDate())
+        return super(CalendarWidget, self).showEvent(event)
+
+
 class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
     def __init__(self, *arg, **kw):
-        self.default_value = QtCore.QDate.currentDate()
+        self.default_value = QtCore.QDateTime(QtCore.QDate.currentDate())
         self.multiple = multiple_values()
         # rename some methods for compatibility with AugmentSpinBox
         self.cleanText = self.text
@@ -224,6 +232,8 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.setCalendarPopup(True)
+        self.setCalendarWidget(CalendarWidget())
         self.precision = 1
         self.set_precision(7)
 
@@ -318,7 +328,6 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.members = {}
         # date & time
         self.members['datetime'] = DateTimeEdit()
-        self.members['datetime'].setCalendarPopup(True)
         self.addWidget(self.members['datetime'], 0, 0, 1, 2)
         # time zone
         self.members['tz_offset'] = TimeZoneWidget()
