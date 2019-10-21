@@ -168,7 +168,7 @@ class AugmentSpinBox(object):
                 self.setStyleSheet('QAbstractSpinBox {}')
 
     def set_multiple(self, choices=[]):
-        self.choices = choices
+        self.choices = list(filter(None, choices))
         self.setValue(self.minimum())
         self.setSpecialValueText(self.multiple)
         self.setStyleSheet('QAbstractSpinBox {}')
@@ -201,10 +201,16 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         return str(round(value, self.decimals()))
 
 
-class DateTimeEdit(QtWidgets.QDateTimeEdit):
+class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         self.precision = 1
         self.multiple = multiple_values()
+        # rename some methods for compatibility with AugmentSpinBox
+        self.cleanText = self.text
+        self.minimum = self.minimumDateTime
+        self.setValue = self.setDateTime
+        self.textFromValue = self.textFromDateTime
+        self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
         self.set_precision(7)
 
@@ -216,45 +222,17 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
         return size
 
     @catch_all
-    def contextMenuEvent(self, event):
-        if not self.is_multiple():
-            return super(DateTimeEdit, self).contextMenuEvent(event)
-        menu = QtWidgets.QMenu(self)
-        for suggestion in self.choices:
-            if suggestion:
-                menu.addAction(self.textFromDateTime(suggestion))
-        action = menu.exec_(event.globalPos())
-        if action:
-            self.set_value(self.dateTimeFromText(action.iconText()))
-
     def dateTimeFromText(self, text):
         if not text:
             self.set_value(None)
             return self.dateTime()
         return super(DateTimeEdit, self).dateTimeFromText(text)
 
+    @catch_all
     def validate(self, text, pos):
-        if self.is_multiple():
-            self.set_value(None)
-            text = ''
         if not text:
             return QtGui.QValidator.Acceptable, text, pos
         return super(DateTimeEdit, self).validate(text, pos)
-
-    def get_value(self):
-        if self.specialValueText() == ' ':
-            return None
-        return self.dateTime().toPyDateTime()
-
-    def set_value(self, value):
-        if value is None:
-            self.setSpecialValueText(' ')
-            self.setMinimumDateTime(self.dateTime())
-        else:
-            self.setSpecialValueText('')
-            txt = self.specialValueText()
-            self.clearMinimumDateTime()
-            self.setDateTime(value)
 
     @QtCore.pyqtSlot(int)
     @catch_all
@@ -265,18 +243,11 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit):
                 ''.join(('yyyy', '-MM', '-dd',
                          ' hh', ':mm', ':ss', '.zzz')[:self.precision]))
 
-    def set_multiple(self, choices=[]):
-        self.choices = choices
-        self.setSpecialValueText(self.multiple)
-        self.setMinimumDateTime(self.dateTime())
-
-    def is_multiple(self):
-        return self.specialValueText() == self.multiple
-
 
 class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     def __init__(self, *arg, **kw):
         super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.multiple = multiple()
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
@@ -359,6 +330,8 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
             if self.members[key].is_multiple():
                 continue
             new_value[key] = self.members[key].get_value()
+            if key == 'datetime' and new_value[key]:
+                new_value[key] = new_value[key].toPyDateTime()
         return new_value
 
     @QtCore.pyqtSlot()
@@ -1096,7 +1069,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets['aperture'].set_multiple(choices=filter(None, values))
+            self.widgets['aperture'].set_multiple(choices=values)
         else:
             self.widgets['aperture'].set_value(values[0])
 
@@ -1110,8 +1083,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets['focal_length'].set_multiple(
-                choices=filter(None, values))
+            self.widgets['focal_length'].set_multiple(choices=values)
         else:
             self.widgets['focal_length'].set_value(values[0])
 
@@ -1126,8 +1098,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets['focal_length_35'].set_multiple(
-                choices=filter(None, values))
+            self.widgets['focal_length_35'].set_multiple(choices=values)
         else:
             self.widgets['focal_length_35'].set_value(values[0])
         if values[0]:
@@ -1139,8 +1110,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets['focal_length_35'].set_multiple(
-                choices=filter(None, values))
+            self.widgets['focal_length_35'].set_multiple(choices=values)
         elif values[0]:
             self.widgets['focal_length_35'].set_value(values[0], faint=True)
 
