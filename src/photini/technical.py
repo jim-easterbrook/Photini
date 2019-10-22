@@ -93,6 +93,7 @@ class AugmentSpinBox(object):
 
     def __init__(self, *arg, **kw):
         super(AugmentSpinBox, self).__init__(*arg, **kw)
+        self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
     class ContextAction(QtWidgets.QAction):
@@ -118,8 +119,7 @@ class AugmentSpinBox(object):
         menu = self.findChild(QtWidgets.QMenu)
         if not menu:
             return
-        top_action = menu.actionAt(QtCore.QPoint())
-        sep = menu.insertSeparator(top_action)
+        sep = menu.insertSeparator(menu.actions()[0])
         for suggestion in self.choices:
             menu.insertAction(sep, self.ContextAction(
                 self.textFromValue(suggestion), suggestion, self))
