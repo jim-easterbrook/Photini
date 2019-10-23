@@ -873,7 +873,7 @@ class CameraModel(MD_String):
         if file_value == 'unknown':
             return None
         if tag == 'Exif.Canon.ModelID':
-            file_value = 'Canon_ID-' + file_value
+            file_value = 'Canon_ID-{:08x}'.format(int(file_value))
         return cls(file_value)
 
     def merge_item(self, this, other):
