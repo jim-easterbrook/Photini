@@ -541,9 +541,9 @@ class LensData(object):
 
     def get_name(self, lens_id):
         section = 'lens ' + lens_id
-        name = self.config_store.get(section, 'lens_model')
-        make = self.config_store.get(section, 'lens_make')
-        if make and make not in name:
+        name = self.config_store.get(section, 'lens_model') or ''
+        make = self.config_store.get(section, 'lens_make') or ''
+        if make not in name:
             name = make + ' ' + name
         return name
 
