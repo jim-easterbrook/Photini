@@ -485,13 +485,16 @@ class Thumbnail(MD_Dict):
     def read(cls, handler, tag):
         if handler.is_xmp_tag(tag):
             data, fmt, w, h = handler.get_string(tag)
-            if not all((data, fmt, w, h)):
+            if not all((data, fmt)):
                 return None
             if not six.PY2:
                 data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
-            w = int(w)
-            h = int(h)
+            if w:
+                w = int(w)
+            if h:
+                h = int(h)
+            return cls((data, fmt, w, h))
         elif handler.is_exif_tag(tag):
             data = handler.get_exif_thumbnail()
             if using_pgi and isinstance(data, tuple):
@@ -502,17 +505,12 @@ class Thumbnail(MD_Dict):
             data = bytearray(data)
             fmt = handler.get_tag_string(tag)
             fmt = ('TIFF', 'JPEG')[fmt == '6']
-            pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(data)
-            w = pixmap.width()
-            h = pixmap.height()
-        return cls((data, fmt, w, h))
+            return cls((data, fmt))
+        return None
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
             data = self.data
-            w = self.w
-            h = self.h
             if self.fmt != 'JPEG':
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
@@ -522,11 +520,8 @@ class Thumbnail(MD_Dict):
                 data = buf.data().data()
                 w = pixmap.width()
                 h = pixmap.height()
-            if not w or not h:
-                pixmap = QtGui.QPixmap()
-                pixmap.loadFromData(data)
-                w = pixmap.width()
-                h = pixmap.height()
+            else:
+                w, h = self.size()
             data = codecs.encode(data, 'base64_codec')
             if not six.PY2:
                 data = data.decode('ascii')
@@ -534,8 +529,15 @@ class Thumbnail(MD_Dict):
         elif handler.is_exif_tag(tag):
             handler.set_exif_thumbnail_from_buffer(self.data)
 
+    def size(self):
+        if self.w and self.h:
+            return self.w, self.h
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(self.data)
+        return pixmap.width(), pixmap.height()
+
     def __str__(self):
-        return '{} thumbnail, {}x{}'.format(self.fmt, self.w, self.h)
+        return '{} thumbnail, {}x{}'.format(self.fmt, *self.size())
 
 
 class DateTime(MD_Dict):
