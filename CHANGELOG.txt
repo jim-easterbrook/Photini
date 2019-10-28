@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2019.10.1:
+  1/ Improved technical tab widgets. Units (e.g. mm) are now included in the
+     display instead of the label, and blank or multiple values are handled
+     better.
+  2/ Several other bug fixes.
+
 Changes in v2019.10.0:
   1/ GPS coords address lookup is now on a separate tab.
   2/ Map tabs now display altitude as well as latitude & longitude.
