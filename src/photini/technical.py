@@ -530,7 +530,7 @@ class LensData(object):
 
     @staticmethod
     def get_id(model, make, serial):
-        lens_id = model
+        lens_id = model or ''
         if make and make not in lens_id:
             lens_id = '({}){}'.format(make, lens_id)
         if serial:
