@@ -240,13 +240,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Iptc.Envelope.CharacterSet'         :   32,
         }
 
-    if gexiv2_version >= (0, 10, 3):
-        _xmp_struct_type = {
-            'Xmp.iptcExt.LocationCreated': GExiv2.StructureType.BAG,
-            'Xmp.iptcExt.LocationShown'  : GExiv2.StructureType.BAG,
-            'Xmp.xmp.Thumbnails'         : GExiv2.StructureType.ALT,
-            }
-
     def set_string(self, tag, value, idx=1):
         if tag in self._multi_tags:
             sub_tag = self._multi_tags[tag][0].format(idx=idx)
@@ -258,7 +251,14 @@ class Exiv2Metadata(GExiv2.Metadata):
                         break
                 else:
                     if gexiv2_version >= (0, 10, 3):
-                        self.set_xmp_tag_struct(tag, self._xmp_struct_type[tag])
+                        type_ = self.get_tag_type(tag)
+                        if type_ == 'XmpBag':
+                            type_ = GExiv2.StructureType.BAG
+                        elif type_ == 'XmpSeq':
+                            type_ = GExiv2.StructureType.SEQ
+                        else:
+                            type_ = GExiv2.StructureType.ALT
+                        self.set_xmp_tag_struct(tag, type_)
                     else:
                         self.set_tag_string(tag, '')
             for sub_tag, sub_value in zip(self._multi_tags[tag], value):
