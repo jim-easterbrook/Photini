@@ -184,7 +184,11 @@ class Exiv2Metadata(GExiv2.Metadata):
                 result = self._decode_string(result[8:])
             else:
                 result = result.decode('ascii', 'replace')
-            return result.strip('\x00')
+            if result:
+                result = result.strip('\x00')
+            if not result:
+                return None
+            return result
         try:
             result = self.get_tag_string(tag)
             if six.PY2:
@@ -548,23 +552,6 @@ class Exiv2Metadata(GExiv2.Metadata):
 
 
 class ImageMetadata(Exiv2Metadata):
-    _repeatable = (
-        'Iptc.Application2.Byline',
-        'Iptc.Application2.BylineTitle',
-        'Iptc.Application2.Contact',
-        'Iptc.Application2.Keywords',
-        'Iptc.Application2.LocationCode',
-        'Iptc.Application2.LocationName',
-        'Iptc.Application2.ObjectAttribute',
-        'Iptc.Application2.ReferenceNumber',
-        'Iptc.Application2.ReferenceService',
-        'Iptc.Application2.Subject',
-        'Iptc.Application2.SuppCategory',
-        'Iptc.Application2.Writer',
-        'Iptc.Envelope.Destination',
-        'Iptc.Envelope.ProductId',
-        )
-
     _iptc_encodings = {
         'ascii'    : (b'\x1b\x28\x42',),
         'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
@@ -608,16 +595,19 @@ class ImageMetadata(Exiv2Metadata):
         # transcode every string tag except Iptc.Envelope.CharacterSet
         logger.info('Transcoding IPTC data to UTF-8')
         tags = ['Iptc.Envelope.CharacterSet']
+        multiple = []
         for tag in self.get_iptc_tags():
+            if tag in tags:
+                multiple.append(tag)
             if tag not in tags and self.get_tag_type(tag) == 'String':
                 tags.append(tag)
         for tag in tags[1:]:
             try:
-                if tag in self._repeatable:
+                if tag in multiple:
                     if not six.PY2 and not using_pgi:
                         # PyGObject segfaults if strings are not utf-8
-                        logger.info('potential multi-data loss %s %s',
-                                    os.path.basename(self._path), tag)
+                        logger.warning('%s: ignoring multiple %s values',
+                                       os.path.basename(self._path), tag)
                         value = [self._get_string(tag)]
                     else:
                         value = self._get_multiple(tag)
