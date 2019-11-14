@@ -71,8 +71,9 @@ class FlickrSession(UploaderSession):
             if self.api.token_valid(perms='write'):
                 self.connection_changed.emit(True)
                 return True
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
+            return None
         return False
 
     def disconnect(self):
@@ -86,7 +87,7 @@ class FlickrSession(UploaderSession):
         try:
             self.api.get_request_token(oauth_callback=redirect_uri)
             return self.api.auth_url(perms='write')
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
         return ''
@@ -95,9 +96,10 @@ class FlickrSession(UploaderSession):
         oauth_verifier = six.text_type(result['oauth_verifier'][0])
         try:
             self.api.get_access_token(oauth_verifier)
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
+            return
         token = self.api.token_cache.token
         self.set_password(token.token + '&' + token.token_secret)
         self.connection_changed.emit(True)
@@ -110,7 +112,7 @@ class FlickrSession(UploaderSession):
             rsp = self.api.auth.oauth.checkToken()
             if rsp['stat'] != 'ok':
                 return self.cached_data['user']
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
             return self.cached_data['user']
@@ -120,7 +122,7 @@ class FlickrSession(UploaderSession):
             rsp = self.api.people.getInfo(user_id=user['nsid'])
             if rsp['stat'] != 'ok':
                 return self.cached_data['user']
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
             return self.cached_data['user']
@@ -143,7 +145,7 @@ class FlickrSession(UploaderSession):
         self.cached_data['sets'] = []
         try:
             sets = self.api.photosets.getList()
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
             return self.cached_data['sets']
@@ -156,7 +158,7 @@ class FlickrSession(UploaderSession):
     def get_info(self, photo_id):
         try:
             rsp = self.api.photos.getInfo(photo_id=photo_id)
-        except flickrapi.FlickrError as ex:
+        except Exception as ex:
             logger.error(str(ex))
             self.disconnect()
             return None
@@ -176,7 +178,7 @@ class FlickrSession(UploaderSession):
                         max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
                     if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
                         return
-                except flickrapi.FlickrError as ex:
+                except Exception as ex:
                     logger.error(str(ex))
                     self.disconnect()
                     return
@@ -233,7 +235,7 @@ class FlickrSession(UploaderSession):
             try:
                 rsp = getattr(self.api.photos, function)(**kwargs)
                 status = rsp['stat']
-            except flickrapi.FlickrError as ex:
+            except Exception as ex:
                 status = str(ex)
             if status != 'ok':
                 return function + ' ' + status
@@ -243,7 +245,7 @@ class FlickrSession(UploaderSession):
             try:
                 rsp = self.api.photos.getInfo(photo_id=photo_id)
                 status = rsp['stat']
-            except flickrapi.FlickrError as ex:
+            except Exception as ex:
                 status = str(ex)
             if status != 'ok':
                 return 'getInfo ' + status
@@ -251,7 +253,7 @@ class FlickrSession(UploaderSession):
                 try:
                     rsp = self.api.photos.geo.removeLocation(photo_id=photo_id)
                     status = rsp['stat']
-                except flickrapi.FlickrError as ex:
+                except Exception as ex:
                     status = str(ex)
                 if status != 'ok':
                     return 'geo.removeLocation ' + status
@@ -264,7 +266,7 @@ class FlickrSession(UploaderSession):
             try:
                 rsp = self.api.photos.getAllContexts(photo_id=photo_id)
                 status = rsp['stat']
-            except flickrapi.FlickrError as ex:
+            except Exception as ex:
                 status = str(ex)
             if status != 'ok':
                 return 'getAllContexts ' + status
@@ -283,7 +285,7 @@ class FlickrSession(UploaderSession):
                 try:
                     rsp = self.api.photosets.create(**kwargs)
                     status = rsp['stat']
-                except flickrapi.FlickrError as ex:
+                except Exception as ex:
                     status = str(ex)
                 if status == 'ok':
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
@@ -299,7 +301,7 @@ class FlickrSession(UploaderSession):
                 try:
                     rsp = self.api.photosets.addPhoto(**kwargs)
                     status = rsp['stat']
-                except flickrapi.FlickrError as ex:
+                except Exception as ex:
                     status = str(ex)
                 if status == 'ok':
                     continue
@@ -311,7 +313,7 @@ class FlickrSession(UploaderSession):
             try:
                 rsp = self.api.photosets.removePhoto(**kwargs)
                 status = rsp['stat']
-            except flickrapi.FlickrError as ex:
+            except Exception as ex:
                 status = str(ex)
             if status == 'ok':
                 continue
