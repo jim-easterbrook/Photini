@@ -774,21 +774,25 @@ class DateTime(MD_Dict):
         if other == self:
             return self
         if other.datetime != self.datetime:
+            verbose = (other.datetime !=
+                       self.truncate_datetime(self.datetime, other.precision))
             # datetime values differ, choose self or other
             if (self.tz_offset in (None, 0)) != (other.tz_offset in (None, 0)):
                 if self.tz_offset in (None, 0):
                     # other has "better" time zone info so choose it
-                    self.log_replaced(info, tag, other)
+                    if verbose:
+                        self.log_replaced(info, tag, other)
                     return other
                 # self has better time zone info
-                self.log_ignored(info, tag, other)
+                if verbose:
+                    self.log_ignored(info, tag, other)
                 return self
             if other.precision > self.precision:
                 # other has higher precision so choose it
-                self.log_replaced(info, tag, other)
+                if verbose:
+                    self.log_replaced(info, tag, other)
                 return other
-            if other.datetime != self.truncate_datetime(
-                                            self.datetime, other.precision):
+            if verbose:
                 self.log_ignored(info, tag, other)
             return self
         # datetime values agree, merge other info
