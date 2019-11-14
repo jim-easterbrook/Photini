@@ -466,7 +466,12 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def log_in(self):
-        if not self.session.connect():
+        with Busy():
+            connect = self.session.connect()
+        if connect is None:
+            # can't reach server
+            return
+        if not connect:
             self.authorise()
 
     def authorise(self):
@@ -483,11 +488,16 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.auth_server_thread.start()
             redirect_uri = 'http://127.0.0.1:' + str(self.auth_server.port)
             auth_url = self.session.get_auth_url(redirect_uri)
-            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
+            if auth_url and QtGui.QDesktopServices.openUrl(
+                                                    QtCore.QUrl(auth_url)):
+                return
+            if auth_url:
                 logger.error('Failed to open web browser')
-                self.auth_server.running = False
-                self.auth_server = None
-                self.auth_server_thread.quit()
+            else:
+                logger.error('Failed to get auth URL')
+            self.auth_server.running = False
+            self.auth_server = None
+            self.auth_server_thread.quit()
 
     @QtCore.pyqtSlot(dict)
     @catch_all
