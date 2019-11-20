@@ -304,8 +304,14 @@ class LatLon(MD_Dict):
         if ref in ('N', 'S', 'E', 'W'):
             value = value[:-1]
         if ',' in value:
-            degrees, minutes = value.split(',')
-            value = float(degrees) + (float(minutes) / 60.0)
+            sign = value[0]
+            if sign in ('+', '-'):
+                value = value[1:]
+            parts = value.split(',') + ['0']
+            value = (float(parts[0]) + (float(parts[1]) / 60.0) +
+                     (float(parts[2]) / 3600.0))
+            if sign == '-':
+                value = -value
         else:
             value = float(value)
         if ref in ('S', 'W'):
