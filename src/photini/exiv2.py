@@ -89,7 +89,9 @@ class Exiv2Metadata(GExiv2.Metadata):
             return value
         for encoding in self._encodings:
             try:
-                return value.decode(encoding)
+                result = value.decode(encoding)
+                logger.info('Decoded %s string "%s"', encoding, result)
+                return result
             except UnicodeDecodeError:
                 continue
         return value.decode('utf-8', 'replace')

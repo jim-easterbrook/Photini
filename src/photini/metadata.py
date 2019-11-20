@@ -303,17 +303,17 @@ class LatLon(MD_Dict):
         ref = value[-1]
         if ref in ('N', 'S', 'E', 'W'):
             value = value[:-1]
-        if ',' in value:
-            sign = value[0]
-            if sign in ('+', '-'):
-                value = value[1:]
-            parts = value.split(',') + ['0']
-            value = (float(parts[0]) + (float(parts[1]) / 60.0) +
-                     (float(parts[2]) / 3600.0))
-            if sign == '-':
-                value = -value
         else:
-            value = float(value)
+            logger.info('no direction in XMP GPSCoordinate: %s', value)
+        sign = value[0]
+        if sign in ('+', '-'):
+            logger.info('incorrect use of signed XMP GPSCoordinate: %s', value)
+            value = value[1:]
+        parts = value.split(',') + ['0', '0']
+        value = (float(parts[0])
+                 + (float(parts[1]) / 60.0) + (float(parts[2]) / 3600.0))
+        if sign == '-':
+            value = -value
         if ref in ('S', 'W'):
             value = -value
         return value
