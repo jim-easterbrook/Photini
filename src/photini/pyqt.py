@@ -38,7 +38,7 @@ if sys.platform.startswith('linux'):
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto')
-using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto') != 'False'
+using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
 
 if using_pyqt5 == 'auto':
     try:
@@ -49,27 +49,34 @@ if using_pyqt5 == 'auto':
 else:
     using_pyqt5 = eval(using_pyqt5)
 
+if using_pyqt5 and using_qtwebengine == 'auto':
+    try:
+        from PyQt5 import QtWebEngineWidgets
+        using_qtwebengine = True
+    except ImportError:
+        using_qtwebengine = False
+        try:
+            from PyQt5 import QtWebKit
+        except ImportError:
+            using_qtwebengine = True
+else:
+    using_qtwebengine = using_pyqt5 and eval(using_qtwebengine)
+
 if using_pyqt5:
     from PyQt5 import QtCore, QtGui, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
     if using_qtwebengine:
-        try:
-            from PyQt5 import QtWebChannel, QtWebEngineWidgets
-        except ImportError:
-            using_qtwebengine = False
-    if not using_qtwebengine:
+        from PyQt5 import QtWebChannel, QtWebEngineWidgets
+    else:
         from PyQt5 import QtWebKit, QtWebKitWidgets
-        QtWebChannel = None
 else:
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
     from PyQt4 import QtCore, QtGui, QtWebKit
-    using_qtwebengine = False
     QtWidgets = QtGui
     QtWebKitWidgets = QtWebKit
-    QtWebChannel = None
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
 
@@ -78,6 +85,7 @@ if using_qtwebengine:
     QWebSettings = QtWebEngineWidgets.QWebEngineSettings
     QWebView = QtWebEngineWidgets.QWebEngineView
 else:
+    QtWebChannel = None
     QWebPage = QtWebKitWidgets.QWebPage
     QWebSettings = QtWebKit.QWebSettings
     QWebView = QtWebKitWidgets.QWebView
