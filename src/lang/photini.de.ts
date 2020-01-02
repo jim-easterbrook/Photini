@@ -5,7 +5,7 @@
     <message>
         <location filename="../photini/address.py" line="49"/>
         <source>Street</source>
-        <translation>Strasse</translation>
+        <translation>Straße</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="49"/>
@@ -30,22 +30,22 @@
     <message>
         <location filename="../photini/address.py" line="92"/>
         <source>&amp;Address</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Adresse</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="108"/>
         <source>Get address from lat, long</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse aus Breite und Länge ermitteln</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="159"/>
         <source>Duplicate location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort duplizieren</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="161"/>
         <source>Delete location</source>
-        <translation type="unfinished"></translation>
+        <translation>Ort entfernen</translation>
     </message>
     <message>
         <location filename="../photini/address.py" line="254"/>
@@ -84,12 +84,12 @@
 <context>
     <name>Common</name>
     <message>
-        <location filename="../photini/pyqt.py" line="138"/>
+        <location filename="../photini/pyqt.py" line="146"/>
         <source>&lt;multiple&gt;</source>
         <translation>&lt;mehrfach&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/pyqt.py" line="141"/>
+        <location filename="../photini/pyqt.py" line="149"/>
         <source>&lt;multiple values&gt;</source>
         <translation>&lt;Mehrfachwerte&gt;</translation>
     </message>
@@ -238,173 +238,174 @@
 <context>
     <name>FlickrTab</name>
     <message>
-        <location filename="../photini/flickr.py" line="337"/>
+        <location filename="../photini/flickr.py" line="339"/>
         <source>Who can see the photos?</source>
         <translation>Wer kann die Bilder betrachten?</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="340"/>
+        <location filename="../photini/flickr.py" line="342"/>
         <source>Only you</source>
         <translation>Nur ich selbst</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="347"/>
+        <location filename="../photini/flickr.py" line="349"/>
         <source>Your friends</source>
         <translation>Deine Freunde</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="350"/>
+        <location filename="../photini/flickr.py" line="352"/>
         <source>Your family</source>
         <translation>Deine Familie</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="354"/>
+        <location filename="../photini/flickr.py" line="356"/>
         <source>Anyone</source>
         <translation>Jeder</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="359"/>
+        <location filename="../photini/flickr.py" line="361"/>
         <source>Hidden from search</source>
         <translation>Von Suche ausgeschlossen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="366"/>
+        <location filename="../photini/flickr.py" line="368"/>
         <source>Content type</source>
         <translation>Inhaltstyp</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="369"/>
+        <location filename="../photini/flickr.py" line="371"/>
         <source>Photo</source>
         <translation>Foto</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="373"/>
+        <location filename="../photini/flickr.py" line="375"/>
         <source>Screenshot</source>
         <translation>Bildschirmfoto</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="376"/>
+        <location filename="../photini/flickr.py" line="378"/>
         <source>Art/Illustration</source>
         <translation>Art/Illustration</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="382"/>
+        <location filename="../photini/flickr.py" line="384"/>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synchronisieren</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="387"/>
+        <location filename="../photini/flickr.py" line="389"/>
         <source>New album</source>
         <translation>Neues Album</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="392"/>
+        <location filename="../photini/flickr.py" line="394"/>
         <source>Add to albums</source>
         <translation>Zu Alben hinzufügen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="468"/>
+        <location filename="../photini/flickr.py" line="470"/>
         <source>&amp;Flickr upload</source>
         <translation>&amp;Flickr hochladen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="471"/>
+        <location filename="../photini/flickr.py" line="473"/>
         <source>Flickr</source>
         <translation>Flickr</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="502"/>
+        <location filename="../photini/flickr.py" line="504"/>
         <source>Photini: too large</source>
         <translation>Photini: zu groß</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="504"/>
+        <location filename="../photini/flickr.py" line="506"/>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
         <translation>&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="506"/>
+        <location filename="../photini/flickr.py" line="508"/>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
         <translation>Die Datei &quot;{0}&quot; hat {1} Bytes und überschreitet Flickr&apos;s Begrenzung von {2} Bytes.</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="598"/>
-        <source>Replace photo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../photini/flickr.py" line="600"/>
-        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <source>Replace photo</source>
+        <translation>Photo ersetzen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="607"/>
-        <source>Replace metadata</source>
-        <translation type="unfinished"></translation>
+        <location filename="../photini/flickr.py" line="602"/>
+        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
+        <translation>Die Datei {0} wurde bereits auf Flickr hochgeladen. Soll es aktualisiert werden?</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="609"/>
-        <source>Change who can see it</source>
-        <translation type="unfinished"></translation>
+        <source>Replace metadata</source>
+        <translation>Metadaten ersetzen</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="611"/>
-        <source>Change content type</source>
-        <translation type="unfinished"></translation>
+        <source>Change who can see it</source>
+        <translation>Ändern wer es sehen kann</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="613"/>
-        <source>Change album membership</source>
-        <translation type="unfinished"></translation>
+        <source>Change content type</source>
+        <translation>Inhaltstyp ändern</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="615"/>
-        <source>Replace image</source>
-        <translation type="unfinished"></translation>
+        <source>Change album membership</source>
+        <translation>Albummitgliedschaft ändern</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="617"/>
-        <source>Upload as new photo</source>
-        <translation type="unfinished"></translation>
+        <source>Replace image</source>
+        <translation>Bild ersetzen</translation>
     </message>
     <message>
         <location filename="../photini/flickr.py" line="619"/>
+        <source>Upload as new photo</source>
+        <translation>Als neues Photo hochladen</translation>
+    </message>
+    <message>
+        <location filename="../photini/flickr.py" line="621"/>
         <source>No image upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Bild hochgeladen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="694"/>
+        <location filename="../photini/flickr.py" line="696"/>
         <source>Select an image</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild auswählen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="702"/>
+        <location filename="../photini/flickr.py" line="704"/>
         <source>Which image file matches
 this picture on Flickr?</source>
-        <translation type="unfinished"></translation>
+        <translation>Welche Bilddatei ähnelt
+diesem Bild bei Flickr?</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="722"/>
+        <location filename="../photini/flickr.py" line="724"/>
         <source>No match</source>
-        <translation type="unfinished"></translation>
+        <translation>kein Treffer</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="845"/>
+        <location filename="../photini/flickr.py" line="847"/>
         <source>Create new Flickr album</source>
         <translation>Neues Flickr-Album erstellen</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="848"/>
+        <location filename="../photini/flickr.py" line="850"/>
         <source>Title</source>
         <translation>Titel</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="850"/>
+        <location filename="../photini/flickr.py" line="852"/>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
     <message>
-        <location filename="../photini/flickr.py" line="852"/>
+        <location filename="../photini/flickr.py" line="854"/>
         <source>Album will be created when photos are uploaded</source>
         <translation>Album wird erstellt, wenn Bilder hochgeladen wurden</translation>
     </message>
@@ -434,27 +435,27 @@ this picture on Flickr?</source>
     <message>
         <location filename="../photini/googlephotos.py" line="307"/>
         <source>Photini: large file</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: große Datei</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="309"/>
         <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;h3&gt;Große Datei.&lt;/h3&gt;</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="311"/>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Datei &quot;{0}&quot; ist größer als 25MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="345"/>
         <source>Album title</source>
-        <translation type="unfinished"></translation>
+        <translation>Albumtitel</translation>
     </message>
     <message>
         <location filename="../photini/googlephotos.py" line="345"/>
         <source>Please enter a title for the album</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte einen Albumtitel eingeben</translation>
     </message>
 </context>
 <context>
@@ -462,37 +463,37 @@ this picture on Flickr?</source>
     <message>
         <location filename="../photini/gpximporter.py" line="34"/>
         <source>Import GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-Datei importieren</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="36"/>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX Dateien (*.gpx *.GPX *.Gpx);;Alle Dateien (*)</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="53"/>
         <source>GPX options</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX Optionen</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="59"/>
         <source> secs</source>
-        <translation type="unfinished"></translation>
+        <translation>Sekunden</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="60"/>
         <source>Max time between points</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. Zeit zwischen Wegpunkten</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="66"/>
         <source>Max dilution of precision</source>
-        <translation type="unfinished"></translation>
+        <translation>Max. Abschwächung der Genauigkeit</translation>
     </message>
     <message>
         <location filename="../photini/gpximporter.py" line="72"/>
         <source>Plot track on map</source>
-        <translation type="unfinished"></translation>
+        <translation>Track auf Karte zeichnen</translation>
     </message>
 </context>
 <context>
@@ -545,22 +546,22 @@ this picture on Flickr?</source>
     <message>
         <location filename="../photini/imagelist.py" line="114"/>
         <source>Metadata differences</source>
-        <translation type="unfinished"></translation>
+        <translation>Metadaten-Unterschiede</translation>
     </message>
     <message>
         <location filename="../photini/imagelist.py" line="120"/>
         <source>new value</source>
-        <translation type="unfinished"></translation>
+        <translation>neuer Wert</translation>
     </message>
     <message>
         <location filename="../photini/imagelist.py" line="120"/>
         <source>undo</source>
-        <translation type="unfinished"></translation>
+        <translation>rückgängig</translation>
     </message>
     <message>
         <location filename="../photini/imagelist.py" line="120"/>
         <source>old value</source>
-        <translation type="unfinished"></translation>
+        <translation>alter Wert</translation>
     </message>
     <message>
         <location filename="../photini/imagelist.py" line="328"/>
@@ -575,7 +576,7 @@ this picture on Flickr?</source>
     <message>
         <location filename="../photini/imagelist.py" line="332"/>
         <source>View changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen anzeigen</translation>
     </message>
     <message>
         <location filename="../photini/imagelist.py" line="334"/>
@@ -632,13 +633,15 @@ auswählen</translation>
         <location filename="../photini/importer.py" line="333"/>
         <source>Move
 photos</source>
-        <translation type="unfinished"></translation>
+        <translation>Photos
+verschieben</translation>
     </message>
     <message>
         <location filename="../photini/importer.py" line="333"/>
         <source>Stop
 move</source>
-        <translation type="unfinished"></translation>
+        <translation>Stop
+Verschieben</translation>
     </message>
     <message>
         <location filename="../photini/importer.py" line="339"/>
@@ -651,7 +654,8 @@ kopieren</translation>
         <location filename="../photini/importer.py" line="339"/>
         <source>Stop
 copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Stop
+Kopieren</translation>
     </message>
     <message>
         <location filename="../photini/importer.py" line="389"/>
@@ -723,13 +727,14 @@ ausgewählt</numerusform>
     <message>
         <location filename="../photini/bingmap.py" line="50"/>
         <source>Server overload, please try again</source>
-        <translation type="unfinished"></translation>
+        <translation>Server überlastet, bitte nochmal probieren</translation>
     </message>
     <message>
         <location filename="../photini/bingmap.py" line="94"/>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche und Nachschlagen der Höhe
+provided by Bing</translation>
     </message>
     <message>
         <location filename="../photini/bingmap.py" line="106"/>
@@ -742,7 +747,7 @@ provided by Bing</source>
     <message>
         <location filename="../photini/googlemap.py" line="86"/>
         <source>Search and altitude lookup</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche und Höhenermittlung</translation>
     </message>
     <message>
         <location filename="../photini/googlemap.py" line="99"/>
@@ -781,12 +786,12 @@ provided by Bing</source>
     <message>
         <location filename="../photini/photinimap.py" line="262"/>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe</translation>
     </message>
     <message>
         <location filename="../photini/photinimap.py" line="270"/>
         <source>Get altitude from map</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe aus Karte ermitteln</translation>
     </message>
     <message>
         <location filename="../photini/photinimap.py" line="277"/>
@@ -845,7 +850,7 @@ provided by Bing</source>
     <message>
         <location filename="../photini/editor.py" line="191"/>
         <source>Import GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-Datei importieren</translation>
     </message>
     <message>
         <location filename="../photini/editor.py" line="198"/>
@@ -880,7 +885,7 @@ provided by Bing</source>
     <message>
         <location filename="../photini/editor.py" line="252"/>
         <source>No dictionary installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Wörterbuch installiert</translation>
     </message>
     <message>
         <location filename="../photini/editor.py" line="258"/>
@@ -950,12 +955,12 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
     <message>
         <location filename="../photini/opencage.py" line="149"/>
         <source>Address lookup powered by OpenCage</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresssuche powered by OpenCage</translation>
     </message>
     <message encoding="UTF-8">
         <location filename="../photini/opencage.py" line="152"/>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Geodata © OpenStreetMap contributors</translation>
     </message>
 </context>
 <context>
@@ -981,7 +986,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
         <translation>max</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="797"/>
+        <location filename="../photini/technical.py" line="800"/>
         <source>Focal length</source>
         <translation>Brennweite</translation>
     </message>
@@ -991,172 +996,172 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
         <translation>Max. Blende</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="612"/>
+        <location filename="../photini/technical.py" line="615"/>
         <source>Photini: define lens</source>
         <translation>Photini: Linse definieren</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="632"/>
+        <location filename="../photini/technical.py" line="635"/>
         <source>Model name</source>
         <translation>Modellname</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="636"/>
+        <location filename="../photini/technical.py" line="639"/>
         <source>Maker&apos;s name</source>
         <translation>Herstellername</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="640"/>
+        <location filename="../photini/technical.py" line="643"/>
         <source>Serial number</source>
         <translation>Seriennummer</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="704"/>
+        <location filename="../photini/technical.py" line="707"/>
         <source>&amp;Technical metadata</source>
         <translation>&amp;Technische Metadaten</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="717"/>
+        <location filename="../photini/technical.py" line="720"/>
         <source>Date and time</source>
         <translation>Datum und Uhrzeit</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="728"/>
+        <location filename="../photini/technical.py" line="731"/>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
         <translation>Aufgenommen und Digitalisiert koppeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="730"/>
+        <location filename="../photini/technical.py" line="733"/>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
         <translation>Digitalisiert und Verändert koppeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="733"/>
+        <location filename="../photini/technical.py" line="736"/>
         <source>Taken</source>
         <translation>Aufgenommen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="736"/>
+        <location filename="../photini/technical.py" line="739"/>
         <source>Digitised</source>
         <translation>Digitalisiert</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="739"/>
+        <location filename="../photini/technical.py" line="742"/>
         <source>Modified</source>
         <translation>Verändert</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="744"/>
+        <location filename="../photini/technical.py" line="747"/>
         <source>Adjust times</source>
         <translation>Uhrzeiten anpassen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="748"/>
+        <location filename="../photini/technical.py" line="751"/>
         <source>Other</source>
         <translation>Andere</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="754"/>
+        <location filename="../photini/technical.py" line="757"/>
         <source>normal</source>
         <translation>normal</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="756"/>
+        <location filename="../photini/technical.py" line="759"/>
         <source>rotate -90</source>
         <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="758"/>
+        <location filename="../photini/technical.py" line="761"/>
         <source>rotate +90</source>
         <translation>90 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="760"/>
+        <location filename="../photini/technical.py" line="763"/>
         <source>rotate 180</source>
         <translation>180 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="762"/>
+        <location filename="../photini/technical.py" line="765"/>
         <source>reflect left-right</source>
         <translation>links-rechts spiegeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="764"/>
+        <location filename="../photini/technical.py" line="767"/>
         <source>reflect top-bottom</source>
         <translation>oben-unten spiegeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="766"/>
+        <location filename="../photini/technical.py" line="769"/>
         <source>reflect tr-bl</source>
         <translation>rechts oben-links unten spiegeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="768"/>
+        <location filename="../photini/technical.py" line="771"/>
         <source>reflect tl-br</source>
         <translation>links oben-rechts unten spiegeln</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="771"/>
+        <location filename="../photini/technical.py" line="774"/>
         <source>Orientation</source>
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="778"/>
+        <location filename="../photini/technical.py" line="781"/>
         <source>&lt;define new lens&gt;</source>
         <translation>&lt;Neue Linse definieren&gt;</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="786"/>
+        <location filename="../photini/technical.py" line="789"/>
         <source>Lens model</source>
         <translation>Linsenmodell</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="790"/>
+        <location filename="../photini/technical.py" line="793"/>
         <source>Lens details</source>
         <translation>Objektivdetails</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="874"/>
+        <location filename="../photini/technical.py" line="877"/>
         <source>Remove lens &quot;{}&quot;</source>
         <translation>Linse &quot;{}&quot; entfernen</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="1068"/>
+        <location filename="../photini/technical.py" line="1071"/>
         <source>Update aperture &amp; focal length</source>
         <translation>Blende und Brennweite aktualisieren</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="1068"/>
+        <location filename="../photini/technical.py" line="1071"/>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
         <translation>Blende und Brennweite aus Objektivdaten übernehmen?</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="649"/>
+        <location filename="../photini/technical.py" line="652"/>
         <source>Minimum focal length</source>
         <translation>Minimale Brennweite</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="655"/>
+        <location filename="../photini/technical.py" line="658"/>
         <source>Aperture at min. focal length</source>
         <translation>Blende bei min. Brennweite</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="663"/>
+        <location filename="../photini/technical.py" line="666"/>
         <source>Maximum focal length</source>
         <translation>Maximale Brennweite</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="669"/>
+        <location filename="../photini/technical.py" line="672"/>
         <source>Aperture at max. focal length</source>
         <translation>Blende bei max. Brennweite</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="804"/>
+        <location filename="../photini/technical.py" line="807"/>
         <source>35mm equiv</source>
         <translation>35mm equiv</translation>
     </message>
     <message>
-        <location filename="../photini/technical.py" line="811"/>
+        <location filename="../photini/technical.py" line="814"/>
         <source>Aperture</source>
         <translation>Blende</translation>
     </message>
@@ -1166,12 +1171,12 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
     <message>
         <location filename="../photini/uploader.py" line="140"/>
         <source>Close window</source>
-        <translation type="unfinished"></translation>
+        <translation>Fenster schließen</translation>
     </message>
     <message>
         <location filename="../photini/uploader.py" line="141"/>
         <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Browserfenster kann nun geschlossen werden.</translation>
     </message>
     <message>
         <location filename="../photini/uploader.py" line="199"/>
