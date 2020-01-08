@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -115,6 +115,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.display = QtWidgets.QLineEdit()
         self.display.setFrame(False)
         self.display.setReadOnly(True)
+        self.display.setFocusPolicy(Qt.NoFocus)
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.is_multiple = self.slider.is_multiple
