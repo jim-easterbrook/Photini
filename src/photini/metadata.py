@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -416,7 +416,7 @@ class MultiLocation(tuple):
         count = 0
         for t in handler.get_xmp_tags():
             if t.startswith(tag):
-                match = re.search('\[(\d+)\]', t)
+                match = re.search(r'\[(\d+)\]', t)
                 if match:
                     count = max(count, int(match.group(1)))
         value = []

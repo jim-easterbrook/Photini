@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -213,7 +213,7 @@ def get_camera_list():
 
 
 class NameMangler(QtCore.QObject):
-    number_parser = re.compile('(\d+)')
+    number_parser = re.compile(r'(\d+)')
     new_example = QtCore.pyqtSignal(str)
 
     def __init__(self, parent=None):

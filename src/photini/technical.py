@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -285,9 +285,9 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def validate(self, text, pos):
-        if re.match('[+-]?\d{1,2}(:\d{0,2})?$', text):
+        if re.match(r'[+-]?\d{1,2}(:\d{0,2})?$', text):
             return QtGui.QValidator.Acceptable, text, pos
-        if re.match('[+-]?$', text):
+        if re.match(r'[+-]?$', text):
             return QtGui.QValidator.Intermediate, text, pos
         return QtGui.QValidator.Invalid, text, pos
 

@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -54,7 +54,7 @@ if git:
             for tag in repo.tags:
                 if tag.commit.committed_date > latest:
                     tag_name = str(tag)
-                    if re.match('\d{4}\.\d{1,2}\.\d$', tag_name):
+                    if re.match(r'\d{4}\.\d{1,2}\.\d$', tag_name):
                         latest = tag.commit.committed_date
                         last_release = tag_name
             # set current version number (calendar based)
