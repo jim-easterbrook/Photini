@@ -141,14 +141,10 @@ class UploadWorker(QtCore.QObject):
 
     @QtCore.pyqtSlot(bool)
     @catch_all
-    def upload_error_response(self, retry):
+    def abort_upload(self, retry):
         self.retry = retry
-
-    @QtCore.pyqtSlot()
-    @catch_all
-    def abort_upload(self):
-        # brutal way to interrupt an upload
         if self.fileobj:
+            # brutal way to interrupt an upload
             self.fileobj.abort()
 
 
@@ -207,7 +203,7 @@ class AuthServer(QtCore.QObject):
 
 
 class PhotiniUploader(QtWidgets.QWidget):
-    upload_error_response = QtCore.pyqtSignal(bool)
+    abort_upload = QtCore.pyqtSignal(bool)
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
@@ -246,6 +242,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             translate('UploaderTabsAll', 'Stop upload'))
         self.upload_button.setEnabled(False)
         self.upload_button.click_start.connect(self.start_upload)
+        self.upload_button.click_stop.connect(self.stop_upload)
         self.layout().addWidget(self.upload_button, 2, 3)
         # progress bar
         self.layout().addWidget(
@@ -396,6 +393,11 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     @catch_all
+    def stop_upload(self):
+        self.abort_upload.emit(False)
+
+    @QtCore.pyqtSlot()
+    @catch_all
     def start_upload(self):
         if not self.image_list.unsaved_files_dialog(with_discard=False):
             return
@@ -419,12 +421,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker = UploadWorker(self.session_factory, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
-        self.upload_button.click_stop.connect(
-            self.upload_worker.abort_upload, Qt.DirectConnection)
         self.upload_worker.upload_error.connect(
             self.upload_error, Qt.BlockingQueuedConnection)
-        self.upload_error_response.connect(
-            self.upload_worker.upload_error_response)
+        self.abort_upload.connect(
+            self.upload_worker.abort_upload, Qt.DirectConnection)
         self.upload_worker.upload_progress.connect(self.upload_progress)
         thread.started.connect(self.upload_worker.start)
         self.upload_worker.finished.connect(self.uploader_finished)
@@ -454,8 +454,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setStandardButtons(QtWidgets.QMessageBox.Abort |
                                   QtWidgets.QMessageBox.Retry)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Retry)
-        self.upload_error_response.emit(
-            dialog.exec_() == QtWidgets.QMessageBox.Retry)
+        self.abort_upload.emit(dialog.exec_() == QtWidgets.QMessageBox.Retry)
 
     @QtCore.pyqtSlot()
     @catch_all

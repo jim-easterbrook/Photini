@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -205,11 +205,8 @@ class FlickrSession(UploaderSession):
                         del(params[key])
             else:
                 kwargs['photo_id'] = photo_id
-            try:
-                rsp = getattr(self.api, params['function'])(**kwargs)
-                status = rsp.attrib['stat']
-            except Exception as ex:
-                status = str(ex)
+            rsp = getattr(self.api, params['function'])(**kwargs)
+            status = rsp.attrib['stat']
             if status != 'ok':
                 return params['function'] + ' ' + status
             photo_id = rsp.find('photoid').text
@@ -232,29 +229,20 @@ class FlickrSession(UploaderSession):
                 continue
             kwargs = params[key]
             kwargs['photo_id'] = photo_id
-            try:
-                rsp = getattr(self.api.photos, function)(**kwargs)
-                status = rsp['stat']
-            except Exception as ex:
-                status = str(ex)
+            rsp = getattr(self.api.photos, function)(**kwargs)
+            status = rsp['stat']
             if status != 'ok':
                 return function + ' ' + status
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
-            try:
-                rsp = self.api.photos.getInfo(photo_id=photo_id)
-                status = rsp['stat']
-            except Exception as ex:
-                status = str(ex)
+            rsp = self.api.photos.getInfo(photo_id=photo_id)
+            status = rsp['stat']
             if status != 'ok':
                 return 'getInfo ' + status
             if 'location' in rsp['photo']:
-                try:
-                    rsp = self.api.photos.geo.removeLocation(photo_id=photo_id)
-                    status = rsp['stat']
-                except Exception as ex:
-                    status = str(ex)
+                rsp = self.api.photos.geo.removeLocation(photo_id=photo_id)
+                status = rsp['stat']
                 if status != 'ok':
                     return 'geo.removeLocation ' + status
         # add to or remove from sets
@@ -263,11 +251,8 @@ class FlickrSession(UploaderSession):
         current_sets = {}
         if params['function'] != 'upload':
             # get sets existing photo is in
-            try:
-                rsp = self.api.photos.getAllContexts(photo_id=photo_id)
-                status = rsp['stat']
-            except Exception as ex:
-                status = str(ex)
+            rsp = self.api.photos.getAllContexts(photo_id=photo_id)
+            status = rsp['stat']
             if status != 'ok':
                 return 'getAllContexts ' + status
             if 'set' in rsp:
@@ -282,11 +267,8 @@ class FlickrSession(UploaderSession):
                 kwargs = {'title'           : title,
                           'description'     : description,
                           'primary_photo_id': photo_id}
-                try:
-                    rsp = self.api.photosets.create(**kwargs)
-                    status = rsp['stat']
-                except Exception as ex:
-                    status = str(ex)
+                rsp = self.api.photosets.create(**kwargs)
+                status = rsp['stat']
                 if status == 'ok':
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
                     continue
@@ -298,11 +280,8 @@ class FlickrSession(UploaderSession):
             else:
                 # use existing set
                 kwargs = {'photo_id': photo_id, 'photoset_id': photoset_id}
-                try:
-                    rsp = self.api.photosets.addPhoto(**kwargs)
-                    status = rsp['stat']
-                except Exception as ex:
-                    status = str(ex)
+                rsp = self.api.photosets.addPhoto(**kwargs)
+                status = rsp['stat']
                 if status == 'ok':
                     continue
                 logger.error(
@@ -310,11 +289,8 @@ class FlickrSession(UploaderSession):
         # remove from any other sets
         for p_set in current_sets.values():
             kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
-            try:
-                rsp = self.api.photosets.removePhoto(**kwargs)
-                status = rsp['stat']
-            except Exception as ex:
-                status = str(ex)
+            rsp = self.api.photosets.removePhoto(**kwargs)
+            status = rsp['stat']
             if status == 'ok':
                 continue
             logger.error(
