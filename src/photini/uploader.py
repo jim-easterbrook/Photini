@@ -207,7 +207,8 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def __init__(self, upload_config_widget, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
-        QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
+        self.app = QtWidgets.QApplication.instance()
+        self.app.aboutToQuit.connect(self.shutdown)
         logger.debug('using %s', keyring.get_keyring().__module__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
@@ -276,11 +277,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_connect.set_checked(connected)
         self.upload_config.setEnabled(connected and not self.upload_worker)
         self.user_connect.setEnabled(not self.upload_worker)
-        self.refresh()
+        self.enable_upload_button()
 
     def refresh(self):
-        # enable or disable upload button
-        self.new_selection(self.image_list.get_selected_images())
+        if not self.user_connect.is_checked():
+            self.app.processEvents()
+            self.log_in(do_auth=False)
+        self.enable_upload_button()
 
     def do_not_close(self):
         if not self.upload_worker:
@@ -463,18 +466,17 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_config.setEnabled(True)
         self.user_connect.setEnabled(True)
         self.upload_worker = None
-        # enable or disable upload button
-        self.refresh()
+        self.enable_upload_button()
 
     @QtCore.pyqtSlot()
     @catch_all
-    def log_in(self):
+    def log_in(self, do_auth=True):
         with Busy():
             connect = self.session.connect()
         if connect is None:
             # can't reach server
             return
-        if not connect:
+        if do_auth and not connect:
             self.authorise()
 
     def authorise(self):
@@ -510,6 +512,17 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        self.upload_button.setEnabled(
-            self.upload_button.is_checked() or (
-                len(selection) > 0 and self.user_connect.is_checked()))
+        self.enable_upload_button(selection=selection)
+
+    def enable_upload_button(self, selection=None):
+        if self.upload_button.is_checked():
+            # can always cancel upload in progress
+            self.upload_button.setEnabled(True)
+            return
+        if not self.user_connect.is_checked():
+            # can't upload if not logged in
+            self.upload_button.setEnabled(False)
+            return
+        if selection is None:
+            selection = self.image_list.get_selected_images()
+        self.upload_button.setEnabled(len(selection) > 0)
