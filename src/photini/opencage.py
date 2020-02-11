@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -119,16 +119,19 @@ class OpenCage(GeocoderBase):
         'province_state':('county', 'county_code', 'local_administrative_area',
                           'state_district', 'state', 'state_code', 'province',
                           'region', 'island'),
-        'city'          :('village', 'locality', 'hamlet',
-                          'neighbourhood', 'city_district', 'suburb',
-                          'city', 'town', 'postcode'),
+        'city'          :('neighbourhood', 'suburb', 'city_district',
+                          'district', 'quarter', 'residential', 'commercial',
+                          'industrial', 'houses', 'subdivision',
+                          'city', 'town', 'municipality', 'postcode'),
         'sublocation'   :('house_number', 'street_number',
                           'house', 'public_building', 'building', 'water',
-                          'road', 'pedestrian', 'path', 'residential',
+                          'road', 'pedestrian', 'path',
                           'street_name', 'street', 'cycleway', 'footway',
-                          'place'),
+                          'place', 'square',
+                          'village', 'locality', 'hamlet', 'croft'),
         'ignore'        :('political_union', 'road_reference',
-                          'road_reference_intl', 'road_type', '_type'),
+                          'road_reference_intl', 'road_type',
+                          '_category', '_type'),
         }
 
     def get_address(self, coords):
