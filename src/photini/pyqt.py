@@ -178,6 +178,16 @@ def Busy():
         QtWidgets.QApplication.restoreOverrideCursor()
 
 
+@contextmanager
+def DisableWidget(widget):
+    widget.setEnabled(False)
+    QtWidgets.QApplication.processEvents()
+    try:
+        yield
+    finally:
+        widget.setEnabled(True)
+
+
 class CompactButton(QtWidgets.QPushButton):
     def __init__(self, *args, **kwds):
         super(CompactButton, self).__init__(*args, **kwds)

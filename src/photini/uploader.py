@@ -35,7 +35,8 @@ import keyring
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, Qt, QtCore, QtGui, QtWidgets, StartStopButton)
+    Busy, catch_all, DisableWidget, Qt, QtCore, QtGui, QtWidgets,
+    StartStopButton)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -281,7 +282,6 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def refresh(self):
         if not self.user_connect.is_checked():
-            self.app.processEvents()
             self.log_in(do_auth=False)
         self.enable_upload_button()
 
@@ -471,13 +471,14 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     @catch_all
     def log_in(self, do_auth=True):
-        with Busy():
-            connect = self.session.connect()
-        if connect is None:
-            # can't reach server
-            return
-        if do_auth and not connect:
-            self.authorise()
+        with DisableWidget(self.user_connect):
+            with Busy():
+                connect = self.session.connect()
+            if connect is None:
+                # can't reach server
+                return
+            if do_auth and not connect:
+                self.authorise()
 
     def authorise(self):
         with Busy():
