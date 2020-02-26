@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 from collections import namedtuple
+from contextlib import contextmanager
 from functools import wraps
 import logging
 import sys
@@ -168,21 +169,13 @@ def width_for_text(widget, text):
     return rect.width()
 
 
-class Busy(object):
-    @staticmethod
-    def start():
-        QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
-
-    @staticmethod
-    def stop():
+@contextmanager
+def Busy():
+    QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+    try:
+        yield
+    finally:
         QtWidgets.QApplication.restoreOverrideCursor()
-
-    def __enter__(self):
-        Busy.start()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        Busy.stop()
 
 
 class CompactButton(QtWidgets.QPushButton):
