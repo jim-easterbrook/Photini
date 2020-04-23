@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2018  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2018-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -18,15 +18,11 @@
 
 function loadMap(lat, lng, zoom)
 {
-    var streets = L.mapbox.tileLayer('mapbox.streets');
-    var outdoors = L.mapbox.tileLayer('mapbox.outdoors');
-    var satellite = L.mapbox.tileLayer('mapbox.satellite');
-    map = L.mapbox.map(document.getElementById("mapDiv"), 'mapbox.outdoors', {
-        center   : [lat, lng],
-        zoom     : zoom,
-        maxZoom  : 20,
-        tileLayer: false,
-    });
+    var streets = L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11');
+    var outdoors = L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v11');
+    var satellite = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-v9');
+    map = L.mapbox.map(document.getElementById("mapDiv"))
+    map.setView([lat, lng], zoom);
     var baseMaps = {
         "Street"  : streets,
         "Outdoors": outdoors,
