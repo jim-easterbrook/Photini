@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -108,13 +108,12 @@ class TabWidget(PhotiniMap):
         return MapboxGeocoder(parent=self)
 
     def get_head(self):
-        return '''    <link rel="stylesheet"
-      href="https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.css" />
-    <script type="text/javascript"
-      src="https://api.mapbox.com/mapbox.js/v3.2.0/mapbox.js">
+        return '''    <link rel="stylesheet" href="{url}/mapbox.css" />
+    <script type="text/javascript" src="{url}/mapbox.js">
     </script>
     <script type="text/javascript">
       L.mapbox.accessToken = "{key}";
     </script>
     <script type="text/javascript" src="../openstreetmap/common.js">
-    </script>'''.format(key=self.api_key)
+    </script>'''.format(key=self.api_key,
+                        url='https://api.mapbox.com/mapbox.js/v3.2.1')
