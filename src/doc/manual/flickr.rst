@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-20  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Flickr uploader
@@ -20,7 +20,23 @@ See :ref:`installation <installation-optional>` for more detail.
 Initially most of the Flickr uploader tab is disabled.
 It's only usable after you've authorised Photini to access your Flickr account by clicking the ``Log in`` button.
 
+.. image:: ../images/screenshot_151a.png
+
 The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
+
+.. image:: ../images/screenshot_151b.png
+
+In January 2020 Flickr introduced a bug in the authorisation process.
+They are changing the "callback URL" from HTTP to HTTPS, which causes an error like the one shown above.
+(Other browsers may show a different error.)
+
+.. image:: ../images/screenshot_151c.png
+
+The workaround is to click on the browser's URL display, change "https" to "http", then hit the return key.
+
+.. image:: ../images/screenshot_151d.png
+
+The web browser window can then be closed.
 
 .. image:: ../images/screenshot_152.png
 
