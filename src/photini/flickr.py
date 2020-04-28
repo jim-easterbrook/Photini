@@ -461,31 +461,6 @@ class TabWidget(PhotiniUploader):
             'new_photo'     : False,
             }
 
-    def authorise(self):
-        # go back to using 'oob' auth since Flickr started converting
-        # redirect_uri to https
-        with Busy():
-            auth_url = self.session.get_auth_url('oob')
-            if not auth_url:
-                logger.error('Failed to get auth URL')
-                return
-        if QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
-
-            info_text = translate('PhotiniUploader', 'use your web browser')
-        else:
-            info_text = translate(
-                'PhotiniUploader', 'open "{0}" in a web browser').format(
-                    auth_url)
-        auth_code, OK = QtWidgets.QInputDialog.getText(
-            self,
-            translate('PhotiniUploader', 'Photini: authorise {}').format(
-                self.service_name),
-            translate(
-                'PhotiniUploader', """Please {0} to grant access to Photini,
-then enter the verification code:""").format(info_text))
-        if OK:
-            self.session.get_access_token({'oauth_verifier': (auth_code, )})
-
     def get_conversion_function(self, image, params):
         if not params['function']:
             return None
