@@ -18,9 +18,12 @@
 
 function loadMap(lat, lng, zoom)
 {
-    var streets = L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11');
-    var outdoors = L.mapbox.styleLayer('mapbox://styles/mapbox/outdoors-v11');
-    var satellite = L.mapbox.styleLayer('mapbox://styles/mapbox/satellite-v9');
+    var streets = L.mapbox.styleLayer(
+        'mapbox://styles/mapbox/streets-v11', {tileSize: 512, zoomOffset: -1});
+    var outdoors = L.mapbox.styleLayer(
+        'mapbox://styles/mapbox/outdoors-v11', {tileSize: 512, zoomOffset: -1});
+    var satellite = L.mapbox.styleLayer(
+        'mapbox://styles/mapbox/satellite-v9', {tileSize: 512, zoomOffset: -1});
     map = L.mapbox.map(document.getElementById("mapDiv"))
     map.setView([lat, lng], zoom);
     var baseMaps = {
