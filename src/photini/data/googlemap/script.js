@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@ function loadMap(lat, lng, zoom)
         fullscreenControl: false,
         scaleControl: true,
         streetViewControl: false,
+        tilt: 0,
         zoom: zoom,
         maxZoom: 20,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
