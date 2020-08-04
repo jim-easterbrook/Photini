@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ if not GExiv2.initialize():
     raise RuntimeError('Failed to initialise GExiv2')
 GExiv2.log_use_glib_logging()
 
-if GLib.glib_version >= (2, 46):
+if (GLib.MAJOR_VERSION, GLib.MINOR_VERSION) >= (2, 46):
     # the numeric values of GLib.LogLevelFlags suggest ERROR is more
     # severe than CRITICAL, Python's logging has them the other way
     # round
@@ -94,7 +94,8 @@ gexiv2_version = namedtuple(
 gi_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
     ('PyGObject', 'pgi')[using_pgi], gi.__version__, gexiv2_version[0],
     gexiv2_version[1], gexiv2_version[2], GObject._version)
-gi_version += ', GLib {}.{}.{}'.format(*GLib.glib_version)
+gi_version += ', GLib {}.{}.{}'.format(
+    GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
 if Gspell:
     gi_version += ', Gspell {}'.format(Gspell._version)
 
