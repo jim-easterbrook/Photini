@@ -656,7 +656,7 @@ class ImageList(QtWidgets.QWidget):
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
         self.size_slider.setPageStep(1)
-        self.size_slider.setValue(self.thumb_size / 20)
+        self.size_slider.setValue(self.thumb_size // 20)
         self.size_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         width = self.size_slider.sizeHint().width()
         self.size_slider.setMinimumWidth(width * 7 // 4)
