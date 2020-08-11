@@ -18,6 +18,7 @@
 
 from datetime import date
 from distutils.cmd import Command
+from distutils.command.install_data import install_data
 from distutils.command.upload import upload
 from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
@@ -130,6 +131,32 @@ class upload_and_tag(upload):
         return result
 
 cmdclass['upload'] = upload_and_tag
+
+
+# modify install_data class to set absolute path in desktop file
+class install_data_and_edit(install_data):
+    def run(self):
+        result = install_data.run(self)
+        for path in self.outfiles:
+            dir_name, base_name = os.path.split(path)
+            if base_name != 'photini.desktop':
+                continue
+            self.announce('editing ' + path, level=2)
+            if self.dry_run:
+                continue
+            with open(path, 'r') as src:
+                lines = list(src.readlines())
+            with open(path, 'w') as dst:
+                for line in lines:
+                    if line.startswith('Icon'):
+                        name, sep, value = line.partition('=')
+                        value = os.path.normpath(os.path.join(dir_name, value))
+                        line = name + sep + value
+                    dst.write(line)
+        return result
+
+cmdclass['install_data'] = install_data_and_edit
+
 
 # set options for building distributions
 command_options['sdist'] = {
