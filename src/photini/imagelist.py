@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -774,16 +774,13 @@ class ImageList(QtWidgets.QWidget):
 
     def show_thumbnail(self, image, live=True):
         self.scroll_area.add_widget(image)
+        if live:
+            self.app.processEvents()
         image.load_thumbnail()
         if live:
-            # update display after events have been processed
-            self._last_image = image
-            QtCore.QTimer.singleShot(0, self.ensure_visible)
-
-    def ensure_visible(self):
-        self.app.processEvents()
-        self.scroll_area.ensureWidgetVisible(self._last_image)
-        self._last_image = None
+            self.app.processEvents()
+            self.scroll_area.ensureWidgetVisible(image)
+            self.app.processEvents()
 
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):

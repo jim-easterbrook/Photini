@@ -180,11 +180,12 @@ class CameraSource(object):
 class FileCopier(QtCore.QObject):
     output = QtCore.pyqtSignal(dict, six.text_type)
 
-    def __init__(self, source, copy_list, move, *args, **kwds):
+    def __init__(self, source, copy_list, move, updating, *args, **kwds):
         super(FileCopier, self).__init__(*args, **kwds)
         self.source = source
         self.copy_list = copy_list
         self.move = move
+        self.updating = updating
         self.running = True
 
     @QtCore.pyqtSlot()
@@ -193,7 +194,10 @@ class FileCopier(QtCore.QObject):
         status = 'ok'
         try:
             for info in self.source.copy_files(self.copy_list, self.move):
+                # don't display image until previous one has been displayed
+                self.updating.lock()
                 self.output.emit(info, status)
+                self.updating.unlock()
                 if not self.running:
                     break
         except Exception as ex:
@@ -286,6 +290,7 @@ class TabWidget(QtWidgets.QWidget):
         self.file_list = []
         self.source = None
         self.file_copier = None
+        self.updating = QtCore.QMutex()
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
@@ -604,7 +609,8 @@ class TabWidget(QtWidgets.QWidget):
             self.move_button.setEnabled(False)
         self.last_file_copied = None, datetime.min
         # start file copier in a separate thread
-        self.file_copier = FileCopier(self.source, copy_list, move)
+        self.file_copier = FileCopier(
+            self.source, copy_list, move, self.updating)
         self.file_copier_thread = QtCore.QThread(self)
         self.file_copier.moveToThread(self.file_copier_thread)
         self.file_copier.output.connect(self.file_copied)
@@ -629,7 +635,10 @@ class TabWidget(QtWidgets.QWidget):
         if status != 'ok':
             self._fail()
             return
+        # block copier thread until image has been displayed
+        self.updating.lock()
         self.image_list.open_file(info['dest_path'])
+        self.updating.unlock()
         if self.last_file_copied[1] < info['timestamp']:
             self.last_file_copied = info['dest_path'], info['timestamp']
         for n in range(self.file_list_widget.count()):
