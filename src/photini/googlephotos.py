@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -149,7 +149,12 @@ class GooglePhotosSession(UploaderSession):
             if 'albums' not in rsp:
                 break
             for album in rsp['albums']:
-                yield album
+                if 'id' in album:
+                    safe_album = {'title': '', 'isWriteable': False}
+                    safe_album.update(album)
+                    yield safe_album
+                else:
+                    logger.info('Malformed album', album)
             if 'nextPageToken' not in rsp:
                 break
             params['pageToken'] = rsp['nextPageToken']
@@ -266,7 +271,7 @@ class GoogleUploadConfig(QtWidgets.QWidget):
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         widget.setProperty('id', album['id'])
-        widget.setEnabled('isWriteable' in album and album['isWriteable'])
+        widget.setEnabled(album['isWriteable'])
         if index >= 0:
             self.sets_widget.layout().insertWidget(index, widget)
         else:
