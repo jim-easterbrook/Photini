@@ -14,6 +14,9 @@ For example a title and description of the scene or the date & time and the GPS 
 Why is it called Photini?
 Read my `blog post`_ on how I chose a name.
 
+.. contents::
+   :backlinks: top
+
 Features
 --------
 
@@ -94,7 +97,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz
