@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-20  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -51,7 +51,7 @@ If you would like to upgrade or install the Flickr uploader components you can a
 
 Installing the spell checker components uses pacman_::
 
-   pacman -S mingw-w64-x86_64-gspell
+   pacman -S $MINGW_PACKAGE_PREFIX-gspell
 
 You'll also need to install one or more dictionaries.
 To get a list of available dictionaries::
@@ -61,7 +61,7 @@ To get a list of available dictionaries::
 Note the use of ``dictionar`` as a search term - it matches ``dictionary`` or ``dictionaries``.
 To install the French dictionaries::
 
-   pacman -S mingw-w64-x86_64-aspell-fr
+   pacman -S $MINGW_PACKAGE_PREFIX-aspell-fr
 
 The MSYS2 repositories only provide dictionaries for a few languages, but it is possible to install from other sources.
 See the :ref:`configuration page <configuration-spell>` for more information.
@@ -72,38 +72,60 @@ MSYS2 (Windows)
 ---------------
 
 An alternative to the Windows standalone installer is to use a full installation of MSYS2_.
-This is not that difficult to do, but will need about 10 GBytes of disc space, and an hour of your time.
+This is not that difficult to do, but will need almost 3 GBytes of disc space, and half an hour of your time.
+Installing Photini this way ensures its dependencies are up to date and should be easier to update in future.
+
 The following instructions assume you are using 64-bit Windows.
 If you are on a 32-bit machine you'll need to install the 32-bit (``i686`` instead of ``x86_64``) versions of everything.
+Note that the 32-bit version of MSYS2_ is no longer supported.
 
 First install MSYS2_ and update the packages as described on the MSYS2 homepage.
+You do not need to install it as ``C:\msys64``, but you probably should avoid using spaces in the directory name.
+You should also avoid installing in ``C:\Program Files`` or ``C:\Program Files (x86)`` so you don't have to use administrator privileges to make any changes.
 Run the ``C:\msys64\mingw64.exe`` shell and use pacman_ to install Photini's dependencies::
 
-   pacman -S mingw-w64-x86_64-gexiv2 mingw-w64-x86_64-python3-gobject mingw-w64-x86_64-python3-pyqt5 mingw-w64-x86_64-python3-pip
+   pacman -S $MINGW_PACKAGE_PREFIX-{gexiv2,python-gobject,python-pyqt5,python-pip,python-pillow}
 
-This will take some time as the Qt download is well over 1 GByte.
+This will take some time as over 300 MByte will be downloaded.
+(The Qt package itself is 175 MByte!)
 When it's finished you can free up some disc space with the ``pacman -Scc`` command.
 
 Use pip_ to install Photini::
 
-   pip3 install photini flickrapi keyring
+   pip install photini flickrapi keyring gpxpy
 
 Then run Photini::
 
-   python3 -m photini.editor
+   python -m photini.editor
 
 If you want to use Photini's spelling checker then you need to install ``Gspell`` and one or more dictionaries, for example::
 
-   pacman -S mingw-w64-x86_64-gspell mingw-w64-x86_64-aspell-en mingw-w64-x86_64-aspell-fr
+   pacman -S $MINGW_PACKAGE_PREFIX-{gspell,aspell-en,aspell-fr}
+
+The FFmpeg_ package is needed to read metadata from video files::
+
+   pacman -S $MINGW_PACKAGE_PREFIX-ffmpeg
 
 To create a desktop shortcut to run Photini, right-click on the desktop and select ``New -> Shortcut``.
 Set "location of the item" to the following::
 
-   C:\msys64\mingw64\bin\python3w.exe -m photini.editor
+   C:\msys64\mingw64\bin\pythonw.exe -m photini.editor
 
 Choose a suitable name for the shortcut, such as Photini, and click "finish".
-Note the use of ``python3w.exe`` rather than ``python3.exe``.
+Note the use of ``pythonw.exe`` rather than ``python.exe``.
 This runs Photini without opening a shell window.
+
+Upgrading MSYS2 installation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run the ``C:\msys64\mingw64.exe`` shell and update pacman_, then use it to update all installed packages::
+
+   pacman -Syu
+   pacman -Su
+
+Use pip_ to update Photini::
+
+   pip install -U photini flickrapi keyring gpxpy
 
 Package manager (some Linux distributions)
 ------------------------------------------
