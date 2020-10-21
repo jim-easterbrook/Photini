@@ -20,13 +20,22 @@ from __future__ import unicode_literals
 
 import json
 import subprocess
+import sys
 
 import six
 
 
+def startupinfo():
+    if sys.platform.startswith('win'):
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        return startupinfo
+    return None
+
 try:
     ffmpeg_version = subprocess.check_output(
-        ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-version'])
+        ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-version'],
+        startupinfo=startupinfo())
     if not six.PY2:
         ffmpeg_version = ffmpeg_version.decode('utf-8')
     ffmpeg_version = ffmpeg_version.splitlines()[0]
@@ -44,7 +53,8 @@ class FFmpeg(object):
         cmd += options
         cmd += ['-print_format', 'json', path]
         p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            startupinfo=startupinfo())
         output, error = p.communicate()
         if p.returncode:
             if not six.PY2:
@@ -78,7 +88,8 @@ class FFmpeg(object):
         cmd += ['-sws_flags', 'sinc', '-f', 'image2pipe',
                 '-vcodec', 'mjpeg', '-q:v', str(quality), 'pipe:1']
         p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            startupinfo=startupinfo())
         output, error = p.communicate()
         if p.returncode:
             if not six.PY2:
