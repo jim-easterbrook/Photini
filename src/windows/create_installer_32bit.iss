@@ -1,8 +1,9 @@
 #define MSYS "{app}\msys2";
-#define PythonW "{app}\msys2\mingw32\bin\python3w.exe";
+#define PythonW "{app}\msys2\mingw32\bin\pythonw.exe";
 #define Shell "{app}\msys2\usr\bin\env.exe";
-#define SrcDir "C:\photini32"
-#define Version "2019.10.0"
+#define SrcDir "C:\photini_temp_32"
+#define SrcIcon "..\photini\data\icons\win\icon.ico"
+#define Version "2020.10.0"
 
 [Setup]
 VersionInfoVersion={#Version}
@@ -12,7 +13,7 @@ AppName=Photini
 AppVerName=Photini
 AppPublisher=Jim Easterbrook
 AppPublisherURL=https://github.com/jim-easterbrook/Photini
-AppCopyright=Copyright (C) 2012-19 Jim Easterbrook
+AppCopyright=Copyright (C) 2012-20 Jim Easterbrook
 DefaultDirName={pf}\Photini
 DefaultGroupName=Photini
 AllowNoIcons=yes
@@ -22,9 +23,9 @@ Compression=lzma
 SolidCompression=yes
 LicenseFile=..\..\LICENSE.txt
 InfoBeforeFile=info.txt
-SetupIconFile=icon.ico
+SetupIconFile={#SrcIcon}
 UninstallDisplayIcon={app}\icon.ico
-ExtraDiskSpaceRequired=8684130
+ExtraDiskSpaceRequired=1568000000
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -35,9 +36,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#SrcDir}\*"; DestDir: "{#MSYS}"; \
-  Excludes: "\dev,\home\*,\proc,\tmp\*,\var\log\*,cache,cmake,include,pkgconfig,__pycache__,*.a,*.h,*.prl"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: {#SrcIcon}; DestDir: "{app}"; Flags: ignoreversion
 Source: "install_photini_32.cmd"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
