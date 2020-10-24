@@ -14,7 +14,7 @@ AppVerName=Photini
 AppPublisher=Jim Easterbrook
 AppPublisherURL=https://github.com/jim-easterbrook/Photini
 AppCopyright=Copyright (C) 2012-20 Jim Easterbrook
-DefaultDirName={pf}\Photini
+DefaultDirName={autopf}\Photini
 DefaultGroupName=Photini
 AllowNoIcons=yes
 OutputBaseFilename=photini-win32-{#Version}
@@ -45,6 +45,8 @@ Name: "{group}\Photini"; Filename: "{#PythonW}"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
   IconFileName: {app}\icon.ico
 Name: "{group}\Photini documentation"; Filename: "https://photini.readthedocs.io/"
+Name: "{group}\MinGW"; Filename: "{app}\msys2\mingw32.exe"; \
+  Comment: "MSYS2 command shell"; IconFileName: {app}\msys2\mingw32.ico
 Name: "{commondesktop}\Photini"; Filename: "{#PythonW}"; \
   Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
   IconFileName: {app}\icon.ico; Tasks: desktopicon
