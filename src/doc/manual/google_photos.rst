@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019  Jim Easterbrook.
+   Copyright (C)  2019-20  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Google Photos uploader
@@ -19,7 +19,7 @@ It's only usable after you've authorised Photini to access your Google Photos ac
 The first time you click ``Log in`` Photini connects your web browser to Google Photos, from where you can log in and give Photini permission to access Google Photos on your behalf.
 
 .. note::
-   Photini has not yet been authorised by Google, so you will be presented with several warning messages during the authentication process, and a warning email may be sent to your GMail account.
+   Unfortunately Google won't verify Photini because it continues to be developed, so you will be presented with several warning messages during the authentication process, and a warning email may be sent to your GMail account.
 
 .. image:: ../images/screenshot_171.png
 

@@ -67,7 +67,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Photini'
-copyright = u'2012-19, Jim Easterbrook'
+copyright = u'2012-20, Jim Easterbrook'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -152,7 +152,7 @@ html_logo = 'images/photini_logo.png'
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
 #html_favicon = None
-html_favicon = '../windows/icon.ico'
+html_favicon = '../photini/data/icons/win/icon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
