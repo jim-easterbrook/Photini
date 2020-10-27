@@ -24,6 +24,7 @@ from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
 import re
 from setuptools import setup
+from setuptools.command.install import install
 import sys
 
 # read current version info without importing package
@@ -155,7 +156,26 @@ class install_data_and_edit(install_data):
                     dst.write(line)
         return result
 
-cmdclass['install_data'] = install_data_and_edit
+if sys.platform.startswith('linux'):
+    cmdclass['install_data'] = install_data_and_edit
+
+
+# modify install class to install Windows shortcuts
+class install_with_shortcuts(install):
+    def run(self):
+        result = install.run(self)
+        self.announce('installing start menu entries', level=2)
+        args = [
+            'cscript', 'src/windows/install_shortcuts.vbs',
+            os.path.join(os.path.dirname(sys.executable), 'pythonw.exe'),
+            os.path.join(self.install_lib, 'photini/data/icons/win/icon.ico'),
+            self.prefix
+            ]
+        self.spawn(args)
+        return result
+
+if sys.platform == 'win32':
+    cmdclass['install'] = install_with_shortcuts
 
 
 # set options for building distributions
