@@ -165,10 +165,14 @@ class install_with_shortcuts(install):
     def run(self):
         result = install.run(self)
         self.announce('installing start menu entries', level=2)
-        args = ['cscript', 'src/windows/install_shortcuts.vbs',
+        args = ['cscript', '/nologo', 'src/windows/install_shortcuts.vbs',
                 os.path.join(os.path.dirname(sys.executable), 'pythonw.exe'),
-                os.path.join(os.getcwd(), 'src/photini/data/icons/win/icon.ico'),
-                self.prefix]
+                os.path.join(
+                    self.install_libbase, 'photini/data/icons/win/icon.ico'),
+                sys.prefix]
+        if self.user:
+            args.append('/user')
+        print(args)
         self.spawn(args)
         return result
 
