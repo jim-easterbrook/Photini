@@ -1,8 +1,8 @@
 Set args = WScript.Arguments.Unnamed
 Set options = WScript.Arguments.Named
 strTargetPath = args(0)
-strIconLocation = args(1)
-strPrefix = args(2)
+strIconPath = args(1)
+strSystemPrefix = args(2)
 
 Set objShell = WScript.CreateObject("Wscript.Shell")
 
@@ -37,17 +37,17 @@ If args.count > 3 Then
     objResult.Close()
 End If
 
-If NOT (options.Exists("user") OR options.Exists("elevated")) Then
+If Not (options.Exists("user") Or options.Exists("elevated")) Then
     'Re-run this script as administrator
     Set appShell = CreateObject("Shell.Application")
     appShell.ShellExecute "cscript.exe", """" & WScript.ScriptFullName & """" & _
-      " """ & strTargetPath & """ """ & strIconLocation & """ """ & strPrefix & _
+      " """ & strTargetPath & """ """ & strIconPath & """ """ & strSystemPrefix & _
       """ /elevated", , "runas", 0
     WScript.Quit Err.Number
 End If
 
 'Create start menu group
-If NOT FSO.FolderExists(strGroup) Then
+If Not FSO.FolderExists(strGroup) Then
     FSO.CreateFolder(strGroup)
     If Err.Number <> 0 then WScript.Quit Err.Number
 End If
@@ -56,7 +56,7 @@ End If
 Set objShortcut = objShell.CreateShortcut(strDesktopLink)
 objShortcut.TargetPath = strTargetPath
 objShortcut.Description = "Photini metadata editor"
-objShortcut.IconLocation = strIconLocation
+objShortcut.IconLocation = strIconPath
 objShortcut.Save
 If Err.Number <> 0 then WScript.Quit Err.Number
 
@@ -64,7 +64,7 @@ If Err.Number <> 0 then WScript.Quit Err.Number
 Set objShortcut = objShell.CreateShortcut(strShortcutLink)
 objShortcut.TargetPath = strTargetPath
 objShortcut.Description = "Photini metadata editor"
-objShortcut.IconLocation = strIconLocation
+objShortcut.IconLocation = strIconPath
 objShortcut.Save
 If Err.Number <> 0 then WScript.Quit Err.Number
 
@@ -76,8 +76,8 @@ If Err.Number <> 0 then WScript.Quit Err.Number
 
 'Create command shell start menu shortcut
 Set objShortcut = objShell.CreateShortcut(strShellLink)
-objShortcut.TargetPath = strPrefix & ".exe"
+objShortcut.TargetPath = strSystemPrefix & ".exe"
 objShortcut.Description = "MSYS2 MinGW command shell"
-objShortcut.IconLocation = strPrefix & ".ico"
+objShortcut.IconLocation = strSystemPrefix & ".ico"
 objShortcut.Save
 If Err.Number <> 0 then WScript.Quit Err.Number
