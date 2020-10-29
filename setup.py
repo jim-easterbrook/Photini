@@ -17,8 +17,8 @@
 #  <http://www.gnu.org/licenses/>.
 
 from datetime import date
+from distutils import log
 from distutils.cmd import Command
-from distutils.command.install_data import install_data
 from distutils.command.upload import upload
 from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
@@ -134,30 +134,50 @@ class upload_and_tag(upload):
 cmdclass['upload'] = upload_and_tag
 
 
-# modify install_data class to set absolute path in desktop file
-class install_data_and_edit(install_data):
-    def run(self):
-        result = install_data.run(self)
-        for path in self.outfiles:
-            dir_name, base_name = os.path.split(path)
-            if base_name != 'photini.desktop':
-                continue
-            self.announce('editing ' + path, level=2)
-            if self.dry_run:
-                continue
-            with open(path, 'r') as src:
-                lines = list(src.readlines())
-            with open(path, 'w') as dst:
-                for line in lines:
-                    if line.startswith('Icon'):
-                        name, sep, value = line.partition('=')
-                        value = os.path.normpath(os.path.join(dir_name, value))
-                        line = name + sep + value
-                    dst.write(line)
-        return result
+# add command to create start menu entries
+class install_menu(Command):
+    description = 'install start menu entries'
+    user_options = [
+        ('install-base=', 'd', "base installation directory"),
+        ('script-dir=', 'd', "script installation directory"),
+        ('lib-dir=', 'd', "library installation directory")]
 
-if sys.platform.startswith('linux'):
-    cmdclass['install_data'] = install_data_and_edit
+    def initialize_options(self):
+        self.install_base = None
+        self.script_dir = None
+        self.lib_dir = None
+
+    def finalize_options(self):
+        self.set_undefined_options('install',
+                                   ('install_base', 'install_base'),
+                                   ('install_scripts', 'script_dir'),
+                                   ('install_lib', 'lib_dir'))
+
+    def run(self):
+        self.outfiles = []
+        if sys.platform.startswith('linux'):
+            desktop_path = os.path.join(
+                self.install_base, 'share/applications/photini.desktop')
+            exec_path = os.path.join(self.script_dir, 'photini')
+            icon_path = os.path.join(
+                self.lib_dir, 'photini/data/icons/48/photini.png')
+            log.info('Installing desktop file %s', desktop_path)
+            if not self.dry_run:
+                with open('src/linux/photini.desktop', 'r') as src:
+                    with open(desktop_path, 'w') as dst:
+                        for line in src.readlines():
+                            if line.startswith('Exec'):
+                                line = 'Exec=' + exec_path + ' %F\n'
+                            elif line.startswith('Icon'):
+                                line = 'Icon=' + icon_path + '\n'
+                            dst.write(line)
+            self.outfiles.append(desktop_path)
+
+    def get_outputs(self):
+        return self.outfiles or []
+
+cmdclass['install_menu'] = install_menu
+install.sub_commands.append(('install_menu', lambda self:True))
 
 
 # modify install class to install Windows shortcuts
@@ -334,17 +354,6 @@ if babel:
         'output_dir' : ('setup.py', 'src/lang/doc'),
         }
 
-data_files = []
-if sys.platform.startswith('linux'):
-    # install application menu shortcut
-    data_files.append(('share/icons/hicolor/48x48/apps',
-                       ['src/photini/data/icons/48/photini.png']))
-    data_files.append(('share/applications', ['src/linux/photini.desktop']))
-    command_options['install'] = {
-        'single_version_externally_managed' : ('setup.py', '1'),
-        'record'                            : ('setup.py', 'install.txt'),
-        }
-
 with open('README.rst') as ldf:
     long_description = ldf.read()
 url = 'https://github.com/jim-easterbrook/Photini'
@@ -378,7 +387,6 @@ setup(name = 'Photini',
                        'data/*map/script.js', 'data/openstreetmap/*.js',
                        'data/lang/*.qm'],
           },
-      data_files = data_files,
       cmdclass = cmdclass,
       command_options = command_options,
       entry_points = {
