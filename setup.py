@@ -184,14 +184,11 @@ class install_menu(Command):
                 self.lib_dir, 'photini/data/icons/48/photini.png')
             log.info('Installing desktop file %s', desktop_path)
             if not self.dry_run:
-                with open('src/linux/photini.desktop', 'r') as src:
-                    with open(desktop_path, 'w') as dst:
-                        for line in src.readlines():
-                            if line.startswith('Exec'):
-                                line = 'Exec=' + exec_path + ' %F\n'
-                            elif line.startswith('Icon'):
-                                line = 'Icon=' + icon_path + '\n'
-                            dst.write(line)
+                with open('src/linux/photini.desktop.template', 'r') as src:
+                    template = src.read()
+                with open(desktop_path, 'w') as dst:
+                    dst.write(template.format(
+                        exec_path=exec_path, icon_path=icon_path))
             self.outfiles.append(desktop_path)
 
     def get_outputs(self):
