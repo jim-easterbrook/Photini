@@ -137,25 +137,46 @@ cmdclass['upload'] = upload_and_tag
 # add command to create start menu entries
 class install_menu(Command):
     description = 'install start menu entries'
-    user_options = [
-        ('install-base=', 'd', "base installation directory"),
-        ('script-dir=', 'd', "script installation directory"),
-        ('lib-dir=', 'd', "library installation directory")]
+    user_options = []
+    boolean_options = ['user']
 
     def initialize_options(self):
+        self.user = None
         self.install_base = None
         self.script_dir = None
         self.lib_dir = None
+        self.build_temp = None
 
     def finalize_options(self):
         self.set_undefined_options('install',
+                                   ('user', 'user'),
                                    ('install_base', 'install_base'),
                                    ('install_scripts', 'script_dir'),
                                    ('install_lib', 'lib_dir'))
+        self.set_undefined_options('build',
+                                   ('build_temp', 'build_temp'))
 
     def run(self):
         self.outfiles = []
-        if sys.platform.startswith('linux'):
+        if sys.platform == 'win32':
+            exec_path = os.path.join(self.script_dir, 'photini.exe')
+            icon_path = os.path.join(
+                self.lib_dir, 'photini/data/icons/win/icon.ico')
+            temp_file = os.path.abspath(os.path.join(
+                self.build_temp, 'new_files.txt'))
+            log.info('Creating menu shortcuts')
+            if not self.dry_run:
+                self.mkpath(os.path.dirname(temp_file))
+                args = ['cscript', '/nologo',
+                        'src/windows/install_shortcuts.vbs',
+                        exec_path, icon_path, sys.prefix, temp_file]
+                if self.user:
+                    args.append('/user')
+                self.spawn(args)
+                with open(temp_file) as f:
+                    for line in f.readlines():
+                        self.outfiles.append(line.strip())
+        elif sys.platform.startswith('linux'):
             desktop_path = os.path.join(
                 self.install_base, 'share/applications/photini.desktop')
             exec_path = os.path.join(self.script_dir, 'photini')
@@ -178,26 +199,6 @@ class install_menu(Command):
 
 cmdclass['install_menu'] = install_menu
 install.sub_commands.append(('install_menu', lambda self:True))
-
-
-# modify install class to install Windows shortcuts
-class install_with_shortcuts(install):
-    def run(self):
-        result = install.run(self)
-        self.announce('installing start menu entries', level=2)
-        args = ['cscript', '/nologo', 'src/windows/install_shortcuts.vbs',
-                os.path.join(os.path.dirname(sys.executable), 'pythonw.exe'),
-                os.path.join(
-                    self.install_libbase, 'photini/data/icons/win/icon.ico'),
-                sys.prefix]
-        if self.user:
-            args.append('/user')
-        print(args)
-        self.spawn(args)
-        return result
-
-if sys.platform == 'win32':
-    cmdclass['install'] = install_with_shortcuts
 
 
 # set options for building distributions
