@@ -69,24 +69,28 @@ del data
 
 
 @contextmanager
-def temp_copy(path):
-    # copy path to a temporary file in the same directory, then delete
-    # the temporary file on completion
-    # only needed for workaround for bug in GExiv2 on Windows
-    dir_name = os.path.dirname(path)
+def temp_rename(path):
+    # Rename path to an ascii-safe file, further up the directory path
+    # if necessary, then restore to the original name and directory on
+    # completion. Only needed for workaround for bug in GExiv2 on
+    # Windows
+    dir_name, file_name = os.path.split(path)
+    while dir_name.encode('ascii', 'replace').decode('ascii') != dir_name:
+        dir_name = os.path.dirname(dir_name)
     while True:
-        tmp_path = os.path.join(
-            dir_name,
-            ''.join(random.choices(string.ascii_lowercase, k=8)) + '.tmp')
-        print(tmp_path)
-        if not os.path.exists(tmp_path):
+        tmp_path = os.path.join(dir_name, file_name)
+        if (tmp_path.encode('ascii', 'replace').decode('ascii') == tmp_path
+                and not os.path.exists(tmp_path)):
             break
+        file_name = ''.join(
+            random.choices(string.ascii_lowercase, k=8)) + '.tmp'
     try:
-        shutil.copy2(path, tmp_path)
+        logger.warning('Renaming %s to %s', path, tmp_path)
+        shutil.move(path, tmp_path)
         yield tmp_path
     finally:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        logger.warning('Renaming %s to %s', tmp_path, path)
+        shutil.move(tmp_path, path)
 
 
 class Exiv2Metadata(GExiv2.Metadata):
@@ -349,10 +353,8 @@ class Exiv2Metadata(GExiv2.Metadata):
             self.clear_iptc()
         try:
             if self._gexiv_unsafe:
-                with temp_copy(self._path) as tmp_file:
-                    logger.warning('Using temporary file %s', tmp_file)
+                with temp_rename(self._path) as tmp_file:
                     self.save_file(tmp_file)
-                    shutil.move(tmp_file, self._path)
             else:
                 self.save_file(self._path)
             if file_times:
