@@ -14,14 +14,13 @@ All-in-one installer (Windows)
 ------------------------------
 
 The Windows installers create a standalone MSYS2_ installation with all the dependencies needed to run Photini.
-This is a cut-down MSYS2 and Python system, and should not conflict with any other Python version installed on your computer, or any other MSYS2 installation.
+This is a minimal MSYS2 and Python system, and should not conflict with any other Python version installed on your computer, or any other MSYS2 installation.
 
 Previous installers (from before May 2019) used a "portable Python" system based on WinPython_.
 If you have a Photini installation from one of these installers you should remove it using the "Programs and Features" control panel item, and ensure the installation folder (e.g. ``C:\Program Files (x86)\Photini`` has been removed, before using the new installer.
 
-You can download the latest Windows installer from the `GitHub releases`_ page.
-Look for the most recent release with a ``.exe`` file listed in its "assets", e.g. ``photini-win64-2019.5.0.exe``.
-This is a Windows installer for the latest version of Photini, even if it's listed under an older release.
+You can download the Windows installers from the `GitHub releases`_ `Windows installers`_ page.
+These install the latest version of Photini, even if the installer is older.
 There are installers for 32 bit and 64 bit Windows, and they should work on any version since Windows XP.
 
 When you run the installer you will probably get a security warning because the installer is not signed by a recognised authority.
@@ -35,38 +34,13 @@ If not, see the troubleshooting_ section below.
 Upgrading all-in-one installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Before upgrading Photini you should check the `GitHub releases`_ page to see if a new Windows installer has been released since you last downloaded it.
+Before upgrading Photini you should check the `Windows installers`_ page to see if a new Windows installer has been released since you last downloaded it.
 If there is a new installer available then you should use it to create a fresh installation, after using the "Programs and Features" control panel item to uninstall the old version of Photini.
 
-To upgrade an existing installation you need to run an MSYS2 "command shell".
+To upgrade an existing installation you need to run an MSYS2_ "command shell".
 Open the folder where Photini is installed (probably ``C:\Program Files (x86)\Photini``) and run the ``mingw64.exe`` program in the ``msys2`` folder (use ``mingw32.exe`` if you have a 32-bit installation).
 This program needs to be run as administrator.
-Use this command to upgrade Photini::
-
-   pip3 install -U photini
-
-If you would like to upgrade or install the Flickr uploader components you can also use pip_::
-
-   pip3 install -U flickrapi keyring
-
-Installing the spell checker components uses pacman_::
-
-   pacman -S $MINGW_PACKAGE_PREFIX-gspell
-
-You'll also need to install one or more dictionaries.
-To get a list of available dictionaries::
-
-   pacman -Ss dictionar
-
-Note the use of ``dictionar`` as a search term - it matches ``dictionary`` or ``dictionaries``.
-To install the French dictionaries::
-
-   pacman -S $MINGW_PACKAGE_PREFIX-aspell-fr
-
-The MSYS2 repositories only provide dictionaries for a few languages, but it is possible to install from other sources.
-See the :ref:`configuration page <configuration-spell>` for more information.
-
-When you've finished you can close the command shell with the ``exit`` command.
+Then follow the instructions in :ref:`upgrading MSYS2 installation <upgrading-msys2>` below.
 
 MSYS2 (Windows)
 ---------------
@@ -92,40 +66,58 @@ When it's finished you can free up some disc space with the ``pacman -Scc`` comm
 
 Use pip_ to install Photini::
 
-   pip install photini flickrapi keyring gpxpy
+   python -m pip install photini flickrapi keyring gpxpy
 
 Then run Photini::
 
    python -m photini.editor
 
-If you want to use Photini's spelling checker then you need to install ``Gspell`` and one or more dictionaries, for example::
-
-   pacman -S $MINGW_PACKAGE_PREFIX-{gspell,aspell-en,aspell-fr}
-
-The FFmpeg_ package is needed to read metadata from video files::
-
-   pacman -S $MINGW_PACKAGE_PREFIX-ffmpeg
-
-To create a desktop shortcut to run Photini, right-click on the desktop and select ``New -> Shortcut``.
-Set "location of the item" to the following::
-
-   C:\msys64\mingw64\bin\pythonw.exe -m photini.editor
-
-Choose a suitable name for the shortcut, such as Photini, and click "finish".
-Note the use of ``pythonw.exe`` rather than ``python.exe``.
-This runs Photini without opening a shell window.
+.. _upgrading-msys2:
 
 Upgrading MSYS2 installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run the ``C:\msys64\mingw64.exe`` shell and update pacman_, then use it to update all installed packages::
+Run the ``mingw64.exe`` shell and update pacman_, then use it to update all installed packages::
 
    pacman -Syu
    pacman -Su
 
 Use pip_ to update Photini::
 
-   pip install -U photini flickrapi keyring gpxpy
+   python -m pip install -U photini gpxpy
+
+Note that pip_ may warn that you are using an old version of pip and instruct you to update it with pip.
+DO NOT DO THIS!
+The MSYS2_ installation of pip has been patched to work with Windows paths and should only be upgraded using pacman_.
+
+If you use the Flickr uploader this can also be updated with pip_::
+
+   python -m pip install -U flickrapi keyring
+
+Installing the spell checker components uses pacman_::
+
+   pacman -S $MINGW_PACKAGE_PREFIX-gspell
+
+You'll also need to install one or more dictionaries.
+To get a list of available dictionaries::
+
+   pacman -Ss dictionar
+
+Note the use of ``dictionar`` as a search term - it matches ``dictionary`` or ``dictionaries``.
+This search will show 32-bit and 64-bit versions of the dictionary packages.
+Make sure you choose the correct one, prefaced by ``mingw32`` or ``mingw64``.
+For example, to install the 64-bit French dictionaries::
+
+   pacman -S mingw-w64-x86_64-aspell-fr
+
+The MSYS2 repositories only provide dictionaries for a few languages, but it is possible to install from other sources.
+See the :ref:`configuration page <configuration-spell>` for more information.
+
+The FFmpeg_ package is needed to read metadata from video files::
+
+   pacman -S $MINGW_PACKAGE_PREFIX-ffmpeg
+
+When you've finished you can close the command shell with the ``exit`` command.
 
 Package manager (some Linux distributions)
 ------------------------------------------
@@ -206,7 +198,11 @@ The easiest way to install the latest release of Photini is with the pip_ comman
 
    sudo pip install photini
 
-This will install Photini and any Python packages it requires.
+This will install Photini and any Python packages it requires, for all users.
+If you prefer a single-user installation, which doesn't require root permission, you can use the ``--user`` option::
+
+   pip install photini --user
+
 You can also use pip to install the optional dependencies when you install Photini::
 
    sudo pip install photini[flickr,google,importer]
@@ -220,10 +216,13 @@ You can run Photini without installing it, using the ``run_photini.py`` script::
 
 This can be useful during development as the script should also work within an IDE.
 
-The development version can be built and installed in the usual way::
+The development version can be built and installed using pip::
 
-   python setup.py build
-   sudo python setup.py install
+   sudo python -m pip install .
+
+or::
+
+   python -m pip install . --user
 
 You will need to install the optional dependencies separately.
 
@@ -312,10 +311,11 @@ If you would like to have a local copy of the Photini documentation, and have do
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
 .. _Exiv2:             http://exiv2.org/
-.. _FFmpeg:       https://ffmpeg.org/
+.. _FFmpeg:            https://ffmpeg.org/
 .. _flickrapi:         https://stuvel.eu/flickrapi/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
+.. _Windows installers: https://github.com/jim-easterbrook/Photini/releases/tag/2020.4.0-win
 .. _gpxpy:             https://pypi.org/project/gpxpy/
 .. _Gspell:            https://wiki.gnome.org/Projects/gspell
 .. _keyring:           https://keyring.readthedocs.io/

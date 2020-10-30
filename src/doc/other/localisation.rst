@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-19  Jim Easterbrook.
+   Copyright (C)  2015-20  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -155,7 +155,7 @@ You can easily update and compile all the language files with setup.py::
 Now you can install Photini with your new translation(s)::
 
    python setup.py build
-   sudo python setup.py install
+   sudo python -m pip install .
 
 Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately.
 You can force this when running Photini from the command line::
