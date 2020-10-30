@@ -18,10 +18,15 @@
 
 from __future__ import unicode_literals
 
+from contextlib import contextmanager
 import codecs
 import locale
 import logging
 import os
+import random
+import shutil
+import string
+import sys
 
 import six
 
@@ -63,10 +68,42 @@ GExiv2.Metadata().open_buf(data.encode('utf-8'))
 del data
 
 
+@contextmanager
+def temp_copy(path):
+    # copy path to a temporary file in the same directory, then delete
+    # the temporary file on completion
+    # only needed for workaround for bug in GExiv2 on Windows
+    dir_name = os.path.dirname(path)
+    while True:
+        tmp_path = os.path.join(
+            dir_name,
+            ''.join(random.choices(string.ascii_lowercase, k=8)) + '.tmp')
+        print(tmp_path)
+        if not os.path.exists(tmp_path):
+            break
+    try:
+        shutil.copy2(path, tmp_path)
+        yield tmp_path
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+
 class Exiv2Metadata(GExiv2.Metadata):
     def __init__(self, path, buf=None):
         super(Exiv2Metadata, self).__init__()
         self._path = path
+        # workaround for bug in GExiv2 on Windows
+        # https://gitlab.gnome.org/GNOME/gexiv2/-/issues/59
+        self._gexiv_unsafe = False
+        if sys.platform == 'win32':
+            try:
+                self._path.encode('ascii')
+            except UnicodeEncodeError:
+                self._gexiv_unsafe = True
+        if self._gexiv_unsafe and not buf:
+            with open(self._path, 'rb') as f:
+                buf = f.read()
         if buf:
             # read metadata from buffer
             self.open_buf(buf)
@@ -311,7 +348,13 @@ class Exiv2Metadata(GExiv2.Metadata):
         elif not self.has_iptc:
             self.clear_iptc()
         try:
-            self.save_file(self._path)
+            if self._gexiv_unsafe:
+                with temp_copy(self._path) as tmp_file:
+                    logger.warning('Using temporary file %s', tmp_file)
+                    self.save_file(tmp_file)
+                    shutil.move(tmp_file, self._path)
+            else:
+                self.save_file(self._path)
             if file_times:
                 os.utime(self._path, file_times)
         except Exception as ex:
