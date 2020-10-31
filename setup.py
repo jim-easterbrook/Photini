@@ -142,7 +142,7 @@ class install_menu(Command):
 
     def initialize_options(self):
         self.user = None
-        self.install_base = None
+        self.install_data = None
         self.script_dir = None
         self.lib_dir = None
         self.build_temp = None
@@ -150,7 +150,7 @@ class install_menu(Command):
     def finalize_options(self):
         self.set_undefined_options('install',
                                    ('user', 'user'),
-                                   ('install_base', 'install_base'),
+                                   ('install_data', 'install_data'),
                                    ('install_scripts', 'script_dir'),
                                    ('install_lib', 'lib_dir'))
         self.set_undefined_options('build',
@@ -178,12 +178,13 @@ class install_menu(Command):
                         self.outfiles.append(line.strip())
         elif sys.platform.startswith('linux'):
             desktop_path = os.path.join(
-                self.install_base, 'share/applications/photini.desktop')
+                self.install_data, 'share/applications/photini.desktop')
             exec_path = os.path.join(self.script_dir, 'photini')
             icon_path = os.path.join(
                 self.lib_dir, 'photini/data/icons/48/photini.png')
             log.info('Installing desktop file %s', desktop_path)
             if not self.dry_run:
+                self.mkpath(os.path.dirname(desktop_path))
                 with open('src/linux/photini.desktop.template', 'r') as src:
                     template = src.read()
                 with open(desktop_path, 'w') as dst:
