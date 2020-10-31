@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2020.10.1:
+  1/ Fix bug when using --root option on Linux installer.
+
 Changes in v2020.10.0:
   1/ Fix bug with non-ascii file or directory names on Windows.
   2/ Fix bug when copying files from a high speed device.
