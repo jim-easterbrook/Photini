@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -387,7 +387,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime': (
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
-        'Exif.Image.DateTimeOriginal': ('Exif.Photo.DateTimeOriginal',),
+        'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal',),
         'Exif.Image.FNumber': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Photo.DateTimeDigitized': (
