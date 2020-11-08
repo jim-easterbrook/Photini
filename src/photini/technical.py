@@ -337,6 +337,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
             QtWidgets.QLabel(translate('TechnicalTab', 'Precision:')), 1, 0)
         self.members['precision'] = Slider(Qt.Horizontal)
         self.members['precision'].setRange(1, 7)
+        self.members['precision'].setValue(7)
         self.members['precision'].setPageStep(1)
         self.addWidget(self.members['precision'], 1, 1)
         # connections
