@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2020.11.0:
+  1/ Fix serious bug when saving "date taken" metadata.
+
 Changes in v2020.10.1:
   1/ Fix bug when using --root option on Linux installer.
 
