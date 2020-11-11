@@ -657,7 +657,7 @@ class DateTime(MD_Dict):
             if time_stamp > cls.qt_offset:
                 time_stamp -= cls.qt_offset
             return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
-        return cls.from_xmp(file_value)
+        return cls.from_ISO_8601(file_value)
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
@@ -674,9 +674,9 @@ class DateTime(MD_Dict):
     # characters.
 
     # Although the standard says "all", I've seen examples where some of
-    # the values are spaces, e.g. "2004:01:  :  :  ". I assume this
+    # the values are spaces, e.g. "2004:01:     :  :  ". I assume this
     # represents a reduced precision. In Photini we write a full
-    # resolution datetime, but treat "00:00:00" as a None time value.
+    # resolution datetime and get the precision from the Xmp value.
     @classmethod
     def from_exif(cls, file_value):
         datetime_string = file_value[0]
@@ -685,12 +685,6 @@ class DateTime(MD_Dict):
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
-        # check for zero time
-        if len(datetime_string) == 19 and datetime_string[-8:] == '00:00:00':
-            datetime_string = datetime_string[:-9]
-            if datetime_string == '0000:00:00':
-                # all zeros, used by some programs to indicate missing value
-                return None
         # append sub seconds
         if len(datetime_string) == 19 and len(file_value) > 1:
             sub_sec_string = file_value[1]
@@ -721,7 +715,7 @@ class DateTime(MD_Dict):
         date_string, time_string = file_value
         if not date_string:
             return None
-        # remove missing values
+        # remove missing date values
         while len(date_string) > 4 and date_string[-2:] == '00':
             date_string = date_string[:-3]
         if date_string == '0000':
@@ -755,13 +749,6 @@ class DateTime(MD_Dict):
     # this must not be assumed to be the time zone where the photo is
     # processed. It also says the XMP standard has been revised to make
     # time zone information optional.
-    @classmethod
-    def from_xmp(cls, file_value):
-        self = cls.from_ISO_8601(file_value)
-        if self and self.precision == 5 and self.datetime.minute == 0:
-            return cls((self.datetime, 4, self.tz_offset))
-        return self
-
     def to_xmp(self):
         precision = self.precision
         if precision == 4:
