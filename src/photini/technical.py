@@ -317,6 +317,30 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         return '{}{:02d}:{:02d}'.format(sign, value // 60, value % 60)
 
 
+class PrecisionSlider(Slider):
+    value_changed = QtCore.pyqtSignal(int)
+
+    def __init__(self, *arg, **kw):
+        super(PrecisionSlider, self).__init__(*arg, **kw)
+        self.valueChanged.connect(self._value_changed)
+
+    def _value_changed(self, value):
+        if value >= 4:
+            value += 1
+        self.value_changed.emit(value)
+
+    def get_value(self):
+        value = super(PrecisionSlider, self).get_value()
+        if value >= 4:
+            value += 1
+        return value
+
+    def set_value(self, value):
+        if value is not None and value >= 5:
+            value -= 1
+        super(PrecisionSlider, self).set_value(value)
+
+
 class DateAndTimeWidget(QtWidgets.QGridLayout):
     new_value = QtCore.pyqtSignal(six.text_type, dict)
 
@@ -335,13 +359,13 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         # precision
         self.addWidget(
             QtWidgets.QLabel(translate('TechnicalTab', 'Precision:')), 1, 0)
-        self.members['precision'] = Slider(Qt.Horizontal)
-        self.members['precision'].setRange(1, 7)
-        self.members['precision'].setValue(7)
+        self.members['precision'] = PrecisionSlider(Qt.Horizontal)
+        self.members['precision'].setRange(1, 6)
+        self.members['precision'].setValue(6)
         self.members['precision'].setPageStep(1)
         self.addWidget(self.members['precision'], 1, 1)
         # connections
-        self.members['precision'].valueChanged.connect(
+        self.members['precision'].value_changed.connect(
             self.members['datetime'].set_precision)
         self.members['datetime'].editingFinished.connect(self.editing_finished)
         self.members['tz_offset'].editingFinished.connect(self.editing_finished)
