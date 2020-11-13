@@ -1100,37 +1100,39 @@ class Metadata(QtCore.QObject):
             self._if.merge_sc(other._sc)
         return self
 
+    def _handler_save(self, handler, *arg, **kw):
+        # store Photini metadata items
+        for name in self._data_type:
+            value = getattr(self, name)
+            handler.write(name, value)
+        # save file
+        return handler.save(*arg, **kw)
+
     def save(self, if_mode=True, sc_mode='auto',
              force_iptc=False, file_times=None):
         if not self.dirty:
             return
-        if (sc_mode == 'always' or not self._if) and not self._sc:
-            self._sc = SidecarMetadata.open_new(self._path, self._if)
         self.software = 'Photini editor v' + __version__
+        OK = False
         try:
-            if self._if and sc_mode == 'delete' and self._sc:
-                self._if.merge_sc(self._sc)
-            if self._sc:
-                # workaround for bug in exiv2 xmp timestamp altering
-                self._sc.clear_dates()
-            for handler in (self._sc, self._if):
-                if not handler:
-                    continue
-                for name in self._data_type:
-                    value = getattr(self, name)
-                    handler.write(name, value)
-            OK = False
+            # save to image file
             if self._if and if_mode:
-                OK = self._if.save(file_times=file_times, force_iptc=force_iptc)
-                if not OK and not self._sc:
-                    # can't write to image so create side car
-                    self.save(if_mode=False, sc_mode='always',
-                              force_iptc=force_iptc, file_times=file_times)
-                    return
-            if sc_mode == 'delete' and self._sc and OK:
-                self._sc = self._sc.delete()
+                OK = self._handler_save(
+                    self._if, file_times=file_times, force_iptc=force_iptc)
+            if not OK:
+                # can't write to image file so must create side car
+                sc_mode = 'always'
+            # create side car
+            if sc_mode == 'always' and not self._sc:
+                self._sc = SidecarMetadata.open_new(self._path, self._if)
+            # save or delete side car
             if self._sc:
-                OK = self._sc.save(file_times=file_times)
+                if sc_mode == 'delete':
+                    self._sc = self._sc.delete()
+                else:
+                    # workaround for bug in exiv2 xmp timestamp altering
+                    self._sc.clear_dates()
+                    OK = self._handler_save(self._sc, file_times=file_times)
         except Exception as ex:
             logger.exception(ex)
             return
