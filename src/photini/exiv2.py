@@ -219,19 +219,24 @@ class Exiv2Metadata(GExiv2.Metadata):
             result = self.get_raw(tag)
             if not result:
                 return None
-            charset = result[:8].decode(
-                'ascii', 'replace').strip('\x00').lower()
-            if charset in self._charset_map:
-                result = result[8:].decode(self._charset_map[charset])
-            elif charset == '':
-                result = self._decode_string(result[8:])
-            else:
-                result = result.decode('ascii', 'replace')
-            if result:
-                result = result.strip('\x00')
-            if not result:
-                return None
-            return result
+            try:
+                charset = result[:8].decode(
+                    'ascii', 'replace').strip('\x00').lower()
+                if charset in self._charset_map:
+                    result = result[8:].decode(self._charset_map[charset])
+                elif charset == '':
+                    result = self._decode_string(result[8:])
+                else:
+                    result = result.decode('ascii', 'replace')
+                if result:
+                    result = result.strip('\x00')
+                if not result:
+                    return None
+                return result
+            except UnicodeDecodeError:
+                logger.error('%s: %d bytes binary data will be deleted'
+                             ' when metadata is saved', tag, len(result))
+                raise
         try:
             result = self.get_tag_string(tag)
             if six.PY2:
