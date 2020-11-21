@@ -122,15 +122,16 @@ When you've finished you can close the command shell with the ``exit`` command.
 Package manager (some Linux distributions)
 ------------------------------------------
 
-.. note:: These Linux packages are maintained by other people and may not install the latest version of Photini.
-   You may also need to install further dependencies, as described below.
+Ubuntu and derived systems
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You might discover PPAs (personal package archives) that include Photini.
+Unfortunately the ones that I know of are very out of date and should not be used.
 
 OpenSUSE
 ^^^^^^^^
 
-Photini is part of the official release of Leap 15.0 and Tumbleweed versions and can be installed with YaST.
-For older versions it is available from the Packman community repository.
-It can be installed by clicking on this link: http://packman.links2linux.org/install/Photini
+Photini is part of the official release of Leap and Tumbleweed versions and can be installed with YaST.
 
 Piecemeal installation
 ----------------------
