@@ -125,15 +125,6 @@ Package manager (some Linux distributions)
 .. note:: These Linux packages are maintained by other people and may not install the latest version of Photini.
    You may also need to install further dependencies, as described below.
 
-Ubuntu and derived systems
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Dariusz Duma (https://launchpad.net/~dhor) has added Photini to his PPA (personal package archive).
-See the instructions at http://linuxg.net/how-to-install-photini-15-01-1-on-ubuntu-14-10-ubuntu-14-04-and-derivative-systems/.
-
-Pascal Mons (https://launchpad.net/~anton+) also has a PPA with many photo applications, including Photini.
-See https://launchpad.net/~anton+/+archive/ubuntu/photo-video-apps/.
-
 OpenSUSE
 ^^^^^^^^
 
