@@ -28,6 +28,8 @@ import six
 
 from photini.configstore import BaseConfigStore
 
+logger = logging.getLogger(__name__)
+
 # workaround for Qt bug affecting QtWebEngine
 # https://bugreports.qt.io/browse/QTBUG-67537
 if sys.platform.startswith('linux'):
@@ -37,17 +39,15 @@ if sys.platform.startswith('linux'):
 
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
-using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'auto')
+using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'True')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
 
-if using_pyqt5 == 'auto':
-    try:
-        from PyQt5 import QtCore
-        using_pyqt5 = True
-    except ImportError:
-        using_pyqt5 = False
+if using_pyqt5 == 'False':
+    using_pyqt5 = False
+    logger.warning('Photini is currently configured to use PyQt4.'
+                   ' Support for PyQt4 will be withdrawn in a future release.')
 else:
-    using_pyqt5 = eval(using_pyqt5)
+    using_pyqt5 = True
 
 if using_pyqt5 and using_qtwebengine == 'auto':
     try:
@@ -97,7 +97,6 @@ if style:
 config.save()
 del config, style
 
-logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 qt_version_info = namedtuple(
