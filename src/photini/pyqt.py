@@ -103,6 +103,10 @@ qt_version_info = namedtuple(
     'qt_version_info', ('major', 'minor', 'micro'))._make(
         map(int, QtCore.QT_VERSION_STR.split('.')))
 
+qt_version = 'PyQt {}, Qt {}, using {}'.format(
+        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
+        ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
+
 
 # decorator for methods called by Qt that logs any exception raised
 def catch_all(func):

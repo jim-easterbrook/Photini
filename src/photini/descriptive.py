@@ -27,7 +27,7 @@ import six
 
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-    QtWidgets, qt_version_info, SingleLineEdit, Slider)
+    QtWidgets, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

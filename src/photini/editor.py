@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -40,8 +40,8 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version_info,
-    using_qtwebengine, width_for_text)
+    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version,
+    qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -456,9 +456,7 @@ def main(argv=None):
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
     version += '\n  ' + gi_version
-    version += '\n  PyQt {}, Qt {}, using {}'.format(
-        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
-        ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
+    version += '\n  ' + qt_version
     if spelling_version:
         version += '\n  ' + spelling_version
     if ffmpeg_version:
