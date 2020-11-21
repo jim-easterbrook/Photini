@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -24,7 +24,8 @@ import os
 import sys
 
 from photini.pyqt import (
-    catch_all, qt_version_info, QtCore, QtWidgets, width_for_text)
+    catch_all, qt_version_info, QtCore, QtSignal, QtSlot, QtWidgets,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +50,8 @@ class StreamProxy(QtCore.QObject):
     # only the GUI thread is allowed to write messages in the
     # LoggerWindow, so this class acts as a proxy, passing messages
     # over Qt signal/slot for thread safety
-    flush_text = QtCore.pyqtSignal()
-    write_text = QtCore.pyqtSignal(str)
+    flush_text = QtSignal()
+    write_text = QtSignal(str)
 
     def write(self, msg):
         msg = msg.strip()
@@ -115,14 +116,14 @@ class LoggerWindow(QtWidgets.QWidget):
         if sys.stdout:
             sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()
         for handler in list(self.logger.handlers):
             self.logger.removeHandler(handler)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
@@ -134,11 +135,11 @@ class LoggerWindow(QtWidgets.QWidget):
             with open(file_name, 'w') as of:
                 of.write(self.text.toPlainText())
 
-    @QtCore.pyqtSlot(str)
+    @QtSlot(str)
     def write(self, msg):
         self.text.append(msg)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     def flush(self):
         if self.isHidden():
             self.show()

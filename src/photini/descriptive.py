@@ -27,7 +27,7 @@ import six
 
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-    QtWidgets, SingleLineEdit, Slider)
+    QtSlot, QtWidgets, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -121,7 +121,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.is_multiple = self.slider.is_multiple
         self.editing_finished = self.slider.editing_finished
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def set_display(self, value):
         self.display.setPlaceholderText('')
@@ -213,7 +213,7 @@ class KeywordsEditor(QtWidgets.QWidget):
             'descriptive', 'keywords', six.text_type(dict(self.league_table)))
         self.update_favourites()
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def add_favourite(self, idx):
         if idx <= 0:
@@ -282,45 +282,45 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_title(self):
         self._new_value('title')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_description(self):
         self._new_value('description')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_keywords(self):
         self._new_value('keywords')
         self.widgets['keywords'].update_league_table(
             self.image_list.get_selected_images())
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_rating(self):
         self._new_value('rating')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_copyright(self):
         self._new_value('copyright')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_creator(self):
         self._new_value('creator')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def auto_copyright(self):
         name = self.config_store.get('user', 'copyright_name')
@@ -348,7 +348,7 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.copyright = value
         self._update_widget('copyright')
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def auto_creator(self):
         name = self.config_store.get('user', 'creator_name')
@@ -386,7 +386,7 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.widgets[key].set_value(values[0])
 
-    @QtCore.pyqtSlot(list)
+    @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
         if not selection:

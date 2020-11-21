@@ -36,7 +36,7 @@ import flickrapi
 from photini.configstore import key_store
 from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtWidgets, SingleLineEdit)
+                          QtSignal, QtSlot, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -299,8 +299,8 @@ class FlickrSession(UploaderSession):
 
 
 class FlickrUploadConfig(QtWidgets.QWidget):
-    new_set = QtCore.pyqtSignal()
-    sync_metadata = QtCore.pyqtSignal()
+    new_set = QtSignal()
+    sync_metadata = QtSignal()
 
     def __init__(self, *arg, **kw):
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
@@ -380,7 +380,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.layout().addWidget(sets_group, 0, 2, 3, 1)
         self.layout().setColumnStretch(2, 1)
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def enable_ff(self, value):
         self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
@@ -781,7 +781,7 @@ class TabWidget(PhotiniUploader):
             else:
                 md.date_taken = date_taken
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def sync_metadata(self):
         # make list of known photo ids
@@ -812,7 +812,7 @@ class TabWidget(PhotiniUploader):
             for photo_id, image in photo_ids.items():
                 self._merge_metadata(photo_id, image)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
@@ -839,7 +839,7 @@ class TabWidget(PhotiniUploader):
         widget = self.upload_config.add_set(title, description, None, index=0)
         widget.setChecked(True)
 
-    @QtCore.pyqtSlot(list)
+    @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
         super(TabWidget, self).new_selection(selection)

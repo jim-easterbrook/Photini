@@ -34,8 +34,8 @@ except ImportError:
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata, MultiString
 from photini.pyqt import (
-    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtWidgets, qt_version_info,
-    scale_font, set_symbol_font, video_types)
+    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtSignal, QtSlot,
+    QtWidgets, qt_version_info, scale_font, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -93,7 +93,7 @@ class Image(QtWidgets.QFrame):
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def reload_metadata(self):
         self.metadata = Metadata(self.path)
@@ -102,12 +102,12 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
         self.image_list.emit_selection()
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def save_metadata(self):
         self.image_list._save_files(images=[self])
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def diff_metadata(self):
         dialog = QtWidgets.QDialog(parent=self)
@@ -194,7 +194,7 @@ class Image(QtWidgets.QFrame):
             transform = transform.transposed()
         return pixmap.transformed(transform)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def regenerate_thumbnail(self):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
@@ -395,7 +395,7 @@ class Image(QtWidgets.QFrame):
     def mouseDoubleClickEvent(self, event):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def show_status(self, changed):
         status = ''
@@ -450,7 +450,7 @@ class Image(QtWidgets.QFrame):
 
 
 class ScrollArea(QtWidgets.QScrollArea):
-    dropped_images = QtCore.pyqtSignal(list)
+    dropped_images = QtSignal(list)
 
     def __init__(self, parent=None):
         super(ScrollArea, self).__init__(parent)
@@ -600,10 +600,10 @@ class ThumbsLayout(QtWidgets.QLayout):
 
 
 class ImageList(QtWidgets.QWidget):
-    image_list_changed = QtCore.pyqtSignal()
-    new_metadata = QtCore.pyqtSignal(bool)
-    selection_changed = QtCore.pyqtSignal(list)
-    sort_order_changed = QtCore.pyqtSignal()
+    image_list_changed = QtSignal()
+    new_metadata = QtSignal(bool)
+    selection_changed = QtSignal(list)
+    sort_order_changed = QtSignal()
 
     def __init__(self, parent=None):
         super(ImageList, self).__init__(parent)
@@ -684,7 +684,7 @@ class ImageList(QtWidgets.QWidget):
             self.selection_anchor = None
             self.emit_selection()
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def open_files(self, checked):
         args = [
@@ -712,7 +712,7 @@ class ImageList(QtWidgets.QWidget):
             path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
-    @QtCore.pyqtSlot(list)
+    @QtSlot(list)
     @catch_all
     def open_file_list(self, path_list):
         with Busy():
@@ -751,7 +751,7 @@ class ImageList(QtWidgets.QWidget):
         result = result.strftime('%Y%m%d%H%M%S%f') + image.path
         return result
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def _new_sort_order(self):
         self._sort_thumbnails()
@@ -804,7 +804,7 @@ class ImageList(QtWidgets.QWidget):
             self.emit_selection()
         self.image_list_changed.emit()
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def save_files(self, checked):
         self._save_files(self.images)
@@ -903,7 +903,7 @@ class ImageList(QtWidgets.QWidget):
             idx = 0
         self.select_image(self.images[idx], extend_selection=extend_selection)
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def _new_thumb_size(self, value):
         self.thumb_size = value * 20

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@ import re
 import sys
 
 from photini.gi import Gspell, GSListPtr_to_list
-from photini.pyqt import catch_all, QtCore, QtWidgets
+from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 
 spelling_version = None
 
@@ -46,7 +46,7 @@ if not Gspell:
 logger = logging.getLogger(__name__)
 
 class SpellCheck(QtCore.QObject):
-    new_dict = QtCore.pyqtSignal()
+    new_dict = QtSignal()
 
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
@@ -80,7 +80,7 @@ class SpellCheck(QtCore.QObject):
             return self.dict.tag
         return ''
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def enable(self, enabled):
         self.enabled = enabled and bool(Gspell or enchant)

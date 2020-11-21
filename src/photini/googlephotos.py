@@ -27,7 +27,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.configstore import key_store
-from photini.pyqt import catch_all, QtCore, QtWidgets
+from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -226,7 +226,7 @@ class GooglePhotosSession(UploaderSession):
 
 
 class GoogleUploadConfig(QtWidgets.QWidget):
-    new_set = QtCore.pyqtSignal()
+    new_set = QtSignal()
 
     def __init__(self, *arg, **kw):
         super(GoogleUploadConfig, self).__init__(*arg, **kw)
@@ -342,7 +342,7 @@ class TabWidget(PhotiniUploader):
             }
         return params
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_set(self):
         title, OK = QtWidgets.QInputDialog.getText(

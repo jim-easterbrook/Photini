@@ -32,7 +32,7 @@ import six
 
 from photini import __version__
 from photini.gi import using_pgi
-from photini.pyqt import QtCore, QtGui
+from photini.pyqt import QtCore, QtGui, QtSignal
 from photini.exiv2 import ImageMetadata, SidecarMetadata, VideoHeaderMetadata
 from photini.ffmpeg import FFmpeg
 
@@ -1037,7 +1037,7 @@ class Rating(MD_Value, float):
 
 
 class Metadata(QtCore.QObject):
-    unsaved = QtCore.pyqtSignal(bool)
+    unsaved = QtSignal(bool)
 
     # type of each Photini data field's data
     _data_type = {

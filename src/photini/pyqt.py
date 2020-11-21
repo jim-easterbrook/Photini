@@ -70,6 +70,8 @@ if using_pyqt5:
         from PyQt5 import QtWebChannel, QtWebEngineWidgets
     else:
         from PyQt5 import QtWebKit, QtWebKitWidgets
+    from PyQt5.QtCore import pyqtSignal as QtSignal
+    from PyQt5.QtCore import pyqtSlot as QtSlot
 else:
     import sip
     sip.setapi('QString', 2)
@@ -79,6 +81,8 @@ else:
     QtWebKitWidgets = QtWebKit
     from PyQt4.QtCore import Qt
     from PyQt4.QtNetwork import QNetworkProxy
+    from PyQt4.QtCore import pyqtSignal as QtSignal
+    from PyQt4.QtCore import pyqtSlot as QtSlot
 
 if using_qtwebengine:
     QWebPage = QtWebEngineWidgets.QWebEnginePage
@@ -235,7 +239,7 @@ class ComboBox(QtWidgets.QComboBox):
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    editingFinished = QtCore.pyqtSignal()
+    editingFinished = QtSignal()
 
     def __init__(self, spell_check=False, *arg, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
@@ -348,7 +352,7 @@ class SingleLineEdit(MultiLineEdit):
 
 
 class Slider(QtWidgets.QSlider):
-    editing_finished = QtCore.pyqtSignal()
+    editing_finished = QtSignal()
 
     def __init__(self, *arg, **kw):
         super(Slider, self).__init__(*arg, **kw)
@@ -360,7 +364,7 @@ class Slider(QtWidgets.QSlider):
         self.editing_finished.emit()
         super(Slider, self).focusOutEvent(event)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def slider_pressed(self):
         self._is_multiple = False
@@ -391,8 +395,8 @@ class SquareButton(QtWidgets.QPushButton):
 
 
 class StartStopButton(QtWidgets.QPushButton):
-    click_start = QtCore.pyqtSignal()
-    click_stop = QtCore.pyqtSignal()
+    click_start = QtSignal()
+    click_stop = QtSignal()
 
     def __init__(self, start_text, stop_text, *arg, **kw):
         super(StartStopButton, self).__init__(*arg, **kw)
@@ -420,7 +424,7 @@ class StartStopButton(QtWidgets.QPushButton):
         else:
             self.setText(self.start_text)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     def do_clicked(self):
         if self.checked:
             self.click_stop.emit()

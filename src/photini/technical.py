@@ -30,15 +30,15 @@ import six
 from photini.metadata import LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
-    QtWidgets, scale_font, set_symbol_font, Slider, SquareButton,
-    width_for_text)
+    QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
+    SquareButton, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
 class DropdownEdit(ComboBox):
-    new_value = QtCore.pyqtSignal(object)
+    new_value = QtSignal(object)
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
@@ -49,7 +49,7 @@ class DropdownEdit(ComboBox):
         self.setItemData(2, 0, Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def current_index_changed(self, int):
         self.new_value.emit(self.get_value())
@@ -89,7 +89,7 @@ class DropdownEdit(ComboBox):
 
 
 class AugmentSpinBox(object):
-    new_value = QtCore.pyqtSignal(object)
+    new_value = QtSignal(object)
 
     def __init__(self, *arg, **kw):
         super(AugmentSpinBox, self).__init__(*arg, **kw)
@@ -102,7 +102,7 @@ class AugmentSpinBox(object):
             self.setData(value)
             self.triggered.connect(self.set_value)
 
-        @QtCore.pyqtSlot()
+        @QtSlot()
         @catch_all
         def set_value(self):
             self.parent().setValue(self.data())
@@ -113,7 +113,7 @@ class AugmentSpinBox(object):
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
         return super(self.__class__, self).contextMenuEvent(event)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def extend_context_menu(self):
         menu = self.findChild(QtWidgets.QMenu)
@@ -146,7 +146,7 @@ class AugmentSpinBox(object):
             return ''
         return super(self.__class__, self).fixup(text)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def editing_finished(self):
         if self.is_multiple():
@@ -257,7 +257,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
             return QtGui.QValidator.Acceptable, text, pos
         return super(DateTimeEdit, self).validate(text, pos)
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def set_precision(self, value):
         if value != self.precision:
@@ -318,7 +318,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
 
 class PrecisionSlider(Slider):
-    value_changed = QtCore.pyqtSignal(int)
+    value_changed = QtSignal(int)
 
     def __init__(self, *arg, **kw):
         super(PrecisionSlider, self).__init__(*arg, **kw)
@@ -342,7 +342,7 @@ class PrecisionSlider(Slider):
 
 
 class DateAndTimeWidget(QtWidgets.QGridLayout):
-    new_value = QtCore.pyqtSignal(six.text_type, dict)
+    new_value = QtSignal(six.text_type, dict)
 
     def __init__(self, name, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
@@ -385,14 +385,14 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                 new_value[key] = new_value[key].toPyDateTime()
         return new_value
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def editing_finished(self):
         self.new_value.emit(self.name, self.get_value())
 
 
 class OffsetWidget(QtWidgets.QWidget):
-    apply_offset = QtCore.pyqtSignal(timedelta, object)
+    apply_offset = QtSignal(timedelta, object)
 
     def __init__(self, *arg, **kw):
         super(OffsetWidget, self).__init__(*arg, **kw)
@@ -446,7 +446,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.time_zone.setSpecialValueText(' ')
         self.time_zone.updateGeometry()
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def new_value(self):
         value = self.offset.time()
@@ -454,12 +454,12 @@ class OffsetWidget(QtWidgets.QWidget):
                  self.time_zone.get_value())
         self.config_store.set('technical', 'offset', str(value))
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def add(self):
         self.do_inc(False)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def sub(self):
         self.do_inc(True)
@@ -709,14 +709,14 @@ class NewLensDialog(QtWidgets.QDialog):
 
 
 class DateLink(QtWidgets.QCheckBox):
-    new_link = QtCore.pyqtSignal(six.text_type)
+    new_link = QtSignal(six.text_type)
 
     def __init__(self, name, *arg, **kw):
         super(DateLink, self).__init__(*arg, **kw)
         self.name = name
         self.clicked.connect(self._clicked)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def _clicked(self):
         self.new_link.emit(self.name)
@@ -849,7 +849,7 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtCore.pyqtSlot(timedelta, object)
+    @QtSlot(timedelta, object)
     @catch_all
     def apply_offset(self, offset, tz_offset):
         for image in self.image_list.get_selected_images():
@@ -865,7 +865,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_datetime()
         self._update_links()
 
-    @QtCore.pyqtSlot(six.text_type)
+    @QtSlot(six.text_type)
     @catch_all
     def new_link(self, master):
         slave = self._master_slave[master]
@@ -878,7 +878,7 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.date_widget[slave].set_enabled(True)
 
-    @QtCore.pyqtSlot(object)
+    @QtSlot(object)
     @catch_all
     def new_orientation(self, value):
         for image in self.image_list.get_selected_images():
@@ -886,7 +886,7 @@ class TabWidget(QtWidgets.QWidget):
             image.load_thumbnail()
         self._update_orientation()
 
-    @QtCore.pyqtSlot(QtCore.QPoint)
+    @QtSlot(QtCore.QPoint)
     @catch_all
     def remove_lens_model(self, pos):
         current_lens_id = self.widgets['lens_model'].get_value()
@@ -909,7 +909,7 @@ class TabWidget(QtWidgets.QWidget):
         self.lens_data.delete_model(lens_id)
         self.widgets['lens_model'].remove_item(lens_id)
 
-    @QtCore.pyqtSlot(object)
+    @QtSlot(object)
     @catch_all
     def new_lens_model(self, value):
         if value == '<add lens>':
@@ -933,14 +933,14 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets['lens_model'].add_item(
                 self.lens_data.get_name(lens_id), lens_id)
 
-    @QtCore.pyqtSlot(object)
+    @QtSlot(object)
     @catch_all
     def new_aperture(self, value):
         for image in self.image_list.get_selected_images():
             image.metadata.aperture = value
         self._update_aperture()
 
-    @QtCore.pyqtSlot(object)
+    @QtSlot(object)
     @catch_all
     def new_focal_length(self, value):
         for image in self.image_list.get_selected_images():
@@ -952,7 +952,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_focal_length()
         self._update_focal_length_35()
 
-    @QtCore.pyqtSlot(object)
+    @QtSlot(object)
     @catch_all
     def new_focal_length_35(self, value):
         for image in self.image_list.get_selected_images():
@@ -961,7 +961,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_focal_length()
         self._update_focal_length_35()
 
-    @QtCore.pyqtSlot(six.text_type, dict)
+    @QtSlot(six.text_type, dict)
     @catch_all
     def new_date_value(self, key, new_value):
         for image in self.image_list.get_selected_images():
@@ -1212,7 +1212,7 @@ class TabWidget(QtWidgets.QWidget):
             return int((float(value) * crop_factor) + 0.5)
         return md.focal_length_35
 
-    @QtCore.pyqtSlot(list)
+    @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
         if not selection:

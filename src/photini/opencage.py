@@ -29,7 +29,7 @@ import requests
 from photini.configstore import key_store
 from photini.metadata import Location
 from photini.photinimap import GeocoderBase
-from photini.pyqt import Busy, catch_all, CompactButton, QtCore, QtGui
+from photini.pyqt import Busy, catch_all, CompactButton, QtCore, QtGui, QtSlot
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -157,13 +157,13 @@ class OpenCage(GeocoderBase):
         tou_osm.clicked.connect(self.load_tou_osm)
         return [tou_opencage, tou_osm]
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def load_tou_opencage(self):
         QtGui.QDesktopServices.openUrl(
             QtCore.QUrl('https://geocoder.opencagedata.com/'))
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def load_tou_osm(self):
         QtGui.QDesktopServices.openUrl(

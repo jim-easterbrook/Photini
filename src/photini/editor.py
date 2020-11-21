@@ -40,7 +40,7 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtWidgets, qt_version,
+    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtSlot, QtWidgets, qt_version,
     qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
@@ -80,7 +80,7 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         super(ConfigStore, self).remove_section(section)
         self.timer.start()
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def save(self):
         super(ConfigStore, self).save()
@@ -286,12 +286,12 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.initial_files:
             QtCore.QTimer.singleShot(0, self.open_initial_files)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def add_tabs(self, checked):
         was_blocked = self.tabs.blockSignals(True)
@@ -316,23 +316,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def open_docs(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(
             'http://photini.readthedocs.io/'))
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def close_files(self):
         self.image_list.close_files(False)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def close_all_files(self):
         self.image_list.close_files(True)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def import_pgx_file(self):
         importer = GpxImporter()
@@ -347,19 +347,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
         super(MainWindow, self).closeEvent(event)
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def edit_settings(self):
         dialog = EditSettings(self)
         dialog.exec_()
         self.tabs.currentWidget().refresh()
 
-    @QtCore.pyqtSlot(QtWidgets.QAction)
+    @QtSlot(QtWidgets.QAction)
     @catch_all
     def set_language(self, action):
         self.app.spell_check.set_language(action.data())
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def about(self):
         text = translate('MenuBar', """
@@ -389,13 +389,13 @@ details click the 'show details' button.</p>
         dialog.setDetailedText(licence.decode('utf-8'))
         dialog.exec_()
 
-    @QtCore.pyqtSlot(int, int)
+    @QtSlot(int, int)
     @catch_all
     def new_split(self, pos, index):
         self.app.config_store.set(
             'main_window', 'split', str(self.central_widget.sizes()))
 
-    @QtCore.pyqtSlot(int)
+    @QtSlot(int)
     @catch_all
     def new_tab(self, index):
         current = self.tabs.currentWidget()
@@ -404,7 +404,7 @@ details click the 'show details' button.</p>
             current.refresh()
             self.image_list.emit_selection()
 
-    @QtCore.pyqtSlot(list)
+    @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
         self.close_action.setEnabled(len(selection) > 0)
@@ -412,7 +412,7 @@ details click the 'show details' button.</p>
             self.import_gpx_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
 
-    @QtCore.pyqtSlot(bool)
+    @QtSlot(bool)
     @catch_all
     def new_metadata(self, unsaved_data):
         self.save_action.setEnabled(unsaved_data)

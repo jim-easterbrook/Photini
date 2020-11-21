@@ -26,7 +26,7 @@ import requests
 from photini.configstore import key_store
 from photini.photinimap import GeocoderBase, PhotiniMap
 from photini.pyqt import (
-    Busy, catch_all, CompactButton, QtCore, QtGui, QtWidgets)
+    Busy, catch_all, CompactButton, QtCore, QtGui, QtSlot, QtWidgets)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -90,7 +90,7 @@ class MapboxGeocoder(GeocoderBase):
         widget.clicked.connect(self.load_mapbox_tos)
         return [widget]
 
-    @QtCore.pyqtSlot()
+    @QtSlot()
     @catch_all
     def load_mapbox_tos(self):
         QtGui.QDesktopServices.openUrl(
