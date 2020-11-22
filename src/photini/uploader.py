@@ -48,7 +48,7 @@ class UploaderSession(QtCore.QObject):
     @catch_all
     def log_out(self):
         keyring.delete_password('photini', self.name)
-        self.disconnect()
+        self.close_connection()
 
     def get_password(self):
         return keyring.get_password('photini', self.name)
@@ -100,7 +100,7 @@ class UploadWorker(QtCore.QObject):
     @catch_all
     def start(self):
         session = self.session_factory()
-        session.connect()
+        session.open_connection()
         upload_count = 0
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
@@ -134,7 +134,7 @@ class UploadWorker(QtCore.QObject):
             else:
                 upload_count += 1
         self.upload_progress.emit(0.0, '%p%')
-        session.disconnect()
+        session.close_connection()
         self.finished.emit()
 
     def progress(self, value):
@@ -263,7 +263,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def shutdown(self):
-        self.session.disconnect()
+        self.session.close_connection()
 
     @QtSlot(bool)
     @catch_all
@@ -473,7 +473,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     def log_in(self, do_auth=True):
         with DisableWidget(self.user_connect):
             with Busy():
-                connect = self.session.connect()
+                connect = self.session.open_connection()
             if connect is None:
                 # can't reach server
                 return

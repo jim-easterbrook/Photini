@@ -44,7 +44,7 @@ class GooglePhotosSession(UploaderSession):
         super(GooglePhotosSession, self).__init__(*arg, **kwds)
         self.api = None
 
-    def connect(self, token=None):
+    def open_connection(self, token=None):
         self.cached_data = {}
         refresh_token = self.get_password()
         if not refresh_token:
@@ -73,7 +73,7 @@ class GooglePhotosSession(UploaderSession):
         self.connection_changed.emit(self.api.authorized)
         return self.api.authorized
 
-    def disconnect(self):
+    def close_connection(self):
         self.connection_changed.emit(False)
         if self.api:
             self.api.close()
@@ -120,7 +120,7 @@ class GooglePhotosSession(UploaderSession):
             logger.info('No access token received')
             return
         self.save_token(rsp)
-        self.connect(token=rsp)
+        self.open_connection(token=rsp)
 
     def save_token(self, token):
         self.set_password(token['refresh_token'])

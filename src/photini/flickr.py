@@ -54,7 +54,7 @@ class FlickrSession(UploaderSession):
         super(FlickrSession, self).__init__(*arg, **kwds)
         self.api = None
 
-    def connect(self):
+    def open_connection(self):
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
         stored_token = self.get_password()
@@ -76,7 +76,7 @@ class FlickrSession(UploaderSession):
             return None
         return False
 
-    def disconnect(self):
+    def close_connection(self):
         self.connection_changed.emit(False)
         if self.api:
             # undocumented way to close Flickr connection cleanly
@@ -89,7 +89,7 @@ class FlickrSession(UploaderSession):
             return self.api.auth_url(perms='write')
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
         return ''
 
     def get_access_token(self, result):
@@ -98,7 +98,7 @@ class FlickrSession(UploaderSession):
             self.api.get_access_token(oauth_verifier)
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
             return
         token = self.api.token_cache.token
         self.set_password(token.token + '&' + token.token_secret)
@@ -114,7 +114,7 @@ class FlickrSession(UploaderSession):
                 return self.cached_data['user']
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
             return self.cached_data['user']
         user = rsp['oauth']['user']
         self.cached_data['user'] = user['fullname'], None
@@ -124,7 +124,7 @@ class FlickrSession(UploaderSession):
                 return self.cached_data['user']
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
             return self.cached_data['user']
         person = rsp['person']
         if person['iconserver'] != '0':
@@ -147,7 +147,7 @@ class FlickrSession(UploaderSession):
             sets = self.api.photosets.getList()
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
             return self.cached_data['sets']
         for item in sets['photosets']['photoset']:
             self.cached_data['sets'].append((
@@ -160,7 +160,7 @@ class FlickrSession(UploaderSession):
             rsp = self.api.photos.getInfo(photo_id=photo_id)
         except Exception as ex:
             logger.error(str(ex))
-            self.disconnect()
+            self.close_connection()
             return None
         if rsp['stat'] != 'ok':
             return None
@@ -180,7 +180,7 @@ class FlickrSession(UploaderSession):
                         return
                 except Exception as ex:
                     logger.error(str(ex))
-                    self.disconnect()
+                    self.close_connection()
                     return
             for photo in rsp['photos']['photo']:
                 yield photo
