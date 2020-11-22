@@ -228,14 +228,12 @@ class SpellingHighlighter(QtGui.QSyntaxHighlighter):
 class ComboBox(QtWidgets.QComboBox):
     def set_dropdown_width(self):
         width = 0
-        metrics = self.fontMetrics()
         for idx in range(self.count()):
-            width = max(width, metrics.width(self.itemText(idx)))
+            width = max(width, width_for_text(self, self.itemText(idx)))
         self.view().setMinimumWidth(width + 30)
 
     def title_width(self):
-        metrics = self.fontMetrics()
-        return metrics.width(self.itemText(0)) + 30
+        return width_for_text(self, self.itemText(0)) + 30
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
