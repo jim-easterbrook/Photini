@@ -686,7 +686,7 @@ class ImageList(QtWidgets.QWidget):
 
     @QtSlot(bool)
     @catch_all
-    def open_files(self, checked):
+    def open_files(self, checked=False):
         args = [
             self,
             self.tr('Open files'),
