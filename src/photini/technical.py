@@ -223,7 +223,8 @@ class CalendarWidget(QtWidgets.QCalendarWidget):
 
 class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
     def __init__(self, *arg, **kw):
-        self.default_value = QtCore.QDateTime(QtCore.QDate.currentDate())
+        self.default_value = QtCore.QDateTime(
+            QtCore.QDate.currentDate(), QtCore.QTime())
         self.multiple = multiple_values()
         # rename some methods for compatibility with AugmentSpinBox
         self.cleanText = self.text
