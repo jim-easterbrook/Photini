@@ -126,7 +126,7 @@ class CallHandler(QtCore.QObject):
     def initialize_finished(self):
         self.parent().initialize_finished()
 
-    @QtSlot(QtCore.QVariant)
+    @QtSlot('QVariant')
     def new_status(self, status):
         self.parent().new_status(status)
 
