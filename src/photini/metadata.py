@@ -32,7 +32,7 @@ import six
 
 from photini import __version__
 from photini.gi import using_pgi
-from photini.pyqt import QtCore, QtGui, QtSignal
+from photini.pyqt import QtCore, QtGui
 from photini.exiv2 import ImageMetadata, SidecarMetadata, VideoHeaderMetadata
 from photini.ffmpeg import FFmpeg
 
@@ -1036,9 +1036,7 @@ class Rating(MD_Value, float):
             handler.set_string(tag, six.text_type(self))
 
 
-class Metadata(QtCore.QObject):
-    unsaved = QtSignal(bool)
-
+class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
         'altitude'       : Altitude,
@@ -1073,10 +1071,11 @@ class Metadata(QtCore.QObject):
         'title'          : MD_String,
         }
 
-    def __init__(self, path, *args, **kw):
-        super(Metadata, self).__init__(*args, **kw)
+    def __init__(self, path, notify=None):
+        super(Metadata, self).__init__()
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
+        self._notify = notify
         self._vf = None
         self._sc = SidecarMetadata.open_old(path)
         self._if = ImageMetadata.open_old(path)
@@ -1138,7 +1137,8 @@ class Metadata(QtCore.QObject):
             return
         if OK:
             self.dirty = False
-            self.unsaved.emit(self.dirty)
+            if self._notify:
+                self._notify(self.dirty)
 
     def get_mime_type(self):
         result = None
@@ -1201,7 +1201,8 @@ class Metadata(QtCore.QObject):
         super(Metadata, self).__setattr__(name, value)
         if not self.dirty:
             self.dirty = True
-        self.unsaved.emit(self.dirty)
+            if self._notify:
+                self._notify(self.dirty)
 
     def changed(self):
         return self.dirty

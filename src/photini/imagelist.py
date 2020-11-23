@@ -60,8 +60,7 @@ class Image(QtWidgets.QFrame):
         self.selected = False
         self.thumb_size = thumb_size
         # read metadata
-        self.metadata = Metadata(self.path)
-        self.metadata.unsaved.connect(self.show_status)
+        self.metadata = Metadata(self.path, notify=self.show_status)
         self.file_times = (os.path.getatime(self.path),
                            os.path.getmtime(self.path))
         # set file type
@@ -96,8 +95,7 @@ class Image(QtWidgets.QFrame):
     @QtSlot()
     @catch_all
     def reload_metadata(self):
-        self.metadata = Metadata(self.path)
-        self.metadata.unsaved.connect(self.show_status)
+        self.metadata = Metadata(self.path, notify=self.show_status)
         self.show_status(False)
         self.load_thumbnail()
         self.image_list.emit_selection()
@@ -395,8 +393,6 @@ class Image(QtWidgets.QFrame):
     def mouseDoubleClickEvent(self, event):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
 
-    @QtSlot(bool)
-    @catch_all
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
