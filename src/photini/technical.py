@@ -531,6 +531,8 @@ class LensData(object):
         self.lenses = eval(self.config_store.get('technical', 'lenses', '[]'))
         # update config
         for section in self.config_store.config.sections():
+            if six.PY2:
+                section = section.decode('utf-8')
             if section.startswith('lens '):
                 lens_id = section[5:]
                 if lens_id not in self.lenses:
