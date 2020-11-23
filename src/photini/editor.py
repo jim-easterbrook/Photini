@@ -429,10 +429,10 @@ def main(argv=None):
     global app
     if argv:
         sys.argv = argv
-    # let PyQt handle its options (need at least one argument after options)
-    sys.argv.append('xxx')
+    # let Qt handle its options
     app = QtWidgets.QApplication(sys.argv)
-    del sys.argv[-1]
+    # get remaining argument list after Qt has swallowed its options
+    sys.argv = app.arguments()
     # install translations
     if qt_version_info < (5, 0):
         QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
