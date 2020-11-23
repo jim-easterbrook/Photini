@@ -152,31 +152,36 @@ You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
 Package                        Minimum version    Typical Linux package name    PyPI package name
 =============================  =================  ============================  =================
 Python_                        2.7 or 3.2         python3
-PyQt_                          4 (5 preferred)    python3-qt5 or python3-pyqt5  PyQt5
-QtWebEngine_ or QtWebKit_ [1]                     python3-pyqt5.qtwebkit
-gexiv2_ [2]                    0.10               typelib-1_0-GExiv2-0_10 or
+PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  PyQt5
+PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
+QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit
+gexiv2_ [3]                    0.10               typelib-1_0-GExiv2-0_10 or
                                                   gir1.2-gexiv2-0.10
-PyGObject_ [3]                                    python3-gobject or
+PyGObject_ [4]                                    python3-gobject or
                                                   python3-gi
-pgi_ [3]                       0.0.8                                            pgi
+pgi_ [4]                       0.0.8                                            pgi
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
 six                            1.5                python3-six                   six
 =============================  =================  ============================  =================
 
-[1] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
-One of these may already be included in your PyQt_ installation.
+[1] PyQt_ and PySide2_ are both Python interfaces to the Qt GUI framework.
+Photini version 2020.11.1 and later can use either PyQt or PySide2, so you can install whichever one you prefer.
+If both are installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
+
+[2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
+One of these may already be included in your PyQt_ or PySide2_ installation.
 QtWebEngine is preferred, but is not available on all operating systems.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
-[2] Several libraries are needed to access photograph metadata from Python.
+[3] Several libraries are needed to access photograph metadata from Python.
 Exiv2_ is the core "C" library.
 gexiv2_ is a GObject wrapper around the Exiv2 library.
 It has extra "introspection bindings" that allow it to be used by other languages.
 PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 Got that?
 
-[3] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
+[4] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
 If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
    sudo pip uninstall pgi
@@ -324,6 +329,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _python-gphoto2:    https://pypi.python.org/pypi/gphoto2/
 .. _PyPI:              https://pypi.python.org/pypi
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
+.. _PySide2:           https://doc.qt.io/qtforpython/
 .. _QtWebEngine:       https://wiki.qt.io/QtWebEngine
 .. _QtWebKit:          https://wiki.qt.io/Qt_WebKit
 .. _requests:          http://python-requests.org/

@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-20  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -63,8 +63,8 @@ If you'd like to store it elsewhere (e.g. on a networked drive so you can share 
 PyQt options
 ^^^^^^^^^^^^
 
-The configuration file includes options to force use of PyQt4 instead of PyQt5 and use of QtWebKit instead of QtWebEngine.
-These may be useful if either of these components on your computer is incompatible with Photini.
+The configuration file includes options to force use of PyQt4 instead of PyQt5 or PySide2, and use of QtWebKit instead of QtWebEngine.
+These may be useful if one of these components on your computer is incompatible with Photini.
 There are so many versions of PyQt that it is impossible to test Photini with every one.
 
 The default options in the configuration file are in the ``[pyqt]`` section:
@@ -72,15 +72,17 @@ The default options in the configuration file are in the ``[pyqt]`` section:
 .. code-block:: guess
 
    [pyqt]
-   using_pyqt5 = auto
+   using_pyqt5 = True
+   using_pyside2 = auto
    using_qtwebengine = auto
    native_dialog = True
 
-To force use of PyQt4 set the value of ``using_pyqt5`` to ``False``.
+To force use of PyQt4 set the values of ``using_pyqt5`` and ``using_pyside2`` to ``False``.
+To force use of PySide2 set the value of ``using_pyside2`` to ``True``.
 To force the use of QtWebKit set the value of ``using_qtwebengine`` to ``False``.
 You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::
 
-   python -m photini.editor --version
+   photini --version
 
 Setting the ``native_dialog`` option to ``False`` makes Photini use a Qt dialog to select files to open instead of the normal operating system dialog.
 
@@ -107,7 +109,7 @@ To find out what styles are available on your computer you can use Photini's ``-
 (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)
 You can then try one of these styles as follows::
 
-   jim@brains:~$ python3 -m photini.editor --version
+   jim@brains:~$ photini --version
    Photini 2017.8.1, build 898 (a98bfac)
      Python 3.4.5 (default, Jul 03 2016, 13:32:18) [GCC]
      pgi 0.0.11.1, GExiv2 0.10.6, GObject 2.0
@@ -115,7 +117,7 @@ You can then try one of these styles as follows::
      enchant 1.6.6
      flickrapi 2.2.1
      available styles: Breeze, Windows, GTK+, Fusion
-   jim@brains:~$ python3 -m photini.editor -style breeze
+   jim@brains:~$ photini -style breeze
 
 Note that the style names are not case sensitive.
 If none of the available styles is to your liking you may be able to install extra ones.
@@ -128,7 +130,8 @@ Note that after doing this you can not set a different style on the command line
 .. code-block:: guess
 
    [pyqt]
-   using_pyqt5 = auto
+   using_pyqt5 = True
+   using_pyside2 = auto
    using_qtwebengine = auto
    native_dialog = True
    style = breeze
