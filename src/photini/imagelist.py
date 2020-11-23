@@ -802,7 +802,7 @@ class ImageList(QtWidgets.QWidget):
 
     @QtSlot(bool)
     @catch_all
-    def save_files(self, checked):
+    def save_files(self, checked=False):
         self._save_files(self.images)
 
     def _save_files(self, images=[]):
