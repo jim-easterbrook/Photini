@@ -40,7 +40,21 @@ if sys.platform.startswith('linux'):
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'True')
+using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
+
+if using_pyside2 == 'auto':
+    using_pyside2 = False
+    try:
+        from PyQt5 import QtCore
+    except ImportError:
+        try:
+            from PySide2 import QtCore
+            using_pyside2 = True
+        except ImportError:
+            pass
+else:
+    using_pyside2 = eval(using_pyside2)
 
 if using_pyqt5 == 'False':
     using_pyqt5 = False
@@ -49,20 +63,42 @@ if using_pyqt5 == 'False':
 else:
     using_pyqt5 = True
 
-if using_pyqt5 and using_qtwebengine == 'auto':
-    try:
-        from PyQt5 import QtWebEngineWidgets
+if using_pyside2:
+    if using_qtwebengine == 'auto':
         using_qtwebengine = True
-    except ImportError:
-        using_qtwebengine = False
         try:
-            from PyQt5 import QtWebKit
+            from PySide2 import QtWebEngineWidgets
         except ImportError:
-            using_qtwebengine = True
-else:
-    using_qtwebengine = using_pyqt5 and eval(using_qtwebengine)
-
-if using_pyqt5:
+            try:
+                from PySide2 import QtWebKit
+                using_qtwebengine = False
+            except ImportError:
+                pass
+    else:
+        using_qtwebengine = eval(using_qtwebengine)
+    from PySide2 import QtCore, QtGui, QtWidgets
+    from PySide2.QtCore import Qt
+    from PySide2.QtNetwork import QNetworkProxy
+    if using_qtwebengine:
+        from PySide2 import QtWebChannel, QtWebEngineWidgets
+    else:
+        from PySide2 import QtWebKit, QtWebKitWidgets
+    from PySide2.QtCore import Signal as QtSignal
+    from PySide2.QtCore import Slot as QtSlot
+    from PySide2 import __version__ as PySide2_version
+elif using_pyqt5:
+    if using_qtwebengine == 'auto':
+        using_qtwebengine = True
+        try:
+            from PyQt5 import QtWebEngineWidgets
+        except ImportError:
+            try:
+                from PyQt5 import QtWebKit
+                using_qtwebengine = False
+            except ImportError:
+                pass
+    else:
+        using_qtwebengine = eval(using_qtwebengine)
     from PyQt5 import QtCore, QtGui, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
@@ -73,6 +109,7 @@ if using_pyqt5:
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
 else:
+    using_qtwebengine = False
     import sip
     sip.setapi('QString', 2)
     sip.setapi('QVariant', 2)
@@ -103,14 +140,17 @@ del config, style
 
 translate = QtCore.QCoreApplication.translate
 
-qt_version_info = namedtuple(
-    'qt_version_info', ('major', 'minor', 'micro'))._make(
-        map(int, QtCore.QT_VERSION_STR.split('.')))
-
-qt_version = 'PyQt {}, Qt {}, using {}'.format(
-        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR,
-        ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
-
+if using_pyside2:
+    qt_version_info = QtCore.__version_info__
+    qt_version = 'PySide {}, Qt {}'.format(PySide2_version, QtCore.__version__)
+else:
+    qt_version_info = namedtuple(
+        'qt_version_info', ('major', 'minor', 'micro'))._make(
+            map(int, QtCore.QT_VERSION_STR.split('.')))
+    qt_version = 'PyQt {}, Qt {}'.format(
+        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+qt_version += ', using {}'.format(
+    ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
 
 # decorator for methods called by Qt that logs any exception raised
 def catch_all(func):
