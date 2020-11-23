@@ -122,14 +122,11 @@ else:
     from PyQt4.QtCore import pyqtSlot as QtSlot
 
 if using_qtwebengine:
-    QWebPage = QtWebEngineWidgets.QWebEnginePage
-    QWebSettings = QtWebEngineWidgets.QWebEngineSettings
-    QWebView = QtWebEngineWidgets.QWebEngineView
+    QtWebKit = None
+    QtWebKitWidgets = None
 else:
     QtWebChannel = None
-    QWebPage = QtWebKitWidgets.QWebPage
-    QWebSettings = QtWebKit.QWebSettings
-    QWebView = QtWebKitWidgets.QWebView
+    QtWebEngineWidgets = None
 
 
 style = config.get('pyqt', 'style')
