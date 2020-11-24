@@ -54,6 +54,10 @@ except ImportError as ex:
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
+if six.PY2:
+    logger.warning('Photini is currently using Python 2.'
+                   ' Support for Python 2 will be withdrawn in a future release.')
+
 
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
