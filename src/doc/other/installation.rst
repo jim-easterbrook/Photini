@@ -151,11 +151,12 @@ You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
 =============================  =================  ============================  =================
 Package                        Minimum version    Typical Linux package name    PyPI package name
 =============================  =================  ============================  =================
-Python_                        2.7 or 3.2         python3
+Python_                        3.6                python3
 PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  PyQt5
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit
-gexiv2_ [3]                    0.10               typelib-1_0-GExiv2-0_10 or
+gexiv2_ [3]                    0.10               libgexiv2-2
+gexiv2 introspection data                         typelib-1_0-GExiv2-0_10 or
                                                   gir1.2-gexiv2-0.10
 PyGObject_ [4]                                    python3-gobject or
                                                   python3-gi
