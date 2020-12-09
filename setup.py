@@ -176,21 +176,6 @@ class install_menu(Command):
                 with open(temp_file) as f:
                     for line in f.readlines():
                         self.outfiles.append(line.strip())
-        elif sys.platform.startswith('linux'):
-            desktop_path = os.path.join(
-                self.install_data, 'share/applications/photini.desktop')
-            exec_path = os.path.join(self.script_dir, 'photini')
-            icon_path = os.path.join(
-                self.lib_dir, 'photini/data/icons/48/photini.png')
-            log.info('Installing desktop file %s', desktop_path)
-            if not self.dry_run:
-                self.mkpath(os.path.dirname(desktop_path))
-                with open('src/linux/photini.desktop.template', 'r') as src:
-                    template = src.read()
-                with open(desktop_path, 'w') as dst:
-                    dst.write(template.format(
-                        exec_path=exec_path, icon_path=icon_path))
-            self.outfiles.append(desktop_path)
 
     def get_outputs(self):
         return self.outfiles or []
@@ -384,11 +369,15 @@ setup(name = 'Photini',
           'photini' : ['data/*.txt', 'data/*.png',
                        'data/icons/*/photini.png', 'data/icons/win/icon.ico',
                        'data/*map/script.js', 'data/openstreetmap/*.js',
-                       'data/lang/*.qm'],
+                       'data/lang/*.qm', 'data/linux/*'],
           },
       cmdclass = cmdclass,
       command_options = command_options,
       entry_points = {
+          'console_scripts' : [
+              'photini-post-install = photini.scripts:post_install',
+              'photini-pre-uninstall = photini.scripts:pre_uninstall',
+              ],
           'gui_scripts' : [
               'photini = photini.editor:main',
               ],

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Photini
+Comment=An easy to use digital photograph metadata (EXIF, IPTC, XMP) editing application.
+GenericName=Photini metadata editor
+Terminal=false
+Categories=Graphics;Photography;
+MimeType=image/jpeg;image/jpeg2000;image/tiff;image/png;image/gif;image/svg+xml;image/x-dcraw;
