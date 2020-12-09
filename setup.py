@@ -384,7 +384,6 @@ setup(name = 'Photini',
           },
       install_requires = ['appdirs >= 1.3', 'requests >= 2.4.0', 'six >= 1.5'],
       extras_require = {
-          'facebook' : [],
           'flickr'   : ['flickrapi >= 2.0', 'keyring >= 7.0'],
           'google'   : ['requests-oauthlib >= 1.0', 'keyring >= 7.0'],
           'importer' : ['gphoto2 >= 0.10'],
