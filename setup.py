@@ -32,53 +32,6 @@ with open('src/photini/__init__.py') as f:
 cmdclass = {}
 command_options = {}
 
-# get GitHub repo information
-# requires GitPython - 'sudo pip install gitpython'
-try:
-    import git
-except ImportError:
-    git = None
-if git:
-    try:
-        repo = git.Repo()
-        if repo.is_dirty():
-            dev_no = int(build.split()[0])
-            commit = build.split()[1][1:-1]
-            # increment dev_no when there's been a commit
-            last_commit = str(repo.head.commit)[:7]
-            if last_commit != commit:
-                dev_no += 1
-                commit = last_commit
-            # get latest release tag
-            latest = 0
-            for tag in repo.tags:
-                if tag.commit.committed_date > latest:
-                    tag_name = str(tag)
-                    if re.match(r'\d{4}\.\d{1,2}\.\d$', tag_name):
-                        latest = tag.commit.committed_date
-                        last_release = tag_name
-            # set current version number (calendar based)
-            major, minor, micro = map(int, last_release.split('.'))
-            today = date.today()
-            if today.year == major and today.month == minor:
-                micro += 1
-            else:
-                micro = 0
-            __version__ = '{:4d}.{:d}.{:d}'.format(
-                today.year, today.month, micro)
-            # update __init__.py if anything's changed
-            new_text = """from __future__ import unicode_literals
-
-__version__ = '%s'
-build = '%d (%s)'
-""" % (__version__, dev_no, commit)
-            with open('src/photini/__init__.py', 'r') as vf:
-                old_text = vf.read()
-            if new_text != old_text:
-                with open('src/photini/__init__.py', 'w') as vf:
-                    vf.write(new_text)
-    except (git.exc.InvalidGitRepositoryError, git.exc.GitCommandNotFound):
-        pass
 
 # if sphinx is installed, add commands to build documentation and to
 # extract strings for translation
