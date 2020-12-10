@@ -37,7 +37,7 @@ You will also need to install the Transifex client program::
 
    sudo pip install transifex-client
 
-You also need to install ``pylupdate5`` or ``pylupdate4``.
+You also need to install ``pylupdate5``.
 This should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
 
 You can use any text editor for your translations, but a special purpose translation editor is preferable.
@@ -79,7 +79,7 @@ For example, if you are going to translate Photini into Dutch::
 
 Now update (or initialise if it doesn't exist) the translation file with the current program strings::
 
-   python setup.py lupdate -l nl
+   python utils/extract_program.py -l nl
 
 Now you can open the translation file in your chosen editor, for example::
 
@@ -147,9 +147,9 @@ The translation file (e.g. ``src/lang/photini.nl.ts``) needs to be "compiled" (c
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
 (Or ``lrelease``, which may be in ``libqt4-linguist``.)
 
-You can easily update and compile all the language files with setup.py::
+You can easily update and compile all the language files::
 
-   python setup.py lupdate
+   python utils/extract_program.py
    python setup.py lrelease
 
 Now you can install Photini with your new translation(s)::

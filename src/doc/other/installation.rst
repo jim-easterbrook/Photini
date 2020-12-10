@@ -229,7 +229,7 @@ You will need to install the optional dependencies separately.
 
 If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
 
-   python setup.py lupdate
+   python utils/extract_program.py
    python setup.py lrelease
 
 This requires the Qt "linguist" software to be installed.
