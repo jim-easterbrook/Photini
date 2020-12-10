@@ -19,7 +19,7 @@ This is a minimal MSYS2 and Python system, and should not conflict with any othe
 Previous installers (from before May 2019) used a "portable Python" system based on WinPython_.
 If you have a Photini installation from one of these installers you should remove it using the "Programs and Features" control panel item, and ensure the installation folder (e.g. ``C:\Program Files (x86)\Photini`` has been removed, before using the new installer.
 
-You can download the Windows installers from the `GitHub releases`_ `Windows installers`_ page.
+You can download the Windows installers from the GitHub `Windows installers`_ page.
 These install the latest version of Photini, even if the installer is older.
 There are installers for 32 bit and 64 bit Windows, and they should work on any version since Windows XP.
 
@@ -66,7 +66,7 @@ When it's finished you can free up some disc space with the ``pacman -Scc`` comm
 
 Use pip_ to install Photini::
 
-   python -m pip install photini flickrapi keyring gpxpy
+   python -m pip install photini
 
 Then run Photini::
 
@@ -84,13 +84,16 @@ Run the ``mingw64.exe`` shell and update pacman_, then use it to update all inst
 
 Use pip_ to update Photini::
 
-   python -m pip install -U photini gpxpy
+   python -m pip install -U photini
 
 Note that pip_ may warn that you are using an old version of pip and instruct you to update it with pip.
 DO NOT DO THIS!
 The MSYS2_ installation of pip has been patched to work with Windows paths and should only be upgraded using pacman_.
 
-If you use the Flickr uploader this can also be updated with pip_::
+.. versionadded:: 2020.12.0
+   After installing or upgrading Photini you should (re)install the start menu shortcuts, as described in the `installing menu entries`_ section.
+
+If you use the Flickr uploader this can also be installed or updated with pip_::
 
    python -m pip install -U flickrapi keyring
 
@@ -167,7 +170,7 @@ six                            1.5                python3-six                   
 =============================  =================  ============================  =================
 
 [1] PyQt_ and PySide2_ are both Python interfaces to the Qt GUI framework.
-Photini version 2020.11.1 and later can use either PyQt or PySide2, so you can install whichever one you prefer.
+Photini version 2020.12.0 and later can use either PyQt or PySide2, so you can install whichever one you prefer.
 If both are installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
@@ -231,6 +234,24 @@ If you'd like to test or use one of Photini's translation files you will need to
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
+
+Installing menu entries
+-----------------------
+
+.. versionadded:: 2020.12.0
+
+In previous versions of Photini installing with pip_ created start menu (Windows) or application menu (Linux) entries to run Photini.
+Recent versions of pip have made this a lot more difficult, so now the menu entries need to be created after installation.
+Run a command window, as described in the troubleshooting_ section, then run Photini's post installation command::
+
+   sudo photini-post-install
+
+(Windows users should omit the ``sudo``.)
+If you only want menu entries for a single user, run the command with the ``--user`` option::
+
+   photini-post-install --user
+
+The menu entries can be removed with the ``photini-pre-uninstall`` command.
 
 .. _installation-optional:
 
