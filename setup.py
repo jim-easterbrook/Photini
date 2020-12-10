@@ -290,6 +290,11 @@ with open('README.rst') as ldf:
     long_description = ldf.read()
 url = 'https://github.com/jim-easterbrook/Photini'
 
+package_data = []
+for root, dirs, files in os.walk('src/photini/data/'):
+    package_data += [
+        os.path.join(root.replace('src/photini/', ''), x) for x in files]
+
 setup(name = 'Photini',
       version = __version__,
       author = 'Jim Easterbrook',
@@ -312,11 +317,7 @@ setup(name = 'Photini',
           ],
       packages = ['photini'],
       package_dir = {'' : 'src'},
-      package_data = {
-          'photini' : ['data/*.txt', 'data/*.png', 'data/icons/*',
-                       'data/*map/script.js', 'data/openstreetmap/*.js',
-                       'data/lang/*.qm', 'data/linux/*', 'data/windows/*'],
-          },
+      package_data = {'photini' : package_data},
       cmdclass = cmdclass,
       command_options = command_options,
       entry_points = {
