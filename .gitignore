@@ -36,5 +36,3 @@ photini.pro
 /src/lang/doc/pot/
 /src/misc/*.pam
 /src/photini/data/lang
-/src/windows/installers
-/src/windows/WinPython
