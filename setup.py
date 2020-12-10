@@ -24,8 +24,6 @@ from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
 import re
 from setuptools import setup
-from setuptools.command.install import install
-import sys
 
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
@@ -132,56 +130,6 @@ class upload_and_tag(upload):
         return result
 
 cmdclass['upload'] = upload_and_tag
-
-
-# add command to create start menu entries
-class install_menu(Command):
-    description = 'install start menu entries'
-    user_options = []
-    boolean_options = ['user']
-
-    def initialize_options(self):
-        self.user = None
-        self.install_data = None
-        self.script_dir = None
-        self.lib_dir = None
-        self.build_temp = None
-
-    def finalize_options(self):
-        self.set_undefined_options('install',
-                                   ('user', 'user'),
-                                   ('install_data', 'install_data'),
-                                   ('install_scripts', 'script_dir'),
-                                   ('install_lib', 'lib_dir'))
-        self.set_undefined_options('build',
-                                   ('build_temp', 'build_temp'))
-
-    def run(self):
-        self.outfiles = []
-        if sys.platform == 'win32':
-            exec_path = os.path.join(self.script_dir, 'photini.exe')
-            icon_path = os.path.join(
-                self.lib_dir, 'photini/data/icons/win/icon.ico')
-            temp_file = os.path.abspath(os.path.join(
-                self.build_temp, 'new_files.txt'))
-            log.info('Creating menu shortcuts')
-            if not self.dry_run:
-                self.mkpath(os.path.dirname(temp_file))
-                args = ['cscript', '/nologo',
-                        'src/windows/install_shortcuts.vbs',
-                        exec_path, icon_path, sys.prefix, temp_file]
-                if self.user:
-                    args.append('/user')
-                self.spawn(args)
-                with open(temp_file) as f:
-                    for line in f.readlines():
-                        self.outfiles.append(line.strip())
-
-    def get_outputs(self):
-        return self.outfiles or []
-
-cmdclass['install_menu'] = install_menu
-install.sub_commands.append(('install_menu', lambda self:True))
 
 
 # set options for building distributions
@@ -369,7 +317,7 @@ setup(name = 'Photini',
           'photini' : ['data/*.txt', 'data/*.png',
                        'data/icons/*/photini.png', 'data/icons/win/icon.ico',
                        'data/*map/script.js', 'data/openstreetmap/*.js',
-                       'data/lang/*.qm', 'data/linux/*'],
+                       'data/lang/*.qm', 'data/linux/*', 'data/windows/*'],
           },
       cmdclass = cmdclass,
       command_options = command_options,

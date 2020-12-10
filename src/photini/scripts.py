@@ -31,54 +31,71 @@ logger = logging.getLogger(__name__)
 
 
 def post_install(argv=None):
-    if not sys.platform.startswith('linux'):
-        return 0
     if argv:
         sys.argv = argv
     parser = OptionParser(
         usage='Usage: %prog [options] [file_name, ...]',
         description='Install Photini application menu entry')
-    local_dir = os.path.expanduser('~/.local/share/applications')
     parser.add_option(
-        '-u', '--user', action='store_true',
-        help='install in user directory {}'.format(local_dir))
+        '-u', '--user', action='store_true', help='install for single user')
     options, args = parser.parse_args()
-    cmd = ['desktop-file-install']
-    if options.user:
-        cmd.append('--dir={}'.format(local_dir))
-    cmd += ['--set-key=Exec', '--set-value={} %F'.format(
-        os.path.join(os.path.dirname(sys.argv[0]), 'photini'))]
-    cmd += ['--set-key=Icon', '--set-value={}'.format(
-        pkg_resources.resource_filename(
-            'photini', 'data/icons/48/photini.png'))]
-    cmd.append(pkg_resources.resource_filename(
-        'photini', 'data/linux/photini.desktop'))
-    print(' '.join(cmd))
-    return subprocess.call(cmd)
+    exec_path = os.path.join(os.path.dirname(sys.argv[0]), 'photini')
+    icon_path = pkg_resources.resource_filename('photini', 'data/icons')
+    if sys.platform == 'win32':
+        exec_path += '.exe'
+        icon_path = os.path.join(icon_path, 'win/icon.ico')
+        cmd = ['cscript', '/nologo',
+               pkg_resources.resource_filename(
+                   'photini', 'data/windows/install_shortcuts.vbs'),
+               exec_path, icon_path, sys.prefix]
+        if options.user:
+            cmd.append('/user')
+        print('Creating menu shortcuts')
+        return subprocess.call(cmd)
+    elif sys.platform.startswith('linux'):
+        icon_path = os.path.join(icon_path, '48/photini.png')
+        cmd = ['desktop-file-install']
+        if options.user:
+            cmd.append('--dir={}'.format(
+                os.path.expanduser('~/.local/share/applications')))
+        cmd += ['--set-key=Exec', '--set-value={} %F'.format(exec_path)]
+        cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
+        cmd.append(pkg_resources.resource_filename(
+            'photini', 'data/linux/photini.desktop'))
+        print(' '.join(cmd))
+        return subprocess.call(cmd)
+    return 0
 
 
 def pre_uninstall(argv=None):
-    if not sys.platform.startswith('linux'):
-        return 0
     if argv:
         sys.argv = argv
     parser = OptionParser(
         usage='Usage: %prog [options] [file_name, ...]',
         description='Remove Photini application menu entry')
-    local_dir = os.path.expanduser('~/.local/share/applications')
     parser.add_option(
-        '-u', '--user', action='store_true',
-        help='remove from user directory {}'.format(local_dir))
+        '-u', '--user', action='store_true', help='install for single user')
     options, args = parser.parse_args()
-    if options.user:
-        paths = [local_dir]
-    else:
-        paths = ['/usr/share/applications/', '/usr/local/share/applications/']
-    for dir_name in paths:
-        path = os.path.join(dir_name, 'photini.desktop')
-        if os.path.exists(path):
-            print('Deleting', path)
-            os.unlink(path)
-            return 0
-    print('No "desktop" file found.')
+    if sys.platform == 'win32':
+        cmd = ['cscript', '/nologo',
+               pkg_resources.resource_filename(
+                   'photini', 'data/windows/install_shortcuts.vbs'),
+               '/remove']
+        if options.user:
+            cmd.append('/user')
+        print('Removing menu shortcuts')
+        return subprocess.call(cmd)
+    elif sys.platform.startswith('linux'):
+        if options.user:
+            paths = [os.path.expanduser('~/.local/share/applications')]
+        else:
+            paths = ['/usr/share/applications/',
+                     '/usr/local/share/applications/']
+        for dir_name in paths:
+            path = os.path.join(dir_name, 'photini.desktop')
+            if os.path.exists(path):
+                print('Deleting', path)
+                os.unlink(path)
+                return 0
+        print('No "desktop" file found.')
     return 1
