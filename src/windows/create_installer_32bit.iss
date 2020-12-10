@@ -1,9 +1,8 @@
 #define MSYS "{app}\msys2";
-#define PythonW "{app}\msys2\mingw32\bin\pythonw.exe";
-#define Shell "{app}\msys2\usr\bin\env.exe";
+#define Bin "{app}\msys2\mingw32\bin";
 #define SrcDir "C:\photini_temp_32"
-#define SrcIcon "..\photini\data\icons\win\icon.ico"
-#define Version "2020.10.0"
+#define SrcIcon "..\photini\data\icons\photini_win.ico"
+#define Version "2020.12.0"
 
 [Setup]
 VersionInfoVersion={#Version}
@@ -37,19 +36,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "{#SrcDir}\*"; DestDir: "{#MSYS}"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
-Source: {#SrcIcon}; DestDir: "{app}"; Flags: ignoreversion
+Source: {#SrcIcon}; DestDir: "{app}\icon.ico"; Flags: ignoreversion
 Source: "install_photini_32.cmd"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Photini"; Filename: "{#PythonW}"; \
-  Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
-  IconFileName: {app}\icon.ico
+Name: "{group}\Photini"; Filename: "{#Bin}\photini.exe"; \
+  Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico
 Name: "{group}\Photini documentation"; Filename: "https://photini.readthedocs.io/"
 Name: "{group}\MinGW"; Filename: "{app}\msys2\mingw32.exe"; \
   Comment: "MSYS2 command shell"; IconFileName: {app}\msys2\mingw32.ico
-Name: "{commondesktop}\Photini"; Filename: "{#PythonW}"; \
-  Parameters: "-m photini.editor"; Comment: "Photo metadata editor"; \
-  IconFileName: {app}\icon.ico; Tasks: desktopicon
+Name: "{commondesktop}\Photini"; Filename: "{#Bin}\photini.exe"; \
+  Comment: "Photo metadata editor"; IconFileName: {app}\icon.ico; Tasks: desktopicon
 
 [Types]
 Name: "custom"; Description: "Custom installation"; Flags: iscustom
@@ -85,7 +82,7 @@ end;
 [Run]
 Filename: "{app}\install_photini_32.cmd"; Parameters: {code:GetInstallOptions}; \
   StatusMsg: "Installing Photini..."
-Filename: "{#PythonW}"; Parameters: "-m photini.editor"; \
+Filename: "{#Bin}\photini.exe"; \
   Description: "{cm:LaunchProgram,Photini}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
