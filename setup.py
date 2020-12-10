@@ -323,7 +323,6 @@ setup(name = 'Photini',
       entry_points = {
           'console_scripts' : [
               'photini-post-install = photini.scripts:post_install',
-              'photini-pre-uninstall = photini.scripts:pre_uninstall',
               ],
           'gui_scripts' : [
               'photini = photini.editor:main',

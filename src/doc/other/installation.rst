@@ -13,7 +13,7 @@ On other platforms you need to install several dependencies before installing Ph
 All-in-one installer (Windows)
 ------------------------------
 
-The Windows installers create a standalone MSYS2_ installation with all the dependencies needed to run Photini.
+The Windows installers create a stand-alone MSYS2_ installation with all the dependencies needed to run Photini.
 This is a minimal MSYS2 and Python system, and should not conflict with any other Python version installed on your computer, or any other MSYS2 installation.
 
 Previous installers (from before May 2019) used a "portable Python" system based on WinPython_.
@@ -247,11 +247,15 @@ Run a command window, as described in the troubleshooting_ section, then run Pho
    sudo photini-post-install
 
 (Windows users should omit the ``sudo``.)
-If you only want menu entries for a single user, run the command with the ``--user`` option::
+If you only want menu entries for a single user, run the command with the ``--user`` (or ``-u``) option::
 
    photini-post-install --user
 
-The menu entries can be removed with the ``photini-pre-uninstall`` command.
+The menu entries can be removed with the ``--remove`` (or ``-r``) option::
+
+   sudo photini-post-install --remove
+
+You need to do this **before** uninstalling Photini, as the post installation command gets deleted when Photini is uninstalled.
 
 .. _installation-optional:
 
