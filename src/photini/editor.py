@@ -97,7 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):
             'MenuBar', "Photini photo metadata editor"))
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(pkg_resources.resource_string(
-            'photini', 'data/icons/48/photini.png'))
+            'photini', 'data/icons/photini_48.png'))
         icon = QtGui.QIcon(pixmap)
         self.setWindowIcon(icon)
         self.selection = list()
@@ -385,7 +385,7 @@ github.com/jim-easterbrook/Photini</a>.</p>
 details click the 'show details' button.</p>
 """).format(__version__, build,
             pkg_resources.resource_filename(
-                'photini', 'data/icons/128/photini.png'))
+                'photini', 'data/icons/photini_128.png'))
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)

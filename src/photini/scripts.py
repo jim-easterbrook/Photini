@@ -43,7 +43,7 @@ def post_install(argv=None):
     icon_path = pkg_resources.resource_filename('photini', 'data/icons')
     if sys.platform == 'win32':
         exec_path += '.exe'
-        icon_path = os.path.join(icon_path, 'win/icon.ico')
+        icon_path = os.path.join(icon_path, 'photini_win.ico')
         cmd = ['cscript', '/nologo',
                pkg_resources.resource_filename(
                    'photini', 'data/windows/install_shortcuts.vbs'),
@@ -53,7 +53,7 @@ def post_install(argv=None):
         print('Creating menu shortcuts')
         return subprocess.call(cmd)
     elif sys.platform.startswith('linux'):
-        icon_path = os.path.join(icon_path, '48/photini.png')
+        icon_path = os.path.join(icon_path, 'photini_48.png')
         cmd = ['desktop-file-install']
         if options.user:
             cmd.append('--dir={}'.format(
