@@ -1,4 +1,6 @@
 include *.txt MANIFEST.in README.rst
 recursive-include src *
 recursive-include utils *
-global-exclude *~ *.pyc *.doctree *.pickle
+global-exclude *~ *.pyc *.mo
+prune src/lang/doc/pot
+exclude utils/make_icons/*.pam
