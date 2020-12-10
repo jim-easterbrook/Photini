@@ -33,34 +33,6 @@ cmdclass = {}
 command_options = {}
 
 
-# if sphinx is installed, add commands to build documentation and to
-# extract strings for translation
-try:
-    from sphinx.setup_command import BuildDoc
-except ImportError:
-    BuildDoc = None
-if BuildDoc:
-    class BuildSphinx(BuildDoc):
-        description = 'build Photini documentation'
-
-    class GetText(BuildDoc):
-        description = 'prepare Photini documentation for translation'
-
-    cmdclass['build_sphinx'] = BuildSphinx
-    command_options['build_sphinx'] = {
-        'all_files'  : ('setup.py', '1'),
-        'source_dir' : ('setup.py', 'src/doc'),
-        'build_dir'  : ('setup.py', 'doc'),
-        'builder'    : ('setup.py', 'html'),
-        }
-    cmdclass['xgettext'] = GetText
-    command_options['xgettext'] = {
-        'all_files'  : ('setup.py', '1'),
-        'source_dir' : ('setup.py', 'src/doc'),
-        'build_dir'  : ('setup.py', 'src/lang/doc/pot'),
-        'builder'    : ('setup.py', 'gettext'),
-        }
-
 # modify upload class to add appropriate tag
 # requires GitPython - 'sudo pip install gitpython'
 class upload_and_tag(upload):

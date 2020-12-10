@@ -154,7 +154,6 @@ You can easily update and compile all the language files with setup.py::
 
 Now you can install Photini with your new translation(s)::
 
-   python setup.py build
    sudo python -m pip install .
 
 Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately.
@@ -187,9 +186,8 @@ For example, if you are going to translate the documentation into Dutch::
 The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project.
 The documentation text to be translated is extracted from its source into several ``.pot`` "template" files::
 
-   python -B setup.py xgettext
+   python utils/extract_doc.py
 
-(The ``-B`` option stops Python "compiling" files as they are imported.)
 Each of these template files is then used to initialise or update a ``.po`` translation files.
 For example, if you want to translate the "manual" part of the documentation into Dutch::
 
@@ -250,7 +248,7 @@ For example, if you've been working on a Dutch translation with the language cod
 If you install `Sphinx <http://sphinx-doc.org/index.html>`_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::
 
-   LANG=nl python setup.py build_sphinx
+   LANG=nl python utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the translated documentation.
 

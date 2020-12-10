@@ -326,10 +326,10 @@ You can view previous messages and ask to join the group at https://groups.googl
 Photini documentation
 ---------------------
 
-If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and use setup.py to "compile" the documentation::
+If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and then "compile" the documentation::
 
    sudo pip install sphinx
-   python -B setup.py build_sphinx
+   python utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
