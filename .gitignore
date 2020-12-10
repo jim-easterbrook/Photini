@@ -33,6 +33,7 @@ pip-log.txt
 MANIFEST
 photini.pro
 /doc
+/doctrees
 /src/lang/doc/pot/
 /utils/make_icons/*.pam
 /src/photini/data/lang
