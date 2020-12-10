@@ -53,6 +53,7 @@ def post_install(argv=None):
             'photini', 'data/icons/48/photini.png'))]
     cmd.append(pkg_resources.resource_filename(
         'photini', 'data/linux/photini.desktop'))
+    print(' '.join(cmd))
     return subprocess.call(cmd)
 
 
@@ -76,6 +77,7 @@ def pre_uninstall(argv=None):
     for dir_name in paths:
         path = os.path.join(dir_name, 'photini.desktop')
         if os.path.exists(path):
+            print('Deleting', path)
             os.unlink(path)
             return 0
     print('No "desktop" file found.')
