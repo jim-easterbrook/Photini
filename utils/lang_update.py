@@ -63,7 +63,7 @@ def extract_doc_strings(root, lang):
     app.build()
     # create / update .po files with Babel
     src_dir = dst_dir
-    dst_dir = os.path.join(root, 'src', 'lang', 'doc')
+    dst_dir = os.path.join(root, 'src', 'lang')
     inputs = []
     for name in os.listdir(src_dir):
         base, ext = os.path.splitext(name)

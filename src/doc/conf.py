@@ -86,7 +86,7 @@ version = __version__
 #language = None
 if 'LANG' in os.environ:
     language = os.environ['LANG'].split('_')[0]
-locale_dirs = ['../lang/doc']
+locale_dirs = ['../lang']
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
