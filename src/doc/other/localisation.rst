@@ -37,11 +37,11 @@ You will also need to install the Transifex client program::
 
    sudo pip install transifex-client
 
-You also need to install ``pylupdate5``.
-This should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
+You also need to install Babel_ and ``pylupdate5``.
+The latter should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
 
 You can use any text editor for your translations, but a special purpose translation editor is preferable.
-The `Qt Linguist <http://doc.qt.io/qt-5/linguist-translators.html>`_ program is ideal, but any editor that understands the ``.ts`` file format used by Qt should be acceptable.
+The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used by Qt should be acceptable.
 
 Translating the program text
 ----------------------------
@@ -77,9 +77,9 @@ For example, if you are going to translate Photini into Dutch::
 
 (The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
 
-Now update (or initialise if it doesn't exist) the translation file with the current program strings::
+Now update (or initialise if they don't exist) the translation files with the current program strings::
 
-   python utils/extract_program.py -l nl
+   python utils/lang_update.py -l nl
 
 Now you can open the translation file in your chosen editor, for example::
 
@@ -145,11 +145,10 @@ For example, if you've been working on a Dutch translation with the language cod
 
 The translation file (e.g. ``src/lang/photini.nl.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
-(Or ``lrelease``, which may be in ``libqt4-linguist``.)
 
 You can easily update and compile all the language files::
 
-   python utils/extract_program.py
+   python utils/lang_update.py
    python setup.py lrelease
 
 Now you can install Photini with your new translation(s)::
@@ -184,18 +183,9 @@ For example, if you are going to translate the documentation into Dutch::
    tx pull -l nl -f
 
 The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project.
-The documentation text to be translated is extracted from its source into several ``.pot`` "template" files::
+Theses are created or updated by the same script as the program strings::
 
-   python utils/extract_doc.py
-
-Each of these template files is then used to initialise or update a ``.po`` translation files.
-For example, if you want to translate the "manual" part of the documentation into Dutch::
-
-   python setup.py init_catalog -i src/lang/doc/pot/gettext/manual.pot -l nl
-
-Or, if the ``.po`` file already exists::
-
-   python setup.py update_catalog -i src/lang/doc/pot/gettext/manual.pot -l nl
+   python utils/lang_update.py -l nl
 
 Now you can open the translation file in your chosen editor, for example::
 
@@ -245,11 +235,14 @@ For example, if you've been working on a Dutch translation with the language cod
 
    tx pull -l nl -f
 
-If you install `Sphinx <http://sphinx-doc.org/index.html>`_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
+If you install Sphinx_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::
 
    LANG=nl python utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the translated documentation.
 
-.. _Transifex: https://www.transifex.com/projects/p/photini/
+.. _Babel:       http://babel.pocoo.org/
+.. _Qt Linguist: https://doc.qt.io/qt-5/linguist-translators.html
+.. _Sphinx:      https://www.sphinx-doc.org/
+.. _Transifex:   https://www.transifex.com/projects/p/photini/
