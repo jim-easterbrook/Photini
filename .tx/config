@@ -2,8 +2,8 @@
 host = https://www.transifex.com
 
 [photini.photini]
-file_filter = src/lang/photini.<lang>.ts
-source_file = src/lang/photini.en.ts
+file_filter = src/lang/<lang>/photini.ts
+source_file = src/lang/en/photini.ts
 source_lang = en
 
 [photini.docindex]

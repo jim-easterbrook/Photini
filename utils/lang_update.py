@@ -36,12 +36,16 @@ def extract_program_strings(root, lang):
             inputs.append(os.path.join(src_dir, name))
     inputs.sort()
     if lang:
-        outputs = [os.path.join(dst_dir, 'photini.' + lang + '.ts')]
+        path = os.path.join(dst_dir, lang)
+        if not os.path.isdir(path):
+            os.makedirs(path)
+        outputs = [os.path.join(path, 'photini.ts')]
     else:
         outputs = []
         for name in os.listdir(dst_dir):
-            if name.startswith('photini.'):
-                outputs.append(os.path.join(dst_dir, name))
+            path = os.path.join(dst_dir, name, 'photini.ts')
+            if os.path.exists(path):
+                outputs.append(path)
         outputs.sort()
     cmd = ['pylupdate5', '-verbose', '-noobsolete']
     cmd += inputs

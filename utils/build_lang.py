@@ -29,11 +29,11 @@ def main(argv=None):
     dst_dir = os.path.join(root, 'src', 'photini', 'data', 'lang')
     inputs = []
     for name in os.listdir(src_dir):
-        base, ext = os.path.splitext(name)
-        if ext != '.ts':
+        src_file = os.path.join(src_dir, name, 'photini.ts')
+        if not os.path.exists(src_file):
             continue
-        cmd = ['lrelease-qt5', os.path.join(src_dir, name),
-               '-qm', os.path.join(dst_dir, base + '.qm')]
+        cmd = ['lrelease-qt5', src_file,
+               '-qm', os.path.join(dst_dir, 'photini.' + name + '.qm')]
         result = subprocess.call(cmd)
         if result:
             return result
