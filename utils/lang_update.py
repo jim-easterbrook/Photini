@@ -57,7 +57,7 @@ def extract_program_strings(root, lang):
 def extract_doc_strings(root, lang):
     # create / update .pot files with Sphinx
     src_dir = os.path.join(root, 'src', 'doc')
-    dst_dir = os.path.join(root, 'src', 'lang', 'templates')
+    dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
     doctree_dir = os.path.join(root, 'doctrees', 'gettext')
     app = Sphinx(src_dir, src_dir, dst_dir, doctree_dir, 'gettext')
     app.build()
