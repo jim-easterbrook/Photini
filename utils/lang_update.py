@@ -20,13 +20,14 @@ from __future__ import unicode_literals
 
 from argparse import ArgumentParser
 import os
+import re
 import subprocess
 import sys
 
 from sphinx.application import Sphinx
 
 
-def extract_program_strings(root, lang):
+def extract_program_strings(root, lang, strip):
     src_dir = os.path.join(root, 'src', 'photini')
     dst_dir = os.path.join(root, 'src', 'lang')
     inputs = []
@@ -47,14 +48,27 @@ def extract_program_strings(root, lang):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    cmd = ['pylupdate5', '-verbose', '-noobsolete']
+    cmd = ['pylupdate5', '-verbose']
     cmd += inputs
     cmd.append('-ts')
     cmd += outputs
-    return subprocess.call(cmd)
+    result = subprocess.call(cmd)
+    if result:
+        return result
+    if strip:
+        test = re.compile('^\s*<location filename="')
+        for path in outputs:
+            with open(path, 'r') as f:
+                old_text = f.readlines()
+            new_text = ''
+            with open(path, 'w') as f:
+                for line in old_text:
+                    if not test.match(line):
+                        f.write(line)
+    return 0
 
 
-def extract_doc_strings(root, lang):
+def extract_doc_strings(root, lang, strip):
     # create / update .pot files with Sphinx
     src_dir = os.path.join(root, 'src', 'doc')
     dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
@@ -78,6 +92,7 @@ def extract_doc_strings(root, lang):
             if name != 'pot':
                 locales.append(name)
     locales.sort()
+    outputs = []
     for locale in locales:
         for in_file in inputs:
             domain = os.path.splitext(os.path.basename(in_file))[0]
@@ -92,6 +107,17 @@ def extract_doc_strings(root, lang):
             result = subprocess.call(cmd)
             if result:
                 return result
+            outputs.append(out_file)
+    if strip:
+        test = re.compile('^#: ')
+        for path in outputs:
+            with open(path, 'r') as f:
+                old_text = f.readlines()
+            new_text = ''
+            with open(path, 'w') as f:
+                for line in old_text:
+                    if not test.match(line):
+                        f.write(line)
     return 0
 
 
@@ -102,12 +128,14 @@ def main(argv=None):
         description='Extract strings for translation')
     parser.add_argument('-l', '--language',
                         help='language code, e.g. nl or cs_CZ')
+    parser.add_argument('-s', '--strip', action='store_true',
+                        help='remove line numbers')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    result = extract_program_strings(root, args.language)
+    result = extract_program_strings(root, args.language, args.strip)
     if result:
         return result
-    result = extract_doc_strings(root, args.language)
+    result = extract_doc_strings(root, args.language, args.strip)
     return result
 
 
