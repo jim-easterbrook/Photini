@@ -101,37 +101,6 @@ command_options['lrelease'] = {
     'input_dir'  : ('setup.py', 'src/lang'),
     }
 
-# tweak Babel's translation commands
-try:
-    from babel.messages import frontend as babel
-except ImportError:
-    babel = None
-if babel:
-    class InitCatalog(babel.init_catalog):
-        def finalize_options(self):
-            if self.input_file:
-                self.domain = os.path.splitext(
-                    os.path.basename(self.input_file))[0]
-            babel.init_catalog.finalize_options(self)
-            if os.path.exists(self.output_file):
-                raise DistutilsOptionError(
-                    'output file exists, use "update_catalog" to update it')
-
-    class UpdateCatalog(babel.update_catalog):
-        def finalize_options(self):
-            if self.input_file:
-                self.domain = os.path.splitext(
-                    os.path.basename(self.input_file))[0]
-            babel.update_catalog.finalize_options(self)
-
-    cmdclass['init_catalog'] = InitCatalog
-    cmdclass['update_catalog'] = UpdateCatalog
-    command_options['init_catalog'] = {
-        'output_dir' : ('setup.py', 'src/lang/doc'),
-        }
-    command_options['update_catalog'] = {
-        'output_dir' : ('setup.py', 'src/lang/doc'),
-        }
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
