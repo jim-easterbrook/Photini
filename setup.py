@@ -16,14 +16,10 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-from datetime import date
-from distutils import log
-from distutils.cmd import Command
 from distutils.command.upload import upload
-from distutils.errors import DistutilsExecError, DistutilsOptionError
 import os
-import re
 from setuptools import setup
+
 
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
@@ -61,44 +57,6 @@ cmdclass['upload'] = upload_and_tag
 command_options['sdist'] = {
     'formats'        : ('setup.py', 'gztar'),
     'force_manifest' : ('setup.py', '1'),
-    }
-
-
-# add command to 'compile' translated messages
-class LRelease(Command):
-    description = 'compile translated strings (.ts) to binary .qm files'
-    user_options = [
-        ('output-dir=', 'o', 'location of output .qm files'),
-        ('input-dir=', 'i', 'location of input .ts files'),
-    ]
-
-    def initialize_options(self):
-        self.output_dir = None
-        self.input_dir = None
-
-    def finalize_options(self):
-        if not self.output_dir:
-            raise DistutilsOptionError('no output directory specified')
-        if not self.input_dir:
-            raise DistutilsOptionError('no input directory specified')
-
-    def run(self):
-        self.mkpath(self.output_dir)
-        for name in os.listdir(self.input_dir):
-            base, ext = os.path.splitext(name)
-            if ext != '.ts' or '.' not in base:
-                continue
-            args = [os.path.join(self.input_dir, name),
-                    '-qm', os.path.join(self.output_dir, base + '.qm')]
-            try:
-                self.spawn(['lrelease-qt5'] + args)
-            except DistutilsExecError:
-                self.spawn(['lrelease'] + args)
-
-cmdclass['lrelease'] = LRelease
-command_options['lrelease'] = {
-    'output_dir' : ('setup.py', 'src/photini/data/lang'),
-    'input_dir'  : ('setup.py', 'src/lang'),
     }
 
 

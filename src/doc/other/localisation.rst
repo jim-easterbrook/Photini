@@ -149,7 +149,7 @@ This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-lingui
 You can easily update and compile all the language files::
 
    python utils/lang_update.py
-   python setup.py lrelease
+   python utils/build_lang.py
 
 Now you can install Photini with your new translation(s)::
 
