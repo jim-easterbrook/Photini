@@ -34,6 +34,6 @@ MANIFEST
 photini.pro
 /doc
 /doctrees
-/src/lang/doc/pot/
+/src/lang/templates/
 /utils/make_icons/*.pam
 /src/photini/data/lang
