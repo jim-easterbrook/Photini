@@ -33,21 +33,37 @@ Offline translation
 Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used.
 
 Start by installing the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`).
-You will also need to install the Transifex client program::
+You will also need to install the Transifex client program, Babel_ and ``pylupdate5``.
+If possible, install these with your operating system software manager.
+``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
+Otherwise, you can use pip::
 
-   sudo pip install transifex-client
+   sudo pip install transifex-client Babel
 
-You also need to install Babel_ and ``pylupdate5``.
-The latter should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
+Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
+For example, if you are going to translate Photini into Dutch::
+
+   tx pull -l nl -f
+
+(The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
+
+Now update (or initialise if they don't exist) the translation files with the current program strings::
+
+   python utils/lang_update.py -l nl
+
+Now you can open a translation file in your chosen editor, for example::
+
+   linguist-qt5 src/lang/nl/photini.ts
+   linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
 
 You can use any text editor for your translations, but a special purpose translation editor is preferable.
-The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used by Qt should be acceptable.
+The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings or the ``.po`` file format used for the documentation should be acceptable.
 
 Translating the program text
 ----------------------------
 
 If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically.
-For example, this is what it looks like if your computer is configured to use Spanish.
+For example, this is what it might look like if your computer is configured to use Spanish.
 
 .. image:: ../images/screenshot_37.png
 
@@ -70,20 +86,11 @@ If you install the development version of Photini (see :ref:`installation-photin
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
 
-Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
-For example, if you are going to translate Photini into Dutch::
+The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language.
+You can open the translation file in any editor, but a translation tool is best.
+For example::
 
-   tx pull -l nl -f
-
-(The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
-
-Now update (or initialise if they don't exist) the translation files with the current program strings::
-
-   python utils/lang_update.py -l nl
-
-Now you can open the translation file in your chosen editor, for example::
-
-   linguist-qt5 src/lang/photini.nl.ts
+   linguist-qt5 src/lang/nl/photini.ts
 
 See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
 
@@ -115,7 +122,6 @@ Carriage returns
 HTML markup
    Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string.
    The Transifex web page includes a "copy source string" button that can help with this.
-
    Some strings such as ``<multiple values>`` are not HTML.
    The angle brackets ``<>`` are used to indicate data with a special meaning.
    These strings should usually be translated.
@@ -143,7 +149,7 @@ For example, if you've been working on a Dutch translation with the language cod
 
    tx pull -l nl -f
 
-The translation file (e.g. ``src/lang/photini.nl.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
+The translation file (e.g. ``src/lang/nl/photini.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
 
 You can easily update and compile all the language files::
@@ -177,19 +183,11 @@ See the :ref:`notes <localisation-documentation-notes>` below for things to be a
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
 
-Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
-For example, if you are going to translate the documentation into Dutch::
-
-   tx pull -l nl -f
-
 The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project.
-Theses are created or updated by the same script as the program strings::
+You can open the translation file in any editor, but a translation tool is best.
+For example::
 
-   python utils/lang_update.py -l nl
-
-Now you can open the translation file in your chosen editor, for example::
-
-   linguist-qt5 src/lang/doc/nl/LC_MESSAGES/manual.po
+   linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
@@ -231,7 +229,7 @@ Testing your translation
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Transifex client is used to download your translated strings.
-For example, if you've been working on a Dutch translation with the language code ``nl``::
+For example, if you've been working online on a Dutch translation with the language code ``nl``::
 
    tx pull -l nl -f
 
