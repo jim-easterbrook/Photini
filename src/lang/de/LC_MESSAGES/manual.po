@@ -3,8 +3,7 @@
 # This file is distributed under the same license as the Photini package.
 #
 # Translators:
-# Esteban Martinena Guerrero <orensbruli@gmail.com>, 2015
-# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2015
+# Ettore Atalan <atalanttore@googlemail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
@@ -12,9 +11,9 @@ msgstr ""
 "POT-Creation-Date: 2020-12-11 14:43+0000\n"
 "PO-Revision-Date: 2020-11-23 15:48+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
-"Language: es\n"
-"Language-Team: Spanish (http://www.transifex.com/jim-"
-"easterbrook/photini/language/es/)\n"
+"Language: de\n"
+"Language-Team: German (http://www.transifex.com/jim-"
+"easterbrook/photini/language/de/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -100,21 +99,17 @@ msgid ""
 msgstr ""
 
 msgid "Configuration"
-msgstr "Configuración"
+msgstr "Konfiguration"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove "
 "them by deselecting their entry in the ``Options`` menu."
 msgstr ""
-"Si hay pestañas en la interfaz de Photini que no usas, puedes eliminarlas"
-" deseleccionadolas en su apartado en el menu \"Opciones\""
 
 msgid ""
 "The ``Options`` menu also has a ``Settings`` item which opens the dialog "
 "shown below."
 msgstr ""
-"El menú \"opciones\" tiene también un elemento \"Configuración\" que abre"
-" el dialogo que se muestra a continuación."
 
 msgid ""
 "The top three items can be used to adjust the auto-generated copyright "
@@ -151,7 +146,7 @@ msgid ""
 msgstr ""
 
 msgid "Spell checking"
-msgstr ""
+msgstr "Rechtschreibprüfung"
 
 msgid ""
 "The ``Spelling`` menu allows you to enable or disable spell checking on "
@@ -192,7 +187,7 @@ msgid ""
 msgstr ""
 
 msgid "PyQt options"
-msgstr ""
+msgstr "PyQt-Optionen"
 
 msgid ""
 "The configuration file includes options to force use of PyQt4 instead of "
@@ -235,7 +230,7 @@ msgid ""
 msgstr ""
 
 msgid "Application style"
-msgstr ""
+msgstr "Anwendungsstil"
 
 msgid ""
 "Qt applications can have their appearance changed by selecting different "
@@ -292,7 +287,7 @@ msgid ""
 msgstr ""
 
 msgid "Descriptive metadata"
-msgstr "Metadatos descriptivos"
+msgstr ""
 
 msgid ""
 "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you"
@@ -716,13 +711,13 @@ msgid ""
 msgstr ""
 
 msgid "keyword"
-msgstr ""
+msgstr "Schlüsselwort"
 
 msgid "meaning"
 msgstr ""
 
 msgid "example"
-msgstr ""
+msgstr "Beispiel"
 
 msgid "{camera}"
 msgstr ""
@@ -737,10 +732,10 @@ msgid "{name}"
 msgstr ""
 
 msgid "the complete file name"
-msgstr ""
+msgstr "der vollständige Dateiname"
 
 msgid "IMG_9999.JPG"
-msgstr ""
+msgstr "IMG_9999.JPG"
 
 msgid "{number}"
 msgstr ""
@@ -749,7 +744,7 @@ msgid "the numeric part of the file name"
 msgstr ""
 
 msgid "9999"
-msgstr ""
+msgstr "9999"
 
 msgid "{root}"
 msgstr ""
@@ -758,7 +753,7 @@ msgid "the filename without its extension"
 msgstr ""
 
 msgid "IMG_9999"
-msgstr ""
+msgstr "IMG_9999"
 
 msgid "{ext}"
 msgstr ""
@@ -767,7 +762,7 @@ msgid "the filename extension"
 msgstr ""
 
 msgid ".JPG"
-msgstr ""
+msgstr ".JPG"
 
 msgid ""
 "Below the ``Target format`` field is an example generated from the "
@@ -844,7 +839,7 @@ msgid ""
 msgstr ""
 
 msgid "User manual"
-msgstr ""
+msgstr "Benutzeranleitung"
 
 msgid ""
 "This manual attempts to cover every part of Photini in detail, but still "
@@ -1031,7 +1026,7 @@ msgid "IPTC tag"
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr "Título / Nombre del objeto"
+msgstr "Titel"
 
 msgid "Xmp.dc.title"
 msgstr ""
@@ -1040,7 +1035,7 @@ msgid "Iptc.Application2.ObjectName"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr "Descripción / Leyenda"
+msgstr "Beschreibung"
 
 msgid "Exif.Image.ImageDescription"
 msgstr ""
@@ -1052,7 +1047,7 @@ msgid "Iptc.Application2.Caption"
 msgstr ""
 
 msgid "Keywords"
-msgstr "Palabras clave"
+msgstr "Schlüsselwörter"
 
 msgid "Xmp.dc.subject"
 msgstr ""
@@ -1061,7 +1056,7 @@ msgid "Iptc.Application2.Keywords"
 msgstr ""
 
 msgid "Copyright"
-msgstr "Derechos de autor"
+msgstr "Copyright"
 
 msgid "Exif.Image.Copyright"
 msgstr ""
@@ -1073,7 +1068,7 @@ msgid "Iptc.Application2.Copyright"
 msgstr ""
 
 msgid "Creator / Artist"
-msgstr "Creador / Artista"
+msgstr "Urheber / Künstler"
 
 msgid "Exif.Image.Artist"
 msgstr ""
@@ -1118,7 +1113,7 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr "Orientación"
+msgstr "Ausrichtung"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
@@ -1127,7 +1122,7 @@ msgid "Xmp.tiff.Orientation"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Blende"
 
 msgid "Exif.Photo.FNumber"
 msgstr ""
@@ -1136,7 +1131,7 @@ msgid "Xmp.exif.FNumber"
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Brennweite"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
@@ -1145,7 +1140,7 @@ msgid "Xmp.exif.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "35mm equiv"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
@@ -1189,7 +1184,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Höhe"
 
 msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 msgstr ""
@@ -1198,7 +1193,7 @@ msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr ""
 
 msgid "Camera address"
-msgstr ""
+msgstr "Kameraadresse"
 
 msgid ""
 "Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
@@ -1325,7 +1320,7 @@ msgid "Exif.CanonCs.ShortFocal Exif.CanonCs.MaxAperture Exif.CanonCs.MinAperture
 msgstr ""
 
 msgid "Technical metadata"
-msgstr ""
+msgstr "Technische Metadaten"
 
 msgid ""
 "The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you "

@@ -127,13 +127,13 @@
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Por favor escribe el nombre del dueño de los derechos de autor</translation>
     </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation>Por favor escribe el nombre del autor</translation>
-    </message>
     <message encoding="UTF-8">
         <source>Copyright ©{year} {name}. All rights reserved.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type in the creator&apos;s name</source>
+        <translation>Por favor escribe el nombre del autor</translation>
     </message>
 </context>
 <context>
@@ -577,10 +577,6 @@ selected</source>
         <translation>Photini error de registro</translation>
     </message>
     <message>
-        <source>Dismiss</source>
-        <translation type="obsolete">Descartar</translation>
-    </message>
-    <message>
         <source>Save log file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -768,8 +764,8 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Geodata &#xc2;&#xa9; OpenStreetMap contributors</source>
+    <message encoding="UTF-8">
+        <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -814,22 +810,6 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
     <message>
         <source>Serial number</source>
         <translation>Número de serie</translation>
-    </message>
-    <message>
-        <source>Minimum focal length (mm)</source>
-        <translation type="obsolete">Distancia focal mínima (mm)</translation>
-    </message>
-    <message>
-        <source>Aperture at min. focal length f/</source>
-        <translation type="obsolete">Apertura a distancia focal mín. f/</translation>
-    </message>
-    <message>
-        <source>Maximum focal length (mm)</source>
-        <translation type="obsolete">Distancia focal máxima (mm)</translation>
-    </message>
-    <message>
-        <source>Aperture at max. focal length f/</source>
-        <translation type="obsolete">Apertura a distancia focal máx. f/</translation>
     </message>
     <message>
         <source>&amp;Technical metadata</source>
@@ -893,11 +873,11 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation type="unfinished">reflejar tr-bl</translation>
+        <translation>reflejar tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation type="unfinished">reflejar tl-br</translation>
+        <translation>reflejar tl-br</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -914,14 +894,6 @@ details click the &apos;show details&apos; button.&lt;/p&gt;
     <message>
         <source>Lens details</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focal length (mm)</source>
-        <translation type="obsolete">Distancia focal (mm)</translation>
-    </message>
-    <message>
-        <source>Aperture f/</source>
-        <translation type="obsolete">Apertura f/</translation>
     </message>
     <message>
         <source>Remove lens &quot;{}&quot;</source>

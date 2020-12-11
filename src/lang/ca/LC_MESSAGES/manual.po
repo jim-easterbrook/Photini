@@ -3,8 +3,7 @@
 # This file is distributed under the same license as the Photini package.
 #
 # Translators:
-# Esteban Martinena Guerrero <orensbruli@gmail.com>, 2015
-# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2015
+# Joan <sacoo2@hotmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
@@ -12,9 +11,9 @@ msgstr ""
 "POT-Creation-Date: 2020-12-11 14:43+0000\n"
 "PO-Revision-Date: 2020-11-23 15:48+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
-"Language: es\n"
-"Language-Team: Spanish (http://www.transifex.com/jim-"
-"easterbrook/photini/language/es/)\n"
+"Language: ca\n"
+"Language-Team: Catalan (http://www.transifex.com/jim-"
+"easterbrook/photini/language/ca/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -98,23 +97,23 @@ msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
+"Comentaris o preguntes? Subscriviu-vos a la llista de correu de Photini a"
+" https://groups.google.com/forum/#!forum/photini i ens ho feu saber."
 
 msgid "Configuration"
-msgstr "Configuración"
+msgstr "Configuració"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove "
 "them by deselecting their entry in the ``Options`` menu."
 msgstr ""
-"Si hay pestañas en la interfaz de Photini que no usas, puedes eliminarlas"
-" deseleccionadolas en su apartado en el menu \"Opciones\""
+"Si hi ha pestanyes obertes en l'interficie del Photini que no feu servir,"
+" les podeu esborra desmarcant-ne l'entrada en el menú ``Opcions``"
 
 msgid ""
 "The ``Options`` menu also has a ``Settings`` item which opens the dialog "
 "shown below."
 msgstr ""
-"El menú \"opciones\" tiene también un elemento \"Configuración\" que abre"
-" el dialogo que se muestra a continuación."
 
 msgid ""
 "The top three items can be used to adjust the auto-generated copyright "
@@ -292,7 +291,7 @@ msgid ""
 msgstr ""
 
 msgid "Descriptive metadata"
-msgstr "Metadatos descriptivos"
+msgstr ""
 
 msgid ""
 "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you"
@@ -1031,7 +1030,7 @@ msgid "IPTC tag"
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr "Título / Nombre del objeto"
+msgstr "Títol / Nom d'objecte"
 
 msgid "Xmp.dc.title"
 msgstr ""
@@ -1040,7 +1039,7 @@ msgid "Iptc.Application2.ObjectName"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr "Descripción / Leyenda"
+msgstr "Descripció / Comentari"
 
 msgid "Exif.Image.ImageDescription"
 msgstr ""
@@ -1052,7 +1051,7 @@ msgid "Iptc.Application2.Caption"
 msgstr ""
 
 msgid "Keywords"
-msgstr "Palabras clave"
+msgstr "Paraules clau"
 
 msgid "Xmp.dc.subject"
 msgstr ""
@@ -1061,7 +1060,7 @@ msgid "Iptc.Application2.Keywords"
 msgstr ""
 
 msgid "Copyright"
-msgstr "Derechos de autor"
+msgstr "Drets d'autor"
 
 msgid "Exif.Image.Copyright"
 msgstr ""
@@ -1118,7 +1117,7 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr "Orientación"
+msgstr "Orientació"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
@@ -1127,7 +1126,7 @@ msgid "Xmp.tiff.Orientation"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Obertura"
 
 msgid "Exif.Photo.FNumber"
 msgstr ""
@@ -1136,7 +1135,7 @@ msgid "Xmp.exif.FNumber"
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Distància focal"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
@@ -1145,7 +1144,7 @@ msgid "Xmp.exif.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "equiv. 35 mm"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
@@ -1189,7 +1188,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Alçada"
 
 msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 msgstr ""

@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the Photini package.
 #
 # Translators:
-# Esteban Martinena Guerrero <orensbruli@gmail.com>, 2015
+# Ettore Atalan <atalanttore@googlemail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
@@ -11,9 +11,9 @@ msgstr ""
 "POT-Creation-Date: 2020-12-11 14:43+0000\n"
 "PO-Revision-Date: 2019-05-08 15:30+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
-"Language: es\n"
-"Language-Team: Spanish (http://www.transifex.com/jim-"
-"easterbrook/photini/language/es/)\n"
+"Language: de\n"
+"Language-Team: German (http://www.transifex.com/jim-"
+"easterbrook/photini/language/de/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 msgid "Photini documentation"
-msgstr "Documentación de Photini"
+msgstr "Dokumentation zu Photini"
 
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph "
