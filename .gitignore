@@ -35,5 +35,6 @@ photini.pro
 /doc
 /doctrees
 /src/lang/templates/
+/src/lang/en/LC_MESSAGES
 /utils/make_icons/*.pam
 /src/photini/data/lang
