@@ -89,7 +89,7 @@ def extract_doc_strings(root, lang, strip):
     else:
         locales = []
         for name in os.listdir(dst_dir):
-            if name != 'templates':
+            if '.' not in name and name not in ('templates', 'en'):
                 locales.append(name)
     locales.sort()
     outputs = []
