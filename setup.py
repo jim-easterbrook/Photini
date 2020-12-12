@@ -16,7 +16,6 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-from distutils.command.upload import upload
 import os
 from setuptools import setup
 
@@ -24,41 +23,6 @@ from setuptools import setup
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
     exec(f.read())
-
-cmdclass = {}
-command_options = {}
-
-
-# modify upload class to add appropriate tag
-# requires GitPython - 'sudo pip install gitpython'
-class upload_and_tag(upload):
-    def run(self):
-        import git
-        result = upload.run(self)
-        message = 'Photini-' + __version__ + '\n\n'
-        with open('CHANGELOG.txt') as cl:
-            while not cl.readline().startswith('Changes'):
-                pass
-            while True:
-                line = cl.readline().strip()
-                if not line:
-                    break
-                message += line + '\n'
-        repo = git.Repo()
-        tag = repo.create_tag(__version__, message=message)
-        remote = repo.remotes.origin
-        remote.push(tags=True)
-        return result
-
-cmdclass['upload'] = upload_and_tag
-
-
-# set options for building distributions
-command_options['sdist'] = {
-    'formats'        : ('setup.py', 'gztar'),
-    'force_manifest' : ('setup.py', '1'),
-    }
-
 
 with open('README.rst') as ldf:
     long_description = ldf.read()
@@ -92,8 +56,6 @@ setup(name = 'Photini',
       packages = ['photini'],
       package_dir = {'' : 'src'},
       package_data = {'photini' : package_data},
-      cmdclass = cmdclass,
-      command_options = command_options,
       entry_points = {
           'console_scripts' : [
               'photini-post-install = photini.scripts:post_install',
