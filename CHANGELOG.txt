@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2020.12.0:
+  1/ Can now use PySide2 instead of PyQt5.
+  2/ Deprecated Python2 and PyQt4.
+  3/ No longer creates menu entries during installation. Run
+     photini-post-install after installation.
+  4/ Minor other fixes and improvements.
+
 Changes in v2020.11.0:
   1/ Fix serious bug when saving "date taken" metadata.
 
