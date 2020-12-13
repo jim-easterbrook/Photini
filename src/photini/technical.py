@@ -31,7 +31,7 @@ from photini.metadata import LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
     QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
-    SquareButton, width_for_text)
+    SquareButton, using_pyside2, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -383,7 +383,10 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                 continue
             new_value[key] = self.members[key].get_value()
             if key == 'datetime' and new_value[key]:
-                new_value[key] = new_value[key].toPyDateTime()
+                if using_pyside2:
+                    new_value[key] = new_value[key].toPython()
+                else:
+                    new_value[key] = new_value[key].toPyDateTime()
         return new_value
 
     @QtSlot()
