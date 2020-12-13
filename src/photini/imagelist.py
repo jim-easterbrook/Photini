@@ -146,7 +146,7 @@ class Image(QtWidgets.QFrame):
                 table.setItem(row, n * 2, item)
             undo[key] = QtWidgets.QTableWidgetItem()
             undo[key].setFlags(undo[key].flags() | Qt.ItemIsUserCheckable)
-            undo[key].setCheckState(False)
+            undo[key].setCheckState(Qt.Unchecked)
             table.setItem(row, 1, undo[key])
             labels.append(key)
             row += 1
