@@ -91,14 +91,13 @@ class DropdownEdit(ComboBox):
 class AugmentSpinBox(object):
     new_value = QtSignal(object)
 
-    def __init__(self, *arg, **kw):
-        super(AugmentSpinBox, self).__init__(*arg, **kw)
+    def init_augment(self):
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
     class ContextAction(QtWidgets.QAction):
-        def __init__(self, label, value, parent):
-            super(AugmentSpinBox.ContextAction, self).__init__(label, parent)
+        def __init__(self, value, *arg, **kw):
+            super(AugmentSpinBox.ContextAction, self).__init__(*arg, **kw)
             self.setData(value)
             self.triggered.connect(self.set_value)
 
@@ -107,11 +106,9 @@ class AugmentSpinBox(object):
         def set_value(self):
             self.parent().setValue(self.data())
 
-    @catch_all
-    def contextMenuEvent(self, event):
+    def context_menu_event(self):
         if self.specialValueText() and self.choices:
             QtCore.QTimer.singleShot(0, self.extend_context_menu)
-        return super(self.__class__, self).contextMenuEvent(event)
 
     @QtSlot()
     @catch_all
@@ -122,29 +119,12 @@ class AugmentSpinBox(object):
         sep = menu.insertSeparator(menu.actions()[0])
         for suggestion in self.choices:
             menu.insertAction(sep, self.ContextAction(
-                self.textFromValue(suggestion), suggestion, self))
+                suggestion, text=self.textFromValue(suggestion), parent=self))
 
-    @catch_all
-    def keyPressEvent(self, event):
+    def clear_special_value(self):
         if self.specialValueText():
             self.set_value(self.default_value)
             self.selectAll()
-        return super(self.__class__, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        if self.specialValueText():
-            self.set_value(self.default_value)
-            self.selectAll()
-        return super(self.__class__, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(self.__class__, self).fixup(text)
 
     @QtSlot()
     @catch_all
@@ -184,10 +164,34 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(IntSpinBox, self).__init__(*arg, **kw)
+        self.init_augment()
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(IntSpinBox, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.clear_special_value()
+        return super(IntSpinBox, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.clear_special_value()
+        return super(IntSpinBox, self).stepBy(steps)
+
+    @catch_all
+    def fixup(self, text):
+        if not self.cleanText():
+            # user has deleted the value
+            self.set_value(None)
+            return ''
+        return super(IntSpinBox, self).fixup(text)
 
     def set_faint(self, faint):
         if faint:
@@ -201,11 +205,35 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(DoubleSpinBox, self).__init__(*arg, **kw)
+        self.init_augment()
         self.setSingleStep(0.1)
         self.setDecimals(4)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(DoubleSpinBox, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.clear_special_value()
+        return super(DoubleSpinBox, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.clear_special_value()
+        return super(DoubleSpinBox, self).stepBy(steps)
+
+    @catch_all
+    def fixup(self, text):
+        if not self.cleanText():
+            # user has deleted the value
+            self.set_value(None)
+            return ''
+        return super(DoubleSpinBox, self).fixup(text)
 
     @catch_all
     def textFromValue(self, value):
@@ -227,16 +255,36 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
             QtCore.QDate.currentDate(), QtCore.QTime())
         self.multiple = multiple_values()
         # rename some methods for compatibility with AugmentSpinBox
-        self.cleanText = self.text
         self.minimum = self.minimumDateTime
         self.setValue = self.setDateTime
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
+        self.init_augment()
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
         self.set_precision(7)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(DateTimeEdit, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.clear_special_value()
+        return super(DateTimeEdit, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.clear_special_value()
+        return super(DateTimeEdit, self).stepBy(steps)
+
+    def clear_special_value(self):
+        if self.specialValueText():
+            self.set_value(self.default_value)
+            self.setSelectedSection(self.YearSection)
 
     @catch_all
     def sizeHint(self):
@@ -273,9 +321,33 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple()
         super(TimeZoneWidget, self).__init__(*arg, **kw)
+        self.init_augment()
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
+
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(TimeZoneWidget, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.clear_special_value()
+        return super(TimeZoneWidget, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.clear_special_value()
+        return super(TimeZoneWidget, self).stepBy(steps)
+
+    @catch_all
+    def fixup(self, text):
+        if not self.cleanText():
+            # user has deleted the value
+            self.set_value(None)
+            return ''
+        return super(TimeZoneWidget, self).fixup(text)
 
     @catch_all
     def sizeHint(self):
