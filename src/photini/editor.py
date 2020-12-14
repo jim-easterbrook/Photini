@@ -366,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtSlot()
     @catch_all
     def about(self):
-        text = translate('MenuBar', """
+        text = """
 <table width="100%"><tr>
 <td align="center" width="70%">
 <h1>Photini</h1>
@@ -377,15 +377,23 @@ class MainWindow(QtWidgets.QMainWindow):
 </tr></table>
 <p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
 jim@jim-easterbrook.me.uk</a><br /><br />
-An easy to use digital photograph metadata editor.<br />
-Open source package available from
-<a href="https://github.com/jim-easterbrook/Photini">
-github.com/jim-easterbrook/Photini</a>.</p>
-<p>This program is released with a GNU General Public License. For
-details click the 'show details' button.</p>
-""").format(__version__, build,
-            pkg_resources.resource_filename(
-                'photini', 'data/icons/photini_128.png'))
+{3}<br />
+{4}</p>
+<p>{5}</p>
+""".format(__version__, build,
+           pkg_resources.resource_filename(
+               'photini', 'data/icons/photini_128.png'),
+           translate('MenuBar',
+                     'An easy to use digital photograph metadata'
+                     ' (Exif, IPTC, XMP) editing application.'),
+           translate('MenuBar',
+                     'Open source package available from {}.').format(
+                         '<a href="https://github.com/jim-easterbrook/Photini">'
+                         'github.com/jim-easterbrook/Photini</a>'),
+           translate('MenuBar',
+                     "This program is released with a GNU General Public"
+                     " License. For details click the 'show details' button."),
+           )
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)

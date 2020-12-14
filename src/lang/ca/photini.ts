@@ -756,7 +756,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This program is released with a GNU General Public License. For
 details click the &apos;show details&apos; button.&lt;/p&gt;
 </source>
-        <translation>
+        <translation type="obsolete">
 &lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
 &lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
 &lt;h1&gt;Photini&lt;/h1&gt;
@@ -777,6 +777,18 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
     <message>
         <source>Photini: about</source>
         <translation>Photini: quant a</translation>
+    </message>
+    <message>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <translation>Un editor de metadades de foto digital fàcil d&apos;usar.</translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
+        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &apos;mostra els detalls&apos;.</translation>
+    </message>
+    <message>
+        <source>Open source package available from {}.</source>
+        <translation>Paquet de codi obert disponible de {}.</translation>
     </message>
 </context>
 <context>

@@ -127,13 +127,13 @@
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Proszę wpisać nazwę posiadacza praw autorskich</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Please type in the creator&apos;s name</source>
         <translation>Proszę podać nazwę twórcy</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>Copyright ©{year} {name}. All rights reserved.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -730,29 +730,20 @@ provided by Bing</source>
         <translation>Photini dokumentacja</translation>
     </message>
     <message>
-        <source>
-&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
-&lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
-&lt;h1&gt;Photini&lt;/h1&gt;
-&lt;h3&gt;version {0}&lt;/h3&gt;
-&lt;h4&gt;build {1}&lt;/h4&gt;
-&lt;/td&gt;
-&lt;td align=&quot;center&quot;&gt;&lt;img src=&quot;{2}&quot; /&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-An easy to use digital photograph metadata editor.&lt;br /&gt;
-Open source package available from
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This program is released with a GNU General Public License. For
-details click the &apos;show details&apos; button.&lt;/p&gt;
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: about</source>
         <translation>Photini: o</translation>
+    </message>
+    <message>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <translation>Łatwy w użyciu edytor metadanych fotografii cyfrowej.</translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
+        <translation>Ten program podlega GNU General Public License. Dlaszczegóły kliknij przycisk &quot;Pokaż szczegóły&quot;.</translation>
+    </message>
+    <message>
+        <source>Open source package available from {}.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

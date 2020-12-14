@@ -758,7 +758,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This program is released with a GNU General Public License. For
 details click the &apos;show details&apos; button.&lt;/p&gt;
 </source>
-        <translation>
+        <translation type="obsolete">
 &lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
 &lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
 &lt;h1&gt;Photini&lt;/h1&gt;
@@ -780,6 +780,18 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
     <message>
         <source>Photini: about</source>
         <translation>O programu Photini</translation>
+    </message>
+    <message>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <translation>Snadno se používající editor popisů digitálních fotografií.</translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
+        <translation>Tento program je vydán pod GNU General Public License. Kvůli podrobnostem klepněte na tlačítko Ukázat podrobnosti.</translation>
+    </message>
+    <message>
+        <source>Open source package available from {}.</source>
+        <translation>Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
     </message>
 </context>
 <context>

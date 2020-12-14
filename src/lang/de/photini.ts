@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -756,7 +756,7 @@ github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;This program is released with a GNU General Public License. For
 details click the &apos;show details&apos; button.&lt;/p&gt;
 </source>
-        <translation>&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
+        <translation type="obsolete">&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
 &lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
 &lt;h1&gt;Photini&lt;/h1&gt;
 &lt;h3&gt;version {0}&lt;/h3&gt;
@@ -776,6 +776,22 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
     <message>
         <source>Photini: about</source>
         <translation>Photini: über</translation>
+    </message>
+    <message>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <translation>Ein einfach zu bedienender Metadaten-Editor für digitale Bilder.</translation>
+    </message>
+    <message>
+        <source>Open source package available from</source>
+        <translation type="obsolete">Der Open Source Quellcode ist via</translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
+        <translation>Dieses Programm wurde unter der GNU General Public License veröffentlicht. Für weitere Informationen auf die Schaltfläche „Details einblenden“ klicken.</translation>
+    </message>
+    <message>
+        <source>Open source package available from {}.</source>
+        <translation>Der Open Source Quellcode ist via {} erhältlich.</translation>
     </message>
 </context>
 <context>
