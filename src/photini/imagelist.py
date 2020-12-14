@@ -374,10 +374,13 @@ class Image(QtWidgets.QFrame):
         else:
             icon = QtGui.QPixmap(src_w + margin, src_h + margin)
             icon.fill(Qt.transparent)
-            with QtGui.QPainter(icon) as paint:
+            try:
+                paint = QtGui.QPainter(icon)
                 for i in range(count):
                     paint.drawPixmap(
                         QtCore.QPoint(margin - (i * 4), i * 4), src_icon)
+            finally:
+                del paint
         drag.setPixmap(icon)
         if self.image_list.drag_hotspot:
             x, y = self.image_list.drag_hotspot
