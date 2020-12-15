@@ -48,6 +48,15 @@ def extract_program_strings(root, lang, strip):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
+    # restore utf-8 encoding markers removed by Qt Linguist
+    for path in outputs:
+        with open(path, 'r') as f:
+            old_text = f.readlines()
+        with open(path, 'w') as f:
+            for line in old_text:
+                line = line.replace('<message>', '<message encoding="UTF-8">')
+                f.write(line)
+    # run pylupdate
     cmd = ['pylupdate5', '-verbose']
     cmd += inputs
     cmd.append('-ts')
@@ -60,7 +69,6 @@ def extract_program_strings(root, lang, strip):
         for path in outputs:
             with open(path, 'r') as f:
                 old_text = f.readlines()
-            new_text = ''
             with open(path, 'w') as f:
                 for line in old_text:
                     if not test.match(line):
@@ -113,7 +121,6 @@ def extract_doc_strings(root, lang, strip):
         for path in outputs:
             with open(path, 'r') as f:
                 old_text = f.readlines()
-            new_text = ''
             with open(path, 'w') as f:
                 for line in old_text:
                     if not test.match(line):
