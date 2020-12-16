@@ -8,7 +8,7 @@
 Photini can be made easier to use for people who don't speak English.
 There are two parts to this -- the text used within the program and the documentation.
 I rely on users to do the translation as I can not write any other language with any fluency.
-You can use an online translation service called Transifex_ or a suitable text editor installed on your computer.
+You can use an online service called Transifex_ or a suitable text editor installed on your computer.
 
 Online translation
 ------------------
@@ -18,14 +18,14 @@ It provides an online editor, making it easy for individuals to contribute as mu
 Follow the link to Transifex_ and click on "help translate Photini".
 From there you can create a free account and sign in.
 
-If your language is not included in the Photini project languages list you can request it to be added by clicking on "request language".
+If your language is not included in the Photini project languages list you can ask for it to be added by clicking on "request language".
 Each language is represented by a code, e.g. ``nl`` or ``en_CA``.
 The longer codes are usually regional or national variations of a common language.
 You should choose the common language if it's not already available in Photini, moving on to the variations once the common language is done.
 Once your language is added you can ask to join the language team and then start translating.
 
 The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language.
-One disadvantage is that Transifex_ doesn't display the context in which a piece of text is used, which may make it difficult to translate.
+One disadvantage is that Transifex_ doesn't display the context in which a piece of text is used, which may make it more difficult to translate.
 
 Offline translation
 -------------------
@@ -79,10 +79,6 @@ Click on the ``photini`` resource, then the language you want to work on, then c
 This displays a translation editing page where you can click on a text string to be translated and then type in your translation.
 See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
 
-When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
-Transifex doesn't automatically notify me of new translations.
-If you install the development version of Photini (see :ref:`installation-photini`) you could also :ref:`test your translation <localisation-program-testing>` first.
-
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
 
@@ -98,8 +94,6 @@ If you have a Transifex account then you should upload your translation as it pr
 This will ensure that your work isn't accidentally duplicated by other translators::
 
    tx push -t -l nl
-
-When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk) so that I can update Transifex and the GitHub repository.
 
 .. _localisation-program-notes:
 
@@ -138,6 +132,10 @@ Plural forms
 
 Note that Transifex may attempt to render some of this markup rather than show the raw strings.
 It may help if you use the settings button (a cogwheel shape) on the translation page to "enable raw editor mode".
+
+When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
+(If you're not using Transifex then send me your translation file directly.)
+If you install the development version of Photini (see :ref:`installation-photini`) you could also :ref:`test your translation <localisation-program-testing>` first.
 
 .. _localisation-program-testing:
 
@@ -196,8 +194,6 @@ This will ensure that your work isn't accidentally duplicated by other translato
 
    tx push -t -l nl
 
-When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk) so that I can update Transifex and the GitHub repository.
-
 .. _localisation-documentation-notes:
 
 Things to be aware of
@@ -222,6 +218,9 @@ Long cross references, e.g. ``:ref:`installation <installation-optional>```
 
 External links, e.g. ```Flickr <http://www.flickr.com/>`_``
    The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
+
+When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
+(If you're not using Transifex then send me your translation file directly.)
 
 .. _localisation-documentation-testing:
 
