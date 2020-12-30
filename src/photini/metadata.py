@@ -43,7 +43,7 @@ class FFMPEGMetadata(object):
     _tag_list = {
         'altitude':       ('com.apple.quicktime.location.ISO6709',
                            'location'),
-        'camera_model':   ('model',
+        'camera_id':      ('model',
                            'Model',
                            'com.apple.quicktime.model'),
         'copyright':      ('com.apple.quicktime.copyright',
@@ -863,7 +863,7 @@ class MD_String(MD_Value, six.text_type):
         return this + ' // ' + other, True, False
 
 
-class CameraModel(MD_String):
+class CameraID(MD_String):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
@@ -1041,7 +1041,7 @@ class Metadata(object):
     _data_type = {
         'altitude'       : Altitude,
         'aperture'       : Aperture,
-        'camera_model'   : CameraModel,
+        'camera_id'      : CameraID,
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,

@@ -1246,18 +1246,17 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets['focal_length_35'].set_value(values[0])
 
     def set_crop_factor(self, md):
-        if not md.camera_model:
+        if not md.camera_id:
             return
         if not md.focal_length_35:
-            self.config_store.set('crop factor', md.camera_model, 'None')
+            self.config_store.set('crop factor', md.camera_id, 'None')
         elif md.focal_length:
             crop_factor = float(md.focal_length_35) / md.focal_length
-            self.config_store.set(
-                'crop factor', md.camera_model, str(crop_factor))
+            self.config_store.set('crop factor', md.camera_id, str(crop_factor))
 
     def get_crop_factor(self, md):
-        if md.camera_model:
-            crop_factor = self.config_store.get('crop factor', md.camera_model)
+        if md.camera_id:
+            crop_factor = self.config_store.get('crop factor', md.camera_id)
             if crop_factor:
                 return eval(crop_factor)
         if not all((md.resolution_x, md.resolution_y,
@@ -1278,9 +1277,8 @@ class TabWidget(QtWidgets.QWidget):
             d *= 25.4
         # 35 mm film diagonal is 43.27 mm
         crop_factor = round(43.27 / d, 4)
-        if md.camera_model:
-            self.config_store.set(
-                'crop factor', md.camera_model, str(crop_factor))
+        if md.camera_id:
+            self.config_store.set('crop factor', md.camera_id, str(crop_factor))
         return crop_factor
 
     def calc_35(self, md, value=None):

@@ -74,7 +74,7 @@ class FolderSource(object):
                 sc_path = None
             name = os.path.basename(path)
             file_data[name] = {
-                'camera'    : metadata.camera_model,
+                'camera'    : metadata.camera_id,
                 'path'      : path,
                 'sc_path'   : sc_path,
                 'name'      : name,

@@ -460,7 +460,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         'aperture'       : (('RA.WA', 'Exif.Photo.FNumber'),
                             ('RA.W0', 'Exif.Image.FNumber'),
                             ('RA.WX', 'Xmp.exif.FNumber')),
-        'camera_model'   : (('RA.WN', 'Exif.Image.Model'),
+        'camera_id'      : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Exif.Canon.ModelID'),
                             ('RA.WN', 'Xmp.video.Model')),
