@@ -92,87 +92,11 @@ class Image(QtWidgets.QFrame):
         self.show_status(False)
         self._set_thumb_size(self.thumb_size)
 
-    @QtSlot()
-    @catch_all
     def reload_metadata(self):
         self.metadata = Metadata(self.path, notify=self.show_status)
         self.show_status(False)
         self.load_thumbnail()
         self.image_list.emit_selection()
-
-    @QtSlot()
-    @catch_all
-    def save_metadata(self):
-        self.image_list._save_files(images=[self])
-
-    @QtSlot()
-    @catch_all
-    def diff_metadata(self):
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('ImageList', 'Metadata differences'))
-        dialog.setLayout(QtWidgets.QVBoxLayout())
-        table = TableWidget()
-        table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                            QtWidgets.QSizePolicy.Expanding)
-        table.setColumnCount(3)
-        table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
-                                         translate('ImageList', 'undo'),
-                                         translate('ImageList', 'old value')])
-        labels = []
-        row = 0
-        undo = {}
-        new_md = self.metadata
-        old_md = Metadata(self.path)
-        for key in ('title', 'description', 'keywords', 'rating',
-                    'copyright', 'creator',
-                    'date_taken', 'date_digitised', 'date_modified',
-                    'orientation',
-                    'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
-                    'focal_length', 'focal_length_35', 'aperture',
-                    'latlong', 'altitude', 'location_taken', 'location_shown',
-                    'thumbnail'):
-            values = getattr(new_md, key), getattr(old_md, key)
-            if values[0] == values[1]:
-                continue
-            table.setRowCount(row + 1)
-            for n, value in enumerate(values):
-                if not value:
-                    value = ''
-                elif isinstance(value, MultiString):
-                    value = '\n'.join(value)
-                else:
-                    value = six.text_type(value)
-                item = QtWidgets.QTableWidgetItem(value)
-                table.setItem(row, n * 2, item)
-            undo[key] = QtWidgets.QTableWidgetItem()
-            undo[key].setFlags(undo[key].flags() | Qt.ItemIsUserCheckable)
-            undo[key].setCheckState(Qt.Unchecked)
-            table.setItem(row, 1, undo[key])
-            labels.append(key)
-            row += 1
-        table.setVerticalHeaderLabels(labels)
-        table.resizeColumnsToContents()
-        table.resizeRowsToContents()
-        dialog.layout().addWidget(table)
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addWidget(button_box)
-        if dialog.exec_() != QtWidgets.QDialog.Accepted:
-            return
-        changed = False
-        dirty = False
-        for key, widget in undo.items():
-            if widget.checkState() == Qt.Checked:
-                setattr(new_md, key, getattr(old_md, key))
-                changed = True
-            else:
-                dirty = True
-        if not dirty:
-            self.reload_metadata()
-        elif changed:
-            self.image_list.emit_selection()
 
     def transform(self, pixmap, orientation, inverse=False):
         orientation = (orientation or 1) - 1
@@ -192,27 +116,24 @@ class Image(QtWidgets.QFrame):
             transform = transform.transposed()
         return pixmap.transformed(transform)
 
-    @QtSlot()
-    @catch_all
     def regenerate_thumbnail(self):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
         # ratios are padded with black
-        with Busy():
-            # first try using FFmpeg to make thumbnail
-            data, fmt, w, h = self.make_thumb_ffmpeg()
-            if not data:
-                # use PIL or Qt
-                qt_im = self.get_qt_image()
-                if not qt_im:
-                    return
-                if PIL:
-                    data, fmt, w, h = self.make_thumb_PIL(qt_im)
-                else:
-                    data, fmt, w, h = self.make_thumb_Qt(qt_im)
-            # set thumbnail
-            self.metadata.thumbnail = data, fmt, w, h
-            # reload thumbnail
-            self.load_thumbnail()
+        # first try using FFmpeg to make thumbnail
+        data, fmt, w, h = self.make_thumb_ffmpeg()
+        if not data:
+            # use PIL or Qt
+            qt_im = self.get_qt_image()
+            if not qt_im:
+                return
+            if PIL:
+                data, fmt, w, h = self.make_thumb_PIL(qt_im)
+            else:
+                data, fmt, w, h = self.make_thumb_Qt(qt_im)
+        # set thumbnail
+        self.metadata.thumbnail = data, fmt, w, h
+        # reload thumbnail
+        self.load_thumbnail()
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
@@ -322,14 +243,21 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
+        images = self.image_list.get_selected_images()
+        changed_images = any([x.metadata.changed() for x in images])
         menu.addAction(translate('ImageList', 'Reload metadata'),
-                       self.reload_metadata)
-        menu.addAction(translate('ImageList', 'Save metadata'),
-                       self.save_metadata)
-        menu.addAction(translate('ImageList', 'View changes'),
-                       self.diff_metadata)
-        menu.addAction(translate('ImageList', 'Regenerate thumbnail'),
-                       self.regenerate_thumbnail)
+                       self.image_list.reload_selected_metadata)
+        action = menu.addAction(translate('ImageList', 'Save metadata'),
+                                self.image_list.save_selected_metadata)
+        if not changed_images:
+            action.setEnabled(False)
+        action = menu.addAction(translate('ImageList', 'View changes'),
+                                self.image_list.diff_selected_metadata)
+        if not changed_images:
+            action.setEnabled(False)
+        menu.addAction(
+            translate('ImageList', 'Regenerate thumbnail(s)', '', len(images)),
+            self.image_list.regenerate_selected_thumbnails)
         action = menu.exec_(event.globalPos())
 
     @catch_all
@@ -780,6 +708,108 @@ class ImageList(QtWidgets.QWidget):
             self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(image)
             self.app.processEvents()
+
+    @QtSlot()
+    @catch_all
+    def reload_selected_metadata(self):
+        with Busy():
+            for image in self.get_selected_images():
+                image.reload_metadata()
+
+    @QtSlot()
+    @catch_all
+    def save_selected_metadata(self):
+        self._save_files(images=self.get_selected_images())
+
+    @QtSlot()
+    @catch_all
+    def diff_selected_metadata(self):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setLayout(QtWidgets.QVBoxLayout())
+        dialog.setFixedSize(min(800, self.window().width()),
+                            min(400, self.window().height()))
+        table = TableWidget()
+        table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                            QtWidgets.QSizePolicy.Expanding)
+        table.setColumnCount(3)
+        table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
+                                         translate('ImageList', 'undo'),
+                                         translate('ImageList', 'old value')])
+        dialog.layout().addWidget(table)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addWidget(button_box)
+        changed = False
+        position = None
+        for image in self.get_selected_images():
+            if not image.metadata.changed():
+                continue
+            dialog.setWindowTitle(translate(
+                'ImageList', 'Metadata differences: {}').format(image.name))
+            labels = []
+            row = 0
+            undo = {}
+            table.clearContents()
+            new_md = image.metadata
+            old_md = Metadata(image.path)
+            for key in ('title', 'description', 'keywords', 'rating',
+                        'copyright', 'creator',
+                        'date_taken', 'date_digitised', 'date_modified',
+                        'orientation',
+                        'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
+                        'focal_length', 'focal_length_35', 'aperture',
+                        'latlong', 'altitude',
+                        'location_taken', 'location_shown',
+                        'thumbnail'):
+                values = getattr(new_md, key), getattr(old_md, key)
+                if values[0] == values[1]:
+                    continue
+                table.setRowCount(row + 1)
+                for n, value in enumerate(values):
+                    if not value:
+                        value = ''
+                    elif isinstance(value, MultiString):
+                        value = '\n'.join(value)
+                    else:
+                        value = six.text_type(value)
+                    item = QtWidgets.QTableWidgetItem(value)
+                    table.setItem(row, n * 2, item)
+                undo[key] = QtWidgets.QTableWidgetItem()
+                undo[key].setFlags(undo[key].flags() | Qt.ItemIsUserCheckable)
+                undo[key].setCheckState(Qt.Unchecked)
+                table.setItem(row, 1, undo[key])
+                labels.append(key)
+                row += 1
+            if not row:
+                continue
+            table.setVerticalHeaderLabels(labels)
+            table.resizeColumnsToContents()
+            table.resizeRowsToContents()
+            if position:
+                dialog.move(position)
+            if dialog.exec_() != QtWidgets.QDialog.Accepted:
+                return
+            position = dialog.pos()
+            undo_all = True
+            for key, widget in undo.items():
+                if widget.checkState() == Qt.Checked:
+                    setattr(new_md, key, getattr(old_md, key))
+                    changed = True
+                else:
+                    undo_all = False
+            if undo_all:
+                image.reload_metadata()
+        if changed:
+            self.emit_selection()
+
+    @QtSlot()
+    @catch_all
+    def regenerate_selected_thumbnails(self):
+        with Busy():
+            for image in self.get_selected_images():
+                image.regenerate_thumbnail()
 
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):

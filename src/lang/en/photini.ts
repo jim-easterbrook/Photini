@@ -440,10 +440,6 @@ this picture on Flickr?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Metadata differences</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>new value</source>
         <translation></translation>
     </message>
@@ -468,13 +464,20 @@ this picture on Flickr?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Regenerate thumbnail</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>No
 thumbnail
 in file</source>
+        <translation></translation>
+    </message>
+    <message numerus="yes">
+        <source>Regenerate thumbnail(s)</source>
+        <translation>
+            <numerusform>Regenerate thumbnail</numerusform>
+            <numerusform>Regenerate thumbnails</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Metadata differences: {}</source>
         <translation></translation>
     </message>
 </context>
@@ -733,15 +736,15 @@ provided by Bing</source>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -899,27 +902,27 @@ provided by Bing</source>
     </message>
     <message>
         <source>Minimum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Aperture at min. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Maximum focal length</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Aperture at max. focal length</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>35mm equiv</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Aperture</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
