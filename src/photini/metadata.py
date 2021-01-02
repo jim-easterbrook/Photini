@@ -46,6 +46,9 @@ class FFMPEGMetadata(object):
         'camera_id':      ('model',
                            'Model',
                            'com.apple.quicktime.model'),
+        'camera_model':   ('model',
+                           'Model',
+                           'com.apple.quicktime.model'),
         'copyright':      ('com.apple.quicktime.copyright',
                            'copyright',
                            'Copyright'),
@@ -166,14 +169,16 @@ class MD_Value(object):
             return this, False, False
         return this, False, True
 
-    def log_merged(self, info, tag, value):
+    @staticmethod
+    def log_merged(info, tag, value):
         logger.info('%s: merged %s', info, tag)
 
     def log_replaced(self, info, tag, value):
         logger.warning(
             '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
 
-    def log_ignored(self, info, tag, value):
+    @staticmethod
+    def log_ignored(info, tag, value):
         logger.warning('%s: ignored %s "%s"', info, tag, str(value))
 
 
@@ -450,6 +455,38 @@ class MultiLocation(tuple):
             if location:
                 result += six.text_type(location) + '\n'
         return result
+
+
+class CameraModel(MD_Dict):
+    _keys = ('make', 'model', 'serial_no')
+
+    @staticmethod
+    def convert(value):
+        for key in value:
+            if value[key]:
+                value[key] = value[key].strip() or None
+        return value
+
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        if tag == 'Exif.Canon.ModelID':
+            file_value = {'model': 'ID-{:08x}'.format(int(file_value))}
+        elif tag.endswith('Number'):
+            file_value = {'serial_no': file_value}
+        elif not isinstance(file_value, list):
+            file_value = {'model': file_value}
+        return cls(file_value)
+
+    def __str__(self):
+        return str(dict([(x, y) for x, y in self.items() if y]))
+
+    def merge_item(self, this, other):
+        if other and this == 'unknown':
+            return other, True, False
+        return super(CameraModel, self).merge_item(this, other)
 
 
 class LensSpec(MD_Dict):
@@ -1042,6 +1079,7 @@ class Metadata(object):
         'altitude'       : Altitude,
         'aperture'       : Aperture,
         'camera_id'      : CameraID,
+        'camera_model'   : CameraModel,
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,

@@ -396,6 +396,9 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal',),
         'Exif.Image.FNumber': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
+        'Exif.Image.Make': (
+            'Exif.Image.Make', 'Exif.Image.Model',
+            'Exif.Photo.BodySerialNumber'),
         'Exif.Photo.DateTimeDigitized': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
         'Exif.Photo.DateTimeOriginal': (
@@ -463,6 +466,17 @@ class Exiv2Metadata(GExiv2.Metadata):
         'camera_id'      : (('RA.WN', 'Exif.Image.Model'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Exif.Canon.ModelID'),
+                            ('RA.WN', 'Xmp.video.Model')),
+        'camera_model'   : (('RA.WA', 'Exif.Image.Make'),
+                            ('RA.WN', 'Exif.Image.UniqueCameraModel'),
+                            ('RA.WN', 'Exif.Image.CameraSerialNumber'),
+                            ('RA.WN', 'Exif.Canon.ModelID'),
+                            ('RA.WN', 'Exif.Canon.SerialNumber'),
+                            ('RA.WN', 'Exif.Fujifilm.SerialNumber'),
+                            ('RA.WN', 'Exif.Nikon3.SerialNumber'),
+                            ('RA.WN', 'Exif.OlympusEq.CameraType'),
+                            ('RA.WN', 'Exif.OlympusEq.SerialNumber'),
+                            ('RA.WN', 'Exif.Pentax.SerialNumber'),
                             ('RA.WN', 'Xmp.video.Model')),
         'copyright'      : (('RA.WA', 'Exif.Image.Copyright'),
                             ('RA.WA', 'Xmp.dc.rights'),
