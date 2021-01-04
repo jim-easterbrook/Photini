@@ -40,11 +40,14 @@ translate = QtCore.QCoreApplication.translate
 class DropdownEdit(ComboBox):
     new_value = QtSignal(object)
 
-    def __init__(self, *arg, **kw):
-        super(DropdownEdit, self).__init__(*arg, **kw)
+    def __init__(self, extendable=False, **kw):
+        super(DropdownEdit, self).__init__(**kw)
+        if extendable:
+            self.addItem(translate('TechnicalTab', '<new>'), repr('<new>'))
         self.addItem('', repr(None))
-        self.addItem(multiple_values(), repr(None))
-        self.setItemData(1, self.itemData(1), Qt.UserRole - 1)
+        self.first_value_idx = self.count()
+        self.addItem(multiple_values(), repr('<multiple>'))
+        self.setItemData(self.count() - 1, self.itemData(1), Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
     @QtSlot(int)
@@ -54,9 +57,9 @@ class DropdownEdit(ComboBox):
 
     def add_item(self, text, value, ordered=True):
         blocked = self.blockSignals(True)
-        position = self.count() - 2
+        position = self.count() - 1
         if ordered:
-            for n in range(1, self.count() - 2):
+            for n in range(self.first_value_idx, self.count() - 1):
                 if self.itemText(n).lower() > text.lower():
                     position = n
                     break
@@ -77,17 +80,14 @@ class DropdownEdit(ComboBox):
 
     def set_value(self, value):
         blocked = self.blockSignals(True)
-        if not value:
-            self.setCurrentIndex(self.count() - 2)
-        else:
-            self.setCurrentIndex(self.findData(repr(value)))
+        self.setCurrentIndex(self.findData(repr(value)))
         self.blockSignals(blocked)
 
     def get_value(self):
         return eval(self.itemData(self.currentIndex()))
 
     def get_values(self):
-        for n in range(1, self.count() - 2):
+        for n in range(self.first_value_idx, self.count() - 1):
             yield eval(self.itemData(n))
 
     def set_multiple(self):
@@ -926,12 +926,10 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model
-        self.widgets['camera_model'] = DropdownEdit()
+        self.widgets['camera_model'] = DropdownEdit(extendable=True)
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widgets['camera_model'].add_item(translate(
-            'TechnicalTab', '<new>'), '<new>', ordered=False)
         for camera in [CameraModel(x) for x in eval(
                 self.config_store.get('technical', 'cameras', '[]'))]:
             self.widgets['camera_model'].add_item(camera.get_name(), camera)
@@ -941,12 +939,10 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Camera'), self.widgets['camera_model'])
         # lens model
-        self.widgets['lens_model'] = DropdownEdit()
+        self.widgets['lens_model'] = DropdownEdit(extendable=True)
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
-        self.widgets['lens_model'].add_item(translate(
-            'TechnicalTab', '<define new lens>'), '<add lens>', ordered=False)
         for lens_id in self.lens_data.lenses:
             self.widgets['lens_model'].add_item(
                 self.lens_data.get_name(lens_id), lens_id)
@@ -1102,7 +1098,7 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot(object)
     @catch_all
     def new_lens_model(self, value):
-        if value == '<add lens>':
+        if value == '<new>':
             self._add_lens_model()
             self._update_lens_model()
             return
