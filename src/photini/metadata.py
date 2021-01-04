@@ -508,7 +508,8 @@ class LensModel(MD_Dict):
     def convert(value):
         for key in value:
             if value[key]:
-                value[key] = value[key].strip() or None
+                value[key] = value[key].strip()
+            value[key] = value[key] or None
         if value['serial_no'] == '0000000000':
             value['serial_no'] = None
         return value
@@ -579,6 +580,9 @@ class LensSpec(MD_Dict):
     def write(self, handler, tag):
         handler.set_string(tag, ' '.join(['{:d}/{:d}'.format(
             self[x].numerator, self[x].denominator) for x in self._keys]))
+
+    def __bool__(self):
+        return any([bool(x) for x in self.values()])
 
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])

@@ -649,34 +649,11 @@ class LensData(object):
         self.config_store.remove_section('lens ' + lens_id)
         self.lenses.remove(lens_id)
 
-    def save_to_image(self, lens_id, image):
-        if not lens_id:
-            image.metadata.lens_model = None
-            image.metadata.lens_spec = None
-            return
-        image.metadata.lens_model = dict(self.details[lens_id]['model'])
-        image.metadata.lens_spec = str(self.details[lens_id]['spec'])
-
     def load_from_image(self, lens_id, image):
         lens_model = LensModel(image.metadata.lens_model)
         lens_spec = LensSpec(image.metadata.lens_spec)
-        self.add_lens(lens_model, lens_spec)
-
-    def load_from_dialog(self, dialog):
-        model = dialog.lens_model.text().strip()
-        if not model:
-            return None
-        min_fl = dialog.lens_spec['min_fl'].get_value()
-        if not min_fl:
-            return None
-        lens_model = LensModel((
-            dialog.lens_make.text(), model, dialog.lens_serial.text()))
-        max_fl = dialog.lens_spec['max_fl'].get_value() or min_fl
-        min_fl_fn = dialog.lens_spec['min_fl_fn'].get_value() or 0
-        max_fl_fn = dialog.lens_spec['max_fl_fn'].get_value() or min_fl_fn
-        lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn))
-        self.add_lens(lens_model, lens_spec)
-        return lens_model.get_id()
+        if lens_model:
+            self.add_lens(lens_model, lens_spec)
 
     def add_lens(self, lens_model, lens_spec):
         lens_id = lens_model.get_id()
@@ -814,6 +791,17 @@ class NewLensDialog(QtWidgets.QDialog):
             for key in self.lens_spec:
                 if spec and spec[key]:
                     self.lens_spec[key].set_value(spec[key])
+
+    def get_value(self):
+        lens_model = LensModel((self.lens_make.text(),
+                                self.lens_model.text(),
+                                self.lens_serial.text())) or None
+        min_fl = self.lens_spec['min_fl'].get_value() or 0
+        max_fl = self.lens_spec['max_fl'].get_value() or min_fl
+        min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
+        max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
+        lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn)) or None
+        return lens_model, lens_spec
 
 
 class DateLink(QtWidgets.QCheckBox):
@@ -1044,6 +1032,9 @@ class TabWidget(QtWidgets.QWidget):
                 self._update_camera_model()
                 return
             value = dialog.get_value()
+            if not value:
+                self._update_camera_model()
+                return
         for image in self.image_list.get_selected_images():
             image.metadata.camera_model = value
         self._update_camera_model()
@@ -1075,25 +1066,26 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def new_lens_model(self, value):
         if value == '<new>':
-            self._add_lens_model()
-            self._update_lens_model()
-            return
+            dialog = NewLensDialog(
+                self.image_list.get_selected_images(), parent=self)
+            if dialog.exec_() != QtWidgets.QDialog.Accepted:
+                self._update_lens_model()
+                return
+            lens_model, lens_spec = dialog.get_value()
+            if not lens_model:
+                self._update_lens_model()
+                return
+        elif value:
+            lens_model = self.lens_data.details[value]['model']
+            lens_spec = self.lens_data.details[value]['spec']
+        else:
+            lens_model = None
+            lens_spec = None
         for image in self.image_list.get_selected_images():
-            self.lens_data.save_to_image(value, image)
+            image.metadata.lens_model = lens_model
+            image.metadata.lens_spec = lens_spec
         self._update_lens_model()
         self._update_lens_spec(adjust_afl=True)
-
-    def _add_lens_model(self):
-        dialog = NewLensDialog(
-            self.image_list.get_selected_images(), parent=self)
-        if dialog.exec_() != QtWidgets.QDialog.Accepted:
-            return
-        lens_id = self.lens_data.load_from_dialog(dialog)
-        if not lens_id:
-            return
-        if not self.widgets['lens_model'].known_value(lens_id):
-            self.widgets['lens_model'].add_item(
-                self.lens_data.get_name(lens_id), lens_id)
 
     @QtSlot(object)
     @catch_all
