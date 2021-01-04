@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -757,7 +757,7 @@ class ImageList(QtWidgets.QWidget):
             for key in ('title', 'description', 'keywords', 'rating',
                         'copyright', 'creator',
                         'date_taken', 'date_digitised', 'date_modified',
-                        'orientation',
+                        'orientation', 'camera_model',
                         'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
                         'focal_length', 'focal_length_35', 'aperture',
                         'latlong', 'altitude',

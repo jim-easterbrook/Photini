@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -193,7 +193,8 @@ class MD_Dict(MD_Value, dict):
         # initialise all keys to None
         result = dict.fromkeys(self._keys)
         # update with any supplied values
-        result.update(value)
+        if value:
+            result.update(value)
         # let sub-classes do any data manipulation
         result = self.convert(result)
         super(MD_Dict, self).__init__(result)
@@ -487,6 +488,20 @@ class CameraModel(MD_Dict):
         if other and this == 'unknown':
             return other, True, False
         return super(CameraModel, self).merge_item(this, other)
+
+    def get_name(self):
+        result = self['make'] or ''
+        if self['model']:
+            if result in self['model']:
+                result = ''
+            if result:
+                result += ' '
+            result += self['model']
+        if self['serial_no']:
+            if result:
+                result += ' '
+            result += '(S/N: ' + self['serial_no'] + ')'
+        return result
 
 
 class LensSpec(MD_Dict):

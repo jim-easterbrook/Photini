@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@ import re
 
 import six
 
-from photini.metadata import LensSpec
+from photini.metadata import CameraModel, LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
     QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
@@ -707,6 +707,52 @@ class LensData(object):
         return lens_id
 
 
+class NewCameraDialog(QtWidgets.QDialog):
+    def __init__(self, images, *arg, **kw):
+        super(NewCameraDialog, self).__init__(*arg, **kw)
+        self.setWindowTitle(translate('TechnicalTab', 'Photini: define camera'))
+        self.setLayout(QtWidgets.QVBoxLayout())
+        # main dialog area
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.layout().addWidget(scroll_area)
+        panel = QtWidgets.QWidget()
+        panel.setLayout(QtWidgets.QFormLayout())
+        panel.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        # ok & cancel buttons
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        self.layout().addWidget(button_box)
+        # data items
+        self.widgets = {}
+        for key, label in (
+                ('make', translate('TechnicalTab', "Maker's name")),
+                ('model', translate('TechnicalTab', 'Model name')),
+                ('serial_no', translate('TechnicalTab', 'Serial number')),
+                ):
+            self.widgets[key] = QtWidgets.QLineEdit()
+            self.widgets[key].setMinimumWidth(
+                width_for_text(self.widgets[key], 'x' * 35))
+            panel.layout().addRow(label, self.widgets[key])
+        # add panel to scroll area after its size is known
+        scroll_area.setWidget(panel)
+        # fill in any values we can from existing metadata
+        for image in images:
+            camera = image.metadata.camera_model
+            for key in self.widgets:
+                if camera[key]:
+                    self.widgets[key].setText(camera[key])
+
+    def get_value(self):
+        result = {}
+        for key in self.widgets:
+            result[key] = self.widgets[key].text() or None
+        return result
+
+
 class NewLensDialog(QtWidgets.QDialog):
     def __init__(self, images, *arg, **kw):
         super(NewLensDialog, self).__init__(*arg, **kw)
@@ -871,6 +917,21 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
+        # camera model
+        self.widgets['camera_model'] = DropdownEdit()
+        self.widgets['camera_model'].setMinimumWidth(
+            width_for_text(self.widgets['camera_model'], 'x' * 30))
+        self.widgets['camera_model'].setContextMenuPolicy(Qt.CustomContextMenu)
+        self.widgets['camera_model'].add_item(translate(
+            'TechnicalTab', '<new>'), '<new>')
+        for camera in [CameraModel(x) for x in eval(
+                self.config_store.get('technical', 'cameras', '[]'))]:
+            self.widgets['camera_model'].add_item(camera.get_name(), camera)
+        self.widgets['camera_model'].new_value.connect(self.new_camera_model)
+        self.widgets['camera_model'].customContextMenuRequested.connect(
+            self.remove_camera_model)
+        other_group.layout().addRow(translate(
+            'TechnicalTab', 'Camera'), self.widgets['camera_model'])
         # lens model
         self.widgets['lens_model'] = DropdownEdit()
         self.widgets['lens_model'].setMinimumWidth(
@@ -963,6 +1024,54 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.orientation = value
             image.load_thumbnail()
         self._update_orientation()
+
+    @QtSlot(QtCore.QPoint)
+    @catch_all
+    def remove_camera_model(self, pos):
+        current_camera = CameraModel(
+            eval(self.widgets['camera_model'].get_value()))
+        menu = QtWidgets.QMenu()
+        for n in range(1, self.widgets['camera_model'].count() - 3):
+            camera = CameraModel(
+                eval(self.widgets['camera_model'].itemData(n)))
+            if camera == current_camera:
+                continue
+            action = QtWidgets.QAction(translate(
+                'TechnicalTab', 'Remove camera "{}"').format(
+                    camera.get_name()), self)
+            action.setData(camera)
+            menu.addAction(action)
+        if menu.isEmpty():
+            # no deletable cameras
+            return
+        action = menu.exec_(self.widgets['camera_model'].mapToGlobal(pos))
+        if not action:
+            return
+        self.widgets['camera_model'].remove_item(action.data())
+        self._save_cameras()
+
+    def _save_cameras(self):
+        cameras = []
+        for n in range(1, self.widgets['camera_model'].count() - 3):
+            cameras.append(CameraModel(
+                eval(self.widgets['camera_model'].itemData(n))))
+        cameras.sort(key=lambda x: x.get_name().lower())
+        self.config_store.set('technical', 'cameras', repr(cameras))
+
+    @QtSlot(object)
+    @catch_all
+    def new_camera_model(self, value):
+        if value == '<new>':
+            dialog = NewCameraDialog(
+                self.image_list.get_selected_images(), parent=self)
+            if dialog.exec_() != QtWidgets.QDialog.Accepted:
+                return
+            value = dialog.get_value()
+        elif value:
+            value = eval(value)
+        for image in self.image_list.get_selected_images():
+            image.metadata.camera_model = value
+        self._update_camera_model()
 
     @QtSlot(QtCore.QPoint)
     @catch_all
@@ -1104,6 +1213,25 @@ class TabWidget(QtWidgets.QWidget):
                 self.widgets['orientation'].set_multiple()
                 return
         self.widgets['orientation'].set_value(value)
+
+    def _update_camera_model(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            return
+        values = []
+        for image in images:
+            value = image.metadata.camera_model
+            if value not in values:
+                values.append(value)
+        if len(values) > 1:
+            self.widgets['camera_model'].set_multiple()
+            return
+        camera = CameraModel(values[0])
+        if not self.widgets['camera_model'].known_value(camera):
+            # new camera
+            self.widgets['camera_model'].add_item(camera.get_name(), camera)
+            self._save_cameras()
+        self.widgets['camera_model'].set_value(camera)
 
     def _update_lens_model(self):
         images = self.image_list.get_selected_images()
@@ -1302,6 +1430,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_datetime()
         self._update_links()
         self._update_orientation()
+        self._update_camera_model()
         self._update_lens_model()
         self._update_aperture()
         self._update_focal_length()
