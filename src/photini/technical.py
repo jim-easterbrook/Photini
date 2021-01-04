@@ -52,9 +52,15 @@ class DropdownEdit(ComboBox):
     def current_index_changed(self, int):
         self.new_value.emit(self.get_value())
 
-    def add_item(self, text, value):
+    def add_item(self, text, value, ordered=True):
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 2, text, repr(value))
+        position = self.count() - 2
+        if ordered:
+            for n in range(1, self.count() - 2):
+                if self.itemText(n).lower() > text.lower():
+                    position = n
+                    break
+        self.insertItem(position, text, repr(value))
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
@@ -901,21 +907,21 @@ class TabWidget(QtWidgets.QWidget):
         # orientation
         self.widgets['orientation'] = DropdownEdit()
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'normal'), 1)
+            translate('TechnicalTab', 'normal'), 1, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate -90'), 6)
+            translate('TechnicalTab', 'rotate -90'), 6, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate +90'), 8)
+            translate('TechnicalTab', 'rotate +90'), 8, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate 180'), 3)
+            translate('TechnicalTab', 'rotate 180'), 3, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect left-right'), 2)
+            translate('TechnicalTab', 'reflect left-right'), 2, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect top-bottom'), 4)
+            translate('TechnicalTab', 'reflect top-bottom'), 4, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect tr-bl'), 5)
+            translate('TechnicalTab', 'reflect tr-bl'), 5, ordered=False)
         self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect tl-br'), 7)
+            translate('TechnicalTab', 'reflect tl-br'), 7, ordered=False)
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
@@ -925,7 +931,7 @@ class TabWidget(QtWidgets.QWidget):
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['camera_model'].add_item(translate(
-            'TechnicalTab', '<new>'), '<new>')
+            'TechnicalTab', '<new>'), '<new>', ordered=False)
         for camera in [CameraModel(x) for x in eval(
                 self.config_store.get('technical', 'cameras', '[]'))]:
             self.widgets['camera_model'].add_item(camera.get_name(), camera)
@@ -940,7 +946,7 @@ class TabWidget(QtWidgets.QWidget):
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].setContextMenuPolicy(Qt.CustomContextMenu)
         self.widgets['lens_model'].add_item(translate(
-            'TechnicalTab', '<define new lens>'), '<add lens>')
+            'TechnicalTab', '<define new lens>'), '<add lens>', ordered=False)
         for lens_id in self.lens_data.lenses:
             self.widgets['lens_model'].add_item(
                 self.lens_data.get_name(lens_id), lens_id)
@@ -1054,7 +1060,6 @@ class TabWidget(QtWidgets.QWidget):
         cameras = []
         for value in self.widgets['camera_model'].get_values():
             cameras.append(CameraModel(value))
-        cameras.sort(key=lambda x: x.get_name().lower())
         self.config_store.set('technical', 'cameras', repr(cameras))
 
     @QtSlot(object)
