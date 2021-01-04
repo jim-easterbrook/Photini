@@ -42,11 +42,9 @@ class DropdownEdit(ComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
-        self.addItem(translate('TechnicalTab', '<clear>'), None)
         self.addItem('', None)
-        self.setItemData(1, 0, Qt.UserRole - 1)
         self.addItem(multiple_values(), None)
-        self.setItemData(2, 0, Qt.UserRole - 1)
+        self.setItemData(1, 0, Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
     @QtSlot(int)
@@ -56,7 +54,7 @@ class DropdownEdit(ComboBox):
 
     def add_item(self, text, data):
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 3, text, six.text_type(data))
+        self.insertItem(self.count() - 2, text, six.text_type(data))
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
@@ -1031,7 +1029,7 @@ class TabWidget(QtWidgets.QWidget):
         current_camera = CameraModel(
             eval(self.widgets['camera_model'].get_value()))
         menu = QtWidgets.QMenu()
-        for n in range(1, self.widgets['camera_model'].count() - 3):
+        for n in range(1, self.widgets['camera_model'].count() - 2):
             camera = CameraModel(
                 eval(self.widgets['camera_model'].itemData(n)))
             if camera == current_camera:
@@ -1052,7 +1050,7 @@ class TabWidget(QtWidgets.QWidget):
 
     def _save_cameras(self):
         cameras = []
-        for n in range(1, self.widgets['camera_model'].count() - 3):
+        for n in range(1, self.widgets['camera_model'].count() - 2):
             cameras.append(CameraModel(
                 eval(self.widgets['camera_model'].itemData(n))))
         cameras.sort(key=lambda x: x.get_name().lower())
@@ -1065,6 +1063,7 @@ class TabWidget(QtWidgets.QWidget):
             dialog = NewCameraDialog(
                 self.image_list.get_selected_images(), parent=self)
             if dialog.exec_() != QtWidgets.QDialog.Accepted:
+                self._update_camera_model()
                 return
             value = dialog.get_value()
         elif value:
