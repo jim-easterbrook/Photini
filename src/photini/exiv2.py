@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -463,10 +463,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         'aperture'       : (('RA.WA', 'Exif.Photo.FNumber'),
                             ('RA.W0', 'Exif.Image.FNumber'),
                             ('RA.WX', 'Xmp.exif.FNumber')),
-        'camera_id'      : (('RA.WN', 'Exif.Image.Model'),
-                            ('RA.WN', 'Exif.Image.UniqueCameraModel'),
-                            ('RA.WN', 'Exif.Canon.ModelID'),
-                            ('RA.WN', 'Xmp.video.Model')),
         'camera_model'   : (('RA.WA', 'Exif.Image.Make'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
                             ('RA.WN', 'Exif.Image.CameraSerialNumber'),

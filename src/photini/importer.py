@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -73,8 +73,11 @@ class FolderSource(object):
             else:
                 sc_path = None
             name = os.path.basename(path)
+            camera = metadata.camera_model
+            if camera:
+                camera = camera['model']
             file_data[name] = {
-                'camera'    : metadata.camera_id,
+                'camera'    : camera,
                 'path'      : path,
                 'sc_path'   : sc_path,
                 'name'      : name,

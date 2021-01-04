@@ -43,9 +43,6 @@ class FFMPEGMetadata(object):
     _tag_list = {
         'altitude':       ('com.apple.quicktime.location.ISO6709',
                            'location'),
-        'camera_id':      ('model',
-                           'Model',
-                           'com.apple.quicktime.model'),
         'camera_model':   ('model',
                            'Model',
                            'com.apple.quicktime.model'),
@@ -489,7 +486,7 @@ class CameraModel(MD_Dict):
             return other, True, False
         return super(CameraModel, self).merge_item(this, other)
 
-    def get_name(self):
+    def get_name(self, inc_serial=True):
         result = self['make'] or ''
         if self['model']:
             if result in self['model']:
@@ -497,7 +494,7 @@ class CameraModel(MD_Dict):
             if result:
                 result += ' '
             result += self['model']
-        if self['serial_no']:
+        if inc_serial and self['serial_no']:
             if result:
                 result += ' '
             result += '(S/N: ' + self['serial_no'] + ')'
@@ -915,22 +912,6 @@ class MD_String(MD_Value, six.text_type):
         return this + ' // ' + other, True, False
 
 
-class CameraID(MD_String):
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        if file_value == 'unknown':
-            return None
-        if tag == 'Exif.Canon.ModelID':
-            file_value = 'Canon_ID-{:08x}'.format(int(file_value))
-        return cls(file_value)
-
-    def merge_item(self, this, other):
-        return this, False, False
-
-
 class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
@@ -1093,7 +1074,6 @@ class Metadata(object):
     _data_type = {
         'altitude'       : Altitude,
         'aperture'       : Aperture,
-        'camera_id'      : CameraID,
         'camera_model'   : CameraModel,
         'copyright'      : MD_String,
         'creator'        : MultiString,
