@@ -405,6 +405,9 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
         'Exif.Photo.FNumber': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
+        'Exif.Photo.LensMake': (
+            'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
+            'Exif.Photo.LensSerialNumber'),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate': (
@@ -421,6 +424,9 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
         'Xmp.exif.GPSCoordinates': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
+        'Xmp.exifEX.LensMake': (
+            'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
+            'Xmp.exifEX.LensSerialNumber'),
         'Xmp.iptc.Location': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -473,6 +479,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WN', 'Exif.OlympusEq.CameraType'),
                             ('RA.WN', 'Exif.OlympusEq.SerialNumber'),
                             ('RA.WN', 'Exif.Pentax.SerialNumber'),
+                            ('RA.WN', 'Xmp.aux.SerialNumber'),
                             ('RA.WN', 'Xmp.video.Model')),
         'copyright'      : (('RA.WA', 'Exif.Image.Copyright'),
                             ('RA.WA', 'Xmp.dc.rights'),
@@ -524,18 +531,13 @@ class Exiv2Metadata(GExiv2.Metadata):
         'latlong'        : (('RA.WA', 'Exif.GPSInfo.GPSCoordinates'),
                             ('RA.WX', 'Xmp.exif.GPSCoordinates'),
                             ('RA.WN', 'Xmp.video.GPSCoordinates')),
-        'lens_make'      : (('RA.WA', 'Exif.Photo.LensMake'),
-                            ('RA.WX', 'Xmp.exifEX.LensMake')),
-        'lens_model'     : (('RA.WA', 'Exif.Photo.LensModel'),
-                            ('RA.WX', 'Xmp.exifEX.LensModel'),
+        'lens_model'     : (('RA.WA', 'Exif.Photo.LensMake'),
+                            ('RA.WX', 'Xmp.exifEX.LensMake'),
                             ('RA.W0', 'Exif.Canon.LensModel'),
                             ('RA.W0', 'Exif.OlympusEq.LensModel'),
+                            ('RA.W0', 'Exif.OlympusEq.LensSerialNumber'),
                             ('RA.W0', 'Xmp.aux.Lens'),
                             ('RN.W0', 'Exif.CanonCs.LensType')),
-        'lens_serial'    : (('RA.WA', 'Exif.Photo.LensSerialNumber'),
-                            ('RA.WX', 'Xmp.exifEX.LensSerialNumber'),
-                            ('RA.W0', 'Exif.OlympusEq.LensSerialNumber'),
-                            ('RA.W0', 'Xmp.aux.SerialNumber')),
         'lens_spec'      : (('RA.WA', 'Exif.Photo.LensSpecification'),
                             ('RA.WX', 'Xmp.exifEX.LensSpecification'),
                             ('RA.W0', 'Exif.Image.LensInfo'),

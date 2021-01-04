@@ -501,6 +501,57 @@ class CameraModel(MD_Dict):
         return result
 
 
+class LensModel(MD_Dict):
+    _keys = ('make', 'model', 'serial_no')
+
+    @staticmethod
+    def convert(value):
+        for key in value:
+            if value[key]:
+                value[key] = value[key].strip() or None
+        if value['serial_no'] == '0000000000':
+            value['serial_no'] = None
+        return value
+
+    @classmethod
+    def read(cls, handler, tag):
+        file_value = handler.get_string(tag)
+        if not file_value:
+            return None
+        if tag.endswith('Number'):
+            file_value = {'serial_no': file_value}
+        elif not isinstance(file_value, list):
+            file_value = {'model': file_value}
+        return cls(file_value)
+
+    def __str__(self):
+        return str(dict([(x, y) for x, y in self.items() if y]))
+
+    def get_name(self, inc_serial=True):
+        result = self['make'] or ''
+        if self['model']:
+            if result in self['model']:
+                result = ''
+            if result:
+                result += ' '
+            result += self['model']
+        if inc_serial and self['serial_no']:
+            if result:
+                result += ' '
+            result += '(S/N: ' + self['serial_no'] + ')'
+        return result
+
+    def get_id(self):
+        result = self['model'] or ''
+        if self['make'] and self['make'] not in result:
+            result = '({}){}'.format(self['make'], result)
+        if self['serial_no']:
+            result = '{}({})'.format(result, self['serial_no'])
+        if result:
+            result = result.replace(' ', '')
+        return result
+
+
 class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
@@ -1087,9 +1138,7 @@ class Metadata(object):
         'focal_length_35': MD_Int,
         'keywords'       : MultiString,
         'latlong'        : LatLon,
-        'lens_make'      : MD_String,
-        'lens_model'     : MD_String,
-        'lens_serial'    : MD_String,
+        'lens_model'     : LensModel,
         'lens_spec'      : LensSpec,
         'location_shown' : MultiLocation,
         'location_taken' : Location,

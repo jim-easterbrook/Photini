@@ -758,7 +758,7 @@ class ImageList(QtWidgets.QWidget):
                         'copyright', 'creator',
                         'date_taken', 'date_digitised', 'date_modified',
                         'orientation', 'camera_model',
-                        'lens_model', 'lens_make', 'lens_serial', 'lens_spec',
+                        'lens_model', 'lens_spec',
                         'focal_length', 'focal_length_35', 'aperture',
                         'latlong', 'altitude',
                         'location_taken', 'location_shown',

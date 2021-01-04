@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-16  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -75,6 +75,15 @@ class BaseConfigStore(object):
               self.config.get(section, option) == value):
             return
         self.config.set(section, option, value)
+        self.dirty = True
+
+    def delete(self, section, option):
+        if not self.config.has_section(section):
+            return
+        if self.config.has_option(section, option):
+            self.config.remove_option(section, option)
+        if not self.config.options(section):
+            self.config.remove_section(section)
         self.dirty = True
 
     def remove_section(self, section):
