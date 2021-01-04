@@ -42,9 +42,9 @@ class DropdownEdit(ComboBox):
 
     def __init__(self, *arg, **kw):
         super(DropdownEdit, self).__init__(*arg, **kw)
-        self.addItem('', None)
-        self.addItem(multiple_values(), None)
-        self.setItemData(1, 0, Qt.UserRole - 1)
+        self.addItem('', repr(None))
+        self.addItem(multiple_values(), repr(None))
+        self.setItemData(1, self.itemData(1), Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
     @QtSlot(int)
@@ -52,33 +52,37 @@ class DropdownEdit(ComboBox):
     def current_index_changed(self, int):
         self.new_value.emit(self.get_value())
 
-    def add_item(self, text, data):
+    def add_item(self, text, value):
         blocked = self.blockSignals(True)
-        self.insertItem(self.count() - 2, text, six.text_type(data))
+        self.insertItem(self.count() - 2, text, repr(value))
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
-    def remove_item(self, data):
+    def remove_item(self, value):
         blocked = self.blockSignals(True)
-        self.removeItem(self.findData(six.text_type(data)))
+        self.removeItem(self.findData(repr(value)))
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
     def known_value(self, value):
         if not value:
             return True
-        return self.findData(six.text_type(value)) >= 0
+        return self.findData(repr(value)) >= 0
 
     def set_value(self, value):
         blocked = self.blockSignals(True)
         if not value:
             self.setCurrentIndex(self.count() - 2)
         else:
-            self.setCurrentIndex(self.findData(six.text_type(value)))
+            self.setCurrentIndex(self.findData(repr(value)))
         self.blockSignals(blocked)
 
     def get_value(self):
-        return self.itemData(self.currentIndex())
+        return eval(self.itemData(self.currentIndex()))
+
+    def get_values(self):
+        for n in range(1, self.count() - 2):
+            yield eval(self.itemData(n))
 
     def set_multiple(self):
         blocked = self.blockSignals(True)
@@ -1026,12 +1030,10 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot(QtCore.QPoint)
     @catch_all
     def remove_camera_model(self, pos):
-        current_camera = CameraModel(
-            eval(self.widgets['camera_model'].get_value()))
+        current_camera = CameraModel(self.widgets['camera_model'].get_value())
         menu = QtWidgets.QMenu()
-        for n in range(1, self.widgets['camera_model'].count() - 2):
-            camera = CameraModel(
-                eval(self.widgets['camera_model'].itemData(n)))
+        for value in self.widgets['camera_model'].get_values():
+            camera = CameraModel(value)
             if camera == current_camera:
                 continue
             action = QtWidgets.QAction(translate(
@@ -1050,9 +1052,8 @@ class TabWidget(QtWidgets.QWidget):
 
     def _save_cameras(self):
         cameras = []
-        for n in range(1, self.widgets['camera_model'].count() - 2):
-            cameras.append(CameraModel(
-                eval(self.widgets['camera_model'].itemData(n))))
+        for value in self.widgets['camera_model'].get_values():
+            cameras.append(CameraModel(value))
         cameras.sort(key=lambda x: x.get_name().lower())
         self.config_store.set('technical', 'cameras', repr(cameras))
 
@@ -1066,8 +1067,6 @@ class TabWidget(QtWidgets.QWidget):
                 self._update_camera_model()
                 return
             value = dialog.get_value()
-        elif value:
-            value = eval(value)
         for image in self.image_list.get_selected_images():
             image.metadata.camera_model = value
         self._update_camera_model()
