@@ -43,12 +43,35 @@ class DropdownEdit(ComboBox):
     def __init__(self, extendable=False, **kw):
         super(DropdownEdit, self).__init__(**kw)
         if extendable:
+            self.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.customContextMenuRequested.connect(self.remove_from_list)
             self.addItem(translate('TechnicalTab', '<new>'), '<new>')
         self.addItem('', None)
         self.first_value_idx = self.count()
         self.addItem(multiple_values(), '<multiple>')
-        self.setItemData(self.count() - 1, self.itemData(1), Qt.UserRole - 1)
+        self.setItemData(
+            self.count() - 1, self.itemData(self.count() - 1), Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
+
+    @QtSlot(QtCore.QPoint)
+    @catch_all
+    def remove_from_list(self, pos):
+        current_value = self.get_value()
+        menu = QtWidgets.QMenu()
+        for name, value in self.get_items():
+            if value == current_value:
+                continue
+            action = QtWidgets.QAction(
+                translate('TechnicalTab', 'Remove "{}"').format(name),
+                parent=self)
+            action.setData(value)
+            menu.addAction(action)
+        if menu.isEmpty():
+            return
+        action = menu.exec_(self.mapToGlobal(pos))
+        if not action:
+            return
+        self.remove_item(action.data())
 
     @QtSlot(int)
     @catch_all
@@ -111,8 +134,6 @@ class CameraList(DropdownEdit):
     def __init__(self, **kw):
         super(CameraList, self).__init__(**kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.remove_camera_model)
         # read cameras from config, updating if neccessary
         camera_names = []
         for section in self.config_store.config.sections():
@@ -131,26 +152,6 @@ class CameraList(DropdownEdit):
             if name != camera_name:
                 self.config_store.remove_section(section)
             self.add_item(camera)
-
-    @QtSlot(QtCore.QPoint)
-    @catch_all
-    def remove_camera_model(self, pos):
-        current_camera = self.get_value()
-        menu = QtWidgets.QMenu()
-        for name, value in self.get_items():
-            if value == current_camera:
-                continue
-            action = QtWidgets.QAction(translate(
-                'TechnicalTab', 'Remove "{}"').format(name), parent=self)
-            action.setData(value)
-            menu.addAction(action)
-        if menu.isEmpty():
-            # no deletable cameras
-            return
-        action = menu.exec_(self.mapToGlobal(pos))
-        if not action:
-            return
-        self.remove_item(action.data())
 
     def add_item(self, camera):
         name = camera.get_name()
@@ -174,8 +175,6 @@ class LensList(DropdownEdit):
     def __init__(self, **kw):
         super(LensList, self).__init__(**kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.remove_lens_model)
         # read lenses from config, updating if neccessary
         self.config_store.delete('technical', 'lenses')
         lens_names = []
@@ -200,25 +199,6 @@ class LensList(DropdownEdit):
             if lens_model.get_name() != lens_name:
                 self.config_store.remove_section(section)
             self.add_item((lens_model, lens_spec))
-
-    @QtSlot(QtCore.QPoint)
-    @catch_all
-    def remove_lens_model(self, pos):
-        current_lens = self.get_value()
-        menu = QtWidgets.QMenu()
-        for name, value in self.get_items():
-            if value == current_lens:
-                continue
-            action = QtWidgets.QAction(translate(
-                'TechnicalTab', 'Remove "{}"').format(name), parent=self)
-            action.setData(value)
-            menu.addAction(action)
-        if menu.isEmpty():
-            return
-        action = menu.exec_(self.mapToGlobal(pos))
-        if not action:
-            return
-        self.remove_item(action.data())
 
     def add_item(self, value):
         lens_model, lens_spec = value

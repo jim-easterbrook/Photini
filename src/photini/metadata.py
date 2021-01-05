@@ -543,16 +543,6 @@ class LensModel(MD_Dict):
             result += '(S/N: ' + self['serial_no'] + ')'
         return result
 
-    def get_id(self):
-        result = self['model'] or ''
-        if self['make'] and self['make'] not in result:
-            result = '({}){}'.format(self['make'], result)
-        if self['serial_no']:
-            result = '{}({})'.format(result, self['serial_no'])
-        if result:
-            result = result.replace(' ', '')
-        return result
-
 
 class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
