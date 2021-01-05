@@ -462,7 +462,8 @@ class CameraModel(MD_Dict):
     def convert(value):
         for key in value:
             if value[key]:
-                value[key] = value[key].strip() or None
+                value[key] = value[key].strip()
+            value[key] = value[key] or None
         return value
 
     @classmethod

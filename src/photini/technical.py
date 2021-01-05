@@ -43,16 +43,16 @@ class DropdownEdit(ComboBox):
     def __init__(self, extendable=False, **kw):
         super(DropdownEdit, self).__init__(**kw)
         if extendable:
-            self.addItem(translate('TechnicalTab', '<new>'), repr('<new>'))
-        self.addItem('', repr(None))
+            self.addItem(translate('TechnicalTab', '<new>'), '<new>')
+        self.addItem('', None)
         self.first_value_idx = self.count()
-        self.addItem(multiple_values(), repr('<multiple>'))
+        self.addItem(multiple_values(), '<multiple>')
         self.setItemData(self.count() - 1, self.itemData(1), Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
     @QtSlot(int)
     @catch_all
-    def current_index_changed(self, int):
+    def current_index_changed(self, idx):
         self.new_value.emit(self.get_value())
 
     def add_item(self, text, value, ordered=True):
@@ -63,36 +63,43 @@ class DropdownEdit(ComboBox):
                 if self.itemText(n).lower() > text.lower():
                     position = n
                     break
-        self.insertItem(position, text, repr(value))
+        self.insertItem(position, text, value)
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
     def remove_item(self, value):
         blocked = self.blockSignals(True)
-        self.removeItem(self.findData(repr(value)))
+        self.removeItem(self.find_data(value))
         self.set_dropdown_width()
         self.blockSignals(blocked)
 
     def known_value(self, value):
         if not value:
             return True
-        return self.findData(repr(value)) >= 0
+        return self.find_data(value) >= 0
 
     def set_value(self, value):
         blocked = self.blockSignals(True)
-        self.setCurrentIndex(self.findData(repr(value)))
+        self.setCurrentIndex(self.find_data(value))
         self.blockSignals(blocked)
 
+    def find_data(self, value):
+        # Qt's findData only works for simple types
+        for n in range(self.count()):
+            if self.itemData(n) == value:
+                return n
+        return -1
+
     def get_value(self):
-        return eval(self.itemData(self.currentIndex()))
+        return self.itemData(self.currentIndex())
 
     def get_values(self):
         for n in range(self.first_value_idx, self.count() - 1):
-            yield eval(self.itemData(n))
+            yield self.itemData(n)
 
     def get_items(self):
         for n in range(self.first_value_idx, self.count() - 1):
-            yield self.itemText(n), eval(self.itemData(n))
+            yield self.itemText(n), self.itemData(n)
 
     def set_multiple(self):
         blocked = self.blockSignals(True)
