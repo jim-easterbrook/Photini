@@ -90,10 +90,78 @@ class DropdownEdit(ComboBox):
         for n in range(self.first_value_idx, self.count() - 1):
             yield eval(self.itemData(n))
 
+    def get_items(self):
+        for n in range(self.first_value_idx, self.count() - 1):
+            yield self.itemText(n), eval(self.itemData(n))
+
     def set_multiple(self):
         blocked = self.blockSignals(True)
         self.setCurrentIndex(self.count() - 1)
         self.blockSignals(blocked)
+
+
+class CameraList(DropdownEdit):
+    def __init__(self, **kw):
+        super(CameraList, self).__init__(**kw)
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.remove_camera_model)
+        # read cameras from config, updating if neccessary
+        camera_names = []
+        for section in self.config_store.config.sections():
+            if six.PY2:
+                section = section.decode('utf-8')
+            if not section.startswith('camera '):
+                continue
+            camera_names.append(section[7:])
+        for camera_name in camera_names:
+            section = 'camera ' + camera_name
+            camera = {}
+            for key in 'make', 'model', 'serial_no':
+                camera[key] = self.config_store.get(section, key)
+            camera = CameraModel(camera)
+            name = camera.get_name()
+            if name != camera_name:
+                self.config_store.remove_section(section)
+            self.add_item(camera)
+
+    @QtSlot(QtCore.QPoint)
+    @catch_all
+    def remove_camera_model(self, pos):
+        current_camera = self.get_value()
+        menu = QtWidgets.QMenu()
+        for name, value in self.get_items():
+            if value == current_camera:
+                continue
+            action = QtWidgets.QAction(translate(
+                'TechnicalTab', 'Remove "{}"').format(name), parent=self)
+            action.setData(value)
+            menu.addAction(action)
+        if menu.isEmpty():
+            # no deletable cameras
+            return
+        action = menu.exec_(self.mapToGlobal(pos))
+        if not action:
+            return
+        camera = CameraModel(action.data())
+        self.remove_item(camera)
+
+    def add_item(self, camera):
+        name = camera.get_name()
+        section = 'camera ' + name
+        for key, value in camera.items():
+            if value:
+                self.config_store.set(section, key, value)
+        super(CameraList, self).add_item(name, camera, ordered=True)
+
+    def remove_item(self, camera):
+        self.config_store.remove_section('camera ' + camera.get_name())
+        super(CameraList, self).remove_item(camera)
+
+    def set_value(self, camera):
+        if not self.known_value(camera):
+            self.add_item(camera)
+        super(CameraList, self).set_value(camera)
 
 
 class AugmentSpinBox(object):
@@ -712,7 +780,7 @@ class NewCameraDialog(QtWidgets.QDialog):
     def get_value(self):
         result = {}
         for key in self.widgets:
-            result[key] = self.widgets[key].text() or None
+            result[key] = self.widgets[key].text()
         return result
 
 
@@ -890,16 +958,10 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model
-        self.widgets['camera_model'] = DropdownEdit(extendable=True)
+        self.widgets['camera_model'] = CameraList(extendable=True)
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
-        self.widgets['camera_model'].setContextMenuPolicy(Qt.CustomContextMenu)
-        for camera in [CameraModel(x) for x in eval(
-                self.config_store.get('technical', 'cameras', '[]'))]:
-            self.widgets['camera_model'].add_item(camera.get_name(), camera)
         self.widgets['camera_model'].new_value.connect(self.new_camera_model)
-        self.widgets['camera_model'].customContextMenuRequested.connect(
-            self.remove_camera_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Camera'), self.widgets['camera_model'])
         # lens model
@@ -992,35 +1054,6 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.orientation = value
             image.load_thumbnail()
         self._update_orientation()
-
-    @QtSlot(QtCore.QPoint)
-    @catch_all
-    def remove_camera_model(self, pos):
-        current_camera = CameraModel(self.widgets['camera_model'].get_value())
-        menu = QtWidgets.QMenu()
-        for value in self.widgets['camera_model'].get_values():
-            camera = CameraModel(value)
-            if camera == current_camera:
-                continue
-            action = QtWidgets.QAction(translate(
-                'TechnicalTab', 'Remove camera "{}"').format(
-                    camera.get_name()), self)
-            action.setData(camera)
-            menu.addAction(action)
-        if menu.isEmpty():
-            # no deletable cameras
-            return
-        action = menu.exec_(self.widgets['camera_model'].mapToGlobal(pos))
-        if not action:
-            return
-        self.widgets['camera_model'].remove_item(action.data())
-        self._save_cameras()
-
-    def _save_cameras(self):
-        cameras = []
-        for value in self.widgets['camera_model'].get_values():
-            cameras.append(CameraModel(value))
-        self.config_store.set('technical', 'cameras', repr(cameras))
 
     @QtSlot(object)
     @catch_all
@@ -1185,20 +1218,12 @@ class TabWidget(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
-        values = []
-        for image in images:
-            value = image.metadata.camera_model
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['camera_model'].set_multiple()
-            return
-        camera = CameraModel(values[0])
-        if not self.widgets['camera_model'].known_value(camera):
-            # new camera
-            self.widgets['camera_model'].add_item(camera.get_name(), camera)
-            self._save_cameras()
-        self.widgets['camera_model'].set_value(camera)
+        value = images[0].metadata.camera_model
+        for image in images[1:]:
+            if image.metadata.camera_model != value:
+                self.widgets['camera_model'].set_multiple()
+                return
+        self.widgets['camera_model'].set_value(value)
 
     def _update_lens_model(self):
         images = self.image_list.get_selected_images()
