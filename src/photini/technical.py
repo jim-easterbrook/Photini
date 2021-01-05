@@ -686,54 +686,6 @@ class OffsetWidget(QtWidgets.QWidget):
         self.apply_offset.emit(offset, tz_offset)
 
 
-class LensSpecWidget(QtWidgets.QGroupBox):
-    def __init__(self, *arg, **kw):
-        super(LensSpecWidget, self).__init__(*arg, **kw)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setContentsMargins(6, 0, 6, 0)
-        self.layout().setVerticalSpacing(0)
-        for text, col in ((translate('TechnicalTab', 'min'), 1),
-                          (translate('TechnicalTab', 'max'), 2)):
-            label = QtWidgets.QLabel(text)
-            label.setAlignment(Qt.AlignHCenter)
-            self.layout().addWidget(label, 0, col)
-        self.layout().addWidget(
-            QtWidgets.QLabel(translate('TechnicalTab', 'Focal length')), 1, 0)
-        self.layout().addWidget(
-            QtWidgets.QLabel(translate('TechnicalTab', 'Max aperture')), 2, 0)
-        self.multiple = QtWidgets.QLabel(multiple_values())
-        self.layout().addWidget(self.multiple, 1, 1, 2, 2)
-        self.multiple.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        self.multiple.hide()
-        self.values = {
-            'min_fl'    : QtWidgets.QLabel(),
-            'max_fl'    : QtWidgets.QLabel(),
-            'min_fl_fn' : QtWidgets.QLabel(),
-            'max_fl_fn' : QtWidgets.QLabel(),
-            }
-        for key in self.values:
-            self.values[key].setAlignment(Qt.AlignHCenter)
-        self.layout().addWidget(self.values['min_fl'], 1, 1)
-        self.layout().addWidget(self.values['max_fl'], 1, 2)
-        self.layout().addWidget(self.values['min_fl_fn'], 2, 1)
-        self.layout().addWidget(self.values['max_fl_fn'], 2, 2)
-
-    def set_value(self, value):
-        self.multiple.hide()
-        for key in self.values:
-            sub_val = getattr(value, key, None)
-            if sub_val:
-                self.values[key].setText('{:g}'.format(float(sub_val)))
-            else:
-                self.values[key].clear()
-            self.values[key].show()
-
-    def set_multiple(self):
-        for key in self.values:
-            self.values[key].hide()
-        self.multiple.show()
-
-
 class NewCameraDialog(QtWidgets.QDialog):
     def __init__(self, images, *arg, **kw):
         super(NewCameraDialog, self).__init__(*arg, **kw)
@@ -965,10 +917,6 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Lens model'), self.widgets['lens_model'])
-        # lens specification
-        self.widgets['lens_spec'] = LensSpecWidget()
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Lens details'), self.widgets['lens_spec'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox()
         self.widgets['focal_length'].setMinimum(0.0)
@@ -1081,7 +1029,7 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.lens_model = lens_model
             image.metadata.lens_spec = lens_spec
         self._update_lens_model()
-        self._update_lens_spec(adjust_afl=True)
+        self._update_lens_spec()
 
     @QtSlot(object)
     @catch_all
@@ -1192,32 +1140,45 @@ class TabWidget(QtWidgets.QWidget):
         images = self.image_list.get_selected_images()
         if not images:
             return
+        self.widgets['lens_model'].setToolTip('')
         value = images[0].metadata.lens_model, images[0].metadata.lens_spec
         for image in images[1:]:
             if (image.metadata.lens_model, image.metadata.lens_spec) != value:
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
-                self.widgets['lens_model'].setToolTip('')
                 return
-        if not value[0]:
+        lens_model, lens_spec = value
+        if not lens_model:
             value = None
         self.widgets['lens_model'].set_value(value)
-        tool_tip = ''
-        self.widgets['lens_model'].setToolTip(tool_tip)
+        if lens_spec:
+            tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
+                        '<th width="70">{th_max}</th></tr>'
+                        '<tr><th align="right">{th_fl}</th>'
+                        '<td align="center">{min_fl}</td>'
+                        '<td align="center">{max_fl}</td></tr>'
+                        '<tr><th align="right">{th_ap}</th>'
+                        '<td align="center">{min_fl_fn}</td>'
+                        '<td align="center">{max_fl_fn}</td></tr></table>')
+            tool_tip = tool_tip.format(
+                th_min=translate('TechnicalTab', 'min'),
+                th_max=translate('TechnicalTab', 'max'),
+                th_fl=translate('TechnicalTab', 'Focal length'),
+                th_ap=translate('TechnicalTab', 'Max aperture'),
+                **dict([(x, float(y) or '') for (x, y) in lens_spec.items()]))
+            self.widgets['lens_model'].setToolTip(tool_tip)
 
-    def _update_lens_spec(self, adjust_afl=False):
+    def _update_lens_spec(self):
         images = self.image_list.get_selected_images()
         if not images:
             return
         spec = images[0].metadata.lens_spec
+        if not spec:
+            return
         for image in images[1:]:
             if image.metadata.lens_spec != spec:
                 # multiple values
-                self.widgets['lens_spec'].set_multiple()
                 return
-        self.widgets['lens_spec'].set_value(spec)
-        if not (adjust_afl and spec):
-            return
         make_changes = False
         for image in images:
             new_aperture = image.metadata.aperture or 0
@@ -1387,5 +1348,4 @@ class TabWidget(QtWidgets.QWidget):
         self._update_aperture()
         self._update_focal_length()
         self._update_focal_length_35()
-        self._update_lens_spec()
         self.setEnabled(True)
