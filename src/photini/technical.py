@@ -751,20 +751,22 @@ class NewLensDialog(QtWidgets.QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
+        ## model has three items
+        self.lens_model = {}
+        # make
+        self.lens_model['make'] = QtWidgets.QLineEdit()
+        panel.layout().addRow(
+            translate('TechnicalTab', "Maker's name"), self.lens_model['make'])
         # model
-        self.lens_model = QtWidgets.QLineEdit()
-        self.lens_model.setMinimumWidth(
-            width_for_text(self.lens_model, 'x' * 35))
+        self.lens_model['model'] = QtWidgets.QLineEdit()
+        self.lens_model['model'].setMinimumWidth(
+            width_for_text(self.lens_model['model'], 'x' * 35))
         panel.layout().addRow(
-            translate('TechnicalTab', 'Model name'), self.lens_model)
-        # maker
-        self.lens_make = QtWidgets.QLineEdit()
-        panel.layout().addRow(
-            translate('TechnicalTab', "Maker's name"), self.lens_make)
+            translate('TechnicalTab', 'Model name'), self.lens_model['model'])
         # serial number
-        self.lens_serial = QtWidgets.QLineEdit()
+        self.lens_model['serial_no'] = QtWidgets.QLineEdit()
         panel.layout().addRow(
-            translate('TechnicalTab', 'Serial number'), self.lens_serial)
+            translate('TechnicalTab', 'Serial number'), self.lens_model['serial_no'])
         ## spec has four items
         self.lens_spec = {}
         # min focal length
@@ -799,19 +801,20 @@ class NewLensDialog(QtWidgets.QDialog):
         scroll_area.setWidget(panel)
         # fill in any values we can from existing metadata
         for image in images:
-            if image.metadata.lens_model:
-                self.lens_model.setText(image.metadata.lens_model['model'])
-                self.lens_make.setText(image.metadata.lens_model['make'])
-                self.lens_serial.setText(image.metadata.lens_model['serial_no'])
+            model = image.metadata.lens_model
+            for key in self.lens_model:
+                if model and model[key]:
+                    self.lens_model[key].setText(model[key])
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
                 if spec and spec[key]:
                     self.lens_spec[key].set_value(spec[key])
 
     def get_value(self):
-        lens_model = LensModel((self.lens_make.text(),
-                                self.lens_model.text(),
-                                self.lens_serial.text())) or None
+        lens_model = {}
+        for key in self.lens_model:
+            lens_model[key] = self.lens_model[key].text()
+        lens_model = LensModel(lens_model) or None
         min_fl = self.lens_spec['min_fl'].get_value() or 0
         max_fl = self.lens_spec['max_fl'].get_value() or min_fl
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
