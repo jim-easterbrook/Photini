@@ -685,18 +685,17 @@ class OffsetWidget(QtWidgets.QWidget):
         self.apply_offset.emit(offset, tz_offset)
 
 
-class NewCameraDialog(QtWidgets.QDialog):
-    def __init__(self, images, *arg, **kw):
-        super(NewCameraDialog, self).__init__(*arg, **kw)
-        self.setWindowTitle(translate('TechnicalTab', 'Photini: define camera'))
+class NewItemDialog(QtWidgets.QDialog):
+    def __init__(self, *arg, **kw):
+        super(NewItemDialog, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         scroll_area = QtWidgets.QScrollArea()
         scroll_area.setWidgetResizable(True)
         self.layout().addWidget(scroll_area)
-        panel = QtWidgets.QWidget()
-        panel.setLayout(QtWidgets.QFormLayout())
-        panel.layout().setFieldGrowthPolicy(
+        self.panel = QtWidgets.QWidget()
+        self.panel.setLayout(QtWidgets.QFormLayout())
+        self.panel.layout().setFieldGrowthPolicy(
             QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         # ok & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
@@ -704,115 +703,81 @@ class NewCameraDialog(QtWidgets.QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
-        # data items
-        self.widgets = {}
+        # common data items
+        self.model_widgets = {}
         for key, label in (
                 ('make', translate('TechnicalTab', "Maker's name")),
                 ('model', translate('TechnicalTab', 'Model name')),
                 ('serial_no', translate('TechnicalTab', 'Serial number')),
                 ):
-            self.widgets[key] = QtWidgets.QLineEdit()
-            self.widgets[key].setMinimumWidth(
-                width_for_text(self.widgets[key], 'x' * 35))
-            panel.layout().addRow(label, self.widgets[key])
-        # add panel to scroll area after its size is known
-        scroll_area.setWidget(panel)
-        # fill in any values we can from existing metadata
-        for image in images:
-            camera = image.metadata.camera_model
-            for key in self.widgets:
-                if camera[key]:
-                    self.widgets[key].setText(camera[key])
+            self.model_widgets[key] = QtWidgets.QLineEdit()
+            self.model_widgets[key].setMinimumWidth(
+                width_for_text(self.model_widgets[key], 'x' * 35))
+            self.panel.layout().addRow(label, self.model_widgets[key])
+        # add any other data items
+        self.extend_data()
+        # add panel to scroll area now its size is known
+        scroll_area.setWidget(self.panel)
+
+    def extend_data(self):
+        pass
 
     def get_value(self):
         result = {}
-        for key in self.widgets:
-            result[key] = self.widgets[key].text()
+        for key in self.model_widgets:
+            result[key] = self.model_widgets[key].text()
         return result
 
 
-class NewLensDialog(QtWidgets.QDialog):
+class NewCameraDialog(NewItemDialog):
+    def __init__(self, images, *arg, **kw):
+        super(NewCameraDialog, self).__init__(*arg, **kw)
+        self.setWindowTitle(translate('TechnicalTab', 'Photini: define camera'))
+        # fill in any values we can from existing metadata
+        for image in images:
+            camera = image.metadata.camera_model
+            for key in self.model_widgets:
+                if camera[key]:
+                    self.model_widgets[key].setText(camera[key])
+
+
+class NewLensDialog(NewItemDialog):
     def __init__(self, images, *arg, **kw):
         super(NewLensDialog, self).__init__(*arg, **kw)
         self.setWindowTitle(translate('TechnicalTab', 'Photini: define lens'))
-        self.setLayout(QtWidgets.QVBoxLayout())
-        # main dialog area
-        scroll_area = QtWidgets.QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        self.layout().addWidget(scroll_area)
-        panel = QtWidgets.QWidget()
-        panel.setLayout(QtWidgets.QFormLayout())
-        panel.layout().setFieldGrowthPolicy(
-            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        # ok & cancel buttons
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
-        self.layout().addWidget(button_box)
-        ## model has three items
-        self.lens_model = {}
-        # make
-        self.lens_model['make'] = QtWidgets.QLineEdit()
-        panel.layout().addRow(
-            translate('TechnicalTab', "Maker's name"), self.lens_model['make'])
-        # model
-        self.lens_model['model'] = QtWidgets.QLineEdit()
-        self.lens_model['model'].setMinimumWidth(
-            width_for_text(self.lens_model['model'], 'x' * 35))
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Model name'), self.lens_model['model'])
-        # serial number
-        self.lens_model['serial_no'] = QtWidgets.QLineEdit()
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Serial number'), self.lens_model['serial_no'])
-        ## spec has four items
-        self.lens_spec = {}
-        # min focal length
-        self.lens_spec['min_fl'] = DoubleSpinBox()
-        self.lens_spec['min_fl'].setMinimum(0.0)
-        self.lens_spec['min_fl'].setSingleStep(1.0)
-        self.lens_spec['min_fl'].setSuffix(' mm')
-        panel.layout().addRow(translate('TechnicalTab', 'Minimum focal length'),
-                              self.lens_spec['min_fl'])
-        # min focal length aperture
-        self.lens_spec['min_fl_fn'] = DoubleSpinBox()
-        self.lens_spec['min_fl_fn'].setMinimum(0.0)
-        self.lens_spec['min_fl_fn'].setPrefix('ƒ/')
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at min. focal length'),
-            self.lens_spec['min_fl_fn'])
-        # max focal length
-        self.lens_spec['max_fl'] = DoubleSpinBox()
-        self.lens_spec['max_fl'].setMinimum(0.0)
-        self.lens_spec['max_fl'].setSingleStep(1.0)
-        self.lens_spec['max_fl'].setSuffix(' mm')
-        panel.layout().addRow(translate('TechnicalTab', 'Maximum focal length'),
-                              self.lens_spec['max_fl'])
-        # max focal length aperture
-        self.lens_spec['max_fl_fn'] = DoubleSpinBox()
-        self.lens_spec['max_fl_fn'].setMinimum(0.0)
-        self.lens_spec['max_fl_fn'].setPrefix('ƒ/')
-        panel.layout().addRow(
-            translate('TechnicalTab', 'Aperture at max. focal length'),
-            self.lens_spec['max_fl_fn'])
-        # add panel to scroll area after its size is known
-        scroll_area.setWidget(panel)
         # fill in any values we can from existing metadata
         for image in images:
             model = image.metadata.lens_model
-            for key in self.lens_model:
+            for key in self.model_widgets:
                 if model and model[key]:
-                    self.lens_model[key].setText(model[key])
+                    self.model_widgets[key].setText(model[key])
             spec = image.metadata.lens_spec
             for key in self.lens_spec:
                 if spec and spec[key]:
                     self.lens_spec[key].set_value(spec[key])
 
+    def extend_data(self):
+        # add lens spec
+        self.lens_spec = {}
+        for key, label in (
+                ('min_fl', translate('TechnicalTab', 'Minimum focal length')),
+                ('min_fl_fn',
+                 translate('TechnicalTab', 'Aperture at min. focal length')),
+                ('max_fl', translate('TechnicalTab', 'Maximum focal length')),
+                ('max_fl_fn',
+                 translate('TechnicalTab', 'Aperture at max. focal length')),
+                ):
+            self.lens_spec[key] = DoubleSpinBox()
+            self.lens_spec[key].setMinimum(0.0)
+            if key.endswith('_fn'):
+                self.lens_spec[key].setPrefix('ƒ/')
+            else:
+                self.lens_spec[key].setSingleStep(1.0)
+                self.lens_spec[key].setSuffix(' mm')
+            self.panel.layout().addRow(label, self.lens_spec[key])
+
     def get_value(self):
-        lens_model = {}
-        for key in self.lens_model:
-            lens_model[key] = self.lens_model[key].text()
+        lens_model = super(NewLensDialog, self).get_value()
         lens_model = LensModel(lens_model) or None
         min_fl = self.lens_spec['min_fl'].get_value() or 0
         max_fl = self.lens_spec['max_fl'].get_value() or min_fl
@@ -834,6 +799,7 @@ class DateLink(QtWidgets.QCheckBox):
     @catch_all
     def _clicked(self):
         self.new_link.emit(self.name)
+
 
 class TabWidget(QtWidgets.QWidget):
     @staticmethod
