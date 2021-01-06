@@ -104,16 +104,24 @@ class Image(QtWidgets.QFrame):
             return pixmap
         # need to rotate and or reflect image
         transform = QtGui.QTransform()
-        if orientation & 0b001:
-            # reflect left-right
-            transform = transform.scale(-1.0, 1.0)
-        if orientation & 0b010:
-            transform = transform.rotate(180.0)
-        if orientation & 0b100:
-            # transpose horizontal & vertical
-            transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
         if inverse:
-            transform = transform.transposed()
+            if orientation & 0b100:
+                # transpose horizontal & vertical
+                transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
+            if orientation & 0b010:
+                transform = transform.rotate(180.0)
+            if orientation & 0b001:
+                # reflect left-right
+                transform = transform.scale(-1.0, 1.0)
+        else:
+            if orientation & 0b001:
+                # reflect left-right
+                transform = transform.scale(-1.0, 1.0)
+            if orientation & 0b010:
+                transform = transform.rotate(180.0)
+            if orientation & 0b100:
+                # transpose horizontal & vertical
+                transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
         return pixmap.transformed(transform)
 
     def regenerate_thumbnail(self):
@@ -124,12 +132,12 @@ class Image(QtWidgets.QFrame):
         if not data:
             # use PIL or Qt
             qt_im = self.get_qt_image()
-            if not qt_im:
+            if not qt_im or qt_im.isNull():
                 return
-            if PIL:
-                data, fmt, w, h = self.make_thumb_PIL(qt_im)
-            else:
-                data, fmt, w, h = self.make_thumb_Qt(qt_im)
+        if PIL and not data:
+            data, fmt, w, h = self.make_thumb_PIL(qt_im)
+        if not data:
+            data, fmt, w, h = self.make_thumb_Qt(qt_im)
         # set thumbnail
         self.metadata.thumbnail = data, fmt, w, h
         # reload thumbnail
@@ -174,17 +182,19 @@ class Image(QtWidgets.QFrame):
             logger.error('Cannot read %s image data from %s',
                          self.file_type, self.path)
             return None
+        w = qt_im.width()
+        h = qt_im.height()
+        if max(w, h) > 1000:
+            # use Qt's scaling (not high quality) to pre-shrink large
+            # images
+            qt_im = qt_im.scaled(
+                1000, 1000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            w = qt_im.width()
+            h = qt_im.height()
         # reorient if required
         if self.file_type in ('image/x-canon-cr2', 'image/x-nikon-nef'):
             qt_im = self.transform(
                 qt_im, self.metadata.orientation, inverse=True)
-        w = qt_im.width()
-        h = qt_im.height()
-        if max(w, h) > 6000:
-            # use Qt's scaling (not high quality) to pre-shrink very
-            # large images, to avoid PIL "DecompressionBombWarning"
-            return qt_im.scaled(
-                6000, 6000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             w = qt_im.width()
             h = qt_im.height()
         # pad image to 4:3 (or 3:4) aspect ratio
@@ -217,7 +227,11 @@ class Image(QtWidgets.QFrame):
         buf.open(QtCore.QIODevice.WriteOnly)
         qt_im.save(buf, 'PPM')
         data = BytesIO(buf.data().data())
-        pil_im = PIL.open(data)
+        try:
+            pil_im = PIL.open(data)
+        except Exception as ex:
+            logger.error(ex)
+            return None, 'JPEG', w, h
         # scale PIL image
         pil_im.thumbnail((w, h), PIL.ANTIALIAS)
         # save image to memory
