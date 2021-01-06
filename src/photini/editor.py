@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -170,54 +170,42 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tab_list.append(tab)
         # file menu
         file_menu = self.menuBar().addMenu(translate('MenuBar', 'File'))
-        open_action = QtWidgets.QAction(
-            translate('MenuBar', 'Open images'), self)
-        open_action.setShortcuts(QtGui.QKeySequence.Open)
-        open_action.triggered.connect(self.image_list.open_files)
-        file_menu.addAction(open_action)
-        self.save_action = QtWidgets.QAction(
-            translate('MenuBar', 'Save images with new data'), self)
+        action = file_menu.addAction(translate('MenuBar', 'Open files'))
+        action.setShortcuts(QtGui.QKeySequence.Open)
+        action.triggered.connect(self.image_list.open_files)
+        self.save_action = file_menu.addAction(
+            translate('MenuBar', 'Save changes'))
         self.save_action.setShortcuts(QtGui.QKeySequence.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
-        file_menu.addAction(self.save_action)
-        self.close_action = QtWidgets.QAction(
-            translate('MenuBar', 'Close selected images'), self)
-        self.close_action.setEnabled(False)
-        self.close_action.triggered.connect(self.close_files)
-        file_menu.addAction(self.close_action)
-        close_all_action = QtWidgets.QAction(
-            translate('MenuBar', 'Close all images'), self)
-        close_all_action.triggered.connect(self.close_all_files)
-        file_menu.addAction(close_all_action)
+        action = file_menu.addAction(translate('MenuBar', 'Close all files'))
+        action.triggered.connect(self.image_list.close_all_files)
+        sep = file_menu.addAction(translate('MenuBar', 'Selected images'))
+        sep.setSeparator(True)
+        self.selected_actions = self.image_list.add_selected_actions(file_menu)
         if GpxImporter:
-            file_menu.addSeparator()
-            self.import_gpx_action = QtWidgets.QAction(
-                translate('MenuBar', 'Import GPX file'), self)
+            self.import_gpx_action = file_menu.addAction(
+                translate('MenuBar', 'Import GPX file'))
             self.import_gpx_action.triggered.connect(self.import_pgx_file)
-            file_menu.addAction(self.import_gpx_action)
         else:
             self.import_gpx_action = None
         file_menu.addSeparator()
-        quit_action = QtWidgets.QAction(translate('MenuBar', 'Quit'), self)
-        quit_action.setShortcuts(
+        action = file_menu.addAction(translate('MenuBar', 'Quit'))
+        action.setShortcuts(
             [QtGui.QKeySequence.Quit, QtGui.QKeySequence.Close])
-        quit_action.triggered.connect(
+        action.triggered.connect(
             QtWidgets.QApplication.instance().closeAllWindows)
-        file_menu.addAction(quit_action)
         # options menu
         options_menu = self.menuBar().addMenu(translate('MenuBar', 'Options'))
-        settings_action = QtWidgets.QAction(
-            translate('MenuBar', 'Settings'), self)
-        settings_action.triggered.connect(self.edit_settings)
-        options_menu.addAction(settings_action)
+        action = options_menu.addAction(translate('MenuBar', 'Settings'))
+        action.triggered.connect(self.edit_settings)
         options_menu.addSeparator()
         for tab in self.tab_list:
             if tab['class']:
                 name = tab['name'].replace('&', '')
             else:
                 name = tab['module']
-            tab['action'] = QtWidgets.QAction(name, self)
+            tab['action'] = options_menu.addAction(name)
             tab['action'].setCheckable(True)
             if tab['class']:
                 tab['action'].setChecked(eval(
@@ -225,19 +213,17 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
-            options_menu.addAction(tab['action'])
         # spelling menu
         languages = self.app.spell_check.available_languages()
         spelling_menu = self.menuBar().addMenu(translate('MenuBar', 'Spelling'))
-        enable_action = QtWidgets.QAction(
-            translate('MenuBar', 'Enable spell check'), self)
-        enable_action.setEnabled(languages is not None)
-        enable_action.setCheckable(True)
-        enable_action.setChecked(self.app.spell_check.enabled)
-        enable_action.toggled.connect(self.app.spell_check.enable)
-        spelling_menu.addAction(enable_action)
-        language_menu = QtWidgets.QMenu(
-            translate('MenuBar', 'Choose language'), self)
+        action = spelling_menu.addAction(
+            translate('MenuBar', 'Enable spell check'))
+        action.setEnabled(languages is not None)
+        action.setCheckable(True)
+        action.setChecked(self.app.spell_check.enabled)
+        action.toggled.connect(self.app.spell_check.enable)
+        language_menu = spelling_menu.addMenu(
+            translate('MenuBar', 'Choose language'))
         language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
         if languages:
@@ -245,30 +231,24 @@ class MainWindow(QtWidgets.QMainWindow):
             for name, code in languages:
                 if name != code:
                     name = code + ': ' + name
-                language_action = QtWidgets.QAction(name, self)
-                language_action.setCheckable(True)
-                language_action.setChecked(code == current_language)
-                language_action.setData(code)
-                language_action.setActionGroup(language_group)
-                language_menu.addAction(language_action)
+                action = language_menu.addAction(name)
+                action.setCheckable(True)
+                action.setChecked(code == current_language)
+                action.setData(code)
+                action.setActionGroup(language_group)
             language_group.triggered.connect(self.set_language)
         else:
-            language_action = QtWidgets.QAction(
-                translate('MenuBar', 'No dictionary installed'), self)
-            language_action.setEnabled(False)
-            language_menu.addAction(language_action)
-        spelling_menu.addMenu(language_menu)
+            action = language_menu.addAction(
+                translate('MenuBar', 'No dictionary installed'))
+            action.setEnabled(False)
         # help menu
         help_menu = self.menuBar().addMenu(translate('MenuBar', 'Help'))
-        about_action = QtWidgets.QAction(
-            translate('MenuBar', 'About Photini'), self)
-        about_action.triggered.connect(self.about)
-        help_menu.addAction(about_action)
+        action = help_menu.addAction(translate('MenuBar', 'About Photini'))
+        action.triggered.connect(self.about)
         help_menu.addSeparator()
-        help_action = QtWidgets.QAction(
-            translate('MenuBar', 'Photini documentation'), self)
-        help_action.triggered.connect(self.open_docs)
-        help_menu.addAction(help_action)
+        action = help_menu.addAction(
+            translate('MenuBar', 'Photini documentation'))
+        action.triggered.connect(self.open_docs)
         # main application area
         self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Vertical)
@@ -325,16 +305,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_docs(self):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(
             'http://photini.readthedocs.io/'))
-
-    @QtSlot()
-    @catch_all
-    def close_files(self):
-        self.image_list.close_files(False)
-
-    @QtSlot()
-    @catch_all
-    def close_all_files(self):
-        self.image_list.close_files(True)
 
     @QtSlot()
     @catch_all
@@ -419,7 +389,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        self.close_action.setEnabled(len(selection) > 0)
+        self.image_list.configure_selected_actions(self.selected_actions)
         if self.import_gpx_action:
             self.import_gpx_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
@@ -427,6 +397,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @QtSlot(bool)
     @catch_all
     def new_metadata(self, unsaved_data):
+        self.image_list.configure_selected_actions(self.selected_actions)
         self.save_action.setEnabled(unsaved_data)
 
     @catch_all

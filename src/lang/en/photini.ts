@@ -452,14 +452,6 @@ this picture on Flickr?</source>
         <translation></translation>
     </message>
     <message>
-        <source>Reload metadata</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save metadata</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>View changes</source>
         <translation></translation>
     </message>
@@ -479,6 +471,24 @@ in file</source>
     <message>
         <source>Metadata differences: {}</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation></translation>
+    </message>
+    <message numerus="yes">
+        <source>Reload file(s)</source>
+        <translation>
+            <numerusform>Reload file</numerusform>
+            <numerusform>Reload files</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Close file(s)</source>
+        <translation>
+            <numerusform>Close file</numerusform>
+            <numerusform>Close files</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -671,22 +681,6 @@ provided by Bing</source>
         <translation></translation>
     </message>
     <message>
-        <source>Open images</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Save images with new data</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Close selected images</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Close all images</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Import GPX file</source>
         <translation></translation>
     </message>
@@ -746,6 +740,22 @@ provided by Bing</source>
         <source>Open source package available from {}.</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Open files</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Close all files</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Selected images</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>OpenCage</name>
@@ -764,10 +774,6 @@ provided by Bing</source>
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>&lt;clear&gt;</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Precision:</source>
         <translation></translation>
@@ -877,19 +883,7 @@ provided by Bing</source>
         <translation></translation>
     </message>
     <message>
-        <source>&lt;define new lens&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Lens model</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Lens details</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Remove lens &quot;{}&quot;</source>
         <translation></translation>
     </message>
     <message>
@@ -922,6 +916,22 @@ provided by Bing</source>
     </message>
     <message>
         <source>Aperture</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Remove &quot;{}&quot;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: define camera</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Camera</source>
         <translation></translation>
     </message>
 </context>

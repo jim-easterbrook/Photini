@@ -243,22 +243,8 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
-        images = self.image_list.get_selected_images()
-        changed_images = any([x.metadata.changed() for x in images])
-        menu.addAction(translate('ImageList', 'Reload metadata'),
-                       self.image_list.reload_selected_metadata)
-        action = menu.addAction(translate('ImageList', 'Save metadata'),
-                                self.image_list.save_selected_metadata)
-        if not changed_images:
-            action.setEnabled(False)
-        action = menu.addAction(translate('ImageList', 'View changes'),
-                                self.image_list.diff_selected_metadata)
-        if not changed_images:
-            action.setEnabled(False)
-        menu.addAction(
-            translate('ImageList', 'Regenerate thumbnail(s)', '', len(images)),
-            self.image_list.regenerate_selected_thumbnails)
-        action = menu.exec_(event.globalPos())
+        self.image_list.add_selected_actions(menu)
+        menu.exec_(event.globalPos())
 
     @catch_all
     def mousePressEvent(self, event):
@@ -709,6 +695,36 @@ class ImageList(QtWidgets.QWidget):
             self.scroll_area.ensureWidgetVisible(image)
             self.app.processEvents()
 
+    def add_selected_actions(self, menu):
+        actions = {}
+        actions['reload'] = menu.addAction('', self.reload_selected_metadata)
+        actions['save'] = menu.addAction(
+            translate('ImageList', 'Save changes'),
+            self.save_selected_metadata)
+        actions['diff'] = menu.addAction(
+            translate('ImageList', 'View changes'),
+            self.diff_selected_metadata)
+        actions['thumbs'] = menu.addAction(
+            '', self.regenerate_selected_thumbnails)
+        actions['close'] = menu.addAction('', self.close_selected_files)
+        self.configure_selected_actions(actions)
+        return actions
+
+    def configure_selected_actions(self, actions):
+        images = self.get_selected_images()
+        changed_images = any([x.metadata.changed() for x in images])
+        actions['reload'].setEnabled(bool(images))
+        actions['save'].setEnabled(changed_images)
+        actions['diff'].setEnabled(changed_images)
+        actions['thumbs'].setEnabled(bool(images))
+        actions['close'].setEnabled(bool(images))
+        actions['reload'].setText(
+            translate('ImageList', 'Reload file(s)', '', len(images)))
+        actions['thumbs'].setText(
+            translate('ImageList', 'Regenerate thumbnail(s)', '', len(images)))
+        actions['close'].setText(
+            translate('ImageList', 'Close file(s)', '', len(images)))
+
     @QtSlot()
     @catch_all
     def reload_selected_metadata(self):
@@ -810,6 +826,16 @@ class ImageList(QtWidgets.QWidget):
         with Busy():
             for image in self.get_selected_images():
                 image.regenerate_thumbnail()
+
+    @QtSlot()
+    @catch_all
+    def close_selected_files(self):
+        self.close_files(False)
+
+    @QtSlot()
+    @catch_all
+    def close_all_files(self):
+        self.image_list.close_files(True)
 
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):
