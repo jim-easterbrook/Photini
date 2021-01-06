@@ -38,6 +38,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class DropdownEdit(ComboBox):
+    extend_list = QtSignal()
     new_value = QtSignal(object)
 
     def __init__(self, extendable=False, **kw):
@@ -45,7 +46,8 @@ class DropdownEdit(ComboBox):
         if extendable:
             self.setContextMenuPolicy(Qt.CustomContextMenu)
             self.customContextMenuRequested.connect(self.remove_from_list)
-            self.addItem(translate('TechnicalTab', '<new>'), '<new>')
+            self.addItem(
+                translate('TechnicalTab', '<new>'), self.extend_list.emit)
         self.addItem('', None)
         self.first_value_idx = self.count()
         self.addItem(multiple_values(), '<multiple>')
@@ -56,7 +58,7 @@ class DropdownEdit(ComboBox):
     @QtSlot(QtCore.QPoint)
     @catch_all
     def remove_from_list(self, pos):
-        current_value = self.get_value()
+        current_value = self.itemData(self.currentIndex())
         menu = QtWidgets.QMenu()
         for name, value in self.get_items():
             if value == current_value:
@@ -76,7 +78,11 @@ class DropdownEdit(ComboBox):
     @QtSlot(int)
     @catch_all
     def current_index_changed(self, idx):
-        self.new_value.emit(self.get_value())
+        value = self.itemData(idx)
+        if callable(value):
+            (value)()
+        else:
+            self.new_value.emit(value)
 
     def add_item(self, text, value, ordered=True):
         blocked = self.blockSignals(True)
@@ -112,13 +118,6 @@ class DropdownEdit(ComboBox):
             if self.itemData(n) == value:
                 return n
         return -1
-
-    def get_value(self):
-        return self.itemData(self.currentIndex())
-
-    def get_values(self):
-        for n in range(self.first_value_idx, self.count() - 1):
-            yield self.itemData(n)
 
     def get_items(self):
         for n in range(self.first_value_idx, self.count() - 1):
@@ -911,6 +910,7 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].new_value.connect(self.new_camera_model)
+        self.widgets['camera_model'].extend_list.connect(self.add_camera_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Camera'), self.widgets['camera_model'])
         # lens model
@@ -918,6 +918,7 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
+        self.widgets['lens_model'].extend_list.connect(self.add_lens_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Lens model'), self.widgets['lens_model'])
         # focal length
@@ -994,37 +995,41 @@ class TabWidget(QtWidgets.QWidget):
             image.load_thumbnail()
         self._update_orientation()
 
-    @QtSlot(object)
+    @QtSlot()
     @catch_all
-    def new_camera_model(self, value):
-        if value == '<new>':
-            dialog = NewCameraDialog(
-                self.image_list.get_selected_images(), parent=self)
-            if dialog.exec_() != QtWidgets.QDialog.Accepted:
-                self._update_camera_model()
-                return
+    def add_camera_model(self):
+        dialog = NewCameraDialog(
+            self.image_list.get_selected_images(), parent=self)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
             value = dialog.get_value()
-            if not value:
-                self._update_camera_model()
+            if value:
+                self.new_camera_model(value)
                 return
-        for image in self.image_list.get_selected_images():
-            image.metadata.camera_model = value
         self._update_camera_model()
 
     @QtSlot(object)
     @catch_all
+    def new_camera_model(self, value):
+        for image in self.image_list.get_selected_images():
+            image.metadata.camera_model = value
+        self._update_camera_model()
+
+    @QtSlot()
+    @catch_all
+    def add_lens_model(self):
+        dialog = NewLensDialog(
+            self.image_list.get_selected_images(), parent=self)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            value = dialog.get_value()
+            if value[0]:
+                self.new_lens_model(value)
+                return
+        self._update_lens_model()
+
+    @QtSlot(object)
+    @catch_all
     def new_lens_model(self, value):
-        if value == '<new>':
-            dialog = NewLensDialog(
-                self.image_list.get_selected_images(), parent=self)
-            if dialog.exec_() != QtWidgets.QDialog.Accepted:
-                self._update_lens_model()
-                return
-            lens_model, lens_spec = dialog.get_value()
-            if not lens_model:
-                self._update_lens_model()
-                return
-        elif value:
+        if value:
             lens_model, lens_spec = value
         else:
             lens_model, lens_spec = None, None
