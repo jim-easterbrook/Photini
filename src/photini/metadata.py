@@ -217,6 +217,9 @@ class MD_Dict(MD_Value, dict):
     def __bool__(self):
         return any([x is not None for x in self.values()])
 
+    def write(self, handler, tag):
+        handler.set_string(tag, [self[x] for x in self._keys])
+
     def merge(self, info, tag, other):
         if other == self:
             return self
