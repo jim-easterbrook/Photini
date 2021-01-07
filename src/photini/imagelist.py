@@ -54,13 +54,15 @@ class TableWidget(QtWidgets.QTableWidget):
 class Image(QtWidgets.QFrame):
     def __init__(self, path, image_list, thumb_size=80, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
         self.path = path
         self.image_list = image_list
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         self.thumb_size = thumb_size
         # read metadata
-        self.metadata = Metadata(self.path, notify=self.show_status)
+        self.metadata = Metadata(self.path, notify=self.show_status,
+                                 utf_safe=self.app.options.utf_safe)
         self.file_times = (os.path.getatime(self.path),
                            os.path.getmtime(self.path))
         # set file type

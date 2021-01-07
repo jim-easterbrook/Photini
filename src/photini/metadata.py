@@ -1151,14 +1151,14 @@ class Metadata(object):
         'title'          : MD_String,
         }
 
-    def __init__(self, path, notify=None):
+    def __init__(self, path, notify=None, utf_safe=False):
         super(Metadata, self).__init__()
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
         self._notify = notify
         self._vf = None
         self._sc = SidecarMetadata.open_old(path)
-        self._if = ImageMetadata.open_old(path)
+        self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             vhm = VideoHeaderMetadata.open_old(path)

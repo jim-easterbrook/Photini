@@ -116,6 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.spell_check = SpellCheck(parent=self)
         self.app.open_cage = OpenCage(parent=self)
         self.app.test_mode = options.test
+        self.app.options = options
         # restore size
         size = self.width(), self.height()
         self.resize(*eval(
@@ -463,6 +464,10 @@ def main(argv=None):
         '-t', '--test', action='store_true',
         help=six.text_type(translate(
             'CLIHelp', 'test new features or API versions')))
+    parser.add_option(
+        '-u', '--utf_safe', action='store_true',
+        help=six.text_type(translate(
+            'CLIHelp', 'metadata is known to be ASCII or utf-8 encoded')))
     parser.add_option(
         '-v', '--verbose', action='count', default=0,
         help=six.text_type(translate(

@@ -625,7 +625,7 @@ class ImageMetadata(Exiv2Metadata):
         'utf-32-be': (b'\x1b\x25\x2f\x46',),
         }
 
-    def __init__(self, *args, **kwds):
+    def __init__(self, *args, utf_safe=False, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
         # Exiv2 misleadingly says Xmp files (application/rdf+xml)
         # support Exif and IPTC.
@@ -637,12 +637,12 @@ class ImageMetadata(Exiv2Metadata):
             self.using_iptc = self.has_iptc()
         # convert IPTC data to utf-8
         if self.using_iptc:
-            self.transcode_iptc()
+            self.transcode_iptc(utf_safe)
         # set character set to utf-8 from now on
         self._set_string('Iptc.Envelope.CharacterSet',
                          self._iptc_encodings['utf-8'][0].decode('ascii'))
 
-    def transcode_iptc(self):
+    def transcode_iptc(self, utf_safe):
         iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
         for charset, codes in self._iptc_encodings.items():
             if iptc_charset_code in codes:
@@ -669,13 +669,15 @@ class ImageMetadata(Exiv2Metadata):
         for tag in tags[1:]:
             try:
                 if tag in multiple:
-                    if not six.PY2 and not using_pgi:
-                        # PyGObject segfaults if strings are not utf-8
+                    # PyGObject segfaults if strings are not utf-8
+                    if six.PY2 or using_pgi or utf_safe:
+                        value = self._get_multiple(tag)
+                    else:
                         logger.warning('%s: ignoring multiple %s values',
                                        os.path.basename(self._path), tag)
+                        logger.warning(
+                            'Try running Photini with the --utf_safe option.')
                         value = [self._get_string(tag)]
-                    else:
-                        value = self._get_multiple(tag)
                     self._set_multiple(tag, value)
                 else:
                     self._set_string(tag, self._get_string(tag))
@@ -686,9 +688,9 @@ class ImageMetadata(Exiv2Metadata):
             self._encodings = old_encodings
 
     @classmethod
-    def open_old(cls, path):
+    def open_old(cls, *arg, **kw):
         try:
-            return cls(path)
+            return cls(*arg, **kw)
         except GLib.GError:
             # expected if unrecognised file format
             return None
