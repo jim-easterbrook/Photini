@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -103,7 +103,7 @@ class TabWidget(PhotiniMap):
 
     def get_head(self):
         url = 'http://maps.googleapis.com/maps/api/js?callback=initialize&v=3'
-        if self.app.test_mode:
+        if self.app.options.test:
             url += '.exp'
         url += '&key=' + self.api_key
         lang, encoding = locale.getdefaultlocale()

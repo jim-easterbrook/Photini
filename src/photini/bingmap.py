@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -117,7 +117,7 @@ class TabWidget(PhotiniMap):
             url += '&setMkt=' + culture
             language, sep, region = culture.partition('-')
             url += '&setLang=' + language
-        if self.app.test_mode:
+        if self.app.options.test:
             url += '&branch=experimental'
         return '''    <script type="text/javascript"
       src="{}" async>

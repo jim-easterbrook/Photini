@@ -115,7 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
         self.app.open_cage = OpenCage(parent=self)
-        self.app.test_mode = options.test
         self.app.options = options
         # restore size
         size = self.width(), self.height()

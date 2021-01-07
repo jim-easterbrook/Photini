@@ -282,7 +282,7 @@ class TabWidget(QtWidgets.QWidget):
         super(TabWidget, self).__init__(parent)
         app = QtWidgets.QApplication.instance()
         app.aboutToQuit.connect(self.shutdown)
-        if gp and app.test_mode:
+        if gp and app.options.test:
             self.gp_log = gp.check_result(gp.use_python_logging())
         self.config_store = app.config_store
         self.image_list = image_list
