@@ -491,13 +491,15 @@ class CameraModel(MD_Dict):
         return super(CameraModel, self).merge_item(this, other)
 
     def get_name(self, inc_serial=True):
-        result = self['make'] or ''
-        if self['model']:
-            if result in self['model']:
-                result = ''
+        # start with 'model'
+        result = self['model'] or ''
+        # only add 'make' if it's really needed
+        if (self['make']
+                and self['make'].split()[0].lower() not in result.lower()):
             if result:
-                result += ' '
-            result += self['model']
+                result = ' ' + result
+            result = self['make'] + result
+        # add serial no if a unique answer is needed
         if inc_serial and self['serial_no']:
             if result:
                 result += ' '
