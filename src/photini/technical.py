@@ -976,7 +976,25 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot(object)
     @catch_all
     def new_camera_model(self, value):
+        delete_makernote = 'ask'
         for image in self.image_list.get_selected_images():
+            if not image.metadata.camera_change_ok(value):
+                if delete_makernote == 'ask':
+                    msg = QtWidgets.QMessageBox()
+                    msg.setWindowTitle(translate(
+                        'TechnicalTab', 'Photini: maker name change'))
+                    msg.setText(translate(
+                        'TechnicalTab', '<h3>Changing maker name will'
+                        ' invalidate Exif makernote information.</h3>'))
+                    msg.setInformativeText(translate(
+                        'TechnicalTab',
+                        'Do you want to delete the Exif makernote?'))
+                    msg.setIcon(msg.Warning)
+                    msg.setStandardButtons(msg.YesToAll | msg.NoToAll)
+                    msg.setDefaultButton(msg.NoToAll)
+                    delete_makernote = msg.exec_() == msg.YesToAll
+                if delete_makernote:
+                    image.metadata.set_delete_makernote()
             image.metadata.camera_model = value
         self._update_camera_model()
 

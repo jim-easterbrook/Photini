@@ -722,6 +722,21 @@ class ImageMetadata(Exiv2Metadata):
             else:
                 self._set_multiple(tag, other._get_multiple(tag))
 
+    # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
+    # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
+    def camera_change_ok(self, camera_model):
+        if not (self.has_tag('Exif.Photo.MakerNote')
+                and self.has_tag('Exif.Image.Make')):
+            return True
+        return self._get_string('Exif.Image.Make') == camera_model['make']
+
+    def delete_makernote(self, camera_model):
+        if self._get_string('Exif.Image.Make') == camera_model['make']:
+            return
+        self.clear_tag('Exif.Image.Make')
+        self.clear_tag('Exif.Photo.MakerNote')
+        self.save()
+
 
 class VideoHeaderMetadata(ImageMetadata):
     @classmethod

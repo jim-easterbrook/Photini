@@ -1167,6 +1167,17 @@ class Metadata(object):
             self._if = vhm
             self._vf = FFMPEGMetadata.open_old(path)
         self.dirty = False
+        self._delete_makernote = False
+
+    # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
+    # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
+    def camera_change_ok(self, camera_model):
+        if not self._if:
+            return True
+        return self._if.camera_change_ok(camera_model)
+
+    def set_delete_makernote(self):
+        self._delete_makernote = True
 
     @classmethod
     def clone(cls, path, other, *args, **kw):
@@ -1196,6 +1207,9 @@ class Metadata(object):
         try:
             # save to image file
             if self._if and if_mode:
+                if self._delete_makernote:
+                    self._if.delete_makernote(self.camera_model)
+                    self._delete_makernote = False
                 OK = self._handler_save(
                     self._if, file_times=file_times, force_iptc=force_iptc)
             if not OK:
