@@ -849,7 +849,7 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def close_all_files(self):
-        self.image_list.close_files(True)
+        self.close_files(True)
 
     def close_files(self, all_files):
         if not self.unsaved_files_dialog(all_files=all_files):
