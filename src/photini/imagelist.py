@@ -32,7 +32,7 @@ except ImportError:
     PIL = None
 
 from photini.ffmpeg import FFmpeg
-from photini.metadata import Metadata, MultiString
+from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtSignal, QtSlot,
     QtWidgets, qt_version_info, scale_font, set_symbol_font, video_types)
@@ -40,15 +40,6 @@ from photini.pyqt import (
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 DRAG_MIMETYPE = 'application/x-photini-image'
-
-
-class TableWidget(QtWidgets.QTableWidget):
-    @catch_all
-    def sizeHint(self):
-        h_hdr = self.horizontalHeader()
-        v_hdr = self.verticalHeader()
-        return QtCore.QSize(h_hdr.length() + v_hdr.sizeHint().width() + 4,
-                            v_hdr.length() + h_hdr.sizeHint().height() + 4)
 
 
 class Image(QtWidgets.QFrame):
@@ -760,13 +751,15 @@ class ImageList(QtWidgets.QWidget):
         dialog.setLayout(QtWidgets.QVBoxLayout())
         dialog.setFixedSize(min(800, self.window().width()),
                             min(400, self.window().height()))
-        table = TableWidget()
-        table.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                            QtWidgets.QSizePolicy.Expanding)
+        table = QtWidgets.QTableWidget()
         table.setColumnCount(3)
         table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
                                          translate('ImageList', 'undo'),
                                          translate('ImageList', 'old value')])
+        table.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.Stretch)
+        table.horizontalHeader().setSectionResizeMode(
+            2, QtWidgets.QHeaderView.Stretch)
         dialog.layout().addWidget(table)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -798,14 +791,9 @@ class ImageList(QtWidgets.QWidget):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue
+                values = [six.text_type(x or '') for x in values]
                 table.setRowCount(row + 1)
                 for n, value in enumerate(values):
-                    if not value:
-                        value = ''
-                    elif isinstance(value, MultiString):
-                        value = '\n'.join(value)
-                    else:
-                        value = six.text_type(value)
                     item = QtWidgets.QTableWidgetItem(value)
                     table.setItem(row, n * 2, item)
                 undo[key] = QtWidgets.QTableWidgetItem()
