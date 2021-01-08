@@ -51,6 +51,8 @@ class FolderSource(object):
             return None
         file_list = []
         for root, dirs, files in os.walk(self.root):
+            # ignore special directories such as .thumbs
+            dirs[:] = [x for x in dirs if x[0] != '.']
             for name in files:
                 base, ext = os.path.splitext(name)
                 if ext.lower() in self.image_types:
