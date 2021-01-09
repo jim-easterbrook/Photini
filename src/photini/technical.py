@@ -1143,22 +1143,23 @@ class TabWidget(QtWidgets.QWidget):
         if not lens_model:
             value = None
         self.widgets['lens_model'].set_value(value)
-        if lens_spec:
-            tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
-                        '<th width="70">{th_max}</th></tr>'
-                        '<tr><th align="right">{th_fl}</th>'
-                        '<td align="center">{min_fl}</td>'
-                        '<td align="center">{max_fl}</td></tr>'
-                        '<tr><th align="right">{th_ap}</th>'
-                        '<td align="center">{min_fl_fn}</td>'
-                        '<td align="center">{max_fl_fn}</td></tr></table>')
-            tool_tip = tool_tip.format(
-                th_min=translate('TechnicalTab', 'min'),
-                th_max=translate('TechnicalTab', 'max'),
-                th_fl=translate('TechnicalTab', 'Focal length'),
-                th_ap=translate('TechnicalTab', 'Max aperture'),
-                **dict([(x, float(y) or '') for (x, y) in lens_spec.items()]))
-            self.widgets['lens_model'].setToolTip(tool_tip)
+        if not lens_spec:
+            lens_spec = LensSpec(None)
+        tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
+                    '<th width="70">{th_max}</th></tr>'
+                    '<tr><th align="right">{th_fl}</th>'
+                    '<td align="center">{min_fl}</td>'
+                    '<td align="center">{max_fl}</td></tr>'
+                    '<tr><th align="right">{th_ap}</th>'
+                    '<td align="center">{min_fl_fn}</td>'
+                    '<td align="center">{max_fl_fn}</td></tr></table>')
+        tool_tip = tool_tip.format(
+            th_min=translate('TechnicalTab', 'min'),
+            th_max=translate('TechnicalTab', 'max'),
+            th_fl=translate('TechnicalTab', 'Focal length'),
+            th_ap=translate('TechnicalTab', 'Max aperture'),
+            **dict([(x, float(y) or '') for (x, y) in lens_spec.items()]))
+        self.widgets['lens_model'].setToolTip(tool_tip)
 
     def _update_lens_spec(self):
         images = self.image_list.get_selected_images()
