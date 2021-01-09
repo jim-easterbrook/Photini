@@ -556,7 +556,7 @@ class LensSpec(MD_Dict):
     @staticmethod
     def convert(value):
         for key in value:
-            value[key] = safe_fraction(value[key])
+            value[key] = safe_fraction(value[key] or 0)
         return value
 
     @classmethod
