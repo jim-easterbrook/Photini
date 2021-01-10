@@ -1140,6 +1140,17 @@ class TabWidget(QtWidgets.QWidget):
                 self.widgets['lens_model'].set_multiple()
                 return
         lens_model, lens_spec = value
+        if lens_spec and not lens_model:
+            lens_model = '{}'.format(float(lens_spec['min_fl']) or '')
+            if lens_spec['max_fl'] != lens_spec['min_fl']:
+                lens_model += '-{}'.format(float(lens_spec['max_fl']) or '')
+            lens_model += ' mm'
+            if lens_spec['min_fl_fn']:
+                lens_model += ' 1:{}'.format(float(lens_spec['min_fl_fn']) or '')
+            if lens_spec['max_fl_fn'] != lens_spec['min_fl_fn']:
+                lens_model += '-{}'.format(float(lens_spec['max_fl_fn']) or '')
+            lens_model = LensModel({'model': lens_model})
+            value = lens_model, lens_spec
         if not lens_model:
             value = None
         self.widgets['lens_model'].set_value(value)
