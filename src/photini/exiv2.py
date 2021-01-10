@@ -536,6 +536,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WN', 'Exif.Canon.LensModel'),
                             ('RA.WN', 'Exif.OlympusEq.LensModel'),
                             ('RA.WN', 'Exif.OlympusEq.LensSerialNumber'),
+                            ('RA.WN', 'Exif.NikonLd2.LensIDNumber'),
                             ('RA.W0', 'Xmp.aux.Lens'),
                             ('RN.WN', 'Exif.CanonCs.LensType')),
         'lens_spec'      : (('RA.WA', 'Exif.Photo.LensSpecification'),

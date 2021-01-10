@@ -471,12 +471,13 @@ class CameraModel(MD_Dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+        if tag == 'Exif.Canon.ModelID':
+            file_value = handler.get_tag_interpreted_string(tag)
+        else:
+            file_value = handler.get_string(tag)
         if not file_value:
             return None
-        if tag == 'Exif.Canon.ModelID':
-            file_value = {'model': 'ID-{:08x}'.format(int(file_value))}
-        elif tag.endswith('Number'):
+        if tag.endswith('Number'):
             file_value = {'serial_no': file_value}
         elif not isinstance(file_value, list):
             file_value = {'model': file_value}
@@ -486,9 +487,10 @@ class CameraModel(MD_Dict):
         return str(dict([(x, y) for x, y in self.items() if y]))
 
     def merge_item(self, this, other):
-        if other and this == 'unknown':
+        if other and this in (None, 'unknown'):
             return other, True, False
-        return super(CameraModel, self).merge_item(this, other)
+        # don't log "ignored" for values from MakerNotes
+        return this, False, False
 
     def get_name(self, inc_serial=True):
         # start with 'model'
@@ -522,10 +524,13 @@ class LensModel(MD_Dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+        if tag == 'Exif.NikonLd2.LensIDNumber':
+            file_value = handler.get_tag_interpreted_string(tag)
+        else:
+            file_value = handler.get_string(tag)
         if not file_value:
             return None
-        if tag.endswith('Number'):
+        if tag == 'Exif.OlympusEq.LensSerialNumber':
             file_value = {'serial_no': file_value}
         elif not isinstance(file_value, list):
             file_value = {'model': file_value}
