@@ -762,9 +762,11 @@ class ImageMetadata(Exiv2Metadata):
     def delete_makernote(self, camera_model):
         if self._get_string('Exif.Image.Make') == camera_model['make']:
             return
-        self.clear_tag('Exif.Image.Make')
-        self.clear_tag('Exif.Photo.MakerNote')
-        self.save()
+        self._clear_value('Exif.Image.Make')
+        self.save_file(self._path)
+        self.open_path(self._path)
+        self._clear_value('Exif.Photo.MakerNote')
+        self.save_file(self._path)
 
 
 class VideoHeaderMetadata(ImageMetadata):
