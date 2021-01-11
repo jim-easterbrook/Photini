@@ -330,7 +330,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         if faint:
             self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
         else:
-            self.setStyleSheet('QAbstractSpinBox {}')
+            self.setStyleSheet('QAbstractSpinBox {font-weight:normal}')
 
 
 class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
