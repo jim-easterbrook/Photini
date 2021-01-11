@@ -135,6 +135,8 @@ def safe_fraction(value):
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
+    quiet = False
+
     def __bool__(self):
         # reinterpret to mean "has a value", even if the value is zero
         return True
@@ -174,9 +176,12 @@ class MD_Value(object):
         logger.warning(
             '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
 
-    @staticmethod
-    def log_ignored(info, tag, value):
-        logger.warning('%s: ignored %s "%s"', info, tag, str(value))
+    @classmethod
+    def log_ignored(cls, info, tag, value):
+        if cls.quiet:
+            logger.info('%s: ignored %s "%s"', info, tag, str(value))
+        else:
+            logger.warning('%s: ignored %s "%s"', info, tag, str(value))
 
 
 class MD_Dict(MD_Value, dict):
@@ -234,9 +239,9 @@ class MD_Dict(MD_Value, dict):
                 result[key], merged, ignored = self.merge_item(
                                                         result[key], other[key])
             if ignored:
-                self.log_ignored(info + '[' + key + ']', tag, other)
+                self.log_ignored(info, tag, {key: other[key]})
             elif merged:
-                self.log_merged(info + '[' + key + ']', tag, other)
+                self.log_merged(info, tag, {key: other[key]})
         return self.__class__(result)
 
 
@@ -460,6 +465,7 @@ class MultiLocation(tuple):
 
 class CameraModel(MD_Dict):
     _keys = ('make', 'model', 'serial_no')
+    quiet = True
 
     @staticmethod
     def convert(value):
@@ -467,30 +473,12 @@ class CameraModel(MD_Dict):
             if value[key]:
                 value[key] = value[key].strip()
             value[key] = value[key] or None
+        if value['model'] == 'unknown':
+            value['model'] = None
         return value
-
-    @classmethod
-    def read(cls, handler, tag):
-        if tag == 'Exif.Canon.ModelID':
-            file_value = handler.get_tag_interpreted_string(tag)
-        else:
-            file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        if tag.endswith('Number'):
-            file_value = {'serial_no': file_value}
-        elif not isinstance(file_value, list):
-            file_value = {'model': file_value}
-        return cls(file_value)
 
     def __str__(self):
         return str(dict([(x, y) for x, y in self.items() if y]))
-
-    def merge_item(self, this, other):
-        if other and this in (None, 'unknown'):
-            return other, True, False
-        # don't log "ignored" for values from MakerNotes
-        return this, False, False
 
     def get_name(self, inc_serial=True):
         # start with 'model'
@@ -511,6 +499,7 @@ class CameraModel(MD_Dict):
 
 class LensModel(MD_Dict):
     _keys = ('make', 'model', 'serial_no')
+    quiet = True
 
     @staticmethod
     def convert(value):
@@ -518,23 +507,11 @@ class LensModel(MD_Dict):
             if value[key]:
                 value[key] = value[key].strip()
             value[key] = value[key] or None
+        if value['model'] == 'n/a':
+            value['model'] = None
         if value['serial_no'] == '0000000000':
             value['serial_no'] = None
         return value
-
-    @classmethod
-    def read(cls, handler, tag):
-        if tag == 'Exif.NikonLd2.LensIDNumber':
-            file_value = handler.get_tag_interpreted_string(tag)
-        else:
-            file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        if tag == 'Exif.OlympusEq.LensSerialNumber':
-            file_value = {'serial_no': file_value}
-        elif not isinstance(file_value, list):
-            file_value = {'model': file_value}
-        return cls(file_value)
 
     def __str__(self):
         return str(dict([(x, y) for x, y in self.items() if y]))

@@ -204,6 +204,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         return self._get_string(tag)
 
     def _get_string(self, tag):
+        if not tag:
+            return None
         if not self.has_tag(tag):
             return None
         if tag in ('Exif.Image.XPTitle',  'Exif.Image.XPComment',
@@ -214,6 +216,13 @@ class Exiv2Metadata(GExiv2.Metadata):
             if not result:
                 return None
             return result.decode('utf-16-le', errors='ignore').strip('\x00')
+        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                   'Exif.NikonLd1.LensIDNumber', 'Exif.NikonLd2.LensIDNumber',
+                   'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
+            result = self.get_tag_interpreted_string(tag)
+            if six.PY2:
+                result = self._decode_string(result)
+            return result
         if tag == 'Exif.Photo.UserComment':
             # first 8 bytes should be the encoding charset
             result = self.get_raw(tag)
@@ -386,19 +395,35 @@ class Exiv2Metadata(GExiv2.Metadata):
     # some tags are always read & written in groups, but are represented
     # by a single name
     _multi_tags = {
+        'Exif.Canon.LensModel': ('', 'Exif.Canon.LensModel'),
+        'Exif.Canon.ModelID': (
+            '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
+        'Exif.CanonCs.LensType': ('', 'Exif.CanonCs.LensType'),
+        'Exif.Fujifilm.SerialNumber': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPSAltitude': (
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
         'Exif.GPSInfo.GPSCoordinates': (
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
-        'Exif.Image.DateTime': (
-            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
+        'Exif.Image.DateTime': ('Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
         'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal',),
         'Exif.Image.FNumber': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Image.Make': (
             'Exif.Image.Make', 'Exif.Image.Model',
             'Exif.Photo.BodySerialNumber'),
+        'Exif.Image.UniqueCameraModel': (
+            '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
+        'Exif.Nikon3.SerialNumber': ('', '', 'Exif.Nikon3.SerialNumber'),
+        'Exif.NikonLd1.LensIDNumber': ('', 'Exif.NikonLd1.LensIDNumber'),
+        'Exif.NikonLd2.LensIDNumber': ('', 'Exif.NikonLd2.LensIDNumber'),
+        'Exif.NikonLd3.LensIDNumber': ('', 'Exif.NikonLd3.LensIDNumber'),
+        'Exif.OlympusEq.CameraType': (
+            '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
+        'Exif.OlympusEq.LensModel': (
+            '', 'Exif.OlympusEq.LensModel', 'Exif.OlympusEq.LensSerialNumber'),
+        'Exif.Pentax.ModelID': (
+            '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
         'Exif.Photo.DateTimeDigitized': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
         'Exif.Photo.DateTimeOriginal': (
@@ -419,6 +444,8 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Iptc.Application2.CountryCode'),
         'Iptc.Application2.Program': (
             'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
+        'Xmp.aux.Lens': ('', 'Xmp.aux.Lens'),
+        'Xmp.aux.SerialNumber': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Xmp.exif.GPSAltitude': (
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
@@ -446,6 +473,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.video.Model': ('', 'Xmp.video.Model'),
         'Xmp.xmp.Thumbnails': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:image',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
@@ -471,14 +499,11 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('RA.WX', 'Xmp.exif.FNumber')),
         'camera_model'   : (('RA.WA', 'Exif.Image.Make'),
                             ('RA.WN', 'Exif.Image.UniqueCameraModel'),
-                            ('RA.WN', 'Exif.Image.CameraSerialNumber'),
                             ('RA.WN', 'Exif.Canon.ModelID'),
-                            ('RA.WN', 'Exif.Canon.SerialNumber'),
                             ('RA.WN', 'Exif.Fujifilm.SerialNumber'),
                             ('RA.WN', 'Exif.Nikon3.SerialNumber'),
                             ('RA.WN', 'Exif.OlympusEq.CameraType'),
-                            ('RA.WN', 'Exif.OlympusEq.SerialNumber'),
-                            ('RA.WN', 'Exif.Pentax.SerialNumber'),
+                            ('RA.WN', 'Exif.Pentax.ModelID'),
                             ('RA.WN', 'Xmp.aux.SerialNumber'),
                             ('RA.WN', 'Xmp.video.Model')),
         'copyright'      : (('RA.WA', 'Exif.Image.Copyright'),
@@ -534,11 +559,12 @@ class Exiv2Metadata(GExiv2.Metadata):
         'lens_model'     : (('RA.WA', 'Exif.Photo.LensMake'),
                             ('RA.WX', 'Xmp.exifEX.LensMake'),
                             ('RA.WN', 'Exif.Canon.LensModel'),
+                            ('RA.WN', 'Exif.CanonCs.LensType'),
                             ('RA.WN', 'Exif.OlympusEq.LensModel'),
-                            ('RA.WN', 'Exif.OlympusEq.LensSerialNumber'),
+                            ('RA.WN', 'Exif.NikonLd1.LensIDNumber'),
                             ('RA.WN', 'Exif.NikonLd2.LensIDNumber'),
-                            ('RA.W0', 'Xmp.aux.Lens'),
-                            ('RN.WN', 'Exif.CanonCs.LensType')),
+                            ('RA.WN', 'Exif.NikonLd3.LensIDNumber'),
+                            ('RA.W0', 'Xmp.aux.Lens')),
         'lens_spec'      : (('RA.WA', 'Exif.Photo.LensSpecification'),
                             ('RA.WX', 'Xmp.exifEX.LensSpecification'),
                             ('RA.W0', 'Exif.Image.LensInfo'),
