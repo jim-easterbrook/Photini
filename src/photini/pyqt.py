@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -392,7 +392,6 @@ class Slider(QtWidgets.QSlider):
     def __init__(self, *arg, **kw):
         super(Slider, self).__init__(*arg, **kw)
         self._is_multiple = False
-        self.get_value = self.value
         self.sliderPressed.connect(self.slider_pressed)
 
     def focusOutEvent(self, event):
@@ -403,6 +402,9 @@ class Slider(QtWidgets.QSlider):
     @catch_all
     def slider_pressed(self):
         self._is_multiple = False
+
+    def get_value(self):
+        return self.value()
 
     def set_value(self, value):
         self._is_multiple = False
