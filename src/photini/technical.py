@@ -980,7 +980,7 @@ class TabWidget(QtWidgets.QWidget):
         for image in self.image_list.get_selected_images():
             if not image.metadata.camera_change_ok(value):
                 if delete_makernote == 'ask':
-                    msg = QtWidgets.QMessageBox()
+                    msg = QtWidgets.QMessageBox(parent=self)
                     msg.setWindowTitle(translate(
                         'TechnicalTab', 'Photini: maker name change'))
                     msg.setText(translate(

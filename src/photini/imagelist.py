@@ -901,7 +901,7 @@ class ImageList(QtWidgets.QWidget):
                 break
         else:
             return True
-        dialog = QtWidgets.QMessageBox()
+        dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(self.tr('Photini: unsaved data'))
         dialog.setText(self.tr('<h3>Some images have unsaved metadata.</h3>'))
         dialog.setInformativeText(self.tr('Do you want to save your changes?'))

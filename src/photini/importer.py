@@ -457,7 +457,7 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         if not self.file_copier:
             return False
-        dialog = QtWidgets.QMessageBox()
+        dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'ImporterTab', 'Photini: import in progress'))
         dialog.setText(translate(
