@@ -349,7 +349,6 @@ class MainWindow(QtWidgets.QMainWindow):
 jim@jim-easterbrook.me.uk</a><br /><br />
 {3}<br />
 {4}</p>
-<p>{5}</p>
 """.format(__version__, build,
            pkg_resources.resource_filename(
                'photini', 'data/icons/photini_128.png'),
@@ -360,15 +359,17 @@ jim@jim-easterbrook.me.uk</a><br /><br />
                      'Open source package available from {}.').format(
                          '<a href="https://github.com/jim-easterbrook/Photini">'
                          'github.com/jim-easterbrook/Photini</a>'),
-           translate('MenuBar',
-                     "This program is released with a GNU General Public"
-                     " License. For details click the 'show details' button."),
            )
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)
         licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
         dialog.setDetailedText(licence.decode('utf-8'))
+        dialog.setInformativeText(translate(
+            'MenuBar',
+            'This program is released with a GNU General Public'
+            ' License. For details click the "{}" button.').format(
+                dialog.buttons()[0].text()))
         dialog.exec_()
 
     @QtSlot(int, int)

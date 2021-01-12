@@ -65,6 +65,10 @@
         <source>increase number of logging messages</source>
         <translation></translation>
     </message>
+    <message>
+        <source>metadata is known to be ASCII or utf-8 encoded</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>Common</name>
@@ -733,10 +737,6 @@ provided by Bing</source>
         <translation></translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Open source package available from {}.</source>
         <translation></translation>
     </message>
@@ -754,6 +754,10 @@ provided by Bing</source>
     </message>
     <message>
         <source>Selected images</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
         <translation></translation>
     </message>
 </context>
@@ -932,6 +936,18 @@ provided by Bing</source>
     </message>
     <message>
         <source>Camera</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: maker name change</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Do you want to delete the Exif makernote?</source>
         <translation></translation>
     </message>
 </context>
