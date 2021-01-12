@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -46,7 +46,8 @@ class GpxImporter(QtCore.QObject):
             path = path[0]
         if not path:
             return
-        parent.app.config_store.set('paths', 'gpx', os.path.dirname(path))
+        parent.app.config_store.set(
+            'paths', 'gpx', os.path.dirname(os.path.abspath(path)))
         # get user options
         config_store = QtWidgets.QApplication.instance().config_store
         dialog = QtWidgets.QDialog(parent=parent)

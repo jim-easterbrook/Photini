@@ -652,7 +652,8 @@ class ImageList(QtWidgets.QWidget):
         self.show_thumbnail(image)
 
     def done_opening(self, path):
-        self.app.config_store.set('paths', 'images', os.path.dirname(path))
+        self.app.config_store.set(
+            'paths', 'images', os.path.dirname(os.path.abspath(path)))
         self._sort_thumbnails()
 
     def _date_key(self, image):
