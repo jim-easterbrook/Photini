@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Photini'
-copyright = u'2012-20, Jim Easterbrook'
+copyright = u'2012-21, Jim Easterbrook'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

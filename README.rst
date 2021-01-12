@@ -92,7 +92,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz
