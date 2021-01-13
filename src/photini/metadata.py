@@ -230,9 +230,9 @@ class MD_Dict(MD_Value, dict):
             return self
         result = dict(self)
         for key in result:
-            if other[key] is None:
+            if not other[key]:
                 continue
-            if result[key] is None:
+            if not result[key]:
                 result[key] = other[key]
                 merged, ignored = True, False
             else:
@@ -568,6 +568,7 @@ class LensSpec(MD_Dict):
 
 class Thumbnail(MD_Dict):
     _keys = ('data', 'fmt', 'w', 'h')
+    quiet = True
 
     @classmethod
     def read(cls, handler, tag):
