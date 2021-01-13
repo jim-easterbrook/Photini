@@ -597,7 +597,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         # Both xmpGImg and xapGImg namespaces are specified in different
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
-        'thumbnail'      : (('RA.WA', 'Exif.Thumbnail.Compression'),
+        'thumbnail'      : (('RA.WA', 'Exif.Thumbnail'),
+                            ('RA.WN', 'Exif.Preview'),
                             ('RA.WX', 'Xmp.xmp.Thumbnails'),
                             ('RA.W0', 'Xmp.xmp.ThumbnailsXap')),
         'timezone'       : (('RA.WN', 'Exif.Image.TimeZoneOffset'),

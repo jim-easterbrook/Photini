@@ -583,7 +583,7 @@ class Thumbnail(MD_Dict):
             if h:
                 h = int(h)
             return cls((data, fmt, w, h))
-        elif handler.is_exif_tag(tag):
+        elif tag == 'Exif.Thumbnail':
             data = handler.get_exif_thumbnail()
             if using_pgi and isinstance(data, tuple):
                 # get_exif_thumbnail returns (OK, data) tuple
@@ -591,9 +591,24 @@ class Thumbnail(MD_Dict):
             if not data:
                 return None
             data = bytearray(data)
-            fmt = handler.get_tag_string(tag)
+            fmt = handler.get_tag_string('Exif.Thumbnail.Compression')
             fmt = ('TIFF', 'JPEG')[fmt == '6']
             return cls((data, fmt))
+        elif tag == 'Exif.Preview':
+            w, h = 512, 512
+            match = None
+            for properties in handler.get_preview_properties():
+                width = properties.get_width()
+                height = properties.get_height()
+                if abs(max(width, height) - 160) < abs(max(w, h) - 160):
+                    w, h = width, height
+                    match = properties
+            if not match:
+                return None
+            preview = handler.get_preview_image(match)
+            data = preview.get_data()
+            fmt = preview.get_mime_type().split('/')[1].upper()
+            return cls((data, fmt, w, h))
         return None
 
     def write(self, handler, tag):
@@ -614,7 +629,7 @@ class Thumbnail(MD_Dict):
             if not six.PY2:
                 data = data.decode('ascii')
             handler.set_string(tag, (data, 'JPEG', str(w), str(h)))
-        elif handler.is_exif_tag(tag):
+        elif tag == 'Exif.Thumbnail':
             handler.set_exif_thumbnail_from_buffer(self.data)
 
     def size(self):
