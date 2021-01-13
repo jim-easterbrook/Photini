@@ -360,8 +360,9 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     def save(self, file_times=None, force_iptc=False):
         self.has_iptc = self.has_iptc or force_iptc
-        if self.xmp_only:
+        if not self.rw['exif']['write']:
             self.clear_exif()
+        if not self.rw['iptc']['write']:
             self.clear_iptc()
         elif not self.has_iptc:
             self.clear_iptc()
@@ -615,8 +616,15 @@ class Exiv2Metadata(GExiv2.Metadata):
         for mode, tag in self._tag_list[name]:
             if mode.split('.')[0] == 'RN':
                 continue
-            if self.xmp_only and not self.is_xmp_tag(tag):
-                continue
+            if self.is_exif_tag(tag):
+                if not self.rw['exif']['read']:
+                    continue
+            elif self.is_iptc_tag(tag):
+                if not self.rw['iptc']['read']:
+                    continue
+            else:
+                if not self.rw['xmp']['read']:
+                    continue
             try:
                 value = type_.read(self, tag)
             except ValueError as ex:
@@ -635,10 +643,17 @@ class Exiv2Metadata(GExiv2.Metadata):
             write_mode = mode.split('.')[1]
             if write_mode == 'WN':
                 continue
-            if self.xmp_only and not self.is_xmp_tag(tag):
-                continue
+            if self.is_exif_tag(tag):
+                if not self.rw['exif']['write']:
+                    continue
+            elif self.is_iptc_tag(tag):
+                if not self.rw['iptc']['write']:
+                    continue
+            else:
+                if not self.rw['xmp']['write']:
+                    continue
             if ((not value) or (write_mode == 'W0') or
-                (write_mode == 'WX' and not self.xmp_only)):
+                (write_mode == 'WX' and self.rw['exif']['write'])):
                 self.clear_value(tag)
             else:
                 value.write(self, tag)
@@ -655,16 +670,19 @@ class ImageMetadata(Exiv2Metadata):
 
     def __init__(self, *args, utf_safe=False, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
-        # Exiv2 misleadingly says Xmp files (application/rdf+xml)
-        # support Exif and IPTC.
-        self.xmp_only = ((not self.get_supports_exif()) or
-                         (self.get_mime_type() == 'application/rdf+xml'))
-        if self.xmp_only:
-            self.using_iptc = False
-        else:
-            self.using_iptc = self.has_iptc()
+        self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
+                   'iptc': {'read': True, 'write': self.get_supports_iptc()},
+                   'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
+        # Don't use Exiv2's converted values when accessing Xmp files
+        # (application/rdf+xml)
+        if self.get_mime_type() == 'application/rdf+xml':
+            self.rw['exif'] = {'read': False, 'write': False}
+            self.rw['iptc'] = {'read': False, 'write': False}
+        # Don't use IPTC unless file already has IPTC data
+        if not self.has_iptc():
+            self.rw['iptc'] = {'read': False, 'write': False}
         # convert IPTC data to utf-8
-        if self.using_iptc:
+        if self.rw['iptc']['read']:
             self.transcode_iptc(utf_safe)
         # set character set to utf-8 from now on
         self._set_string('Iptc.Envelope.CharacterSet',
@@ -825,8 +843,9 @@ class VideoHeaderMetadata(ImageMetadata):
 
 
 class SidecarMetadata(Exiv2Metadata):
-    using_iptc = False
-    xmp_only = True
+    rw = {'exif': {'read': False, 'write': False},
+          'iptc': {'read': False, 'write': False},
+          'xmp':  {'read': True,  'write': True}}
 
     @classmethod
     def open_old(cls, path):
