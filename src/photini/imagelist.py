@@ -91,30 +91,20 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
         self.image_list.emit_selection()
 
-    def transform(self, pixmap, orientation, inverse=False):
+    def transform(self, pixmap, orientation):
         orientation = (orientation or 1) - 1
         if not orientation:
             return pixmap
         # need to rotate and or reflect image
         transform = QtGui.QTransform()
-        if inverse:
-            if orientation & 0b100:
-                # transpose horizontal & vertical
-                transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
-            if orientation & 0b010:
-                transform = transform.rotate(180.0)
-            if orientation & 0b001:
-                # reflect left-right
-                transform = transform.scale(-1.0, 1.0)
-        else:
-            if orientation & 0b001:
-                # reflect left-right
-                transform = transform.scale(-1.0, 1.0)
-            if orientation & 0b010:
-                transform = transform.rotate(180.0)
-            if orientation & 0b100:
-                # transpose horizontal & vertical
-                transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
+        if orientation & 0b001:
+            # reflect left-right
+            transform = transform.scale(-1.0, 1.0)
+        if orientation & 0b010:
+            transform = transform.rotate(180.0)
+        if orientation & 0b100:
+            # transpose horizontal & vertical
+            transform = QtGui.QTransform(0, 1, 1, 0, 1, 1) * transform
         return pixmap.transformed(transform)
 
     def regenerate_thumbnail(self):
@@ -170,7 +160,9 @@ class Image(QtWidgets.QFrame):
         return data, 'JPEG', w, h
 
     def get_qt_image(self):
-        qt_im = QtGui.QImage(self.path)
+        reader = QtGui.QImageReader(self.path)
+        reader.setAutoTransform(False)
+        qt_im = reader.read()
         if not qt_im or qt_im.isNull():
             logger.error('Cannot read %s image data from %s',
                          self.file_type, self.path)
@@ -182,12 +174,6 @@ class Image(QtWidgets.QFrame):
             # images
             qt_im = qt_im.scaled(
                 1000, 1000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            w = qt_im.width()
-            h = qt_im.height()
-        # reorient if required
-        if self.file_type in ('image/x-canon-cr2', 'image/x-nikon-nef'):
-            qt_im = self.transform(
-                qt_im, self.metadata.orientation, inverse=True)
             w = qt_im.width()
             h = qt_im.height()
         # pad image to 4:3 (or 3:4) aspect ratio
