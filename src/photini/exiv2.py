@@ -148,7 +148,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         self._clear_value(tag)
 
     def _clear_value(self, tag):
-        if not self.has_tag(tag):
+        if not (tag and self.has_tag(tag)):
             return
         self.clear_tag(tag)
 
@@ -204,9 +204,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         return self._get_string(tag)
 
     def _get_string(self, tag):
-        if not tag:
-            return None
-        if not self.has_tag(tag):
+        if not (tag and self.has_tag(tag)):
             return None
         if tag in ('Exif.Image.XPTitle',  'Exif.Image.XPComment',
                    'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
@@ -266,7 +264,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         return self._get_multiple(tag)
 
     def _get_multiple(self, tag):
-        if not self.has_tag(tag):
+        if not (tag and self.has_tag(tag)):
             return []
         try:
             result = self.get_tag_multiple(tag)
@@ -328,6 +326,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         self._set_string(tag, value)
 
     def _set_string(self, tag, value):
+        if not tag:
+            return
         if not value:
             self.clear_value(tag)
             return
@@ -347,6 +347,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         self._set_multiple(tag, value)
 
     def _set_multiple(self, tag, value):
+        if not tag:
+            return
         if not value:
             self.clear_value(tag)
             return
@@ -434,6 +436,9 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Exif.Photo.LensMake': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber'),
+        'Exif.Thumbnail': (
+            '', 'Exif.Thumbnail.Compression',
+            'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength'),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate': (

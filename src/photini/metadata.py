@@ -570,6 +570,12 @@ class Thumbnail(MD_Dict):
     _keys = ('data', 'fmt', 'w', 'h')
     quiet = True
 
+    @staticmethod
+    def convert(value):
+        value['w'] = value['w'] and int(value['w'])
+        value['h'] = value['h'] and int(value['h'])
+        return value
+
     @classmethod
     def read(cls, handler, tag):
         if handler.is_xmp_tag(tag):
@@ -579,22 +585,18 @@ class Thumbnail(MD_Dict):
             if not six.PY2:
                 data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
-            if w:
-                w = int(w)
-            if h:
-                h = int(h)
             return cls((data, fmt, w, h))
         elif tag == 'Exif.Thumbnail':
+            data, fmt, w, h = handler.get_string(tag)
             data = handler.get_exif_thumbnail()
             if using_pgi and isinstance(data, tuple):
                 # get_exif_thumbnail returns (OK, data) tuple
                 data = data[data[0]]
-            if not data:
+            if not all((data, fmt)):
                 return None
             data = bytearray(data)
-            fmt = handler.get_tag_string('Exif.Thumbnail.Compression')
             fmt = ('TIFF', 'JPEG')[fmt == '6']
-            return cls((data, fmt))
+            return cls((data, fmt, w, h))
         elif tag == 'Exif.Preview':
             w, h = 512, 512
             match = None
@@ -632,6 +634,8 @@ class Thumbnail(MD_Dict):
             handler.set_string(tag, (data, 'JPEG', str(w), str(h)))
         elif tag == 'Exif.Thumbnail':
             handler.set_exif_thumbnail_from_buffer(self.data)
+            w, h = self.size()
+            handler.set_string(tag, [None, self['fmt'], str(w), str(h)])
 
     def size(self):
         if self.w and self.h:
@@ -642,6 +646,15 @@ class Thumbnail(MD_Dict):
 
     def __str__(self):
         return '{} thumbnail, {}x{}'.format(self.fmt, *self.size())
+
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        if other['data'] and not self['data']:
+            self.log_replaced(info, tag, other)
+            return other
+        self.log_ignored(info, tag, other)
+        return self
 
 
 class DateTime(MD_Dict):
