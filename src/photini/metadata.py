@@ -135,7 +135,7 @@ def safe_fraction(value):
 
 class MD_Value(object):
     # mixin for "metadata objects" - Python types with additional functionality
-    quiet = False
+    _quiet = False
 
     def __bool__(self):
         # reinterpret to mean "has a value", even if the value is zero
@@ -178,7 +178,7 @@ class MD_Value(object):
 
     @classmethod
     def log_ignored(cls, info, tag, value):
-        if cls.quiet:
+        if cls._quiet:
             logger.info('%s: ignored %s "%s"', info, tag, str(value))
         else:
             logger.warning('%s: ignored %s "%s"', info, tag, str(value))
@@ -228,21 +228,28 @@ class MD_Dict(MD_Value, dict):
     def merge(self, info, tag, other):
         if other == self:
             return self
-        result = dict(self)
-        for key in result:
-            if other[key] is None:
-                continue
-            if result[key] is None:
-                result[key] = other[key]
-                merged, ignored = True, False
-            else:
-                result[key], merged, ignored = self.merge_item(
-                                                        result[key], other[key])
-            if ignored:
-                self.log_ignored(info, tag, {key: other[key]})
-            elif merged:
-                self.log_merged(info, tag, {key: other[key]})
-        return self.__class__(result)
+        if self._mergeable:
+            result = dict(self)
+            for key in result:
+                if other[key] is None:
+                    continue
+                if result[key] is None:
+                    result[key] = other[key]
+                    merged, ignored = True, False
+                else:
+                    result[key], merged, ignored = self.merge_item(
+                                                            result[key], other[key])
+                if ignored:
+                    self.log_ignored(info, tag, {key: other[key]})
+                elif merged:
+                    self.log_merged(info, tag, {key: other[key]})
+            return self.__class__(result)
+        prime_key = self._keys[0]
+        if other[prime_key] and not self[prime_key]:
+            self.log_replaced(info, tag, other)
+            return other
+        self.log_ignored(info, tag, other)
+        return self
 
 
 class LatLon(MD_Dict):
@@ -341,16 +348,21 @@ class LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
-    def merge_item(self, this, other):
-        if abs(other - this) < 0.0000015:
-            return this, False, False
-        return this, False, True
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        distance = ((other['lat'] - self['lat']) ** 2
+                    + (other['lon'] - self['lon']) ** 2)
+        if distance > 1.0e-11:
+            self.log_ignored(info, tag, other)
+        return self
 
 
 class Location(MD_Dict):
     # stores IPTC defined location heirarchy
     _keys = ('sublocation', 'city', 'province_state',
              'country_name', 'country_code', 'world_region')
+    _mergeable = True
 
     @staticmethod
     def convert(value):
@@ -465,7 +477,8 @@ class MultiLocation(tuple):
 
 class CameraModel(MD_Dict):
     _keys = ('make', 'model', 'serial_no')
-    quiet = True
+    _mergeable = True
+    _quiet = True
 
     @staticmethod
     def convert(value):
@@ -499,7 +512,8 @@ class CameraModel(MD_Dict):
 
 class LensModel(MD_Dict):
     _keys = ('make', 'model', 'serial_no')
-    quiet = True
+    _mergeable = True
+    _quiet = True
 
     @staticmethod
     def convert(value):
@@ -534,6 +548,8 @@ class LensModel(MD_Dict):
 class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
+    _mergeable = False
+    _quiet = True
 
     @staticmethod
     def convert(value):
@@ -568,7 +584,8 @@ class LensSpec(MD_Dict):
 
 class Thumbnail(MD_Dict):
     _keys = ('data', 'fmt', 'w', 'h')
-    quiet = True
+    _mergeable = False
+    _quiet = True
 
     @staticmethod
     def convert(value):
@@ -646,15 +663,6 @@ class Thumbnail(MD_Dict):
 
     def __str__(self):
         return '{} thumbnail, {}x{}'.format(self.fmt, *self.size())
-
-    def merge(self, info, tag, other):
-        if other == self:
-            return self
-        if other['data'] and not self['data']:
-            self.log_replaced(info, tag, other)
-            return other
-        self.log_ignored(info, tag, other)
-        return self
 
 
 class DateTime(MD_Dict):
