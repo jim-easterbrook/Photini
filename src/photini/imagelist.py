@@ -335,7 +335,7 @@ class Image(QtWidgets.QFrame):
         pixmap = QtGui.QPixmap()
         thumb = self.metadata.thumbnail
         if thumb:
-            pixmap.loadFromData(thumb.data)
+            pixmap.loadFromData(thumb['data'])
         if pixmap.isNull():
             self.image.setText(translate('ImageList', 'No\nthumbnail\nin file'))
             return
@@ -652,7 +652,7 @@ class ImageList(QtWidgets.QWidget):
             # use file date as last resort
             result = datetime.fromtimestamp(os.path.getmtime(image.path))
         else:
-            result = result.datetime
+            result = result['datetime']
         # convert result to string and append path so photos with same
         # time stamp get sorted consistently
         result = result.strftime('%Y%m%d%H%M%S%f') + image.path

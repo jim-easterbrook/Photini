@@ -459,7 +459,7 @@ class PhotiniMap(QtWidgets.QWidget):
             latlong = image.metadata.latlong
             if not latlong:
                 continue
-            location = [latlong.lat, latlong.lon]
+            location = [latlong['lat'], latlong['lon']]
             if location not in locations:
                 locations.append(location)
         if not locations:
@@ -498,7 +498,7 @@ class PhotiniMap(QtWidgets.QWidget):
                     'selected': image.selected,
                     }
                 self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
-                    marker_id, latlong.lat, latlong.lon, image.selected))
+                    marker_id, latlong['lat'], latlong['lon'], image.selected))
         for marker_id in list(self.marker_info.keys()):
             info = self.marker_info[marker_id]
             if not info['images']:

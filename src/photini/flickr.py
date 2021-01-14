@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -540,8 +540,8 @@ class TabWidget(PhotiniUploader):
             # location
             if image.metadata.latlong:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(image.metadata.latlong.lat),
-                    'lon': '{:.6f}'.format(image.metadata.latlong.lon),
+                    'lat': '{:.6f}'.format(image.metadata.latlong['lat']),
+                    'lon': '{:.6f}'.format(image.metadata.latlong['lon']),
                     }
             else:
                 # clear any existing location
@@ -734,10 +734,10 @@ class TabWidget(PhotiniUploader):
             if tag['raw'] == 'uploaded:by=photini':
                 continue
             if md.location_taken and tag['raw'] in (
-                    md.location_taken.country_code,
-                    md.location_taken.country_name,
-                    md.location_taken.province_state,
-                    md.location_taken.city):
+                    md.location_taken['country_code'],
+                    md.location_taken['country_name'],
+                    md.location_taken['province_state'],
+                    md.location_taken['city']):
                 continue
             tags.append(tag['raw'])
         md.keywords = md.keywords.merge(

@@ -70,7 +70,7 @@ class FolderSource(object):
                 # use file date as last resort
                 timestamp = datetime.fromtimestamp(os.path.getmtime(path))
             else:
-                timestamp = timestamp.datetime
+                timestamp = timestamp['datetime']
             if metadata._sc:
                 sc_path = metadata._sc._path
             else:

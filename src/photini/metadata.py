@@ -206,12 +206,6 @@ class MD_Dict(MD_Value, dict):
     def convert(value):
         return value
 
-    def __getattr__(self, name):
-        if name in self:
-            return self[name]
-        raise AttributeError(
-            "{} has no attribute {}".format(self.__class__, name))
-
     def __setattr__(self, name, value):
         raise TypeError(
             "{} does not support item assignment".format(self.__class__))
@@ -279,15 +273,15 @@ class LatLon(MD_Dict):
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
-            lat_string, negative = self.to_exif_part(self.lat)
+            lat_string, negative = self.to_exif_part(self['lat'])
             lat_ref = 'NS'[negative]
-            lon_string, negative = self.to_exif_part(self.lon)
+            lon_string, negative = self.to_exif_part(self['lon'])
             lon_ref = 'EW'[negative]
             handler.set_string(tag, (lat_string, lat_ref, lon_string, lon_ref))
         else:
-            lat_string, negative = self.to_xmp_part(self.lat)
+            lat_string, negative = self.to_xmp_part(self['lat'])
             lat_string += 'NS'[negative]
-            lon_string, negative = self.to_xmp_part(self.lon)
+            lon_string, negative = self.to_xmp_part(self['lon'])
             lon_string += 'EW'[negative]
             handler.set_string(tag, (lat_string, lon_string))
 
@@ -342,12 +336,11 @@ class LatLon(MD_Dict):
         return '{:d},{:.6f}'.format(degrees, minutes), negative
 
     def __str__(self):
-        return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
+        return '{:.6f}, {:.6f}'.format(self['lat'], self['lon'])
 
     def __eq__(self, other):
-        distance = ((other['lat'] - self['lat']) ** 2
-                    + (other['lon'] - self['lon']) ** 2)
-        return distance < 2 * (0.000001 ** 2)
+        return (abs(other['lat'] - self['lat']) < 0.000001
+                and abs(other['lon'] - self['lon']) < 0.000001)
 
 
 class Location(MD_Dict_Mergeable):
@@ -621,7 +614,7 @@ class Thumbnail(MD_Dict):
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
-            data = self.data
+            data = self['data']
             if self.fmt != 'JPEG':
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
@@ -638,19 +631,19 @@ class Thumbnail(MD_Dict):
                 data = data.decode('ascii')
             handler.set_string(tag, (data, 'JPEG', str(w), str(h)))
         elif tag == 'Exif.Thumbnail':
-            handler.set_exif_thumbnail_from_buffer(self.data)
+            handler.set_exif_thumbnail_from_buffer(self['data'])
             w, h = self.size()
             handler.set_string(tag, [None, self['fmt'], str(w), str(h)])
 
     def size(self):
-        if self.w and self.h:
-            return self.w, self.h
+        if self['w'] and self['h']:
+            return self['w'], self['h']
         pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(self.data)
+        pixmap.loadFromData(self['data'])
         return pixmap.width(), pixmap.height()
 
     def __str__(self):
-        return '{} thumbnail, {}x{}'.format(self.fmt, *self.size())
+        return '{} thumbnail, {}x{}'.format(self['fmt'], *self.size())
 
 
 class DateTime(MD_Dict):
@@ -723,15 +716,15 @@ class DateTime(MD_Dict):
 
     def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
-            precision = self.precision
+            precision = self['precision']
         fmt = ''.join(self._fmt_elements[:precision])
-        datetime_string = self.datetime.strftime(fmt)
+        datetime_string = self['datetime'].strftime(fmt)
         if precision > 6:
             # truncate subsecond to 3 digits
             datetime_string = datetime_string[:-3]
-        if precision > 3 and time_zone and self.tz_offset is not None:
+        if precision > 3 and time_zone and self['tz_offset'] is not None:
             # add time zone
-            minutes = self.tz_offset
+            minutes = self['tz_offset']
             if minutes >= 0:
                 datetime_string += '+'
             else:
@@ -804,7 +797,7 @@ class DateTime(MD_Dict):
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
-            precision=max(self.precision, 6), time_zone=False)
+            precision=max(self['precision'], 6), time_zone=False)
         date_string = datetime_string[:10].replace('-', ':')
         time_string = datetime_string[11:19]
         sub_sec_string = datetime_string[20:]
@@ -837,7 +830,7 @@ class DateTime(MD_Dict):
         return cls.from_ISO_8601(datetime_string)
 
     def to_iptc(self):
-        if self.precision <= 3:
+        if self['precision'] <= 3:
             date_string = self.to_ISO_8601()
             #               YYYY mm dd
             date_string += '0000-00-00'[len(date_string):]
@@ -857,7 +850,7 @@ class DateTime(MD_Dict):
     # processed. It also says the XMP standard has been revised to make
     # time zone information optional.
     def to_xmp(self):
-        precision = self.precision
+        precision = self['precision']
         if precision == 4:
             precision = 5
         return self.to_ISO_8601(precision=precision)
@@ -866,19 +859,19 @@ class DateTime(MD_Dict):
         return self.to_ISO_8601()
 
     def to_utc(self):
-        if self.tz_offset:
-            return self.datetime - timedelta(minutes=self.tz_offset)
-        return self.datetime
+        if self['tz_offset']:
+            return self['datetime'] - timedelta(minutes=self['tz_offset'])
+        return self['datetime']
 
     def merge(self, info, tag, other):
         if other == self:
             return self
-        if other.datetime != self.datetime:
-            verbose = (other.datetime !=
-                       self.truncate_datetime(self.datetime, other.precision))
+        if other['datetime'] != self['datetime']:
+            verbose = (other['datetime'] != self.truncate_datetime(
+                self['datetime'], other['precision']))
             # datetime values differ, choose self or other
-            if (self.tz_offset in (None, 0)) != (other.tz_offset in (None, 0)):
-                if self.tz_offset in (None, 0):
+            if (self['tz_offset'] in (None, 0)) != (other['tz_offset'] in (None, 0)):
+                if self['tz_offset'] in (None, 0):
                     # other has "better" time zone info so choose it
                     if verbose:
                         self.log_replaced(info, tag, other)
@@ -887,7 +880,7 @@ class DateTime(MD_Dict):
                 if verbose:
                     self.log_ignored(info, tag, other)
                 return self
-            if other.precision > self.precision:
+            if other['precision'] > self['precision']:
                 # other has higher precision so choose it
                 if verbose:
                     self.log_replaced(info, tag, other)
@@ -897,13 +890,13 @@ class DateTime(MD_Dict):
             return self
         # datetime values agree, merge other info
         result = dict(self)
-        if self.precision < 7 and other.precision < self.precision:
+        if self['precision'] < 7 and other['precision'] < self['precision']:
             # some formats default to a higher precision than wanted
-            result['precision'] = other.precision
+            result['precision'] = other['precision']
         # don't trust IPTC time zone and Exif doesn't have time zone
-        if (other.tz_offset not in (None, self.tz_offset) and
+        if (other['tz_offset'] not in (None, self['tz_offset']) and
                 ImageMetadata.is_xmp_tag(tag)):
-            result['tz_offset'] = other.tz_offset
+            result['tz_offset'] = other['tz_offset']
         return DateTime(result)
 
 
@@ -1103,8 +1096,8 @@ class Aperture(MD_Rational):
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
         handler.set_string(tag, file_value)
 
-    def __eq__(self, this, other):
-        return (min(other, this) / max(other, this)) > 0.95
+    def __eq__(self, other):
+        return (min(other, self) / max(other, self)) > 0.95
 
 
 class Rating(MD_Value, float):
@@ -1279,7 +1272,7 @@ class Metadata(object):
             result = result.merge(info, tag, value)
         # merge in camera timezone if needed
         if (isinstance(result, DateTime) and
-                            result.tz_offset is None and self.timezone):
+                            result['tz_offset'] is None and self.timezone):
             result = dict(result)
             result['tz_offset'] = self.timezone
             result = DateTime(result)
