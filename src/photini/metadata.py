@@ -230,9 +230,9 @@ class MD_Dict(MD_Value, dict):
             return self
         result = dict(self)
         for key in result:
-            if not other[key]:
+            if other[key] is None:
                 continue
-            if not result[key]:
+            if result[key] is None:
                 result[key] = other[key]
                 merged, ignored = True, False
             else:
