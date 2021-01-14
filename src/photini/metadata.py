@@ -163,7 +163,8 @@ class MD_Value(object):
             return self.__class__(result)
         return self
 
-    def merge_item(self, this, other):
+    @staticmethod
+    def merge_item(this, other):
         if other == this:
             return this, False, False
         return this, False, True
@@ -225,31 +226,26 @@ class MD_Dict(MD_Value, dict):
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
 
+
+class MD_Dict_Mergeable(MD_Dict):
     def merge(self, info, tag, other):
         if other == self:
             return self
-        if self._mergeable:
-            result = dict(self)
-            for key in result:
-                if other[key] is None:
-                    continue
-                if result[key] is None:
-                    result[key] = other[key]
-                    merged, ignored = True, False
-                else:
-                    result[key], merged, ignored = self.merge_item(
-                                                            result[key], other[key])
-                if ignored:
-                    self.log_ignored(info, tag, {key: other[key]})
-                elif merged:
-                    self.log_merged(info, tag, {key: other[key]})
-            return self.__class__(result)
-        prime_key = self._keys[0]
-        if other[prime_key] and not self[prime_key]:
-            self.log_replaced(info, tag, other)
-            return other
-        self.log_ignored(info, tag, other)
-        return self
+        result = dict(self)
+        for key in result:
+            if other[key] is None:
+                continue
+            if result[key] is None:
+                result[key] = other[key]
+                merged, ignored = True, False
+            else:
+                result[key], merged, ignored = self.merge_item(
+                                                        result[key], other[key])
+            if ignored:
+                self.log_ignored(info, tag, {key: other[key]})
+            elif merged:
+                self.log_merged(info, tag, {key: other[key]})
+        return self.__class__(result)
 
 
 class LatLon(MD_Dict):
@@ -348,21 +344,16 @@ class LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self.lat, self.lon)
 
-    def merge(self, info, tag, other):
-        if other == self:
-            return self
+    def __eq__(self, other):
         distance = ((other['lat'] - self['lat']) ** 2
                     + (other['lon'] - self['lon']) ** 2)
-        if distance > 1.0e-11:
-            self.log_ignored(info, tag, other)
-        return self
+        return distance < 2 * (0.000001 ** 2)
 
 
-class Location(MD_Dict):
+class Location(MD_Dict_Mergeable):
     # stores IPTC defined location heirarchy
     _keys = ('sublocation', 'city', 'province_state',
              'country_name', 'country_code', 'world_region')
-    _mergeable = True
 
     @staticmethod
     def convert(value):
@@ -415,7 +406,8 @@ class Location(MD_Dict):
                 result.append('{}: {}'.format(key, self[key]))
         return '\n'.join(result)
 
-    def merge_item(self, this, other):
+    @staticmethod
+    def merge_item(this, other):
         if other in this:
             return this, False, False
         return this + ' // ' + other, True, False
@@ -475,9 +467,8 @@ class MultiLocation(tuple):
         return result
 
 
-class CameraModel(MD_Dict):
+class CameraModel(MD_Dict_Mergeable):
     _keys = ('make', 'model', 'serial_no')
-    _mergeable = True
     _quiet = True
 
     @staticmethod
@@ -510,9 +501,8 @@ class CameraModel(MD_Dict):
         return result
 
 
-class LensModel(MD_Dict):
+class LensModel(MD_Dict_Mergeable):
     _keys = ('make', 'model', 'serial_no')
-    _mergeable = True
     _quiet = True
 
     @staticmethod
@@ -548,7 +538,6 @@ class LensModel(MD_Dict):
 class LensSpec(MD_Dict):
     # simple class to store lens "specificaton"
     _keys = ('min_fl', 'max_fl', 'min_fl_fn', 'max_fl_fn')
-    _mergeable = False
     _quiet = True
 
     @staticmethod
@@ -584,7 +573,6 @@ class LensSpec(MD_Dict):
 
 class Thumbnail(MD_Dict):
     _keys = ('data', 'fmt', 'w', 'h')
-    _mergeable = False
     _quiet = True
 
     @staticmethod
@@ -976,7 +964,8 @@ class MD_String(MD_Value, six.text_type):
     def write(self, handler, tag):
         handler.set_string(tag, self)
 
-    def merge_item(self, this, other):
+    @staticmethod
+    def merge_item(this, other):
         if other in this:
             return this, False, False
         return this + ' // ' + other, True, False
@@ -1114,10 +1103,8 @@ class Aperture(MD_Rational):
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
         handler.set_string(tag, file_value)
 
-    def merge_item(self, this, other):
-        if (min(other, this) / max(other, this)) > 0.95:
-            return this, False, False
-        return this, False, True
+    def __eq__(self, this, other):
+        return (min(other, this) / max(other, this)) > 0.95
 
 
 class Rating(MD_Value, float):
