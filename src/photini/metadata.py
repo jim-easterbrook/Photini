@@ -615,7 +615,7 @@ class Thumbnail(MD_Dict):
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
             data = self['data']
-            if self.fmt != 'JPEG':
+            if self['fmt'] != 'JPEG':
                 pixmap = QtGui.QPixmap()
                 pixmap.loadFromData(data)
                 buf = QtCore.QBuffer()

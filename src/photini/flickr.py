@@ -531,11 +531,11 @@ class TabWidget(PhotiniUploader):
             if date_taken:
                 params['dates'] = {
                     'date_taken':
-                    date_taken.datetime.strftime('%Y-%m-%d %H:%M:%S')
+                    date_taken['datetime'].strftime('%Y-%m-%d %H:%M:%S')
                     }
-                if date_taken.precision <= 1:
+                if date_taken['precision'] <= 1:
                     params['dates']['date_taken_granularity'] = '6'
-                elif date_taken.precision <= 2:
+                elif date_taken['precision'] <= 2:
                     params['dates']['date_taken_granularity'] = '4'
             # location
             if image.metadata.latlong:
@@ -617,9 +617,9 @@ class TabWidget(PhotiniUploader):
         # get possible date range
         if not image.metadata.date_taken:
             return
-        precision = min(image.metadata.date_taken.precision, 6)
+        precision = min(image.metadata.date_taken['precision'], 6)
         min_taken_date = image.metadata.date_taken.truncate_datetime(
-            image.metadata.date_taken.datetime, precision)
+            image.metadata.date_taken['datetime'], precision)
         if precision >= 6:
             max_taken_date = min_taken_date + timedelta(seconds=1)
         elif precision >= 5:
@@ -651,7 +651,7 @@ class TabWidget(PhotiniUploader):
         for candidate in unknowns:
             if not candidate.metadata.date_taken:
                 continue
-            date_taken = candidate.metadata.date_taken.datetime
+            date_taken = candidate.metadata.date_taken['datetime']
             if date_taken < min_taken_date or date_taken > max_taken_date:
                 continue
             candidates.append(candidate)

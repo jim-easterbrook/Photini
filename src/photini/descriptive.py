@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -343,7 +343,7 @@ class TabWidget(QtWidgets.QWidget):
             if date_taken is None:
                 date_taken = datetime.now()
             else:
-                date_taken = date_taken.datetime
+                date_taken = date_taken['datetime']
             value = copyright_text.format(year=date_taken.year, name=name)
             image.metadata.copyright = value
         self._update_widget('copyright')
