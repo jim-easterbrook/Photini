@@ -361,12 +361,12 @@ class Exiv2Metadata(GExiv2.Metadata):
         self.set_tag_multiple(tag, value)
 
     def save(self, file_times=None, force_iptc=False):
-        self.has_iptc = self.has_iptc or force_iptc
         if not self.rw['exif']['write']:
             self.clear_exif()
-        if not self.rw['iptc']['write']:
-            self.clear_iptc()
-        elif not self.has_iptc:
+        if self.rw['iptc']['write'] and (self.iptc_in_file or force_iptc):
+            self._set_string('Iptc.Envelope.CharacterSet',
+                             self._iptc_encodings['utf-8'][0].decode('ascii'))
+        else:
             self.clear_iptc()
         try:
             if self._gexiv_unsafe:
@@ -621,15 +621,12 @@ class Exiv2Metadata(GExiv2.Metadata):
         for mode, tag in self._tag_list[name]:
             if mode.split('.')[0] == 'RN':
                 continue
-            if self.is_exif_tag(tag):
-                if not self.rw['exif']['read']:
-                    continue
-            elif self.is_iptc_tag(tag):
-                if not self.rw['iptc']['read']:
-                    continue
-            else:
-                if not self.rw['xmp']['read']:
-                    continue
+            if self.is_exif_tag(tag) and not self.rw['exif']['read']:
+                continue
+            if self.is_iptc_tag(tag) and not self.rw['iptc']['read']:
+                continue
+            if self.is_xmp_tag(tag) and not self.rw['xmp']['read']:
+                continue
             try:
                 value = type_.read(self, tag)
             except ValueError as ex:
@@ -648,15 +645,12 @@ class Exiv2Metadata(GExiv2.Metadata):
             write_mode = mode.split('.')[1]
             if write_mode == 'WN':
                 continue
-            if self.is_exif_tag(tag):
-                if not self.rw['exif']['write']:
-                    continue
-            elif self.is_iptc_tag(tag):
-                if not self.rw['iptc']['write']:
-                    continue
-            else:
-                if not self.rw['xmp']['write']:
-                    continue
+            if self.is_exif_tag(tag) and not self.rw['exif']['write']:
+                continue
+            if self.is_iptc_tag(tag) and not self.rw['iptc']['write']:
+                continue
+            if self.is_xmp_tag(tag) and not self.rw['xmp']['write']:
+                continue
             if ((not value) or (write_mode == 'W0') or
                 (write_mode == 'WX' and self.rw['exif']['write'])):
                 self.clear_value(tag)
@@ -684,11 +678,9 @@ class ImageMetadata(Exiv2Metadata):
             self.rw['exif'] = {'read': False, 'write': False}
             self.rw['iptc'] = {'read': False, 'write': False}
         # convert IPTC data to utf-8
-        if self.rw['iptc']['read']:
+        self.iptc_in_file = self.has_iptc() and self.rw['iptc']['read']
+        if self.iptc_in_file:
             self.transcode_iptc(utf_safe)
-        # set character set to utf-8 from now on
-        self._set_string('Iptc.Envelope.CharacterSet',
-                         self._iptc_encodings['utf-8'][0].decode('ascii'))
 
     def transcode_iptc(self, utf_safe):
         iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
@@ -712,7 +704,7 @@ class ImageMetadata(Exiv2Metadata):
         for tag in self.get_iptc_tags():
             if tag in tags:
                 multiple.append(tag)
-            if tag not in tags and self.get_tag_type(tag) == 'String':
+            elif self.get_tag_type(tag) == 'String':
                 tags.append(tag)
         for tag in tags[1:]:
             try:
