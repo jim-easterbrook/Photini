@@ -683,9 +683,6 @@ class ImageMetadata(Exiv2Metadata):
         if self.get_mime_type() == 'application/rdf+xml':
             self.rw['exif'] = {'read': False, 'write': False}
             self.rw['iptc'] = {'read': False, 'write': False}
-        # Don't use IPTC unless file already has IPTC data
-        if not self.has_iptc():
-            self.rw['iptc'] = {'read': False, 'write': False}
         # convert IPTC data to utf-8
         if self.rw['iptc']['read']:
             self.transcode_iptc(utf_safe)
