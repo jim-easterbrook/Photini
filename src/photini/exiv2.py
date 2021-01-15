@@ -114,15 +114,13 @@ class Exiv2Metadata(GExiv2.Metadata):
         else:
             # read metadata from file
             self.open_path(self._path)
+        self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
+                   'iptc': {'read': True, 'write': self.get_supports_iptc()},
+                   'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
         # Don't use Exiv2's converted values when accessing Xmp files
         if self.get_mime_type() == 'application/rdf+xml':
-            self.rw = {'exif': {'read': False, 'write': False},
-                       'iptc': {'read': False, 'write': False},
-                       'xmp':  {'read': True,  'write': self.get_supports_xmp()}}
-        else:
-            self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
-                       'iptc': {'read': True, 'write': self.get_supports_iptc()},
-                       'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
+            self.rw['exif'] = {'read': False, 'write': False}
+            self.rw['iptc'] = {'read': False, 'write': False}
         # make list of possible character encodings
         self._encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -370,6 +368,9 @@ class Exiv2Metadata(GExiv2.Metadata):
         self.set_tag_multiple(tag, value)
 
     def save(self, file_times=None, force_iptc=False):
+        if not any([x['write'] for x in self.rw.values()]):
+            # read-only file
+            return False
         if not self.rw['exif']['write']:
             self.clear_exif()
         if self.rw['iptc']['write'] and (self.iptc_in_file or force_iptc):
@@ -390,10 +391,11 @@ class Exiv2Metadata(GExiv2.Metadata):
             return False
         # check that data really was saved
         OK = True
-        saved_tags = ImageMetadata.open_old(self._path).get_all_tags()
+        saved_tags = self.open_old(self._path).get_all_tags()
         for tag in self.get_all_tags():
             if tag in ('Exif.Image.GPSTag',
-                       'Exif.Image.PhotometricInterpretation'):
+                       'Exif.Image.PhotometricInterpretation',
+                       'Xmp.exif.UserComment'):
                 # some tags disappear with good reason
                 continue
             if tag not in saved_tags:
@@ -402,7 +404,14 @@ class Exiv2Metadata(GExiv2.Metadata):
         return OK
 
     def get_all_tags(self):
-        return self.get_exif_tags() + self.get_iptc_tags() + self.get_xmp_tags()
+        result = []
+        if self.rw['exif']['read']:
+            result += self.get_exif_tags()
+        if self.rw['iptc']['read']:
+            result += self.get_iptc_tags()
+        if self.rw['xmp']['read']:
+            result += self.get_xmp_tags()
+        return result
 
     # some tags are always read & written in groups, but are represented
     # by a single name
@@ -805,12 +814,15 @@ class VideoHeaderMetadata(Exiv2Metadata):
     def __init__(self, props, *args, **kwds):
         super(VideoHeaderMetadata, self).__init__(*args, **kwds)
         self._props = props
+        # definitely read-only
+        for key in self.rw:
+            self.rw[key]['write'] = False
 
     @classmethod
     def open_old(cls, path):
-        # scan first 256 KB of file for embedded JPEG images
+        # scan first 2 MB of file for embedded JPEG images
         with open(path, 'rb') as f:
-            data = f.read(256 * 1024)
+            data = f.read(2 * 1024 * 1024)
         segments = []
         soi = 0
         while True:
@@ -843,8 +855,10 @@ class VideoHeaderMetadata(Exiv2Metadata):
         for prop in props:
             new_dim = max(prop.get_height(), prop.get_width())
             if new_dim > dim:
-                new_dim = dim
+                dim = new_dim
                 master = prop
+        if not master:
+            return None
         return cls(props, path, buf=master.buf)
 
     def get_preview_properties(self):
@@ -852,10 +866,6 @@ class VideoHeaderMetadata(Exiv2Metadata):
 
     def get_preview_image(self, props):
         return props
-
-    def save(self, *args, **kwds):
-        # definitely read-only
-        return False
 
 
 class SidecarMetadata(Exiv2Metadata):
