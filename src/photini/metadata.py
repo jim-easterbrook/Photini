@@ -340,8 +340,8 @@ class LatLon(MD_Dict):
 
     @staticmethod
     def merge_item(this, other):
-        if (abs(other['lat'] - self['lat']) < 0.000001
-                and abs(other['lon'] - self['lon']) < 0.000001):
+        if (abs(other['lat'] - this['lat']) < 0.000001
+                and abs(other['lon'] - this['lon']) < 0.000001):
             return this, False, False
         return this, False, True
 
