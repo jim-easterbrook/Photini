@@ -1090,14 +1090,14 @@ class Aperture(MD_Rational):
 
     def write(self, handler, tag):
         file_value = ['{:d}/{:d}'.format(self.numerator, self.denominator)]
-        if self != 0:
+        if float(self) != 0:
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
             file_value.append(
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
         handler.set_string(tag, file_value)
 
     def __eq__(self, other):
-        return (min(other, self) / max(other, self)) > 0.95
+        return min(other, self) > (max(other, self) * 0.95)
 
 
 class Rating(MD_Value, float):
