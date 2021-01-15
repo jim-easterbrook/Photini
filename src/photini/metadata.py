@@ -338,9 +338,12 @@ class LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(self['lat'], self['lon'])
 
-    def __eq__(self, other):
-        return (abs(other['lat'] - self['lat']) < 0.000001
-                and abs(other['lon'] - self['lon']) < 0.000001)
+    @staticmethod
+    def merge_item(this, other):
+        if (abs(other['lat'] - self['lat']) < 0.000001
+                and abs(other['lon'] - self['lon']) < 0.000001):
+            return this, False, False
+        return this, False, True
 
 
 class Location(MD_Dict_Mergeable):
@@ -1096,8 +1099,11 @@ class Aperture(MD_Rational):
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
         handler.set_string(tag, file_value)
 
-    def __eq__(self, other):
-        return min(other, self) > (max(other, self) * 0.95)
+    @staticmethod
+    def merge_item(this, other):
+        if min(other, this) > (max(other, this) * 0.95):
+            return this, False, False
+        return this, False, True
 
 
 class Rating(MD_Value, float):
