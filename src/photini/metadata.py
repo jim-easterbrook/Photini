@@ -1162,10 +1162,8 @@ class Metadata(object):
         self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
-            vhm = VideoHeaderMetadata.open_old(path)
-            if vhm and self._if:
-                vhm.merge_segment(self._if)
-            self._if = vhm
+            if not self._if:
+                self._if = VideoHeaderMetadata.open_old(path)
             self._vf = FFMPEGMetadata.open_old(path)
         self.dirty = False
         self._delete_makernote = False

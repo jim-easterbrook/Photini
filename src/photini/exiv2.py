@@ -100,7 +100,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         # workaround for bug in GExiv2 on Windows
         # https://gitlab.gnome.org/GNOME/gexiv2/-/issues/59
         self._gexiv_unsafe = False
-        if sys.platform == 'win32':
+        if sys.platform == 'win32' and gexiv2_version <= (0, 12, 1):
             try:
                 self._path.encode('ascii')
             except UnicodeEncodeError:
@@ -114,6 +114,15 @@ class Exiv2Metadata(GExiv2.Metadata):
         else:
             # read metadata from file
             self.open_path(self._path)
+        # Don't use Exiv2's converted values when accessing Xmp files
+        if self.get_mime_type() == 'application/rdf+xml':
+            self.rw = {'exif': {'read': False, 'write': False},
+                       'iptc': {'read': False, 'write': False},
+                       'xmp':  {'read': True,  'write': self.get_supports_xmp()}}
+        else:
+            self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
+                       'iptc': {'read': True, 'write': self.get_supports_iptc()},
+                       'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
         # make list of possible character encodings
         self._encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -669,14 +678,6 @@ class ImageMetadata(Exiv2Metadata):
 
     def __init__(self, *args, utf_safe=False, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
-        self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
-                   'iptc': {'read': True, 'write': self.get_supports_iptc()},
-                   'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
-        # Don't use Exiv2's converted values when accessing Xmp files
-        # (application/rdf+xml)
-        if self.get_mime_type() == 'application/rdf+xml':
-            self.rw['exif'] = {'read': False, 'write': False}
-            self.rw['iptc'] = {'read': False, 'write': False}
         # convert IPTC data to utf-8
         self.iptc_in_file = self.has_iptc() and self.rw['iptc']['read']
         if self.iptc_in_file:
@@ -782,13 +783,35 @@ class ImageMetadata(Exiv2Metadata):
         self.save_file(self._path)
 
 
-class VideoHeaderMetadata(ImageMetadata):
+class Preview(object):
+    def __init__(self, md, buf):
+        self.md = md
+        self.buf = buf
+
+    def get_data(self):
+        return self.buf
+
+    def get_height(self):
+        return self.md.get_pixel_height()
+
+    def get_mime_type(self):
+        return self.md.get_mime_type()
+
+    def get_width(self):
+        return self.md.get_pixel_width()
+
+
+class VideoHeaderMetadata(Exiv2Metadata):
+    def __init__(self, props, *args, **kwds):
+        super(VideoHeaderMetadata, self).__init__(*args, **kwds)
+        self._props = props
+
     @classmethod
     def open_old(cls, path):
         # scan first 256 KB of file for embedded JPEG images
         with open(path, 'rb') as f:
             data = f.read(256 * 1024)
-        result = None
+        segments = []
         soi = 0
         while True:
             soi = data.find(b'\xff\xd8\xff', soi)
@@ -797,50 +820,45 @@ class VideoHeaderMetadata(ImageMetadata):
             eoi = data.find(b'\xff\xd9', soi + 6)
             if eoi < 0:
                 break
+            segments.append(data[soi:eoi])
+            soi += 3
+        # get preview properties of each segment
+        props = []
+        for segment in segments:
             try:
-                segment = cls(path, buf=data[soi:eoi])
+                md = Exiv2Metadata(path, buf=segment)
             except GLib.GError:
                 # expected if unrecognised data format
-                segment = None
+                md = None
             except Exception as ex:
                 logger.exception(ex)
-                segment = None
-            if segment and len(segment.get_all_tags()) > 1:
-                if result:
-                    result.merge_segment(segment)
-                else:
-                    result = segment
-                    result.segment = soi, eoi
-            soi += 3
-        return result
+                md = None
+            if md:
+                props.append(Preview(md, segment))
+        if not props:
+            return None
+        # choose largest preview to be the master image
+        dim = 0
+        master = None
+        for prop in props:
+            new_dim = max(prop.get_height(), prop.get_width())
+            if new_dim > dim:
+                new_dim = dim
+                master = prop
+        return cls(props, path, buf=master.buf)
 
-    def merge_segment(self, other):
-        for tag in other.get_all_tags():
-            other_value = other._get_string(tag)
-            if not self.has_tag(tag):
-                self._set_string(tag, other_value)
-            elif self._get_string(tag) != other_value:
-                logger.warning('Ignoring repeated video header tag %s: %s',
-                               tag, other_value)
+    def get_preview_properties(self):
+        return self._props
+
+    def get_preview_image(self, props):
+        return props
 
     def save(self, *args, **kwds):
         # definitely read-only
         return False
 
-    def get_exif_thumbnail(self):
-        if not self.segment:
-            return None
-        soi, eoi = self.segment
-        with open(self._path, 'rb') as f:
-            data = f.read(eoi)
-        return data[soi:]
-
 
 class SidecarMetadata(Exiv2Metadata):
-    rw = {'exif': {'read': False, 'write': False},
-          'iptc': {'read': False, 'write': False},
-          'xmp':  {'read': True,  'write': True}}
-
     @classmethod
     def open_old(cls, path):
         for base in (os.path.splitext(path)[0], path):
