@@ -150,9 +150,6 @@ Lens serial number     Exif.OlympusEq.LensSerialNumber
                        Exif.NikonLd2.LensIDNumber
                        Exif.NikonLd3.LensIDNumber
 Lens specification     Exif.CanonCs.Lens
-                       Exif.CanonCs.ShortFocal
-                       Exif.CanonCs.MaxAperture
-                       Exif.CanonCs.MinAperture
                        Exif.Nikon3.Lens
 Latitude, longitude                                     Xmp.video.GPSCoordinates
 Thumbnail image        Exif.SubImage*
