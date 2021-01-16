@@ -614,7 +614,8 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WN', 'Exif.Photo.FocalPlaneResolutionUnit'),
                             ('WN', 'Xmp.exif.FocalPlaneResolutionUnit')),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
-                            ('WA', 'Iptc.Application2.Program')),
+                            ('WA', 'Iptc.Application2.Program'),
+                            ('WX', 'Xmp.xmp.CreatorTool')),
         # Both xmpGImg and xapGImg namespaces are specified in different
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
@@ -887,8 +888,6 @@ class SidecarMetadata(Exiv2Metadata):
                 # let exiv2 copy as much metadata as it can into sidecar
                 image_md.save_file(sc_path)
             self = cls(sc_path)
-            self.set_string(
-                'Xmp.xmp.CreatorTool', 'Photini editor v' + __version__)
             return self
         except Exception as ex:
             logger.exception(ex)
