@@ -336,14 +336,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             value = value.encode('utf-8')
         self.set_tag_string(tag, value)
 
-    def set_multiple(self, tag, value, idx=1):
-        if tag in self._multi_tags:
-            for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-                self._set_multiple(sub_tag.format(idx=idx), sub_value)
-            return
-        self._set_multiple(tag, value)
-
-    def _set_multiple(self, tag, value):
+    def set_multiple(self, tag, value):
         if not tag:
             return
         if not value:
@@ -701,7 +694,7 @@ class ImageMetadata(Exiv2Metadata):
                         logger.warning(
                             'Try running Photini with the --utf_safe option.')
                         value = [self._get_string(tag)]
-                    self._set_multiple(tag, value)
+                    self.set_multiple(tag, value)
                 else:
                     self._set_string(tag, self._get_string(tag))
             except Exception as ex:
