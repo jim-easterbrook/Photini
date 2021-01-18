@@ -51,7 +51,6 @@ XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 # Photini doesn't write xapGImg so it doesn't matter.
 for prefix, name in (
         ('exifEX',  'http://cipa.jp/exif/1.0/'),
-        ('video',   'http://www.video/'),
         ('xapGImg', 'http://ns.adobe.com/xxx/'),
         ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
@@ -480,7 +479,6 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
-        'Xmp.video.Model': ('', 'Xmp.video.Model'),
         'Xmp.xmp.Thumbnails': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:image',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
@@ -511,8 +509,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WN', 'Exif.Nikon3.SerialNumber'),
                             ('WN', 'Exif.OlympusEq.CameraType'),
                             ('WN', 'Exif.Pentax.ModelID'),
-                            ('WN', 'Xmp.aux.SerialNumber'),
-                            ('WN', 'Xmp.video.Model')),
+                            ('WN', 'Xmp.aux.SerialNumber')),
         'copyright'      : (('WA', 'Exif.Image.Copyright'),
                             ('WA', 'Xmp.dc.rights'),
                             ('W0', 'Xmp.tiff.Copyright'),
@@ -525,17 +522,14 @@ class Exiv2Metadata(GExiv2.Metadata):
         'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized'),
                             ('WA', 'Xmp.xmp.CreateDate'),
                             ('W0', 'Xmp.exif.DateTimeDigitized'),
-                            ('WN', 'Xmp.video.DateUTC'),
                             ('WA', 'Iptc.Application2.DigitizationDate')),
         'date_modified'  : (('WA', 'Exif.Image.DateTime'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
-                            ('WN', 'Xmp.video.ModificationDate'),
                             ('W0', 'Xmp.tiff.DateTime')),
         'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal'),
                             ('W0', 'Exif.Image.DateTimeOriginal'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
-                            ('WN', 'Xmp.video.DateUTC'),
                             ('WA', 'Iptc.Application2.DateCreated')),
         'description'    : (('WA', 'Exif.Image.ImageDescription'),
                             ('W0', 'Exif.Image.XPComment'),
@@ -562,8 +556,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
         'latlong'        : (('WA', 'Exif.GPSInfo.GPSCoordinates'),
-                            ('WX', 'Xmp.exif.GPSCoordinates'),
-                            ('WN', 'Xmp.video.GPSCoordinates')),
+                            ('WX', 'Xmp.exif.GPSCoordinates')),
         'lens_model'     : (('WA', 'Exif.Photo.LensMake'),
                             ('WX', 'Xmp.exifEX.LensMake'),
                             ('WN', 'Exif.Canon.LensModel'),

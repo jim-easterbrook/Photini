@@ -127,12 +127,9 @@ These tags are not deleted when the corresponding primary tags are saved.
 =====================  ===============================  ================================  ==================
 Photini field          Exif tag                         XMP tag                           IPTC tag
 =====================  ===============================  ================================  ==================
-Date / time Taken                                       Xmp.video.DateUTC
-Date / time Digitised                                   Xmp.video.DateUTC
-Date / time Modified                                    Xmp.video.ModificationDate
 Time zone offset[1]    Exif.Image.TimeZoneOffset
                        Exif.NikonWt.Timezone
-Camera model name      Exif.Image.UniqueCameraModel     Xmp.video.Model
+Camera model name      Exif.Image.UniqueCameraModel
                        Exif.Canon.ModelID
                        Exif.OlympusEq.CameraType
                        Exif.Pentax.ModelID
@@ -151,7 +148,6 @@ Lens serial number     Exif.OlympusEq.LensSerialNumber
                        Exif.NikonLd3.LensIDNumber
 Lens specification     Exif.CanonCs.Lens
                        Exif.Nikon3.Lens
-Latitude, longitude                                     Xmp.video.GPSCoordinates
 Thumbnail image        Exif.SubImage*
 =====================  ===============================  ================================  ==================
 

@@ -255,8 +255,7 @@ class LatLon(MD_Dict):
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
-        if (isinstance(handler, FFMPEGMetadata)
-                or tag == 'Xmp.video.GPSCoordinates'):
+        if isinstance(handler, FFMPEGMetadata):
             if file_value:
                 match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
                 if match:
@@ -737,10 +736,6 @@ class DateTime(MD_Dict):
                 minutes // 60, minutes % 60)
         return datetime_string
 
-    # many quicktime movies use Apple's 1904 timestamp zero point
-    qt_offset = (datetime(1970, 1, 1) - datetime(1904, 1, 1)).total_seconds()
-
-    # Do something different with Xmp.video tags
     @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
@@ -752,14 +747,6 @@ class DateTime(MD_Dict):
             return cls.from_exif(file_value)
         if handler.is_iptc_tag(tag):
             return cls.from_iptc(file_value)
-        if tag.startswith('Xmp.video'):
-            time_stamp = int(file_value)
-            if time_stamp == 0:
-                return None
-            # assume date should be in range 1970 to 2034
-            if time_stamp > cls.qt_offset:
-                time_stamp -= cls.qt_offset
-            return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_ISO_8601(file_value)
 
     def write(self, handler, tag):
