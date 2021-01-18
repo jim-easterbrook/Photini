@@ -1165,7 +1165,7 @@ class Metadata(object):
         self._notify = notify
         self._utf_safe = utf_safe
         video_md = None
-        self._sc = SidecarMetadata.open_old(path)
+        self._sc = SidecarMetadata.open_old(self.find_sidecar())
         self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
@@ -1205,6 +1205,14 @@ class Metadata(object):
                 logger.info('%s: merged camera timezone offset', info)
                 super(Metadata, self).__setattr__(
                     name, self._data_type[name](value))
+
+    def find_sidecar(self):
+        for base in (os.path.splitext(self._path)[0], self._path):
+            for ext in ('.xmp', '.XMP', '.Xmp'):
+                sc_path = base + ext
+                if os.path.exists(sc_path):
+                    return sc_path
+        return None
 
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote

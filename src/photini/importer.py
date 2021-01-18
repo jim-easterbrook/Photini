@@ -71,10 +71,7 @@ class FolderSource(object):
                 timestamp = datetime.fromtimestamp(os.path.getmtime(path))
             else:
                 timestamp = timestamp['datetime']
-            if metadata._sc:
-                sc_path = metadata._sc._path
-            else:
-                sc_path = None
+            sc_path = metadata.find_sidecar()
             name = os.path.basename(path)
             camera = metadata.camera_model
             if camera:

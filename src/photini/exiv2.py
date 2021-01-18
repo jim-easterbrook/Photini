@@ -863,16 +863,13 @@ class VideoHeaderMetadata(Exiv2Metadata):
 class SidecarMetadata(Exiv2Metadata):
     @classmethod
     def open_old(cls, path):
-        for base in (os.path.splitext(path)[0], path):
-            for ext in ('.xmp', '.XMP', '.Xmp'):
-                sc_path = base + ext
-                if os.path.exists(sc_path):
-                    try:
-                        return cls(sc_path)
-                    except Exception as ex:
-                        logger.exception(ex)
-                        return None
-        return None
+        if not path:
+            return None
+        try:
+            return cls(path)
+        except Exception as ex:
+            logger.exception(ex)
+            return None
 
     @classmethod
     def open_new(cls, path, image_md):
