@@ -260,13 +260,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             return None
         return self._decode_string(result).strip('\x00')
 
-    def get_multiple(self, tag, idx=1):
-        if tag in self._multi_tags:
-            return [self._get_multiple(sub_tag.format(idx=idx))
-                    for sub_tag in self._multi_tags[tag]]
-        return self._get_multiple(tag)
-
-    def _get_multiple(self, tag):
+    def get_multiple(self, tag):
         if not (tag and self.has_tag(tag)):
             return []
         try:
@@ -700,7 +694,7 @@ class ImageMetadata(Exiv2Metadata):
                 if tag in multiple:
                     # PyGObject segfaults if strings are not utf-8
                     if six.PY2 or using_pgi or utf_safe:
-                        value = self._get_multiple(tag)
+                        value = self.get_multiple(tag)
                     else:
                         logger.warning('%s: ignoring multiple %s values',
                                        os.path.basename(self._path), tag)
