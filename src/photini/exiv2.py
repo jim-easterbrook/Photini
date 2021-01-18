@@ -214,15 +214,10 @@ class Exiv2Metadata(GExiv2.Metadata):
     def _get_string(self, tag):
         if not (tag and self.has_tag(tag)):
             return None
-        if tag in ('Exif.Image.XPTitle',  'Exif.Image.XPComment',
-                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
-                   'Exif.Image.XPSubject'):
-            # UCS2 encoded Exif data
-            result = self.get_raw(tag)
-            if not result:
-                return None
-            return result.decode('utf-16-le', errors='ignore').strip('\x00')
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
+                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
+                   'Exif.Image.XPSubject',
                    'Exif.NikonLd1.LensIDNumber', 'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             result = self.get_tag_interpreted_string(tag)
