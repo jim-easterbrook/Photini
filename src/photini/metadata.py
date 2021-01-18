@@ -1164,16 +1164,47 @@ class Metadata(object):
         self._path = path
         self._notify = notify
         self._utf_safe = utf_safe
-        self._vf = None
+        video_md = None
         self._sc = SidecarMetadata.open_old(path)
         self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             if not self._if:
                 self._if = VideoHeaderMetadata.open_old(path)
-            self._vf = FFMPEGMetadata.open_old(path)
+            video_md = FFMPEGMetadata.open_old(path)
         self.dirty = False
         self._delete_makernote = False
+        # read Photini metadata items
+        for name in self._data_type:
+            # read data values from first file that has any
+            values = []
+            for handler in self._sc, video_md, self._if:
+                if not handler:
+                    continue
+                values = handler.read(name, self._data_type[name])
+                if values:
+                    break
+            # choose result and merge in non-matching data so user can review it
+            value = None
+            if values:
+                info = '{}({})'.format(os.path.basename(self._path), name)
+                tag, value = values[0]
+                logger.debug('%s: set from %s', info, tag)
+            for tag2, value2 in values[1:]:
+                value = value.merge(info, tag2, value2)
+            super(Metadata, self).__setattr__(name, value)
+        # merge in camera timezone if needed
+        if not self.timezone:
+            return
+        for name in ('date_digitised', 'date_modified', 'date_taken'):
+            value = getattr(self, name)
+            if value['tz_offset'] is None:
+                value = dict(value)
+                value['tz_offset'] = self.timezone
+                info = '{}({})'.format(os.path.basename(self._path), name)
+                logger.info('%s: merged camera timezone offset', info)
+                super(Metadata, self).__setattr__(
+                    name, self._data_type[name](value))
 
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
@@ -1254,38 +1285,6 @@ class Metadata(object):
         # anything not recognised is assumed to be 'raw'
         if not result:
             result = 'image/raw'
-        return result
-
-    def __getattr__(self, name):
-        if name not in self._data_type:
-            raise AttributeError(
-                "%s has no attribute %s" % (self.__class__, name))
-        # read data values
-        values = []
-        for handler in self._sc, self._vf, self._if:
-            if not handler:
-                continue
-            values = handler.read(name, self._data_type[name])
-            if values:
-                break
-        # choose result and merge in non-matching data so user can review it
-        result = None
-        if values:
-            info = '{}({})'.format(os.path.basename(self._path), name)
-            tag, result = values.pop(0)
-            logger.debug('%s: set from %s', info, tag)
-        for tag, value in values:
-            result = result.merge(info, tag, value)
-        # merge in camera timezone if needed
-        if (isinstance(result, DateTime) and
-                            result['tz_offset'] is None and self.timezone):
-            result = dict(result)
-            result['tz_offset'] = self.timezone
-            result = DateTime(result)
-            logger.info('%s: merged camera timezone offset', info)
-        # add value to object attributes so __getattr__ doesn't get
-        # called again
-        super(Metadata, self).__setattr__(name, result)
         return result
 
     def __setattr__(self, name, value):
