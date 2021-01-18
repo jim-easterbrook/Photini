@@ -1174,6 +1174,7 @@ class Metadata(object):
             video_md = FFMPEGMetadata.open_old(path)
         self.dirty = False
         self._delete_makernote = False
+        self.iptc_in_file = self._if and self._if.has_iptc()
         # read Photini metadata items
         for name in self._data_type:
             # read data values from first file that has any
@@ -1249,6 +1250,7 @@ class Metadata(object):
             return
         self.software = 'Photini editor v' + __version__
         OK = False
+        force_iptc = force_iptc or self.iptc_in_file
         try:
             # save to image file
             if if_mode and self._if:
@@ -1257,6 +1259,8 @@ class Metadata(object):
                     self._delete_makernote = False
                 OK = self._handler_save(
                     self._if, file_times=file_times, force_iptc=force_iptc)
+                if OK:
+                    self.iptc_in_file = force_iptc
             if not OK:
                 # can't write to image file so must create side car
                 sc_mode = 'always'

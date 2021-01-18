@@ -118,7 +118,6 @@ class Exiv2Metadata(GExiv2.Metadata):
                                   self.get_supports_iptc(),
                                   self.get_supports_xmp()))
         self.xmp_only = self.get_mime_type() == 'application/rdf+xml'
-        self.iptc_in_file = self.has_iptc() and not self.xmp_only
         # Don't use Exiv2's converted values when accessing Xmp files
         if self.xmp_only:
             self.clear_exif()
@@ -372,7 +371,7 @@ class Exiv2Metadata(GExiv2.Metadata):
     def save(self, file_times=None, force_iptc=False):
         if self.read_only:
             return False
-        if self.iptc_in_file or force_iptc:
+        if force_iptc:
             self._set_string('Iptc.Envelope.CharacterSet',
                              self._iptc_encodings['utf-8'][0].decode('ascii'))
         else:
@@ -674,7 +673,7 @@ class ImageMetadata(Exiv2Metadata):
     def __init__(self, *args, utf_safe=False, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
         # convert IPTC data to utf-8
-        if self.iptc_in_file:
+        if self.has_iptc() and not self.xmp_only:
             self.transcode_iptc(utf_safe)
 
     def transcode_iptc(self, utf_safe):

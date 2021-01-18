@@ -354,7 +354,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             if image.file_type.startswith('video'):
                 # don't try to write metadata to videos
                 return None
-            if image.metadata._sc or not image.metadata._if.has_iptc():
+            if image.metadata.find_sidecar() or not image.metadata.iptc_in_file:
                 # need to create file without sidecar and with IPTC
                 return self.copy_file_and_metadata
             return None
