@@ -1211,32 +1211,28 @@ class Metadata(object):
         self.software = 'Photini editor v' + __version__
         OK = False
         try:
-            # open existing files
-            sc_file = SidecarMetadata.open_old(self._path)
-            if_file = if_mode and ImageMetadata.open_old(
-                self._path, utf_safe=self._utf_safe)
             # save to image file
-            if if_file:
+            if if_mode and self._if:
                 if self._delete_makernote:
-                    if_file.delete_makernote(self.camera_model)
+                    self._if.delete_makernote(self.camera_model)
                     self._delete_makernote = False
                 OK = self._handler_save(
-                    if_file, file_times=file_times, force_iptc=force_iptc)
+                    self._if, file_times=file_times, force_iptc=force_iptc)
             if not OK:
                 # can't write to image file so must create side car
                 sc_mode = 'always'
             # create side car
-            if sc_mode == 'always' and not sc_file:
-                sc_file = SidecarMetadata.open_new(self._path, self._if)
+            if sc_mode == 'always' and not self._sc:
+                self._sc = SidecarMetadata.open_new(self._path, self._if)
             # save or delete side car
-            if sc_file:
+            if self._sc:
                 if sc_mode == 'delete':
-                    sc_file.delete()
-                    self._sc = None
+                    self._if.merge_sc(self._sc)
+                    self._sc = self._sc.delete()
                 else:
                     # workaround for bug in exiv2 xmp timestamp altering
-                    sc_file.clear_dates()
-                    OK = self._handler_save(sc_file, file_times=file_times)
+                    self._sc.clear_dates()
+                    OK = self._handler_save(self._sc, file_times=file_times)
         except Exception as ex:
             logger.exception(ex)
             return

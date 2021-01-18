@@ -114,13 +114,15 @@ class Exiv2Metadata(GExiv2.Metadata):
         else:
             # read metadata from file
             self.open_path(self._path)
-        self.rw = {'exif': {'read': True, 'write': self.get_supports_exif()},
-                   'iptc': {'read': True, 'write': self.get_supports_iptc()},
-                   'xmp':  {'read': True, 'write': self.get_supports_xmp()}}
+        self.read_only = not any((self.get_supports_exif(),
+                                  self.get_supports_iptc(),
+                                  self.get_supports_xmp()))
+        self.xmp_only = self.get_mime_type() == 'application/rdf+xml'
+        self.iptc_in_file = self.has_iptc() and not self.xmp_only
         # Don't use Exiv2's converted values when accessing Xmp files
-        if self.get_mime_type() == 'application/rdf+xml':
-            self.rw['exif'] = {'read': False, 'write': False}
-            self.rw['iptc'] = {'read': False, 'write': False}
+        if self.xmp_only:
+            self.clear_exif()
+            self.clear_iptc()
         # make list of possible character encodings
         self._encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -368,15 +370,15 @@ class Exiv2Metadata(GExiv2.Metadata):
         self.set_tag_multiple(tag, value)
 
     def save(self, file_times=None, force_iptc=False):
-        if not any([x['write'] for x in self.rw.values()]):
-            # read-only file
+        if self.read_only:
             return False
-        if not self.rw['exif']['write']:
-            self.clear_exif()
-        if self.rw['iptc']['write'] and (self.iptc_in_file or force_iptc):
+        if self.iptc_in_file or force_iptc:
             self._set_string('Iptc.Envelope.CharacterSet',
                              self._iptc_encodings['utf-8'][0].decode('ascii'))
         else:
+            self.clear_iptc()
+        if self.xmp_only:
+            self.clear_exif()
             self.clear_iptc()
         try:
             if self._gexiv_unsafe:
@@ -386,6 +388,9 @@ class Exiv2Metadata(GExiv2.Metadata):
                 self.save_file(self._path)
             if file_times:
                 os.utime(self._path, file_times)
+        except GLib.GError as ex:
+            logger.error(str(ex))
+            return False
         except Exception as ex:
             logger.exception(ex)
             return False
@@ -393,24 +398,21 @@ class Exiv2Metadata(GExiv2.Metadata):
         OK = True
         saved_tags = self.open_old(self._path).get_all_tags()
         for tag in self.get_all_tags():
-            if tag in ('Exif.Image.GPSTag',
-                       'Exif.Image.PhotometricInterpretation',
-                       'Xmp.exif.UserComment'):
+            if tag in ('Exif.Image.GPSTag',):
                 # some tags disappear with good reason
                 continue
             if tag not in saved_tags:
-                logger.warning('tag not saved: %s', tag)
+                logger.warning(
+                    '%s: tag not saved: %s', os.path.basename(self._path), tag)
                 OK = False
         return OK
 
     def get_all_tags(self):
         result = []
-        if self.rw['exif']['read']:
+        if not self.xmp_only:
             result += self.get_exif_tags()
-        if self.rw['iptc']['read']:
             result += self.get_iptc_tags()
-        if self.rw['xmp']['read']:
-            result += self.get_xmp_tags()
+        result += self.get_xmp_tags()
         return result
 
     # some tags are always read & written in groups, but are represented
@@ -559,6 +561,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('W0', 'Exif.Image.XPSubject'),
                             ('W0', 'Exif.Photo.UserComment'),
                             ('WA', 'Xmp.dc.description'),
+                            ('W0', 'Xmp.exif.UserComment'),
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption')),
         'dimension_x'    : (('WN', 'Exif.Image.ImageWidth'),
@@ -635,12 +638,6 @@ class Exiv2Metadata(GExiv2.Metadata):
     def read(self, name, type_):
         result = []
         for mode, tag in self._tag_list[name]:
-            if self.is_exif_tag(tag) and not self.rw['exif']['read']:
-                continue
-            if self.is_iptc_tag(tag) and not self.rw['iptc']['read']:
-                continue
-            if self.is_xmp_tag(tag) and not self.rw['xmp']['read']:
-                continue
             try:
                 value = type_.read(self, tag)
             except ValueError as ex:
@@ -658,14 +655,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         for mode, tag in self._tag_list[name]:
             if mode == 'WN':
                 continue
-            if self.is_exif_tag(tag) and not self.rw['exif']['write']:
-                continue
-            if self.is_iptc_tag(tag) and not self.rw['iptc']['write']:
-                continue
-            if self.is_xmp_tag(tag) and not self.rw['xmp']['write']:
-                continue
-            if ((not value) or (mode == 'W0') or
-                (mode == 'WX' and self.rw['exif']['write'])):
+            if ((not value) or (mode == 'W0')
+                    or (mode == 'WX' and not self.xmp_only)):
                 self.clear_value(tag)
             else:
                 value.write(self, tag)
@@ -683,7 +674,6 @@ class ImageMetadata(Exiv2Metadata):
     def __init__(self, *args, utf_safe=False, **kwds):
         super(ImageMetadata, self).__init__(*args, **kwds)
         # convert IPTC data to utf-8
-        self.iptc_in_file = self.has_iptc() and self.rw['iptc']['read']
         if self.iptc_in_file:
             self.transcode_iptc(utf_safe)
 
@@ -745,8 +735,10 @@ class ImageMetadata(Exiv2Metadata):
 
     def merge_sc(self, other):
         # merge sidecar data into image file data, ignoring thumbnails
+        raw_sc = GExiv2.Metadata()
+        raw_sc.open_path(other._path)
         # allow exiv2 to infer Exif tags from XMP
-        for tag in other.get_exif_tags():
+        for tag in raw_sc.get_exif_tags():
             if tag.startswith('Exif.Thumbnail'):
                 continue
             # ignore inferred datetime values the exiv2 gets wrong
@@ -755,9 +747,11 @@ class ImageMetadata(Exiv2Metadata):
                        'Exif.Photo.DateTimeDigitized'):
                 self.clear_tag(tag)
             else:
-                self._set_string(tag, other._get_string(tag))
+                value = raw_sc.get_tag_string(tag)
+                if value:
+                    self.set_tag_string(tag, value)
         # copy all XMP tags except inferred Exif tags
-        for tag in other.get_xmp_tags():
+        for tag in raw_sc.get_xmp_tags():
             if tag.startswith('Xmp.xmp.Thumbnails'):
                 continue
             ns = tag.split('.')[1]
@@ -765,9 +759,13 @@ class ImageMetadata(Exiv2Metadata):
                 # exiv2 will already have supplied the equivalent Exif tag
                 pass
             elif self.get_tag_type(tag) == 'XmpText':
-                self._set_string(tag, other._get_string(tag))
+                value = raw_sc.get_tag_string(tag)
+                if value:
+                    self.set_tag_string(tag, value)
             else:
-                self._set_multiple(tag, other._get_multiple(tag))
+                value = raw_sc.get_tag_multiple(tag)
+                if value:
+                    self.set_tag_multiple(tag, value)
 
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
@@ -810,8 +808,7 @@ class VideoHeaderMetadata(Exiv2Metadata):
         super(VideoHeaderMetadata, self).__init__(*args, **kwds)
         self._props = props
         # definitely read-only
-        for key in self.rw:
-            self.rw[key]['write'] = False
+        self.read_only = True
 
     @classmethod
     def open_old(cls, path):
