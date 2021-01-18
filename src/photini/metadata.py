@@ -1226,14 +1226,18 @@ class Metadata(object):
         self._delete_makernote = True
 
     @classmethod
-    def clone(cls, path, other, *args, **kw):
+    def clone(cls, path, other):
         if other._if:
             # use exiv2 to clone image file metadata
             other._if.save_file(path)
-        self = cls(path, *args, **kw)
+        self = cls(path)
         if other._sc and self._if:
             # merge in sidecar data
             self._if.merge_sc(other._sc)
+        # copy Photini metadata items
+        for name in cls._data_type:
+            value = getattr(other, name)
+            setattr(self, name, value)
         return self
 
     def _handler_save(self, handler, *arg, **kw):
