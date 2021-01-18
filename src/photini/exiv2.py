@@ -874,12 +874,15 @@ class SidecarMetadata(Exiv2Metadata):
     def open_new(cls, path, image_md):
         sc_path = path + '.xmp'
         try:
-            with open(sc_path, 'w') as of:
-                of.write(XMP_WRAPPER.format(
-                    'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
-            if image_md:
-                # let exiv2 copy as much metadata as it can into sidecar
-                image_md.save_file(sc_path)
+            if image_md and gexiv2_version >= (0, 10, 6):
+                image_md.save_external(sc_path)
+            else:
+                with open(sc_path, 'w') as of:
+                    of.write(XMP_WRAPPER.format(
+                        'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
+                if image_md:
+                    # let exiv2 copy as much metadata as it can into sidecar
+                    image_md.save_file(sc_path)
             self = cls(sc_path)
             return self
         except Exception as ex:
