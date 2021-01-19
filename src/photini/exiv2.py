@@ -744,10 +744,12 @@ class ImageMetadata(Exiv2Metadata):
         if not (self.has_tag('Exif.Photo.MakerNote')
                 and self.has_tag('Exif.Image.Make')):
             return True
+        if not camera_model:
+            return False
         return self.get_string('Exif.Image.Make') == camera_model['make']
 
     def delete_makernote(self, camera_model):
-        if self.get_string('Exif.Image.Make') == camera_model['make']:
+        if self.camera_change_ok(camera_model):
             return
         self._clear_value('Exif.Image.Make')
         self.save_file(self._path)
