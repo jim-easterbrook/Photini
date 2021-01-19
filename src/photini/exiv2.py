@@ -594,7 +594,6 @@ class Exiv2Metadata(GExiv2.Metadata):
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
         'thumbnail'      : (('WA', 'Exif.Thumbnail'),
-                            ('WN', 'Exif.Preview'),
                             ('WX', 'Xmp.xmp.Thumbnails'),
                             ('W0', 'Xmp.xmp.ThumbnailsXap')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
@@ -826,11 +825,19 @@ class VideoHeaderMetadata(Exiv2Metadata):
             return None
         return cls(props, path, buf=master.buf)
 
-    def get_preview_properties(self):
-        return self._props
-
-    def get_preview_image(self, props):
-        return props
+    def read(self, name, type_):
+        result = super(VideoHeaderMetadata, self).read(name, type_)
+        if name == 'thumbnail':
+            try:
+                value = type_.from_video_header(self._props)
+                if value:
+                    result.append(('Preview', value))
+            except ValueError as ex:
+                logger.error('{}({}), {}: {}'.format(
+                    os.path.basename(self._path), name, 'Preview', str(ex)))
+            except Exception as ex:
+                logger.exception(ex)
+        return result
 
 
 class SidecarMetadata(Exiv2Metadata):

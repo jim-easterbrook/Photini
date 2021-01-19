@@ -573,38 +573,39 @@ class Thumbnail(MD_Dict):
         return value
 
     @classmethod
+    def from_video_header(cls, properties):
+        w, h = 512, 512
+        preview = None
+        for props in properties:
+            width = props.get_width()
+            height = props.get_height()
+            if abs(max(width, height) - 160) < abs(max(w, h) - 160):
+                w, h = width, height
+                preview = props
+        if not preview:
+            return None
+        data = preview.get_data()
+        fmt = preview.get_mime_type().split('/')[1].upper()
+        return cls((data, fmt, w, h))
+
+    @classmethod
     def read(cls, handler, tag):
-        if tag == 'Exif.Preview':
-            w, h = 512, 512
-            match = None
-            for properties in handler.get_preview_properties():
-                width = properties.get_width()
-                height = properties.get_height()
-                if abs(max(width, height) - 160) < abs(max(w, h) - 160):
-                    w, h = width, height
-                    match = properties
-            if not match:
+        data, fmt, w, h = handler.get_group(tag)
+        if handler.is_xmp_tag(tag):
+            if not all((data, fmt)):
                 return None
-            preview = handler.get_preview_image(match)
-            data = preview.get_data()
-            fmt = preview.get_mime_type().split('/')[1].upper()
+            if not six.PY2:
+                data = bytes(data, 'ascii')
+            data = codecs.decode(data, 'base64_codec')
         else:
-            data, fmt, w, h = handler.get_group(tag)
-            if handler.is_xmp_tag(tag):
-                if not all((data, fmt)):
-                    return None
-                if not six.PY2:
-                    data = bytes(data, 'ascii')
-                data = codecs.decode(data, 'base64_codec')
-            else:
-                data = handler.get_exif_thumbnail()
-                if using_pgi and isinstance(data, tuple):
-                    # get_exif_thumbnail returns (OK, data) tuple
-                    data = data[data[0]]
-                if not all((data, fmt)):
-                    return None
-                data = bytearray(data)
-                fmt = ('TIFF', 'JPEG')[fmt == '6']
+            data = handler.get_exif_thumbnail()
+            if using_pgi and isinstance(data, tuple):
+                # get_exif_thumbnail returns (OK, data) tuple
+                data = data[data[0]]
+            if not all((data, fmt)):
+                return None
+            data = bytearray(data)
+            fmt = ('TIFF', 'JPEG')[fmt == '6']
         return cls((data, fmt, w, h))
 
     def write(self, handler, tag):
@@ -987,13 +988,6 @@ class Orientation(MD_Int):
         if file_value not in mapping:
             raise ValueError('unrecognised orientation {}'.format(file_value))
         return cls(mapping[file_value])
-
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if file_value is None:
-            return None
-        return cls(file_value)
 
 
 class Timezone(MD_Int):
