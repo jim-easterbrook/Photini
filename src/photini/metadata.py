@@ -102,7 +102,7 @@ class FFMPEGMetadata(object):
                 if tag.split('/')[2] != part_tag:
                     continue
                 try:
-                    value = type_.read(self, tag)
+                    value = type_.from_ffmpeg(self.md[tag])
                 except ValueError as ex:
                     logger.error('{}({}), {}: {}'.format(
                         os.path.basename(self._path), name, tag, str(ex)))
@@ -113,15 +113,6 @@ class FFMPEGMetadata(object):
                 if value:
                     result.append((tag, value))
         return result
-
-    def get_string(self, tag):
-        if tag in self.md:
-            return self.md[tag]
-        return None
-
-    @staticmethod
-    def get_tag_type(tag):
-        return 'FFMpeg'
 
 
 def safe_fraction(value):
@@ -143,6 +134,12 @@ class MD_Value(object):
 
     # Python 3 uses __bool__, Python 2 uses __nonzero__
     __nonzero__ = __bool__
+
+    @classmethod
+    def from_ffmpeg(cls, file_value):
+        if not file_value:
+            return None
+        return cls(file_value)
 
     @classmethod
     def read(cls, handler, tag):
@@ -219,14 +216,9 @@ class MD_Dict(MD_Value, dict):
 
     @classmethod
     def read(cls, handler, tag, idx=1):
-        if isinstance(handler, FFMPEGMetadata):
-            file_value = handler.get_string(tag)
-            if not file_value:
-                return None
-        else:
-            file_value = handler.get_group(tag, idx=idx)
-            if not any(file_value):
-                return None
+        file_value = handler.get_group(tag, idx=idx)
+        if not any(file_value):
+            return None
         return cls(file_value)
 
     def write(self, handler, tag, idx=1):
@@ -265,14 +257,15 @@ class LatLon(MD_Dict):
         return value
 
     @classmethod
+    def from_ffmpeg(cls, file_value):
+        if file_value:
+            match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
+            if match:
+                return cls(match.group(1, 2))
+        return None
+
+    @classmethod
     def read(cls, handler, tag):
-        if isinstance(handler, FFMPEGMetadata):
-            file_value = handler.get_string(tag)
-            if file_value:
-                match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-                if match:
-                    return cls(match.group(1, 2))
-            return None
         file_value = handler.get_group(tag)
         if not all(file_value):
             return None
@@ -737,22 +730,24 @@ class DateTime(MD_Dict):
         return datetime_string
 
     @classmethod
+    def from_ffmpeg(cls, file_value):
+        if not file_value:
+            return None
+        return cls.from_ISO_8601(file_value)
+
+    @classmethod
     def read(cls, handler, tag):
-        if isinstance(handler, FFMPEGMetadata) or handler.is_xmp_tag(tag):
+        if handler.is_xmp_tag(tag):
             file_value = handler.get_string(tag)
             if not file_value:
                 return None
-        else:
-            file_value = handler.get_group(tag)
-            if not any(file_value):
-                return None
-        if isinstance(handler, FFMPEGMetadata):
             return cls.from_ISO_8601(file_value)
+        file_value = handler.get_group(tag)
+        if not any(file_value):
+            return None
         if handler.is_exif_tag(tag):
             return cls.from_exif(file_value)
-        if handler.is_iptc_tag(tag):
-            return cls.from_iptc(file_value)
-        return cls.from_ISO_8601(file_value)
+        return cls.from_iptc(file_value)
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
@@ -987,23 +982,17 @@ class MD_Int(MD_Value, int):
 
 class Orientation(MD_Int):
     @classmethod
+    def from_ffmpeg(cls, file_value):
+        mapping = {'0': 1, '90': 6, '180': 3, '-90': 8}
+        if file_value not in mapping:
+            raise ValueError('unrecognised orientation {}'.format(file_value))
+        return cls(mapping[file_value])
+
+    @classmethod
     def read(cls, handler, tag):
         file_value = handler.get_string(tag)
         if file_value is None:
             return None
-        if isinstance(handler, FFMPEGMetadata):
-            file_value = int(file_value)
-            if file_value == 0:
-                file_value = 1
-            elif file_value == 90:
-                file_value = 6
-            elif file_value == 180:
-                file_value = 3
-            elif file_value == -90:
-                file_value = 8
-            else:
-                logger.error('unrecognised %s value %s', tag, file_value)
-                file_value = None
         return cls(file_value)
 
 
@@ -1040,15 +1029,16 @@ class MD_Rational(MD_Value, Fraction):
 
 class Altitude(MD_Rational):
     @classmethod
+    def from_ffmpeg(cls, file_value):
+        if file_value:
+            match = re.match(
+                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
+            if match:
+                return cls(match.group(3))
+        return None
+
+    @classmethod
     def read(cls, handler, tag):
-        if isinstance(handler, FFMPEGMetadata):
-            file_value = handler.get_string(tag)
-            if file_value:
-                match = re.match(
-                    r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-                if match:
-                    return cls(match.group(3))
-            return None
         file_value = handler.get_group(tag)
         if not all(file_value):
             return None
