@@ -205,9 +205,19 @@ class Exiv2Metadata(GExiv2.Metadata):
         'jis'    : 'euc_jp',
         }
 
-    def get_group(self, tag, idx=1):
-        return [self.get_string(x.format(idx=idx))
-                for x in self._multi_tags[tag]]
+    def get_multi_group(self, tag):
+        result = []
+        for idx in range(1, 20):
+            value = [self.get_string(x.format(idx=idx))
+                     for x in self._multi_tags[tag]]
+            if not any(value):
+                return result
+            result.append(value)
+
+    def get_group(self, tag):
+        if 'idx' in self._multi_tags[tag][0]:
+            return self.get_multi_group(tag)
+        return [self.get_string(x) for x in self._multi_tags[tag]]
 
     def get_string(self, tag):
         if not (tag and self.has_tag(tag)):
@@ -406,7 +416,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime': ('Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
-        'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal',),
+        'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal', ''),
         'Exif.Image.FNumber': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
         'Exif.Image.Make': (
@@ -609,7 +619,23 @@ class Exiv2Metadata(GExiv2.Metadata):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                value = type_.read(self, tag)
+                if tag in self._multi_tags:
+                    file_value = self.get_group(tag)
+                    if tag == 'Exif.Thumbnail':
+                        file_value[0] = self.get_exif_thumbnail()
+                elif self.is_exif_tag(tag):
+                    file_value = self.get_string(tag)
+                elif self.is_iptc_tag(tag):
+                    file_value = self.get_multiple(tag)
+                elif self.get_tag_type(tag) == 'LangAlt':
+                    file_value = self.get_multiple(tag)
+                    if file_value:
+                        file_value = file_value[0]
+                elif self.get_tag_type(tag) in ('XmpBag', 'XmpSeq'):
+                    file_value = self.get_multiple(tag)
+                else:
+                    file_value = self.get_string(tag)
+                value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
                     os.path.basename(self._path), name, tag, str(ex)))

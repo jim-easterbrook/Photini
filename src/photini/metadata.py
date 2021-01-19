@@ -102,7 +102,7 @@ class FFMPEGMetadata(object):
                 if tag.split('/')[2] != part_tag:
                     continue
                 try:
-                    value = type_.from_ffmpeg(self.md[tag])
+                    value = type_.from_ffmpeg(self.md[tag], tag)
                 except ValueError as ex:
                     logger.error('{}({}), {}: {}'.format(
                         os.path.basename(self._path), name, tag, str(ex)))
@@ -136,14 +136,13 @@ class MD_Value(object):
     __nonzero__ = __bool__
 
     @classmethod
-    def from_ffmpeg(cls, file_value):
+    def from_ffmpeg(cls, file_value, tag):
         if not file_value:
             return None
         return cls(file_value)
 
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+    def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
         return cls(file_value)
@@ -215,8 +214,7 @@ class MD_Dict(MD_Value, dict):
         return any([x is not None for x in self.values()])
 
     @classmethod
-    def read(cls, handler, tag, idx=1):
-        file_value = handler.get_group(tag, idx=idx)
+    def from_exiv2(cls, file_value, tag):
         if not any(file_value):
             return None
         return cls(file_value)
@@ -257,7 +255,7 @@ class LatLon(MD_Dict):
         return value
 
     @classmethod
-    def from_ffmpeg(cls, file_value):
+    def from_ffmpeg(cls, file_value, tag):
         if file_value:
             match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
             if match:
@@ -265,16 +263,14 @@ class LatLon(MD_Dict):
         return None
 
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_group(tag)
+    def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
-        if handler.is_exif_tag(tag):
+        if tag.startswith('Exif'):
             return cls((cls.from_exif_part(file_value[0], file_value[1]),
                         cls.from_exif_part(file_value[2], file_value[3])))
-        else:
-            return cls((cls.from_xmp_part(file_value[0]),
-                        cls.from_xmp_part(file_value[1])))
+        return cls((cls.from_xmp_part(file_value[0]),
+                    cls.from_xmp_part(file_value[1])))
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
@@ -418,17 +414,10 @@ class MultiLocation(tuple):
         return super(MultiLocation, cls).__new__(cls, temp)
 
     @classmethod
-    def read(cls, handler, tag):
-        count = 0
-        for t in handler.get_xmp_tags():
-            if t.startswith(tag):
-                match = re.search(r'\[(\d+)\]', t)
-                if match:
-                    count = max(count, int(match.group(1)))
-        value = []
-        for n in range(count):
-            value.append(Location.read(handler, tag, idx=n + 1))
-        return cls(value)
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        return cls(file_value)
 
     def write(self, handler, tag):
         # ignore empty values at end of list
@@ -538,8 +527,7 @@ class LensSpec(MD_Dict):
         return value
 
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+    def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
         file_value = file_value.split()
@@ -547,8 +535,8 @@ class LensSpec(MD_Dict):
             long_focal, short_focal, focal_units = file_value
             if focal_units == '0':
                 return None
-            return cls(('{}/{}'.format(short_focal, focal_units),
-                        '{}/{}'.format(long_focal, focal_units), 0, 0))
+            file_value = ['{}/{}'.format(short_focal, focal_units),
+                          '{}/{}'.format(long_focal, focal_units)]
         return cls(file_value)
 
     def write(self, handler, tag):
@@ -589,23 +577,22 @@ class Thumbnail(MD_Dict):
         return cls((data, fmt, w, h))
 
     @classmethod
-    def read(cls, handler, tag):
-        data, fmt, w, h = handler.get_group(tag)
-        if handler.is_xmp_tag(tag):
+    def from_exiv2(cls, file_value, tag):
+        data, fmt, w, h = file_value
+        if tag.startswith('Xmp'):
             if not all((data, fmt)):
                 return None
             if not six.PY2:
                 data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
         else:
-            data = handler.get_exif_thumbnail()
             if using_pgi and isinstance(data, tuple):
                 # get_exif_thumbnail returns (OK, data) tuple
                 data = data[data[0]]
-            if not all((data, fmt)):
+            if not data:
                 return None
             data = bytearray(data)
-            fmt = ('TIFF', 'JPEG')[fmt == '6']
+            fmt = ('TIFF', 'JPEG')[fmt in ('6', None)]
         return cls((data, fmt, w, h))
 
     def write(self, handler, tag):
@@ -678,6 +665,8 @@ class DateTime(MD_Dict):
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
+        if not datetime_string:
+            return None
         # extract time zone
         tz_idx = datetime_string.find('+', 13)
         if tz_idx < 0:
@@ -731,24 +720,16 @@ class DateTime(MD_Dict):
         return datetime_string
 
     @classmethod
-    def from_ffmpeg(cls, file_value):
-        if not file_value:
-            return None
+    def from_ffmpeg(cls, file_value, tag):
         return cls.from_ISO_8601(file_value)
 
     @classmethod
-    def read(cls, handler, tag):
-        if handler.is_xmp_tag(tag):
-            file_value = handler.get_string(tag)
-            if not file_value:
-                return None
-            return cls.from_ISO_8601(file_value)
-        file_value = handler.get_group(tag)
-        if not any(file_value):
-            return None
-        if handler.is_exif_tag(tag):
+    def from_exiv2(cls, file_value, tag):
+        if tag.startswith('Exif'):
             return cls.from_exif(file_value)
-        return cls.from_iptc(file_value)
+        if tag.startswith('Iptc'):
+            return cls.from_iptc(file_value)
+        return cls.from_ISO_8601(file_value)
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
@@ -770,7 +751,7 @@ class DateTime(MD_Dict):
     # resolution datetime and get the precision from the Xmp value.
     @classmethod
     def from_exif(cls, file_value):
-        datetime_string = file_value[0]
+        datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
         # check for blank values
@@ -778,7 +759,6 @@ class DateTime(MD_Dict):
             datetime_string = datetime_string[:-3]
         # append sub seconds
         if len(datetime_string) == 19 and len(file_value) > 1:
-            sub_sec_string = file_value[1]
             if sub_sec_string:
                 sub_sec_string = sub_sec_string.strip()
             if sub_sec_string:
@@ -898,16 +878,6 @@ class MultiString(MD_Value, tuple):
         value = filter(bool, [x.strip() for x in value])
         return super(MultiString, cls).__new__(cls, value)
 
-    @classmethod
-    def read(cls, handler, tag):
-        if handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
-            file_value = handler.get_multiple(tag)
-        else:
-            file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        return cls(file_value)
-
     def write(self, handler, tag):
         if handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
             handler.set_multiple(tag, self)
@@ -932,17 +902,11 @@ class MultiString(MD_Value, tuple):
 
 class MD_String(MD_Value, six.text_type):
     @classmethod
-    def read(cls, handler, tag):
-        if handler.get_tag_type(tag) == 'LangAlt':
-            file_value = handler.get_multiple(tag)
-            if file_value:
-                file_value = file_value[0]
-        else:
-            file_value = handler.get_string(tag)
-        if file_value:
-            file_value = six.text_type(file_value).strip()
+    def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
+        if tag.startswith('Iptc'):
+            file_value = ' // '.join(file_value)
         return cls(file_value)
 
     def write(self, handler, tag):
@@ -957,17 +921,13 @@ class MD_String(MD_Value, six.text_type):
 
 class Software(MD_String):
     @classmethod
-    def read(cls, handler, tag):
-        if handler.is_iptc_tag(tag):
-            file_value = handler.get_group(tag)
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if tag.startswith('Iptc'):
             if not all(file_value):
                 return None
-            file_value, version = file_value
-            file_value += ' v' + version
-        else:
-            file_value = handler.get_string(tag)
-            if not file_value:
-                return None
+            file_value = ' v'.join(file_value)
         return cls(file_value)
 
     def write(self, handler, tag):
@@ -983,7 +943,7 @@ class MD_Int(MD_Value, int):
 
 class Orientation(MD_Int):
     @classmethod
-    def from_ffmpeg(cls, file_value):
+    def from_ffmpeg(cls, file_value, tag):
         mapping = {'0': 1, '90': 6, '180': 3, '-90': 8}
         if file_value not in mapping:
             raise ValueError('unrecognised orientation {}'.format(file_value))
@@ -992,8 +952,7 @@ class Orientation(MD_Int):
 
 class Timezone(MD_Int):
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+    def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
         if tag == 'Exif.Image.TimeZoneOffset':
@@ -1006,13 +965,6 @@ class MD_Rational(MD_Value, Fraction):
     def __new__(cls, value):
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
-    @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not file_value:
-            return None
-        return cls(file_value)
-
     def write(self, handler, tag):
         handler.set_string(
             tag, '{:d}/{:d}'.format(self.numerator, self.denominator))
@@ -1023,7 +975,7 @@ class MD_Rational(MD_Value, Fraction):
 
 class Altitude(MD_Rational):
     @classmethod
-    def from_ffmpeg(cls, file_value):
+    def from_ffmpeg(cls, file_value, tag):
         if file_value:
             match = re.match(
                 r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
@@ -1032,8 +984,7 @@ class Altitude(MD_Rational):
         return None
 
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_group(tag)
+    def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
         altitude, ref = file_value
@@ -1057,8 +1008,7 @@ class Aperture(MD_Rational):
     # store FNumber and APEX aperture as fractions
     # only FNumber is presented to the user, either is computed if missing
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_group(tag)
+    def from_exiv2(cls, file_value, tag):
         if not any(file_value):
             return None
         f_number, apex = file_value
@@ -1081,16 +1031,15 @@ class Aperture(MD_Rational):
 
     @staticmethod
     def merge_item(this, other):
-        if min(other, this) > (max(other, this) * 0.95):
+        if float(min(other, this)) > (float(max(other, this)) * 0.95):
             return this, False, False
         return this, False, True
 
 
 class Rating(MD_Value, float):
     @classmethod
-    def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if file_value is None:
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
             return None
         if tag in ('Exif.Image.RatingPercent', 'Xmp.MicrosoftPhoto.Rating'):
             value = 1.0 + (float(file_value) / 25.0)
