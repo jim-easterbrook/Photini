@@ -276,6 +276,30 @@ class Exiv2Metadata(GExiv2.Metadata):
                     os.path.basename(self._path), tag)
         return [self._decode_string(result).strip('\x00')]
 
+    def set_group(self, tag, value, idx=1):
+        sub_tag = self._multi_tags[tag][0].format(idx=idx)
+        if any(value) and '/' in sub_tag:
+            # create XMP structure/container
+            for t in self.get_xmp_tags():
+                if t.startswith(tag):
+                    # container already exists
+                    break
+            else:
+                if gexiv2_version >= (0, 10, 3):
+                    type_ = self.get_tag_type(tag)
+                    if type_ == 'XmpBag':
+                        type_ = GExiv2.StructureType.BAG
+                    elif type_ == 'XmpSeq':
+                        type_ = GExiv2.StructureType.SEQ
+                    else:
+                        type_ = GExiv2.StructureType.ALT
+                    self.set_xmp_tag_struct(tag, type_)
+                else:
+                    self.set_tag_string(tag, '')
+        for sub_tag, sub_value in zip(self._multi_tags[tag], value):
+            self.set_string(sub_tag.format(idx=idx), sub_value)
+        return
+
     # maximum length of Iptc data
     _max_bytes = {
         'Iptc.Application2.Byline'           :   32,
@@ -294,37 +318,11 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Iptc.Envelope.CharacterSet'         :   32,
         }
 
-    def set_string(self, tag, value, idx=1):
-        if tag in self._multi_tags:
-            sub_tag = self._multi_tags[tag][0].format(idx=idx)
-            if any(value) and '/' in sub_tag:
-                # create XMP structure/container
-                for t in self.get_xmp_tags():
-                    if t.startswith(tag):
-                        # container already exists
-                        break
-                else:
-                    if gexiv2_version >= (0, 10, 3):
-                        type_ = self.get_tag_type(tag)
-                        if type_ == 'XmpBag':
-                            type_ = GExiv2.StructureType.BAG
-                        elif type_ == 'XmpSeq':
-                            type_ = GExiv2.StructureType.SEQ
-                        else:
-                            type_ = GExiv2.StructureType.ALT
-                        self.set_xmp_tag_struct(tag, type_)
-                    else:
-                        self.set_tag_string(tag, '')
-            for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-                self._set_string(sub_tag.format(idx=idx), sub_value)
-            return
-        self._set_string(tag, value)
-
-    def _set_string(self, tag, value):
+    def set_string(self, tag, value):
         if not tag:
             return
         if not value:
-            self.clear_value(tag)
+            self._clear_value(tag)
             return
         if tag in self._max_bytes:
             value = value.encode('utf-8')[:self._max_bytes[tag]]
@@ -338,7 +336,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not tag:
             return
         if not value:
-            self.clear_value(tag)
+            self._clear_value(tag)
             return
         if self.is_iptc_tag(tag) and tag in self._max_bytes:
             value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
@@ -352,7 +350,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         if self.read_only:
             return False
         if force_iptc:
-            self._set_string('Iptc.Envelope.CharacterSet',
+            self.set_string('Iptc.Envelope.CharacterSet',
                              self._iptc_encodings['utf-8'][0].decode('ascii'))
         else:
             self.clear_iptc()
@@ -688,7 +686,7 @@ class ImageMetadata(Exiv2Metadata):
                         value = [self.get_string(tag)]
                     self.set_multiple(tag, value)
                 else:
-                    self._set_string(tag, self.get_string(tag))
+                    self.set_string(tag, self.get_string(tag))
             except Exception as ex:
                 logger.exception(ex)
         if iptc_charset:

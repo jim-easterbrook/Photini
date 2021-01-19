@@ -218,19 +218,19 @@ class MD_Dict(MD_Value, dict):
         return any([x is not None for x in self.values()])
 
     @classmethod
-    def read(cls, handler, tag):
+    def read(cls, handler, tag, idx=1):
         if isinstance(handler, FFMPEGMetadata):
             file_value = handler.get_string(tag)
             if not file_value:
                 return None
         else:
-            file_value = handler.get_group(tag)
+            file_value = handler.get_group(tag, idx=idx)
             if not any(file_value):
                 return None
         return cls(file_value)
 
-    def write(self, handler, tag):
-        handler.set_string(tag, [self[x] for x in self._keys])
+    def write(self, handler, tag, idx=1):
+        handler.set_group(tag, [self[x] for x in self._keys], idx=idx)
 
 
 class MD_Dict_Mergeable(MD_Dict):
@@ -289,13 +289,13 @@ class LatLon(MD_Dict):
             lat_ref = 'NS'[negative]
             lon_string, negative = self.to_exif_part(self['lon'])
             lon_ref = 'EW'[negative]
-            handler.set_string(tag, (lat_string, lat_ref, lon_string, lon_ref))
+            handler.set_group(tag, (lat_string, lat_ref, lon_string, lon_ref))
         else:
             lat_string, negative = self.to_xmp_part(self['lat'])
             lat_string += 'NS'[negative]
             lon_string, negative = self.to_xmp_part(self['lon'])
             lon_string += 'EW'[negative]
-            handler.set_string(tag, (lat_string, lon_string))
+            handler.set_group(tag, (lat_string, lon_string))
 
     @staticmethod
     def from_exif_part(value, ref):
@@ -371,16 +371,6 @@ class Location(MD_Dict_Mergeable):
         if value['country_code']:
             value['country_code'] = value['country_code'].upper()
         return value
-
-    @classmethod
-    def read(cls, handler, tag, idx=1):
-        file_value = handler.get_group(tag, idx=idx)
-        if not any(file_value):
-            return None
-        return cls(file_value)
-
-    def write(self, handler, tag, idx=1):
-        handler.set_string(tag, [self[x] for x in self._keys], idx=idx)
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -641,11 +631,11 @@ class Thumbnail(MD_Dict):
             data = codecs.encode(data, 'base64_codec')
             if not six.PY2:
                 data = data.decode('ascii')
-            handler.set_string(tag, (data, 'JPEG', str(w), str(h)))
+            handler.set_group(tag, (data, 'JPEG', str(w), str(h)))
         elif tag == 'Exif.Thumbnail':
             handler.set_exif_thumbnail_from_buffer(self['data'])
             w, h = self.size()
-            handler.set_string(tag, [None, self['fmt'], str(w), str(h)])
+            handler.set_group(tag, [None, self['fmt'], str(w), str(h)])
 
     def size(self):
         if self['w'] and self['h']:
@@ -766,9 +756,9 @@ class DateTime(MD_Dict):
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
-            handler.set_string(tag, self.to_exif())
+            handler.set_group(tag, self.to_exif())
         elif handler.is_iptc_tag(tag):
-            handler.set_string(tag, self.to_iptc())
+            handler.set_group(tag, self.to_iptc())
         else:
             handler.set_string(tag, self.to_xmp())
 
@@ -986,7 +976,7 @@ class Software(MD_String):
 
     def write(self, handler, tag):
         if handler.is_iptc_tag(tag):
-            handler.set_string(tag, self.split(' v'))
+            handler.set_group(tag, self.split(' v'))
         else:
             handler.set_string(tag, self)
 
@@ -1075,7 +1065,7 @@ class Altitude(MD_Rational):
             ref = '1'
         else:
             ref = '0'
-        handler.set_string(
+        handler.set_group(
             tag, ('{:d}/{:d}'.format(numerator, denominator), ref))
 
 
@@ -1103,7 +1093,7 @@ class Aperture(MD_Rational):
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
             file_value.append(
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
-        handler.set_string(tag, file_value)
+        handler.set_group(tag, file_value)
 
     @staticmethod
     def merge_item(this, other):
