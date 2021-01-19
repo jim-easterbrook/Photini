@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -186,11 +186,11 @@ class TabWidget(QtWidgets.QWidget):
             location_list = list(image.metadata.location_shown or [])
             if idx == 0:
                 if location_list:
-                    location = location_list[0]
+                    location = location_list.pop(0)
                 else:
                     location = None
                 image.metadata.location_taken = location
-            if idx <= len(location_list):
+            elif idx <= len(location_list):
                 del location_list[max(idx - 1, 0)]
             image.metadata.location_shown = location_list
         # display data
