@@ -204,13 +204,11 @@ class Exiv2Metadata(GExiv2.Metadata):
         'jis'    : 'euc_jp',
         }
 
-    def get_string(self, tag, idx=1):
-        if tag in self._multi_tags:
-            return [self._get_string(sub_tag.format(idx=idx))
-                    for sub_tag in self._multi_tags[tag]]
-        return self._get_string(tag)
+    def get_group(self, tag, idx=1):
+        return [self.get_string(x.format(idx=idx))
+                for x in self._multi_tags[tag]]
 
-    def _get_string(self, tag):
+    def get_string(self, tag):
         if not (tag and self.has_tag(tag)):
             return None
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
@@ -686,10 +684,10 @@ class ImageMetadata(Exiv2Metadata):
                                        os.path.basename(self._path), tag)
                         logger.warning(
                             'Try running Photini with the --utf_safe option.')
-                        value = [self._get_string(tag)]
+                        value = [self.get_string(tag)]
                     self.set_multiple(tag, value)
                 else:
-                    self._set_string(tag, self._get_string(tag))
+                    self._set_string(tag, self.get_string(tag))
             except Exception as ex:
                 logger.exception(ex)
         if iptc_charset:
@@ -747,10 +745,10 @@ class ImageMetadata(Exiv2Metadata):
         if not (self.has_tag('Exif.Photo.MakerNote')
                 and self.has_tag('Exif.Image.Make')):
             return True
-        return self._get_string('Exif.Image.Make') == camera_model['make']
+        return self.get_string('Exif.Image.Make') == camera_model['make']
 
     def delete_makernote(self, camera_model):
-        if self._get_string('Exif.Image.Make') == camera_model['make']:
+        if self.get_string('Exif.Image.Make') == camera_model['make']:
             return
         self._clear_value('Exif.Image.Make')
         self.save_file(self._path)

@@ -217,6 +217,18 @@ class MD_Dict(MD_Value, dict):
     def __bool__(self):
         return any([x is not None for x in self.values()])
 
+    @classmethod
+    def read(cls, handler, tag):
+        if isinstance(handler, FFMPEGMetadata):
+            file_value = handler.get_string(tag)
+            if not file_value:
+                return None
+        else:
+            file_value = handler.get_group(tag)
+            if not any(file_value):
+                return None
+        return cls(file_value)
+
     def write(self, handler, tag):
         handler.set_string(tag, [self[x] for x in self._keys])
 
@@ -254,13 +266,14 @@ class LatLon(MD_Dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
         if isinstance(handler, FFMPEGMetadata):
+            file_value = handler.get_string(tag)
             if file_value:
                 match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
                 if match:
                     return cls(match.group(1, 2))
             return None
+        file_value = handler.get_group(tag)
         if not all(file_value):
             return None
         if handler.is_exif_tag(tag):
@@ -361,7 +374,7 @@ class Location(MD_Dict_Mergeable):
 
     @classmethod
     def read(cls, handler, tag, idx=1):
-        file_value = handler.get_string(tag, idx=idx)
+        file_value = handler.get_group(tag, idx=idx)
         if not any(file_value):
             return None
         return cls(file_value)
@@ -578,26 +591,7 @@ class Thumbnail(MD_Dict):
 
     @classmethod
     def read(cls, handler, tag):
-        if handler.is_xmp_tag(tag):
-            data, fmt, w, h = handler.get_string(tag)
-            if not all((data, fmt)):
-                return None
-            if not six.PY2:
-                data = bytes(data, 'ascii')
-            data = codecs.decode(data, 'base64_codec')
-            return cls((data, fmt, w, h))
-        elif tag == 'Exif.Thumbnail':
-            data, fmt, w, h = handler.get_string(tag)
-            data = handler.get_exif_thumbnail()
-            if using_pgi and isinstance(data, tuple):
-                # get_exif_thumbnail returns (OK, data) tuple
-                data = data[data[0]]
-            if not all((data, fmt)):
-                return None
-            data = bytearray(data)
-            fmt = ('TIFF', 'JPEG')[fmt == '6']
-            return cls((data, fmt, w, h))
-        elif tag == 'Exif.Preview':
+        if tag == 'Exif.Preview':
             w, h = 512, 512
             match = None
             for properties in handler.get_preview_properties():
@@ -611,8 +605,24 @@ class Thumbnail(MD_Dict):
             preview = handler.get_preview_image(match)
             data = preview.get_data()
             fmt = preview.get_mime_type().split('/')[1].upper()
-            return cls((data, fmt, w, h))
-        return None
+        else:
+            data, fmt, w, h = handler.get_group(tag)
+            if handler.is_xmp_tag(tag):
+                if not all((data, fmt)):
+                    return None
+                if not six.PY2:
+                    data = bytes(data, 'ascii')
+                data = codecs.decode(data, 'base64_codec')
+            else:
+                data = handler.get_exif_thumbnail()
+                if using_pgi and isinstance(data, tuple):
+                    # get_exif_thumbnail returns (OK, data) tuple
+                    data = data[data[0]]
+                if not all((data, fmt)):
+                    return None
+                data = bytearray(data)
+                fmt = ('TIFF', 'JPEG')[fmt == '6']
+        return cls((data, fmt, w, h))
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
@@ -738,9 +748,14 @@ class DateTime(MD_Dict):
 
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
-        if not file_value:
-            return None
+        if isinstance(handler, FFMPEGMetadata) or handler.is_xmp_tag(tag):
+            file_value = handler.get_string(tag)
+            if not file_value:
+                return None
+        else:
+            file_value = handler.get_group(tag)
+            if not any(file_value):
+                return None
         if isinstance(handler, FFMPEGMetadata):
             return cls.from_ISO_8601(file_value)
         if handler.is_exif_tag(tag):
@@ -957,13 +972,16 @@ class MD_String(MD_Value, six.text_type):
 class Software(MD_String):
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
         if handler.is_iptc_tag(tag):
+            file_value = handler.get_group(tag)
+            if not all(file_value):
+                return None
             file_value, version = file_value
-            if file_value and version:
-                file_value += ' v' + version
-        if not file_value:
-            return None
+            file_value += ' v' + version
+        else:
+            file_value = handler.get_string(tag)
+            if not file_value:
+                return None
         return cls(file_value)
 
     def write(self, handler, tag):
@@ -1033,14 +1051,15 @@ class MD_Rational(MD_Value, Fraction):
 class Altitude(MD_Rational):
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
         if isinstance(handler, FFMPEGMetadata):
+            file_value = handler.get_string(tag)
             if file_value:
                 match = re.match(
                     r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
                 if match:
                     return cls(match.group(3))
             return None
+        file_value = handler.get_group(tag)
         if not all(file_value):
             return None
         altitude, ref = file_value
@@ -1065,7 +1084,7 @@ class Aperture(MD_Rational):
     # only FNumber is presented to the user, either is computed if missing
     @classmethod
     def read(cls, handler, tag):
-        file_value = handler.get_string(tag)
+        file_value = handler.get_group(tag)
         if not any(file_value):
             return None
         f_number, apex = file_value
