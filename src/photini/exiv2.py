@@ -116,7 +116,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         self.read_only = not any((self.get_supports_exif(),
                                   self.get_supports_iptc(),
                                   self.get_supports_xmp()))
-        self.xmp_only = self.get_mime_type() == 'application/rdf+xml'
+        self.xmp_only = self.get_mime_type() in (
+            'application/rdf+xml', 'application/postscript')
         # Don't use Exiv2's converted values when accessing Xmp files
         if self.xmp_only:
             self.clear_exif()
