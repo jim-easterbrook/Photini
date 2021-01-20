@@ -111,20 +111,24 @@ class Image(QtWidgets.QFrame):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
         # ratios are padded with black
         # first try using FFmpeg to make thumbnail
-        data, fmt, w, h = self.make_thumb_ffmpeg()
-        if not data:
-            # use PIL or Qt
-            qt_im = self.get_qt_image()
-            if not qt_im or qt_im.isNull():
-                return
-        if PIL and not data:
-            data, fmt, w, h = self.make_thumb_PIL(qt_im)
-        if not data:
-            data, fmt, w, h = self.make_thumb_Qt(qt_im)
-        # set thumbnail
-        self.metadata.thumbnail = data, fmt, w, h
-        # reload thumbnail
-        self.load_thumbnail()
+        data = self.make_thumb_ffmpeg()
+        if data:
+            self.metadata.thumbnail = {'data': data}
+            return True
+        # use PIL or Qt
+        qt_im = self.get_qt_image()
+        if not qt_im or qt_im.isNull():
+            return False
+        if PIL:
+            data = self.make_thumb_PIL(qt_im)
+            if data:
+                self.metadata.thumbnail = {'data': data}
+                return True
+        qt_im = self.make_thumb_Qt(qt_im)
+        if not qt_im or qt_im.isNull():
+            return False
+        self.metadata.thumbnail = {'image': qt_im}
+        return True
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
@@ -134,7 +138,7 @@ class Image(QtWidgets.QFrame):
             logger.error(str(ex))
             dims = {}
         if not dims:
-            return None, 'JPEG', 0, 0
+            return None
         width = dims['width']
         height = dims['height']
         if 'duration' in dims:
@@ -153,11 +157,11 @@ class Image(QtWidgets.QFrame):
                 data = FFmpeg.make_thumbnail(self.path, w, h, skip, quality)
             except Exception as ex:
                 logger.error(str(ex))
-                return None, 'JPEG', 0, 0
+                return None
             if not data or len(data) < 50000:
                 break
             quality += 1
-        return data, 'JPEG', w, h
+        return data
 
     def get_qt_image(self):
         reader = QtGui.QImageReader(self.path)
@@ -203,35 +207,27 @@ class Image(QtWidgets.QFrame):
             w, h = h, w
         # convert Qt image to PIL image
         buf = QtCore.QBuffer()
-        buf.open(QtCore.QIODevice.WriteOnly)
+        buf.open(buf.WriteOnly)
         qt_im.save(buf, 'PPM')
         data = BytesIO(buf.data().data())
         try:
             pil_im = PIL.open(data)
         except Exception as ex:
             logger.error(ex)
-            return None, 'JPEG', w, h
+            return None
         # scale PIL image
         pil_im.thumbnail((w, h), PIL.ANTIALIAS)
         # save image to memory
         data = BytesIO()
-        fmt = 'JPEG'
-        pil_im.save(data, fmt)
-        return (data.getvalue(), fmt) + pil_im.size
+        pil_im.save(data, 'JPEG')
+        return data.getvalue()
 
     def make_thumb_Qt(self, qt_im):
         w, h = 160, 120
         if qt_im.width() < qt_im.height():
             w, h = h, w
         # scale Qt image - not as good quality as PIL
-        qt_im = qt_im.scaled(
-            w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-        # save image to memory
-        buf = QtCore.QBuffer()
-        buf.open(QtCore.QIODevice.WriteOnly)
-        fmt = 'JPEG'
-        qt_im.save(buf, fmt)
-        return buf.data().data(), fmt, qt_im.width(), qt_im.height()
+        return qt_im.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -332,13 +328,11 @@ class Image(QtWidgets.QFrame):
         self.load_thumbnail()
 
     def load_thumbnail(self):
-        pixmap = QtGui.QPixmap()
-        thumb = self.metadata.thumbnail
-        if thumb:
-            pixmap.loadFromData(thumb['data'])
-        if pixmap.isNull():
+        image = self.metadata.thumbnail and self.metadata.thumbnail['image']
+        if not image:
             self.image.setText(translate('ImageList', 'No\nthumbnail\nin file'))
             return
+        pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(
             pixmap.scaled(self.thumb_size, self.thumb_size,
@@ -816,7 +810,8 @@ class ImageList(QtWidgets.QWidget):
     def regenerate_selected_thumbnails(self):
         with Busy():
             for image in self.get_selected_images():
-                image.regenerate_thumbnail()
+                if image.regenerate_thumbnail():
+                    image.load_thumbnail()
 
     @QtSlot()
     @catch_all

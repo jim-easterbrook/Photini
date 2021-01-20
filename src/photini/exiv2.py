@@ -444,8 +444,8 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber'),
         'Exif.Thumbnail': (
-            '', 'Exif.Thumbnail.Compression',
-            'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength'),
+            'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
+            'Exif.Thumbnail.Compression'),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate': (
@@ -487,15 +487,15 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
         'Xmp.xmp.Thumbnails': (
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:image',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xmpGImg:height'),
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
+            'Xmp.xmp.Thumbnails[1]/xmpGImg:image'),
         'Xmp.xmp.ThumbnailsXap': (
-            'Xmp.xmp.Thumbnails[1]/xapGImg:image',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:format',
             'Xmp.xmp.Thumbnails[1]/xapGImg:width',
-            'Xmp.xmp.Thumbnails[1]/xapGImg:height'),
+            'Xmp.xmp.Thumbnails[1]/xapGImg:height',
+            'Xmp.xmp.Thumbnails[1]/xapGImg:format',
+            'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -622,7 +622,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                 if tag in self._multi_tags:
                     file_value = self.get_group(tag)
                     if tag == 'Exif.Thumbnail':
-                        file_value[0] = self.get_exif_thumbnail()
+                        file_value.append(self.get_exif_thumbnail())
                 elif self.is_exif_tag(tag):
                     file_value = self.get_string(tag)
                 elif self.is_iptc_tag(tag):

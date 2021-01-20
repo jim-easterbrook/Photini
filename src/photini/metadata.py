@@ -551,13 +551,32 @@ class LensSpec(MD_Dict):
 
 
 class Thumbnail(MD_Dict):
-    _keys = ('data', 'fmt', 'w', 'h')
+    _keys = ('w', 'h', 'fmt', 'data', 'image')
     _quiet = True
 
     @staticmethod
     def convert(value):
-        value['w'] = value['w'] and int(value['w'])
-        value['h'] = value['h'] and int(value['h'])
+        if value['data'] and not value['image']:
+            buf = QtCore.QBuffer()
+            buf.setData(value['data'])
+            reader = QtGui.QImageReader(buf)
+            value['fmt'] = reader.format().data().decode().upper()
+            value['image'] = reader.read()
+            if value['image'].isNull():
+                logger.error('thumbnail: %s', reader.errorString())
+                value['image'] = None
+        elif value['image'] and not value['data']:
+            buf = QtCore.QBuffer()
+            buf.open(buf.WriteOnly)
+            value['fmt'] = 'JPEG'
+            value['image'].save(buf, value['fmt'])
+            value['data'] = buf.data().data()
+        if value['image']:
+            value['w'] = value['image'].width()
+            value['h'] = value['image'].height()
+        else:
+            value['w'] = 0
+            value['h'] = 0
         return value
 
     @classmethod
@@ -573,15 +592,14 @@ class Thumbnail(MD_Dict):
         if not preview:
             return None
         data = preview.get_data()
-        fmt = preview.get_mime_type().split('/')[1].upper()
-        return cls((data, fmt, w, h))
+        return cls({'data': data})
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        data, fmt, w, h = file_value
+        w, h, fmt, data = file_value
+        if not data:
+            return None
         if tag.startswith('Xmp'):
-            if not all((data, fmt)):
-                return None
             if not six.PY2:
                 data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
@@ -589,44 +607,25 @@ class Thumbnail(MD_Dict):
             if using_pgi and isinstance(data, tuple):
                 # get_exif_thumbnail returns (OK, data) tuple
                 data = data[data[0]]
-            if not data:
-                return None
             data = bytearray(data)
-            fmt = ('TIFF', 'JPEG')[fmt in ('6', None)]
-        return cls((data, fmt, w, h))
+        return cls({'data': data})
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
-            data = self['data']
-            if self['fmt'] != 'JPEG':
-                pixmap = QtGui.QPixmap()
-                pixmap.loadFromData(data)
-                buf = QtCore.QBuffer()
-                buf.open(QtCore.QIODevice.WriteOnly)
-                pixmap.save(buf, 'JPEG')
-                data = buf.data().data()
-                w = pixmap.width()
-                h = pixmap.height()
-            else:
-                w, h = self.size()
-            data = codecs.encode(data, 'base64_codec')
+            save = self
+            if save['fmt'] != 'JPEG':
+                save = Thumbnail({'image': self['image']})
+            data = codecs.encode(save['data'], 'base64_codec')
             if not six.PY2:
                 data = data.decode('ascii')
-            handler.set_group(tag, (data, 'JPEG', str(w), str(h)))
+            handler.set_group(
+                tag, [str(save['w']), str(save['h']), 'JPEG', data])
         elif tag == 'Exif.Thumbnail':
             handler.set_exif_thumbnail_from_buffer(self['data'])
-            w, h = self.size()
-            handler.set_group(tag, [None, self['fmt'], str(w), str(h)])
-
-    def size(self):
-        if self['w'] and self['h']:
-            return self['w'], self['h']
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(self['data'])
-        return pixmap.width(), pixmap.height()
+            handler.set_group(tag, [str(self['w']), str(self['h'])])
 
     def __str__(self):
-        return '{} thumbnail, {}x{}'.format(self['fmt'], *self.size())
+        return '{fmt} thumbnail, {w}x{h}'.format(**self)
 
 
 class DateTime(MD_Dict):
