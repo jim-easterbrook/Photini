@@ -560,12 +560,15 @@ class Thumbnail(MD_Dict):
             buf = QtCore.QBuffer()
             buf.setData(value['data'])
             reader = QtGui.QImageReader(buf)
+            reader.setAutoTransform(False)
             value['fmt'] = reader.format().data().decode().upper()
             value['image'] = reader.read()
             if value['image'].isNull():
                 logger.error('thumbnail: %s', reader.errorString())
                 value['image'] = None
-        elif value['image'] and not value['data']:
+            # don't keep reference to what might be an entire image file
+            value['data'] = None
+        if value['image'] and not value['data']:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             value['fmt'] = 'JPEG'
@@ -603,11 +606,6 @@ class Thumbnail(MD_Dict):
             if not six.PY2:
                 data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
-        else:
-            if using_pgi and isinstance(data, tuple):
-                # get_exif_thumbnail returns (OK, data) tuple
-                data = data[data[0]]
-            data = bytearray(data)
         return cls({'data': data})
 
     def write(self, handler, tag):
@@ -621,6 +619,8 @@ class Thumbnail(MD_Dict):
             handler.set_group(
                 tag, [str(save['w']), str(save['h']), 'JPEG', data])
         elif tag == 'Exif.Thumbnail':
+            # set_exif_thumbnail_from_buffer() sets the compression, so
+            # only set width and height directly
             handler.set_exif_thumbnail_from_buffer(self['data'])
             handler.set_group(tag, [str(self['w']), str(self['h'])])
 
