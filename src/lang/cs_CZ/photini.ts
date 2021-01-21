@@ -65,6 +65,10 @@
         <source>increase number of logging messages</source>
         <translation>Zvýšit počet zpráv se zápisem</translation>
     </message>
+    <message>
+        <source>metadata is known to be ASCII or utf-8 encoded</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Common</name>
@@ -441,10 +445,6 @@ tomuto obrázku na Flickru?</translation>
         <translation>Chcete uložit své změny?</translation>
     </message>
     <message>
-        <source>Metadata differences</source>
-        <translation>Rozdíly mezi popisnými údaji</translation>
-    </message>
-    <message>
         <source>new value</source>
         <translation>Nová hodnota</translation>
     </message>
@@ -457,20 +457,8 @@ tomuto obrázku na Flickru?</translation>
         <translation>Stará hodnota</translation>
     </message>
     <message>
-        <source>Reload metadata</source>
-        <translation>Nahrát popisné údaje znovu</translation>
-    </message>
-    <message>
-        <source>Save metadata</source>
-        <translation>Uložit popisné údaje</translation>
-    </message>
-    <message>
         <source>View changes</source>
         <translation>Zobrazit změny</translation>
-    </message>
-    <message>
-        <source>Regenerate thumbnail</source>
-        <translation>Obnovit náhled</translation>
     </message>
     <message>
         <source>No
@@ -479,6 +467,38 @@ in file</source>
         <translation>Žádný
 náhled
 v souboru</translation>
+    </message>
+    <message numerus="yes">
+        <source>Regenerate thumbnail(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Metadata differences: {}</source>
+        <translation>Rozdíly mezi popisnými údaji: {}</translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Reload file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Close file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -680,22 +700,6 @@ poskytuje Bing</translation>
         <translation>Soubor</translation>
     </message>
     <message>
-        <source>Open images</source>
-        <translation>Otevřít obrázky</translation>
-    </message>
-    <message>
-        <source>Save images with new data</source>
-        <translation>Uložit obrázky s novými údaji</translation>
-    </message>
-    <message>
-        <source>Close selected images</source>
-        <translation>Zavřít vybrané obrázky</translation>
-    </message>
-    <message>
-        <source>Close all images</source>
-        <translation>Zavřít všechny obrázky</translation>
-    </message>
-    <message>
         <source>Import GPX file</source>
         <translation>Zavést soubor GPX</translation>
     </message>
@@ -740,44 +744,6 @@ poskytuje Bing</translation>
         <translation>Dokumentace k Photini</translation>
     </message>
     <message>
-        <source>
-&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
-&lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
-&lt;h1&gt;Photini&lt;/h1&gt;
-&lt;h3&gt;version {0}&lt;/h3&gt;
-&lt;h4&gt;build {1}&lt;/h4&gt;
-&lt;/td&gt;
-&lt;td align=&quot;center&quot;&gt;&lt;img src=&quot;{2}&quot; /&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-An easy to use digital photograph metadata editor.&lt;br /&gt;
-Open source package available from
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This program is released with a GNU General Public License. For
-details click the &apos;show details&apos; button.&lt;/p&gt;
-</source>
-        <translation type="obsolete">
-&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
-&lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
-&lt;h1&gt;Photini&lt;/h1&gt;
-&lt;h3&gt;verze {0}&lt;/h3&gt;
-&lt;h4&gt;sestavení {1}&lt;/h4&gt;
-&lt;/td&gt;
-&lt;td align=&quot;center&quot;&gt;&lt;img src=&quot;{2}&quot; /&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-Snadno se používající editor popisů digitálních fotografií.&lt;br /&gt;
-Balíček s otevřeným zdrojovým kódem dostupný na
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;Tento program je vydán pod GNU General Public License. Kvůli podrobnostem
-klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
-</translation>
-    </message>
-    <message>
         <source>Photini: about</source>
         <translation>O programu Photini</translation>
     </message>
@@ -786,12 +752,28 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
         <translation>Snadno se používající editor popisů digitálních fotografií.</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
-        <translation>Tento program je vydán pod GNU General Public License. Kvůli podrobnostem klepněte na tlačítko Ukázat podrobnosti.</translation>
-    </message>
-    <message>
         <source>Open source package available from {}.</source>
         <translation>Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
+    </message>
+    <message>
+        <source>Open files</source>
+        <translation>Otevřít soubory</translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close all files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -811,10 +793,6 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>&lt;clear&gt;</source>
-        <translation>&lt;clear&gt;</translation>
-    </message>
     <message>
         <source>Precision:</source>
         <translation>Přesnost:</translation>
@@ -924,20 +902,8 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
         <translation>Natočení</translation>
     </message>
     <message>
-        <source>&lt;define new lens&gt;</source>
-        <translation>&lt;define new lens&gt;</translation>
-    </message>
-    <message>
         <source>Lens model</source>
         <translation>Model objektivu</translation>
-    </message>
-    <message>
-        <source>Lens details</source>
-        <translation>Podrobnosti objektivu</translation>
-    </message>
-    <message>
-        <source>Remove lens &quot;{}&quot;</source>
-        <translation>Odstranit objektiv &quot;{}&quot;</translation>
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
@@ -970,6 +936,34 @@ klepněte na tlačítko Ukázat podrobnosti.&lt;/p&gt;
     <message>
         <source>Aperture</source>
         <translation>Clona</translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: define camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: maker name change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to delete the Exif makernote?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

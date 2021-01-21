@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -64,6 +64,10 @@
     <message>
         <source>increase number of logging messages</source>
         <translation>Anzahl der Einträge im Fehlerprotokoll erhöhen</translation>
+    </message>
+    <message>
+        <source>metadata is known to be ASCII or utf-8 encoded</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -441,10 +445,6 @@ diesem Bild bei Flickr?</translation>
         <translation>Möchten Sie Ihre Änderungen speichern?</translation>
     </message>
     <message>
-        <source>Metadata differences</source>
-        <translation>Metadaten-Unterschiede</translation>
-    </message>
-    <message>
         <source>new value</source>
         <translation>neuer Wert</translation>
     </message>
@@ -457,20 +457,8 @@ diesem Bild bei Flickr?</translation>
         <translation>alter Wert</translation>
     </message>
     <message>
-        <source>Reload metadata</source>
-        <translation>Metadaten neu laden</translation>
-    </message>
-    <message>
-        <source>Save metadata</source>
-        <translation>Metadaten speichern</translation>
-    </message>
-    <message>
         <source>View changes</source>
         <translation>Änderungen anzeigen</translation>
-    </message>
-    <message>
-        <source>Regenerate thumbnail</source>
-        <translation>Vorschaubild erneuern</translation>
     </message>
     <message>
         <source>No
@@ -479,6 +467,35 @@ in file</source>
         <translation>Vorschau
 in Datei
 nicht vorhanden</translation>
+    </message>
+    <message numerus="yes">
+        <source>Regenerate thumbnail(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Metadata differences: {}</source>
+        <translation>Metadaten-Unterschiede: {}</translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Reload file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Close file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -678,22 +695,6 @@ provided by Bing</translation>
         <translation>Datei</translation>
     </message>
     <message>
-        <source>Open images</source>
-        <translation>Bilder öffnen</translation>
-    </message>
-    <message>
-        <source>Save images with new data</source>
-        <translation>Bilder mit neuen Metadaten speichern</translation>
-    </message>
-    <message>
-        <source>Close selected images</source>
-        <translation>Ausgewählte Bilder schließen</translation>
-    </message>
-    <message>
-        <source>Close all images</source>
-        <translation>Alle Bilder schließen</translation>
-    </message>
-    <message>
         <source>Import GPX file</source>
         <translation>GPX-Datei importieren</translation>
     </message>
@@ -738,42 +739,6 @@ provided by Bing</translation>
         <translation>Dokumentation zu Photini</translation>
     </message>
     <message>
-        <source>
-&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
-&lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
-&lt;h1&gt;Photini&lt;/h1&gt;
-&lt;h3&gt;version {0}&lt;/h3&gt;
-&lt;h4&gt;build {1}&lt;/h4&gt;
-&lt;/td&gt;
-&lt;td align=&quot;center&quot;&gt;&lt;img src=&quot;{2}&quot; /&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-An easy to use digital photograph metadata editor.&lt;br /&gt;
-Open source package available from
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;This program is released with a GNU General Public License. For
-details click the &apos;show details&apos; button.&lt;/p&gt;
-</source>
-        <translation type="obsolete">&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;
-&lt;td align=&quot;center&quot; width=&quot;70%&quot;&gt;
-&lt;h1&gt;Photini&lt;/h1&gt;
-&lt;h3&gt;version {0}&lt;/h3&gt;
-&lt;h4&gt;build {1}&lt;/h4&gt;
-&lt;/td&gt;
-&lt;td align=&quot;center&quot;&gt;&lt;img src=&quot;{2}&quot; /&gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
-&lt;p&gt;&amp;copy; Jim Easterbrook &lt;a href=&quot;mailto:jim@jim-easterbrook.me.uk&quot;&gt;
-jim@jim-easterbrook.me.uk&lt;/a&gt;&lt;br /&gt;&lt;br /&gt;
-Ein einfach zu bedienender Metadaten-Editor für digitale Bilder.&lt;br /&gt;
-Der Open Source Quellcode ist via
-&lt;a href=&quot;https://github.com/jim-easterbrook/Photini&quot;&gt;
-github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
-&lt;p&gt;Dieses Programm wurde unter der GNU General Public License veröffentlicht. Für weitere Informationen auf die Schaltfläche „Details einblenden“ klicken.&lt;/p&gt;
-</translation>
-    </message>
-    <message>
         <source>Photini: about</source>
         <translation>Photini: über</translation>
     </message>
@@ -782,16 +747,28 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
         <translation>Ein einfach zu bedienender Metadaten-Editor für digitale Bilder.</translation>
     </message>
     <message>
-        <source>Open source package available from</source>
-        <translation type="obsolete">Der Open Source Quellcode ist via</translation>
-    </message>
-    <message>
-        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
-        <translation>Dieses Programm wurde unter der GNU General Public License veröffentlicht. Für weitere Informationen auf die Schaltfläche „Details einblenden“ klicken.</translation>
-    </message>
-    <message>
         <source>Open source package available from {}.</source>
         <translation>Der Open Source Quellcode ist via {} erhältlich.</translation>
+    </message>
+    <message>
+        <source>Open files</source>
+        <translation>Dateien öffnen</translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close all files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
+        <translation>Dieses Programm wurde unter der GNU General Public License veröffentlicht. Für weitere Informationen auf die Schaltfläche „{}“ klicken.</translation>
     </message>
 </context>
 <context>
@@ -811,10 +788,6 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>&lt;clear&gt;</source>
-        <translation>&lt;leer&gt;</translation>
-    </message>
     <message>
         <source>Precision:</source>
         <translation>Genauigkeit</translation>
@@ -924,20 +897,8 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
         <translation>Ausrichtung</translation>
     </message>
     <message>
-        <source>&lt;define new lens&gt;</source>
-        <translation>&lt;Neue Linse definieren&gt;</translation>
-    </message>
-    <message>
         <source>Lens model</source>
         <translation>Linsenmodell</translation>
-    </message>
-    <message>
-        <source>Lens details</source>
-        <translation>Objektivdetails</translation>
-    </message>
-    <message>
-        <source>Remove lens &quot;{}&quot;</source>
-        <translation>Linse &quot;{}&quot; entfernen</translation>
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
@@ -970,6 +931,34 @@ github.com/jim-easterbrook/Photini&lt;/a&gt; erhältlich.&lt;/p&gt;
     <message>
         <source>Aperture</source>
         <translation>Blende</translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: define camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: maker name change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to delete the Exif makernote?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

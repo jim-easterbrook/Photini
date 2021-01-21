@@ -65,6 +65,10 @@
         <source>increase number of logging messages</source>
         <translation>Normalny</translation>
     </message>
+    <message>
+        <source>metadata is known to be ASCII or utf-8 encoded</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Common</name>
@@ -127,13 +131,13 @@
         <source>Please type in the copyright holder&apos;s name</source>
         <translation>Proszę wpisać nazwę posiadacza praw autorskich</translation>
     </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation>Proszę podać nazwę twórcy</translation>
-    </message>
     <message encoding="UTF-8">
         <source>Copyright ©{year} {name}. All rights reserved.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type in the creator&apos;s name</source>
+        <translation>Proszę podać nazwę twórcy</translation>
     </message>
 </context>
 <context>
@@ -440,10 +444,6 @@ this picture on Flickr?</source>
         <translation>Czy chcesz zapisać zmiany?</translation>
     </message>
     <message>
-        <source>Metadata differences</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>new value</source>
         <translation type="unfinished"></translation>
     </message>
@@ -456,19 +456,7 @@ this picture on Flickr?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reload metadata</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save metadata</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>View changes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Regenerate thumbnail</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -476,6 +464,38 @@ this picture on Flickr?</source>
 thumbnail
 in file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Regenerate thumbnail(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Metadata differences: {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Reload file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Close file(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -670,22 +690,6 @@ provided by Bing</source>
         <translation>plik</translation>
     </message>
     <message>
-        <source>Open images</source>
-        <translation>otwórz obraz</translation>
-    </message>
-    <message>
-        <source>Save images with new data</source>
-        <translation>Zapisz obraz z nową datą</translation>
-    </message>
-    <message>
-        <source>Close selected images</source>
-        <translation>Zamknij wybrane obrazy</translation>
-    </message>
-    <message>
-        <source>Close all images</source>
-        <translation>Zamknij wszystkie obrazy</translation>
-    </message>
-    <message>
         <source>Import GPX file</source>
         <translation type="unfinished"></translation>
     </message>
@@ -738,11 +742,27 @@ provided by Bing</source>
         <translation>Łatwy w użyciu edytor metadanych fotografii cyfrowej.</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &apos;show details&apos; button.</source>
-        <translation>Ten program podlega GNU General Public License. Dlaszczegóły kliknij przycisk &quot;Pokaż szczegóły&quot;.</translation>
+        <source>Open source package available from {}.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open source package available from {}.</source>
+        <source>Open files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close all files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -763,10 +783,6 @@ provided by Bing</source>
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>&lt;clear&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Precision:</source>
         <translation type="unfinished"></translation>
@@ -876,20 +892,8 @@ provided by Bing</source>
         <translation>Orientacja</translation>
     </message>
     <message>
-        <source>&lt;define new lens&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Lens model</source>
         <translation>Model obiektywu</translation>
-    </message>
-    <message>
-        <source>Lens details</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove lens &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
@@ -922,6 +926,34 @@ provided by Bing</source>
     <message>
         <source>Aperture</source>
         <translation>Przesłona</translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: define camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: maker name change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to delete the Exif makernote?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
