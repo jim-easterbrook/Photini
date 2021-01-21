@@ -1,6 +1,6 @@
 Photini - a simple photo metadata editor.
 http://github.com/jim-easterbrook/Photini
-Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 This program is free software: you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -15,6 +15,13 @@ General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
+
+Changes in v2021.1.0:
+  1/ Technical tab now includes camera model.
+  2/ Image list context menu now applies to all selected files.
+  3/ Fix hang when importing files from a folder.
+  4/ Can get thumbnails from more file types.
+  5/ Minor other fixes and improvements.
 
 Changes in v2020.12.1:
   1/ Can now use PySide2 instead of PyQt5.
