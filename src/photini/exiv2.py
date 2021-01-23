@@ -258,19 +258,18 @@ class Exiv2Metadata(GExiv2.Metadata):
         'jis'    : 'euc_jp',
         }
 
-    def get_multi_group(self, tag):
+    def get_multi_group(self, tag_group):
         result = []
         for idx in range(1, 20):
-            value = [self.get_string(x.format(idx=idx))
-                     for x in self._multi_tags[tag]]
+            value = [self.get_string(x.format(idx=idx)) for x in tag_group]
             if not any(value):
                 return result
             result.append(value)
 
-    def get_group(self, tag):
-        if 'idx' in self._multi_tags[tag][0]:
-            return self.get_multi_group(tag)
-        return [self.get_string(x) for x in self._multi_tags[tag]]
+    def get_group(self, tag_group):
+        if 'idx' in tag_group[0]:
+            return self.get_multi_group(tag_group)
+        return [self.get_string(x) for x in tag_group]
 
     def get_string(self, tag):
         if not (tag and self.has_tag(tag)):
@@ -493,12 +492,24 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
         'Exif.Photo.FNumber': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
+        'Exif.Photo.FocalPlaneResolution': (
+            'Exif.Photo.FocalPlaneXResolution',
+            'Exif.Photo.FocalPlaneYResolution',
+            'Exif.Photo.FocalPlaneResolutionUnit'),
         'Exif.Photo.LensMake': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber'),
+        'Exif.Photo.PixelDimensions': (
+            'Exif.Photo.PixelXDimension', 'Exif.Photo.PixelYDimension'),
         'Exif.Thumbnail': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
+        'Exif.{ifd}.FocalPlaneResolution': (
+            'Exif.{ifd}.FocalPlaneXResolution',
+            'Exif.{ifd}.FocalPlaneYResolution',
+            'Exif.{ifd}.FocalPlaneResolutionUnit'),
+        'Exif.{ifd}.ImageDimensions': (
+            'Exif.{ifd}.ImageWidth', 'Exif.{ifd}.ImageLength'),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate': (
@@ -513,10 +524,15 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Xmp.aux.Lens': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
+        'Xmp.exif.FocalPlaneResolution': ('Xmp.exif.FocalPlaneXResolution',
+                                          'Xmp.exif.FocalPlaneYResolution',
+                                          'Xmp.exif.FocalPlaneResolutionUnit'),
         'Xmp.exif.GPSAltitude': (
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
         'Xmp.exif.GPSCoordinates': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
+        'Xmp.exif.PixelDimensions': (
+            'Xmp.exif.PixelXDimension', 'Xmp.exif.PixelYDimension'),
         'Xmp.exifEX.LensMake': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber'),
@@ -539,6 +555,8 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.tiff.ImageDimensions': (
+            'Xmp.tiff.ImageWidth', 'Xmp.tiff.ImageLength'),
         'Xmp.xmp.Thumbnails': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
@@ -599,14 +617,6 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('W0', 'Xmp.exif.UserComment'),
                             ('W0', 'Xmp.tiff.ImageDescription'),
                             ('WA', 'Iptc.Application2.Caption')),
-        'dimension_x'    : (('WN', 'Exif.Photo.PixelXDimension'),
-                            ('WN', 'Exif.{ifd}.ImageWidth'),
-                            ('WN', 'Xmp.exif.PixelXDimension'),
-                            ('WN', 'Xmp.tiff.ImageWidth')),
-        'dimension_y'    : (('WN', 'Exif.Photo.PixelYDimension'),
-                            ('WN', 'Exif.{ifd}.ImageLength'),
-                            ('WN', 'Xmp.exif.PixelYDimension'),
-                            ('WN', 'Xmp.tiff.ImageLength')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
@@ -641,15 +651,13 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
-        'resolution_x'   : (('WN', 'Exif.Photo.FocalPlaneXResolution'),
-                            ('WN', 'Exif.{ifd}.FocalPlaneXResolution'),
-                            ('WN', 'Xmp.exif.FocalPlaneXResolution')),
-        'resolution_y'   : (('WN', 'Exif.Photo.FocalPlaneYResolution'),
-                            ('WN', 'Exif.{ifd}.FocalPlaneYResolution'),
-                            ('WN', 'Xmp.exif.FocalPlaneYResolution')),
-        'resolution_unit': (('WN', 'Exif.Photo.FocalPlaneResolutionUnit'),
-                            ('WN', 'Exif.{ifd}.FocalPlaneResolutionUnit'),
-                            ('WN', 'Xmp.exif.FocalPlaneResolutionUnit')),
+        'resolution'     : (('WN', 'Exif.Photo.FocalPlaneResolution'),
+                            ('WN', 'Exif.{ifd}.FocalPlaneResolution'),
+                            ('WN', 'Xmp.exif.FocalPlaneResolution')),
+        'sensor_size'    : (('WN', 'Exif.Photo.PixelDimensions'),
+                            ('WN', 'Exif.{ifd}.ImageDimensions'),
+                            ('WN', 'Xmp.exif.PixelDimensions'),
+                            ('WN', 'Xmp.tiff.ImageDimensions')),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
                             ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
@@ -673,7 +681,12 @@ class Exiv2Metadata(GExiv2.Metadata):
         for mode, tag in self._tag_list[name]:
             try:
                 if tag in self._multi_tags:
-                    file_value = self.get_group(tag)
+                    tag_group = self._multi_tags[tag]
+                    if 'ifd' in tag:
+                        tag_group = [
+                            x.format(ifd=self.ifd_list[0]) for x in tag_group]
+                        tag = tag.format(ifd=self.ifd_list[0])
+                    file_value = self.get_group(tag_group)
                     if tag == 'Exif.Thumbnail':
                         file_value.append(self.get_exif_thumbnail())
                 elif self.is_exif_tag(tag):

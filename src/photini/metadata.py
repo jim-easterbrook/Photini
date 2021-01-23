@@ -1053,6 +1053,44 @@ class Rating(MD_Value, float):
             handler.set_string(tag, six.text_type(self))
 
 
+class Resolution(MD_Dict):
+    # stores sensor resolution
+    _keys = ('x','y', 'unit')
+
+    @classmethod
+    def convert(cls, value):
+        value['x'] = Fraction(value['x'])
+        value['y'] = Fraction(value['y'])
+        value['unit'] = int(value['unit'])
+        return value
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not all(file_value):
+            return None
+        print('complete data', tag, file_value)
+        return cls(file_value)
+
+
+class SensorSize(MD_Dict):
+    # stores sensor dimensions in pixels
+    _keys = ('x', 'y')
+    _quiet = True
+
+    @classmethod
+    def convert(cls, value):
+        value['x'] = int(value['x'])
+        value['y'] = int(value['y'])
+        return value
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not all(file_value):
+            return None
+        print('complete data', tag, file_value)
+        return cls(file_value)
+
+
 class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
@@ -1065,8 +1103,6 @@ class Metadata(object):
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
         'description'    : MD_String,
-        'dimension_x'    : MD_Int,
-        'dimension_y'    : MD_Int,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
         'keywords'       : MultiString,
@@ -1077,9 +1113,8 @@ class Metadata(object):
         'location_taken' : Location,
         'orientation'    : Orientation,
         'rating'         : Rating,
-        'resolution_x'   : MD_Rational,
-        'resolution_y'   : MD_Rational,
-        'resolution_unit': MD_Int,
+        'resolution'     : Resolution,
+        'sensor_size'    : SensorSize,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
