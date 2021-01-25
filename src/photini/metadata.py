@@ -1068,7 +1068,6 @@ class Resolution(MD_Dict):
     def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
-        print('complete data', tag, file_value)
         return cls(file_value)
 
 
@@ -1087,7 +1086,6 @@ class SensorSize(MD_Dict):
     def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
-        print('complete data', tag, file_value)
         return cls(file_value)
 
 
