@@ -305,6 +305,18 @@ class TabWidget(QtWidgets.QWidget):
         box.addWidget(refresh_button)
         box.setStretch(0, 1)
         form.addRow(translate('ImporterTab', 'Source'), box)
+        # update config
+        self.config_store.delete('importer', 'folders')
+        for section in self.config_store.config.sections():
+            if six.PY2:
+                section = section.decode('utf-8')
+            if not section.startswith('importer'):
+                continue
+            path_format = self.config_store.get(section, 'path_format')
+            if not (path_format and '(' in path_format):
+                continue
+            path_format = path_format.replace('(', '{').replace(')', '}')
+            self.config_store.set(section, 'path_format', path_format)
         # path format
         self.path_format = QtWidgets.QLineEdit()
         self.path_format.setValidator(PathFormatValidator())
@@ -379,32 +391,35 @@ class TabWidget(QtWidgets.QWidget):
         path_format = self.path_format.text()
         path_format = self.config_store.get(
             self.config_section, 'path_format', path_format)
-        path_format = path_format.replace('(', '{').replace(')', '}')
         self.path_format.setText(path_format)
         self.file_list_widget.clear()
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
 
     def add_folder(self):
-        folders = eval(self.config_store.get('importer', 'folders', '[]'))
-        if folders:
-            directory = folders[0]
-        else:
-            directory = ''
+        directory = ''
+        for idx in range(self.source_selector.count()):
+            item_data = self.source_selector.itemData(idx)
+            if callable(item_data):
+                continue
+            source, section = item_data
+            if section.startswith('importer folder '):
+                directory = section[16:]
+                break
         root = QtWidgets.QFileDialog.getExistingDirectory(
             self, translate('ImporterTab', "Select root folder"), directory)
         if not root:
             self._fail()
             return
-        if root in folders:
-            folders.remove(root)
-        folders.insert(0, root)
-        if len(folders) > 5:
-            del folders[-1]
-        self.config_store.set('importer', 'folders', repr(folders))
-        self.refresh()
-        idx = self.source_selector.count() - (1 + len(folders))
+        section = 'importer folder ' + root
+        self.config_store.set(
+            section, 'last_transfer', datetime.min.isoformat(' '))
+        self.source_selector.addItem(
+            translate('ImporterTab', 'folder: {0}').format(root),
+            (FolderSource(root), section))
+        idx = self.source_selector.count() - 1
         self.source_selector.setCurrentIndex(idx)
+        self.refresh()
 
     @QtSlot()
     @catch_all
@@ -432,7 +447,16 @@ class TabWidget(QtWidgets.QWidget):
             self.source_selector.addItem(
                 translate('ImporterTab', 'camera: {0}').format(model),
                 (CameraSource(model, port_name), 'importer ' + model))
-        for root in eval(self.config_store.get('importer', 'folders', '[]')):
+        roots = []
+        for section in self.config_store.config.sections():
+            if six.PY2:
+                section = section.decode('utf-8')
+            if not section.startswith('importer folder '):
+                continue
+            roots.append((section[16:], self.config_store.get(
+                section, 'last_transfer', '1900')))
+        roots.sort(key=lambda x: x[1], reverse=True)
+        for root, last_transfer in roots:
             if os.path.isdir(root):
                 self.source_selector.addItem(
                     translate('ImporterTab', 'folder: {0}').format(root),
