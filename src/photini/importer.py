@@ -298,6 +298,9 @@ class TabWidget(QtWidgets.QWidget):
         box.setContentsMargins(0, 0, 0, 0)
         self.source_selector = QtWidgets.QComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
+        self.source_selector.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.source_selector.customContextMenuRequested.connect(
+            self.remove_folder)
         box.addWidget(self.source_selector)
         refresh_button = QtWidgets.QPushButton(
             translate('ImporterTab', 'refresh'))
@@ -396,6 +399,34 @@ class TabWidget(QtWidgets.QWidget):
         # allow 100ms for display to update before getting file list
         QtCore.QTimer.singleShot(100, self.list_files)
 
+    @QtSlot(QtCore.QPoint)
+    @catch_all
+    def remove_folder(self, pos):
+        menu = QtWidgets.QMenu()
+        roots = []
+        for section in self.config_store.config.sections():
+            if six.PY2:
+                section = section.decode('utf-8')
+            if not section.startswith('importer folder '):
+                continue
+            roots.append((section[16:], self.config_store.get(
+                section, 'last_transfer', '1900')))
+        roots.sort(key=lambda x: x[1], reverse=True)
+        for root, last_transfer in roots:
+            name = translate('ImporterTab', 'folder: {0}').format(root)
+            action = QtWidgets.QAction(
+                translate('TechnicalTab', 'Remove "{}"').format(name),
+                parent=self)
+            action.setData('importer folder ' + root)
+            menu.addAction(action)
+        if menu.isEmpty():
+            return
+        action = menu.exec_(self.mapToGlobal(pos))
+        if not action:
+            return
+        self.config_store.remove_section(action.data())
+        self.refresh()
+
     def add_folder(self):
         directory = ''
         for idx in range(self.source_selector.count()):
@@ -474,6 +505,7 @@ class TabWidget(QtWidgets.QWidget):
         self.source_selector.blockSignals(was_blocked)
         if new_idx < 0:
             self.source_selector.setCurrentIndex(0)
+            self.new_source(0)
 
     def do_not_close(self):
         if not self.file_copier:
