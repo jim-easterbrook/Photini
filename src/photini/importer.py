@@ -410,7 +410,7 @@ class TabWidget(QtWidgets.QWidget):
             if not section.startswith('importer folder '):
                 continue
             roots.append((section[16:], self.config_store.get(
-                section, 'last_transfer', '1900')))
+                section, 'last_transfer', datetime.min.isoformat(' '))))
         roots.sort(key=lambda x: x[1], reverse=True)
         for root, last_transfer in roots:
             name = translate('ImporterTab', 'folder: {0}').format(root)
@@ -485,7 +485,7 @@ class TabWidget(QtWidgets.QWidget):
             if not section.startswith('importer folder '):
                 continue
             roots.append((section[16:], self.config_store.get(
-                section, 'last_transfer', '1900')))
+                section, 'last_transfer', datetime.min.isoformat(' '))))
         roots.sort(key=lambda x: x[1], reverse=True)
         for root, last_transfer in roots:
             if os.path.isdir(root):
