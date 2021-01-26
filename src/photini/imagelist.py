@@ -351,6 +351,7 @@ class Image(QtWidgets.QFrame):
 
 class ScrollArea(QtWidgets.QScrollArea):
     dropped_images = QtSignal(list)
+    multi_row_changed = QtSignal()
 
     def __init__(self, parent=None):
         super(ScrollArea, self).__init__(parent)
@@ -382,6 +383,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         else:
             self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
             self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.multi_row_changed.emit()
 
     def ensureWidgetVisible(self, widget):
         left, top, right, bottom = self.thumbs.getContentsMargins()
@@ -523,6 +525,8 @@ class ImageList(QtWidgets.QWidget):
         # thumbnail display
         self.scroll_area = ScrollArea()
         self.scroll_area.dropped_images.connect(self.open_file_list)
+        self.scroll_area.multi_row_changed.connect(
+            self._ensure_selected_visible)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
         QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                         self.scroll_area, self.move_to_prev_thumb)
@@ -657,6 +661,12 @@ class ImageList(QtWidgets.QWidget):
     def _new_sort_order(self):
         self._sort_thumbnails()
         self.sort_order_changed.emit()
+
+    @QtSlot()
+    @catch_all
+    def _ensure_selected_visible(self):
+        if self.last_selected:
+            self.scroll_area.ensureWidgetVisible(self.last_selected)
 
     def _sort_thumbnails(self):
         sort_date = self.sort_date.isChecked()
