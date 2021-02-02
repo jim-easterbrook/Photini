@@ -39,7 +39,7 @@ if sys.platform.startswith('linux'):
 
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
-using_pyqt5 = config.get('pyqt', 'using_pyqt5', 'True')
+config.delete('pyqt', 'using_pyqt5')
 using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
 
@@ -55,13 +55,6 @@ if using_pyside2 == 'auto':
             pass
 else:
     using_pyside2 = eval(using_pyside2)
-
-if using_pyqt5 == 'False':
-    using_pyqt5 = False
-    logger.warning('Photini is currently configured to use PyQt4.'
-                   ' Support for PyQt4 will be withdrawn in a future release.')
-else:
-    using_pyqt5 = True
 
 if using_pyside2:
     if using_qtwebengine == 'auto':
@@ -86,7 +79,7 @@ if using_pyside2:
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide2_version
-elif using_pyqt5:
+else:
     if using_qtwebengine == 'auto':
         using_qtwebengine = True
         try:
@@ -108,18 +101,6 @@ elif using_pyqt5:
         from PyQt5 import QtWebKit, QtWebKitWidgets
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
-else:
-    using_qtwebengine = False
-    import sip
-    sip.setapi('QString', 2)
-    sip.setapi('QVariant', 2)
-    from PyQt4 import QtCore, QtGui, QtWebKit
-    QtWidgets = QtGui
-    QtWebKitWidgets = QtWebKit
-    from PyQt4.QtCore import Qt
-    from PyQt4.QtNetwork import QNetworkProxy
-    from PyQt4.QtCore import pyqtSignal as QtSignal
-    from PyQt4.QtCore import pyqtSlot as QtSlot
 
 if using_qtwebengine:
     QtWebKit = None

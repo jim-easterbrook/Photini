@@ -41,7 +41,7 @@ from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtSlot, QtWidgets, qt_version,
-    qt_version_info, width_for_text)
+    width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -418,8 +418,6 @@ def main(argv=None):
     # get remaining argument list after Qt has swallowed its options
     sys.argv = app.arguments()
     # install translations
-    if qt_version_info < (5, 0):
-        QtCore.QTextCodec.setCodecForTr(QtCore.QTextCodec.codecForName('utf-8'))
     # English translation as a fallback (to get correct plurals)
     lang_dir = pkg_resources.resource_filename('photini', 'data/lang')
     translator = QtCore.QTranslator(parent=app)
@@ -431,11 +429,6 @@ def main(argv=None):
     if translator.load(locale, 'photini', '.', lang_dir):
         app.installTranslator(translator)
         translator = QtCore.QTranslator(parent=app)
-    # Qt's own translation, e.g. for 'apply' or 'cancel' buttons
-    if qt_version_info < (5, 0):
-        if translator.load(locale, 'qt', '_', QtCore.QLibraryInfo.location(
-                QtCore.QLibraryInfo.TranslationsPath)):
-            app.installTranslator(translator)
     # parse remaining arguments
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version

@@ -24,7 +24,6 @@ from datetime import datetime
 import logging
 import os
 from six import BytesIO
-from six.moves.urllib.parse import unquote
 
 try:
     import PIL.Image as PIL
@@ -35,7 +34,7 @@ from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, qt_version_info, scale_font, set_symbol_font, video_types)
+    QtWidgets, scale_font, set_symbol_font, video_types)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -601,19 +600,12 @@ class ImageList(QtWidgets.QWidget):
             ]
         if eval(self.app.config_store.get('pyqt', 'native_dialog', 'True')):
             pass
-        elif qt_version_info >= (5, 0):
-            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         else:
-            args += [QtWidgets.QFileDialog.DontUseNativeDialog]
+            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(*args)
-        if qt_version_info >= (5, 0):
-            path_list = path_list[0]
+        path_list = path_list[0]
         if not path_list:
             return
-        # work around for Qt bug 33992
-        # https://bugreports.qt-project.org/browse/QTBUG-33992
-        if qt_version_info in ((4, 8, 4), (4, 8, 5)):
-            path_list = list(map(unquote, path_list))
         self.open_file_list(path_list)
 
     @QtSlot(list)

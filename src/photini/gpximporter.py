@@ -21,7 +21,7 @@ import os
 
 import gpxpy
 
-from photini.pyqt import QtCore, QtWidgets, qt_version_info
+from photini.pyqt import QtCore, QtWidgets
 
 
 logger = logging.getLogger(__name__)
@@ -37,13 +37,10 @@ class GpxImporter(QtCore.QObject):
             ]
         if eval(parent.app.config_store.get('pyqt', 'native_dialog', 'True')):
             pass
-        elif qt_version_info >= (5, 0):
-            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         else:
-            args += [QtWidgets.QFileDialog.DontUseNativeDialog]
+            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         path = QtWidgets.QFileDialog.getOpenFileName(*args)
-        if qt_version_info >= (5, 0):
-            path = path[0]
+        path = path[0]
         if not path:
             return
         parent.app.config_store.set(

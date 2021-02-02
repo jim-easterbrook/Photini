@@ -34,8 +34,7 @@ except ImportError:
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
-    QtSignal, QtSlot, QtWidgets, qt_version_info, StartStopButton,
-    video_types_lower)
+    QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -367,12 +366,8 @@ class TabWidget(QtWidgets.QWidget):
         self.selection_changed()
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
-        if qt_version_info >= (5, 0):
-            path = QtCore.QStandardPaths.writableLocation(
-                QtCore.QStandardPaths.PicturesLocation)
-        else:
-            path = QtGui.QDesktopServices.storageLocation(
-                QtGui.QDesktopServices.PicturesLocation)
+        path = QtCore.QStandardPaths.writableLocation(
+            QtCore.QStandardPaths.PicturesLocation)
         self.path_format.setText(
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
         self.refresh()

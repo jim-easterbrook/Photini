@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -24,8 +24,7 @@ import os
 import sys
 
 from photini.pyqt import (
-    catch_all, qt_version_info, QtCore, QtSignal, QtSlot, QtWidgets,
-    width_for_text)
+    catch_all, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 
@@ -129,8 +128,7 @@ class LoggerWindow(QtWidgets.QWidget):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, self.tr('Save log file'),
             os.path.expanduser('~/photini_log.txt'))
-        if qt_version_info >= (5, 0):
-            file_name = file_name[0]
+        file_name = file_name[0]
         if file_name:
             with open(file_name, 'w') as of:
                 of.write(self.text.toPlainText())
