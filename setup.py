@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -48,8 +48,6 @@ setup(name = 'Photini',
           'Intended Audience :: End Users/Desktop',
           'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Topic :: Multimedia :: Graphics',
           ],
@@ -64,7 +62,7 @@ setup(name = 'Photini',
               'photini = photini.editor:main',
               ],
           },
-      install_requires = ['appdirs >= 1.3', 'requests >= 2.4.0', 'six >= 1.5'],
+      install_requires = ['appdirs >= 1.3', 'requests >= 2.4.0'],
       extras_require = {
           'flickr'   : ['flickrapi >= 2.0', 'keyring >= 7.0'],
           'google'   : ['requests-oauthlib >= 1.0', 'keyring >= 7.0'],

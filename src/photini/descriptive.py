@@ -23,8 +23,6 @@ from collections import defaultdict
 from datetime import datetime
 import logging
 
-import six
-
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
     QtSlot, QtWidgets, SingleLineEdit, Slider)
@@ -49,10 +47,10 @@ class LineEdit(QtWidgets.QLineEdit):
                 sep = menu.insertSeparator(menu.actions()[0])
                 fm = menu.fontMetrics()
                 for suggestion in self.choices:
-                    label = six.text_type(suggestion).replace('\n', ' ')
+                    label = str(suggestion).replace('\n', ' ')
                     label = fm.elidedText(label, Qt.ElideMiddle, self.width())
                     action = QtWidgets.QAction(label, suggestion_group)
-                    action.setData(six.text_type(suggestion))
+                    action.setData(str(suggestion))
                     menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
@@ -64,7 +62,7 @@ class LineEdit(QtWidgets.QLineEdit):
             self.clear()
             self.setPlaceholderText('')
         else:
-            self.setText(six.text_type(value))
+            self.setText(str(value))
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
@@ -130,8 +128,8 @@ class RatingWidget(QtWidgets.QWidget):
         elif value == -1:
             self.display.setText(translate('DescriptiveTab', 'reject'))
         else:
-            self.display.setText((six.unichr(0x2605) * value) +
-                                 (six.unichr(0x2606) * (5 - value)))
+            self.display.setText((chr(0x2605) * value) +
+                                 (chr(0x2606) * (5 - value)))
 
     def set_value(self, value):
         if not value:
@@ -210,7 +208,7 @@ class KeywordsEditor(QtWidgets.QWidget):
                 self.league_table[keyword] = min(
                     self.league_table[keyword] + 10, 1000)
         self.config_store.set(
-            'descriptive', 'keywords', six.text_type(dict(self.league_table)))
+            'descriptive', 'keywords', str(dict(self.league_table)))
         self.update_favourites()
 
     @QtSlot(int)

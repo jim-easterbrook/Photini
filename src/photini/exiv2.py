@@ -28,8 +28,6 @@ import shutil
 import string
 import sys
 
-import six
-
 from photini import __version__
 from photini.gi import gexiv2_version, GLib, GObject, GExiv2, using_pgi
 
@@ -60,8 +58,6 @@ for prefix, name in (
 # reading some data with the full namespace
 data = XMP_WRAPPER.format(
     'xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"')
-if six.PY2:
-    data = data.decode('utf-8')
 # open the data to register the namespace
 GExiv2.Metadata().open_buf(data.encode('utf-8'))
 del data
@@ -226,15 +222,13 @@ class Exiv2Metadata(GExiv2.Metadata):
                     return None
                 if self.get_tag_type(tag) == 'Byte':
                     # data is a string of space separated numbers
-                    return b''.join(map(six.int2byte, map(int, result.split())))
+                    return bytes(map(int, result.split()))
                 if self.get_tag_type(tag) == 'Comment':
                     # GExiv2 adds original charset information
                     parts = result.split('"')
                     if parts[0] == 'charset=':
                         result = parts[2][1:]
-                if not six.PY2:
-                    result = result.encode('ascii', 'backslashreplace')
-                return result
+                return result.encode('ascii', 'backslashreplace')
             result = self.get_tag_raw(tag).get_data()
             if not result:
                 return None
@@ -280,10 +274,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                    'Exif.Image.XPSubject',
                    'Exif.NikonLd1.LensIDNumber', 'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
-            result = self.get_tag_interpreted_string(tag)
-            if six.PY2:
-                result = self._decode_string(result)
-            return result
+            return self.get_tag_interpreted_string(tag)
         if tag == 'Exif.Photo.UserComment':
             # first 8 bytes should be the encoding charset
             result = self.get_raw(tag)
@@ -308,10 +299,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                              ' when metadata is saved', tag, len(result))
                 raise
         try:
-            result = self.get_tag_string(tag)
-            if six.PY2:
-                result = self._decode_string(result)
-            return result
+            return self.get_tag_string(tag)
         except UnicodeDecodeError:
             pass
         # attempt to read raw data instead
@@ -324,10 +312,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not (tag and self.has_tag(tag)):
             return []
         try:
-            result = self.get_tag_multiple(tag)
-            if six.PY2:
-                result = list(map(self._decode_string, result))
-            return result
+            return self.get_tag_multiple(tag)
         except UnicodeDecodeError:
             pass
         # attempt to read raw data instead, only gets the first value
@@ -360,7 +345,6 @@ class Exiv2Metadata(GExiv2.Metadata):
                     self.set_tag_string(tag, '')
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             self.set_string(sub_tag.format(idx=idx), sub_value)
-        return
 
     # maximum length of Iptc data
     _max_bytes = {
@@ -388,10 +372,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             return
         if tag in self._max_bytes:
             value = value.encode('utf-8')[:self._max_bytes[tag]]
-            if not six.PY2:
-                value = value.decode('utf-8', errors='ignore')
-        elif six.PY2:
-            value = value.encode('utf-8')
+            value = value.decode('utf-8', errors='ignore')
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):
@@ -402,10 +383,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             return
         if self.is_iptc_tag(tag) and tag in self._max_bytes:
             value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
-            if not six.PY2:
-                value = [x.decode('utf-8') for x in value]
-        elif six.PY2:
-            value = [x.encode('utf-8') for x in value]
+            value = [x.decode('utf-8') for x in value]
         self.set_tag_multiple(tag, value)
 
     def save(self, file_times=None, force_iptc=False):
@@ -769,7 +747,7 @@ class ImageMetadata(Exiv2Metadata):
             try:
                 if tag in multiple:
                     # PyGObject segfaults if strings are not utf-8
-                    if six.PY2 or using_pgi or utf_safe:
+                    if using_pgi or utf_safe:
                         value = self.get_multiple(tag)
                     else:
                         logger.warning('%s: ignoring multiple %s values',
@@ -958,8 +936,7 @@ class SidecarMetadata(Exiv2Metadata):
                 if image_md:
                     # let exiv2 copy as much metadata as it can into sidecar
                     image_md.save_file(sc_path)
-            self = cls(sc_path)
-            return self
+            return cls(sc_path)
         except Exception as ex:
             logger.exception(ex)
             return None

@@ -28,8 +28,6 @@ import mimetypes
 import os
 import re
 
-import six
-
 from photini import __version__
 from photini.gi import using_pgi
 from photini.pyqt import QtCore, QtGui
@@ -117,7 +115,7 @@ class FFMPEGMetadata(object):
 
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
-    if isinstance(value, six.string_types):
+    if isinstance(value, str):
         numerator, sep, denominator = value.partition('/')
         if denominator and int(denominator) == 0:
             return Fraction(0.0)
@@ -148,7 +146,7 @@ class MD_Value(object):
         return cls(file_value)
 
     def write(self, handler, tag):
-        handler.set_string(tag, six.text_type(self))
+        handler.set_string(tag, str(self))
 
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
@@ -184,7 +182,7 @@ class MD_Value(object):
 class MD_Dict(MD_Value, dict):
     def __init__(self, value):
         # can initialise from a string containing comma separated values
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             value = value.split(',')
         # or a list of values
         if isinstance(value, (tuple, list)):
@@ -443,7 +441,7 @@ class MultiLocation(tuple):
         for n, location in enumerate(self):
             result += 'subject {}\n'.format(n + 1)
             if location:
-                result += six.text_type(location) + '\n'
+                result += str(location) + '\n'
         return result
 
 
@@ -603,8 +601,7 @@ class Thumbnail(MD_Dict):
         if not data:
             return None
         if tag.startswith('Xmp'):
-            if not six.PY2:
-                data = bytes(data, 'ascii')
+            data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
         return cls({'data': data})
 
@@ -614,8 +611,7 @@ class Thumbnail(MD_Dict):
             if save['fmt'] != 'JPEG':
                 save = Thumbnail({'image': self['image']})
             data = codecs.encode(save['data'], 'base64_codec')
-            if not six.PY2:
-                data = data.decode('ascii')
+            data = data.decode('ascii')
             handler.set_group(
                 tag, [str(save['w']), str(save['h']), 'JPEG', data])
         elif tag == 'Exif.Thumbnail':
@@ -872,7 +868,7 @@ class DateTime(MD_Dict):
 
 class MultiString(MD_Value, tuple):
     def __new__(cls, value):
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             value = value.split(';')
         value = filter(bool, [x.strip() for x in value])
         return super(MultiString, cls).__new__(cls, value)
@@ -899,7 +895,7 @@ class MultiString(MD_Value, tuple):
         return self
 
 
-class MD_String(MD_Value, six.text_type):
+class MD_String(MD_Value, str):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
@@ -969,7 +965,7 @@ class MD_Rational(MD_Value, Fraction):
             tag, '{:d}/{:d}'.format(self.numerator, self.denominator))
 
     def __str__(self):
-        return six.text_type(float(self))
+        return str(float(self))
 
 
 class Altitude(MD_Rational):
@@ -1048,9 +1044,9 @@ class Rating(MD_Value, float):
 
     def write(self, handler, tag):
         if handler.is_exif_tag(tag):
-            handler.set_string(tag, six.text_type(int(self + 1.5) - 1))
+            handler.set_string(tag, str(int(self + 1.5) - 1))
         else:
-            handler.set_string(tag, six.text_type(self))
+            handler.set_string(tag, str(self))
 
 
 class Resolution(MD_Dict):

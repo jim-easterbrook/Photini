@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -19,16 +19,14 @@
 
 from __future__ import unicode_literals
 
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import imghdr
 import logging
 import os
 import shutil
 import threading
 import time
-
-import six
-from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from six.moves.urllib import parse
+import urllib
 
 import appdirs
 import keyring
@@ -87,8 +85,8 @@ class FileObjWithCallback(object):
 
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
-    upload_error = QtSignal(six.text_type, six.text_type)
-    upload_progress = QtSignal(float, six.text_type)
+    upload_error = QtSignal(str, str)
+    upload_progress = QtSignal(float, str)
 
     def __init__(self, session_factory, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
@@ -155,8 +153,8 @@ class AuthRequestHandler(BaseHTTPRequestHandler):
 
     @catch_all
     def do_GET(self):
-        query = parse.urlsplit(self.path).query
-        self.server.result = parse.parse_qs(query)
+        query = urllib.parse.urlsplit(self.path).query
+        self.server.result = urllib.parse.parse_qs(query)
         logger.info('do_GET: %s', repr(self.server.result))
         title = translate('UploaderTabsAll', 'Close window')
         text = translate(
@@ -436,14 +434,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         thread.finished.connect(thread.deleteLater)
         thread.start()
 
-    @QtSlot(float, six.text_type)
+    @QtSlot(float, str)
     @catch_all
     def upload_progress(self, value, format_):
         self.total_progress.setValue(value)
         if format_:
             self.total_progress.setFormat(format_)
 
-    @QtSlot(six.text_type, six.text_type)
+    @QtSlot(str, str)
     @catch_all
     def upload_error(self, name, error):
         dialog = QtWidgets.QMessageBox(self)

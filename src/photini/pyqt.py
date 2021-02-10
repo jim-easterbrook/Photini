@@ -24,8 +24,6 @@ from functools import wraps
 import logging
 import sys
 
-import six
-
 from photini.configstore import BaseConfigStore
 
 logger = logging.getLogger(__name__)
@@ -288,10 +286,10 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 sep = menu.insertSeparator(menu.actions()[0])
                 fm = menu.fontMetrics()
                 for suggestion in self.choices:
-                    label = six.text_type(suggestion).replace('\n', ' ')
+                    label = str(suggestion).replace('\n', ' ')
                     label = fm.elidedText(label, Qt.ElideMiddle, self.width())
                     action = QtWidgets.QAction(label, suggestion_group)
-                    action.setData(six.text_type(suggestion))
+                    action.setData(str(suggestion))
                     menu.insertAction(sep, action)
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
@@ -327,7 +325,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             if qt_version_info >= (5, 3):
                 self.setPlaceholderText('')
         else:
-            self.setPlainText(six.text_type(value))
+            self.setPlainText(str(value))
 
     def get_value(self):
         value = self.toPlainText()

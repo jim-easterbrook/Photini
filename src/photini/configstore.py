@@ -20,8 +20,7 @@
 from __future__ import unicode_literals
 
 import codecs
-import six
-from six.moves.configparser import RawConfigParser
+from configparser import RawConfigParser
 import os
 import stat
 import sys
@@ -46,29 +45,19 @@ class BaseConfigStore(object):
             os.makedirs(config_dir, mode=stat.S_IRWXU)
         self.file_name = os.path.join(config_dir, name + '.ini')
         if os.path.isfile(self.file_name):
-            kwds = {}
-            if not six.PY2:
-                kwds['encoding'] = 'utf-8'
+            kwds = {'encoding': 'utf-8'}
             with open(self.file_name, 'r', **kwds) as fp:
-                if six.PY2:
-                    self.config.readfp(fp)
-                else:
-                    self.config.read_file(fp)
+                self.config.read_file(fp)
         self.has_section = self.config.has_section
 
     def get(self, section, option, default=None):
         if self.config.has_option(section, option):
-            result = self.config.get(section, option)
-            if six.PY2:
-                return result.decode('utf-8')
-            return result
+            return self.config.get(section, option)
         if default is not None:
             self.set(section, option, default)
         return default
 
     def set(self, section, option, value):
-        if six.PY2:
-            value = value.encode('utf-8')
         if not self.config.has_section(section):
             self.config.add_section(section)
         elif (self.config.has_option(section, option) and
@@ -97,9 +86,7 @@ class BaseConfigStore(object):
     def save(self):
         if not self.dirty:
             return
-        kwds = {}
-        if not six.PY2:
-            kwds['encoding'] = 'utf-8'
+        kwds = {'encoding': 'utf-8'}
         with open(self.file_name, 'w', **kwds) as fp:
             self.config.write(fp)
         os.chmod(self.file_name, stat.S_IRUSR | stat.S_IWUSR)
@@ -138,12 +125,9 @@ class KeyStore(object):
 
     def get(self, section, option):
         value = self.config.get(section, option)
-        if not six.PY2:
-            value = value.encode('ascii')
+        value = value.encode('ascii')
         value = codecs.decode(value, 'base64_codec')
-        if not six.PY2:
-            return value.decode('ascii')
-        return value
+        return value.decode('ascii')
 
 
 # create single object for entire application

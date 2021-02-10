@@ -21,7 +21,6 @@ from contextlib import contextmanager
 from datetime import datetime
 import logging
 import os
-import six
 import re
 import shutil
 import sys
@@ -310,8 +309,6 @@ class TabWidget(QtWidgets.QWidget):
         # update config
         self.config_store.delete('importer', 'folders')
         for section in self.config_store.config.sections():
-            if six.PY2:
-                section = section.decode('utf-8')
             if not section.startswith('importer'):
                 continue
             path_format = self.config_store.get(section, 'path_format')
@@ -400,8 +397,6 @@ class TabWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu()
         roots = []
         for section in self.config_store.config.sections():
-            if six.PY2:
-                section = section.decode('utf-8')
             if not section.startswith('importer folder '):
                 continue
             roots.append((section[16:], self.config_store.get(
@@ -475,8 +470,6 @@ class TabWidget(QtWidgets.QWidget):
                 (CameraSource(model, port_name), 'importer ' + model))
         roots = []
         for section in self.config_store.config.sections():
-            if six.PY2:
-                section = section.decode('utf-8')
             if not section.startswith('importer folder '):
                 continue
             roots.append((section[16:], self.config_store.get(

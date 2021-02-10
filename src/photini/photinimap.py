@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@ import os
 
 import pkg_resources
 import requests
-import six
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.metadata import LatLon
@@ -57,7 +56,7 @@ class GeocoderBase(QtCore.QObject):
 class CallHandler(QtCore.QObject):
     # Simple object (with no attributes) for JavaScript to send signals
     # to and hence invoke the methods JavaScript wants to call.
-    @QtSlot(int, six.text_type)
+    @QtSlot(int, str)
     def log(self, level, message):
         logger.log(level, message)
 
@@ -175,7 +174,7 @@ else:
 
 
 class MapWebView(QWebView):
-    drop_text = QtSignal(int, int, six.text_type)
+    drop_text = QtSignal(int, int, str)
 
     @catch_all
     def dragEnterEvent(self, event):
@@ -402,7 +401,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.app.config_store.set(
                     'map', key, repr(self.map_status[key]))
 
-    @QtSlot(int, int, six.text_type)
+    @QtSlot(int, int, str)
     @catch_all
     def drop_text(self, x, y, text):
         self.dropped_images = eval(text)

@@ -19,17 +19,10 @@
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+import html
 import logging
 import os
 import requests
-import sys
-
-import six
-if sys.version_info >= (3, 4):
-    import html
-else:
-    from six.moves.html_parser import HTMLParser
-    html = HTMLParser()
 
 import flickrapi
 

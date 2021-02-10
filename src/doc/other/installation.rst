@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-20  Jim Easterbrook.
+   Copyright (C)  2012-21  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -66,11 +66,11 @@ When it's finished you can free up some disc space with the ``pacman -Scc`` comm
 
 Use pip_ to install Photini::
 
-   python -m pip install photini
+   python3 -m pip install photini
 
 Then run Photini::
 
-   python -m photini.editor
+   python3 -m photini.editor
 
 .. _upgrading-msys2:
 
@@ -84,7 +84,7 @@ Run the ``mingw64.exe`` shell and update pacman_, then use it to update all inst
 
 Use pip_ to update Photini::
 
-   python -m pip install -U photini
+   python3 -m pip install -U photini
 
 Note that pip_ may warn that you are using an old version of pip and instruct you to update it with pip.
 DO NOT DO THIS!
@@ -95,7 +95,7 @@ The MSYS2_ installation of pip has been patched to work with Windows paths and s
 
 If you use the Flickr uploader this can also be installed or updated with pip_::
 
-   python -m pip install -U flickrapi keyring
+   python3 -m pip install -U flickrapi keyring
 
 Installing the spell checker components uses pacman_::
 
@@ -166,7 +166,6 @@ PyGObject_ [4]                                    python3-gobject or
 pgi_ [4]                       0.0.8                                            pgi
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
-six                            1.5                python3-six                   six
 =============================  =================  ============================  =================
 
 [1] PyQt_ and PySide2_ are both Python interfaces to the Qt GUI framework.
@@ -188,7 +187,7 @@ Got that?
 [4] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
 If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
-   sudo pip uninstall pgi
+   sudo pip3 uninstall pgi
 
 .. _installation-photini:
 
@@ -197,40 +196,40 @@ Installing Photini
 
 The easiest way to install the latest release of Photini is with the pip_ command::
 
-   sudo pip install photini
+   sudo pip3 install photini
 
 This will install Photini and any Python packages it requires, for all users.
 If you prefer a single-user installation, which doesn't require root permission, you can use the ``--user`` option::
 
-   pip install photini --user
+   pip3 install photini --user
 
 You can also use pip to install the optional dependencies when you install Photini::
 
-   sudo pip install photini[flickr,google,importer]
+   sudo pip3 install photini[flickr,google,importer]
 
 If you prefer to use the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip or tar.gz file and then unpack it.
 Then set your working directory to the Photini top level directory before continuing.
 
 You can run Photini without installing it, using the ``run_photini.py`` script::
 
-   python src/run_photini.py
+   python3 src/run_photini.py
 
 This can be useful during development as the script should also work within an IDE.
 
 The development version can be built and installed using pip::
 
-   sudo python -m pip install .
+   sudo python3 -m pip install .
 
 or::
 
-   python -m pip install . --user
+   python3 -m pip install . --user
 
 You will need to install the optional dependencies separately.
 
 If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
 
-   python utils/extract_program.py
-   python setup.py lrelease
+   python3 utils/extract_program.py
+   python3 setup.py lrelease
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
@@ -273,7 +272,7 @@ Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2
 Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[1]         FFmpeg_, Pillow_ 2.0+
-Import photos from camera[2]  `python-gphoto2`_ 0.10+
+Import photos from camera[2]  `python3-gphoto2`_ 0.10+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
@@ -328,8 +327,8 @@ Photini documentation
 
 If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and then "compile" the documentation::
 
-   sudo pip install sphinx
-   python utils/build_docs.py
+   sudo pip3 install sphinx
+   python3 utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
 

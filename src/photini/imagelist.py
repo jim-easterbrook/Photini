@@ -19,11 +19,10 @@
 
 from __future__ import unicode_literals
 
-import six
 from datetime import datetime
+import io
 import logging
 import os
-from six import BytesIO
 
 try:
     import PIL.Image as PIL
@@ -208,7 +207,7 @@ class Image(QtWidgets.QFrame):
         buf = QtCore.QBuffer()
         buf.open(buf.WriteOnly)
         qt_im.save(buf, 'PPM')
-        data = BytesIO(buf.data().data())
+        data = io.BytesIO(buf.data().data())
         try:
             pil_im = PIL.open(data)
         except Exception as ex:
@@ -217,7 +216,7 @@ class Image(QtWidgets.QFrame):
         # scale PIL image
         pil_im.thumbnail((w, h), PIL.ANTIALIAS)
         # save image to memory
-        data = BytesIO()
+        data = io.BytesIO()
         pil_im.save(data, 'JPEG')
         return data.getvalue()
 
@@ -302,10 +301,10 @@ class Image(QtWidgets.QFrame):
         status = ''
         # set 'geotagged' status
         if self.metadata.latlong:
-            status += six.unichr(0x2690)
+            status += chr(0x2690)
         # set 'unsaved' status
         if changed:
-            status += six.unichr(0x26A1)
+            status += chr(0x26A1)
         self.status.setText(status)
         self._elide_name()
         if changed:
@@ -774,7 +773,7 @@ class ImageList(QtWidgets.QWidget):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
                     continue
-                values = [six.text_type(x or '') for x in values]
+                values = [str(x or '') for x in values]
                 table.setRowCount(row + 1)
                 for n, value in enumerate(values):
                     item = QtWidgets.QTableWidgetItem(value)

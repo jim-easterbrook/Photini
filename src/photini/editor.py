@@ -18,15 +18,13 @@
 
 from __future__ import unicode_literals
 
-import six
 import importlib
 import logging
 from optparse import OptionParser
 import os
 import pprint
 import sys
-from six.moves.urllib.request import getproxies
-from six.moves.urllib.parse import urlparse
+import urllib
 import warnings
 
 import pkg_resources
@@ -53,10 +51,6 @@ except ImportError as ex:
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
-
-if six.PY2:
-    logger.warning('Photini is currently using Python 2.'
-                   ' Support for Python 2 will be withdrawn in a future release.')
 
 
 class QTabBar(QtWidgets.QTabBar):
@@ -105,9 +99,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
         # set network proxy
-        proxies = getproxies()
+        proxies = urllib.request.getproxies()
         if 'http' in proxies:
-            parsed = urlparse(proxies['http'])
+            parsed = urllib.parse.urlparse(proxies['http'])
             QNetworkProxy.setApplicationProxy(QNetworkProxy(
                 QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
         # create shared global objects
@@ -448,23 +442,19 @@ def main(argv=None):
     version += '\n  using style: {}'.format(
         QtWidgets.QApplication.style().objectName())
     parser = OptionParser(
-        usage=six.text_type(translate(
-            'CLIHelp', 'Usage: %prog [options] [file_name, ...]')),
+        usage=translate('CLIHelp', 'Usage: %prog [options] [file_name, ...]'),
         version=version,
-        description=six.text_type(translate(
-            'CLIHelp', 'Photini photo metadata editor')))
+        description=translate('CLIHelp', 'Photini photo metadata editor'))
     parser.add_option(
         '-t', '--test', action='store_true',
-        help=six.text_type(translate(
-            'CLIHelp', 'test new features or API versions')))
+        help=translate('CLIHelp', 'test new features or API versions'))
     parser.add_option(
         '-u', '--utf_safe', action='store_true',
-        help=six.text_type(translate(
-            'CLIHelp', 'metadata is known to be ASCII or utf-8 encoded')))
+        help=translate(
+            'CLIHelp', 'metadata is known to be ASCII or utf-8 encoded'))
     parser.add_option(
         '-v', '--verbose', action='count', default=0,
-        help=six.text_type(translate(
-            'CLIHelp', 'increase number of logging messages')))
+        help=translate('CLIHelp', 'increase number of logging messages'))
     options, args = parser.parse_args()
     # ensure warnings are visible in test mode
     if options.test:

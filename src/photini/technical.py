@@ -25,8 +25,6 @@ import logging
 import math
 import re
 
-import six
-
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
@@ -136,8 +134,6 @@ class CameraList(DropdownEdit):
         # read cameras from config, updating if neccessary
         camera_names = []
         for section in self.config_store.config.sections():
-            if six.PY2:
-                section = section.decode('utf-8')
             if not section.startswith('camera '):
                 continue
             camera_names.append(section[7:])
@@ -178,8 +174,6 @@ class LensList(DropdownEdit):
         self.config_store.delete('technical', 'lenses')
         lens_names = []
         for section in self.config_store.config.sections():
-            if six.PY2:
-                section = section.decode('utf-8')
             if not section.startswith('lens '):
                 continue
             lens_names.append(section[5:])
@@ -548,7 +542,7 @@ class PrecisionSlider(Slider):
 
 
 class DateAndTimeWidget(QtWidgets.QGridLayout):
-    new_value = QtSignal(six.text_type, dict)
+    new_value = QtSignal(str, dict)
 
     def __init__(self, name, *arg, **kw):
         super(DateAndTimeWidget, self).__init__(*arg, **kw)
@@ -621,14 +615,14 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.time_zone)
         self.layout().addSpacing(spacing)
         # add offset button
-        add_button = SquareButton(six.unichr(0x002b))
+        add_button = SquareButton(chr(0x002b))
         add_button.setStyleSheet('QPushButton {padding: 0px}')
         set_symbol_font(add_button)
         scale_font(add_button, 170)
         add_button.clicked.connect(self.add)
         self.layout().addWidget(add_button)
         # subtract offset button
-        sub_button = SquareButton(six.unichr(0x2212))
+        sub_button = SquareButton(chr(0x2212))
         sub_button.setStyleSheet('QPushButton {padding: 0px}')
         set_symbol_font(sub_button)
         scale_font(sub_button, 170)
@@ -788,7 +782,7 @@ class NewLensDialog(NewItemDialog):
 
 
 class DateLink(QtWidgets.QCheckBox):
-    new_link = QtSignal(six.text_type)
+    new_link = QtSignal(str)
 
     def __init__(self, name, *arg, **kw):
         super(DateLink, self).__init__(*arg, **kw)
@@ -940,7 +934,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_datetime()
         self._update_links()
 
-    @QtSlot(six.text_type)
+    @QtSlot(str)
     @catch_all
     def new_link(self, master):
         slave = self._master_slave[master]
@@ -1051,7 +1045,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_focal_length()
         self._update_focal_length_35()
 
-    @QtSlot(six.text_type, dict)
+    @QtSlot(str, dict)
     @catch_all
     def new_date_value(self, key, new_value):
         for image in self.image_list.get_selected_images():

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -22,8 +22,6 @@ import json
 import subprocess
 import sys
 
-import six
-
 
 def startupinfo():
     if sys.platform.startswith('win'):
@@ -36,8 +34,7 @@ try:
     ffmpeg_version = subprocess.check_output(
         ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-version'],
         startupinfo=startupinfo())
-    if not six.PY2:
-        ffmpeg_version = ffmpeg_version.decode('utf-8')
+    ffmpeg_version = ffmpeg_version.decode('utf-8')
     ffmpeg_version = ffmpeg_version.splitlines()[0]
 except OSError as ex:
     print('ffmpeg not found')
@@ -57,12 +54,10 @@ class FFmpeg(object):
             startupinfo=startupinfo())
         output, error = p.communicate()
         if p.returncode:
-            if not six.PY2:
-                error = error.decode('utf-8')
+            error = error.decode('utf-8')
             error = error.splitlines()[0]
             raise RuntimeError('ffprobe: {}'.format(error))
-        if not six.PY2:
-            output = output.decode('utf-8')
+        output = output.decode('utf-8')
         return json.loads(output)
 
     @staticmethod
@@ -92,8 +87,7 @@ class FFmpeg(object):
             startupinfo=startupinfo())
         output, error = p.communicate()
         if p.returncode:
-            if not six.PY2:
-                error = error.decode('utf-8')
+            error = error.decode('utf-8')
             error = error.splitlines()[0]
             raise RuntimeError('ffmpeg: {}'.format(error))
         return output
