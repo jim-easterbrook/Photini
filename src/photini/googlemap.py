@@ -84,7 +84,7 @@ class GoogleGeocoder(GeocoderBase):
             params['language'] = lang
         if bounds:
             north, east, south, west = bounds
-            params['bounds'] = '{!r},{!r}|{!r},{!r}'.format(
+            params['bounds'] = '{:.4f},{:.4f}|{:.4f},{:.4f}'.format(
                 south, west, north, east)
         for result in self.query(
                 'https://maps.googleapis.com/maps/api/geocode/json', params):
