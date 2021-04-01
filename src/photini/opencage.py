@@ -19,7 +19,6 @@
 
 from __future__ import unicode_literals
 
-from collections import OrderedDict
 import locale
 import logging
 import os
@@ -38,16 +37,7 @@ translate = QtCore.QCoreApplication.translate
 class OpenCage(GeocoderBase):
     api_key = key_store.get('opencage', 'api_key')
 
-    def __init__(self, *args, **kwds):
-        super(OpenCage, self).__init__(*args, **kwds)
-        self.geocode_cache = OrderedDict()
-
-    def do_geocode(self, params):
-        cache_key = params['q']
-        if 'bounds' in params:
-            cache_key += params['bounds']
-        if cache_key in self.geocode_cache:
-            return self.geocode_cache[cache_key]
+    def query(self, params):
         params['key'] = self.api_key
         params['abbrv'] = '1'
         params['no_annotations'] = '1'
@@ -78,9 +68,6 @@ class OpenCage(GeocoderBase):
         rate = rsp['rate']
         self.block_timer.setInterval(
             5000 * rate['limit'] // max(rate['remaining'], 1))
-        self.geocode_cache[cache_key] = rsp['results']
-        while len(self.geocode_cache) > 20:
-            self.geocode_cache.popitem(last=False)
         return rsp['results']
 
     def search(self, search_string, bounds=None):
@@ -98,9 +85,9 @@ class OpenCage(GeocoderBase):
             if margin > 0.0:
                 north = min(north + margin,  90.0)
                 south = max(south - margin, -90.0)
-            params['bounds'] = '{!r},{!r},{!r},{!r}'.format(
+            params['bounds'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        for result in self.do_geocode(params):
+        for result in self.cached_query(params):
             yield (result['bounds']['northeast']['lat'],
                    result['bounds']['northeast']['lng'],
                    result['bounds']['southwest']['lat'],
@@ -135,7 +122,7 @@ class OpenCage(GeocoderBase):
         }
 
     def get_address(self, coords):
-        results = self.do_geocode({'q': coords.replace(' ', '')})
+        results = self.cached_query({'q': coords.replace(' ', '')})
         if not results:
             return None
         address = dict(results[0]['components'])
