@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 import locale
 import logging
 
@@ -35,7 +36,14 @@ class GoogleGeocoder(GeocoderBase):
     api_key = key_store.get('googlemap', 'api_key')
     interval = 50
 
+    def __init__(self, *args, **kwds):
+        super(GoogleGeocoder, self).__init__(*args, **kwds)
+        self.query_cache = OrderedDict()
+
     def query(self, url, params):
+        cache_key = ','.join(sorted([':'.join(x) for x in params.items()]))
+        if cache_key in self.query_cache:
+            return self.query_cache[cache_key]
         params['key'] = self.api_key
         with Busy():
             self.rate_limit()
@@ -55,7 +63,10 @@ class GoogleGeocoder(GeocoderBase):
         results = rsp['results']
         if not results:
             logger.error('No results found')
-            return []
+            results = []
+        self.query_cache[cache_key] = results
+        while len(self.query_cache) > 20:
+            self.query_cache.popitem(last=False)
         return results
 
     def get_altitude(self, coords):
