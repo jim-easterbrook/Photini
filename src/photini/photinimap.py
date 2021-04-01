@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 import locale
 import logging
 import os
@@ -46,11 +47,22 @@ class GeocoderBase(QtCore.QObject):
         self.block_timer = QtCore.QTimer(self)
         self.block_timer.setInterval(self.interval)
         self.block_timer.setSingleShot(True)
+        self.query_cache = OrderedDict()
 
     def rate_limit(self):
         while self.block_timer.isActive():
             self.app.processEvents()
         self.block_timer.start()
+
+    def cached_query(self, params, *args):
+        cache_key = ','.join(sorted([':'.join(x) for x in params.items()]))
+        if cache_key in self.query_cache:
+            return self.query_cache[cache_key]
+        results = self.query(params, *args)
+        self.query_cache[cache_key] = results
+        while len(self.query_cache) > 20:
+            self.query_cache.popitem(last=False)
+        return results
 
 
 class CallHandler(QtCore.QObject):
