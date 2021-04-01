@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -35,7 +35,9 @@ translate = QtCore.QCoreApplication.translate
 class MapboxGeocoder(GeocoderBase):
     api_key = key_store.get('mapboxmap', 'api_key')
 
-    def do_geocode(self, query, params={}):
+    def query(self, params):
+        query = params['query']
+        del params['query']
         params['access_token'] = self.api_key
         params['autocomplete '] = 'false'
         lang, encoding = locale.getdefaultlocale()
@@ -60,7 +62,8 @@ class MapboxGeocoder(GeocoderBase):
 
     def search(self, search_string, bounds=None):
         params = {
-            'limit': 10,
+            'query': search_string,
+            'limit': '10',
             }
         if bounds:
             north, east, south, west = bounds
@@ -72,9 +75,9 @@ class MapboxGeocoder(GeocoderBase):
             if margin > 0.0:
                 north = min(north + margin,  90.0)
                 south = max(south - margin, -90.0)
-            params['bbox'] = '{!r},{!r},{!r},{!r}'.format(
+            params['bbox'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        for feature in self.do_geocode(search_string, params=params):
+        for feature in self.cached_query(params):
             if 'place_name' not in feature:
                 continue
             if 'bbox' in feature:
