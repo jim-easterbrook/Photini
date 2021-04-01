@@ -34,7 +34,7 @@ translate = QtCore.QCoreApplication.translate
 class BingGeocoder(GeocoderBase):
     interval = 50
 
-    def query(self, url, params):
+    def query(self, params, url):
         params['key'] = self.api_key
         with Busy():
             self.rate_limit()
@@ -66,8 +66,8 @@ class BingGeocoder(GeocoderBase):
             'points' : coords.replace(' ', ''),
             'heights': 'sealevel',
             }
-        resource_sets = self.query(
-            'http://dev.virtualearth.net/REST/v1/Elevation/List', params)
+        resource_sets = self.cached_query(
+            params, 'http://dev.virtualearth.net/REST/v1/Elevation/List')
         if resource_sets:
             return resource_sets[0]['resources'][0]['elevations'][0]
         return None
@@ -75,17 +75,17 @@ class BingGeocoder(GeocoderBase):
     def search(self, search_string, bounds=None):
         params = {
             'query' : search_string,
-            'maxRes': 20,
+            'maxRes': '20',
             }
         lang, encoding = locale.getdefaultlocale()
         if lang:
             params['culture'] = lang.replace('_', '-')
         if bounds:
             north, east, south, west = bounds
-            params['userMapView'] = '{!r},{!r},{!r},{!r}'.format(
+            params['userMapView'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 south, west, north, east)
-        for resource_set in self.query(
-                'http://dev.virtualearth.net/REST/v1/Locations', params):
+        for resource_set in self.cached_query(
+                params, 'http://dev.virtualearth.net/REST/v1/Locations'):
             for resource in resource_set['resources']:
                 south, west, north, east = resource['bbox']
                 yield north, east, south, west, resource['name']
