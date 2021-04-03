@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.4.0:
+  1/ Remove Python 2 and PyQt4 compatibility.
+  2/ Cache map search and elevation results for improved speed.
+  3/ Other minor improvements and bug fixes.
+
 Changes in v2021.1.0:
   1/ Technical tab now includes camera model.
   2/ Image list context menu now applies to all selected files.
