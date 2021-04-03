@@ -351,7 +351,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _PyEnchant:         http://pythonhosted.org/pyenchant/
 .. _PyGObject:         https://pygobject.readthedocs.io/
 .. _Python:            https://www.python.org/
-.. _python-gphoto2:    https://pypi.python.org/pypi/gphoto2/
+.. _python3-gphoto2:   https://pypi.python.org/pypi/gphoto2/
 .. _PyPI:              https://pypi.python.org/pypi
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
 .. _PySide2:           https://doc.qt.io/qtforpython/
