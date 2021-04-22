@@ -86,7 +86,7 @@ class FlickrSession(UploaderSession):
         return ''
 
     def get_access_token(self, result):
-        oauth_verifier = six.text_type(result['oauth_verifier'][0])
+        oauth_verifier = str(result['oauth_verifier'][0])
         try:
             self.api.get_access_token(oauth_verifier)
         except Exception as ex:
