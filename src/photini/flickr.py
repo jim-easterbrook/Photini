@@ -22,9 +22,11 @@ from datetime import datetime, timedelta
 import html
 import logging
 import os
-import requests
+import xml.etree.ElementTree as ET
 
-import flickrapi
+import requests
+from requests_oauthlib import OAuth1Session
+from requests_toolbelt import MultipartEncoder
 
 from photini.configstore import key_store
 from photini.metadata import DateTime, LatLon, Location
@@ -34,8 +36,6 @@ from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
-
-flickr_version = 'flickrapi {}'.format(flickrapi.__version__)
 
 ID_TAG = 'flickr:photo_id'
 
@@ -48,38 +48,43 @@ class FlickrSession(UploaderSession):
         self.api = None
 
     def open_connection(self):
+        self.cached_data = {}
+        stored_token = self.get_password()
+        if not stored_token:
+            return False
+        token, token_secret = stored_token.split('&')
         api_key    = key_store.get('flickr', 'api_key')
         api_secret = key_store.get('flickr', 'api_secret')
-        stored_token = self.get_password()
-        if stored_token:
-            token, token_secret = stored_token.split('&')
-        else:
-            token, token_secret = '', ''
-        token = flickrapi.auth.FlickrAccessToken(token, token_secret, 'write')
-        self.api = flickrapi.FlickrAPI(
-            api_key, api_secret, token=token, store_token=False,
-            format='parsed-json')
-        self.cached_data = {}
-        try:
-            if self.api.token_valid(perms='write'):
-                self.connection_changed.emit(True)
-                return True
-        except Exception as ex:
-            logger.error(str(ex))
-            return None
-        return False
+        self.api = OAuth1Session(
+            client_key=api_key, client_secret=api_secret,
+            resource_owner_key=token, resource_owner_secret=token_secret,
+            )
+        self.connection_changed.emit(self.api.authorized)
+        return self.api.authorized
 
     def close_connection(self):
         self.connection_changed.emit(False)
         if self.api:
-            # undocumented way to close Flickr connection cleanly
-            self.api.flickr_oauth.session.close()
+            self.api.close()
             self.api = None
 
     def get_auth_url(self, redirect_uri):
+        # initialise oauth1 session
+        api_key    = key_store.get('flickr', 'api_key')
+        api_secret = key_store.get('flickr', 'api_secret')
+        if self.api:
+            self.api.close()
+        self.api = OAuth1Session(
+            client_key=api_key, client_secret=api_secret,
+            callback_uri=redirect_uri)
         try:
-            self.api.get_request_token(oauth_callback=redirect_uri)
-            return self.api.auth_url(perms='write')
+            self.api.fetch_request_token(
+                'https://www.flickr.com/services/oauth/request_token'
+                )
+            return self.api.authorization_url(
+                'https://www.flickr.com/services/oauth/authorize',
+                perms='write'
+                )
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -88,36 +93,48 @@ class FlickrSession(UploaderSession):
     def get_access_token(self, result):
         oauth_verifier = str(result['oauth_verifier'][0])
         try:
-            self.api.get_access_token(oauth_verifier)
+            token = self.api.fetch_access_token(
+                'https://www.flickr.com/services/oauth/access_token',
+                verifier=oauth_verifier)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
             return
-        token = self.api.token_cache.token
-        self.set_password(token.token + '&' + token.token_secret)
-        self.connection_changed.emit(True)
+        self.set_password(
+            token['oauth_token'] + '&' + token['oauth_token_secret'])
+        self.connection_changed.emit(self.api.authorized)
+
+    def api_call(self, method, **params):
+        params['method'] = method
+        params['format'] = 'json'
+        params['nojsoncallback'] = '1'
+        try:
+            rsp = self.api.get('https://www.flickr.com/services/rest',
+                                timeout=5, params=params)
+        except Exception as ex:
+            logger.error(str(ex))
+            self.close_connection()
+            return {}
+        if rsp.status_code != 200:
+            logger.error('HTTP error %d', rsp.status_code)
+            return {}
+        rsp = rsp.json()
+        if not ('stat' in rsp and rsp['stat'] == 'ok'):
+            logger.error('API error %s: %s', rsp['stat'], rsp['message'])
+            return {}
+        return rsp
 
     def get_user(self):
         if 'user' in self.cached_data:
             return self.cached_data['user']
         self.cached_data['user'] = None, None
-        try:
-            rsp = self.api.auth.oauth.checkToken()
-            if rsp['stat'] != 'ok':
-                return self.cached_data['user']
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
+        rsp = self.api_call('flickr.auth.oauth.checkToken')
+        if not rsp:
             return self.cached_data['user']
         user = rsp['oauth']['user']
         self.cached_data['user'] = user['fullname'], None
-        try:
-            rsp = self.api.people.getInfo(user_id=user['nsid'])
-            if rsp['stat'] != 'ok':
-                return self.cached_data['user']
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
+        rsp = self.api_call('flickr.people.getInfo', user_id=user['nsid'])
+        if not rsp:
             return self.cached_data['user']
         person = rsp['person']
         if person['iconserver'] != '0':
@@ -136,11 +153,8 @@ class FlickrSession(UploaderSession):
         if 'sets' in self.cached_data:
             return self.cached_data['sets']
         self.cached_data['sets'] = []
-        try:
-            sets = self.api.photosets.getList()
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
+        sets = self.api_call('flickr.photosets.getList')
+        if not sets:
             return self.cached_data['sets']
         for item in sets['photosets']['photoset']:
             self.cached_data['sets'].append((
@@ -149,13 +163,8 @@ class FlickrSession(UploaderSession):
         return self.cached_data['sets']
 
     def get_info(self, photo_id):
-        try:
-            rsp = self.api.photos.getInfo(photo_id=photo_id)
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
-            return None
-        if rsp['stat'] != 'ok':
+        rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+        if not rsp:
             return None
         return rsp['photo']
 
@@ -164,16 +173,12 @@ class FlickrSession(UploaderSession):
         page = 1
         while True:
             with Busy():
-                try:
-                    rsp = self.api.people.getPhotos(
-                        user_id='me', page=page, extras='date_taken,url_t',
-                        min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                        max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
-                    if rsp['stat'] != 'ok' or not rsp['photos']['photo']:
-                        return
-                except Exception as ex:
-                    logger.error(str(ex))
-                    self.close_connection()
+                rsp = self.api_call(
+                    'flickr.people.getPhotos',
+                    user_id='me', page=page, extras='date_taken,url_t',
+                    min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
+                if not ('photos' in rsp and rsp['photos']['photo']):
                     return
             for photo in rsp['photos']['photo']:
                 yield photo
@@ -184,21 +189,34 @@ class FlickrSession(UploaderSession):
         photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
-            kwargs = {
-                'filename': image.path,
-                'fileobj' : fileobj,
-                'format'  : 'etree'
-                }
             if params['function'] == 'upload':
+                url = 'https://up.flickr.com/services/upload/'
+                data = {}
                 # set some metadata with upload function
                 for key in ('permissions', 'content_type', 'hidden',
                             'meta', 'tags'):
                     if key in params and params[key]:
-                        kwargs.update(params[key])
+                        data.update(params[key])
                         del(params[key])
             else:
-                kwargs['photo_id'] = photo_id
-            rsp = getattr(self.api, params['function'])(**kwargs)
+                url = 'https://up.flickr.com/services/replace/'
+                data = {'photo_id': photo_id}
+            # get the headers (without 'photo') from a dummy Request, an idea
+            # I've stolen from https://github.com/sybrenstuvel/flickrapi
+            headers = requests.Request(
+                'POST', url, data=data, auth=self.api.auth).prepare().headers
+            # add photo to parameters now we've got the headers without it
+            data['photo'] = ('dummy_name', fileobj)
+            data = MultipartEncoder(fields=data)
+            headers = {'Authorization': headers['Authorization'],
+                       'Content-Type': data.content_type}
+            # use requests to post data
+            rsp = requests.post(url, data=data, headers=headers)
+            if rsp.status_code != 200:
+                logger.error('HTTP error %d', rsp.status_code)
+                return {}
+            # parse XML response
+            rsp = ET.fromstring(rsp.text)
             status = rsp.attrib['stat']
             if status != 'ok':
                 return params['function'] + ' ' + status
@@ -218,36 +236,24 @@ class FlickrSession(UploaderSession):
                               ('tags',         'setTags'),
                               ('dates',        'setDates'),
                               ('location',     'geo.setLocation')):
-            if key not in params or not params[key]:
-                continue
-            kwargs = params[key]
-            kwargs['photo_id'] = photo_id
-            rsp = getattr(self.api.photos, function)(**kwargs)
-            status = rsp['stat']
-            if status != 'ok':
-                return function + ' ' + status
+            if key in params and params[key]:
+                self.api_call('flickr.photos.' + function,
+                              photo_id=photo_id, **params[key])
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
-            rsp = self.api.photos.getInfo(photo_id=photo_id)
-            status = rsp['stat']
-            if status != 'ok':
-                return 'getInfo ' + status
-            if 'location' in rsp['photo']:
-                rsp = self.api.photos.geo.removeLocation(photo_id=photo_id)
-                status = rsp['stat']
-                if status != 'ok':
-                    return 'geo.removeLocation ' + status
+            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+            if 'photo' in rsp and 'location' in rsp['photo']:
+                self.api_call(
+                    'flickr.photos.geo.removeLocation', photo_id=photo_id)
         # add to or remove from sets
         if 'sets' not in params:
             return ''
         current_sets = {}
         if params['function'] != 'upload':
             # get sets existing photo is in
-            rsp = self.api.photos.getAllContexts(photo_id=photo_id)
-            status = rsp['stat']
-            if status != 'ok':
-                return 'getAllContexts ' + status
+            rsp = self.api_call(
+                'flickr.photos.getAllContexts', photo_id=photo_id)
             if 'set' in rsp:
                 for p_set in rsp['set']:
                     current_sets[p_set['id']] = p_set
@@ -260,34 +266,21 @@ class FlickrSession(UploaderSession):
                 kwargs = {'title'           : title,
                           'description'     : description,
                           'primary_photo_id': photo_id}
-                rsp = self.api.photosets.create(**kwargs)
-                status = rsp['stat']
-                if status == 'ok':
+                rsp = self.api_call('flickr.photosets.create', **kwargs)
+                if rsp:
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
                     continue
-                logger.error(
-                    'Create photoset "%s" failed: %s', title, status)
             elif photoset_id in current_sets:
                 # photo is already in the set
                 del current_sets[photoset_id]
             else:
                 # use existing set
                 kwargs = {'photo_id': photo_id, 'photoset_id': photoset_id}
-                rsp = self.api.photosets.addPhoto(**kwargs)
-                status = rsp['stat']
-                if status == 'ok':
-                    continue
-                logger.error(
-                    'Add to photoset "%s" failed: %s', title, status)
+                self.api_call('flickr.photosets.addPhoto', **kwargs)
         # remove from any other sets
         for p_set in current_sets.values():
             kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
-            rsp = self.api.photosets.removePhoto(**kwargs)
-            status = rsp['stat']
-            if status == 'ok':
-                continue
-            logger.error(
-                'Remove from photoset "%s" failed: %s', p_set['title'], status)
+            self.api_call('flickr.photosets.removePhoto', **kwargs)
         return ''
 
 

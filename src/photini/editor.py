@@ -432,11 +432,6 @@ def main(argv=None):
         version += '\n  ' + spelling_version
     if ffmpeg_version:
         version += '\n  ' + ffmpeg_version
-    try:
-        from photini.flickr import flickr_version
-        version += '\n  ' + flickr_version
-    except ImportError:
-        pass
     version += '\n  available styles: {}'.format(
         ', '.join(QtWidgets.QStyleFactory.keys()))
     version += '\n  using style: {}'.format(
