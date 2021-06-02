@@ -39,6 +39,9 @@ translate = QtCore.QCoreApplication.translate
 
 ID_TAG = 'flickr:photo_id'
 
+# Flickr API: https://www.flickr.com/services/api/
+# OAuth1Session: https://requests-oauthlib.readthedocs.io/en/latest/api.html
+# requests: https://docs.python-requests.org/
 
 class FlickrSession(UploaderSession):
     name = 'flickr'
@@ -127,26 +130,30 @@ class FlickrSession(UploaderSession):
     def get_user(self):
         if 'user' in self.cached_data:
             return self.cached_data['user']
-        self.cached_data['user'] = None, None
+        name, picture = None, None
+        # get nsid of logged in user
         rsp = self.api_call('flickr.auth.oauth.checkToken')
         if not rsp:
-            return self.cached_data['user']
-        user = rsp['oauth']['user']
-        self.cached_data['user'] = user['fullname'], None
-        rsp = self.api_call('flickr.people.getInfo', user_id=user['nsid'])
+            return name, picture
+        nsid = rsp['oauth']['user']['nsid']
+        # get user info
+        rsp = self.api_call('flickr.people.getInfo', user_id=nsid)
         if not rsp:
-            return self.cached_data['user']
+            return name, picture
         person = rsp['person']
+        name = person['realname']['_content']
         if person['iconserver'] != '0':
             icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
-                person['iconfarm'], person['iconserver'], person['nsid'])
+                person['iconfarm'], person['iconserver'], nsid)
         else:
             icon_url = 'https://www.flickr.com/images/buddyicon.gif'
+        # get icon
         rsp = requests.get(icon_url)
         if rsp.status_code == 200:
-            self.cached_data['user'] = user['fullname'], rsp.content
+            picture = rsp.content
         else:
             logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
+        self.cached_data['user'] = name, picture
         return self.cached_data['user']
 
     def get_albums(self):
@@ -189,17 +196,15 @@ class FlickrSession(UploaderSession):
         photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
+            url = 'https://up.flickr.com/services/{}/'.format(params['function'])
             if params['function'] == 'upload':
-                url = 'https://up.flickr.com/services/upload/'
                 data = {}
                 # set some metadata with upload function
-                for key in ('permissions', 'content_type', 'hidden',
-                            'meta', 'tags'):
+                for key in ('permissions', 'content_type', 'hidden', 'meta'):
                     if key in params and params[key]:
                         data.update(params[key])
                         del(params[key])
             else:
-                url = 'https://up.flickr.com/services/replace/'
                 data = {'photo_id': photo_id}
             # get the headers (without 'photo') from a dummy Request, an idea
             # I've stolen from https://github.com/sybrenstuvel/flickrapi
@@ -229,15 +234,18 @@ class FlickrSession(UploaderSession):
         elif keyword not in image.metadata.keywords:
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
-        for key, function in (('permissions',  'setPerms'),
-                              ('content_type', 'setContentType'),
-                              ('hidden',       'setSafetyLevel'),
-                              ('meta',         'setMeta'),
-                              ('tags',         'setTags'),
-                              ('dates',        'setDates'),
-                              ('location',     'geo.setLocation')):
-            if key in params and params[key]:
-                self.api_call('flickr.photos.' + function,
+        metadata_set_func = {
+            'permissions':  'flickr.photos.setPerms',
+            'content_type': 'flickr.photos.setContentType',
+            'hidden':       'flickr.photos.setSafetyLevel',
+            'meta':         'flickr.photos.setMeta',
+            'tags':         'flickr.photos.setTags',
+            'dates':        'flickr.photos.setDates',
+            'location':     'flickr.photos.geo.setLocation',
+            }
+        for key in params:
+            if params[key] and key in metadata_set_func:
+                self.api_call(metadata_set_func[key],
                               photo_id=photo_id, **params[key])
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
@@ -259,28 +267,25 @@ class FlickrSession(UploaderSession):
                     current_sets[p_set['id']] = p_set
         for widget in params['sets']:
             photoset_id = widget.property('photoset_id')
-            title = widget.text().replace('&&', '&')
-            description = widget.toolTip()
             if not photoset_id:
                 # create new set
-                kwargs = {'title'           : title,
-                          'description'     : description,
-                          'primary_photo_id': photo_id}
-                rsp = self.api_call('flickr.photosets.create', **kwargs)
+                rsp = self.api_call(
+                    'flickr.photosets.create', primary_photo_id=photo_id,
+                    title=widget.text().replace('&&', '&'),
+                    description=widget.toolTip())
                 if rsp:
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
-                    continue
             elif photoset_id in current_sets:
                 # photo is already in the set
                 del current_sets[photoset_id]
             else:
-                # use existing set
-                kwargs = {'photo_id': photo_id, 'photoset_id': photoset_id}
-                self.api_call('flickr.photosets.addPhoto', **kwargs)
+                # add to existing set
+                self.api_call('flickr.photosets.addPhoto',
+                              photo_id=photo_id, photoset_id=photoset_id)
         # remove from any other sets
         for p_set in current_sets.values():
-            kwargs = {'photo_id': photo_id, 'photoset_id': p_set['id']}
-            self.api_call('flickr.photosets.removePhoto', **kwargs)
+            self.api_call('flickr.photosets.removePhoto',
+                          photo_id=photo_id, photoset_id=p_set['id'])
         return ''
 
 
@@ -576,6 +581,10 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Replace image'))
         widget['new_photo'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Upload as new photo'))
+        widget['new_photo'].toggled.connect(widget['set_metadata'].setDisabled)
+        widget['new_photo'].toggled.connect(widget['set_visibility'].setDisabled)
+        widget['new_photo'].toggled.connect(widget['set_type'].setDisabled)
+        widget['new_photo'].toggled.connect(widget['set_albums'].setDisabled)
         no_upload = QtWidgets.QCheckBox(
             translate('FlickrTab', 'No image upload'))
         no_upload.setChecked(True)
