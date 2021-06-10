@@ -45,10 +45,7 @@ ID_TAG = 'flickr:photo_id'
 
 class FlickrSession(UploaderSession):
     name = 'flickr'
-
-    def __init__(self, *arg, **kwds):
-        super(FlickrSession, self).__init__(*arg, **kwds)
-        self.api = None
+    oauth_url  = 'https://www.flickr.com/services/oauth/'
 
     def open_connection(self):
         self.cached_data = {}
@@ -65,12 +62,6 @@ class FlickrSession(UploaderSession):
         self.connection_changed.emit(self.api.authorized)
         return self.api.authorized
 
-    def close_connection(self):
-        self.connection_changed.emit(False)
-        if self.api:
-            self.api.close()
-            self.api = None
-
     def get_auth_url(self, redirect_uri):
         # initialise oauth1 session
         api_key    = key_store.get('flickr', 'api_key')
@@ -81,13 +72,9 @@ class FlickrSession(UploaderSession):
             client_key=api_key, client_secret=api_secret,
             callback_uri=redirect_uri)
         try:
-            self.api.fetch_request_token(
-                'https://www.flickr.com/services/oauth/request_token'
-                )
+            self.api.fetch_request_token(self.oauth_url + 'request_token')
             return self.api.authorization_url(
-                'https://www.flickr.com/services/oauth/authorize',
-                perms='write'
-                )
+                self.oauth_url + 'authorize', perms='write')
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -97,8 +84,7 @@ class FlickrSession(UploaderSession):
         oauth_verifier = str(result['oauth_verifier'][0])
         try:
             token = self.api.fetch_access_token(
-                'https://www.flickr.com/services/oauth/access_token',
-                verifier=oauth_verifier)
+                self.oauth_url + 'access_token', verifier=oauth_verifier)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()

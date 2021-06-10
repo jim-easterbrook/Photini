@@ -42,11 +42,21 @@ translate = QtCore.QCoreApplication.translate
 class UploaderSession(QtCore.QObject):
     connection_changed = QtSignal(bool)
 
+    def __init__(self, *arg, **kwds):
+        super(UploaderSession, self).__init__(*arg, **kwds)
+        self.api = None
+
     @QtSlot()
     @catch_all
     def log_out(self):
         keyring.delete_password('photini', self.name)
         self.close_connection()
+
+    def close_connection(self):
+        self.connection_changed.emit(False)
+        if self.api:
+            self.api.close()
+            self.api = None
 
     def get_password(self):
         return keyring.get_password('photini', self.name)
