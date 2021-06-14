@@ -93,9 +93,9 @@ The MSYS2_ installation of pip has been patched to work with Windows paths and s
 .. versionadded:: 2020.12.0
    After installing or upgrading Photini you should (re)install the start menu shortcuts, as described in the `installing menu entries`_ section.
 
-If you use the Flickr uploader this can also be installed or updated with pip_::
+If you use the Flickr or Google Photos uploader their dependencies can also be installed or updated with pip_::
 
-   python3 -m pip install -U flickrapi keyring
+   python3 -m pip install -U requests-toolbelt requests-oauthlib keyring
 
 Installing the spell checker components uses pacman_::
 
@@ -269,7 +269,7 @@ The system package manager names will probably have ``python-`` or ``python3-`` 
 Feature                       Dependencies
 ============================  =================
 Spell check                   Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``) or pyenchant_ 1.6+
-Flickr upload                 flickrapi_ 2.0+, keyring_ 7.0+
+Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[1]         FFmpeg_, Pillow_ 2.0+
 Import photos from camera[2]  `python3-gphoto2`_ 0.10+
@@ -334,7 +334,6 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
 .. _Exiv2:             http://exiv2.org/
 .. _FFmpeg:            https://ffmpeg.org/
-.. _flickrapi:         https://stuvel.eu/flickrapi/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
 .. _Windows installers: https://github.com/jim-easterbrook/Photini/releases/tag/2020.4.0-win

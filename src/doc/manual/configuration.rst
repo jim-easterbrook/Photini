@@ -108,21 +108,21 @@ To find out what styles are available on your computer you can use Photini's ``-
 You can then try one of these styles as follows::
 
    jim@brains:~$ photini --version
-   Photini 2017.8.1, build 898 (a98bfac)
-     Python 3.4.5 (default, Jul 03 2016, 13:32:18) [GCC]
-     pgi 0.0.11.1, GExiv2 0.10.6, GObject 2.0
-     PyQt 5.4, Qt 5.5.0, using QtWebKit
-     enchant 1.6.6
-     flickrapi 2.2.1
-     available styles: Breeze, Windows, GTK+, Fusion
-   jim@brains:~$ photini -style breeze
+   Photini 2021.6.0, build 1695 (69baf7e)
+     Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
+     PyGObject 3.34.0, GExiv2 0.11.0, GObject 2.0, GLib 2.62.5, Gspell 1
+     PySide 5.12.3, Qt 5.12.7, using QtWebEngine
+     ffmpeg version 3.4.8 Copyright (c) 2000-2020 the FFmpeg developers
+     available styles: Breeze, bb10dark, bb10bright, cleanlooks, gtk2, cde, motif, plastique, Windows, Fusion
+     using style: breeze
+   jim@brains:~$ photini -style cleanlooks
 
 Note that the style names are not case sensitive.
 If none of the available styles is to your liking you may be able to install extra ones.
 For example, on some Ubuntu Linux systems the package ``qt5-style-plugins`` is available.
 
 Once you find a style that you like, you can set Photini to use that style by editing the configuration file as described above.
-Add a line such as ``style = breeze`` to the ``[pyqt]`` section to set your chosen style.
+Add a line such as ``style = cleanlooks`` to the ``[pyqt]`` section to set your chosen style.
 Note that after doing this you can not set a different style on the command line unless you remove the ``style = ...`` line from your config file.
 
 .. code-block:: guess
@@ -131,7 +131,7 @@ Note that after doing this you can not set a different style on the command line
    using_pyside2 = auto
    using_qtwebengine = auto
    native_dialog = True
-   style = breeze
+   style = cleanlooks
 
 .. _configuration-tabs:
 
