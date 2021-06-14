@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -66,7 +66,7 @@ class EditSettings(QtWidgets.QDialog):
         force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
         self.write_iptc.setChecked(force_iptc)
-        panel.layout().addRow(self.tr('IPTC metadata'), self.write_iptc)
+        panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
         # sidecar files
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')

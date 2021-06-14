@@ -5,24 +5,24 @@
 Tag reference
 =============
 
-This section lists the "mapping" from Photini's field names (such as "Title / Object Name") to the Exif / XMP / IPTC tags the data is stored in.
+This section lists the "mapping" from Photini's field names (such as "Title / Object Name") to the Exif / XMP / IPTC-IIM tags the data is stored in.
 The tag names are those used by the Exiv2 library.
 See http://exiv2.org/metadata.html for more detail.
 
 As far as possible Photini follows the `Metadata Working Group <https://en.wikipedia.org/wiki/Metadata_Working_Group>`_ (MWG) "Guidelines for Handling Image Metadata".
-These specify the mapping between tags in Exif, XMP and IPTC, and say how software should reconcile any differences between information stored in equivalent tags.
+These specify the mapping between tags in Exif, XMP and IPTC-IIM, and say how software should reconcile any differences between information stored in equivalent tags.
 
 Primary tags
 ------------
 
 These tags are where Photini stores its metadata.
-(IPTC tags are only used if they already exist in the file, in line with the MWG guidelines, unless the "write unconditionally" user setting is enabled.)
+(Legacy IPTC-IIM data is only used if it already exists in the file, in line with the MWG guidelines, unless the "write unconditionally" user setting is enabled.)
 
 Note that "Title / Object Name" and "Keywords" are not stored in Exif.
 You may prefer not to use these fields to ensure compatibility with software that only handles Exif.
 
 =====================  ================================  ==============================  ==================
-Photini field          Exif tag                          XMP tag                         IPTC tag
+Photini field          Exif tag                          XMP tag                         IPTC-IIM tag
 =====================  ================================  ==============================  ==================
 Title / Object Name                                      Xmp.dc.title                    Iptc.Application2.ObjectName
 Description / Caption  Exif.Image.ImageDescription       Xmp.dc.description              Iptc.Application2.Caption
@@ -72,7 +72,7 @@ Photini may read information from these tags and merge it with information from 
 These tags are deleted when the corresponding primary tags are saved.
 
 =====================  ===============================  ==============================  ==================
-Photini field          Exif tag                         XMP tag                         IPTC tag
+Photini field          Exif tag                         XMP tag                         IPTC-IIM tag
 =====================  ===============================  ==============================  ==================
 Title / Object Name    Exif.Image.XPTitle                                               Iptc.Application2.Headline
 Description / Caption  Exif.Image.XPComment             Xmp.tiff.ImageDescription
@@ -101,7 +101,7 @@ XMP only tags
 These tags are read if present, but are only written if the file format doesn't support Exif, e.g. an XMP sidecar.
 
 =====================  ========  ================================  ==================
-Photini field          Exif tag  XMP tag                           IPTC tag
+Photini field          Exif tag  XMP tag                           IPTC-IIM tag
 =====================  ========  ================================  ==================
 Orientation                      Xmp.tiff.Orientation
 Lens maker name                  Xmp.exifEX.LensMake
@@ -125,7 +125,7 @@ Photini may read information from these tags and merge it with information from 
 These tags are not deleted when the corresponding primary tags are saved.
 
 =====================  ===============================  ================================  ==================
-Photini field          Exif tag                         XMP tag                           IPTC tag
+Photini field          Exif tag                         XMP tag                           IPTC-IIM tag
 =====================  ===============================  ================================  ==================
 Time zone offset[1]    Exif.Image.TimeZoneOffset
                        Exif.NikonWt.Timezone
