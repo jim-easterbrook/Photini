@@ -67,6 +67,13 @@ class EditSettings(QtWidgets.QDialog):
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
         self.write_iptc.setChecked(force_iptc)
         panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
+        # show IPTC-IIM length limits
+        length_warning = eval(self.config_store.get(
+            'files', 'length_warning', 'False'))
+        self.length_warning = QtWidgets.QCheckBox(self.tr(
+            'Show IPTC-IIM length limits'))
+        self.length_warning.setChecked(length_warning)
+        panel.layout().addRow('', self.length_warning)
         # sidecar files
         if_mode = eval(self.config_store.get('files', 'image', 'True'))
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
@@ -121,6 +128,8 @@ class EditSettings(QtWidgets.QDialog):
             'user', 'creator_name', self.creator_name.get_value())
         self.config_store.set(
             'files', 'force_iptc', str(self.write_iptc.isChecked()))
+        self.config_store.set(
+            'files', 'length_warning', str(self.length_warning.isChecked()))
         if self.sc_always.isChecked():
             sc_mode = 'always'
         elif self.sc_auto.isChecked():
