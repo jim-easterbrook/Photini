@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-21  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Descriptive metadata
@@ -21,6 +21,7 @@ If you prefer a different wording you can change the template, as described in :
 .. image:: ../images/screenshot_08.png
 
 Next click on the ``Creator / Artist`` field's ``Auto`` button.
+(Some software calls this field "author" or "byline".)
 Now Photini will ask for the name of the creator.
 Edit the name if required, then click ``OK``.
 
@@ -35,7 +36,7 @@ I do this frequently to avoid losing any of my work.
 
 Next I set the title.
 Select all the images that should have the same title, then type the title in the ``Title / Object name`` text editing box.
-Note that the title (and keywords) are stored in XMP but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
+Note that the title (and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
 You may prefer to leave the title and keywords fields blank.
 
 The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
