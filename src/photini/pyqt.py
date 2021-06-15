@@ -22,6 +22,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
 import logging
+import re
 import sys
 
 from photini.configstore import BaseConfigStore
@@ -219,26 +220,56 @@ class CompactButton(QtWidgets.QPushButton):
         scale_font(self, 80)
 
 
-class SpellingHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, *arg, **kw):
-        super(SpellingHighlighter, self).__init__(*arg, **kw)
-        self.spell_check = QtWidgets.QApplication.instance().spell_check
-        self.spell_check.new_dict.connect(self.rehighlight)
-        self.formatter = QtGui.QTextCharFormat()
-        self.formatter.setUnderlineColor(Qt.red)
-        self.formatter.setUnderlineStyle(
-            QtGui.QTextCharFormat.SpellCheckUnderline)
-        self.find_words = self.spell_check.find_words
-        self.check = self.spell_check.check
-        self.suggest = self.spell_check.suggest
+class TextHighlighter(QtGui.QSyntaxHighlighter):
+    def __init__(self, spelling, length, multi_string, parent):
+        super(TextHighlighter, self).__init__(parent)
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        if spelling:
+            self.spell_check = QtWidgets.QApplication.instance().spell_check
+            self.spell_check.new_dict.connect(self.rehighlight)
+            self.spell_formatter = QtGui.QTextCharFormat()
+            self.spell_formatter.setUnderlineColor(Qt.red)
+            self.spell_formatter.setUnderlineStyle(
+                QtGui.QTextCharFormat.SpellCheckUnderline)
+            self.find_words = self.spell_check.find_words
+            self.suggest = self.spell_check.suggest
+        else:
+            self.spell_check = None
+        if length:
+            self.length_check = length
+            self.length_formatter = QtGui.QTextCharFormat()
+            self.length_formatter.setUnderlineColor(Qt.blue)
+            self.length_formatter.setUnderlineStyle(
+                QtGui.QTextCharFormat.SingleUnderline)
+        else:
+            self.length_check = None
+        self.multi_string = multi_string
 
     @catch_all
     def highlightBlock(self, text):
         if not text:
             return
-        for word, start, end in self.find_words(text):
-            if not self.check(word):
-                self.setFormat(start, end - start, self.formatter)
+        if self.length_check:
+            length_warning = eval(self.config_store.get(
+                'files', 'length_warning', 'False'))
+            if length_warning:
+                if self.multi_string:
+                    pattern = '\s*(.+?)(;|$)'
+                else:
+                    pattern = '\s*(.+)'
+                for match in re.finditer(pattern, text):
+                    start = match.start(1)
+                    end = match.end(1)
+                    truncated = text[start:end]
+                    truncated = truncated.encode('utf-8')[:self.length_check]
+                    start += len(truncated.decode('utf-8', errors='ignore'))
+                    if start < end:
+                        self.setFormat(start, end - start,
+                                       self.length_formatter)
+        if self.spell_check:
+            for word, start, end in self.find_words(text):
+                if not self.spell_check.check(word):
+                    self.setFormat(start, end - start, self.spell_formatter)
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -255,15 +286,15 @@ class ComboBox(QtWidgets.QComboBox):
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtSignal()
 
-    def __init__(self, spell_check=False, *arg, **kw):
-        super(MultiLineEdit, self).__init__(*arg, **kw)
+    def __init__(self, spell_check=False, length_check=None,
+                 multi_string=False, **kw):
+        super(MultiLineEdit, self).__init__(**kw)
         self.multiple_values = multiple_values()
         self.setTabChangesFocus(True)
         self._is_multiple = False
-        if spell_check:
-            self.spell_check = SpellingHighlighter(self.document())
-        else:
-            self.spell_check = None
+        self.spell_check = spell_check
+        self.highlighter = TextHighlighter(
+            spell_check, length_check, multi_string, self.document())
 
     def focusOutEvent(self, event):
         if not self._is_multiple:
@@ -294,7 +325,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         elif self.spell_check:
             cursor = self.cursorForPosition(event.pos())
             block_pos = cursor.block().position()
-            for word, start, end in self.spell_check.find_words(
+            for word, start, end in self.highlighter.find_words(
                                                         cursor.block().text()):
                 if start > cursor.positionInBlock():
                     break
@@ -303,7 +334,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
                 break
-            suggestions = self.spell_check.suggest(cursor.selectedText())
+            suggestions = self.highlighter.suggest(cursor.selectedText())
             if suggestions:
                 sep = menu.insertSeparator(menu.actions()[0])
                 for suggestion in suggestions:
