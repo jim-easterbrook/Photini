@@ -364,15 +364,27 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Iptc.Envelope.CharacterSet'         :   32,
         }
 
+    @classmethod
+    def truncate_by_tag(cls, value, tag):
+        if tag in cls._max_bytes:
+            value = value.encode('utf-8')[:cls._max_bytes[tag]]
+            return value.decode('utf-8', errors='ignore')
+        return value
+
+    @classmethod
+    def truncate_by_name(cls, value, name):
+        for mode, tag in cls._tag_list[name]:
+            if mode == 'WA':
+                value = cls.truncate_by_tag(value, tag)
+        return value
+
     def set_string(self, tag, value):
         if not tag:
             return
         if not value:
             self._clear_value(tag)
             return
-        if tag in self._max_bytes:
-            value = value.encode('utf-8')[:self._max_bytes[tag]]
-            value = value.decode('utf-8', errors='ignore')
+        value = self.truncate_by_tag(value, tag)
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):

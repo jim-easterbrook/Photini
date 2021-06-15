@@ -148,6 +148,9 @@ class MD_Value(object):
     def write(self, handler, tag):
         handler.set_string(tag, str(self))
 
+    def truncate(self, name):
+        return self
+
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
         if ignored:
@@ -391,6 +394,16 @@ class Location(MD_Dict_Mergeable):
                 result.append('{}: {}'.format(key, self[key]))
         return '\n'.join(result)
 
+    def truncate(self, name):
+        result = dict(self)
+        for key, tag in (('sublocation', 'Iptc.Application2.SubLocation'),
+                         ('city', 'Iptc.Application2.City'),
+                         ('province_state', 'Iptc.Application2.ProvinceState'),
+                         ('country_name', 'Iptc.Application2.CountryName'),
+                         ('country_code', 'Iptc.Application2.CountryCode')):
+            result[key] = ImageMetadata.truncate_by_tag(self[key], tag)
+        return Location(result)
+
     @staticmethod
     def merge_item(this, other):
         if other in this:
@@ -443,6 +456,9 @@ class MultiLocation(tuple):
             if location:
                 result += str(location) + '\n'
         return result
+
+    def truncate(self, name):
+        return MultiLocation([x.truncate(name) for x in self])
 
 
 class CameraModel(MD_Dict_Mergeable):
@@ -882,6 +898,10 @@ class MultiString(MD_Value, tuple):
     def __str__(self):
         return '; '.join(self)
 
+    def truncate(self, name):
+        return MultiString(
+            [ImageMetadata.truncate_by_name(x, name) for x in self])
+
     def merge(self, info, tag, other):
         merged = False
         result = list(self)
@@ -906,6 +926,9 @@ class MD_String(MD_Value, str):
 
     def write(self, handler, tag):
         handler.set_string(tag, self)
+
+    def truncate(self, name):
+        return MultiString(ImageMetadata.truncate_by_name(self, name))
 
     @staticmethod
     def merge_item(this, other):
@@ -1266,9 +1289,10 @@ class Metadata(object):
         if value in (None, '', [], {}):
             value = None
         elif not isinstance(value, self._data_type[name]):
-            value = self._data_type[name](value)
-            if not value:
-                value = None
+            value = self._data_type[name](value) or None
+        if value:
+            # shorten to IPTC-IIM byte limit
+            value = value.truncate(name)
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
