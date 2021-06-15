@@ -69,7 +69,7 @@ class EditSettings(QtWidgets.QDialog):
         panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
         # show IPTC-IIM length limits
         length_warning = eval(self.config_store.get(
-            'files', 'length_warning', 'False'))
+            'files', 'length_warning', 'True'))
         self.length_warning = QtWidgets.QCheckBox(self.tr(
             'Show IPTC-IIM length limits'))
         self.length_warning.setChecked(length_warning)

@@ -251,7 +251,7 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
             return
         if self.length_check:
             length_warning = eval(self.config_store.get(
-                'files', 'length_warning', 'False'))
+                'files', 'length_warning', 'True'))
             if length_warning:
                 if self.multi_string:
                     pattern = '\s*(.+?)(;|$)'
