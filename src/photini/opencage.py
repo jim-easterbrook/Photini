@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -96,21 +96,21 @@ class OpenCage(GeocoderBase):
 
     # Map OpenCage address components to IPTC address heirarchy. There
     # are many possible components (user generated data) so any
-    # unrecognised ones are put in 'sublocation'. See
+    # unrecognised ones are put in 'SubLocation'. See
     # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
     address_map = {
-        'world_region'  :('continent',),
-        'country_code'  :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
+        'WorldRegion'   :('continent',),
+        'CountryCode'   :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
                           'country_code'),
-        'country_name'  :('country', 'country_name'),
-        'province_state':('county', 'county_code', 'local_administrative_area',
+        'CountryName'   :('country', 'country_name'),
+        'ProvinceState' :('county', 'county_code', 'local_administrative_area',
                           'state_district', 'state', 'state_code', 'province',
                           'region', 'island'),
-        'city'          :('neighbourhood', 'suburb', 'city_district',
+        'City'          :('neighbourhood', 'suburb', 'city_district',
                           'district', 'quarter', 'residential', 'commercial',
                           'industrial', 'houses', 'subdivision',
                           'city', 'town', 'municipality', 'postcode'),
-        'sublocation'   :('house_number', 'street_number',
+        'SubLocation'   :('house_number', 'street_number',
                           'house', 'public_building', 'building', 'water',
                           'road', 'pedestrian', 'path',
                           'street_name', 'street', 'cycleway', 'footway',

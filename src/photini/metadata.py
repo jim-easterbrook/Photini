@@ -148,9 +148,6 @@ class MD_Value(object):
     def write(self, handler, tag):
         handler.set_string(tag, str(self))
 
-    def truncate(self, name):
-        return self
-
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
         if ignored:
@@ -350,16 +347,16 @@ class LatLon(MD_Dict):
 
 class Location(MD_Dict_Mergeable):
     # stores IPTC defined location heirarchy
-    _keys = ('sublocation', 'city', 'province_state',
-             'country_name', 'country_code', 'world_region')
+    _keys = ('SubLocation', 'City', 'ProvinceState',
+             'CountryName', 'CountryCode', 'WorldRegion')
 
     @staticmethod
     def convert(value):
         for key in value:
             if value[key] and not value[key].strip():
                 value[key] = None
-        if value['country_code']:
-            value['country_code'] = value['country_code'].upper()
+        if value['CountryCode']:
+            value['CountryCode'] = value['CountryCode'].upper()
         return value
 
     @classmethod
@@ -375,14 +372,14 @@ class Location(MD_Dict_Mergeable):
                     result[key].append(address[foreign_key])
                 del(address[foreign_key])
         # only use one country code
-        result['country_code'] = result['country_code'][:1]
-        # put unknown foreign keys in sublocation
+        result['CountryCode'] = result['CountryCode'][:1]
+        # put unknown foreign keys in SubLocation
         for foreign_key in address:
-            if address[foreign_key] in ' '.join(result['sublocation']):
+            if address[foreign_key] in ' '.join(result['SubLocation']):
                 continue
-            result['sublocation'] = [
+            result['SubLocation'] = [
                 '{}: {}'.format(foreign_key, address[foreign_key])
-                ] + result['sublocation']
+                ] + result['SubLocation']
         for key in result:
             result[key] = ', '.join(result[key]) or None
         return cls(result)
@@ -393,16 +390,6 @@ class Location(MD_Dict_Mergeable):
             if self[key]:
                 result.append('{}: {}'.format(key, self[key]))
         return '\n'.join(result)
-
-    def truncate(self, name):
-        result = dict(self)
-        for key, tag in (('sublocation', 'Iptc.Application2.SubLocation'),
-                         ('city', 'Iptc.Application2.City'),
-                         ('province_state', 'Iptc.Application2.ProvinceState'),
-                         ('country_name', 'Iptc.Application2.CountryName'),
-                         ('country_code', 'Iptc.Application2.CountryCode')):
-            result[key] = ImageMetadata.truncate_by_tag(self[key], tag)
-        return Location(result)
 
     @staticmethod
     def merge_item(this, other):
@@ -456,9 +443,6 @@ class MultiLocation(tuple):
             if location:
                 result += str(location) + '\n'
         return result
-
-    def truncate(self, name):
-        return MultiLocation([x.truncate(name) for x in self])
 
 
 class CameraModel(MD_Dict_Mergeable):
@@ -898,10 +882,6 @@ class MultiString(MD_Value, tuple):
     def __str__(self):
         return '; '.join(self)
 
-    def truncate(self, name):
-        return MultiString(
-            [ImageMetadata.truncate_by_name(x, name) for x in self])
-
     def merge(self, info, tag, other):
         merged = False
         result = list(self)
@@ -916,6 +896,9 @@ class MultiString(MD_Value, tuple):
 
 
 class MD_String(MD_Value, str):
+    def __new__(cls, value):
+        return super(MD_String, cls).__new__(cls, value.strip())
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
@@ -926,9 +909,6 @@ class MD_String(MD_Value, str):
 
     def write(self, handler, tag):
         handler.set_string(tag, self)
-
-    def truncate(self, name):
-        return MultiString(ImageMetadata.truncate_by_name(self, name))
 
     @staticmethod
     def merge_item(this, other):
@@ -1290,9 +1270,6 @@ class Metadata(object):
             value = None
         elif not isinstance(value, self._data_type[name]):
             value = self._data_type[name](value) or None
-        if value:
-            # shorten to IPTC-IIM byte limit
-            value = value.truncate(name)
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)

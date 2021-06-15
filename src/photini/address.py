@@ -24,6 +24,7 @@ import os
 
 import requests
 
+from photini.exiv2 import ImageMetadata
 from photini.metadata import Location
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import (
@@ -42,11 +43,12 @@ class LocationInfo(QtWidgets.QWidget):
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
         self.members = {}
-        for key in ('sublocation', 'city', 'province_state',
-                    'country_name', 'country_code', 'world_region'):
-            self.members[key] = SingleLineEdit()
+        for key in ('SubLocation', 'City', 'ProvinceState',
+                    'CountryName', 'CountryCode', 'WorldRegion'):
+            self.members[key] = SingleLineEdit(
+                length_check=ImageMetadata.max_bytes(key))
             self.members[key].editingFinished.connect(self.editing_finished)
-        self.members['country_code'].setMaximumWidth(40)
+        self.members['CountryCode'].setMaximumWidth(40)
         for j, text in enumerate((
                 translate('AddressTab', 'Street'),
                 translate('AddressTab', 'City'),
@@ -57,12 +59,12 @@ class LocationInfo(QtWidgets.QWidget):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignRight)
             layout.addWidget(label, j, 0)
-        layout.addWidget(self.members['sublocation'], 0, 1, 1, 2)
-        layout.addWidget(self.members['city'], 1, 1, 1, 2)
-        layout.addWidget(self.members['province_state'], 2, 1, 1, 2)
-        layout.addWidget(self.members['country_name'], 3, 1)
-        layout.addWidget(self.members['country_code'], 3, 2)
-        layout.addWidget(self.members['world_region'], 4, 1, 1, 2)
+        layout.addWidget(self.members['SubLocation'], 0, 1, 1, 2)
+        layout.addWidget(self.members['City'], 1, 1, 1, 2)
+        layout.addWidget(self.members['ProvinceState'], 2, 1, 1, 2)
+        layout.addWidget(self.members['CountryName'], 3, 1)
+        layout.addWidget(self.members['CountryCode'], 3, 2)
+        layout.addWidget(self.members['WorldRegion'], 4, 1, 1, 2)
         layout.setRowStretch(5, 1)
 
     def get_value(self):

@@ -365,18 +365,21 @@ class Exiv2Metadata(GExiv2.Metadata):
         }
 
     @classmethod
-    def truncate_by_tag(cls, value, tag):
+    def max_bytes(cls, name):
+        # try IPTC-IIM key
+        tag = 'Iptc.Application2.' + name
         if tag in cls._max_bytes:
-            value = value.encode('utf-8')[:cls._max_bytes[tag]]
-            return value.decode('utf-8', errors='ignore')
-        return value
-
-    @classmethod
-    def truncate_by_name(cls, value, name):
-        for mode, tag in cls._tag_list[name]:
-            if mode == 'WA':
-                value = cls.truncate_by_tag(value, tag)
-        return value
+            return cls._max_bytes[tag]
+        # try Photini metadata item
+        result = None
+        if name in cls._tag_list:
+            for mode, tag in cls._tag_list[name]:
+                if mode == 'WA' and tag in cls._max_bytes:
+                    if result:
+                        result = min(result, cls._max_bytes[tag])
+                    else:
+                        result = cls._max_bytes[tag]
+        return result
 
     def set_string(self, tag, value):
         if not tag:
@@ -384,7 +387,9 @@ class Exiv2Metadata(GExiv2.Metadata):
         if not value:
             self._clear_value(tag)
             return
-        value = self.truncate_by_tag(value, tag)
+        if tag in self._max_bytes:
+            value = value.encode('utf-8')[:self._max_bytes[tag]]
+            value = value.decode('utf-8', errors='ignore')
         self.set_tag_string(tag, value)
 
     def set_multiple(self, tag, value):

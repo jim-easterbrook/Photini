@@ -23,6 +23,7 @@ from collections import defaultdict
 from datetime import datetime
 import logging
 
+from photini.exiv2 import ImageMetadata
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
     QtSlot, QtWidgets, SingleLineEdit, Slider)
@@ -31,58 +32,15 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-class LineEdit(QtWidgets.QLineEdit):
-    def __init__(self, *arg, **kw):
-        super(LineEdit, self).__init__(*arg, **kw)
-        self.multiple_values = multiple_values()
-        self._is_multiple = False
-        self.get_value = self.text
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        suggestion_group = QtWidgets.QActionGroup(menu)
-        if self._is_multiple:
-            if self.choices:
-                sep = menu.insertSeparator(menu.actions()[0])
-                fm = menu.fontMetrics()
-                for suggestion in self.choices:
-                    label = str(suggestion).replace('\n', ' ')
-                    label = fm.elidedText(label, Qt.ElideMiddle, self.width())
-                    action = QtWidgets.QAction(label, suggestion_group)
-                    action.setData(str(suggestion))
-                    menu.insertAction(sep, action)
-        action = menu.exec_(event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            self.set_value(action.data())
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if not value:
-            self.clear()
-            self.setPlaceholderText('')
-        else:
-            self.setText(str(value))
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        self.choices = list(choices)
-        self.setPlaceholderText(self.multiple_values)
-        self.clear()
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-
 class LineEditWithAuto(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
-        super(LineEditWithAuto, self).__init__(*arg, **kw)
+    def __init__(self, **kw):
+        super(LineEditWithAuto, self).__init__()
         self._is_multiple = False
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = LineEdit()
+        self.edit = SingleLineEdit(**kw)
         layout.addWidget(self.edit)
         # auto complete button
         self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
@@ -151,8 +109,8 @@ class RatingWidget(QtWidgets.QWidget):
 
 
 class KeywordsEditor(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
-        super(KeywordsEditor, self).__init__(*arg, **kw)
+    def __init__(self, **kw):
+        super(KeywordsEditor, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.league_table = defaultdict(int)
         for keyword, score in eval(self.config_store.get(
@@ -162,7 +120,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = SingleLineEdit(spell_check=True)
+        self.edit = SingleLineEdit(**kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -239,17 +197,23 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = SingleLineEdit(spell_check=True)
+        self.widgets['title'] = SingleLineEdit(
+            spell_check=True,
+            length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # description
-        self.widgets['description'] = MultiLineEdit(spell_check=True)
+        self.widgets['description'] = MultiLineEdit(
+            spell_check=True,
+            length_check=ImageMetadata.max_bytes('description'))
         self.widgets['description'].editingFinished.connect(self.new_description)
         self.form.addRow(translate(
             'DescriptiveTab', 'Description / Caption'), self.widgets['description'])
         # keywords
-        self.widgets['keywords'] = KeywordsEditor()
+        self.widgets['keywords'] = KeywordsEditor(
+            spell_check=True, length_check=ImageMetadata.max_bytes('keywords'),
+            multi_string=True)
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(translate(
             'DescriptiveTab', 'Keywords'), self.widgets['keywords'])
@@ -260,13 +224,15 @@ class TabWidget(QtWidgets.QWidget):
         self.form.addRow(translate(
             'DescriptiveTab', 'Rating'), self.widgets['rating'])
         # copyright
-        self.widgets['copyright'] = LineEditWithAuto()
+        self.widgets['copyright'] = LineEditWithAuto(
+            length_check=ImageMetadata.max_bytes('copyright'))
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
         self.form.addRow(translate(
             'DescriptiveTab', 'Copyright'), self.widgets['copyright'])
         # creator
-        self.widgets['creator'] = LineEditWithAuto()
+        self.widgets['creator'] = LineEditWithAuto(
+            length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(translate(

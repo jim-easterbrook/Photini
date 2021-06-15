@@ -685,9 +685,9 @@ class TabWidget(PhotiniUploader):
         return None
 
     _address_map = {
-        'country_name':   ('country',),
-        'province_state': ('county', 'region'),
-        'city':           ('neighbourhood', 'locality'),
+        'CountryName':   ('country',),
+        'ProvinceState': ('county', 'region'),
+        'City':          ('neighbourhood', 'locality'),
         }
 
     def _merge_metadata(self, photo_id, image):
@@ -715,10 +715,10 @@ class TabWidget(PhotiniUploader):
             if tag['raw'] == 'uploaded:by=photini':
                 continue
             if md.location_taken and tag['raw'] in (
-                    md.location_taken['country_code'],
-                    md.location_taken['country_name'],
-                    md.location_taken['province_state'],
-                    md.location_taken['city']):
+                    md.location_taken['CountryCode'],
+                    md.location_taken['CountryName'],
+                    md.location_taken['ProvinceState'],
+                    md.location_taken['City']):
                 continue
             tags.append(tag['raw'])
         md.keywords = md.keywords.merge(
