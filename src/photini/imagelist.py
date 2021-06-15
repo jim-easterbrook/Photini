@@ -84,7 +84,8 @@ class Image(QtWidgets.QFrame):
         self._set_thumb_size(self.thumb_size)
 
     def reload_metadata(self):
-        self.metadata = Metadata(self.path, notify=self.show_status)
+        self.metadata = Metadata(self.path, notify=self.show_status,
+                                 utf_safe=self.app.options.utf_safe)
         self.show_status(False)
         self.load_thumbnail()
         self.image_list.emit_selection()
@@ -760,7 +761,7 @@ class ImageList(QtWidgets.QWidget):
             undo = {}
             table.clearContents()
             new_md = image.metadata
-            old_md = Metadata(image.path)
+            old_md = Metadata(image.path, utf_safe=self.app.options.utf_safe)
             for key in ('title', 'description', 'keywords', 'rating',
                         'copyright', 'creator',
                         'date_taken', 'date_digitised', 'date_modified',
