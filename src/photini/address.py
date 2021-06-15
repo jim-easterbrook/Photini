@@ -143,7 +143,7 @@ class TabWidget(QtWidgets.QWidget):
         self.display_location()
 
     def refresh(self):
-        pass
+        self.display_location()
 
     def do_not_close(self):
         return False

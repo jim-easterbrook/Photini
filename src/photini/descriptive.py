@@ -241,7 +241,9 @@ class TabWidget(QtWidgets.QWidget):
         self.setEnabled(False)
 
     def refresh(self):
-        pass
+        images = self.image_list.get_selected_images()
+        for key in self.widgets:
+            self._update_widget(key, images)
 
     def do_not_close(self):
         return False
@@ -302,7 +304,8 @@ class TabWidget(QtWidgets.QWidget):
             'user', 'copyright_text',
             translate('DescriptiveTab',
                       'Copyright ©{year} {name}. All rights reserved.'))
-        for image in self.image_list.get_selected_images():
+        images = self.image_list.get_selected_images()
+        for image in images:
             date_taken = image.metadata.date_taken
             if date_taken is None:
                 date_taken = datetime.now()
@@ -310,7 +313,7 @@ class TabWidget(QtWidgets.QWidget):
                 date_taken = date_taken['datetime']
             value = copyright_text.format(year=date_taken.year, name=name)
             image.metadata.copyright = value
-        self._update_widget('copyright')
+        self._update_widget('copyright', images)
 
     @QtSlot()
     @catch_all
@@ -325,19 +328,20 @@ class TabWidget(QtWidgets.QWidget):
                 self.config_store.set('user', 'creator_name', name)
             else:
                 name = ''
-        for image in self.image_list.get_selected_images():
+        images = self.image_list.get_selected_images()
+        for image in images:
             image.metadata.creator = name
-        self._update_widget('creator')
+        self._update_widget('creator', images)
 
     def _new_value(self, key):
+        images = self.image_list.get_selected_images()
         if not self.widgets[key].is_multiple():
             value = self.widgets[key].get_value()
-            for image in self.image_list.get_selected_images():
+            for image in images:
                 setattr(image.metadata, key, value)
-        self._update_widget(key)
+        self._update_widget(key, images)
 
-    def _update_widget(self, key):
-        images = self.image_list.get_selected_images()
+    def _update_widget(self, key, images):
         if not images:
             return
         values = []
@@ -359,5 +363,5 @@ class TabWidget(QtWidgets.QWidget):
             self.setEnabled(False)
             return
         for key in self.widgets:
-            self._update_widget(key)
+            self._update_widget(key, selection)
         self.setEnabled(True)
