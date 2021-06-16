@@ -15,17 +15,17 @@ The top three items can be used to adjust the auto-generated copyright and creat
 The ``copyright text`` entry has place-holders where the photograph's "taken" year and the copyright holder's name are inserted.
 You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
 
-The next items adjust how Photini uses "sidecar" files and IPTC-IIM "legacy" metadata.
+The next items adjust how Photini uses IPTC-IIM "legacy" metadata.
 (Since 2004 the `IPTC standard`_ uses XMP to store metadata.
 Photini always writes these XMP fields.)
 The `Metadata Working Group`_ recommended that IPTC-IIM metadata is not written to files unless already present.
 Photini has an option to always write IPTC-IIM metadata.
 You may need this if you use other software that reads IPTC-IIM but not Exif or XMP.
 
-.. warning::
-   IPTC-IIM metadata has limited length for some fields.
-   Photini truncates data if necessary, but doesn't warn you when it does so.
-   The full length data is still stored in Exif and / or XMP.
+IPTC-IIM metadata has limited length for some fields.
+Photini truncates the IPTC-IIM data if necessary, but the full length data is still stored in Exif and / or XMP.
+Text that exceeds the IPTC-IIM length is shown with a blue underline.
+If you don't need to worry about IPTC-IIM compatibility you can disable this warning.
 
 Sidecar files allow metadata to be stored without needing to write to the actual image file.
 If you deselect "write to image file" then sidecars will always be created.
