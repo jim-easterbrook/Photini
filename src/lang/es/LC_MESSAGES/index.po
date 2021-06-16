@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-20, Jim Easterbrook
+# Copyright (C) 2012-21, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
 #
 # Translators:
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-11 14:43+0000\n"
+"POT-Creation-Date: 2021-06-14 11:50+0100\n"
 "PO-Revision-Date: 2019-05-08 15:30+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: es\n"
@@ -20,9 +20,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
 
+# 47df774ad13343e887e788bf0e12dea0
 msgid "Photini documentation"
 msgstr "Documentación de Photini"
 
+# 3491a508b7914481a3b9d7f6528afd9c
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph "
 "metadata editor. For a quick introduction to Photini and its features I "
@@ -31,9 +33,11 @@ msgid ""
 "<manual/index>`."
 msgstr ""
 
+# 8c0afb7be1f542558d02cc86d827815d
 msgid "Copyright (C)  2012-19  Jim Easterbrook."
 msgstr ""
 
+# d3d7bead940547b2a49dc6f506dd579e
 msgid ""
 "Permission is granted to copy, distribute and/or modify this document "
 "under the terms of the GNU Free Documentation License, Version 1.3 or any"
@@ -43,6 +47,7 @@ msgid ""
 "Documentation License\"."
 msgstr ""
 
+# 6ca1bff480194c54b617f876e6cbd6b2
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."

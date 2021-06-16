@@ -163,10 +163,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IPTC metadata</source>
-        <translation>IPTC metadata</translation>
-    </message>
-    <message>
         <source>Always create</source>
         <translation>Twórz zawsze </translation>
     </message>
@@ -192,6 +188,14 @@
     </message>
     <message>
         <source>Preserve file timestamps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IPTC-IIM metadata</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show IPTC-IIM length limits</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

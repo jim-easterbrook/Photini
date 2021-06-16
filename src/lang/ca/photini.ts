@@ -163,10 +163,6 @@
         <translation>Sempre escriure</translation>
     </message>
     <message>
-        <source>IPTC metadata</source>
-        <translation>IPTC metadata</translation>
-    </message>
-    <message>
         <source>Always create</source>
         <translation>Sempre crear</translation>
     </message>
@@ -193,6 +189,14 @@
     <message>
         <source>Preserve file timestamps</source>
         <translation>Mantenir la marca horària dels fitxers</translation>
+    </message>
+    <message>
+        <source>IPTC-IIM metadata</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show IPTC-IIM length limits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

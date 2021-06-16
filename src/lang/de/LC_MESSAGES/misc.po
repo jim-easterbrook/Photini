@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-20, Jim Easterbrook
+# Copyright (C) 2012-21, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
 #
 # Translators:
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-11 14:43+0000\n"
+"POT-Creation-Date: 2021-06-14 11:50+0100\n"
 "PO-Revision-Date: 2018-02-03 19:28+0000\n"
 "Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
 "Language: de\n"
@@ -20,28 +20,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.8.0\n"
 
+# 2cf270b5f10f439caee65a1ef07f07ac
 msgid "Change Log"
 msgstr "Änderungsprotokoll"
 
+# d83ddde121fe40129d009b8c0ce85475
+# 49b3f3be2de64e8d8f2fb9705d4c3eac
+# f96c7754eb0f4f9ba1729227ee62584d
+# f77c1e21fa0c4a0da6b2dc234cd73775
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
 
+# e01aaa7063254bf9a2a275248d34748f
 msgid "GNU Free Documentation License"
 msgstr ""
 
+# 3a83f52b83bf4c36a93b301a547175b8
 msgid ""
 "The Photini documentation is licensed under the GNU Free Documentation "
 "License."
 msgstr ""
 
+# 1a087d98ee014b49a5c2723d7c922f13
 msgid "Miscellaneous"
 msgstr "Verschiedenes"
 
+# 1d3baa14d6414408bf066a8fe31e6d12
 msgid "GNU General Public License"
 msgstr ""
 
+# c73fce9d14f741bc9e2952b1b6c1a44a
 msgid "The Photini software is licensed under the GNU General Public License."
 msgstr ""
 

@@ -163,10 +163,6 @@
         <translation>Immer schreiben</translation>
     </message>
     <message>
-        <source>IPTC metadata</source>
-        <translation>IPTC-Metadaten</translation>
-    </message>
-    <message>
         <source>Always create</source>
         <translation>Immer erstellen</translation>
     </message>
@@ -193,6 +189,14 @@
     <message>
         <source>Preserve file timestamps</source>
         <translation>Dateizeitstempel erhalten</translation>
+    </message>
+    <message>
+        <source>IPTC-IIM metadata</source>
+        <translation>IPTC-IIM-Metadaten</translation>
+    </message>
+    <message>
+        <source>Show IPTC-IIM length limits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

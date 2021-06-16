@@ -163,10 +163,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>IPTC metadata</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Always create</source>
         <translation></translation>
     </message>
@@ -192,6 +188,14 @@
     </message>
     <message>
         <source>Preserve file timestamps</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>IPTC-IIM metadata</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Show IPTC-IIM length limits</source>
         <translation></translation>
     </message>
 </context>

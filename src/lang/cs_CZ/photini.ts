@@ -163,10 +163,6 @@
         <translation>Vždy zapsat</translation>
     </message>
     <message>
-        <source>IPTC metadata</source>
-        <translation>Popisné údaje IPTC</translation>
-    </message>
-    <message>
         <source>Always create</source>
         <translation>Vždy vytvořit</translation>
     </message>
@@ -193,6 +189,14 @@
     <message>
         <source>Preserve file timestamps</source>
         <translation>Zachovat časová razítka souboru</translation>
+    </message>
+    <message>
+        <source>IPTC-IIM metadata</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show IPTC-IIM length limits</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
