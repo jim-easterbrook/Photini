@@ -56,7 +56,7 @@ translate = QtCore.QCoreApplication.translate
 class QTabBar(QtWidgets.QTabBar):
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
-        size.setWidth(max(size.width(), width_for_text(self, 'x' * 13)))
+        size.setWidth(max(size.width(), width_for_text(self, 'x' * 10)))
         return size
 
 
@@ -139,7 +139,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.app.config_store.config.remove_option('tabs', key)
         # prepare list of tabs and associated stuff
         self.tab_list = []
-        default_modules = ['photini.descriptive',  'photini.technical',
+        default_modules = ['photini.descriptive',  'photini.ownership',
+                           'photini.technical',
                            'photini.googlemap',    'photini.bingmap',
                            'photini.mapboxmap',    'photini.openstreetmap',
                            'photini.address',      'photini.flickr',

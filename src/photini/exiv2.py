@@ -48,9 +48,10 @@ XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 # versions may not recognise them. The xapGImg URL is invalid, but
 # Photini doesn't write xapGImg so it doesn't matter.
 for prefix, name in (
-        ('exifEX',  'http://cipa.jp/exif/1.0/'),
-        ('xapGImg', 'http://ns.adobe.com/xxx/'),
-        ('xmpGImg', 'http://ns.adobe.com/xap/1.0/g/img/')):
+        ('exifEX',    'http://cipa.jp/exif/1.0/'),
+        ('xapGImg',   'http://ns.adobe.com/xxx/'),
+        ('xmpGImg',   'http://ns.adobe.com/xap/1.0/g/img/'),
+        ('xmpRights', 'http://ns.adobe.com/xap/1.0/rights/')):
     GExiv2.Metadata.register_xmp_namespace(name, prefix)
 
 # Gexiv2 won't register the 'Iptc4xmpExt' namespace as its abbreviated
@@ -669,6 +670,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
                             ('W0', 'Iptc.Application2.Headline')),
+        'usageterms'     : (('WA', 'Xmp.xmpRights.UsageTerms'),),
         }
 
     def read(self, name, type_):

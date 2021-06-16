@@ -1113,6 +1113,7 @@ class Metadata(object):
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
         'title'          : MD_String,
+        'usageterms'     : MD_String,
         }
 
     def __init__(self, path, notify=None, utf_safe=False):
