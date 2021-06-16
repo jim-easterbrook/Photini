@@ -130,9 +130,6 @@ class MD_Value(object):
         # reinterpret to mean "has a value", even if the value is zero
         return True
 
-    # Python 3 uses __bool__, Python 2 uses __nonzero__
-    __nonzero__ = __bool__
-
     @classmethod
     def from_ffmpeg(cls, file_value, tag):
         if not file_value:
@@ -955,7 +952,7 @@ class Timezone(MD_Int):
             return None
         if tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
-            return cls(int(file_value) * 60)
+            file_value = int(file_value) * 60
         return cls(file_value)
 
 
