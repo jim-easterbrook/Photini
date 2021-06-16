@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019  Jim Easterbrook.
+   Copyright (C)  2019-21  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Location addresses
@@ -12,13 +12,12 @@ These are stored in a 5-level hierarchy: ``street``, ``city``, ``province``, ``c
 The meaning of these terms is rather loose, especially when out in the countryside, and there's no requirement to fill them all in.
 Typically ``city`` can be anything from a village to a metropolis, and ``street`` is a more specific location, e.g. "23 Abdication Avenue".
 ``Province`` would be a state in the USA or a county in the UK.
-``Country`` is stored as a name and a 2 or 3 letter ISO code.
+``Country`` is stored as a name and a 2 or 3 letter `ISO code`_.
 ``Region`` appears to be rarely used but could be a continent or sub-continent.
-More detail about these can be found on the `IPTC web site <https://www.iptc.org/std/photometadata/documentation/userguide/index.htm#!Documents/locations.htm>`_.
+More detail about these can be found on the `IPTC web site`_.
 
-The separation of camera and subject addresses was added to the IPTC specification in 2009, but you may still have software that only recognises "legacy" address metadata.
+The separation of camera and subject addresses was added to the IPTC specification in 2008, but you may still have software that only recognises "legacy" IPTC-IIM address metadata.
 In this case you should not use the ``subject`` tabs or ``region`` field.
-(Note that although the address metadata is standardised by the IPTC, it's actually stored in the XMP data.)
 
 .. image:: ../images/screenshot_141.png
 
@@ -30,7 +29,8 @@ Other map providers don't allow lookup results to be permanently stored.
 .. image:: ../images/screenshot_142.png
 
 Photini attempts to use all the data returned in an address lookup.
-This can lead to some duplication, e.g. Château-Gontier appears in both city and province.
+This can lead to some duplication, e.g. Château-Gontier appears twice in ``city``.
+Note also the blue underlining indicating text that is too long to store in IPTC-IIM metadata.
 
 .. image:: ../images/screenshot_143.png
 
@@ -44,7 +44,7 @@ Copying the ``camera`` location is an easy way to initialise a ``subject`` locat
 
 .. image:: ../images/screenshot_145.png
 
-In this case most of the data is the same, but I changed the ``street`` to the subject of the photograph rather than the place where I was standing.
+In this case most of the data is the same, but I changed ``street`` to the subject of the photograph rather than the place where I was standing.
 
 .. image:: ../images/screenshot_146.png
 
@@ -52,5 +52,7 @@ To reorder the subject locations, or to convert between camera and subject, you 
 If this results in the rightmost tab having data then another tab will be added.
 If the two rightmost tabs have no data then one of the empty tabs will be removed.
 
+.. _IPTC web site: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#location-structure
+.. _ISO code:      https://www.iso.org/iso-3166-country-codes.html
 .. _OpenCage:      https://opencagedata.com/
 .. _OpenStreetMap: https://www.openstreetmap.org/about/
