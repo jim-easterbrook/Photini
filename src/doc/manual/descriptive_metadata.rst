@@ -39,6 +39,11 @@ Select all the images that should have the same title, then type the title in th
 Note that the title (and keywords) are stored in XMP and IPTC-IIM but not in Exif, so may not be visible to software that only handles Exif metadata (see :doc:`tag reference <tags>` for more detail).
 You may prefer to leave the title and keywords fields blank.
 
+The legacy IPTC-IIM standard has a maximum number of bytes for each data item.
+If your text has more bytes then the excess is shown underlined in blue.
+You can ignore this if you don't need compatibility with old software that relies on IPTC-IIM data.
+This warning can be turned off in Photini's :doc:`configuration <configuration>`.
+
 The ``Title / Object name`` field has an optional spell checker, enabled with the ``Spelling`` menu.
 The word "Château-Gontier" is not in the British English dictionary, as indicated by the red underlining.
 Right-clicking on a misspelled word shows a list of suggested alternatives, one of which can be chosen by clicking on it.
