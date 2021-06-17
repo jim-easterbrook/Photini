@@ -43,14 +43,16 @@ class TabWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # construct widgets
+        self.enableable = []
         ## data fields
-        self.form = QtWidgets.QWidget()
+        form = QtWidgets.QWidget()
+        self.enableable.append(form)
         layout, self.widgets = self.data_form()
-        self.form.setLayout(layout)
-        self.widgets['copyright'].editingFinished.connect(self.new_copyright)
-        self.widgets['usageterms'].editingFinished.connect(self.new_usageterms)
-        self.widgets['creator'].editingFinished.connect(self.new_creator)
-        self.layout().addWidget(self.form)
+        form.setLayout(layout)
+        for key in self.widgets:
+            self.widgets[key].editingFinished.connect(
+                getattr(self, 'new_' + key))
+        self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
@@ -61,6 +63,7 @@ class TabWidget(QtWidgets.QWidget):
         apply_template = QtWidgets.QPushButton(
             translate('OwnerTab', 'Apply\ntemplate'))
         apply_template.clicked.connect(self.apply_template)
+        self.enableable.append(apply_template)
         buttons.addWidget(apply_template)
         self.layout().addLayout(buttons)
         # disable data entry until an image is selected
@@ -86,7 +89,8 @@ class TabWidget(QtWidgets.QWidget):
         return form, widgets
 
     def set_enabled(self, enabled):
-        self.form.setEnabled(enabled)
+        for widget in self.enableable:
+            widget.setEnabled(enabled)
 
     def refresh(self):
         self.new_selection(self.image_list.get_selected_images())
@@ -135,12 +139,6 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.widgets[key].set_value(values[0])
 
-    _config_option = {
-        'copyright':  'copyright_text',
-        'creator':    'creator_name',
-        'usageterms': 'usage_terms',
-        }
-
     @QtSlot()
     @catch_all
     def edit_template(self):
@@ -151,9 +149,17 @@ class TabWidget(QtWidgets.QWidget):
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         form, widgets = self.data_form()
-        for key in self._config_option:
+        for key in widgets:
+            if key == 'copyright':
+                name = self.config_store.get('user', 'copyright_name', '')
+                text = self.config_store.get('user', 'copyright_text', '')
+                value = text.format(year='%Y', name=name)
+            elif key == 'creator':
+                value = self.config_store.get('user', 'creator_name', '')
+            else:
+                value = ''
             widgets[key].set_value(
-                self.config_store.get('user', self._config_option[key], ''))
+                self.config_store.get('ownership', key, value))
         dialog.layout().addLayout(form)
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
@@ -163,19 +169,17 @@ class TabWidget(QtWidgets.QWidget):
         dialog.layout().addWidget(button_box)
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
-        for key in self._config_option:
-            self.config_store.set(
-                'user', self._config_option[key], widgets[key].get_value())
+        for key in widgets:
+            self.config_store.set('ownership', key, widgets[key].get_value())
 
     @QtSlot()
     @catch_all
     def apply_template(self):
         value = {}
-        for key in self._config_option:
-            text = self.config_store.get('user', self._config_option[key], '')
+        for key in self.widgets:
+            text = self.config_store.get('ownership', key)
             if text:
                 value[key] = text
-        kwds = {'name': self.config_store.get('user', 'copyright_name')}
         images = self.image_list.get_selected_images()
         for image in images:
             date_taken = image.metadata.date_taken
@@ -183,9 +187,8 @@ class TabWidget(QtWidgets.QWidget):
                 date_taken = datetime.now()
             else:
                 date_taken = date_taken['datetime']
-            kwds['year'] = date_taken.year
             for key in value:
-                setattr(image.metadata, key, value[key].format(**kwds))
+                setattr(image.metadata, key, date_taken.strftime(value[key]))
         for key in value:
             self._update_widget(key, images)
 
