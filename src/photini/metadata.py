@@ -1104,6 +1104,7 @@ class Metadata(object):
         'contact_info'   : ContactInformation,
         'copyright'      : MD_String,
         'creator'        : MultiString,
+        'creator_title'  : MultiString,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,

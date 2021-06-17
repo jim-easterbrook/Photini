@@ -350,6 +350,7 @@ class Exiv2Metadata(GExiv2.Metadata):
     # maximum length of Iptc data
     _max_bytes = {
         'Iptc.Application2.Byline'             :   32,
+        'Iptc.Application2.BylineTitle'        :   32,
         'Iptc.Application2.Caption'            : 2000,
         'Iptc.Application2.City'               :   32,
         'Iptc.Application2.Contact'            :  128,
@@ -597,7 +598,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WN', 'Exif.Pentax.ModelID'),
                             ('WN', 'Xmp.aux.SerialNumber')),
         'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),
-                            ('WN', 'Iptc.Application2.Contact')),
+                            ('WA', 'Iptc.Application2.Contact')),
         'copyright'      : (('WA', 'Exif.Image.Copyright'),
                             ('WA', 'Xmp.dc.rights'),
                             ('W0', 'Xmp.tiff.Copyright'),
@@ -607,6 +608,8 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WA', 'Xmp.dc.creator'),
                             ('W0', 'Xmp.tiff.Artist'),
                             ('WA', 'Iptc.Application2.Byline')),
+        'creator_title'  : (('WA', 'Xmp.photoshop:AuthorsPosition'),
+                            ('WA', 'Iptc.Application2.BylineTitle')),
         'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized'),
                             ('WA', 'Xmp.xmp.CreateDate'),
                             ('W0', 'Xmp.exif.DateTimeDigitized'),
