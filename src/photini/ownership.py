@@ -89,7 +89,16 @@ class TabWidget(QtWidgets.QWidget):
             'OwnerTab',
             'Enter the job title of the person listed in the Creator field.'))
         form.layout().addRow(translate(
-            'OwnerTab', 'Creator’s Jobtitle'), widgets['creator_title'])
+            'OwnerTab', "Creator's Jobtitle"), widgets['creator_title'])
+        # credit line
+        widgets['credit_line'] = SingleLineEdit(
+            length_check=ImageMetadata.max_bytes('credit_line'),
+            spell_check=True)
+        widgets['credit_line'].setToolTip(translate(
+            'OwnerTab',
+            'Enter who should be credited when this image is published.'))
+        form.layout().addRow(translate(
+            'OwnerTab', 'Credit Line'), widgets['credit_line'])
         # copyright
         widgets['copyright'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('copyright'), spell_check=True)
@@ -210,6 +219,11 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtSlot()
     @catch_all
+    def new_credit_line(self):
+        self._new_value('credit_line')
+
+    @QtSlot()
+    @catch_all
     def new_copyright(self):
         self._new_value('copyright')
 
@@ -301,7 +315,7 @@ class TabWidget(QtWidgets.QWidget):
     def edit_template(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setFixedSize(min(800, self.window().width()),
-                            min(400, self.window().height()))
+                            min(600, self.window().height()))
         dialog.setWindowTitle(self.tr('Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area

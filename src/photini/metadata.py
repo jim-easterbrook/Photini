@@ -1105,6 +1105,7 @@ class Metadata(object):
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'creator_title'  : MultiString,
+        'credit_line'    : MD_String,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
