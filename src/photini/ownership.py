@@ -76,23 +76,33 @@ class TabWidget(QtWidgets.QWidget):
         widgets['creator'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
         widgets['creator'].setToolTip(translate(
-            'OwnerTab', "Photographer's name."))
-        form.addRow(translate(
-            'OwnerTab', 'Creator / Artist'), widgets['creator'])
+            'OwnerTab',
+            'Enter the name of the person that created this image.'))
+        form.addRow(translate('OwnerTab', 'Creator'), widgets['creator'])
         # copyright
         widgets['copyright'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('copyright'))
         widgets['copyright'].setToolTip(translate(
-            'OwnerTab',
-            'Full copyright message, can even include contact details.'))
-        form.addRow(translate('OwnerTab', 'Copyright'), widgets['copyright'])
+            'OwnerTab', 'Enter a Notice on the current owner of the'
+            ' Copyright for this image, such as "©2008 Jane Doe".'))
+        form.addRow(translate('OwnerTab', 'Copyright Notice'),
+                    widgets['copyright'])
         # usage terms
         widgets['usageterms'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('usageterms'))
         widgets['usageterms'].setToolTip(translate(
-            'OwnerTab', 'Brief description of licence or other conditions.'))
+            'OwnerTab',
+            'Enter instructions on how this image can legally be used.'))
         form.addRow(translate(
             'OwnerTab', 'Rights Usage Terms'), widgets['usageterms'])
+        # special instructions
+        widgets['instructions'] = SingleLineEdit(
+            length_check=ImageMetadata.max_bytes('instructions'))
+        widgets['instructions'].setToolTip(translate(
+            'OwnerTab', 'Enter information about embargoes, or other'
+            ' restrictions not covered by the Rights Usage Terms field.'))
+        form.addRow(translate(
+            'OwnerTab', 'Instructions'), widgets['instructions'])
         return form, widgets
 
     def set_enabled(self, enabled):
@@ -119,6 +129,11 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def new_usageterms(self):
         self._new_value('usageterms')
+
+    @QtSlot()
+    @catch_all
+    def new_instructions(self):
+        self._new_value('instructions')
 
     @QtSlot()
     @catch_all

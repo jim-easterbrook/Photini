@@ -1099,6 +1099,7 @@ class Metadata(object):
         'description'    : MD_String,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
+        'instructions'   : MD_String,
         'keywords'       : MultiString,
         'latlong'        : LatLon,
         'lens_model'     : LensModel,
