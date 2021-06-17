@@ -326,8 +326,8 @@ class Exiv2Metadata(GExiv2.Metadata):
 
     def set_group(self, tag, value, idx=1):
         sub_tag = self._multi_tags[tag][0].format(idx=idx)
-        if any(value) and '/' in sub_tag:
-            # create XMP structure/container
+        if any(value) and '[' in sub_tag:
+            # create XMP array
             for t in self.get_xmp_tags():
                 if t.startswith(tag):
                     # container already exists
@@ -352,6 +352,7 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Iptc.Application2.Byline'             :   32,
         'Iptc.Application2.Caption'            : 2000,
         'Iptc.Application2.City'               :   32,
+        'Iptc.Application2.Contact'            :  128,
         'Iptc.Application2.Copyright'          :  128,
         'Iptc.Application2.CountryCode'        :    3,
         'Iptc.Application2.CountryName'        :   64,
@@ -533,6 +534,16 @@ class Exiv2Metadata(GExiv2.Metadata):
         'Xmp.exifEX.LensMake': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber'),
+        'Xmp.iptc.CreatorContactInfo': (
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCity',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCtry',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiEmailWork',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiTelWork',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrPcode',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrRegion',
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork',
+            ),
         'Xmp.iptc.Location': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -585,6 +596,8 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WN', 'Exif.OlympusEq.CameraType'),
                             ('WN', 'Exif.Pentax.ModelID'),
                             ('WN', 'Xmp.aux.SerialNumber')),
+        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),
+                            ('WN', 'Iptc.Application2.Contact')),
         'copyright'      : (('WA', 'Exif.Image.Copyright'),
                             ('WA', 'Xmp.dc.rights'),
                             ('W0', 'Xmp.tiff.Copyright'),

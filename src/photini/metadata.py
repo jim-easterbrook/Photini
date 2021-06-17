@@ -195,6 +195,8 @@ class MD_Dict(MD_Value, dict):
 
     @staticmethod
     def convert(value):
+        for key in value:
+            value[key] = (value[key] and value[key].strip()) or None
         return value
 
     def __setattr__(self, name, value):
@@ -342,16 +344,32 @@ class LatLon(MD_Dict):
         return this, False, True
 
 
+class ContactInformation(MD_Dict_Mergeable):
+    # stores IPTC contact information
+    _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
+             'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
+
+    def __str__(self):
+        result = []
+        for key in self._keys:
+            if self[key]:
+                result.append('{}: {}'.format(key, self[key]))
+        return '\n'.join(result)
+
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        return this + ' // ' + other, True, False
+
+
 class Location(MD_Dict_Mergeable):
     # stores IPTC defined location heirarchy
     _keys = ('SubLocation', 'City', 'ProvinceState',
              'CountryName', 'CountryCode', 'WorldRegion')
 
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if value[key] and not value[key].strip():
-                value[key] = None
+    def convert(self, value):
+        value = super(Location, self).convert(value)
         if value['CountryCode']:
             value['CountryCode'] = value['CountryCode'].upper()
         return value
@@ -446,12 +464,8 @@ class CameraModel(MD_Dict_Mergeable):
     _keys = ('make', 'model', 'serial_no')
     _quiet = True
 
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if value[key]:
-                value[key] = value[key].strip()
-            value[key] = value[key] or None
+    def convert(self, value):
+        value = super(CameraModel, self).convert(value)
         if value['model'] == 'unknown':
             value['model'] = None
         return value
@@ -480,12 +494,8 @@ class LensModel(MD_Dict_Mergeable):
     _keys = ('make', 'model', 'serial_no')
     _quiet = True
 
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if value[key]:
-                value[key] = value[key].strip()
-            value[key] = value[key] or None
+    def convert(self, value):
+        value = super(LensModel, self).convert(value)
         if value['model'] == 'n/a':
             value['model'] = None
         if value['serial_no'] == '0000000000':
@@ -1091,6 +1101,7 @@ class Metadata(object):
         'altitude'       : Altitude,
         'aperture'       : Aperture,
         'camera_model'   : CameraModel,
+        'contact_info'   : ContactInformation,
         'copyright'      : MD_String,
         'creator'        : MultiString,
         'date_digitised' : DateTime,
