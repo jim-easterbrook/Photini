@@ -72,20 +72,27 @@ class TabWidget(QtWidgets.QWidget):
     def data_form(self):
         widgets = {}
         form = QtWidgets.QFormLayout()
+        # creator
+        widgets['creator'] = SingleLineEdit(
+            length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
+        widgets['creator'].setToolTip(translate(
+            'OwnerTab', "Photographer's name."))
+        form.addRow(translate(
+            'OwnerTab', 'Creator / Artist'), widgets['creator'])
         # copyright
         widgets['copyright'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('copyright'))
+        widgets['copyright'].setToolTip(translate(
+            'OwnerTab',
+            'Full copyright message, can even include contact details.'))
         form.addRow(translate('OwnerTab', 'Copyright'), widgets['copyright'])
         # usage terms
         widgets['usageterms'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('usageterms'))
+        widgets['usageterms'].setToolTip(translate(
+            'OwnerTab', 'Brief description of licence or other conditions.'))
         form.addRow(translate(
             'OwnerTab', 'Rights Usage Terms'), widgets['usageterms'])
-        # creator
-        widgets['creator'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
-        form.addRow(translate(
-            'OwnerTab', 'Creator / Artist'), widgets['creator'])
         return form, widgets
 
     def set_enabled(self, enabled):
@@ -149,6 +156,10 @@ class TabWidget(QtWidgets.QWidget):
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         form, widgets = self.data_form()
+        widgets['copyright'].setToolTip(
+            widgets['copyright'].toolTip() + ' ' +
+            translate('OwnerTab',
+                      'Use %Y to insert the year the photograph was taken.'))
         for key in widgets:
             if key == 'copyright':
                 name = self.config_store.get('user', 'copyright_name', '')
