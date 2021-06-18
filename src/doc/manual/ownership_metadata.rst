@@ -28,8 +28,30 @@ This is probably only useful in the ``Copyright Notice``, but is available for a
 The ``Apply template`` button copies the template data to all the selected images, setting the correct year in the ``Copyright Notice``.
 You can then add more information, or edit the existing information, in the usual way.
 
+More information about the data fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Click on any field name below to see the IPTC definition and user notes for that field.
 Although these fields are defined in an `IPTC standard`_, they are all stored in XMP metadata.
-Some of them are also stored in "legacy" IPTC-IIM data.
+Most of them are also stored in "legacy" IPTC-IIM data.
+
+`Creator <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creator>`_
+  Usually the photographer's name.
+  If there is more than one creator, separate them with a ``;`` character.
+`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-jobtitle>`_
+  If there is more than one creator, there should be a matching number of creator jobtitles, separated by ``;`` characters.
+`Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#credit-line>`_
+  Usually the photographer's name, but could be their employer or client.
+`Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
+  Who owns the copyright.
+`Rights Usage Terms <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms>`_
+  Not stored in IPTC-IIM.
+`Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions>`_
+  Notes to a publisher of the image.
+`Contact Information <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-contact-info>`_
+  Only the `Address <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#address>`_ is stored in IPTC-IIM.
+  Multiple email addresses, URLs, or phone numbers should be separated by commas.
+
 
 .. _IPTC standard:            http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 .. _Python strftime function: https://docs.python.org/3.6/library/datetime.html#strftime-strptime-behavior
