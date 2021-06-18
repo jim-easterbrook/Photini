@@ -131,7 +131,7 @@ class TabWidget(QtWidgets.QWidget):
         # email addresses
         widgets['CiEmailWork'] = SingleLineEdit()
         widgets['CiEmailWork'].setToolTip(translate(
-            'OwnerTab', 'Enter the work Email address(es) for the person'
+            'OwnerTab', 'Enter the work email address(es) for the person'
             ' that created this image, such as name@domain.com.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Email(s)'), widgets['CiEmailWork'])
@@ -145,7 +145,7 @@ class TabWidget(QtWidgets.QWidget):
         # phone numbers
         widgets['CiTelWork'] = SingleLineEdit()
         widgets['CiTelWork'].setToolTip(translate(
-            'OwnerTab', 'Enter the work Phone number(s) for the person'
+            'OwnerTab', 'Enter the work phone number(s) for the person'
             ' that created this image, using the international format,'
             ' such as +1 (123) 456789.'))
         contact_group.layout().addRow(translate(
@@ -156,34 +156,34 @@ class TabWidget(QtWidgets.QWidget):
             spell_check=True)
         widgets['CiAdrExtadr'].setToolTip(translate(
             'OwnerTab',
-            'Enter Address for the person that created this image.'))
+            'Enter address for the person that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Address'), widgets['CiAdrExtadr'])
         # city
         widgets['CiAdrCity'] = SingleLineEdit(spell_check=True)
         widgets['CiAdrCity'].setToolTip(translate(
-            'OwnerTab', 'Enter the City for the address of the person'
+            'OwnerTab', 'Enter the city for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'City'), widgets['CiAdrCity'])
         # postcode
         widgets['CiAdrPcode'] = SingleLineEdit()
         widgets['CiAdrPcode'].setToolTip(translate(
-            'OwnerTab', 'Enter the Postal Code for the address of the person'
+            'OwnerTab', 'Enter the postal code for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Postal Code'), widgets['CiAdrPcode'])
         # region
         widgets['CiAdrRegion'] = SingleLineEdit(spell_check=True)
         widgets['CiAdrRegion'].setToolTip(translate(
-            'OwnerTab', 'Enter the State for the address of the person'
+            'OwnerTab', 'Enter the state for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'State/Province'), widgets['CiAdrRegion'])
         # country
         widgets['CiAdrCtry'] = SingleLineEdit(spell_check=True)
         widgets['CiAdrCtry'].setToolTip(translate(
-            'OwnerTab', 'Enter the Country name for the address of the person'
+            'OwnerTab', 'Enter the country name for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Country'), widgets['CiAdrCtry'])
