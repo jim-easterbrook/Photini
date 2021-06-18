@@ -16,6 +16,7 @@ The ``Edit template`` button opens the dialog shown below.
 
 Fill in any of the fields you want to use on every photograph.
 The field labels are copied from the `IPTC standard`_, as is the help text which should pop up if you hover your mouse over a field.
+If you have already set your copyright holder and creator names on the :doc:`descriptive_metadata` tab then this information should already be on the form.
 
 .. image:: ../images/screenshot_202.png
 
@@ -38,12 +39,14 @@ Most of them are also stored in "legacy" IPTC-IIM data.
 `Creator <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creator>`_
   Usually the photographer's name.
   If there is more than one creator, separate them with a ``;`` character.
+  This shows the same information as the :doc:`descriptive_metadata` ``Creator / Artist`` field.
 `Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-jobtitle>`_
   If there is more than one creator, there should be a matching number of creator jobtitles, separated by ``;`` characters.
 `Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#credit-line>`_
   Usually the photographer's name, but could be their employer or client.
 `Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
   Who owns the copyright.
+  This shows the same information as the :doc:`descriptive_metadata` ``Copyright`` field.
 `Rights Usage Terms <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms>`_
   Not stored in IPTC-IIM.
 `Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions>`_
