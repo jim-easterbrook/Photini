@@ -437,7 +437,8 @@ class Exiv2Metadata(GExiv2.Metadata):
         OK = True
         saved_tags = self.open_old(self._path).get_all_tags()
         for tag in self.get_all_tags():
-            if tag in ('Exif.Image.GPSTag',):
+            if tag in ('Exif.Image.GPSTag', 'Exif.MakerNote.ByteOrder',
+                       'Exif.MakerNote.Offset', 'Exif.Photo.MakerNote'):
                 # some tags disappear with good reason
                 continue
             if tag not in saved_tags:
