@@ -282,12 +282,7 @@ class TabWidget(QtWidgets.QWidget):
         if not self.widgets[key].is_multiple():
             value = self.widgets[key].get_value()
             for image in images:
-                if key.startswith('Ci'):
-                    info = dict(image.metadata.contact_info or {})
-                    info[key] = value
-                    image.metadata.contact_info = info
-                else:
-                    setattr(image.metadata, key, value)
+                self._set_value(image, key, value)
         self._update_widget(key, images)
 
     def _update_widget(self, key, images):
@@ -295,14 +290,7 @@ class TabWidget(QtWidgets.QWidget):
             return
         values = []
         for image in images:
-            if key.startswith('Ci'):
-                info = image.metadata.contact_info
-                if info:
-                    value = info[key]
-                else:
-                    value = None
-            else:
-                value = getattr(image.metadata, key)
+            value = self._get_value(image, key)
             if value not in values:
                 values.append(value)
         if len(values) > 1:
@@ -363,9 +351,25 @@ class TabWidget(QtWidgets.QWidget):
             else:
                 date_taken = date_taken['datetime']
             for key in value:
-                setattr(image.metadata, key, date_taken.strftime(value[key]))
+                self._set_value(image, key, date_taken.strftime(value[key]))
         for key in value:
             self._update_widget(key, images)
+
+    def _set_value(self, image, key, value):
+        if key.startswith('Ci'):
+            info = dict(image.metadata.contact_info or {})
+            info[key] = value
+            image.metadata.contact_info = info
+        else:
+            setattr(image.metadata, key, value)
+
+    def _get_value(self, image, key):
+        if key.startswith('Ci'):
+            info = image.metadata.contact_info
+            if info:
+                return info[key]
+            return None
+        return getattr(image.metadata, key)
 
     @QtSlot(list)
     @catch_all
