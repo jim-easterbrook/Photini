@@ -511,6 +511,7 @@ class Exiv2Metadata(GExiv2.Metadata):
             'Exif.{ifd}.FocalPlaneResolutionUnit'),
         'Exif.{ifd}.ImageDimensions': (
             'Exif.{ifd}.ImageWidth', 'Exif.{ifd}.ImageLength'),
+        'Iptc.Application2.Contact': ('Iptc.Application2.Contact',),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate': (
@@ -690,6 +691,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                             ('WN', 'Exif.CanonTi.TimeZone'),
                             ('WN', 'Exif.NikonWt.Timezone')),
         'title'          : (('WA', 'Xmp.dc.title'),
+                            ('W0', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
                             ('W0', 'Iptc.Application2.Headline')),

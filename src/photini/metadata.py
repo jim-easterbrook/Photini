@@ -196,7 +196,8 @@ class MD_Dict(MD_Value, dict):
     @staticmethod
     def convert(value):
         for key in value:
-            value[key] = (value[key] and value[key].strip()) or None
+            if isinstance(value[key], str):
+                value[key] = value[key].strip() or None
         return value
 
     def __setattr__(self, name, value):
