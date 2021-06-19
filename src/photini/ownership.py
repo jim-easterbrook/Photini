@@ -44,7 +44,7 @@ class TabWidget(QtWidgets.QWidget):
         self.enableable = []
         ## data fields
         form, self.widgets = self.data_form()
-        self.enableable.append(form)
+        self.enableable.append(form.widget())
         for key in self.widgets:
             self.widgets[key].editingFinished.connect(
                 getattr(self, 'new_' + key))
