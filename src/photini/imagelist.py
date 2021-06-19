@@ -763,7 +763,8 @@ class ImageList(QtWidgets.QWidget):
             new_md = image.metadata
             old_md = Metadata(image.path, utf_safe=self.app.options.utf_safe)
             for key in ('title', 'description', 'keywords', 'rating',
-                        'copyright', 'creator',
+                        'creator', 'creator_title', 'credit_line', 'copyright',
+                        'usageterms', 'instructions', 'contact_info',
                         'date_taken', 'date_digitised', 'date_modified',
                         'orientation', 'camera_model',
                         'lens_model', 'lens_spec',
