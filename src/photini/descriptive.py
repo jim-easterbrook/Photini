@@ -200,6 +200,9 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['title'] = SingleLineEdit(
             spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
+        self.widgets['title'].setToolTip(translate(
+            'DescriptiveTab', 'Enter a short verbal and human readable name'
+            ' for the image, this may be the file name.'))
         self.widgets['title'].editingFinished.connect(self.new_title)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
@@ -207,13 +210,24 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['description'] = MultiLineEdit(
             spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
-        self.widgets['description'].editingFinished.connect(self.new_description)
-        self.form.addRow(translate(
-            'DescriptiveTab', 'Description / Caption'), self.widgets['description'])
+        self.widgets['description'].setToolTip(translate(
+            'DescriptiveTab', 'Enter a "caption" describing the who, what,'
+            ' and why of what is happening in this image,\nthis might include'
+            ' names of people, and/or their role in the action that is taking'
+            ' place within the image.'))
+        self.widgets['description'].editingFinished.connect(
+            self.new_description)
+        self.form.addRow(
+            translate('DescriptiveTab', 'Description / Caption'),
+            self.widgets['description'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
             spell_check=True, length_check=ImageMetadata.max_bytes('keywords'),
             multi_string=True)
+        self.widgets['keywords'].setToolTip(translate(
+            'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
+            ' used to express the subject matter in the image.'
+            '\nSeparate them with ";" characters.'))
         self.widgets['keywords'].editingFinished.connect(self.new_keywords)
         self.form.addRow(translate(
             'DescriptiveTab', 'Keywords'), self.widgets['keywords'])
@@ -226,6 +240,9 @@ class TabWidget(QtWidgets.QWidget):
         # copyright
         self.widgets['copyright'] = LineEditWithAuto(
             length_check=ImageMetadata.max_bytes('copyright'))
+        self.widgets['copyright'].setToolTip(translate(
+            'OwnerTab', 'Enter a notice on the current owner of the'
+            ' copyright for this image, such as "©2008 Jane Doe".'))
         self.widgets['copyright'].editingFinished.connect(self.new_copyright)
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
         self.form.addRow(translate(
@@ -233,6 +250,9 @@ class TabWidget(QtWidgets.QWidget):
         # creator
         self.widgets['creator'] = LineEditWithAuto(
             length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
+        self.widgets['creator'].setToolTip(translate(
+            'OwnerTab',
+            'Enter the name of the person that created this image.'))
         self.widgets['creator'].editingFinished.connect(self.new_creator)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(translate(
