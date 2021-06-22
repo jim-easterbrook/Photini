@@ -49,6 +49,19 @@ class LocationInfo(QtWidgets.QWidget):
                 length_check=ImageMetadata.max_bytes(key))
             self.members[key].editingFinished.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(40)
+        self.members['SubLocation'].setToolTip(translate(
+            'AddressTab', 'Enter the name of the sublocation.'))
+        self.members['City'].setToolTip(translate(
+            'AddressTab', 'Enter the name of the city.'))
+        self.members['ProvinceState'].setToolTip(translate(
+            'AddressTab', 'Enter the name of the province or state.'))
+        self.members['CountryName'].setToolTip(translate(
+            'AddressTab', 'Enter the name of the country.'))
+        self.members['CountryCode'].setToolTip(translate(
+            'AddressTab',
+            'Enter the 2 or 3 letter ISO 3166 country code of the country.'))
+        self.members['WorldRegion'].setToolTip(translate(
+            'AddressTab', 'Enter the name of the world region.'))
         for j, text in enumerate((
                 translate('AddressTab', 'Street'),
                 translate('AddressTab', 'City'),
@@ -255,9 +268,14 @@ class TabWidget(QtWidgets.QWidget):
     def set_tab_text(self, idx):
         if idx == 0:
             text = translate('AddressTab', 'camera')
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' where this image was created.')
         else:
             text = translate('AddressTab', 'subject {}').format(idx)
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' which is shown in this image.')
         self.location_info.setTabText(idx, text)
+        self.location_info.setTabToolTip(idx, tip)
 
     @QtSlot()
     @catch_all
