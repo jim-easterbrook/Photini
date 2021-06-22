@@ -24,6 +24,7 @@ Next click on the ``Creator / Artist`` field's ``Auto`` button.
 (Some software calls this field "author" or "byline".)
 Now Photini will ask for the name of the creator.
 Edit the name if required, then click ``OK``.
+(More detailed ownership information can be added with the :doc:`ownership_metadata` tab.)
 
 .. |hazard| unicode:: U+026A1
 
@@ -76,3 +77,29 @@ Bad pictures can be given a ``reject`` rating.
 This is stored in the metadata as a rating value of -1.
 
 .. image:: ../images/screenshot_14.png
+
+More information about the data fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Click on any field name below to see the IPTC definition and user notes for that field.
+Although these fields are defined in an `IPTC standard`_, they are all stored in XMP metadata.
+Most of them are also stored in "legacy" IPTC-IIM data.
+
+`Title / Object Name <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#title>`_
+  IPTC ``Headline`` data, if present, is merged into this field.
+  Not stored in Exif.
+`Description / Caption <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#description>`_
+  The who, what and why of what the image depicts.
+`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords>`_
+  Separate words or phrases with ``;`` characters. Not stored in Exif.
+`Rating <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating>`_
+  Not stored in Exif or IPTC-IIM.
+`Copyright <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
+  Who owns the copyright.
+  This shows the same information as the :doc:`ownership_metadata` ``Copyright Notice`` field.
+`Creator / Artist <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creator>`_
+  Usually the photographer's name.
+  If there is more than one creator, separate them with a ``;`` character.
+  This shows the same information as the :doc:`ownership_metadata` ``Creator`` field.
+
+.. _IPTC standard:            http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
