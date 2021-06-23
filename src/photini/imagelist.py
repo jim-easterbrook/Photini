@@ -854,6 +854,7 @@ class ImageList(QtWidgets.QWidget):
         self._save_files(self.images)
 
     def _save_files(self, images=[]):
+        self._flush_editing()
         if_mode = eval(self.app.config_store.get('files', 'image', 'True'))
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
         force_iptc = eval(
@@ -871,16 +872,13 @@ class ImageList(QtWidgets.QWidget):
                 image.metadata.save(
                     if_mode=if_mode, sc_mode=sc_mode,
                     force_iptc=force_iptc, file_times=file_times)
-        unsaved = False
-        for image in self.images:
-            if image.metadata.changed():
-                unsaved = True
-                break
+        unsaved = any([image.metadata.changed() for image in self.images])
         self.new_metadata.emit(unsaved)
 
     def unsaved_files_dialog(
             self, all_files=False, with_cancel=True, with_discard=True):
         """Return true if OK to continue with close or quit or whatever"""
+        self._flush_editing()
         for image in self.images:
             if image.metadata.changed() and (all_files or image.selected):
                 break
@@ -903,6 +901,12 @@ class ImageList(QtWidgets.QWidget):
             self._save_files()
             return True
         return result == QtWidgets.QMessageBox.Discard
+
+    def _flush_editing(self):
+        # finish any editing in progress
+        current_focus = self.app.focusWidget()
+        if current_focus:
+            current_focus.clearFocus()
 
     def get_selected_images(self):
         selection = []
