@@ -313,14 +313,15 @@ class TabWidget(QtWidgets.QWidget):
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
         for key in widgets:
+            value = None
             if key == 'copyright':
-                name = self.config_store.get('user', 'copyright_name', '')
-                text = self.config_store.get('user', 'copyright_text', '')
+                name = self.config_store.get('user', 'copyright_name') or ''
+                text = (self.config_store.get('user', 'copyright_text') or
+                        translate('DescriptiveTab', 'Copyright ©{year} {name}.'
+                                  ' All rights reserved.'))
                 value = text.format(year='%Y', name=name)
             elif key == 'creator':
-                value = self.config_store.get('user', 'creator_name', '')
-            else:
-                value = ''
+                value = self.config_store.get('user', 'creator_name')
             widgets[key].set_value(
                 self.config_store.get('ownership', key, value))
         dialog.layout().addWidget(form)
@@ -333,7 +334,9 @@ class TabWidget(QtWidgets.QWidget):
         if dialog.exec_() != QtWidgets.QDialog.Accepted:
             return
         for key in widgets:
-            self.config_store.set('ownership', key, widgets[key].get_value())
+            value = widgets[key].get_value()
+            if value:
+                self.config_store.set('ownership', key, value)
 
     @QtSlot()
     @catch_all
