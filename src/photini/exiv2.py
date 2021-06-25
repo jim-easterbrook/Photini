@@ -442,7 +442,7 @@ class Exiv2Metadata(GExiv2.Metadata):
                 # some tags disappear with good reason
                 continue
             if tag not in saved_tags:
-                logger.warning(
+                logger.error(
                     '%s: tag not saved: %s', os.path.basename(self._path), tag)
                 OK = False
         return OK
