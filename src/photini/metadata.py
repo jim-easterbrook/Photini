@@ -635,7 +635,8 @@ class Thumbnail(MD_Dict):
             handler.set_group(tag, [str(self['w']), str(self['h'])])
 
     def __str__(self):
-        return '{fmt} thumbnail, {w}x{h}'.format(**self)
+        return '{fmt} thumbnail, {w}x{h}, {size} bytes'.format(
+            size=len(self['data']), **self)
 
 
 class DateTime(MD_Dict):
