@@ -905,7 +905,10 @@ class MultiString(MD_Value, tuple):
 
 class MD_String(MD_Value, str):
     def __new__(cls, value):
-        return super(MD_String, cls).__new__(cls, value.strip())
+        value = value.strip()
+        if not value:
+            return None
+        return super(MD_String, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
