@@ -562,6 +562,9 @@ class Thumbnail(MD_Dict):
 
     @staticmethod
     def convert(value):
+        if value['data']:
+            # don't keep reference to what might be an entire image file
+            value['data'] = bytes(value['data'])
         if value['data'] and not value['image']:
             buf = QtCore.QBuffer()
             buf.setData(value['data'])
@@ -572,14 +575,17 @@ class Thumbnail(MD_Dict):
             if value['image'].isNull():
                 logger.error('thumbnail: %s', reader.errorString())
                 value['image'] = None
-            # don't keep reference to what might be an entire image file
-            value['data'] = None
         if value['image'] and not value['data']:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             value['fmt'] = 'JPEG'
-            value['image'].save(buf, value['fmt'])
-            value['data'] = buf.data().data()
+            quality = 95
+            while True:
+                value['image'].save(buf, value['fmt'], quality)
+                value['data'] = buf.data().data()
+                if len(value['data']) < 50000:
+                    break
+                quality -= 1
         if value['image']:
             value['w'] = value['image'].width()
             value['h'] = value['image'].height()
