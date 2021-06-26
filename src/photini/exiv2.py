@@ -437,14 +437,23 @@ class Exiv2Metadata(GExiv2.Metadata):
         OK = True
         saved_tags = self.open_old(self._path).get_all_tags()
         for tag in self.get_all_tags():
+            if tag in saved_tags:
+                continue
             if tag in ('Exif.Image.GPSTag', 'Exif.MakerNote.ByteOrder',
                        'Exif.MakerNote.Offset', 'Exif.Photo.MakerNote'):
                 # some tags disappear with good reason
                 continue
-            if tag not in saved_tags:
-                logger.error(
+            family, group, tagname = tag.split('.')
+            if family == 'Exif' and group[:5] in (
+                    'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
+                    'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
+                # maker note tags are often not saved
+                logger.warning(
                     '%s: tag not saved: %s', os.path.basename(self._path), tag)
-                OK = False
+                continue
+            logger.error(
+                '%s: tag not saved: %s', os.path.basename(self._path), tag)
+            OK = False
         return OK
 
     def get_all_tags(self):
