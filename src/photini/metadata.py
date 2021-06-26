@@ -796,11 +796,15 @@ class DateTime(MD_Dict):
         date_string, time_string = file_value
         if not date_string:
             return None
-        # remove missing date values
-        while len(date_string) > 4 and date_string[-2:] == '00':
-            date_string = date_string[:-3]
-        if date_string == '0000':
-            return None
+        # remove missing date values, allowing for GIMP not writing
+        # leading zeros
+        parts = [int(x) for x in date_string.split('-')]
+        while parts[-1] == 0:
+            parts = parts[:-1]
+            if not parts:
+                return None
+        date_string = '-'.join(['{:04d}'.format(parts[0])]
+                               + ['{:02d}'.format(x) for x in parts[1:]])
         # ignore time if date is not full precision
         if len(date_string) < 10:
             time_string = None
