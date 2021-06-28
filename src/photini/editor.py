@@ -38,8 +38,8 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QNetworkProxy, QtSlot, QtWidgets, qt_version,
-    width_for_text)
+    catch_all, Qt, QtCore, QtGui, QtNetwork, QNetworkProxy, QtSignal, QtSlot,
+    QtWidgets, qt_version, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -84,6 +84,79 @@ class ConfigStore(BaseConfigStore, QtCore.QObject):
         super(ConfigStore, self).save()
 
 
+class ServerSocket(QtCore.QObject):
+    new_files = QtSignal(list)
+
+    def __init__(self, socket, *arg, **kw):
+        super(ServerSocket, self).__init__(*arg, **kw)
+        self.socket = socket
+        self.data = b''
+        self.socket.setParent(self)
+        self.socket.readyRead.connect(self.read_data)
+        self.socket.disconnected.connect(self.deleteLater)
+
+    @QtSlot()
+    @catch_all
+    def read_data(self):
+        file_list = []
+        while self.socket.bytesAvailable():
+            self.data += self.socket.readAll().data()
+            while b'\n' in self.data:
+                line, sep, self.data = self.data.partition(b'\n')
+                string = line.decode('utf-8')
+                file_list.append(string)
+        if file_list:
+            self.new_files.emit(file_list)
+
+
+class InstanceServer(QtNetwork.QTcpServer):
+    new_files = QtSignal(list)
+
+    def __init__(self, *arg, **kw):
+        super(InstanceServer, self).__init__(*arg, **kw)
+        config = BaseConfigStore('instance')
+        self.newConnection.connect(self.new_connection)
+        if not self.listen(QtNetwork.QHostAddress.LocalHost):
+            logger.error('Failed to start instance server:', self.errorString())
+            return
+        config.set('server', 'port', self.serverPort())
+        config.save()
+
+    @QtSlot()
+    @catch_all
+    def new_connection(self):
+        window = self.parent().window()
+        window.raise_()
+        window.activateWindow()
+        while self.hasPendingConnections():
+            socket = self.nextPendingConnection()
+            socket = ServerSocket(socket, parent=self)
+            socket.new_files.connect(self.new_files)
+
+
+def SendToInstance(files):
+    config = BaseConfigStore('instance')
+    port = config.get('server', 'port')
+    if not port:
+        return False
+    socket = QtNetwork.QTcpSocket()
+    socket.connectToHost(
+        QtNetwork.QHostAddress.LocalHost, int(port), QtCore.QIODevice.WriteOnly)
+    if not socket.waitForConnected(1000):
+        logger.info('Connect to server: %s', socket.errorString())
+        return False
+    for path in files:
+        data = os.path.abspath(path).encode('utf-8') + b'\n'
+        while data:
+            count = socket.write(data)
+            if count < 1:
+                logger.error('Write to server: %s', socket.errorString())
+                break
+            data = data[count:]
+    socket.waitForBytesWritten()
+    socket.close()
+    return True
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
@@ -118,6 +191,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
         self.image_list.new_metadata.connect(self.new_metadata)
+        # start instance server
+        instance_server = InstanceServer(parent=self)
+        instance_server.new_files.connect(
+            self.image_list.open_file_list, Qt.QueuedConnection)
         # update config file
         if self.app.config_store.config.has_section('tabs'):
             conv = {
@@ -452,6 +529,10 @@ def main(argv=None):
         '-v', '--verbose', action='count', default=0,
         help=translate('CLIHelp', 'increase number of logging messages'))
     options, args = parser.parse_args()
+    # if an instance of Photini is already running, send it the list of
+    # files to open
+    if SendToInstance(args):
+        return 0
     # ensure warnings are visible in test mode
     if options.test:
         warnings.simplefilter('default')

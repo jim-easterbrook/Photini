@@ -68,7 +68,7 @@ if using_pyside2:
                 pass
     else:
         using_qtwebengine = eval(using_qtwebengine)
-    from PySide2 import QtCore, QtGui, QtWidgets
+    from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtNetwork import QNetworkProxy
     if using_qtwebengine:
@@ -91,7 +91,7 @@ else:
                 pass
     else:
         using_qtwebengine = eval(using_qtwebengine)
-    from PyQt5 import QtCore, QtGui, QtWidgets
+    from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
     if using_qtwebengine:
