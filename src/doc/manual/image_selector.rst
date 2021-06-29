@@ -69,3 +69,15 @@ If you want to discard any of these changes then select the appropriate ``undo``
 .. image:: ../images/screenshot_009.png
 
 The same menu items also appear in the main ``File`` menu.
+
+Using Photini with other programs
+---------------------------------
+
+If you use other applications that can display or edit image metadata then you need to be careful when using them with Photini.
+Just like with a word processor or text editor it can be risky to have a file open for editing in more than one program.
+If you make changes in Photini you should save them before getting another program to reload or reopen the file.
+If you make changes in another program you should use the context menu described above to reload the file in Photini.
+
+You may also want to experiment with how other programs display the metadata you create in Photini and *vice versa*.
+Be aware that other programs might not store their metadata in the picture files, but use a database or separate files (other than XMP sidecars).
+Such programs are not compatible with Photini, unless they can be configured to use metadata standards.
