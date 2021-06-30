@@ -756,6 +756,25 @@ class Exiv2Metadata(GExiv2.Metadata):
             else:
                 value.write(self, tag)
 
+    # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
+    # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
+    def camera_change_ok(self, camera_model):
+        if not (self.has_tag('Exif.Photo.MakerNote')
+                and self.has_tag('Exif.Image.Make')):
+            return True
+        if not camera_model:
+            return False
+        return self.get_string('Exif.Image.Make') == camera_model['make']
+
+    def delete_makernote(self, camera_model):
+        if self.camera_change_ok(camera_model):
+            return
+        self._clear_value('Exif.Image.Make')
+        self.save_file(self._path)
+        self.open_path(self._path)
+        self._clear_value('Exif.Photo.MakerNote')
+        self.save_file(self._path)
+
 
 class ImageMetadata(Exiv2Metadata):
     _iptc_encodings = {
@@ -861,25 +880,6 @@ class ImageMetadata(Exiv2Metadata):
                 value = raw_sc.get_tag_multiple(tag)
                 if value:
                     self.set_tag_multiple(tag, value)
-
-    # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
-    # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
-    def camera_change_ok(self, camera_model):
-        if not (self.has_tag('Exif.Photo.MakerNote')
-                and self.has_tag('Exif.Image.Make')):
-            return True
-        if not camera_model:
-            return False
-        return self.get_string('Exif.Image.Make') == camera_model['make']
-
-    def delete_makernote(self, camera_model):
-        if self.camera_change_ok(camera_model):
-            return
-        self._clear_value('Exif.Image.Make')
-        self.save_file(self._path)
-        self.open_path(self._path)
-        self._clear_value('Exif.Photo.MakerNote')
-        self.save_file(self._path)
 
 
 class Preview(object):
