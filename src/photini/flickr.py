@@ -498,11 +498,13 @@ class TabWidget(PhotiniUploader):
                 'description': image.metadata.description or '',
                 }
             # keywords
-            params['tags'] = {'tags': 'uploaded:by=photini'}
+            params['tags'] = {'tags': 'uploaded:by=photini,'}
             for keyword in image.metadata.keywords or []:
                 if not keyword.startswith(ID_TAG):
-                    params['tags']['tags'] += ' "{}"'.format(
-                        keyword.replace('"', ''))
+                    keyword = keyword.replace('"', "'")
+                    if ',' in keyword:
+                        keyword = '"' + keyword + '"'
+                    params['tags']['tags'] += keyword + ','
             # date_taken
             date_taken = image.metadata.date_taken
             if date_taken:
