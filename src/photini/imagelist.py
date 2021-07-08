@@ -812,6 +812,17 @@ class ImageList(QtWidgets.QWidget):
 
     @QtSlot()
     @catch_all
+    def fix_missing_thumbs(self):
+        with Busy():
+            for image in self.get_images():
+                thumb = image.metadata.thumbnail
+                if not thumb or not thumb['image']:
+                    if image.regenerate_thumbnail():
+                        image.load_thumbnail()
+        self.image_list_changed.emit()
+
+    @QtSlot()
+    @catch_all
     def close_selected_files(self):
         self.close_files(False)
 

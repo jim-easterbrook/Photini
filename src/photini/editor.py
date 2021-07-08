@@ -190,6 +190,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # image selector
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
+        self.image_list.image_list_changed.connect(self.new_image_list)
         self.image_list.new_metadata.connect(self.new_metadata)
         # start instance server
         instance_server = InstanceServer(parent=self)
@@ -250,6 +251,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.save_action.setShortcuts(QtGui.QKeySequence.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
+        self.fix_thumbs_action = file_menu.addAction(
+            translate('MenuBar', 'Fix missing thumbnails'))
+        self.fix_thumbs_action.setEnabled(False)
+        self.fix_thumbs_action.triggered.connect(
+            self.image_list.fix_missing_thumbs)
         action = file_menu.addAction(translate('MenuBar', 'Close all files'))
         action.triggered.connect(self.image_list.close_all_files)
         sep = file_menu.addAction(translate('MenuBar', 'Selected images'))
@@ -466,6 +472,16 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         if self.import_gpx_action:
             self.import_gpx_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
+
+    @QtSlot()
+    @catch_all
+    def new_image_list(self):
+        for image in self.image_list.images:
+            thumb = image.metadata.thumbnail
+            if not thumb or not thumb['image']:
+                self.fix_thumbs_action.setEnabled(True)
+                return
+        self.fix_thumbs_action.setEnabled(False)
 
     @QtSlot(bool)
     @catch_all
