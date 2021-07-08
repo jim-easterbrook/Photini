@@ -109,25 +109,25 @@ class Image(QtWidgets.QFrame):
     def regenerate_thumbnail(self):
         # DCF spec says thumbnail must be 160 x 120, so other aspect
         # ratios are padded with black
-        # first try using FFmpeg to make thumbnail
-        data = self.make_thumb_ffmpeg()
-        if data:
-            self.metadata.thumbnail = {'data': data}
-            return True
-        # use PIL or Qt
+        # try using PIL first, good quality and quick
         qt_im = self.get_qt_image()
-        if not qt_im or qt_im.isNull():
-            return False
-        if PIL:
+        if qt_im and PIL:
             data = self.make_thumb_PIL(qt_im)
             if data:
                 self.metadata.thumbnail = {'data': data}
                 return True
-        qt_im = self.make_thumb_Qt(qt_im)
-        if not qt_im or qt_im.isNull():
-            return False
-        self.metadata.thumbnail = {'image': qt_im}
-        return True
+        # next try using FFmpeg, good quality but slower
+        data = self.make_thumb_ffmpeg()
+        if data:
+            self.metadata.thumbnail = {'data': data}
+            return True
+        # lastly use Qt, quick but not high quality
+        if qt_im:
+            qt_im = self.make_thumb_Qt(qt_im)
+            if qt_im:
+                self.metadata.thumbnail = {'image': qt_im}
+                return True
+        return False
 
     def make_thumb_ffmpeg(self):
         # get input dimensions
@@ -183,21 +183,15 @@ class Image(QtWidgets.QFrame):
         if w >= h:
             new_h = int(0.5 + (float(w * 3) / 4.0))
             new_w = int(0.5 + (float(h * 4) / 3.0))
-            if new_h > h:
-                pad = (new_h - h) // 2
-                qt_im = qt_im.copy(0, -pad, w, new_h)
-            elif new_w > w:
-                pad = (new_w - w) // 2
-                qt_im = qt_im.copy(-pad, 0, new_w, h)
         else:
             new_h = int(0.5 + (float(w * 4) / 3.0))
             new_w = int(0.5 + (float(h * 3) / 4.0))
-            if new_w > w:
-                pad = (new_w - w) // 2
-                qt_im = qt_im.copy(-pad, 0, new_w, h)
-            elif new_h > h:
-                pad = (new_h - h) // 2
-                qt_im = qt_im.copy(0, -pad, w, new_h)
+        if new_w > w:
+            pad = (new_w - w) // 2
+            qt_im = qt_im.copy(-pad, 0, new_w, h)
+        elif new_h > h:
+            pad = (new_h - h) // 2
+            qt_im = qt_im.copy(0, -pad, w, new_h)
         return qt_im
 
     def make_thumb_PIL(self, qt_im):
