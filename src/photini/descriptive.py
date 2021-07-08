@@ -69,6 +69,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
+        self.display.setStyleSheet("* {background-color:rgba(0,0,0,0);}")
         self.display.setFrame(False)
         self.display.setReadOnly(True)
         self.display.setFocusPolicy(Qt.NoFocus)
