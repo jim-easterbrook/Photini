@@ -72,6 +72,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.display.setStyleSheet("* {background-color:rgba(0,0,0,0);}")
         self.display.setFrame(False)
         self.display.setReadOnly(True)
+        self.display.setContextMenuPolicy(Qt.NoContextMenu)
         self.display.setFocusPolicy(Qt.NoFocus)
         self.layout().addWidget(self.display)
         # adopt child methods/signals
