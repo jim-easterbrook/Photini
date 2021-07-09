@@ -167,8 +167,7 @@ class Image(QtWidgets.QFrame):
         reader.setAutoTransform(False)
         qt_im = reader.read()
         if not qt_im or qt_im.isNull():
-            logger.error('Cannot read %s image data from %s',
-                         self.file_type, self.path)
+            logger.error('Image read: %s: %s', self.path, reader.errorString())
             return None
         w = qt_im.width()
         h = qt_im.height()
