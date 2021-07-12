@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.7.0:
+  1/ Added a tab for 'ownership' and copyright details.
+  2/ Added 'tooltip' hints to some text fields.
+  3/ Try to ensure only one instance of Photini runs at a time.
+  4/ Added menu option to make thumbnails for all images that have none.
+  5/ Other minor improvements and bug fixes.
+
 Changes in v2021.6.0:
   1/ Show IPTC-IIM data length limits in text fields.
   2/ Drop use of Python FlickrAPI library.
