@@ -797,8 +797,8 @@ class DateTime(MD_Dict):
         if not date_string:
             return None
         # remove missing date values, allowing for GIMP not writing
-        # leading zeros
-        parts = [int(x) for x in date_string.split('-')]
+        # leading zeros (some GIMP versions write '-' instead of zero!)
+        parts = [int(x) for x in date_string.split('-') if x]
         while parts[-1] == 0:
             parts = parts[:-1]
             if not parts:
