@@ -18,6 +18,7 @@
 
 from __future__ import unicode_literals
 
+import ast
 from datetime import datetime
 import logging
 
@@ -313,17 +314,16 @@ class TabWidget(QtWidgets.QWidget):
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
         for key in widgets:
-            value = None
-            if key == 'copyright':
+            value = self._get_template_value(key)
+            if key == 'copyright' and not value:
                 name = self.config_store.get('user', 'copyright_name') or ''
                 text = (self.config_store.get('user', 'copyright_text') or
                         translate('DescriptiveTab', 'Copyright ©{year} {name}.'
                                   ' All rights reserved.'))
                 value = text.format(year='%Y', name=name)
-            elif key == 'creator':
+            elif key == 'creator' and not value:
                 value = self.config_store.get('user', 'creator_name')
-            widgets[key].set_value(
-                self.config_store.get('ownership', key, value))
+            widgets[key].set_value(value)
         dialog.layout().addWidget(form)
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
@@ -336,7 +336,7 @@ class TabWidget(QtWidgets.QWidget):
         for key in widgets:
             value = widgets[key].get_value()
             if value:
-                self.config_store.set('ownership', key, value)
+                self.config_store.set('ownership', key, repr(value))
             else:
                 self.config_store.delete('ownership', key)
 
@@ -345,7 +345,7 @@ class TabWidget(QtWidgets.QWidget):
     def apply_template(self):
         value = {}
         for key in self.widgets:
-            text = self.config_store.get('ownership', key)
+            text = self._get_template_value(key)
             if text:
                 value[key] = text
         images = self.image_list.get_selected_images()
@@ -367,6 +367,16 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.contact_info = info
         else:
             setattr(image.metadata, key, value)
+
+    def _get_template_value(self, key):
+        text = self.config_store.get('ownership', key)
+        if not text:
+            return None
+        try:
+            text = ast.literal_eval(text)
+        except Exception:
+            pass
+        return text
 
     def _get_value(self, image, key):
         if key.startswith('Ci'):
