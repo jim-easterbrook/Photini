@@ -27,6 +27,7 @@ This is probably only useful in the ``Copyright Notice``, but is available for a
 .. image:: ../images/screenshot_203.png
 
 The ``Apply template`` button copies the template data to all the selected images, setting the correct year in the ``Copyright Notice``.
+If you want to clear any of the images' existing ownership data when the template is applied, then set the corresponding template field to a single space.
 You can then add more information, or edit the existing information, in the usual way.
 
 More information about the data fields
