@@ -337,6 +337,8 @@ class TabWidget(QtWidgets.QWidget):
             value = widgets[key].get_value()
             if value:
                 self.config_store.set('ownership', key, value)
+            else:
+                self.config_store.delete('ownership', key)
 
     @QtSlot()
     @catch_all
