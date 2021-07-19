@@ -35,7 +35,7 @@ class GpxImporter(QtCore.QObject):
             parent.app.config_store.get('paths', 'gpx', ''),
             self.tr("GPX files (*.gpx *.GPX *.Gpx);;All files (*)")
             ]
-        if eval(parent.app.config_store.get('pyqt', 'native_dialog', 'True')):
+        if parent.app.config_store.get_object('pyqt', 'native_dialog', True):
             pass
         else:
             args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]

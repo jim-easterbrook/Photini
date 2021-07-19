@@ -630,7 +630,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)
         # restore stored values
-        value = eval(self.config_store.get('technical', 'offset', 'None'))
+        value = self.config_store.get_object('technical', 'offset')
         if value:
             self.offset.setTime(QtCore.QTime(*value[0:3]))
             self.time_zone.set_value(value[3])
@@ -1292,10 +1292,10 @@ class TabWidget(QtWidgets.QWidget):
 
     def get_crop_factor(self, md):
         if md.camera_model:
-            crop_factor = self.config_store.get(
+            crop_factor = self.config_store.get_object(
                 'crop factor', md.camera_model.get_name(inc_serial=False))
             if crop_factor:
-                return eval(crop_factor)
+                return crop_factor
         if not (md.resolution and md.sensor_size):
             return None
         if (md.resolution['x'] <= 0 or md.resolution['y'] <= 0 or

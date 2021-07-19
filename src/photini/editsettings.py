@@ -63,19 +63,19 @@ class EditSettings(QtWidgets.QDialog):
             self.config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator name'), self.creator_name)
         # IPTC data
-        force_iptc = eval(self.config_store.get('files', 'force_iptc', 'False'))
+        force_iptc = self.config_store.get_object('files', 'force_iptc', False)
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
         self.write_iptc.setChecked(force_iptc)
         panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
         # show IPTC-IIM length limits
-        length_warning = eval(self.config_store.get(
-            'files', 'length_warning', 'True'))
+        length_warning = self.config_store.get_object(
+            'files', 'length_warning', True)
         self.length_warning = QtWidgets.QCheckBox(self.tr(
             'Show IPTC-IIM length limits'))
         self.length_warning.setChecked(length_warning)
         panel.layout().addRow('', self.length_warning)
         # sidecar files
-        if_mode = eval(self.config_store.get('files', 'image', 'True'))
+        if_mode = self.config_store.get_object('files', 'image', True)
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
         if not if_mode:
             sc_mode = 'always'
@@ -96,8 +96,8 @@ class EditSettings(QtWidgets.QDialog):
         self.write_if.clicked.connect(self.new_write_if)
         panel.layout().addRow(self.tr('Write to image file'), self.write_if)
         # preserve file timestamps
-        keep_time = eval(
-            self.config_store.get('files', 'preserve_timestamps', 'False'))
+        keep_time = self.config_store.get_object(
+            'files', 'preserve_timestamps', False)
         self.keep_time = QtWidgets.QCheckBox()
         self.keep_time.setChecked(keep_time)
         panel.layout().addRow(

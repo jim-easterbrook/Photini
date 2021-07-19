@@ -22,7 +22,6 @@ import importlib
 import logging
 from optparse import OptionParser
 import os
-import pprint
 import sys
 import urllib
 import warnings
@@ -185,8 +184,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         # restore size
         size = self.width(), self.height()
-        self.resize(*eval(
-            self.app.config_store.get('main_window', 'size', str(size))))
+        self.resize(
+            *self.app.config_store.get_object('main_window', 'size', size))
         # image selector
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
@@ -223,14 +222,13 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.mapboxmap',    'photini.openstreetmap',
                            'photini.address',      'photini.flickr',
                            'photini.googlephotos', 'photini.importer']
-        modules = eval(self.app.config_store.get(
-            'tabs', 'modules', pprint.pformat(default_modules)))
+        modules = self.app.config_store.get_object(
+            'tabs', 'modules', default_modules)
         for n, module in enumerate(default_modules):
             if module not in modules:
                 modules = list(modules)
                 modules.insert(n, module)
-                self.app.config_store.set(
-                    'tabs', 'modules', pprint.pformat(modules))
+                self.app.config_store.set_object('tabs', 'modules', modules)
         for module in modules:
             tab = {'module': module}
             try:
@@ -286,8 +284,8 @@ class MainWindow(QtWidgets.QMainWindow):
             tab['action'] = options_menu.addAction(name)
             tab['action'].setCheckable(True)
             if tab['class']:
-                tab['action'].setChecked(eval(
-                    self.app.config_store.get('tabs', tab['module'], 'True')))
+                tab['action'].setChecked(self.app.config_store.get_object(
+                    'tabs', tab['module'], True))
             else:
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
@@ -339,8 +337,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)
         size = self.central_widget.sizes()
-        self.central_widget.setSizes(eval(
-            self.app.config_store.get('main_window', 'split', str(size))))
+        self.central_widget.setSizes(
+            self.app.config_store.get_object('main_window', 'split', size))
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
         # open files given on command line, after GUI is displayed

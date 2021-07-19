@@ -355,8 +355,9 @@ class PhotiniMap(QtWidgets.QWidget):
     <div id="mapDiv"></div>
   </body>
 </html>'''
-        lat, lng = eval(self.app.config_store.get('map', 'centre', '(51.0, 0.0)'))
-        zoom = int(eval(self.app.config_store.get('map', 'zoom', '11')))
+        lat, lng = self.app.config_store.get_object(
+            'map', 'centre', (51.0, 0.0))
+        zoom = int(self.app.config_store.get_object('map', 'zoom', 11))
         if QtWebEngineWidgets:
             initialize = '''    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
@@ -398,8 +399,8 @@ class PhotiniMap(QtWidgets.QWidget):
         if not self.map_loaded:
             self.initialise()
             return
-        lat, lng = eval(self.app.config_store.get('map', 'centre'))
-        zoom = int(eval(self.app.config_store.get('map', 'zoom')))
+        lat, lng = self.app.config_store.get_object('map', 'centre')
+        zoom = int(self.app.config_store.get_object('map', 'zoom'))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
 
     def do_not_close(self):

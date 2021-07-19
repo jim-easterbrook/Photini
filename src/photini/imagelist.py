@@ -542,7 +542,7 @@ class ImageList(QtWidgets.QWidget):
         self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
-        if eval(self.app.config_store.get('controls', 'sort_date', 'False')):
+        if self.app.config_store.get_object('controls', 'sort_date', False):
             self.sort_date.setChecked(True)
         else:
             self.sort_name.setChecked(True)
@@ -591,7 +591,7 @@ class ImageList(QtWidgets.QWidget):
                 ' '.join(['*.' + x for x in image_types()]),
                 ' '.join(['*.' + x for x in video_types()]))
             ]
-        if eval(self.app.config_store.get('pyqt', 'native_dialog', 'True')):
+        if self.app.config_store.get_object('pyqt', 'native_dialog', True):
             pass
         else:
             args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
@@ -859,12 +859,12 @@ class ImageList(QtWidgets.QWidget):
 
     def _save_files(self, images=[]):
         self._flush_editing()
-        if_mode = eval(self.app.config_store.get('files', 'image', 'True'))
+        if_mode = self.app.config_store.get_object('files', 'image', True)
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
-        force_iptc = eval(
-            self.app.config_store.get('files', 'force_iptc', 'False'))
-        keep_time = eval(
-            self.app.config_store.get('files', 'preserve_timestamps', 'False'))
+        force_iptc = self.app.config_store.get_object(
+            'files', 'force_iptc', False)
+        keep_time = self.app.config_store.get_object(
+            'files', 'preserve_timestamps', False)
         if not images:
             images = self.images
         with Busy():

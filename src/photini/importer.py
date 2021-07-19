@@ -542,7 +542,7 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def sort_file_list(self):
-        if eval(self.config_store.get('controls', 'sort_date', 'False')):
+        if self.config_store.get_object('controls', 'sort_date', False):
             self.file_list.sort(key=lambda x: self.file_data[x]['timestamp'])
         else:
             self.file_list.sort()

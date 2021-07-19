@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ class SpellCheck(QtCore.QObject):
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.enable(eval(self.config_store.get('spelling', 'enabled', 'True')))
+        self.enable(self.config_store.get_object('spelling', 'enabled', True))
         self.set_language(self.config_store.get('spelling', 'language'))
 
     @staticmethod
