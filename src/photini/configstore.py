@@ -19,9 +19,11 @@
 
 from __future__ import unicode_literals
 
+import ast
 import codecs
 from configparser import RawConfigParser
 import os
+import pprint
 import stat
 import sys
 
@@ -57,6 +59,18 @@ class BaseConfigStore(object):
             self.set(section, option, default)
         return default
 
+    def get_object(self, section, option, default=None):
+        if default is not None:
+            default = pprint.pformat(default)
+        value = self.get(section, option, default)
+        if not value:
+            return None
+        try:
+            value = ast.literal_eval(value)
+        except Exception:
+            pass
+        return value
+
     def set(self, section, option, value):
         if not self.config.has_section(section):
             self.config.add_section(section)
@@ -65,6 +79,9 @@ class BaseConfigStore(object):
             return
         self.config.set(section, option, value)
         self.dirty = True
+
+    def set_object(self, section, option, value):
+        self.set(section, option, pprint.pformat(value))
 
     def delete(self, section, option):
         if not self.config.has_section(section):

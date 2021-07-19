@@ -18,7 +18,6 @@
 
 from __future__ import unicode_literals
 
-import ast
 from datetime import datetime
 import logging
 
@@ -314,7 +313,7 @@ class TabWidget(QtWidgets.QWidget):
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
         for key in widgets:
-            value = self._get_template_value(key)
+            value = self.config_store.get_object('ownership', key)
             if key == 'copyright' and not value:
                 name = self.config_store.get('user', 'copyright_name') or ''
                 text = (self.config_store.get('user', 'copyright_text') or
@@ -345,7 +344,7 @@ class TabWidget(QtWidgets.QWidget):
     def apply_template(self):
         value = {}
         for key in self.widgets:
-            text = self._get_template_value(key)
+            text = self.config_store.get_object('ownership', key)
             if text:
                 value[key] = text
         images = self.image_list.get_selected_images()
@@ -367,16 +366,6 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.contact_info = info
         else:
             setattr(image.metadata, key, value)
-
-    def _get_template_value(self, key):
-        text = self.config_store.get('ownership', key)
-        if not text:
-            return None
-        try:
-            text = ast.literal_eval(text)
-        except Exception:
-            pass
-        return text
 
     def _get_value(self, image, key):
         if key.startswith('Ci'):
