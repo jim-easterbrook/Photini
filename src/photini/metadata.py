@@ -497,7 +497,7 @@ class LensModel(MD_Dict_Mergeable):
 
     def convert(self, value):
         value = super(LensModel, self).convert(value)
-        if value['model'] == 'n/a':
+        if value['model'] in ('n/a', '(0)'):
             value['model'] = None
         if value['serial_no'] == '0000000000':
             value['serial_no'] = None
