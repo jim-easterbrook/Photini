@@ -19,8 +19,7 @@
 
 from __future__ import unicode_literals
 
-from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 import logging
 
 from photini.exiv2 import ImageMetadata
@@ -114,10 +113,15 @@ class KeywordsEditor(QtWidgets.QWidget):
     def __init__(self, **kw):
         super(KeywordsEditor, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.league_table = defaultdict(int)
-        for keyword, score in eval(self.config_store.get(
-            'descriptive', 'keywords', '{}')).items():
-            self.league_table[keyword] = score
+        self.league_table = {}
+        for keyword, score in self.config_store.get_object(
+                                'descriptive', 'keywords', {}).items():
+            if isinstance(score, int):
+                # old style keyword list
+                self.league_table[keyword] = date.min.isoformat(), score // 50
+            else:
+                # new style keyword list
+                self.league_table[keyword] = score
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
@@ -156,19 +160,20 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.favourites.set_dropdown_width()
 
     def update_league_table(self, images):
+        today = date.today().isoformat()
         for image in images:
             value = list(filter(lambda x: not x.startswith('flickr:photo_id'),
                                 image.metadata.keywords or []))
             if not value:
                 continue
-            for keyword in self.league_table:
-                self.league_table[keyword] = max(
-                    self.league_table[keyword] - 1, -5)
             for keyword in value:
-                self.league_table[keyword] = min(
-                    self.league_table[keyword] + 10, 1000)
-        self.config_store.set(
-            'descriptive', 'keywords', str(dict(self.league_table)))
+                if keyword not in self.league_table:
+                    self.league_table[keyword] = today, 1
+                elif self.league_table[keyword][0] != today:
+                    self.league_table[keyword] = (
+                        today, self.league_table[keyword][1] + 1)
+        self.config_store.set_object(
+            'descriptive', 'keywords', self.league_table)
         self.update_favourites()
 
     @QtSlot(int)
