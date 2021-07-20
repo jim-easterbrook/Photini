@@ -201,7 +201,7 @@ class LensList(DropdownEdit):
             if v:
                 self.config_store.set(section, k, v)
         if lens_spec:
-            self.config_store.set(section, 'lens_spec', lens_spec)
+            self.config_store.set(section, 'lens_spec', str(lens_spec))
         super(LensList, self).add_item(name, value, ordered=True)
 
     def remove_item(self, value):
