@@ -225,6 +225,8 @@ class MD_Dict_Mergeable(MD_Dict):
     @staticmethod
     def convert(value):
         for key in value:
+            if value[key] is None:
+                continue
             if not isinstance(value[key], str):
                 value[key] = str(value[key])
             value[key] = value[key].strip() or None
