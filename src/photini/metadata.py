@@ -222,6 +222,14 @@ class MD_Dict(MD_Value, dict):
 
 
 class MD_Dict_Mergeable(MD_Dict):
+    @staticmethod
+    def convert(value):
+        for key in value:
+            if not isinstance(value[key], str):
+                value[key] = str(value[key])
+            value[key] = value[key].strip() or None
+        return value
+
     def merge(self, info, tag, other):
         if other == self:
             return self
