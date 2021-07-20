@@ -1314,7 +1314,10 @@ class TabWidget(QtWidgets.QWidget):
             logger.info('Unknown resolution unit %d', md.resolution['unit'])
             return None
         # 35 mm film diagonal is 43.27 mm
-        crop_factor = round(43.27 / d, 4)
+        crop_factor = 43.27 / d
+        # round to 2 digits
+        scale = 10 ** int(math.log10(crop_factor))
+        crop_factor = round(crop_factor / scale, 1) * scale
         if md.camera_model:
             self.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
