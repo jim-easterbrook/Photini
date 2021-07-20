@@ -51,7 +51,7 @@ class SpellCheck(QtCore.QObject):
     def __init__(self, *arg, **kw):
         super(SpellCheck, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.enable(self.config_store.get_object('spelling', 'enabled', True))
+        self.enable(self.config_store.get('spelling', 'enabled', True))
         self.set_language(self.config_store.get('spelling', 'language'))
 
     @staticmethod
@@ -84,7 +84,7 @@ class SpellCheck(QtCore.QObject):
     @catch_all
     def enable(self, enabled):
         self.enabled = enabled and bool(Gspell or enchant)
-        self.config_store.set('spelling', 'enabled', str(self.enabled))
+        self.config_store.set('spelling', 'enabled', self.enabled)
         self.new_dict.emit()
 
     def set_language(self, code):

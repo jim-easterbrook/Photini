@@ -42,7 +42,7 @@ config.delete('pyqt', 'using_pyqt5')
 using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
 
-if using_pyside2 == 'auto':
+if not isinstance(using_pyside2, bool):
     using_pyside2 = False
     try:
         from PyQt5 import QtCore
@@ -52,11 +52,9 @@ if using_pyside2 == 'auto':
             using_pyside2 = True
         except ImportError:
             pass
-else:
-    using_pyside2 = eval(using_pyside2)
 
 if using_pyside2:
-    if using_qtwebengine == 'auto':
+    if not isinstance(using_qtwebengine, bool):
         using_qtwebengine = True
         try:
             from PySide2 import QtWebEngineWidgets
@@ -66,8 +64,6 @@ if using_pyside2:
                 using_qtwebengine = False
             except ImportError:
                 pass
-    else:
-        using_qtwebengine = eval(using_qtwebengine)
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtNetwork import QNetworkProxy
@@ -79,7 +75,7 @@ if using_pyside2:
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide2_version
 else:
-    if using_qtwebengine == 'auto':
+    if not isinstance(using_qtwebengine, bool):
         using_qtwebengine = True
         try:
             from PyQt5 import QtWebEngineWidgets
@@ -250,7 +246,7 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
         if not text:
             return
         if self.length_check:
-            length_warning = self.config_store.get_object(
+            length_warning = self.config_store.get(
                 'files', 'length_warning', True)
             if length_warning:
                 if self.multi_string:

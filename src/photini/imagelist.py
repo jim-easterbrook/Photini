@@ -506,8 +506,7 @@ class ImageList(QtWidgets.QWidget):
         self.images = []
         self.last_selected = None
         self.selection_anchor = None
-        self.thumb_size = int(
-            self.app.config_store.get('controls', 'thumb_size', '80'))
+        self.thumb_size = self.app.config_store.get('controls', 'thumb_size', 80)
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setRowStretch(0, 1)
@@ -542,7 +541,7 @@ class ImageList(QtWidgets.QWidget):
         self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
         layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
-        if self.app.config_store.get_object('controls', 'sort_date', False):
+        if self.app.config_store.get('controls', 'sort_date', False):
             self.sort_date.setChecked(True)
         else:
             self.sort_name.setChecked(True)
@@ -591,9 +590,7 @@ class ImageList(QtWidgets.QWidget):
                 ' '.join(['*.' + x for x in image_types()]),
                 ' '.join(['*.' + x for x in video_types()]))
             ]
-        if self.app.config_store.get_object('pyqt', 'native_dialog', True):
-            pass
-        else:
+        if not self.app.config_store.get('pyqt', 'native_dialog', True):
             args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(*args)
         path_list = path_list[0]
@@ -655,7 +652,7 @@ class ImageList(QtWidgets.QWidget):
 
     def _sort_thumbnails(self):
         sort_date = self.sort_date.isChecked()
-        self.app.config_store.set('controls', 'sort_date', str(sort_date))
+        self.app.config_store.set('controls', 'sort_date', sort_date)
         with Busy():
             if sort_date:
                 self.images.sort(key=self._date_key)
@@ -859,11 +856,10 @@ class ImageList(QtWidgets.QWidget):
 
     def _save_files(self, images=[]):
         self._flush_editing()
-        if_mode = self.app.config_store.get_object('files', 'image', True)
+        if_mode = self.app.config_store.get('files', 'image', True)
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
-        force_iptc = self.app.config_store.get_object(
-            'files', 'force_iptc', False)
-        keep_time = self.app.config_store.get_object(
+        force_iptc = self.app.config_store.get('files', 'force_iptc', False)
+        keep_time = self.app.config_store.get(
             'files', 'preserve_timestamps', False)
         if not images:
             images = self.images
@@ -959,7 +955,7 @@ class ImageList(QtWidgets.QWidget):
     @catch_all
     def _new_thumb_size(self, value):
         self.thumb_size = value * 20
-        self.app.config_store.set('controls', 'thumb_size', str(self.thumb_size))
+        self.app.config_store.set('controls', 'thumb_size', self.thumb_size)
         for image in self.images:
             image.set_thumb_size(self.thumb_size)
         if self.last_selected:

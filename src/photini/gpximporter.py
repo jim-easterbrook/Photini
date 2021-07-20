@@ -29,44 +29,38 @@ logger = logging.getLogger(__name__)
 
 class GpxImporter(QtCore.QObject):
     def do_import(self, parent):
+        config_store = QtWidgets.QApplication.instance().config_store
         args = [
             parent,
             self.tr('Import GPX file'),
-            parent.app.config_store.get('paths', 'gpx', ''),
+            config_store.get('paths', 'gpx', ''),
             self.tr("GPX files (*.gpx *.GPX *.Gpx);;All files (*)")
             ]
-        if parent.app.config_store.get_object('pyqt', 'native_dialog', True):
-            pass
-        else:
+        if not config_store.get('pyqt', 'native_dialog', True):
             args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
         path = QtWidgets.QFileDialog.getOpenFileName(*args)
         path = path[0]
         if not path:
             return
-        parent.app.config_store.set(
-            'paths', 'gpx', os.path.dirname(os.path.abspath(path)))
+        config_store.set('paths', 'gpx', os.path.dirname(os.path.abspath(path)))
         # get user options
-        config_store = QtWidgets.QApplication.instance().config_store
         dialog = QtWidgets.QDialog(parent=parent)
         dialog.setWindowTitle(self.tr('GPX options'))
         dialog.setLayout(QtWidgets.QFormLayout())
         max_interval = QtWidgets.QSpinBox()
         max_interval.setRange(60, 300)
-        max_interval.setValue(
-            int(config_store.get('gpx_importer', 'interval', '120')))
+        max_interval.setValue(config_store.get('gpx_importer', 'interval', 120))
         max_interval.setSuffix(self.tr(' secs'))
         dialog.layout().addRow(self.tr('Max time between points'), max_interval)
         max_dilution = QtWidgets.QDoubleSpinBox()
         max_dilution.setRange(1.0, 100.0)
-        max_dilution.setValue(
-            float(config_store.get('gpx_importer', 'dilution', '2.5')))
+        max_dilution.setValue(config_store.get('gpx_importer', 'dilution', 2.5))
         max_dilution.setSingleStep(0.1)
         dialog.layout().addRow(
             self.tr('Max dilution of precision'), max_dilution)
         if hasattr(parent.tabs.currentWidget(), 'plot_track'):
             plot_track = QtWidgets.QCheckBox()
-            plot_track.setChecked(
-                bool(config_store.get('gpx_importer', 'plot', 'True')))
+            plot_track.setChecked(config_store.get('gpx_importer', 'plot', True))
             dialog.layout().addRow(self.tr('Plot track on map'), plot_track)
         else:
             plot_track = False

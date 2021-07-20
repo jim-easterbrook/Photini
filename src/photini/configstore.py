@@ -54,24 +54,20 @@ class BaseConfigStore(object):
 
     def get(self, section, option, default=None):
         if self.config.has_option(section, option):
-            return self.config.get(section, option)
+            value = self.config.get(section, option)
+            if not value:
+                return None
+            try:
+                value = ast.literal_eval(value)
+            except Exception:
+                pass
+            return value
         if default is not None:
             self.set(section, option, default)
         return default
 
-    def get_object(self, section, option, default=None):
-        if default is not None:
-            default = pprint.pformat(default)
-        value = self.get(section, option, default)
-        if not value:
-            return None
-        try:
-            value = ast.literal_eval(value)
-        except Exception:
-            pass
-        return value
-
     def set(self, section, option, value):
+        value = pprint.pformat(value)
         if not self.config.has_section(section):
             self.config.add_section(section)
         elif (self.config.has_option(section, option) and
@@ -79,9 +75,6 @@ class BaseConfigStore(object):
             return
         self.config.set(section, option, value)
         self.dirty = True
-
-    def set_object(self, section, option, value):
-        self.set(section, option, pprint.pformat(value))
 
     def delete(self, section, option):
         if not self.config.has_section(section):

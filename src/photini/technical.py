@@ -201,7 +201,7 @@ class LensList(DropdownEdit):
             if v:
                 self.config_store.set(section, k, v)
         if lens_spec:
-            self.config_store.set(section, 'lens_spec', str(lens_spec))
+            self.config_store.set(section, 'lens_spec', lens_spec)
         super(LensList, self).add_item(name, value, ordered=True)
 
     def remove_item(self, value):
@@ -630,7 +630,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)
         # restore stored values
-        value = self.config_store.get_object('technical', 'offset')
+        value = self.config_store.get('technical', 'offset')
         if value:
             self.offset.setTime(QtCore.QTime(*value[0:3]))
             self.time_zone.set_value(value[3])
@@ -655,7 +655,7 @@ class OffsetWidget(QtWidgets.QWidget):
         value = self.offset.time()
         value = (value.hour(), value.minute(), value.second(),
                  self.time_zone.get_value())
-        self.config_store.set('technical', 'offset', str(value))
+        self.config_store.set('technical', 'offset', value)
 
     @QtSlot()
     @catch_all
@@ -1281,18 +1281,17 @@ class TabWidget(QtWidgets.QWidget):
         if not md.camera_model:
             return
         if not md.focal_length_35:
-            self.config_store.set(
-                'crop factor', md.camera_model.get_name(inc_serial=False),
-                'None')
+            self.config_store.delete(
+                'crop factor', md.camera_model.get_name(inc_serial=False))
         elif md.focal_length:
             crop_factor = float(md.focal_length_35) / md.focal_length
             self.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
-                repr(crop_factor))
+                crop_factor)
 
     def get_crop_factor(self, md):
         if md.camera_model:
-            crop_factor = self.config_store.get_object(
+            crop_factor = self.config_store.get(
                 'crop factor', md.camera_model.get_name(inc_serial=False))
             if crop_factor:
                 return crop_factor
@@ -1319,7 +1318,7 @@ class TabWidget(QtWidgets.QWidget):
         if md.camera_model:
             self.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
-                str(crop_factor))
+                crop_factor)
         return crop_factor
 
     def calc_35(self, md, value=None):

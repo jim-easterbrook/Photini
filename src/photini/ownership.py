@@ -313,7 +313,7 @@ class TabWidget(QtWidgets.QWidget):
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
         for key in widgets:
-            value = self.config_store.get_object('ownership', key)
+            value = self.config_store.get('ownership', key)
             if key == 'copyright' and not value:
                 name = self.config_store.get('user', 'copyright_name') or ''
                 text = (self.config_store.get('user', 'copyright_text') or
@@ -335,7 +335,7 @@ class TabWidget(QtWidgets.QWidget):
         for key in widgets:
             value = widgets[key].get_value()
             if value:
-                self.config_store.set('ownership', key, repr(value))
+                self.config_store.set('ownership', key, value)
             else:
                 self.config_store.delete('ownership', key)
 
@@ -344,7 +344,7 @@ class TabWidget(QtWidgets.QWidget):
     def apply_template(self):
         value = {}
         for key in self.widgets:
-            text = self.config_store.get_object('ownership', key)
+            text = self.config_store.get('ownership', key)
             if text:
                 value[key] = text
         images = self.image_list.get_selected_images()

@@ -114,7 +114,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         super(KeywordsEditor, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.league_table = {}
-        for keyword, score in self.config_store.get_object(
+        for keyword, score in self.config_store.get(
                                 'descriptive', 'keywords', {}).items():
             if isinstance(score, int):
                 # old style keyword list
@@ -172,8 +172,7 @@ class KeywordsEditor(QtWidgets.QWidget):
                 elif self.league_table[keyword][0] != today:
                     self.league_table[keyword] = (
                         today, self.league_table[keyword][1] + 1)
-        self.config_store.set_object(
-            'descriptive', 'keywords', self.league_table)
+        self.config_store.set('descriptive', 'keywords', self.league_table)
         self.update_favourites()
 
     @QtSlot(int)

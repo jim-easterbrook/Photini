@@ -184,8 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         # restore size
         size = self.width(), self.height()
-        self.resize(
-            *self.app.config_store.get_object('main_window', 'size', size))
+        self.resize(*self.app.config_store.get('main_window', 'size', size))
         # image selector
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
@@ -222,13 +221,12 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.mapboxmap',    'photini.openstreetmap',
                            'photini.address',      'photini.flickr',
                            'photini.googlephotos', 'photini.importer']
-        modules = self.app.config_store.get_object(
-            'tabs', 'modules', default_modules)
+        modules = self.app.config_store.get('tabs', 'modules', default_modules)
         for n, module in enumerate(default_modules):
             if module not in modules:
                 modules = list(modules)
                 modules.insert(n, module)
-                self.app.config_store.set_object('tabs', 'modules', modules)
+                self.app.config_store.set('tabs', 'modules', modules)
         for module in modules:
             tab = {'module': module}
             try:
@@ -284,7 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
             tab['action'] = options_menu.addAction(name)
             tab['action'].setCheckable(True)
             if tab['class']:
-                tab['action'].setChecked(self.app.config_store.get_object(
+                tab['action'].setChecked(self.app.config_store.get(
                     'tabs', tab['module'], True))
             else:
                 tab['action'].setEnabled(False)
@@ -338,7 +336,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.addWidget(self.image_list)
         size = self.central_widget.sizes()
         self.central_widget.setSizes(
-            self.app.config_store.get_object('main_window', 'split', size))
+            self.app.config_store.get('main_window', 'split', size))
         self.central_widget.splitterMoved.connect(self.new_split)
         self.setCentralWidget(self.central_widget)
         # open files given on command line, after GUI is displayed
@@ -360,10 +358,10 @@ class MainWindow(QtWidgets.QMainWindow):
         idx = 0
         for tab in self.tab_list:
             if not tab['class']:
-                self.app.config_store.set('tabs', tab['module'], 'True')
+                self.app.config_store.set('tabs', tab['module'], True)
                 continue
             use_tab = tab['action'].isChecked()
-            self.app.config_store.set('tabs', tab['module'], str(use_tab))
+            self.app.config_store.set('tabs', tab['module'], use_tab)
             if not use_tab:
                 continue
             if 'object' not in tab:
@@ -452,7 +450,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @catch_all
     def new_split(self, pos, index):
         self.app.config_store.set(
-            'main_window', 'split', str(self.central_widget.sizes()))
+            'main_window', 'split', self.central_widget.sizes())
 
     @QtSlot(int)
     @catch_all
@@ -490,7 +488,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @catch_all
     def resizeEvent(self, event):
         size = self.width(), self.height()
-        self.app.config_store.set('main_window', 'size', str(size))
+        self.app.config_store.set('main_window', 'size', size)
 
 
 app = None
