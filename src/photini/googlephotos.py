@@ -25,7 +25,6 @@ import urllib
 import requests
 from requests_oauthlib import OAuth2Session
 
-from photini.configstore import key_store
 from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 from photini.uploader import PhotiniUploader, UploaderSession
 
@@ -51,15 +50,14 @@ class GooglePhotosSession(UploaderSession):
                 'refresh_token': refresh_token,
                 'expires_in'   : -30,
                 }
-        client_id = key_store.get('googlephotos', 'client_id')
-        client_secret = key_store.get('googlephotos', 'client_secret')
         auto_refresh_kwargs = {
-            'client_id'    : client_id,
-            'client_secret': client_secret,
+            'client_id'    : self.client_id,
+            'client_secret': self.client_secret,
             }
         token_url = self.oauth_url + 'v4/token'
         self.api = OAuth2Session(
-            client_id=client_id, token=token, token_updater=self.save_token,
+            client_id=self.client_id, token=token,
+            token_updater=self.save_token,
             auto_refresh_kwargs=auto_refresh_kwargs,
             auto_refresh_url=token_url)
         if token['expires_in'] < 0:
@@ -81,8 +79,8 @@ class GooglePhotosSession(UploaderSession):
         while len(code_verifier) < 43:
             code_verifier += OAuth2Session().new_state()
         self.auth_params = {
-            'client_id'    : key_store.get('googlephotos', 'client_id'),
-            'client_secret': key_store.get('googlephotos', 'client_secret'),
+            'client_id'    : self.client_id,
+            'client_secret': self.client_secret,
             'code_verifier': code_verifier,
             'redirect_uri' : redirect_uri,
             }

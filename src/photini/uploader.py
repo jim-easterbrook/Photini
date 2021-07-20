@@ -31,6 +31,7 @@ import urllib
 import appdirs
 import keyring
 
+from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, DisableWidget, Qt, QtCore, QtGui, QtSignal, QtSlot,
@@ -45,6 +46,9 @@ class UploaderSession(QtCore.QObject):
     def __init__(self, *arg, **kwds):
         super(UploaderSession, self).__init__(*arg, **kwds)
         self.api = None
+        # get api client id and secret
+        for option in key_store.config.options(self.name):
+            setattr(self, option, key_store.get(self.name, option))
 
     @QtSlot()
     @catch_all

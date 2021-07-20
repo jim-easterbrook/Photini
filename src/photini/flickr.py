@@ -28,7 +28,6 @@ import requests
 from requests_oauthlib import OAuth1Session
 from requests_toolbelt import MultipartEncoder
 
-from photini.configstore import key_store
 from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
                           QtSignal, QtSlot, QtWidgets, SingleLineEdit)
@@ -53,10 +52,8 @@ class FlickrSession(UploaderSession):
         if not stored_token:
             return False
         token, token_secret = stored_token.split('&')
-        api_key    = key_store.get('flickr', 'api_key')
-        api_secret = key_store.get('flickr', 'api_secret')
         self.api = OAuth1Session(
-            client_key=api_key, client_secret=api_secret,
+            client_key=self.api_key, client_secret=self.api_secret,
             resource_owner_key=token, resource_owner_secret=token_secret,
             )
         self.connection_changed.emit(self.api.authorized)
@@ -64,12 +61,10 @@ class FlickrSession(UploaderSession):
 
     def get_auth_url(self, redirect_uri):
         # initialise oauth1 session
-        api_key    = key_store.get('flickr', 'api_key')
-        api_secret = key_store.get('flickr', 'api_secret')
         if self.api:
             self.api.close()
         self.api = OAuth1Session(
-            client_key=api_key, client_secret=api_secret,
+            client_key=self.api_key, client_secret=self.api_secret,
             callback_uri=redirect_uri)
         try:
             self.api.fetch_request_token(self.oauth_url + 'request_token')
