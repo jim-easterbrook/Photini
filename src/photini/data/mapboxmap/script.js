@@ -16,6 +16,8 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+// See https://docs.mapbox.com/mapbox.js/api/v3.3.1/
+
 function loadMap(lat, lng, zoom)
 {
     var streets = L.mapbox.styleLayer(

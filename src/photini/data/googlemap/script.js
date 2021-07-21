@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -16,8 +16,11 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+// See https://developers.google.com/maps/documentation/javascript/overview
+
 var map;
 var markers = {};
+var gpsMarkers = {};
 var icon_on;
 var icon_off;
 
@@ -97,26 +100,47 @@ function fitPoints(points)
         map.panTo(bounds.getCenter());
 }
 
-function plotTrack(latlngs)
+const gpsBlue = '#3388ff';
+const gpsRed = '#ff0000';
+
+function plotGPS(points)
 {
-    var bounds = new google.maps.LatLngBounds();
-    for (var j = 0; j < latlngs.length; j++)
+    for (var i = 0; i < points.length; i++)
     {
-        var track = latlngs[j];
-        var path = [];
-        for (var i = 0; i < track.length; i++)
+        var latlng = new google.maps.LatLng(points[i][0], points[i][1]);
+        var id = points[i][2];
+        var dilution = points[i][3];
+        if (dilution < 0.0)
         {
-            var point = new google.maps.LatLng(track[i][0], track[i][1]);
-            bounds.extend(point);
-            path.push(point);
+            var strokeWeight = 5;
+            var radius = 2.0;
         }
-        var line = new google.maps.Polyline({
-            map: map,
-            path: path,
-            strokeColor: 'red',
-            });
+        else
+        {
+            var strokeWeight = 2;
+            var radius = dilution * 5.0;
+        }
+        gpsMarkers[id] = new google.maps.Circle({
+            map,
+            strokeColor: gpsBlue, strokeOpacity: 1.0, strokeWeight: strokeWeight,
+            fillColor: gpsBlue, fillOpacity: 0.2, clickable: false,
+            center: latlng, radius: radius});
     }
-    map.fitBounds(bounds);
+}
+
+function enableGPS(id, active)
+{
+    if (active)
+        gpsMarkers[id].setOptions({fillColor: gpsRed, strokeColor: gpsRed});
+    else
+        gpsMarkers[id].setOptions({fillColor: gpsBlue, strokeColor: gpsBlue});
+}
+
+function clearGPS()
+{
+    for (var id in gpsMarkers)
+        gpsMarkers[id].setMap(null);
+    gpsMarkers = {};
 }
 
 function enableMarker(id, active)

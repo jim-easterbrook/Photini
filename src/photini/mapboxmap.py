@@ -119,4 +119,4 @@ class TabWidget(PhotiniMap):
     </script>
     <script type="text/javascript" src="../openstreetmap/common.js">
     </script>'''.format(key=self.api_key,
-                        url='https://api.mapbox.com/mapbox.js/v3.2.1')
+                        url='https://api.mapbox.com/mapbox.js/v3.3.1')

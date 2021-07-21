@@ -41,12 +41,6 @@ from photini.pyqt import (
     QtWidgets, qt_version, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
-try:
-    from photini.gpximporter import GpxImporter
-except ImportError as ex:
-    print(str(ex))
-    GpxImporter = None
-
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -257,12 +251,6 @@ class MainWindow(QtWidgets.QMainWindow):
         sep = file_menu.addAction(translate('MenuBar', 'Selected images'))
         sep.setSeparator(True)
         self.selected_actions = self.image_list.add_selected_actions(file_menu)
-        if GpxImporter:
-            self.import_gpx_action = file_menu.addAction(
-                translate('MenuBar', 'Import GPX file'))
-            self.import_gpx_action.triggered.connect(self.import_pgx_file)
-        else:
-            self.import_gpx_action = None
         file_menu.addSeparator()
         action = file_menu.addAction(translate('MenuBar', 'Quit'))
         action.setShortcuts(
@@ -380,12 +368,6 @@ class MainWindow(QtWidgets.QMainWindow):
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(
             'http://photini.readthedocs.io/'))
 
-    @QtSlot()
-    @catch_all
-    def import_pgx_file(self):
-        importer = GpxImporter()
-        importer.do_import(self)
-
     @catch_all
     def closeEvent(self, event):
         for n in range(self.tabs.count()):
@@ -465,8 +447,6 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @catch_all
     def new_selection(self, selection):
         self.image_list.configure_selected_actions(self.selected_actions)
-        if self.import_gpx_action:
-            self.import_gpx_action.setEnabled(len(selection) > 0)
         self.tabs.currentWidget().new_selection(selection)
 
     @QtSlot()

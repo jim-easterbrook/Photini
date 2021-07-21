@@ -1,6 +1,6 @@
 //  Photini - a simple photo metadata editor.
 //  http://github.com/jim-easterbrook/Photini
-//  Copyright (C) 2012-19  Jim Easterbrook  jim@jim-easterbrook.me.uk
+//  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 //
 //  This program is free software: you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License as
@@ -16,9 +16,12 @@
 //  along with this program.  If not, see
 //  <http://www.gnu.org/licenses/>.
 
+// See https://leafletjs.com/reference-1.7.1.html
+
 var drag_id = -1;
 var map;
 var markers = {};
+var gpsMarkers = {};
 var icon_on;
 var icon_off;
 
@@ -75,13 +78,42 @@ function fitPoints(points)
         maxZoom: map.getZoom(), animate: true});
 }
 
-function plotTrack(latlngs)
+const gpsBlue = '#3388ff';
+const gpsRed = '#ff0000'
+
+function plotGPS(points)
 {
-    var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
-    var bounds = polyline.getBounds();
-    if (map.getBounds().contains(bounds))
-        return;
-    map.fitBounds(bounds);
+    for (var i = 0; i < points.length; i++)
+    {
+        var latlng = L.latLng(points[i][0], points[i][1]);
+        var id = points[i][2];
+        var dilution = points[i][3];
+        if (dilution < 0.0)
+            gpsMarkers[id] = L.circleMarker(latlng, {
+                interactive: false, radius: 4, weight: 1,
+                color: gpsBlue});
+        else
+            gpsMarkers[id] = L.circle(latlng, {
+                interactive: false, radius: dilution * 5.0, weight: 2,
+                color: gpsBlue});
+        gpsMarkers[id].addTo(map);
+    }
+}
+
+function enableGPS(id, active)
+{
+    var marker = gpsMarkers[id];
+    if (active)
+        marker.setStyle({color: gpsRed});
+    else
+        marker.setStyle({color: gpsBlue});
+}
+
+function clearGPS()
+{
+    for (var id in gpsMarkers)
+        gpsMarkers[id].remove();
+    gpsMarkers = {};
 }
 
 function enableMarker(id, active)

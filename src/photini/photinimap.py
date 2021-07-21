@@ -19,6 +19,7 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
+from datetime import timedelta
 import locale
 import logging
 import os
@@ -33,6 +34,13 @@ from photini.pyqt import (
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
     SingleLineEdit)
 from photini.technical import DoubleSpinBox
+
+try:
+    from photini.gpximporter import GpxImporter
+except ImportError as ex:
+    print(str(ex))
+    GpxImporter = None
+
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -273,6 +281,11 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_status = {}
         self.dropped_images = []
         self.geocoder = self.get_geocoder()
+        if GpxImporter:
+            self.gpx_importer = GpxImporter(parent=self)
+        else:
+            self.gpx_importer = None
+        self.gpx_points = []
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
@@ -315,6 +328,16 @@ class PhotiniMap(QtWidgets.QWidget):
             left_side.addWidget(widget, n+4, 0, 1, 2)
         left_side.setColumnStretch(1, 1)
         left_side.setRowStretch(7, 1)
+        # GPX importer
+        if self.gpx_importer:
+            button = QtWidgets.QPushButton(
+                translate('MapTabsAll', 'Load GPX file'))
+            button.clicked.connect(self.load_gpx)
+            left_side.addWidget(button, 8, 1)
+            button = QtWidgets.QPushButton(
+                translate('MapTabsAll', 'Remove GPX data'))
+            button.clicked.connect(self.clear_gpx)
+            left_side.addWidget(button, 9, 1)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
@@ -472,6 +495,15 @@ class PhotiniMap(QtWidgets.QWidget):
             location = [latlong['lat'], latlong['lon']]
             if location not in locations:
                 locations.append(location)
+        if self.gpx_points:
+            selected_ids = self.get_nearest_gps()
+            for point in self.gpx_points:
+                time_stamp, lat, lng, dilution = point
+                marker_id = time_stamp.isoformat()
+                if marker_id in selected_ids:
+                    location = [lat, lng]
+                    if location not in locations:
+                        locations.append(location)
         if not locations:
             return
         self.JavaScript('fitPoints({})'.format(repr(locations)))
@@ -518,12 +550,77 @@ class PhotiniMap(QtWidgets.QWidget):
                 info['selected'] = not info['selected']
                 self.JavaScript(
                     'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
+        if self.gpx_points:
+            selected_ids = self.get_nearest_gps()
+            for point in self.gpx_points:
+                time_stamp, lat, lng, dilution = point
+                marker_id = time_stamp.isoformat()
+                self.JavaScript('enableGPS({!r}, {})'.format(
+                    marker_id, ('false', 'true')[marker_id in selected_ids]))
 
-    def plot_track(self, tracks):
-        latlngs = []
-        for t in tracks:
-            latlngs.append([[x[1], x[2]] for x in t])
-        self.JavaScript('plotTrack({!r})'.format(latlngs))
+    def get_nearest_gps(self):
+        images = self.image_list.get_selected_images()
+        if not images:
+            return []
+        date_taken = images[0].metadata.date_taken
+        for image in images[1:]:
+            if image.metadata.date_taken != date_taken:
+                return []
+        if not date_taken:
+            return []
+        date_taken = date_taken.to_utc()
+        threshold = timedelta(minutes=30)
+        nearest = threshold
+        candidates = []
+        # get points within 20 minutes of date_taken
+        for point in self.gpx_points:
+            diff = date_taken - point[0]
+            if diff > threshold:
+                continue
+            diff = abs(diff)
+            if diff > threshold:
+                break
+            candidates.append(point)
+            nearest = min(nearest, diff)
+        # prune list down to 3 or fewer
+        while len(candidates) > 3:
+            before = date_taken - candidates[0][0]
+            after = candidates[-1][0] - date_taken
+            if before > after:
+                candidates = candidates[1:]
+            else:
+                candidates = candidates[:-1]
+        return [x[0].isoformat() for x in candidates]
+
+    @QtSlot()
+    @catch_all
+    def load_gpx(self):
+        new_points = self.gpx_importer.import_file()
+        if not new_points:
+            return
+        points = []
+        for p in new_points:
+            if p in self.gpx_points:
+                continue
+            time_stamp, lat, lng, dilution = p
+            if dilution is None:
+                dilution = -1.0
+            elif dilution > 20.0:
+                continue
+            self.gpx_points.append(p)
+            marker_id = time_stamp.isoformat()
+            points.append([lat, lng, marker_id, dilution])
+        if not points:
+            return
+        self.gpx_points.sort(key=lambda x: x[0])
+        self.JavaScript('fitPoints({!r})'.format([x[:2] for x in points]))
+        self.JavaScript('plotGPS({!r})'.format(points))
+
+    @QtSlot()
+    @catch_all
+    def clear_gpx(self):
+        self.gpx_points = []
+        self.JavaScript('clearGPS()')
 
     @QtSlot()
     @catch_all
