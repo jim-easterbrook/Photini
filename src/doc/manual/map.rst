@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-21  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Geotagging
@@ -77,26 +77,32 @@ GPX file import
 ---------------
 
 If you have a mobile phone or other device with a GPS logger you may be able to set the approximate locations of photographs from logged GPS positions.
-If you have installed gpxpy_ then Photini's ``File`` menu should have an ``Import GPX file`` item.
+If you have installed gpxpy_ then the map pages have a button to import GPX files.
+
+.. image:: ../images/screenshot_220.png
 
 First you need to export your GPS log as a GPX_ (GPS eXchange format) file, then transfer the .gpx file to your computer.
 Make sure your images have the correct time zone set so that Photini can calculate their UTC_ timestamps.
-Select the images you want to set the locations of, then click the ``Import GPX file`` menu item.
 
-After opening your GPX file you can set some options to filter out inaccurate points.
-``Max time between points`` allows Photini to detect gaps in the log, e.g. when you were in a building and lost the GPS signal.
-``Max dilution of precision`` allows you to ignore points where the "`dilution of precision <https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_" is too large.
-You may need to experiment to find the best value for your GPS device.
-The final option selects whether to plot the track on the current map tab.
-This is still experimental, and there isn't an option to delete the plot, but it may be useful when setting the previous two parameters.
+.. image:: ../images/screenshot_221.png
 
-Photini will use the GPS track to estimate the location of each selected image with a timestamp near enough to that of a logged position.
-Linear interpolation or extrapolation is used, based on the timestamps of the two nearest logged positions.
-The result is unlikely to be the exact location where you took the photograph, so you will almost certainly want to adjust the positions by dragging markers on the map.
+When a GPX file is imported its track points are displayed on the map as blue circles.
+If the file has points at close time intervals (under 15 seconds) then not all of them are shown.
 
-.. note::
-   This is a recent addition to Photini and has not been extensively tested.
-   I'd be interested to hear if you find it useful.
+.. image:: ../images/screenshot_222.png
+
+Selecting a photograph shows up to three track points in red.
+These are points with time stamps around the time the photograph was taken.
+
+.. image:: ../images/screenshot_223.png
+
+After zooming in on the red track points the photograph can be dragged to the map as usual.
+When you've finished with the GPX track points they can be removed from the map with the ``Remove GPX data`` button.
+
+.. image:: ../images/screenshot_224.png
+
+Sometimes GPS receivers lose accuracy, so some GPX file points can be wrong by over 100 metres.
+This is why Photini doesn't automatically set the photograph coordinates from the GPX file.
 
 .. _gpxpy:         https://github.com/tkrajina/gpxpy
 .. _GPX:           https://en.wikipedia.org/wiki/GPS_Exchange_Format
