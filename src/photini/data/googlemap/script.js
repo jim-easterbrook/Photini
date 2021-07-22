@@ -113,16 +113,16 @@ function plotGPS(points)
         var id = points[i][2];
         gpsMarkers[id] = new google.maps.Marker({
             map: map, position: latlng,
-            icon: gpsBlueCircle, clickable: false});
+            icon: gpsBlueCircle, zIndex: 2, clickable: false});
     }
 }
 
 function enableGPS(id, active)
 {
     if (active)
-        gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 1});
+        gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 3});
     else
-        gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 0});
+        gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 2});
 }
 
 function clearGPS()
