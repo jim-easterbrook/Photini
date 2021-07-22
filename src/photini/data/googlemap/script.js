@@ -26,9 +26,6 @@ var icon_off;
 var gpsBlueCircle;
 var gpsRedCircle
 
-const gpsBlue = '#3388ff';
-const gpsRed = '#ff0000';
-
 function loadMap(lat, lng, zoom)
 {
     var mapOptions = {
@@ -50,18 +47,9 @@ function loadMap(lat, lng, zoom)
     var anchor = new google.maps.Point(11, 35);
     icon_on = {anchor: anchor, url: '../map_pin_red.png'};
     icon_off = {anchor: anchor, url: '../map_pin_grey.png'};
-    gpsBlueCircle = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 4,
-        fillColor: gpsBlue, fillOpacity: 0.2,
-        strokeColor: gpsBlue, strokeOpacity: 1.0,
-        strokeWeight: 1};
-    gpsRedCircle = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 4,
-        fillColor: gpsRed, fillOpacity: 0.2,
-        strokeColor: gpsRed, strokeOpacity: 1.0,
-        strokeWeight: 1};
+    anchor = new google.maps.Point(5, 5);
+    gpsBlueCircle = {anchor: anchor, url: '../map_circle_blue.png'};
+    gpsRedCircle = {anchor: anchor, url: '../map_circle_red.png'};
     python.initialize_finished();
 }
 
@@ -132,9 +120,9 @@ function plotGPS(points)
 function enableGPS(id, active)
 {
     if (active)
-        gpsMarkers[id].setOptions({icon: gpsRedCircle});
+        gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 1});
     else
-        gpsMarkers[id].setOptions({icon: gpsBlueCircle});
+        gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 0});
 }
 
 function clearGPS()

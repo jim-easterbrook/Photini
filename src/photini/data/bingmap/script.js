@@ -111,20 +111,6 @@ function fitPoints(points)
         map.setView({center: bounds.center});
 }
 
-const gpsBlue = 'rgba(51,136,255,0.2)';
-const gpsRed = 'rgba(255,0,0,0.2)';
-const gpsBlueBorder = 'rgba(51,136,255,1.0)';
-const gpsRedBorder = 'rgba(255,0,0,1.0)';
-
-const gpsCircleBlue = '<svg xmlns="http://www.w3.org/2000/svg"'
-    + ' width="11" height="11">'
-    + '<circle cx="5" cy="5" r="4" stroke-width="1"'
-    + ' stroke="' + gpsBlueBorder + '" fill="' + gpsBlue + '"/></svg>'
-const gpsCircleRed = '<svg xmlns="http://www.w3.org/2000/svg"'
-    + ' width="11" height="11">'
-    + '<circle cx="5" cy="5" r="4" stroke-width="1"'
-    + ' stroke="' + gpsRedBorder + '" fill="' + gpsRed + '"/></svg>'
-
 function plotGPS(points)
 {
     for (var i = 0; i < points.length; i++)
@@ -132,7 +118,7 @@ function plotGPS(points)
         var latlng = new Microsoft.Maps.Location(points[i][0], points[i][1]);
         var id = points[i][2];
         var marker = new Microsoft.Maps.Pushpin(latlng, {
-            icon: gpsCircleBlue,
+            icon: '../map_circle_blue.png',
             anchor: new Microsoft.Maps.Point(5, 5)});
         marker.metadata = {id: id};
         gpsMarkerLayer.add(marker);
@@ -143,9 +129,13 @@ function enableGPS(id, active)
 {
     var marker = findMarker(gpsMarkerLayer, id);
     if (active)
-        marker.setOptions({icon: gpsCircleRed});
+    {
+        markerLayer.remove(marker);
+        marker.setOptions({icon: '../map_circle_red.png'});
+        markerLayer.add(marker, 0);
+    }
     else
-        marker.setOptions({icon: gpsCircleBlue});
+        marker.setOptions({icon: '../map_circle_blue.png'});
 }
 
 function clearGPS()
