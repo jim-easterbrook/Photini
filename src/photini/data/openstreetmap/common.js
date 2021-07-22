@@ -87,15 +87,9 @@ function plotGPS(points)
     {
         var latlng = L.latLng(points[i][0], points[i][1]);
         var id = points[i][2];
-        var dilution = points[i][3];
-        if (dilution < 0.0)
-            gpsMarkers[id] = L.circleMarker(latlng, {
-                interactive: false, radius: 4, weight: 1,
-                color: gpsBlue});
-        else
-            gpsMarkers[id] = L.circle(latlng, {
-                interactive: false, radius: dilution * 5.0, weight: 2,
-                color: gpsBlue});
+        gpsMarkers[id] = L.circleMarker(latlng, {
+            interactive: false, radius: 4, weight: 1,
+            color: gpsBlue});
         gpsMarkers[id].addTo(map);
     }
 }

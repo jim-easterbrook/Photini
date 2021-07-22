@@ -109,22 +109,11 @@ function plotGPS(points)
     {
         var latlng = new google.maps.LatLng(points[i][0], points[i][1]);
         var id = points[i][2];
-        var dilution = points[i][3];
-        if (dilution < 0.0)
-        {
-            var strokeWeight = 5;
-            var radius = 2.0;
-        }
-        else
-        {
-            var strokeWeight = 2;
-            var radius = dilution * 5.0;
-        }
         gpsMarkers[id] = new google.maps.Circle({
             map,
-            strokeColor: gpsBlue, strokeOpacity: 1.0, strokeWeight: strokeWeight,
+            strokeColor: gpsBlue, strokeOpacity: 1.0, strokeWeight: 5,
             fillColor: gpsBlue, fillOpacity: 0.2, clickable: false,
-            center: latlng, radius: radius});
+            center: latlng, radius: 2.0});
     }
 }
 

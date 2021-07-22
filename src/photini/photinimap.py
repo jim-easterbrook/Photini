@@ -498,7 +498,7 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.gpx_points:
             selected_ids = self.get_nearest_gps()
             for point in self.gpx_points:
-                time_stamp, lat, lng, dilution = point
+                time_stamp, lat, lng = point
                 marker_id = time_stamp.isoformat()
                 if marker_id in selected_ids:
                     location = [lat, lng]
@@ -553,7 +553,7 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.gpx_points:
             selected_ids = self.get_nearest_gps()
             for point in self.gpx_points:
-                time_stamp, lat, lng, dilution = point
+                time_stamp, lat, lng = point
                 marker_id = time_stamp.isoformat()
                 self.JavaScript('enableGPS({!r}, {})'.format(
                     marker_id, ('false', 'true')[marker_id in selected_ids]))
@@ -602,14 +602,10 @@ class PhotiniMap(QtWidgets.QWidget):
         for p in new_points:
             if p in self.gpx_points:
                 continue
-            time_stamp, lat, lng, dilution = p
-            if dilution is None:
-                dilution = -1.0
-            elif dilution > 20.0:
-                continue
+            time_stamp, lat, lng = p
             self.gpx_points.append(p)
             marker_id = time_stamp.isoformat()
-            points.append([lat, lng, marker_id, dilution])
+            points.append([lat, lng, marker_id])
         if not points:
             return
         self.gpx_points.sort(key=lambda x: x[0])

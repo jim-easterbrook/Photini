@@ -54,8 +54,7 @@ class GpxImporter(QtCore.QObject):
                 utc_offset = time_stamp.utcoffset()
                 time_stamp = (time_stamp - utc_offset).replace(tzinfo=None)
             # add point to list
-            points.append((time_stamp, p.latitude, p.longitude,
-                           p.horizontal_dilution))
+            points.append((time_stamp, p.latitude, p.longitude))
         if not points:
             logger.warning('No points found in file "%s"', path)
             return []

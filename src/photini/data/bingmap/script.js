@@ -131,21 +131,10 @@ function plotGPS(points)
     {
         var latlng = new Microsoft.Maps.Location(points[i][0], points[i][1]);
         var id = points[i][2];
-        var dilution = points[i][3];
-        if (dilution < 0.0)
-        {
-            var marker = new Microsoft.Maps.Pushpin(latlng, {
-                icon: gpsCircleBlue,
-                anchor: new Microsoft.Maps.Point(5, 5)});
-        }
-        else
-        {
-            var border = Microsoft.Maps.SpatialMath.getRegularPolygon(
-                latlng, dilution * 5.0, 36, Microsoft.Maps.SpatialMath.DistanceUnits.Meters);
-            var marker = new Microsoft.Maps.Polygon(border, {
-                fillColor: gpsBlue, strokeColor: gpsBlueBorder, strokeThickness: 2});
-        }
-        marker.metadata = {id: id, dilution: dilution};
+        var marker = new Microsoft.Maps.Pushpin(latlng, {
+            icon: gpsCircleBlue,
+            anchor: new Microsoft.Maps.Point(5, 5)});
+        marker.metadata = {id: id};
         gpsMarkerLayer.add(marker);
     }
 }
@@ -153,20 +142,10 @@ function plotGPS(points)
 function enableGPS(id, active)
 {
     var marker = findMarker(gpsMarkerLayer, id);
-    if (marker.metadata.dilution < 0.0)
-    {
-        if (active)
-            marker.setOptions({icon: gpsCircleRed});
-        else
-            marker.setOptions({icon: gpsCircleBlue});
-    }
+    if (active)
+        marker.setOptions({icon: gpsCircleRed});
     else
-    {
-        if (active)
-            marker.setOptions({fillColor: gpsRed, strokeColor: gpsRedBorder});
-        else
-            marker.setOptions({fillColor: gpsBlue, strokeColor: gpsBlueBorder});
-    }
+        marker.setOptions({icon: gpsCircleBlue});
 }
 
 function clearGPS()
