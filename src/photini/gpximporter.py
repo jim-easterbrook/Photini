@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from datetime import timedelta
 import logging
 import os
 
@@ -58,7 +59,15 @@ class GpxImporter(QtCore.QObject):
         if not points:
             logger.warning('No points found in file "%s"', path)
             return []
-        return points
+        # remove closely spaced (in time) points
+        points.sort(key=lambda x: x[0])
+        result = points[:2]
+        for p in points[2:]:
+            if p[0] - result[-2][0] < timedelta(seconds=30):
+                result[-1] = p
+            else:
+                result.append(p)
+        return result
 
     def read_file(self, path):
         with open(path) as gpx_file:
