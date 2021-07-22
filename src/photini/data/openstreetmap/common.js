@@ -91,7 +91,7 @@ function plotGPS(points)
         var latlng = L.latLng(points[i][0], points[i][1]);
         var id = points[i][2];
         gpsMarkers[id] = L.marker(latlng, {
-            icon: gpsBlueCircle, interactive: false});
+            icon: gpsBlueCircle, interactive: false, zIndexOffset: 1001});
         gpsMarkers[id].addTo(map);
     }
 }
@@ -101,12 +101,12 @@ function enableGPS(id, active)
     var marker = gpsMarkers[id];
     if (active)
     {
-        marker.setZIndexOffset(1000);
+        marker.setZIndexOffset(1002);
         marker.setIcon(gpsRedCircle);
     }
     else
     {
-        marker.setZIndexOffset(0);
+        marker.setZIndexOffset(1001);
         marker.setIcon(gpsBlueCircle);
     }
 }
