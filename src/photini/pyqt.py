@@ -85,8 +85,6 @@ else:
                 using_qtwebengine = False
             except ImportError:
                 pass
-    else:
-        using_qtwebengine = eval(using_qtwebengine)
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
