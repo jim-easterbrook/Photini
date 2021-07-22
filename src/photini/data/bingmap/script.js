@@ -19,8 +19,7 @@
 // See https://docs.microsoft.com/en-us/bingmaps/v8-web-control/map-control-api/
 
 var map;
-var markerLayer;
-var gpsMarkerLayer;
+var layers = [];
 
 function loadMap(lat, lng, zoom)
 {
@@ -37,12 +36,14 @@ function loadMap(lat, lng, zoom)
         navigationBarOrientation: Microsoft.Maps.NavigationBarOrientation.vertical,
         };
     map = new Microsoft.Maps.Map("#mapDiv", mapOptions);
-    markerLayer = new Microsoft.Maps.Layer('markers');
-    map.layers.insert(markerLayer);
-    gpsMarkerLayer = new Microsoft.Maps.Layer('gpsMarkers');
-    map.layers.insert(gpsMarkerLayer);
+    for (var i = 0; i < 4; i++)
+    {
+        layers.push(new Microsoft.Maps.Layer());
+        map.layers.insert(layers[i]);
+    }
     Microsoft.Maps.loadModule('Microsoft.Maps.SpatialMath');
-    Microsoft.Maps.Events.addHandler(markerLayer, 'click', markerClick);
+    Microsoft.Maps.Events.addHandler(layers[0], 'click', markerClick);
+    Microsoft.Maps.Events.addHandler(layers[1], 'click', markerClick);
     Microsoft.Maps.Events.addHandler(map, 'viewchangeend', newBounds);
     map.getCredentials(newCredentials);
 }
@@ -121,47 +122,46 @@ function plotGPS(points)
             icon: '../map_circle_blue.png',
             anchor: new Microsoft.Maps.Point(5, 5)});
         marker.metadata = {id: id};
-        gpsMarkerLayer.add(marker);
+        layers[2].add(marker);
     }
 }
 
 function enableGPS(id, active)
 {
-    var marker = findMarker(gpsMarkerLayer, id);
     if (active)
-    {
-        markerLayer.remove(marker);
-        marker.setOptions({icon: '../map_circle_red.png'});
-        markerLayer.add(marker, 0);
-    }
+        adjustMarker(id, layers[2], layers[3], '../map_circle_red.png');
     else
-        marker.setOptions({icon: '../map_circle_blue.png'});
+        adjustMarker(id, layers[3], layers[2], '../map_circle_blue.png');
 }
 
 function clearGPS()
 {
-    gpsMarkerLayer.clear();
+    layers[2].clear();
+    layers[3].clear();
+}
+
+function adjustMarker(id, fromLayer, toLayer, icon)
+{
+    var markers = fromLayer.getPrimitives();
+    for (var i = 0; i < markers.length; i++)
+    {
+        var marker = markers[i];
+        if (marker.metadata.id == id)
+        {
+            fromLayer.remove(marker);
+            marker.setOptions({icon: icon});
+            toLayer.add(marker);
+            return;
+        }
+    }
 }
 
 function enableMarker(id, active)
 {
-    var marker = findMarker(markerLayer, id)
     if (active)
-    {
-        markerLayer.remove(marker);
-        marker.setOptions({icon: '../map_pin_red.png'});
-        markerLayer.add(marker, 0);
-    }
+        adjustMarker(id, layers[0], layers[1], '../map_pin_red.png');
     else
-        marker.setOptions({icon: '../map_pin_grey.png'});
-}
-
-function findMarker(layer, id)
-{
-    var markers = layer.getPrimitives();
-    for (var i = 0; i < markers.length; i++)
-        if (markers[i].metadata.id == id)
-            return markers[i];
+        adjustMarker(id, layers[1], layers[0], '../map_pin_grey.png');
 }
 
 function addMarker(id, lat, lng, active)
@@ -172,12 +172,17 @@ function addMarker(id, lat, lng, active)
             icon     : '../map_pin_grey.png',
             draggable: true
         });
-    markerLayer.add(marker);
     marker.metadata = {id: id};
+    if (active)
+    {
+        marker.setOptions({icon: '../map_pin_red.png'});
+        layers[1].add(marker);
+    }
+    else
+        layers[0].add(marker);
     Microsoft.Maps.Events.addHandler(marker, 'dragstart', markerClick);
     Microsoft.Maps.Events.addHandler(marker, 'drag', markerDrag);
     Microsoft.Maps.Events.addHandler(marker, 'dragend', markerDragEnd);
-    enableMarker(id, active);
 }
 
 function markerClick(event)
@@ -209,6 +214,14 @@ function markerDrop(x, y)
 
 function delMarker(id)
 {
-    var marker = findMarker(markerLayer, id)
-    markerLayer.remove(marker);
+    for (var j = 0; j < layers.length; j++)
+    {
+        var markers = layers[j].getPrimitives();
+        for (var i = 0; i < markers.length; i++)
+            if (markers[i].metadata.id == id)
+            {
+                layers[j].remove(marker);
+                return markers[i];
+            }
+    }
 }
