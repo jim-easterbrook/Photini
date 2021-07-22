@@ -23,6 +23,11 @@ var markers = {};
 var gpsMarkers = {};
 var icon_on;
 var icon_off;
+var gpsBlueCircle;
+var gpsRedCircle
+
+const gpsBlue = '#3388ff';
+const gpsRed = '#ff0000';
 
 function loadMap(lat, lng, zoom)
 {
@@ -45,6 +50,18 @@ function loadMap(lat, lng, zoom)
     var anchor = new google.maps.Point(11, 35);
     icon_on = {anchor: anchor, url: '../map_pin_red.png'};
     icon_off = {anchor: anchor, url: '../map_pin_grey.png'};
+    gpsBlueCircle = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 4,
+        fillColor: gpsBlue, fillOpacity: 0.2,
+        strokeColor: gpsBlue, strokeOpacity: 1.0,
+        strokeWeight: 1};
+    gpsRedCircle = {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 4,
+        fillColor: gpsRed, fillOpacity: 0.2,
+        strokeColor: gpsRed, strokeOpacity: 1.0,
+        strokeWeight: 1};
     python.initialize_finished();
 }
 
@@ -100,29 +117,24 @@ function fitPoints(points)
         map.panTo(bounds.getCenter());
 }
 
-const gpsBlue = '#3388ff';
-const gpsRed = '#ff0000';
-
 function plotGPS(points)
 {
     for (var i = 0; i < points.length; i++)
     {
         var latlng = new google.maps.LatLng(points[i][0], points[i][1]);
         var id = points[i][2];
-        gpsMarkers[id] = new google.maps.Circle({
-            map,
-            strokeColor: gpsBlue, strokeOpacity: 1.0, strokeWeight: 5,
-            fillColor: gpsBlue, fillOpacity: 0.2, clickable: false,
-            center: latlng, radius: 2.0});
+        gpsMarkers[id] = new google.maps.Marker({
+            map: map, position: latlng,
+            icon: gpsBlueCircle, clickable: false});
     }
 }
 
 function enableGPS(id, active)
 {
     if (active)
-        gpsMarkers[id].setOptions({fillColor: gpsRed, strokeColor: gpsRed});
+        gpsMarkers[id].setOptions({icon: gpsRedCircle});
     else
-        gpsMarkers[id].setOptions({fillColor: gpsBlue, strokeColor: gpsBlue});
+        gpsMarkers[id].setOptions({icon: gpsBlueCircle});
 }
 
 function clearGPS()
