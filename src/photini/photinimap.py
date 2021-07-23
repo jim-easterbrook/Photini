@@ -35,12 +35,6 @@ from photini.pyqt import (
     SingleLineEdit)
 from photini.technical import DoubleSpinBox
 
-try:
-    from photini.gpximporter import GpxImporter
-except ImportError as ex:
-    print(str(ex))
-    GpxImporter = None
-
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -281,10 +275,6 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_status = {}
         self.dropped_images = []
         self.geocoder = self.get_geocoder()
-        if GpxImporter:
-            self.gpx_importer = GpxImporter(parent=self)
-        else:
-            self.gpx_importer = None
         self.gpx_points = []
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
@@ -329,7 +319,7 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.setColumnStretch(1, 1)
         left_side.setRowStretch(7, 1)
         # GPX importer
-        if self.gpx_importer:
+        if self.app.gpx_importer:
             button = QtWidgets.QPushButton(
                 translate('MapTabsAll', 'Load GPX file'))
             button.clicked.connect(self.load_gpx)
@@ -595,7 +585,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def load_gpx(self):
-        new_points = self.gpx_importer.import_file()
+        new_points = self.app.gpx_importer.import_file()
         if not new_points:
             return
         points = []

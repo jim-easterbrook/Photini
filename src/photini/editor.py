@@ -41,6 +41,12 @@ from photini.pyqt import (
     QtWidgets, qt_version, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
+try:
+    from photini.gpximporter import GpxImporter
+except ImportError as ex:
+    print(str(ex))
+    GpxImporter = None
+
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -175,6 +181,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
         self.app.open_cage = OpenCage(parent=self)
+        if GpxImporter:
+            self.app.gpx_importer = GpxImporter(parent=self)
+        else:
+            self.app.gpx_importer = None
         self.app.options = options
         # restore size
         size = self.width(), self.height()
