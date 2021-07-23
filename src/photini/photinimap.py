@@ -275,7 +275,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_status = {}
         self.dropped_images = []
         self.geocoder = self.get_geocoder()
-        self.gpx_points = []
+        self.gpx_ids = []
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
@@ -344,6 +344,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def image_list_changed(self):
         self.redraw_markers()
+        self.redraw_gps_track()
         self.coords.refresh()
         self.update_altitude()
         self.see_selection()
@@ -405,6 +406,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
         self.redraw_markers()
+        self.redraw_gps_track()
 
     def refresh(self):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
@@ -438,6 +440,7 @@ class PhotiniMap(QtWidgets.QWidget):
             image.metadata.latlong = lat, lng
         self.dropped_images = []
         self.redraw_markers()
+        self.redraw_gps_track()
         self.coords.refresh()
         self.see_selection()
 
@@ -445,6 +448,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def new_coords(self):
         self.redraw_markers()
+        self.redraw_gps_track()
         self.update_altitude()
         self.see_selection()
 
@@ -478,6 +482,7 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def see_selection(self):
         locations = []
+        # get locations of selected images
         for image in self.image_list.get_selected_images():
             latlong = image.metadata.latlong
             if not latlong:
@@ -485,23 +490,21 @@ class PhotiniMap(QtWidgets.QWidget):
             location = [latlong['lat'], latlong['lon']]
             if location not in locations:
                 locations.append(location)
-        if self.gpx_points:
-            selected_ids = self.get_nearest_gps()
-            for point in self.gpx_points:
-                time_stamp, lat, lng = point
-                marker_id = time_stamp.isoformat()
-                if marker_id in selected_ids:
-                    location = [lat, lng]
-                    if location not in locations:
-                        locations.append(location)
-        if not locations:
-            return
-        self.JavaScript('fitPoints({})'.format(repr(locations)))
+        # get locations of GPS track points around time of selected images
+        for point in self.get_nearest_gps():
+            time_stamp, lat, lng = point
+            location = [lat, lng]
+            if location not in locations:
+                locations.append(location)
+        # adjust map
+        if locations:
+            self.JavaScript('fitPoints({!r})'.format(locations))
 
     @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
         self.redraw_markers()
+        self.redraw_gps_track()
         self.coords.refresh()
         self.update_altitude()
         self.see_selection()
@@ -511,6 +514,7 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         for info in self.marker_info.values():
             info['images'] = []
+        # assign images to existing markers or create new markers
         for image in self.image_list.get_images():
             latlong = image.metadata.latlong
             if not latlong:
@@ -531,6 +535,7 @@ class PhotiniMap(QtWidgets.QWidget):
                     }
                 self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
                     marker_id, latlong['lat'], latlong['lon'], image.selected))
+        # delete redundant markers and enable markers with selected images
         for marker_id in list(self.marker_info.keys()):
             info = self.marker_info[marker_id]
             if not info['images']:
@@ -540,15 +545,33 @@ class PhotiniMap(QtWidgets.QWidget):
                 info['selected'] = not info['selected']
                 self.JavaScript(
                     'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
-        if self.gpx_points:
-            selected_ids = self.get_nearest_gps()
-            for point in self.gpx_points:
-                time_stamp, lat, lng = point
-                marker_id = time_stamp.isoformat()
-                self.JavaScript('enableGPS({!r}, {})'.format(
-                    marker_id, ('false', 'true')[marker_id in selected_ids]))
+
+    def redraw_gps_track(self):
+        if not self.map_loaded:
+            return
+        # update GPX track markers
+        if not self.app.gpx_importer:
+            return
+        if not self.app.gpx_importer.points:
+            self.JavaScript('clearGPS()')
+            self.gpx_ids = []
+            return
+        # add any new points
+        new_points = []
+        for time_stamp, lat, lng in self.app.gpx_importer.points:
+            marker_id = time_stamp.isoformat()
+            if marker_id not in self.gpx_ids:
+                self.gpx_ids.append(marker_id)
+                new_points.append([lat, lng, marker_id])
+        if new_points:
+            self.JavaScript('plotGPS({!r})'.format(new_points))
+        # highlight points near selected picture
+        selected_ids = [x[0].isoformat() for x in self.get_nearest_gps()]
+        self.JavaScript('enableGPS({!r})'.format(selected_ids))
 
     def get_nearest_gps(self):
+        if not self.app.gpx_importer:
+            return []
         images = self.image_list.get_selected_images()
         if not images:
             return []
@@ -558,29 +581,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 return []
         if not date_taken:
             return []
-        date_taken = date_taken.to_utc()
-        threshold = timedelta(minutes=30)
-        nearest = threshold
-        candidates = []
-        # get points within 20 minutes of date_taken
-        for point in self.gpx_points:
-            diff = date_taken - point[0]
-            if diff > threshold:
-                continue
-            diff = abs(diff)
-            if diff > threshold:
-                break
-            candidates.append(point)
-            nearest = min(nearest, diff)
-        # prune list down to 3 or fewer
-        while len(candidates) > 3:
-            before = date_taken - candidates[0][0]
-            after = candidates[-1][0] - date_taken
-            if before > after:
-                candidates = candidates[1:]
-            else:
-                candidates = candidates[:-1]
-        return [x[0].isoformat() for x in candidates]
+        return self.app.gpx_importer.nearest(date_taken.to_utc())
 
     @QtSlot()
     @catch_all
@@ -588,25 +589,19 @@ class PhotiniMap(QtWidgets.QWidget):
         new_points = self.app.gpx_importer.import_file()
         if not new_points:
             return
-        points = []
+        self.redraw_gps_track()
+        # adjust map to show points just loaded
+        latlngs = []
         for p in new_points:
-            if p in self.gpx_points:
-                continue
             time_stamp, lat, lng = p
-            self.gpx_points.append(p)
-            marker_id = time_stamp.isoformat()
-            points.append([lat, lng, marker_id])
-        if not points:
-            return
-        self.gpx_points.sort(key=lambda x: x[0])
-        self.JavaScript('fitPoints({!r})'.format([x[:2] for x in points]))
-        self.JavaScript('plotGPS({!r})'.format(points))
+            latlngs.append([lat, lng])
+        self.JavaScript('fitPoints({!r})'.format(latlngs))
 
     @QtSlot()
     @catch_all
     def clear_gpx(self):
-        self.gpx_points = []
-        self.JavaScript('clearGPS()')
+        self.app.gpx_importer.clear_data()
+        self.redraw_gps_track()
 
     @QtSlot()
     @catch_all

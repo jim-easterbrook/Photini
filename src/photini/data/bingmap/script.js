@@ -126,12 +126,27 @@ function plotGPS(points)
     }
 }
 
-function enableGPS(id, active)
+function enableGPS(ids)
 {
-    if (active)
-        adjustMarker(id, layers[2], layers[3], '../map_circle_red.png');
-    else
-        adjustMarker(id, layers[3], layers[2], '../map_circle_blue.png');
+    var markers = layers[3].getPrimitives();
+    for (var i = 0; i < markers.length; i++)
+    {
+        var marker = markers[i];
+        marker.setOptions({icon: '../map_circle_blue.png'});
+        layers[2].add(marker);
+    }
+    layers[3].clear();
+    var markers = layers[2].getPrimitives();
+    for (var i = 0; i < markers.length; i++)
+    {
+        var marker = markers[i];
+        if (ids.includes(marker.metadata.id))
+        {
+            layers[2].remove(marker);
+            marker.setOptions({icon: '../map_circle_red.png'});
+            layers[3].add(marker);
+        }
+    }
 }
 
 function clearGPS()

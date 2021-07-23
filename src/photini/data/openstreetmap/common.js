@@ -96,18 +96,21 @@ function plotGPS(points)
     }
 }
 
-function enableGPS(id, active)
+function enableGPS(ids)
 {
-    var marker = gpsMarkers[id];
-    if (active)
+    for (var id in gpsMarkers)
     {
-        marker.setZIndexOffset(1002);
-        marker.setIcon(gpsRedCircle);
-    }
-    else
-    {
-        marker.setZIndexOffset(1001);
-        marker.setIcon(gpsBlueCircle);
+        var marker = gpsMarkers[id];
+        if (ids.includes(id))
+        {
+            marker.setZIndexOffset(1002);
+            marker.setIcon(gpsRedCircle);
+        }
+        else
+        {
+            marker.setZIndexOffset(1001);
+            marker.setIcon(gpsBlueCircle);
+        }
     }
 }
 

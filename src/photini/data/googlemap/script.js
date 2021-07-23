@@ -117,12 +117,13 @@ function plotGPS(points)
     }
 }
 
-function enableGPS(id, active)
+function enableGPS(ids)
 {
-    if (active)
-        gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 3});
-    else
-        gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 2});
+    for (var id in gpsMarkers)
+        if (ids.includes(id))
+            gpsMarkers[id].setOptions({icon: gpsRedCircle, zIndex: 3});
+        else
+            gpsMarkers[id].setOptions({icon: gpsBlueCircle, zIndex: 2});
 }
 
 function clearGPS()
