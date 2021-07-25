@@ -913,7 +913,7 @@ class TabWidget(QtWidgets.QWidget):
         }
 
     def refresh(self):
-        pass
+        self.new_selection(self.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -1331,8 +1331,6 @@ class TabWidget(QtWidgets.QWidget):
             return int((float(value) * crop_factor) + 0.5)
         return md.focal_length_35
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         if not selection:
             self.setEnabled(False)

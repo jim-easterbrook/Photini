@@ -451,7 +451,6 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         if current:
             self.image_list.set_drag_to_map(None)
             current.refresh()
-            self.image_list.emit_selection()
 
     @QtSlot(list)
     @catch_all

@@ -522,8 +522,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         with Busy():
             self.session.get_access_token(result)
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         self.enable_upload_button(selection=selection)
 

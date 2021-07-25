@@ -817,8 +817,6 @@ class TabWidget(PhotiniUploader):
         widget = self.upload_config.add_set(title, description, None, index=0)
         widget.setChecked(True)
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         super(TabWidget, self).new_selection(selection)
         self.upload_config.sync_button.setEnabled(

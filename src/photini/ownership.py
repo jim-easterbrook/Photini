@@ -204,11 +204,6 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtSlot()
     @catch_all
-    def image_list_changed(self):
-        pass
-
-    @QtSlot()
-    @catch_all
     def new_creator(self):
         self._new_value('creator')
 
@@ -375,8 +370,6 @@ class TabWidget(QtWidgets.QWidget):
             return None
         return getattr(image.metadata, key)
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:

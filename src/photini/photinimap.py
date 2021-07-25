@@ -343,11 +343,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def image_list_changed(self):
-        self.redraw_markers()
-        self.redraw_gps_track()
-        self.coords.refresh()
-        self.update_altitude()
-        self.see_selection()
+        self.new_selection(self.image_list.get_selected_images())
 
     @QtSlot()
     @catch_all
@@ -405,8 +401,8 @@ class PhotiniMap(QtWidgets.QWidget):
         self.map_loaded = True
         self.edit_box.setEnabled(True)
         self.map.setAcceptDrops(True)
-        self.redraw_markers()
-        self.redraw_gps_track()
+        self.new_selection(
+            self.image_list.get_selected_images(), adjust_map=False)
 
     def refresh(self):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
@@ -416,6 +412,8 @@ class PhotiniMap(QtWidgets.QWidget):
         lat, lng = self.app.config_store.get('map', 'centre')
         zoom = int(self.app.config_store.get('map', 'zoom'))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
+        self.new_selection(
+            self.image_list.get_selected_images(), adjust_map=False)
 
     def do_not_close(self):
         return False
@@ -500,14 +498,13 @@ class PhotiniMap(QtWidgets.QWidget):
         if locations:
             self.JavaScript('fitPoints({!r})'.format(locations))
 
-    @QtSlot(list)
-    @catch_all
-    def new_selection(self, selection):
+    def new_selection(self, selection, adjust_map=True):
         self.redraw_markers()
         self.redraw_gps_track()
         self.coords.refresh()
         self.update_altitude()
-        self.see_selection()
+        if adjust_map:
+            self.see_selection()
 
     def redraw_markers(self):
         if not self.map_loaded:

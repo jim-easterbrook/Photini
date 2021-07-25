@@ -267,9 +267,7 @@ class TabWidget(QtWidgets.QWidget):
         self.setEnabled(False)
 
     def refresh(self):
-        images = self.image_list.get_selected_images()
-        for key in self.widgets:
-            self._update_widget(key, images)
+        self.new_selection(self.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -380,8 +378,6 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.widgets[key].set_value(values[0])
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         if not selection:
             for key in self.widgets:

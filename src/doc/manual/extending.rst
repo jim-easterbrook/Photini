@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2019  Jim Easterbrook.
+   Copyright (C)  2019-21  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Extending Photini
@@ -20,22 +20,25 @@ Every Photini tab has to have the following interface:
 
        def __init__(self, image_list, *arg, **kw):
            super(TabWidget, self).__init__(*arg, **kw)
-           # Add child widgets here. Keep a reference to image_list if you need to interact
-           # with the image selector.
+           # Add child widgets here. Keep a reference to image_list if you need to
+           # interact with the image selector.
 
        def refresh(self):
-           # Called when the user selects the tab. Most tabs don't need to do anything, but
-           # map tabs may move the map if another map tab moved it.
+           # Called when the user selects the tab. If your tab does something
+           # slow, such as contacting a server, then do it here rather than in
+           # __init__. You might also want to update your tab to synchronise with
+           # changes made in another tab, like the map tabs do. Otherwise, just
+           # update the displayed metadata.
+           self.new_selection(self.image_list.get_selected_images())
 
        def do_not_close(self):
-           # Return True if your tab is busy (e.g. uploading photographs) and wants to stop
-           # the user closing the Photini program.
+           # Return True if your tab is busy (e.g. uploading photographs) and
+           # wants to stop the user closing the Photini program.
            return False
 
-       @QtCore.pyqtSlot(list)
        def new_selection(self, selection):
-           # Called when the image thumbnail area has a new selection. Most tabs will need to
-           # update their displayed metadata to suit the selection.
+           # Called when the image thumbnail area has a new selection. Most tabs
+           # will need to update their displayed metadata to suit the selection.
 
 The ``tab_name`` method returns the label given to the tab.
 It should be as short as possible.

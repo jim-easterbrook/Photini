@@ -367,8 +367,6 @@ class TabWidget(QtWidgets.QWidget):
             QtCore.QStandardPaths.PicturesLocation)
         self.path_format.setText(
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
-        self.refresh()
-        self.list_files()
 
     @QtSlot(int)
     @catch_all
@@ -514,7 +512,6 @@ class TabWidget(QtWidgets.QWidget):
             self.stop_copy()
         return result == QtWidgets.QMessageBox.Cancel
 
-    @QtSlot(list)
     def new_selection(self, selection):
         pass
 

@@ -156,7 +156,7 @@ class TabWidget(QtWidgets.QWidget):
         self.display_location()
 
     def refresh(self):
-        self.display_location()
+        self.new_selection(self.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -326,8 +326,6 @@ class TabWidget(QtWidgets.QWidget):
                 for key in widget.members:
                     widget.members[key].set_value(None)
 
-    @QtSlot(list)
-    @catch_all
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
         self.coords.refresh()
