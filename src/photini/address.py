@@ -145,15 +145,6 @@ class TabWidget(QtWidgets.QWidget):
         self.location_info.setMovable(True)
         self.location_info.setEnabled(False)
         self.layout().addWidget(self.location_info, stretch=1)
-        # other init
-        self.image_list.image_list_changed.connect(self.image_list_changed)
-
-    @QtSlot()
-    @catch_all
-    def image_list_changed(self):
-        self.coords.refresh()
-        self.auto_location.setEnabled(bool(self.coords.get_value()))
-        self.display_location()
 
     def refresh(self):
         self.new_selection(self.image_list.get_selected_images())
@@ -328,7 +319,7 @@ class TabWidget(QtWidgets.QWidget):
 
     def new_selection(self, selection):
         self.location_info.setEnabled(bool(selection))
-        self.coords.refresh()
+        self.coords.update_display(selection)
         self.auto_location.setEnabled(bool(self.coords.get_value()))
         self.display_location()
 

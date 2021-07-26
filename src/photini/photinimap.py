@@ -225,29 +225,29 @@ class LatLongDisplay(SingleLineEdit):
     @QtSlot()
     @catch_all
     def editing_finished(self):
-        text = self.get_value().strip()
-        if text:
+        selected_images = self.image_list.get_selected_images()
+        new_value = self.get_value().strip() or None
+        if new_value:
             try:
-                new_value = list(map(float, text.split(',')))
+                new_value = list(map(float, new_value.split(',')))
             except Exception:
                 # user typed in an invalid value
-                self.refresh()
+                self.update_display(selected_images)
                 return
-        else:
-            new_value = None
-        for image in self.image_list.get_selected_images():
+        for image in selected_images:
             image.metadata.latlong = new_value
-        self.refresh()
+        self.update_display(selected_images)
         self.changed.emit()
 
-    def refresh(self):
-        images = self.image_list.get_selected_images()
-        if not images:
+    def update_display(self, selected_images=None):
+        if selected_images is None:
+            selected_images = self.image_list.get_selected_images()
+        if not selected_images:
             self.set_value(None)
             self.setEnabled(False)
             return
         values = []
-        for image in images:
+        for image in selected_images:
             value = image.metadata.latlong
             if value not in values:
                 values.append(value)
@@ -343,6 +343,9 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def image_list_changed(self):
+        if not self.isVisible():
+            return
+        # add or remove markers
         self.new_selection(self.image_list.get_selected_images())
 
     @QtSlot()
@@ -437,36 +440,35 @@ class PhotiniMap(QtWidgets.QWidget):
             image = self.image_list.get_image(path)
             image.metadata.latlong = lat, lng
         self.dropped_images = []
+        selected_images = self.image_list.get_selected_images()
         self.redraw_markers()
-        self.redraw_gps_track()
-        self.coords.refresh()
-        self.see_selection()
+        self.coords.update_display(selected_images)
+        self.see_selection(selected_images)
 
     @QtSlot()
     @catch_all
     def new_coords(self):
+        selected_images = self.image_list.get_selected_images()
         self.redraw_markers()
-        self.redraw_gps_track()
-        self.update_altitude()
-        self.see_selection()
+        self.see_selection(selected_images)
 
     @QtSlot(object)
     @catch_all
     def new_altitude(self, value):
-        for image in self.image_list.get_selected_images():
+        selected_images = self.image_list.get_selected_images()
+        for image in selected_images:
             image.metadata.altitude = value
-        self.update_altitude()
+        self.update_altitude(selected_images)
 
-    def update_altitude(self):
-        images = self.image_list.get_selected_images()
-        if not images:
+    def update_altitude(self, selected_images):
+        if not selected_images:
             self.altitude.set_value(None)
             self.altitude.setEnabled(False)
             if self.altitude_button:
                 self.altitude_button.setEnabled(False)
             return
         values = []
-        for image in images:
+        for image in selected_images:
             value = image.metadata.altitude
             if value not in values:
                 values.append(value)
@@ -478,10 +480,10 @@ class PhotiniMap(QtWidgets.QWidget):
         if self.altitude_button:
             self.altitude_button.setEnabled(bool(self.coords.get_value()))
 
-    def see_selection(self):
+    def see_selection(self, selected_images):
         locations = []
         # get locations of selected images
-        for image in self.image_list.get_selected_images():
+        for image in selected_images:
             latlong = image.metadata.latlong
             if not latlong:
                 continue
@@ -489,7 +491,7 @@ class PhotiniMap(QtWidgets.QWidget):
             if location not in locations:
                 locations.append(location)
         # get locations of GPS track points around time of selected images
-        for point in self.get_nearest_gps():
+        for point in self.get_nearest_gps(selected_images):
             time_stamp, lat, lng = point
             location = [lat, lng]
             if location not in locations:
@@ -500,11 +502,11 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def new_selection(self, selection, adjust_map=True):
         self.redraw_markers()
-        self.redraw_gps_track()
-        self.coords.refresh()
-        self.update_altitude()
+        self.redraw_gps_track(selection)
+        self.coords.update_display(selection)
+        self.update_altitude(selection)
         if adjust_map:
-            self.see_selection()
+            self.see_selection(selection)
 
     def redraw_markers(self):
         if not self.map_loaded:
@@ -543,7 +545,7 @@ class PhotiniMap(QtWidgets.QWidget):
                 self.JavaScript(
                     'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
 
-    def redraw_gps_track(self):
+    def redraw_gps_track(self, selected_images=None):
         if not self.map_loaded:
             return
         # update GPX track markers
@@ -563,17 +565,17 @@ class PhotiniMap(QtWidgets.QWidget):
         if new_points:
             self.JavaScript('plotGPS({!r})'.format(new_points))
         # highlight points near selected picture
-        selected_ids = [x[0].isoformat() for x in self.get_nearest_gps()]
+        if selected_images is None:
+            selected_images = self.image_list.get_selected_images()
+        selected_ids = [x[0].isoformat()
+                        for x in self.get_nearest_gps(selected_images)]
         self.JavaScript('enableGPS({!r})'.format(selected_ids))
 
-    def get_nearest_gps(self):
-        if not self.app.gpx_importer:
+    def get_nearest_gps(self, selected_images):
+        if not (selected_images and self.app.gpx_importer):
             return []
-        images = self.image_list.get_selected_images()
-        if not images:
-            return []
-        date_taken = images[0].metadata.date_taken
-        for image in images[1:]:
+        date_taken = selected_images[0].metadata.date_taken
+        for image in selected_images[1:]:
             if image.metadata.date_taken != date_taken:
                 return []
         if not date_taken:
@@ -672,7 +674,7 @@ class PhotiniMap(QtWidgets.QWidget):
         for image in info['images']:
             image.metadata.latlong = lat, lng
         info['latlong'] = LatLon((lat, lng))
-        self.coords.refresh()
+        self.coords.update_display()
 
     def JavaScript(self, command):
         if self.map_loaded:
