@@ -346,7 +346,7 @@ class PhotiniMap(QtWidgets.QWidget):
         if not self.isVisible():
             return
         # add or remove markers
-        self.new_selection(self.image_list.get_selected_images())
+        self.redraw_markers()
 
     @QtSlot()
     @catch_all
