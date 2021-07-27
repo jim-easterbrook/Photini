@@ -248,6 +248,9 @@ class Image(QtWidgets.QFrame):
         if ((event.pos() - self.drag_start_pos).manhattanLength() <
                                     QtWidgets.QApplication.startDragDistance()):
             return
+        if not self.get_selected():
+            # user has started dragging an unselected image
+            self.image_list.select_image(self)
         paths = []
         for image in self.image_list.get_selected_images():
             paths.append(image.path)
