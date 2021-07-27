@@ -28,7 +28,6 @@ import pkg_resources
 import requests
 
 from photini.imagelist import DRAG_MIMETYPE
-from photini.metadata import LatLon
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
@@ -518,8 +517,9 @@ class PhotiniMap(QtWidgets.QWidget):
             latlong = image.metadata.latlong
             if not latlong:
                 continue
+            location = [latlong['lat'], latlong['lon']]
             for info in self.marker_info.values():
-                if info['latlong'] == latlong:
+                if info['location'] == location:
                     info['images'].append(image)
                     break
             else:
@@ -529,11 +529,11 @@ class PhotiniMap(QtWidgets.QWidget):
                         break
                 self.marker_info[marker_id] = {
                     'images'  : [image],
-                    'latlong' : LatLon(latlong),
+                    'location': location,
                     'selected': image.selected,
                     }
                 self.JavaScript('addMarker({:d},{!r},{!r},{:d})'.format(
-                    marker_id, latlong['lat'], latlong['lon'], image.selected))
+                    marker_id, location[0], location[1], image.selected))
         # delete redundant markers and enable markers with selected images
         for marker_id in list(self.marker_info.keys()):
             info = self.marker_info[marker_id]
@@ -673,7 +673,8 @@ class PhotiniMap(QtWidgets.QWidget):
         info = self.marker_info[marker_id]
         for image in info['images']:
             image.metadata.latlong = lat, lng
-        info['latlong'] = LatLon((lat, lng))
+        info['location'] = [image.metadata.latlong['lat'],
+                            image.metadata.latlong['lon']]
         self.coords.update_display()
 
     def JavaScript(self, command):
