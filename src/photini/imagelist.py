@@ -231,18 +231,14 @@ class Image(QtWidgets.QFrame):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_pos = event.pos()
+
+    @catch_all
+    def mouseReleaseEvent(self, event):
         if event.modifiers() == Qt.ControlModifier:
             self.image_list.select_image(self, multiple_selection=True)
         elif event.modifiers() == Qt.ShiftModifier:
             self.image_list.select_image(self, extend_selection=True)
-        elif not self.get_selected():
-            # don't clear selection in case we're about to drag
-            self.image_list.select_image(self)
-
-    @catch_all
-    def mouseReleaseEvent(self, event):
-        if event.modifiers() not in (Qt.ControlModifier, Qt.ShiftModifier):
-            # clear any multiple selection
+        else:
             self.image_list.select_image(self)
 
     @catch_all
