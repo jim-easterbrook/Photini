@@ -54,8 +54,8 @@ class GpxImporter(QtCore.QObject):
             return []
         self.config_store.set(
             'paths', 'gpx', os.path.dirname(os.path.abspath(path)))
-        # make a list of all points in the file
-        new_points = []
+        # make a list of points in the file
+        result = []
         for p in self.read_file(path):
             time_stamp = p.time
             if time_stamp.tzinfo is not None:
@@ -63,18 +63,11 @@ class GpxImporter(QtCore.QObject):
                 utc_offset = time_stamp.utcoffset()
                 time_stamp = (time_stamp - utc_offset).replace(tzinfo=None)
             # add point to list
-            new_points.append((time_stamp, p.latitude, p.longitude))
-        if not new_points:
+            result.append((time_stamp, p.latitude, p.longitude))
+        if not result:
             logger.warning('No points found in file "%s"', path)
             return []
-        # remove closely spaced (in time) points
-        new_points.sort(key=lambda x: x[0])
-        result = new_points[:2]
-        for p in new_points[2:]:
-            if p[0] - result[-2][0] < timedelta(seconds=30):
-                result[-1] = p
-            else:
-                result.append(p)
+        result.sort(key=lambda x: x[0])
         # store new points
         for point in result:
             time_stamp, lat, lng = point
@@ -84,7 +77,7 @@ class GpxImporter(QtCore.QObject):
         return result
 
     def nearest(self, utc_time):
-        # return ids (ISO times) of points near utc_time
+        # return points near utc_time
         threshold = timedelta(minutes=30)
         nearest = threshold
         candidates = []
@@ -111,12 +104,9 @@ class GpxImporter(QtCore.QObject):
     def read_file(self, path):
         with open(path) as gpx_file:
             gpx = gpxpy.parse(gpx_file)
-            for track in gpx.tracks:
-                for segment in track.segments:
-                    for point in segment.points:
-                        yield point
-            for route in gpx.routes:
-                for point in route.points:
-                    yield point
-            for point in gpx.waypoints:
+            if not gpx.has_times():
+                logger.error('no time stamps in %s', os.path.basename(path))
+                return
+            gpx.reduce_points(max_points_no=1000, min_distance=25.0)
+            for point in gpx.walk(only_points=True):
                 yield point
