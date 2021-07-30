@@ -78,28 +78,26 @@ class GpxImporter(QtCore.QObject):
 
     def nearest(self, utc_time):
         # return points near utc_time
-        threshold = timedelta(minutes=30)
-        nearest = threshold
-        candidates = []
-        # get points within 20 minutes of utc_time
-        for point in self.points:
-            diff = utc_time - point[0]
-            if diff > threshold:
-                continue
-            diff = abs(diff)
-            if diff > threshold:
-                break
-            candidates.append(point)
-            nearest = min(nearest, diff)
-        # prune list down to 3 or fewer
-        while len(candidates) > 3:
-            before = utc_time - candidates[0][0]
-            after = candidates[-1][0] - utc_time
-            if before > after:
-                candidates = candidates[1:]
+        # find bounding points by binary search
+        lo, hi = 0, len(self.points) - 1
+        while hi - lo > 1:
+            mid = (lo + hi) // 2
+            if utc_time < self.points[mid][0]:
+                hi = mid
             else:
-                candidates = candidates[:-1]
-        return candidates
+                lo = mid
+        # expand range to 4 points, if possible
+        if lo > 0:
+            lo -= 1
+        if hi < len(self.points) - 1:
+            hi += 1
+        # remove points too far away in time
+        threshold = timedelta(minutes=30)
+        while lo <= hi and utc_time - self.points[lo][0] > threshold:
+            lo += 1
+        while lo <= hi and self.points[hi][0] - utc_time > threshold:
+            hi -= 1
+        return self.points[lo:hi+1]
 
     def read_file(self, path):
         with open(path) as gpx_file:
