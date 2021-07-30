@@ -551,13 +551,13 @@ class PhotiniMap(QtWidgets.QWidget):
         # update GPX track markers
         if not self.app.gpx_importer:
             return
-        if not self.app.gpx_importer.points:
+        if not self.app.gpx_importer.display_points:
             self.JavaScript('clearGPS()')
             self.gpx_ids = []
             return
         # add any new points
         new_points = []
-        for time_stamp, lat, lng in self.app.gpx_importer.points:
+        for time_stamp, lat, lng in self.app.gpx_importer.display_points:
             marker_id = time_stamp.isoformat()
             if marker_id not in self.gpx_ids:
                 self.gpx_ids.append(marker_id)

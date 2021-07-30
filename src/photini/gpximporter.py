@@ -36,7 +36,8 @@ class GpxImporter(QtCore.QObject):
         self.clear_data()
 
     def clear_data(self):
-        self.points = []
+        self.display_points = []
+        self.gpx = {}
 
     def import_file(self):
         # get file path
@@ -52,59 +53,56 @@ class GpxImporter(QtCore.QObject):
         path = path[0]
         if not path:
             return []
-        self.config_store.set(
-            'paths', 'gpx', os.path.dirname(os.path.abspath(path)))
-        # make a list of points in the file
+        path = os.path.abspath(path)
+        self.config_store.set('paths', 'gpx', os.path.dirname(path))
+        # open and read GPX file
+        with open(path) as gpx_file:
+            gpx = gpxpy.parse(gpx_file)
+        if not gpx.get_points_no():
+            logger.error('No points in file "%s"', os.path.basename(path))
+            return []
+        if not gpx.has_times():
+            logger.error('No time stamps in file "%s"', os.path.basename(path))
+            return []
+        self.gpx[path] = gpx
+        # make a list of points to display, which may be a subset of a
+        # large file
+        reduced_gpx = self.gpx[path].clone()
+        reduced_gpx.reduce_points(max_points_no=500, min_distance=25.0)
         result = []
-        for p in self.read_file(path):
+        for p in reduced_gpx.walk(only_points=True):
             time_stamp = p.time
             if time_stamp.tzinfo is not None:
                 # convert timestamp to UTC
                 utc_offset = time_stamp.utcoffset()
                 time_stamp = (time_stamp - utc_offset).replace(tzinfo=None)
             # add point to list
-            result.append((time_stamp, p.latitude, p.longitude))
-        if not result:
-            logger.warning('No points found in file "%s"', path)
-            return []
-        result.sort(key=lambda x: x[0])
-        # store new points
-        for point in result:
-            time_stamp, lat, lng = point
-            if point not in self.points:
-                self.points.append(point)
-        self.points.sort(key=lambda x: x[0])
+            point = time_stamp, p.latitude, p.longitude
+            if point not in self.display_points:
+                self.display_points.append(point)
+            result.append(point)
+        self.display_points.sort(key=lambda x: x[0])
         return result
 
     def nearest(self, utc_time):
         # return points near utc_time
         # find bounding points by binary search
-        lo, hi = 0, len(self.points) - 1
+        lo, hi = 0, len(self.display_points) - 1
         while hi - lo > 1:
             mid = (lo + hi) // 2
-            if utc_time < self.points[mid][0]:
+            if utc_time < self.display_points[mid][0]:
                 hi = mid
             else:
                 lo = mid
         # expand range to 4 points, if possible
         if lo > 0:
             lo -= 1
-        if hi < len(self.points) - 1:
+        if hi < len(self.display_points) - 1:
             hi += 1
         # remove points too far away in time
         threshold = timedelta(minutes=30)
-        while lo <= hi and utc_time - self.points[lo][0] > threshold:
+        while lo <= hi and utc_time - self.display_points[lo][0] > threshold:
             lo += 1
-        while lo <= hi and self.points[hi][0] - utc_time > threshold:
+        while lo <= hi and self.display_points[hi][0] - utc_time > threshold:
             hi -= 1
-        return self.points[lo:hi+1]
-
-    def read_file(self, path):
-        with open(path) as gpx_file:
-            gpx = gpxpy.parse(gpx_file)
-            if not gpx.has_times():
-                logger.error('no time stamps in %s', os.path.basename(path))
-                return
-            gpx.reduce_points(max_points_no=1000, min_distance=25.0)
-            for point in gpx.walk(only_points=True):
-                yield point
+        return self.display_points[lo:hi+1]
