@@ -84,6 +84,13 @@ class GpxImporter(QtCore.QObject):
         self.display_points.sort(key=lambda x: x[0])
         return result
 
+    def get_locations_at(self, utc_time):
+        # return track point(s) nearest given time stamp
+        result = []
+        for gpx in self.gpx.values():
+            result += gpx.get_location_at(utc_time)
+        return result
+
     def nearest(self, utc_time):
         # return points near utc_time
         # find bounding points by binary search

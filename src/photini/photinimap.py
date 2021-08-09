@@ -19,7 +19,7 @@
 from __future__ import unicode_literals
 
 from collections import OrderedDict
-from datetime import timedelta
+from datetime import timedelta, timezone
 import locale
 import logging
 import os
@@ -323,10 +323,15 @@ class PhotiniMap(QtWidgets.QWidget):
                 translate('MapTabsAll', 'Load GPX file'))
             button.clicked.connect(self.load_gpx)
             left_side.addWidget(button, 8, 1)
+            self.set_from_gpx_button = QtWidgets.QPushButton(
+                translate('MapTabsAll', 'Set coords from GPX'))
+            self.set_from_gpx_button.setEnabled(False)
+            self.set_from_gpx_button.clicked.connect(self.set_from_gpx)
+            left_side.addWidget(self.set_from_gpx_button, 9, 1)
             button = QtWidgets.QPushButton(
                 translate('MapTabsAll', 'Remove GPX data'))
             button.clicked.connect(self.clear_gpx)
-            left_side.addWidget(button, 9, 1)
+            left_side.addWidget(button, 10, 1)
         self.layout().addLayout(left_side)
         # map
         # create handler for calls from JavaScript
@@ -500,6 +505,7 @@ class PhotiniMap(QtWidgets.QWidget):
             self.JavaScript('fitPoints({!r})'.format(locations))
 
     def new_selection(self, selection, adjust_map=True):
+        self.set_from_gpx_button.setEnabled(bool(selection))
         self.redraw_markers()
         self.redraw_gps_track(selection)
         self.coords.update_display(selection)
@@ -595,6 +601,30 @@ class PhotiniMap(QtWidgets.QWidget):
             time_stamp, lat, lng = p
             latlngs.append([lat, lng])
         self.JavaScript('fitPoints({!r})'.format(latlngs))
+
+    @QtSlot()
+    @catch_all
+    def set_from_gpx(self):
+        selected_images = self.image_list.get_selected_images()
+        changed = False
+        for image in selected_images:
+            if not image.metadata.date_taken:
+                continue
+            utc_time = image.metadata.date_taken.to_utc()
+            utc_time = utc_time.replace(tzinfo=timezone.utc)
+            candidates = self.app.gpx_importer.get_locations_at(utc_time)
+            if not candidates:
+                continue
+            nearest = candidates[0]
+            for c in candidates[1:]:
+                if abs(c.time - utc_time) < abs(nearest.time - utc_time):
+                    nearest = c
+            image.metadata.latlong = nearest.latitude, nearest.longitude
+            changed = True
+        if changed:
+            self.redraw_markers()
+            self.coords.update_display(selected_images)
+            self.see_selection(selected_images)
 
     @QtSlot()
     @catch_all
