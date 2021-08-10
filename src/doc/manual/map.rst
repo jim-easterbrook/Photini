@@ -87,22 +87,27 @@ Make sure your images have the correct time zone set so that Photini can calcula
 .. image:: ../images/screenshot_221.png
 
 When a GPX file is imported its track points are displayed on the map as blue circles.
-If the file has points at close time intervals (under 15 seconds) then not all of them are shown.
+If the file has a large number of points, closely positioned in space or time, then not all of them are shown.
 
 .. image:: ../images/screenshot_222.png
 
-Selecting a photograph shows up to three track points in red.
+Selecting a photograph shows up to four track points in red.
 These are points with time stamps around the time the photograph was taken.
 
 .. image:: ../images/screenshot_223.png
 
 After zooming in on the red track points the photograph can be dragged to the map as usual.
-When you've finished with the GPX track points they can be removed from the map with the ``Remove GPX data`` button.
 
 .. image:: ../images/screenshot_224.png
 
+Alternatively, the ``Set coords from GPX`` button can be used to set the latitude and longitude of all the selected photographs to the nearest (in time) GPX track point.
+
+.. image:: ../images/screenshot_225.png
+
 Sometimes GPS receivers lose accuracy, so some GPX file points can be wrong by over 100 metres.
-This is why Photini doesn't automatically set the photograph coordinates from the GPX file.
+In this case the ``Set coords from GPX`` button is not very useful.
+
+When you've finished with the GPX track points they can be removed from the map with the ``Remove GPX data`` button.
 
 .. _gpxpy:         https://github.com/tkrajina/gpxpy
 .. _GPX:           https://en.wikipedia.org/wiki/GPS_Exchange_Format
