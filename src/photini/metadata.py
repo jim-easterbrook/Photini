@@ -29,10 +29,10 @@ import os
 import re
 
 from photini import __version__
-from photini.gi import using_pgi
 from photini.pyqt import QtCore, QtGui
-from photini.exiv2 import ImageMetadata, SidecarMetadata, VideoHeaderMetadata
 from photini.ffmpeg import FFmpeg
+from photini.filemetadata import (
+    ImageMetadata, SidecarMetadata, VideoHeaderMetadata)
 
 logger = logging.getLogger(__name__)
 

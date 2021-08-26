@@ -22,7 +22,7 @@ from __future__ import unicode_literals
 from datetime import date, datetime
 import logging
 
-from photini.exiv2 import ImageMetadata
+from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
     QtSlot, QtWidgets, SingleLineEdit, Slider)

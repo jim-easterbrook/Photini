@@ -24,7 +24,7 @@ import os
 
 import requests
 
-from photini.exiv2 import ImageMetadata
+from photini.filemetadata import ImageMetadata
 from photini.metadata import Location
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import (
