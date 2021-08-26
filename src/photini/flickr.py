@@ -56,6 +56,8 @@ class FlickrSession(UploaderSession):
             client_key=self.api_key, client_secret=self.api_secret,
             resource_owner_key=token, resource_owner_secret=token_secret,
             )
+        if not self.api:
+            return None
         self.connection_changed.emit(self.api.authorized)
         return self.api.authorized
 
@@ -89,6 +91,8 @@ class FlickrSession(UploaderSession):
         self.connection_changed.emit(self.api.authorized)
 
     def api_call(self, method, **params):
+        if not self.api:
+            return {}
         params['method'] = method
         params['format'] = 'json'
         params['nojsoncallback'] = '1'
