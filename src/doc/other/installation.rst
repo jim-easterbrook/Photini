@@ -158,7 +158,7 @@ Python_                        3.6                python3
 PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  PyQt5
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit
-gexiv2_ [3]                    0.10               libgexiv2-2
+gexiv2_ [3]                    0.10.3             libgexiv2-2
 gexiv2 introspection data                         typelib-1_0-GExiv2-0_10 or
                                                   gir1.2-gexiv2-0.10
 PyGObject_ [4]                                    python3-gobject or
