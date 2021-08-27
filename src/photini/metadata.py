@@ -1288,7 +1288,7 @@ class Metadata(object):
     def get_mime_type(self):
         result = None
         if self._if:
-            result = self._if.get_mime_type()
+            result = self._if.mime_type
         if not result:
             result = mimetypes.guess_type(self._path)[0]
         if not result:

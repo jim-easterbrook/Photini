@@ -16,7 +16,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import codecs
 from contextlib import contextmanager
+import locale
 import logging
 import os
 import random
@@ -30,6 +32,14 @@ logger = logging.getLogger(__name__)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
+_iptc_encodings = {
+    'ascii'    : (b'\x1b\x28\x42',),
+    'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
+    'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
+    'utf-16-be': (b'\x1b\x25\x2f\x4c',),
+    'utf-32-be': (b'\x1b\x25\x2f\x46',),
+    }
+
 XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -38,25 +48,6 @@ XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
   </rdf:RDF>
 </x:xmpmeta>
 <?xpacket end="w"?>'''
-
-# Recent versions of Exiv2 have these namespaces defined, but older
-# versions may not recognise them. The xapGImg URL is invalid, but
-# Photini doesn't write xapGImg so it doesn't matter.
-for prefix, name in (
-        ('exifEX',    'http://cipa.jp/exif/1.0/'),
-        ('xapGImg',   'http://ns.adobe.com/xxx/'),
-        ('xmpGImg',   'http://ns.adobe.com/xap/1.0/g/img/'),
-        ('xmpRights', 'http://ns.adobe.com/xap/1.0/rights/')):
-    GExiv2.Metadata.register_xmp_namespace(name, prefix)
-
-# Gexiv2 won't register the 'Iptc4xmpExt' namespace as its abbreviated
-# version 'iptcExt' is already defined. This kludge registers it by
-# reading some data with the full namespace
-data = XMP_WRAPPER.format(
-    'xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"')
-# open the data to register the namespace
-GExiv2.Metadata().open_buf(data.encode('utf-8'))
-del data
 
 
 @contextmanager
@@ -85,7 +76,37 @@ def temp_rename(path):
 
 
 class MetadataHandler(GExiv2.Metadata):
-    def __init__(self, path, buf=None):
+    @classmethod
+    def initialise(cls):
+        # Recent versions of Exiv2 have these namespaces defined, but
+        # older versions may not recognise them. The xapGImg URL is
+        # invalid, but Photini doesn't write xapGImg so it doesn't
+        # matter.
+        for prefix, name in (
+                ('exifEX',    'http://cipa.jp/exif/1.0/'),
+                ('xapGImg',   'http://ns.adobe.com/xxx/'),
+                ('xmpGImg',   'http://ns.adobe.com/xap/1.0/g/img/'),
+                ('xmpRights', 'http://ns.adobe.com/xap/1.0/rights/')):
+            GExiv2.Metadata.register_xmp_namespace(name, prefix)
+        # Gexiv2 won't register the 'Iptc4xmpExt' namespace as its
+        # abbreviated version 'iptcExt' is already defined. This kludge
+        # registers it by reading some data with the full namespace
+        data = XMP_WRAPPER.format(
+            'xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"')
+        # open the data to register the namespace
+        GExiv2.Metadata().open_buf(data.encode('utf-8'))
+        # make list of possible character encodings
+        cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
+        char_set = locale.getdefaultlocale()[1]
+        if char_set:
+            try:
+                name = codecs.lookup(char_set).name
+                if name not in cls.encodings:
+                    cls.encodings.append(name)
+            except LookupError:
+                pass
+
+    def __init__(self, path, buf=None, utf_safe=False):
         super(MetadataHandler, self).__init__()
         self._path = path
         # workaround for bug in GExiv2 on Windows
@@ -108,12 +129,19 @@ class MetadataHandler(GExiv2.Metadata):
         self.read_only = not any((self.get_supports_exif(),
                                   self.get_supports_iptc(),
                                   self.get_supports_xmp()))
-        self.xmp_only = self.get_mime_type() in (
+        self.mime_type = self.get_mime_type()
+        self.xmp_only = self.mime_type in (
             'application/rdf+xml', 'application/postscript')
         # Don't use Exiv2's converted values when accessing Xmp files
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
+        # transcode any non utf-8 strings (Xmp is always utf-8)
+        if not utf_safe:
+            if self.has_exif() and not self.xmp_only:
+                self.transcode_exif()
+            if self.has_iptc() and not self.xmp_only:
+                self.transcode_iptc()
         # any sub images?
         self.ifd_list = ['Image']
         if self.has_tag('Exif.Image.SubIFDs'):
@@ -134,6 +162,101 @@ class MetadataHandler(GExiv2.Metadata):
         if main_ifd:
             self.ifd_list.remove(main_ifd)
             self.ifd_list = [main_ifd] + self.ifd_list
+
+    def transcode_exif(self):
+        for tag in self.get_exif_tags():
+            if self.get_tag_type(tag) != 'Ascii':
+                continue
+            family, group, name = tag.split('.')
+            if name == '0xea1c':
+                continue
+            if group[:5] in (
+                    'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
+                    'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
+                continue
+            raw_value = self.get_raw(tag)
+            if not raw_value:
+                logger.error('%s: failed to read tag %s',
+                             os.path.basename(self._path), tag)
+                continue
+            for encoding in self.encodings:
+                try:
+                    new_value = raw_value.decode(encoding)
+                except UnicodeDecodeError:
+                    continue
+                if encoding != 'utf-8':
+                    logger.info('%s: transcoded %s from %s',
+                                os.path.basename(self._path), tag, encoding)
+                    self.set_tag_string(tag, new_value)
+                break
+
+    def transcode_iptc(self):
+        encodings = self.encodings
+        iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
+        for charset, codes in _iptc_encodings.items():
+            if iptc_charset_code in codes:
+                iptc_charset = charset
+                break
+        else:
+            iptc_charset = None
+        if iptc_charset in ('utf-8', 'ascii'):
+            # no need to translate anything
+            return
+        if iptc_charset:
+            encodings = [iptc_charset]
+        # transcode every string tag except Iptc.Envelope.CharacterSet
+        tags = ['Iptc.Envelope.CharacterSet']
+        multiple = []
+        for tag in self.get_iptc_tags():
+            if tag in tags:
+                multiple.append(tag)
+            elif self.get_tag_type(tag) == 'String':
+                tags.append(tag)
+        for tag in tags[1:]:
+            if tag in multiple:
+                # PyGObject segfaults if strings are not utf-8
+                if using_pgi:
+                    try:
+                        value = self.get_tag_multiple(tag)
+                        continue
+                    except UnicodeDecodeError:
+                        pass
+                logger.warning('%s: ignoring multiple %s values',
+                               os.path.basename(self._path), tag)
+                logger.warning(
+                    'Try running Photini with the --utf_safe option.')
+            try:
+                value = self.get_tag_string(tag)
+                self.set_string(tag, value)
+                continue
+            except UnicodeDecodeError:
+                pass
+            raw_value = self.get_raw(tag)
+            if not raw_value:
+                logger.error('%s: failed to read tag %s',
+                             os.path.basename(self._path), tag)
+                continue
+            for encoding in encodings:
+                try:
+                    new_value = raw_value.decode(encoding)
+                except UnicodeDecodeError:
+                    continue
+                if encoding != 'utf-8':
+                    logger.info('%s: transcoded %s from %s',
+                                os.path.basename(self._path), tag, encoding)
+                    self.set_tag_string(tag, new_value)
+                break
+
+    @classmethod
+    def open_old(cls, *arg, **kw):
+        try:
+            return cls(*arg, **kw)
+        except GLib.GError:
+            # expected if unrecognised file format
+            return None
+        except Exception as ex:
+            logger.exception(ex)
+            return None
 
     def get_exif_thumbnail(self):
         # try normal thumbnail
@@ -167,6 +290,96 @@ class MetadataHandler(GExiv2.Metadata):
                 buf = f.read()
             return buf
         return None
+
+    _charset_map = {
+        'ascii'  : 'ascii',
+        'unicode': 'utf-16-be',
+        'jis'    : 'euc_jp',
+        }
+
+    def get_exif_comment(self, tag):
+        result = self.get_raw(tag)
+        if not result:
+            return None
+        # first 8 bytes should be the encoding charset
+        try:
+            charset = result[:8].decode(
+                'ascii', 'replace').strip('\x00').lower()
+            if charset in self._charset_map:
+                result = result[8:].decode(self._charset_map[charset])
+            elif charset != '':
+                result = result.decode('ascii', 'replace')
+            else:
+                # blank charset, so try known encodings
+                for encoding in self.encodings:
+                    try:
+                        result = result[8:].decode(encoding)
+                        break
+                    except UnicodeDecodeError:
+                        pass
+                else:
+                    raise UnicodeDecodeError
+            if result:
+                result = result.strip('\x00')
+            if not result:
+                return None
+            return result
+        except UnicodeDecodeError:
+            logger.error('%s: %s: %d bytes binary data will be deleted'
+                         ' when metadata is saved',
+                         os.path.basename(self._path), tag, len(result))
+            raise
+
+    def get_exif_value(self, tag):
+        if not self.has_tag(tag):
+            return None
+        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
+                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
+                   'Exif.Image.XPSubject',
+                   'Exif.NikonLd1.LensIDNumber', 'Exif.NikonLd2.LensIDNumber',
+                   'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
+            return self.get_tag_interpreted_string(tag)
+        if tag == 'Exif.Photo.UserComment':
+            return self.get_exif_comment(tag)
+        return self.get_tag_string(tag)
+
+    def get_iptc_value(self, tag):
+        if not self.has_tag(tag):
+            return None
+        if self.get_tag_type(tag) == 'String':
+            return self.get_tag_multiple(tag)
+        return self.get_tag_string(tag)
+
+    def get_xmp_value(self, tag):
+        if not self.has_tag(tag):
+            return None
+        if self.get_tag_type(tag) == 'LangAlt':
+            return self.get_multiple(tag)[0]
+        if self.get_tag_type(tag) in ('XmpBag', 'XmpSeq'):
+            return self.get_multiple(tag)
+        return self.get_tag_string(tag)
+
+    def get_raw(self, tag):
+        if not self.has_tag(tag):
+            return None
+        try:
+            result = self.get_tag_raw(tag).get_data()
+            if not result:
+                return None
+            if isinstance(result, list):
+                # pgi returns a list of ints, or ctypes pointers in some versions
+                if isinstance(result[0], int):
+                    result = bytearray(result)
+                else:
+                    # some other type we can't handle
+                    logger.info('Unknown data type %s in tag %s',
+                                type(result[0]), tag)
+                    return None
+        except Exception as ex:
+            logger.exception(ex)
+            return None
+        return result
 
     def save(self):
         try:

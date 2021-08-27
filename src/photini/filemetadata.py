@@ -16,43 +16,22 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-import codecs
-import locale
 import logging
 import os
 import sys
 
-from photini.gexiv2 import MetadataHandler, XMP_WRAPPER
+try:
+    from photini.exiv2 import MetadataHandler, XMP_WRAPPER, _iptc_encodings
+except ImportError as ex:
+    print(str(ex))
+    from photini.gexiv2 import MetadataHandler, XMP_WRAPPER, _iptc_encodings
 
 logger = logging.getLogger(__name__)
 
+MetadataHandler.initialise()
+
 
 class Exiv2Metadata(MetadataHandler):
-    def __init__(self, *args, **kwds):
-        super(Exiv2Metadata, self).__init__(*args, **kwds)
-        # make list of possible character encodings
-        self._encodings = ['utf-8', 'iso8859-1', 'ascii']
-        char_set = locale.getdefaultlocale()[1]
-        if char_set:
-            try:
-                name = codecs.lookup(char_set).name
-                if name not in self._encodings:
-                    self._encodings.append(name)
-            except LookupError:
-                pass
-
-    def _decode_string(self, value):
-        if not value:
-            return value
-        for encoding in self._encodings:
-            try:
-                result = value.decode(encoding)
-                logger.info('Decoded %s string "%s"', encoding, result)
-                return result
-            except UnicodeDecodeError:
-                continue
-        return value.decode('utf-8', 'replace')
-
     def clear_value(self, tag, idx=1, place_holder=False):
         if tag in self._multi_tags:
             for t in self._multi_tags[tag]:
@@ -68,43 +47,6 @@ class Exiv2Metadata(MetadataHandler):
             return
         self.clear_tag(tag)
 
-    def get_raw(self, tag):
-        if not self.has_tag(tag):
-            return None
-        try:
-            if gexiv2_version < (0, 10, 3):
-                try:
-                    result = self.get_tag_string(tag)
-                except UnicodeDecodeError:
-                    return None
-                if not result:
-                    return None
-                if self.get_tag_type(tag) == 'Byte':
-                    # data is a string of space separated numbers
-                    return bytes(map(int, result.split()))
-                if self.get_tag_type(tag) == 'Comment':
-                    # GExiv2 adds original charset information
-                    parts = result.split('"')
-                    if parts[0] == 'charset=':
-                        result = parts[2][1:]
-                return result.encode('ascii', 'backslashreplace')
-            result = self.get_tag_raw(tag).get_data()
-            if not result:
-                return None
-            if isinstance(result, list):
-                # pgi returns a list of ints, or ctypes pointers in some versions
-                if isinstance(result[0], int):
-                    result = bytearray(result)
-                else:
-                    # some other type we can't handle
-                    logger.info('Unknown data type %s in tag %s',
-                                type(result[0]), tag)
-                    return None
-        except Exception as ex:
-            logger.exception(ex)
-            return None
-        return result
-
     _charset_map = {
         'ascii'  : 'ascii',
         'unicode': 'utf-16-be',
@@ -114,7 +56,7 @@ class Exiv2Metadata(MetadataHandler):
     def get_multi_group(self, tag_group):
         result = []
         for idx in range(1, 20):
-            value = [self.get_string(x.format(idx=idx)) for x in tag_group]
+            value = [self.get_value(x.format(idx=idx)) for x in tag_group]
             if not any(value):
                 return result
             result.append(value)
@@ -122,65 +64,17 @@ class Exiv2Metadata(MetadataHandler):
     def get_group(self, tag_group):
         if 'idx' in tag_group[0]:
             return self.get_multi_group(tag_group)
-        return [self.get_string(x) for x in tag_group]
+        return [self.get_value(x) for x in tag_group]
 
-    def get_string(self, tag):
-        if not (tag and self.has_tag(tag)):
+    def get_value(self, tag):
+        if not tag:
             return None
-        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
-                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
-                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
-                   'Exif.Image.XPSubject',
-                   'Exif.NikonLd1.LensIDNumber', 'Exif.NikonLd2.LensIDNumber',
-                   'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
-            return self.get_tag_interpreted_string(tag)
-        if tag == 'Exif.Photo.UserComment':
-            # first 8 bytes should be the encoding charset
-            result = self.get_raw(tag)
-            if not result:
-                return None
-            try:
-                charset = result[:8].decode(
-                    'ascii', 'replace').strip('\x00').lower()
-                if charset in self._charset_map:
-                    result = result[8:].decode(self._charset_map[charset])
-                elif charset == '':
-                    result = self._decode_string(result[8:])
-                else:
-                    result = result.decode('ascii', 'replace')
-                if result:
-                    result = result.strip('\x00')
-                if not result:
-                    return None
-                return result
-            except UnicodeDecodeError:
-                logger.error('%s: %d bytes binary data will be deleted'
-                             ' when metadata is saved', tag, len(result))
-                raise
-        try:
-            return self.get_tag_string(tag)
-        except UnicodeDecodeError:
-            pass
-        # attempt to read raw data instead
-        result = self.get_raw(tag)
-        if not result:
-            return None
-        return self._decode_string(result).strip('\x00')
-
-    def get_multiple(self, tag):
-        if not (tag and self.has_tag(tag)):
-            return []
-        try:
-            return self.get_tag_multiple(tag)
-        except UnicodeDecodeError:
-            pass
-        # attempt to read raw data instead, only gets the first value
-        result = self.get_raw(tag)
-        if not result:
-            return []
-        logger.info('potential multi-data loss %s %s',
-                    os.path.basename(self._path), tag)
-        return [self._decode_string(result).strip('\x00')]
+        if self.is_exif_tag(tag):
+            return self.get_exif_value(tag)
+        if self.is_iptc_tag(tag):
+            return self.get_iptc_value(tag)
+        if self.is_xmp_tag(tag):
+            return self.get_xmp_value(tag)
 
     def set_group(self, tag, value, idx=1):
         sub_tag = self._multi_tags[tag][0].format(idx=idx)
@@ -191,17 +85,14 @@ class Exiv2Metadata(MetadataHandler):
                     # container already exists
                     break
             else:
-                if gexiv2_version >= (0, 10, 3):
-                    type_ = self.get_tag_type(tag)
-                    if type_ == 'XmpBag':
-                        type_ = GExiv2.StructureType.BAG
-                    elif type_ == 'XmpSeq':
-                        type_ = GExiv2.StructureType.SEQ
-                    else:
-                        type_ = GExiv2.StructureType.ALT
-                    self.set_xmp_tag_struct(tag, type_)
+                type_ = self.get_tag_type(tag)
+                if type_ == 'XmpBag':
+                    type_ = GExiv2.StructureType.BAG
+                elif type_ == 'XmpSeq':
+                    type_ = GExiv2.StructureType.SEQ
                 else:
-                    self.set_tag_string(tag, '')
+                    type_ = GExiv2.StructureType.ALT
+                self.set_xmp_tag_struct(tag, type_)
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             self.set_string(sub_tag.format(idx=idx), sub_value)
 
@@ -271,7 +162,7 @@ class Exiv2Metadata(MetadataHandler):
             return False
         if force_iptc:
             self.set_string('Iptc.Envelope.CharacterSet',
-                             self._iptc_encodings['utf-8'][0].decode('ascii'))
+                             _iptc_encodings['utf-8'][0].decode('ascii'))
         else:
             self.clear_iptc()
         if self.xmp_only:
@@ -568,20 +459,8 @@ class Exiv2Metadata(MetadataHandler):
                     file_value = self.get_group(tag_group)
                     if tag == 'Exif.Thumbnail':
                         file_value.append(self.get_exif_thumbnail())
-                elif self.is_exif_tag(tag):
-                    if 'ifd' in tag:
-                        tag = tag.format(ifd=self.ifd_list[0])
-                    file_value = self.get_string(tag)
-                elif self.is_iptc_tag(tag):
-                    file_value = self.get_multiple(tag)
-                elif self.get_tag_type(tag) == 'LangAlt':
-                    file_value = self.get_multiple(tag)
-                    if file_value:
-                        file_value = file_value[0]
-                elif self.get_tag_type(tag) in ('XmpBag', 'XmpSeq'):
-                    file_value = self.get_multiple(tag)
                 else:
-                    file_value = self.get_string(tag)
+                    file_value = self.get_value(tag)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -612,79 +491,11 @@ class Exiv2Metadata(MetadataHandler):
             return True
         if not camera_model:
             return False
-        return self.get_string('Exif.Image.Make') == camera_model['make']
+        return self.get_value('Exif.Image.Make') == camera_model['make']
 
 
 class ImageMetadata(Exiv2Metadata):
-    _iptc_encodings = {
-        'ascii'    : (b'\x1b\x28\x42',),
-        'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
-        'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
-        'utf-16-be': (b'\x1b\x25\x2f\x4c',),
-        'utf-32-be': (b'\x1b\x25\x2f\x46',),
-        }
-
-    def __init__(self, *args, utf_safe=False, **kwds):
-        super(ImageMetadata, self).__init__(*args, **kwds)
-        # convert IPTC data to utf-8
-        if self.has_iptc() and not self.xmp_only:
-            self.transcode_iptc(utf_safe)
-
-    def transcode_iptc(self, utf_safe):
-        iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
-        for charset, codes in self._iptc_encodings.items():
-            if iptc_charset_code in codes:
-                iptc_charset = charset
-                break
-        else:
-            iptc_charset = None
-        if iptc_charset in ('utf-8', 'ascii'):
-            # no need to translate anything
-            return
-        if iptc_charset:
-            # temporarily make it the only member of self._encodings
-            old_encodings = self._encodings
-            self._encodings = [iptc_charset]
-        # transcode every string tag except Iptc.Envelope.CharacterSet
-        logger.info('Transcoding IPTC data to UTF-8')
-        tags = ['Iptc.Envelope.CharacterSet']
-        multiple = []
-        for tag in self.get_iptc_tags():
-            if tag in tags:
-                multiple.append(tag)
-            elif self.get_tag_type(tag) == 'String':
-                tags.append(tag)
-        for tag in tags[1:]:
-            try:
-                if tag in multiple:
-                    # PyGObject segfaults if strings are not utf-8
-                    if using_pgi or utf_safe:
-                        value = self.get_multiple(tag)
-                    else:
-                        logger.warning('%s: ignoring multiple %s values',
-                                       os.path.basename(self._path), tag)
-                        logger.warning(
-                            'Try running Photini with the --utf_safe option.')
-                        value = [self.get_string(tag)]
-                    self.set_multiple(tag, value)
-                else:
-                    self.set_string(tag, self.get_string(tag))
-            except Exception as ex:
-                logger.exception(ex)
-        if iptc_charset:
-            # restore self._encodings
-            self._encodings = old_encodings
-
-    @classmethod
-    def open_old(cls, *arg, **kw):
-        try:
-            return cls(*arg, **kw)
-        except GLib.GError:
-            # expected if unrecognised file format
-            return None
-        except Exception as ex:
-            logger.exception(ex)
-            return None
+    pass
 
 
 class Preview(object):
@@ -699,7 +510,7 @@ class Preview(object):
         return self.md.get_pixel_height()
 
     def get_mime_type(self):
-        return self.md.get_mime_type()
+        return self.md.mime_type
 
     def get_width(self):
         return self.md.get_pixel_width()
