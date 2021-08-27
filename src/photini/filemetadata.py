@@ -21,10 +21,10 @@ import os
 import sys
 
 try:
-    from photini.exiv2 import MetadataHandler, XMP_WRAPPER, _iptc_encodings
+    from photini.exiv2 import MetadataHandler, _iptc_encodings
 except ImportError as ex:
     print(str(ex))
-    from photini.gexiv2 import MetadataHandler, XMP_WRAPPER, _iptc_encodings
+    from photini.gexiv2 import MetadataHandler, _iptc_encodings
 
 logger = logging.getLogger(__name__)
 
@@ -32,13 +32,11 @@ MetadataHandler.initialise()
 
 
 class Exiv2Metadata(MetadataHandler):
-    def clear_value(self, tag, idx=1, place_holder=False):
+    def clear_value(self, tag, idx=1):
         if tag in self._multi_tags:
             for t in self._multi_tags[tag]:
                 sub_tag = t.format(idx=idx)
                 self._clear_value(sub_tag)
-            if place_holder:
-                self.set_tag_string(sub_tag, ' ')
             return
         self._clear_value(tag)
 
@@ -53,48 +51,78 @@ class Exiv2Metadata(MetadataHandler):
         'jis'    : 'euc_jp',
         }
 
-    def get_multi_group(self, tag_group):
+    def get_multi_group(self, tag):
         result = []
-        for idx in range(1, 20):
-            value = [self.get_value(x.format(idx=idx)) for x in tag_group]
+        for idx in range(1, 100):
+            value = self.get_group(tag, idx=idx)
             if not any(value):
-                return result
+                break
             result.append(value)
+        return result
 
-    def get_group(self, tag_group):
-        if 'idx' in tag_group[0]:
-            return self.get_multi_group(tag_group)
-        return [self.get_value(x) for x in tag_group]
+    def get_group(self, tag, idx=1):
+        result = []
+        for x in self._multi_tags[tag]:
+            value = self.get_value(x, idx=idx)
+            # kludge to cope with iptc always returning a list
+            if isinstance(value, (list, tuple)):
+                value = value[0]
+            result.append(value)
+        if tag == 'Exif.Thumbnail.ImageWidth':
+            result.append(self.get_exif_thumbnail())
+        return result
 
-    def get_value(self, tag):
+    def get_value(self, tag, idx=1):
         if not tag:
             return None
+        if 'idx' in tag:
+            tag = tag.format(idx=idx)
         if self.is_exif_tag(tag):
+            if 'ifd' in tag:
+                tag = tag.format(ifd=self.ifd_list[0])
             return self.get_exif_value(tag)
         if self.is_iptc_tag(tag):
             return self.get_iptc_value(tag)
         if self.is_xmp_tag(tag):
             return self.get_xmp_value(tag)
+        logger.error('get_value unrecognised tag %s', tag)
+
+    def set_multi_group(self, tag, value):
+        # delete unwanted old entries
+        idx = len(value)
+        while any(self.get_group(tag, idx=idx+1)):
+            idx += 1
+        while idx > len(value):
+            self.clear_value(tag, idx=idx)
+            idx -= 1
+        # set new entries
+        for idx, sub_value in enumerate(value, 1):
+            if not any(sub_value):
+                # set a place holder
+                sub_value = [' ']
+            self.set_group(tag, sub_value, idx=idx)
 
     def set_group(self, tag, value, idx=1):
-        sub_tag = self._multi_tags[tag][0].format(idx=idx)
-        if any(value) and '[' in sub_tag:
-            # create XMP array
-            for t in self.get_xmp_tags():
-                if t.startswith(tag):
-                    # container already exists
-                    break
-            else:
-                type_ = self.get_tag_type(tag)
-                if type_ == 'XmpBag':
-                    type_ = GExiv2.StructureType.BAG
-                elif type_ == 'XmpSeq':
-                    type_ = GExiv2.StructureType.SEQ
-                else:
-                    type_ = GExiv2.StructureType.ALT
-                self.set_xmp_tag_struct(tag, type_)
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-            self.set_string(sub_tag.format(idx=idx), sub_value)
+            self.set_value(sub_tag, sub_value, idx=idx)
+        if tag == 'Exif.Thumbnail.ImageWidth':
+            self.set_exif_thumbnail_from_buffer(value[3])
+
+    def set_value(self, tag, value, idx=1):
+        if not tag:
+            return
+        if 'idx' in tag:
+            tag = tag.format(idx=idx)
+        if self.is_exif_tag(tag):
+            if 'ifd' in tag:
+                tag = tag.format(ifd=self.ifd_list[0])
+            self.set_exif_value(tag, value)
+        elif self.is_iptc_tag(tag):
+            self.set_iptc_value(tag, value)
+        elif self.is_xmp_tag(tag):
+            self.set_xmp_value(tag, value)
+        else:
+            logger.error('set_value unrecognised tag %s', tag)
 
     # maximum length of Iptc data
     _max_bytes = {
@@ -213,7 +241,7 @@ class Exiv2Metadata(MetadataHandler):
         'Exif.Fujifilm.SerialNumber': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPSAltitude': (
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
-        'Exif.GPSInfo.GPSCoordinates': (
+        'Exif.GPSInfo.GPSLatitude': (
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime': ('Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
@@ -241,23 +269,23 @@ class Exiv2Metadata(MetadataHandler):
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
         'Exif.Photo.FNumber': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.FocalPlaneResolution': (
+        'Exif.Photo.FocalPlaneXResolution': (
             'Exif.Photo.FocalPlaneXResolution',
             'Exif.Photo.FocalPlaneYResolution',
             'Exif.Photo.FocalPlaneResolutionUnit'),
         'Exif.Photo.LensMake': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber'),
-        'Exif.Photo.PixelDimensions': (
+        'Exif.Photo.PixelXDimension': (
             'Exif.Photo.PixelXDimension', 'Exif.Photo.PixelYDimension'),
-        'Exif.Thumbnail': (
+        'Exif.Thumbnail.ImageWidth': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Exif.{ifd}.FocalPlaneResolution': (
+        'Exif.{ifd}.FocalPlaneXResolution': (
             'Exif.{ifd}.FocalPlaneXResolution',
             'Exif.{ifd}.FocalPlaneYResolution',
             'Exif.{ifd}.FocalPlaneResolutionUnit'),
-        'Exif.{ifd}.ImageDimensions': (
+        'Exif.{ifd}.ImageWidth': (
             'Exif.{ifd}.ImageWidth', 'Exif.{ifd}.ImageLength'),
         'Iptc.Application2.Contact': ('Iptc.Application2.Contact',),
         'Iptc.Application2.DateCreated': (
@@ -265,7 +293,7 @@ class Exiv2Metadata(MetadataHandler):
         'Iptc.Application2.DigitizationDate': (
             'Iptc.Application2.DigitizationDate',
             'Iptc.Application2.DigitizationTime'),
-        'Iptc.Application2.Location': (
+        'Iptc.Application2.SubLocation': (
             'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
             'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
             'Iptc.Application2.CountryCode'),
@@ -274,14 +302,14 @@ class Exiv2Metadata(MetadataHandler):
         'Xmp.aux.Lens': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.FocalPlaneResolution': ('Xmp.exif.FocalPlaneXResolution',
-                                          'Xmp.exif.FocalPlaneYResolution',
-                                          'Xmp.exif.FocalPlaneResolutionUnit'),
+        'Xmp.exif.FocalPlaneXResolution': ('Xmp.exif.FocalPlaneXResolution',
+                                           'Xmp.exif.FocalPlaneYResolution',
+                                           'Xmp.exif.FocalPlaneResolutionUnit'),
         'Xmp.exif.GPSAltitude': (
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
-        'Xmp.exif.GPSCoordinates': (
+        'Xmp.exif.GPSLatitude': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
-        'Xmp.exif.PixelDimensions': (
+        'Xmp.exif.PixelXDimension': (
             'Xmp.exif.PixelXDimension', 'Xmp.exif.PixelYDimension'),
         'Xmp.exifEX.LensMake': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
@@ -315,7 +343,7 @@ class Exiv2Metadata(MetadataHandler):
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
-        'Xmp.tiff.ImageDimensions': (
+        'Xmp.tiff.ImageWidth': (
             'Xmp.tiff.ImageWidth', 'Xmp.tiff.ImageLength'),
         'Xmp.xmp.Thumbnails': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
@@ -393,8 +421,8 @@ class Exiv2Metadata(MetadataHandler):
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
-        'latlong'        : (('WA', 'Exif.GPSInfo.GPSCoordinates'),
-                            ('WX', 'Xmp.exif.GPSCoordinates')),
+        'latlong'        : (('WA', 'Exif.GPSInfo.GPSLatitude'),
+                            ('WX', 'Xmp.exif.GPSLatitude')),
         'lens_model'     : (('WA', 'Exif.Photo.LensMake'),
                             ('WX', 'Xmp.exifEX.LensMake'),
                             ('WN', 'Exif.Canon.LensModel'),
@@ -412,27 +440,27 @@ class Exiv2Metadata(MetadataHandler):
         'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
                             ('WA', 'Xmp.iptc.Location'),
-                            ('WA', 'Iptc.Application2.Location')),
+                            ('WA', 'Iptc.Application2.SubLocation')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
                             ('WX', 'Xmp.tiff.Orientation')),
         'rating'         : (('WA', 'Xmp.xmp.Rating'),
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
-        'resolution'     : (('WN', 'Exif.Photo.FocalPlaneResolution'),
-                            ('WN', 'Exif.{ifd}.FocalPlaneResolution'),
-                            ('WN', 'Xmp.exif.FocalPlaneResolution')),
-        'sensor_size'    : (('WN', 'Exif.Photo.PixelDimensions'),
-                            ('WN', 'Exif.{ifd}.ImageDimensions'),
-                            ('WN', 'Xmp.exif.PixelDimensions'),
-                            ('WN', 'Xmp.tiff.ImageDimensions')),
+        'resolution'     : (('WN', 'Exif.Photo.FocalPlaneXResolution'),
+                            ('WN', 'Exif.{ifd}.FocalPlaneXResolution'),
+                            ('WN', 'Xmp.exif.FocalPlaneXResolution')),
+        'sensor_size'    : (('WN', 'Exif.Photo.PixelXDimension'),
+                            ('WN', 'Exif.{ifd}.ImageWidth'),
+                            ('WN', 'Xmp.exif.PixelXDimension'),
+                            ('WN', 'Xmp.tiff.ImageWidth')),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
                             ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
         # Both xmpGImg and xapGImg namespaces are specified in different
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
-        'thumbnail'      : (('WA', 'Exif.Thumbnail'),
+        'thumbnail'      : (('WA', 'Exif.Thumbnail.ImageWidth'),
                             ('WX', 'Xmp.xmp.Thumbnails'),
                             ('W0', 'Xmp.xmp.ThumbnailsXap')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
@@ -450,17 +478,12 @@ class Exiv2Metadata(MetadataHandler):
         result = []
         for mode, tag in self._tag_list[name]:
             try:
-                if tag in self._multi_tags:
-                    tag_group = self._multi_tags[tag]
-                    if 'ifd' in tag:
-                        tag_group = [
-                            x.format(ifd=self.ifd_list[0]) for x in tag_group]
-                        tag = tag.format(ifd=self.ifd_list[0])
-                    file_value = self.get_group(tag_group)
-                    if tag == 'Exif.Thumbnail':
-                        file_value.append(self.get_exif_thumbnail())
-                else:
+                if tag not in self._multi_tags:
                     file_value = self.get_value(tag)
+                elif 'idx' in self._multi_tags[tag][0]:
+                    file_value = self.get_multi_group(tag)
+                else:
+                    file_value = self.get_group(tag)
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
@@ -480,8 +503,21 @@ class Exiv2Metadata(MetadataHandler):
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
                 self.clear_value(tag)
+                continue
+            if self.is_exif_tag(tag):
+                file_value = value.to_exif()
+            elif self.is_iptc_tag(tag):
+                file_value = value.to_iptc()
+            elif self.is_xmp_tag(tag):
+                file_value = value.to_xmp()
             else:
-                value.write(self, tag)
+                logger.error('write unrecognised tag %s', tag)
+            if tag not in self._multi_tags:
+                self.set_value(tag, file_value)
+            elif 'idx' in self._multi_tags[tag][0]:
+                self.set_multi_group(tag, file_value)
+            else:
+                self.set_group(tag, file_value)
 
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
@@ -596,15 +632,7 @@ class SidecarMetadata(Exiv2Metadata):
     def open_new(cls, path, image_md):
         sc_path = path + '.xmp'
         try:
-            if image_md and gexiv2_version >= (0, 10, 6):
-                image_md.save_external(sc_path)
-            else:
-                with open(sc_path, 'w') as of:
-                    of.write(XMP_WRAPPER.format(
-                        'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
-                if image_md:
-                    # let exiv2 copy as much metadata as it can into sidecar
-                    image_md.save_file(sc_path)
+            cls.create_sc(sc_path, image_md)
             return cls(sc_path)
         except Exception as ex:
             logger.exception(ex)

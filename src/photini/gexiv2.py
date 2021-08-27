@@ -355,9 +355,9 @@ class MetadataHandler(GExiv2.Metadata):
         if not self.has_tag(tag):
             return None
         if self.get_tag_type(tag) == 'LangAlt':
-            return self.get_multiple(tag)[0]
+            return self.get_tag_multiple(tag)[0]
         if self.get_tag_type(tag) in ('XmpBag', 'XmpSeq'):
-            return self.get_multiple(tag)
+            return self.get_tag_multiple(tag)
         return self.get_tag_string(tag)
 
     def get_raw(self, tag):
@@ -380,6 +380,45 @@ class MetadataHandler(GExiv2.Metadata):
             logger.exception(ex)
             return None
         return result
+
+    def set_exif_value(self, tag, value):
+        if value in (None, (), []):
+            self.clear_tag(tag)
+        else:
+            self.set_tag_string(tag, value)
+
+    def set_iptc_value(self, tag, value):
+        if value in (None, (), []):
+            self.clear_tag(tag)
+        elif isinstance(value, str):
+            self.set_tag_string(tag, value)
+        else:
+            self.set_tag_multiple(tag, value)
+
+    def set_xmp_value(self, tag, value):
+        if value in (None, (), []):
+            self.clear_tag(tag)
+            return
+        if '[' in tag:
+            # create XMP array
+            container = tag.split('[')[0]
+            for t in self.get_xmp_tags():
+                if t.startswith(container):
+                    # container already exists
+                    break
+            else:
+                type_ = self.get_tag_type(container)
+                if type_ == 'XmpBag':
+                    type_ = GExiv2.StructureType.BAG
+                elif type_ == 'XmpSeq':
+                    type_ = GExiv2.StructureType.SEQ
+                else:
+                    type_ = GExiv2.StructureType.ALT
+                self.set_xmp_tag_struct(container, type_)
+        if isinstance(value, str):
+            self.set_tag_string(tag, value)
+        else:
+            self.set_tag_multiple(tag, value)
 
     def save(self):
         try:
@@ -404,6 +443,18 @@ class MetadataHandler(GExiv2.Metadata):
         self.open_path(self._path)
         self._clear_value('Exif.Photo.MakerNote')
         self.save_file(self._path)
+
+    @staticmethod
+    def create_sc(path, image_md):
+        if image_md and gexiv2_version >= (0, 10, 6):
+            image_md.save_external(path)
+        else:
+            with open(path, 'w') as of:
+                of.write(XMP_WRAPPER.format(
+                    'xmlns:xmp="http://ns.adobe.com/xap/1.0/"'))
+            if image_md:
+                # let exiv2 copy as much metadata as it can into sidecar
+                image_md.save_file(path)
 
     def merge_sc(self, other):
         # merge sidecar data into image file data, ignoring thumbnails

@@ -142,8 +142,14 @@ class MD_Value(object):
             return None
         return cls(file_value)
 
-    def write(self, handler, tag):
-        handler.set_string(tag, str(self))
+    def to_exif(self):
+        return str(self)
+
+    def to_iptc(self):
+        return self.to_exif()
+
+    def to_xmp(self):
+        return self.to_exif()
 
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
@@ -217,8 +223,8 @@ class MD_Dict(MD_Value, dict):
             return None
         return cls(file_value)
 
-    def write(self, handler, tag, idx=1):
-        handler.set_group(tag, [self[x] for x in self._keys], idx=idx)
+    def to_exif(self):
+        return [self[x] for x in self._keys]
 
 
 class MD_Dict_Mergeable(MD_Dict):
@@ -280,19 +286,19 @@ class LatLon(MD_Dict):
         return cls((cls.from_xmp_part(file_value[0]),
                     cls.from_xmp_part(file_value[1])))
 
-    def write(self, handler, tag):
-        if handler.is_exif_tag(tag):
-            lat_string, negative = self.to_exif_part(self['lat'])
-            lat_ref = 'NS'[negative]
-            lon_string, negative = self.to_exif_part(self['lon'])
-            lon_ref = 'EW'[negative]
-            handler.set_group(tag, (lat_string, lat_ref, lon_string, lon_ref))
-        else:
-            lat_string, negative = self.to_xmp_part(self['lat'])
-            lat_string += 'NS'[negative]
-            lon_string, negative = self.to_xmp_part(self['lon'])
-            lon_string += 'EW'[negative]
-            handler.set_group(tag, (lat_string, lon_string))
+    def to_exif(self):
+        lat_string, negative = self.to_exif_part(self['lat'])
+        lat_ref = 'NS'[negative]
+        lon_string, negative = self.to_exif_part(self['lon'])
+        lon_ref = 'EW'[negative]
+        return (lat_string, lat_ref, lon_string, lon_ref)
+
+    def to_xmp(self):
+        lat_string, negative = self.to_xmp_part(self['lat'])
+        lat_string += 'NS'[negative]
+        lon_string, negative = self.to_xmp_part(self['lon'])
+        lon_string += 'EW'[negative]
+        return (lat_string, lon_string)
 
     @staticmethod
     def from_exif_part(value, ref):
@@ -443,24 +449,14 @@ class MultiLocation(tuple):
             return None
         return cls(file_value)
 
-    def write(self, handler, tag):
-        # ignore empty values at end of list
-        count = len(self)
-        while count > 0 and not self[count - 1]:
-            count -= 1
-        # delete file values beyond end of list
-        file_count = count
-        while Location.read(handler, tag, idx=file_count + 1) is not None:
-            file_count += 1
-        while file_count > count:
-            handler.clear_value(tag, idx=file_count)
-            file_count -= 1
-        # save list values
-        for n in range(count):
-            if self[n]:
-                self[n].write(handler, tag, idx=n + 1)
+    def to_xmp(self):
+        result = []
+        for location in self:
+            if location:
+                result.append(location.to_xmp())
             else:
-                handler.clear_value(tag, idx=n + 1, place_holder=True)
+                result.append([])
+        return result
 
     def __str__(self):
         result = ''
@@ -555,6 +551,11 @@ class LensSpec(MD_Dict):
                           '{}/{}'.format(long_focal, focal_units)]
         return cls(file_value)
 
+    def to_exif(self):
+        return ' '.join(
+            ['{:d}/{:d}'.format(self[x].numerator,
+                                self[x].denominator) for x in self._keys])
+
     def write(self, handler, tag):
         handler.set_string(tag, ' '.join(['{:d}/{:d}'.format(
             self[x].numerator, self[x].denominator) for x in self._keys]))
@@ -628,6 +629,17 @@ class Thumbnail(MD_Dict):
             data = bytes(data, 'ascii')
             data = codecs.decode(data, 'base64_codec')
         return cls({'data': data})
+
+    def to_exif(self):
+        return (str(self['w']), str(self['h']), self['fmt'], self['data'])
+
+    def to_xmp(self):
+        save = self
+        if save['fmt'] != 'JPEG':
+            save = Thumbnail({'image': self['image']})
+        data = codecs.encode(save['data'], 'base64_codec')
+        data = data.decode('ascii')
+        return (str(save['w']), str(save['h']), 'JPEG', data)
 
     def write(self, handler, tag):
         if handler.is_xmp_tag(tag):
@@ -750,14 +762,6 @@ class DateTime(MD_Dict):
         if tag.startswith('Iptc'):
             return cls.from_iptc(file_value)
         return cls.from_ISO_8601(file_value)
-
-    def write(self, handler, tag):
-        if handler.is_exif_tag(tag):
-            handler.set_group(tag, self.to_exif())
-        elif handler.is_iptc_tag(tag):
-            handler.set_group(tag, self.to_iptc())
-        else:
-            handler.set_string(tag, self.to_xmp())
 
     # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
     # shown in 24-hour format, and the date and time separated by one
@@ -902,11 +906,14 @@ class MultiString(MD_Value, tuple):
         value = filter(bool, [x.strip() for x in value])
         return super(MultiString, cls).__new__(cls, value)
 
-    def write(self, handler, tag):
-        if handler.get_tag_type(tag) in ('String', 'XmpBag', 'XmpSeq'):
-            handler.set_multiple(tag, self)
-        else:
-            handler.set_string(tag, ';'.join(self))
+    def to_exif(self):
+        return ';'.join(self)
+
+    def to_iptc(self):
+        return tuple(self)
+
+    def to_xmp(self):
+        return tuple(self)
 
     def __str__(self):
         return '; '.join(self)
@@ -935,12 +942,9 @@ class MD_String(MD_Value, str):
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
-        if tag.startswith('Iptc'):
+        if not isinstance(file_value, str):
             file_value = ' // '.join(file_value)
         return cls(file_value)
-
-    def write(self, handler, tag):
-        handler.set_string(tag, self)
 
     @staticmethod
     def merge_item(this, other):
@@ -960,11 +964,8 @@ class Software(MD_String):
             file_value = ' v'.join(file_value)
         return cls(file_value)
 
-    def write(self, handler, tag):
-        if handler.is_iptc_tag(tag):
-            handler.set_group(tag, self.split(' v'))
-        else:
-            handler.set_string(tag, self)
+    def to_iptc(self):
+        return self.split(' v')
 
 
 class MD_Int(MD_Value, int):
@@ -995,9 +996,8 @@ class MD_Rational(MD_Value, Fraction):
     def __new__(cls, value):
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
-    def write(self, handler, tag):
-        handler.set_string(
-            tag, '{:d}/{:d}'.format(self.numerator, self.denominator))
+    def to_exif(self):
+        return '{:d}/{:d}'.format(self.numerator, self.denominator)
 
     def __str__(self):
         return str(float(self))
@@ -1023,15 +1023,14 @@ class Altitude(MD_Rational):
             altitude = -altitude
         return cls(altitude)
 
-    def write(self, handler, tag):
+    def to_exif(self):
         numerator, denominator = self.numerator, self.denominator
         if numerator < 0:
             numerator = -numerator
             ref = '1'
         else:
             ref = '0'
-        handler.set_group(
-            tag, ('{:d}/{:d}'.format(numerator, denominator), ref))
+        return ('{:d}/{:d}'.format(numerator, denominator), ref)
 
 
 class Aperture(MD_Rational):
@@ -1051,13 +1050,13 @@ class Aperture(MD_Rational):
             self.apex = apex
         return self
 
-    def write(self, handler, tag):
+    def to_exif(self):
         file_value = ['{:d}/{:d}'.format(self.numerator, self.denominator)]
         if float(self) != 0:
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
             file_value.append(
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
-        handler.set_group(tag, file_value)
+        return file_value
 
     @staticmethod
     def merge_item(this, other):
@@ -1077,11 +1076,11 @@ class Rating(MD_Value, float):
             value = min(max(float(file_value), -1.0), 5.0)
         return cls(value)
 
-    def write(self, handler, tag):
-        if handler.is_exif_tag(tag):
-            handler.set_string(tag, str(int(self + 1.5) - 1))
-        else:
-            handler.set_string(tag, str(self))
+    def to_exif(self):
+        return str(int(self + 1.5) - 1)
+
+    def to_xmp(self):
+        return str(self)
 
 
 class Resolution(MD_Dict):
