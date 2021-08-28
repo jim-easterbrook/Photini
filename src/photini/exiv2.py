@@ -38,20 +38,27 @@ _iptc_encodings = {
     'utf-32-be': (b'\x1b\x25\x2f\x46',),
     }
 
-XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description rdf:about=""
-      {}/>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>'''
-
 
 class MetadataHandler(object):
     @classmethod
     def initialise(cls):
         exiv2.XmpParser.initialize()
+        # Recent versions of Exiv2 have these namespaces defined, but
+        # older versions may not recognise them. The xapGImg URL is
+        # invalid, but Photini doesn't write xapGImg so it doesn't
+        # matter. Exiv2 already has the Iptc4xmpExt namespace, but calls
+        # it iptcExt which causes problems saving tags like
+        # 'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City'.
+        # Re-registering it under its full name means I have to use
+        # 'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City' instead.
+        for prefix, ns in (
+                ('exifEX',      'http://cipa.jp/exif/1.0/'),
+                ('Iptc4xmpExt', 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/'),
+                ('xapGImg',     'http://ns.adobe.com/xxx/'),
+                ('xmpGImg',     'http://ns.adobe.com/xap/1.0/g/img/'),
+                ('xmpRights',   'http://ns.adobe.com/xap/1.0/rights/'),
+                ):
+            exiv2.XmpProperties.registerNs(ns, prefix)
         # make list of possible character encodings
         cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -71,6 +78,9 @@ class MetadataHandler(object):
         else:
             self._image = exiv2.ImageFactory.open(self._path)
         self._image.readMetadata()
+        self._exifData = self._image.exifData()
+        self._iptcData = self._image.iptcData()
+        self._xmpData = self._image.xmpData()
         access_mode = {
             'exif': self._image.checkMode(exiv2.mdExif),
             'iptc': self._image.checkMode(exiv2.mdIptc),
@@ -84,17 +94,14 @@ class MetadataHandler(object):
             'application/rdf+xml', 'application/postscript')
         # Don't use Exiv2's converted values when accessing Xmp files
         if self.xmp_only:
-            self._image.clearExifData()
-            self._image.clearIptcData()
-        self._exifData = self._image.exifData()
-        self._iptcData = self._image.iptcData()
-        self._xmpData = self._image.xmpData()
+            self.clear_exif()
+            self.clear_iptc()
         # transcode any non utf-8 strings (Xmp is always utf-8)
         for data in self._exifData, self._iptcData:
-            for item in data:
-                if item.typeId() not in (exiv2.asciiString, exiv2.string):
+            for datum in data:
+                if datum.typeId() not in (exiv2.asciiString, exiv2.string):
                     continue
-                value = item.toString()
+                value = datum.toString()
                 raw_value = value.encode('utf-8', errors='surrogateescape')
                 for encoding in self.encodings:
                     try:
@@ -104,12 +111,32 @@ class MetadataHandler(object):
                     if new_value != value:
                         logger.info('%s: transcoded %s from %s',
                                     os.path.basename(self._path),
-                                    str(item.key()), encoding)
-                        item.setValue(new_value)
+                                    str(datum.key()), encoding)
+                        datum.setValue(new_value)
                     break
 
         # any sub images?
         self.ifd_list = ['Image']
+
+    def clear_exif(self):
+        self._exifData.clear()
+        self._image.clearExifData()
+
+    def clear_iptc(self):
+        self._iptcData.clear()
+        self._image.clearIptcData()
+
+    def get_exif_tags(self):
+        for datum in self._exifData:
+            yield str(datum.key())
+
+    def get_iptc_tags(self):
+        for datum in self._iptcData:
+            yield str(datum.key())
+
+    def get_xmp_tags(self):
+        for datum in self._xmpData:
+            yield str(datum.key())
 
     @classmethod
     def open_old(cls, *arg, **kw):
@@ -129,8 +156,8 @@ class MetadataHandler(object):
         return None
 
     def get_exif_value(self, tag):
-        for item in self._exifData:
-            if str(item.key()) != tag:
+        for datum in self._exifData:
+            if str(datum.key()) != tag:
                 continue
             if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                        'Exif.Image.XPTitle', 'Exif.Image.XPComment',
@@ -139,40 +166,104 @@ class MetadataHandler(object):
                        'Exif.NikonLd2.LensIDNumber',
                        'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID',
                        'Exif.Photo.UserComment'):
-                return item._print()
-            return item.toString()
+                return datum._print()
+            return datum.toString()
         return None
 
     def get_iptc_value(self, tag):
         result = []
-        for item in self._iptcData:
-            if str(item.key()) != tag:
+        for datum in self._iptcData:
+            if str(datum.key()) != tag:
                 continue
-            if item.typeId() != exiv2.string:
-                return item.toString()
-            result.append(item.toString())
+            if datum.typeId() != exiv2.string:
+                return datum.toString()
+            result.append(datum.toString())
         return result or None
 
     def get_xmp_value(self, tag):
-        for item in self._xmpData:
-            if str(item.key()) != tag:
+        for datum in self._xmpData:
+            if datum.key() != tag:
                 continue
-            item_id = item.typeId()
-            if item_id == exiv2.xmpText:
-                return item.toString()
-            if item_id == exiv2.langAlt:
+            type_id = datum.typeId()
+            if type_id == exiv2.xmpText:
+                return datum.toString()
+            if type_id == exiv2.langAlt:
                 # just get 'x-default' value for now
-                value = exiv2.LangAltValue.downCast(item.value())
+                value = exiv2.LangAltValue.downCast(datum.value())
                 return value.toString(0)
-            if item_id in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
-                value = exiv2.XmpArrayValue.downCast(item.value())
+            if type_id in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+                value = exiv2.XmpArrayValue.downCast(datum.value())
                 result = []
                 for n in range(value.count()):
                     result.append(value.toString(n))
                 return result
-            print(tag, '{:x}'.format(item.typeId()), item.getValue())
+            print('get_xmp_value', tag, '{:x}'.format(datum.typeId()), datum.getValue())
             return None
         return None
+
+    def set_exif_value(self, tag, value):
+        if not value:
+            self.clear_tag(tag)
+        else:
+            datum = self._exifData[tag]
+            datum.setValue(value)
+
+    def set_iptc_value(self, tag, value):
+        # clear any existing values (which might be repeated)
+        self.clear_tag(tag)
+        if not value:
+            return
+        if isinstance(value, str):
+            # set a single value
+            datum = self._iptcData[tag]
+            datum.setValue(value)
+            return
+        # set a list/tuple of values
+        key = exiv2.IptcKey(tag)
+        for sub_value in value:
+            datum = exiv2.Iptcdatum(key)
+            datum.setValue(sub_value)
+            if self._iptcData.add(datum) != 0:
+                logger.error('%s: duplicated tag %s',
+                             os.path.basename(self._path), tag)
+                return
+
+    def set_xmp_value(self, tag, value):
+        if not value:
+            self.clear_tag(tag)
+            return
+        if '[' in tag:
+            # create XMP array
+            container = tag.split('[')[0]
+            for datum in self._xmpData:
+                if datum.key().startswith(container):
+                    # container already exists
+                    break
+            else:
+                # XmpProperties uses 'iptcExt' namespace abbreviation
+                key = exiv2.XmpKey(container.replace('Iptc4xmpExt', 'iptcExt'))
+                type_id = exiv2.XmpProperties.propertyType(key)
+                print('container type id {:x}'.format(type_id))
+                self._xmpData[container] = exiv2.XmpArrayValue.create(type_id)
+        datum = self._xmpData[tag]
+        if isinstance(value, str):
+            # set a single value
+            datum.setValue(value)
+            return
+        # set a list/tuple of values
+        type_id = datum.typeId()
+        if type_id == exiv2.invalidTypeId:
+            key = exiv2.XmpKey(datum.key())
+            type_id = exiv2.XmpProperties.propertyType(key)
+        if type_id in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+            xmp_value = exiv2.XmpArrayValue.create(type_id)
+            xmp_value = exiv2.XmpArrayValue.downCast(xmp_value)
+            for sub_value in value:
+                xmp_value.read(sub_value)
+        else:
+            print('set_xmp_value', tag, '{:x}'.format(type_id), value)
+            return
+        datum.setValue(xmp_value)
 
     def clear_tag(self, tag):
         family = tag.split('.')[0]
@@ -191,9 +282,12 @@ class MetadataHandler(object):
                 break
             data.erase(pos)
 
+    def has_iptc(self):
+        return self._iptcData.count() > 0
+
     def has_tag(self, tag):
-        for item in self._data_set(tag):
-            if str(item.key()) == tag:
+        for datum in self._data_set(tag):
+            if datum.key() == tag:
                 return True
         return False
 
@@ -217,13 +311,24 @@ class MetadataHandler(object):
             return self._iptcData
         if family == 'Xmp':
             return self._xmpData
-        return []
+        assert False, 'Invalid tag ' + tag
 
     def save(self):
+        self._image.setExifData(self._exifData)
+        self._image.setIptcData(self._iptcData)
+        self._image.setXmpData(self._xmpData)
+        self._image.writeMetadata()
         return True
 
     def delete_makernote(self, camera_model):
         pass
+
+    @staticmethod
+    def create_sc(path, image_md):
+        # 10 is the image type defined in xmpsidecar.hpp
+        # python-exiv2 doesn't wrap every image format
+        image = exiv2.ImageFactory.create(10, path)
+        image.writeMetadata()
 
     def merge_sc(self, other):
         pass

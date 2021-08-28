@@ -85,7 +85,7 @@ class Exiv2Metadata(MetadataHandler):
             return self.get_iptc_value(tag)
         if self.is_xmp_tag(tag):
             return self.get_xmp_value(tag)
-        logger.error('get_value unrecognised tag %s', tag)
+        assert False, 'Invalid tag ' + tag
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries
@@ -122,7 +122,7 @@ class Exiv2Metadata(MetadataHandler):
         elif self.is_xmp_tag(tag):
             self.set_xmp_value(tag, value)
         else:
-            logger.error('set_value unrecognised tag %s', tag)
+            assert False, 'Invalid tag ' + tag
 
     # maximum length of Iptc data
     _max_bytes = {
@@ -163,17 +163,6 @@ class Exiv2Metadata(MetadataHandler):
                         result = cls._max_bytes[tag]
         return result
 
-    def set_string(self, tag, value):
-        if not tag:
-            return
-        if not value:
-            self._clear_value(tag)
-            return
-        if tag in self._max_bytes:
-            value = value.encode('utf-8')[:self._max_bytes[tag]]
-            value = value.decode('utf-8', errors='ignore')
-        self.set_tag_string(tag, value)
-
     def set_multiple(self, tag, value):
         if not tag:
             return
@@ -189,8 +178,8 @@ class Exiv2Metadata(MetadataHandler):
         if self.read_only:
             return False
         if force_iptc:
-            self.set_string('Iptc.Envelope.CharacterSet',
-                             _iptc_encodings['utf-8'][0].decode('ascii'))
+            self.set_value('Iptc.Envelope.CharacterSet',
+                           _iptc_encodings['utf-8'][0].decode('ascii'))
         else:
             self.clear_iptc()
         if self.xmp_only:
@@ -327,22 +316,22 @@ class Exiv2Metadata(MetadataHandler):
         'Xmp.iptc.Location': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.iptcExt.LocationShown': (
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:City',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:CountryName',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
-            'Xmp.iptcExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
-        'Xmp.iptcExt.LocationCreated': (
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
-            'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.Iptc4xmpExt.LocationShown': (
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:City',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryName',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
+            'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
+        'Xmp.Iptc4xmpExt.LocationCreated': (
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryName',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
+            'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
         'Xmp.tiff.ImageWidth': (
             'Xmp.tiff.ImageWidth', 'Xmp.tiff.ImageLength'),
         'Xmp.xmp.Thumbnails': (
@@ -437,8 +426,8 @@ class Exiv2Metadata(MetadataHandler):
                             ('W0', 'Exif.Image.LensInfo'),
                             ('WN', 'Exif.CanonCs.Lens'),
                             ('WN', 'Exif.Nikon3.Lens')),
-        'location_shown' : (('WA', 'Xmp.iptcExt.LocationShown'),),
-        'location_taken' : (('WA', 'Xmp.iptcExt.LocationCreated'),
+        'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown'),),
+        'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated'),
                             ('WA', 'Xmp.iptc.Location'),
                             ('WA', 'Iptc.Application2.SubLocation')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
@@ -511,7 +500,7 @@ class Exiv2Metadata(MetadataHandler):
             elif self.is_xmp_tag(tag):
                 file_value = value.to_xmp()
             else:
-                logger.error('write unrecognised tag %s', tag)
+                assert False, 'Invalid tag ' + tag
             if tag not in self._multi_tags:
                 self.set_value(tag, file_value)
             elif 'idx' in self._multi_tags[tag][0]:

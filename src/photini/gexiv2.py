@@ -247,6 +247,10 @@ class MetadataHandler(GExiv2.Metadata):
                     self.set_tag_string(tag, new_value)
                 break
 
+    def get_xmp_tags(self):
+        return [x.replace('iptcExt', 'Iptc4xmpExt') for x in
+                super(MetadataHandler, self).get_xmp_tags()]
+
     @classmethod
     def open_old(cls, *arg, **kw):
         try:
@@ -382,13 +386,13 @@ class MetadataHandler(GExiv2.Metadata):
         return result
 
     def set_exif_value(self, tag, value):
-        if value in (None, (), []):
+        if not value:
             self.clear_tag(tag)
         else:
             self.set_tag_string(tag, value)
 
     def set_iptc_value(self, tag, value):
-        if value in (None, (), []):
+        if not value:
             self.clear_tag(tag)
         elif isinstance(value, str):
             self.set_tag_string(tag, value)
@@ -396,7 +400,7 @@ class MetadataHandler(GExiv2.Metadata):
             self.set_tag_multiple(tag, value)
 
     def set_xmp_value(self, tag, value):
-        if value in (None, (), []):
+        if not value:
             self.clear_tag(tag)
             return
         if '[' in tag:

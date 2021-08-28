@@ -556,10 +556,6 @@ class LensSpec(MD_Dict):
             ['{:d}/{:d}'.format(self[x].numerator,
                                 self[x].denominator) for x in self._keys])
 
-    def write(self, handler, tag):
-        handler.set_string(tag, ' '.join(['{:d}/{:d}'.format(
-            self[x].numerator, self[x].denominator) for x in self._keys]))
-
     def __bool__(self):
         return any([bool(x) for x in self.values()])
 
@@ -640,21 +636,6 @@ class Thumbnail(MD_Dict):
         data = codecs.encode(save['data'], 'base64_codec')
         data = data.decode('ascii')
         return (str(save['w']), str(save['h']), 'JPEG', data)
-
-    def write(self, handler, tag):
-        if handler.is_xmp_tag(tag):
-            save = self
-            if save['fmt'] != 'JPEG':
-                save = Thumbnail({'image': self['image']})
-            data = codecs.encode(save['data'], 'base64_codec')
-            data = data.decode('ascii')
-            handler.set_group(
-                tag, [str(save['w']), str(save['h']), 'JPEG', data])
-        elif tag == 'Exif.Thumbnail':
-            # set_exif_thumbnail_from_buffer() sets the compression, so
-            # only set width and height directly
-            handler.set_exif_thumbnail_from_buffer(self['data'])
-            handler.set_group(tag, [str(self['w']), str(self['h'])])
 
     def __str__(self):
         return '{fmt} thumbnail, {w}x{h}, {size} bytes'.format(
