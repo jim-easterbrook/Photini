@@ -155,6 +155,10 @@ class MetadataHandler(object):
 ##        # try subimage thumbnails
         return None
 
+    def set_exif_thumbnail_from_buffer(self, buffer):
+        thumb = exiv2.ExifThumb(self._exifData)
+        thumb.setJpegThumbnail(buffer)
+
     def get_exif_value(self, tag):
         for datum in self._exifData:
             if str(datum.key()) != tag:
@@ -320,8 +324,15 @@ class MetadataHandler(object):
         self._image.writeMetadata()
         return True
 
-    def delete_makernote(self, camera_model):
-        pass
+    def clear_maker_note(self):
+        self.clear_tag('Exif.Image.Make')
+        self._image.setExifData(self._exifData)
+        self._image.writeMetadata()
+        self._image.readMetadata()
+        self._exifData = self._image.exifData()
+        self.clear_tag('Exif.Photo.MakerNote')
+        self._image.setExifData(self._exifData)
+        self._exifData = self._image.exifData()
 
     @staticmethod
     def create_sc(path, image_md):

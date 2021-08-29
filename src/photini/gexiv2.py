@@ -439,13 +439,11 @@ class MetadataHandler(GExiv2.Metadata):
             return False
         return True
 
-    def delete_makernote(self, camera_model):
-        if self.camera_change_ok(camera_model):
-            return
-        self._clear_value('Exif.Image.Make')
+    def clear_maker_note(self):
+        self.clear_tag('Exif.Image.Make')
         self.save_file(self._path)
         self.open_path(self._path)
-        self._clear_value('Exif.Photo.MakerNote')
+        self.clear_tag('Exif.Photo.MakerNote')
         self.save_file(self._path)
 
     @staticmethod

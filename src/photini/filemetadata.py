@@ -518,6 +518,11 @@ class Exiv2Metadata(MetadataHandler):
             return False
         return self.get_value('Exif.Image.Make') == camera_model['make']
 
+    def delete_makernote(self, camera_model):
+        if self.camera_change_ok(camera_model):
+            return
+        self.clear_maker_note()
+
 
 class ImageMetadata(Exiv2Metadata):
     pass
