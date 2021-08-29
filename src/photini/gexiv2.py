@@ -227,7 +227,7 @@ class MetadataHandler(GExiv2.Metadata):
                     'Try running Photini with the --utf_safe option.')
             try:
                 value = self.get_tag_string(tag)
-                self.set_string(tag, value)
+                self.set_tag_string(tag, value)
                 continue
             except UnicodeDecodeError:
                 pass
@@ -351,7 +351,9 @@ class MetadataHandler(GExiv2.Metadata):
     def get_iptc_value(self, tag):
         if not self.has_tag(tag):
             return None
-        if self.get_tag_type(tag) == 'String':
+        if tag in ('Iptc.Application2.Byline', 'Iptc.Application2.BylineTitle',
+                   'Iptc.Application2.Contact', 'Iptc.Application2.Keywords'):
+            # Iptc standard allows tag to repeat
             return self.get_tag_multiple(tag)
         return self.get_tag_string(tag)
 

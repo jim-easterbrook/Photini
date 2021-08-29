@@ -161,7 +161,7 @@ class MetadataHandler(object):
 
     def get_exif_value(self, tag):
         for datum in self._exifData:
-            if str(datum.key()) != tag:
+            if datum.key() != tag:
                 continue
             if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                        'Exif.Image.XPTitle', 'Exif.Image.XPComment',
@@ -177,11 +177,14 @@ class MetadataHandler(object):
     def get_iptc_value(self, tag):
         result = []
         for datum in self._iptcData:
-            if str(datum.key()) != tag:
+            if datum.key() != tag:
                 continue
-            if datum.typeId() != exiv2.string:
-                return datum.toString()
-            result.append(datum.toString())
+            value = datum.toString()
+            if exiv2.IptcDataSets.dataSetRepeatable(datum.tag(),
+                                                    datum.record()):
+                result.append(value)
+            else:
+                return value
         return result or None
 
     def get_xmp_value(self, tag):

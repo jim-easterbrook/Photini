@@ -63,11 +63,7 @@ class Exiv2Metadata(MetadataHandler):
     def get_group(self, tag, idx=1):
         result = []
         for x in self._multi_tags[tag]:
-            value = self.get_value(x, idx=idx)
-            # kludge to cope with iptc always returning a list
-            if isinstance(value, (list, tuple)):
-                value = value[0]
-            result.append(value)
+            result.append(self.get_value(x, idx=idx))
         if tag == 'Exif.Thumbnail.ImageWidth':
             result.append(self.get_exif_thumbnail())
         return result
