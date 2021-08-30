@@ -253,7 +253,13 @@ class MetadataHandler(object):
                 # XmpProperties uses 'iptcExt' namespace abbreviation
                 key = exiv2.XmpKey(container.replace('Iptc4xmpExt', 'iptcExt'))
                 type_id = exiv2.XmpProperties.propertyType(key)
-                print('container type id {:x}'.format(type_id))
+                print('container {}, type id {:x}'.format(container, type_id))
+                if type_id not in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+                    if container == 'Xmp.xmp.Thumbnails':
+                        type_id = exiv2.xmpAlt
+                    else:
+                        type_id = exiv2.xmpSeq
+                    print('using {:x}'.format(type_id))
                 self._xmpData[container] = exiv2.XmpArrayValue.create(type_id)
         datum = self._xmpData[tag]
         if isinstance(value, str):
@@ -346,6 +352,12 @@ class MetadataHandler(object):
         # python-exiv2 doesn't wrap every image format
         image = exiv2.ImageFactory.create(10, path)
         image.writeMetadata()
+        if image_md:
+            # let exiv2 copy as much metadata as it can into sidecar
+            image.setExifData(image_md._exifData)
+            image.setIptcData(image_md._iptcData)
+            image.setXmpData(image_md._xmpData)
+            image.writeMetadata()
 
     def merge_sc(self, other):
         pass
