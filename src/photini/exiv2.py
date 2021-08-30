@@ -297,6 +297,21 @@ class MetadataHandler(object):
             if pos == data.end():
                 break
             data.erase(pos)
+        # possibly delete Xmp container(s)
+        for sep in ('/', '['):
+            if sep not in tag:
+                return
+            container = tag.split(sep)[0] + sep
+            for datum in data:
+                if datum.key().startswith(container):
+                    # container is not empty
+                    return
+            container = tag.split(sep)[0]
+            pos = data.findKey(exiv2.XmpKey(container))
+            if pos == data.end():
+                # container does not exist
+                return
+            data.erase(pos)
 
     def has_iptc(self):
         return self._iptcData.count() > 0
