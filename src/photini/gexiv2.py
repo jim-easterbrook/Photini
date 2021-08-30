@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from collections import namedtuple
 from contextlib import contextmanager
 import locale
 import logging
@@ -26,11 +27,23 @@ import shutil
 import string
 import sys
 
-from photini.gi import gexiv2_version, GLib, GObject, GExiv2, using_pgi
+from photini.gi import gi, using_pgi
+
+gi.require_version('GExiv2', '0.10')
+from gi.repository import GExiv2, GLib, GObject
 
 logger = logging.getLogger(__name__)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
+
+_gexiv2_version = namedtuple(
+    'gexiv2_version', ('major', 'minor', 'micro'))._make((
+        GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
+
+exiv2_version = 'GExiv2 {}.{}.{}, {} {}, GObject {}, GLib {}.{}.{}'.format(
+    _gexiv2_version[0], _gexiv2_version[1], _gexiv2_version[2],
+    ('PyGObject', 'pgi')[using_pgi], gi.__version__,GObject._version,
+    GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
 
 _iptc_encodings = {
     'ascii'    : (b'\x1b\x28\x42',),
@@ -78,6 +91,9 @@ def temp_rename(path):
 class MetadataHandler(GExiv2.Metadata):
     @classmethod
     def initialise(cls):
+        if not GExiv2.initialize():
+            raise RuntimeError('Failed to initialise GExiv2')
+        GExiv2.log_use_glib_logging()
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
         # invalid, but Photini doesn't write xapGImg so it doesn't
@@ -112,7 +128,7 @@ class MetadataHandler(GExiv2.Metadata):
         # workaround for bug in GExiv2 on Windows
         # https://gitlab.gnome.org/GNOME/gexiv2/-/issues/59
         self._gexiv_unsafe = False
-        if sys.platform == 'win32' and gexiv2_version <= (0, 12, 1):
+        if sys.platform == 'win32' and _gexiv2_version <= (0, 12, 1):
             try:
                 self._path.encode('ascii')
             except UnicodeEncodeError:
@@ -450,7 +466,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     @staticmethod
     def create_sc(path, image_md):
-        if image_md and gexiv2_version >= (0, 10, 6):
+        if image_md and _gexiv2_version >= (0, 10, 6):
             image_md.save_external(path)
         else:
             with open(path, 'w') as of:

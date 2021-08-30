@@ -17,16 +17,21 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 import re
 import sys
 
-from photini.gi import Gspell, GSListPtr_to_list
+from photini.gi import gi, using_pgi, GSListPtr_to_list
 from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 
-spelling_version = None
+enchant = None
+Gspell = None
+
+try:
+    gi.require_version('Gspell', '1')
+    from gi.repository import GLib, GObject, Gspell
+except Exception as ex:
+    print(str(ex))
 
 if not Gspell:
     # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
@@ -36,14 +41,24 @@ if not Gspell:
         sys.platform = 'win32x'
     try:
         import enchant
-        spelling_version = 'enchant ' + enchant.__version__
     except ImportError:
-        enchant = None
+        print(str(ex))
     if sys.platform == 'win32x':
         # reset sys.platform
         sys.platform = 'win32'
 
 logger = logging.getLogger(__name__)
+
+if enchant:
+    spelling_version = 'PyEnchant ' + enchant.__version__
+elif Gspell:
+    spelling_version = 'Gspell {}, {} {}, GObject {}, GLib {}.{}.{}'.format(
+        Gspell._version, ('PyGObject', 'pgi')[using_pgi],
+        gi.__version__, GObject._version,
+        GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
+else:
+    spelling_version = None
+
 
 class SpellCheck(QtCore.QObject):
     new_dict = QtSignal()

@@ -30,6 +30,9 @@ import exiv2
 
 logger = logging.getLogger(__name__)
 
+exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
+    exiv2.__version__, exiv2.versionString())
+
 _iptc_encodings = {
     'ascii'    : (b'\x1b\x28\x42',),
     'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),

@@ -21,10 +21,10 @@ import os
 import sys
 
 try:
-    from photini.exiv2 import MetadataHandler, _iptc_encodings
+    from photini.exiv2 import MetadataHandler, _iptc_encodings, exiv2_version
 except ImportError as ex:
     print(str(ex))
-    from photini.gexiv2 import MetadataHandler, _iptc_encodings
+    from photini.gexiv2 import MetadataHandler, _iptc_encodings, exiv2_version
 
 logger = logging.getLogger(__name__)
 

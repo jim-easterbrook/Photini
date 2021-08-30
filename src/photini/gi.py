@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-20  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -43,29 +43,13 @@ except ImportError:
     using_pgi = False
 import gi
 
-# declare preferred versions
-for lib, vsn in (('GExiv2', '0.10'), ('Gspell', '1')):
-    try:
-        gi.require_version(lib, vsn)
-    except ValueError:
-        pass
-
 # import required libraries
-from gi.repository import GExiv2, GLib, GObject
-
-# import optional library
-try:
-    from gi.repository import Gspell
-except ImportError:
-    Gspell = None
+from gi.repository import GLib, GObject
 
 _glib_logger = logging.getLogger('GLib')
 
 # initialise GObject stuff
 GLib.set_prgname('Photini')
-if not GExiv2.initialize():
-    raise RuntimeError('Failed to initialise GExiv2')
-GExiv2.log_use_glib_logging()
 
 if (GLib.MAJOR_VERSION, GLib.MINOR_VERSION) >= (2, 46):
     # the numeric values of GLib.LogLevelFlags suggest ERROR is more
@@ -85,19 +69,6 @@ if (GLib.MAJOR_VERSION, GLib.MINOR_VERSION) >= (2, 46):
 
     GLib.log_set_handler(
         None, reduce(lambda x, y: x|y, _log_mapping), _gi_log_callback, None)
-
-# create version string
-gexiv2_version = namedtuple(
-    'gexiv2_version', ('major', 'minor', 'micro'))._make((
-        GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
-
-gi_version = '{} {}, GExiv2 {}.{}.{}, GObject {}'.format(
-    ('PyGObject', 'pgi')[using_pgi], gi.__version__, gexiv2_version[0],
-    gexiv2_version[1], gexiv2_version[2], GObject._version)
-gi_version += ', GLib {}.{}.{}'.format(
-    GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
-if Gspell:
-    gi_version += ', Gspell {}'.format(Gspell._version)
 
 
 def GSListPtr_to_list(value):
