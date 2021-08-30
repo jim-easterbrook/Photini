@@ -118,9 +118,6 @@ class MetadataHandler(object):
                         datum.setValue(new_value)
                     break
 
-        # any sub images?
-        self.ifd_list = ['Image']
-
     def clear_exif(self):
         self._exifData.clear()
         self._image.clearExifData()
@@ -150,12 +147,10 @@ class MetadataHandler(object):
             return None
 
     def get_exif_thumbnail(self):
-        # try normal thumbnail
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
         if data:
             return data
-##        # try subimage thumbnails
         return None
 
     def set_exif_thumbnail_from_buffer(self, buffer):

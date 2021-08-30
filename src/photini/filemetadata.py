@@ -32,6 +32,29 @@ MetadataHandler.initialise()
 
 
 class Exiv2Metadata(MetadataHandler):
+    def __init__(self, *args, **kwds):
+        super(Exiv2Metadata, self).__init__(*args, **kwds)
+        # any sub images?
+        self.ifd_list = ['Image']
+        if self.has_tag('Exif.Image.SubIFDs'):
+            subIFDs = self.get_exif_value('Exif.Image.SubIFDs').split()
+            self.ifd_list += ['SubImage{}'.format(1 + i)
+                              for i in range(len(subIFDs))]
+        largest = 0
+        main_ifd = None
+        for ifd in self.ifd_list:
+            w = self.get_exif_value('Exif.{}.ImageWidth'.format(ifd))
+            h = self.get_exif_value('Exif.{}.ImageLength'.format(ifd))
+            if not (w and h):
+                continue
+            size = max(int(w), int(h))
+            if size > largest:
+                largest = size
+                main_ifd = ifd
+        if main_ifd:
+            self.ifd_list.remove(main_ifd)
+            self.ifd_list = [main_ifd] + self.ifd_list
+
     def clear_value(self, tag, idx=1):
         if tag in self._multi_tags:
             for t in self._multi_tags[tag]:
@@ -82,6 +105,36 @@ class Exiv2Metadata(MetadataHandler):
         if self.is_xmp_tag(tag):
             return self.get_xmp_value(tag)
         assert False, 'Invalid tag ' + tag
+
+    def get_exif_thumbnail(self):
+        # try normal thumbnail
+        data = super(Exiv2Metadata, self).get_exif_thumbnail()
+        if data:
+            return data
+        # try subimage thumbnails
+        if self.has_tag('Exif.Thumbnail.SubIFDs'):
+            subIFDs = self.get_exif_value('Exif.Thumbnail.SubIFDs').split()
+            for idx in range(len(subIFDs)):
+                ifd = 'SubThumb{}'.format(1 + idx)
+                start = self.get_exif_value(
+                    'Exif.{}.JPEGInterchangeFormat'.format(ifd))
+                length = self.get_exif_value(
+                    'Exif.{}.JPEGInterchangeFormatLength'.format(ifd))
+                if not (start and length):
+                    continue
+                start = int(start)
+                length = int(length)
+                with open(self._path, 'rb') as f:
+                    buf = f.read(start + length)
+                return buf[start:]
+        # try "main" image
+        w = self.get_exif_value('Exif.Image.ImageWidth')
+        h = self.get_exif_value('Exif.Image.ImageLength')
+        if w and h and max(int(w), int(h)) <= 512:
+            with open(self._path, 'rb') as f:
+                buf = f.read()
+            return buf
+        return None
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries

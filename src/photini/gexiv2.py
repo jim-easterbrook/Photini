@@ -158,26 +158,6 @@ class MetadataHandler(GExiv2.Metadata):
                 self.transcode_exif()
             if self.has_iptc() and not self.xmp_only:
                 self.transcode_iptc()
-        # any sub images?
-        self.ifd_list = ['Image']
-        if self.has_tag('Exif.Image.SubIFDs'):
-            subIFDs = self.get_tag_string('Exif.Image.SubIFDs').split()
-            self.ifd_list += ['SubImage{}'.format(1 + i)
-                              for i in range(len(subIFDs))]
-        largest = 0
-        main_ifd = None
-        for ifd in self.ifd_list:
-            w = self.get_tag_string('Exif.{}.ImageWidth'.format(ifd))
-            h = self.get_tag_string('Exif.{}.ImageLength'.format(ifd))
-            if not (w and h):
-                continue
-            size = max(int(w), int(h))
-            if size > largest:
-                largest = size
-                main_ifd = ifd
-        if main_ifd:
-            self.ifd_list.remove(main_ifd)
-            self.ifd_list = [main_ifd] + self.ifd_list
 
     def transcode_exif(self):
         for tag in self.get_exif_tags():
@@ -279,36 +259,12 @@ class MetadataHandler(GExiv2.Metadata):
             return None
 
     def get_exif_thumbnail(self):
-        # try normal thumbnail
         data = super(MetadataHandler, self).get_exif_thumbnail()
         if using_pgi and isinstance(data, tuple):
             # get_exif_thumbnail returns (OK, data) tuple
             data = data[data[0]]
         if data:
             return data
-        # try subimage thumbnails
-        if self.has_tag('Exif.Thumbnail.SubIFDs'):
-            subIFDs = self.get_tag_string('Exif.Thumbnail.SubIFDs').split()
-            for idx in range(len(subIFDs)):
-                ifd = 'SubThumb{}'.format(1 + idx)
-                start = self.get_tag_string(
-                    'Exif.{}.JPEGInterchangeFormat'.format(ifd))
-                length = self.get_tag_string(
-                    'Exif.{}.JPEGInterchangeFormatLength'.format(ifd))
-                if not (start and length):
-                    continue
-                start = int(start)
-                length = int(length)
-                with open(self._path, 'rb') as f:
-                    buf = f.read(start + length)
-                return buf[start:]
-        # try "main" image
-        w = self.get_tag_string('Exif.Image.ImageWidth')
-        h = self.get_tag_string('Exif.Image.ImageLength')
-        if w and h and max(int(w), int(h)) <= 512:
-            with open(self._path, 'rb') as f:
-                buf = f.read()
-            return buf
         return None
 
     _charset_map = {
