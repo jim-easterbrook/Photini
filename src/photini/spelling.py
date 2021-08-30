@@ -21,31 +21,28 @@ import logging
 import re
 import sys
 
-from photini.gi import gi, using_pgi, GSListPtr_to_list
 from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 
 enchant = None
 Gspell = None
 
+# avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
+# copy of libenchant and associated libraries
+if sys.platform == 'win32':
+    # disable PyEnchant's forced use of its bundled DLLs
+    sys.platform = 'win32x'
 try:
+    import enchant
+except ImportError as ex:
+    print(str(ex))
+if sys.platform == 'win32x':
+    # reset sys.platform
+    sys.platform = 'win32'
+
+if not enchant:
+    from photini.gi import gi, using_pgi, GSListPtr_to_list
     gi.require_version('Gspell', '1')
     from gi.repository import GLib, GObject, Gspell
-except Exception as ex:
-    print(str(ex))
-
-if not Gspell:
-    # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
-    # copy of libenchant and associated libraries
-    if sys.platform == 'win32':
-        # disable PyEnchant's forced use of its bundled DLLs
-        sys.platform = 'win32x'
-    try:
-        import enchant
-    except ImportError:
-        print(str(ex))
-    if sys.platform == 'win32x':
-        # reset sys.platform
-        sys.platform = 'win32'
 
 logger = logging.getLogger(__name__)
 
