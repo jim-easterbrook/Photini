@@ -190,7 +190,7 @@ class MetadataHandler(GExiv2.Metadata):
                     'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
                     'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
                 continue
-            raw_value = self.get_raw(tag)
+            raw_value = self._get_raw(tag)
             if not raw_value:
                 logger.error('%s: failed to read tag %s',
                              os.path.basename(self._path), tag)
@@ -208,7 +208,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def transcode_iptc(self):
         encodings = self.encodings
-        iptc_charset_code = self.get_raw('Iptc.Envelope.CharacterSet')
+        iptc_charset_code = self._get_raw('Iptc.Envelope.CharacterSet')
         for charset, codes in _iptc_encodings.items():
             if iptc_charset_code in codes:
                 iptc_charset = charset
@@ -247,7 +247,7 @@ class MetadataHandler(GExiv2.Metadata):
                 continue
             except UnicodeDecodeError:
                 pass
-            raw_value = self.get_raw(tag)
+            raw_value = self._get_raw(tag)
             if not raw_value:
                 logger.error('%s: failed to read tag %s',
                              os.path.basename(self._path), tag)
@@ -264,7 +264,7 @@ class MetadataHandler(GExiv2.Metadata):
                 break
 
     def get_xmp_tags(self):
-        return [x.replace('iptcExt', 'Iptc4xmpExt') for x in
+        return [x.replace('.iptcExt.', '.Iptc4xmpExt.') for x in
                 super(MetadataHandler, self).get_xmp_tags()]
 
     @classmethod
@@ -318,7 +318,7 @@ class MetadataHandler(GExiv2.Metadata):
         }
 
     def get_exif_comment(self, tag):
-        result = self.get_raw(tag)
+        result = self._get_raw(tag)
         if not result:
             return None
         # first 8 bytes should be the encoding charset
@@ -374,6 +374,7 @@ class MetadataHandler(GExiv2.Metadata):
         return self.get_tag_string(tag)
 
     def get_xmp_value(self, tag):
+        tag = tag.replace('.Iptc4xmpExt.', '.iptcExt.')
         if not self.has_tag(tag):
             return None
         if self.get_tag_type(tag) == 'LangAlt':
@@ -382,7 +383,7 @@ class MetadataHandler(GExiv2.Metadata):
             return self.get_tag_multiple(tag)
         return self.get_tag_string(tag)
 
-    def get_raw(self, tag):
+    def _get_raw(self, tag):
         if not self.has_tag(tag):
             return None
         try:
@@ -418,13 +419,14 @@ class MetadataHandler(GExiv2.Metadata):
             self.set_tag_multiple(tag, value)
 
     def set_xmp_value(self, tag, value):
+        tag = tag.replace('.Iptc4xmpExt.', '.iptcExt.')
         if not value:
             self.clear_tag(tag)
             return
         if '[' in tag:
             # create XMP array
             container = tag.split('[')[0]
-            for t in self.get_xmp_tags():
+            for t in super(MetadataHandler, self).get_xmp_tags():
                 if t.startswith(container):
                     # container already exists
                     break
