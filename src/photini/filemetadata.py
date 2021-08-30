@@ -110,21 +110,33 @@ class Exiv2Metadata(MetadataHandler):
         if data:
             return data
         # try subimage thumbnails
-        if self.has_tag('Exif.Thumbnail.SubIFDs'):
-            subIFDs = self.get_exif_value('Exif.Thumbnail.SubIFDs').split()
-            for idx in range(len(subIFDs)):
-                ifd = 'SubThumb{}'.format(1 + idx)
-                start = self.get_exif_value(
-                    'Exif.{}.JPEGInterchangeFormat'.format(ifd))
-                length = self.get_exif_value(
-                    'Exif.{}.JPEGInterchangeFormatLength'.format(ifd))
-                if not (start and length):
-                    continue
-                start = int(start)
-                length = int(length)
-                with open(self._path, 'rb') as f:
-                    buf = f.read(start + length)
-                return buf[start:]
+        possibles = []
+        for n in range(1, 10):
+            possibles.append('SubImage{}'.format(n))
+            possibles.append('SubThumb{}'.format(n))
+        for n in range(2, 11):
+            possibles.append('Image{}'.format(n))
+        best = 0, 0
+        for ifd in possibles:
+            start = self.get_exif_value(
+                'Exif.{}.JPEGInterchangeFormat'.format(ifd))
+            length = self.get_exif_value(
+                'Exif.{}.JPEGInterchangeFormatLength'.format(ifd))
+            if not (start and length):
+                continue
+            start = int(start)
+            length = int(length)
+            if length > 64 * 1024:
+                # unlikely to be a thumbnail
+                continue
+            if length > best[1]:
+                best = start, length
+        start, length = best
+        if length >= 1024:
+            # probably is a thumbnail
+            with open(self._path, 'rb') as f:
+                buf = f.read(start + length)
+            return buf[start:]
         # try "main" image
         w = self.get_exif_value('Exif.Image.ImageWidth')
         h = self.get_exif_value('Exif.Image.ImageLength')
