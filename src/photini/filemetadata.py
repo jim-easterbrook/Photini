@@ -34,15 +34,16 @@ MetadataHandler.initialise()
 class Exiv2Metadata(MetadataHandler):
     def __init__(self, *args, **kwds):
         super(Exiv2Metadata, self).__init__(*args, **kwds)
-        # any sub images?
-        self.ifd_list = ['Image']
-        if self.has_tag('Exif.Image.SubIFDs'):
-            subIFDs = self.get_exif_value('Exif.Image.SubIFDs').split()
-            self.ifd_list += ['SubImage{}'.format(1 + i)
-                              for i in range(len(subIFDs))]
+        # file can contain several images, so choose largest one for
+        # sensor size calculations
+        possibles = ['Image']
+        for n in range(1, 10):
+            possibles.append('SubImage{}'.format(n))
+        for n in range(2, 11):
+            possibles.append('Image{}'.format(n))
+        self.main_ifd = possibles[0]
         largest = 0
-        main_ifd = None
-        for ifd in self.ifd_list:
+        for ifd in possibles:
             w = self.get_exif_value('Exif.{}.ImageWidth'.format(ifd))
             h = self.get_exif_value('Exif.{}.ImageLength'.format(ifd))
             if not (w and h):
@@ -50,10 +51,7 @@ class Exiv2Metadata(MetadataHandler):
             size = max(int(w), int(h))
             if size > largest:
                 largest = size
-                main_ifd = ifd
-        if main_ifd:
-            self.ifd_list.remove(main_ifd)
-            self.ifd_list = [main_ifd] + self.ifd_list
+                self.main_ifd = ifd
 
     def clear_value(self, tag, idx=1):
         if tag in self._multi_tags:
@@ -98,7 +96,7 @@ class Exiv2Metadata(MetadataHandler):
             tag = tag.format(idx=idx)
         if self.is_exif_tag(tag):
             if 'ifd' in tag:
-                tag = tag.format(ifd=self.ifd_list[0])
+                tag = tag.format(ifd=self.main_ifd)
             return self.get_exif_value(tag)
         if self.is_iptc_tag(tag):
             return self.get_iptc_value(tag)
@@ -163,8 +161,6 @@ class Exiv2Metadata(MetadataHandler):
         if 'idx' in tag:
             tag = tag.format(idx=idx)
         if self.is_exif_tag(tag):
-            if 'ifd' in tag:
-                tag = tag.format(ifd=self.ifd_list[0])
             self.set_exif_value(tag, value)
         elif self.is_iptc_tag(tag):
             self.set_iptc_value(tag, value)

@@ -1099,6 +1099,12 @@ class SensorSize(MD_Dict):
             return None
         return cls(file_value)
 
+    def merge(self, info, tag, other):
+        if max(other.values()) > max(self.values()):
+            self.log_replaced(info, tag, other)
+            return other
+        return self
+
 
 class Metadata(object):
     # type of each Photini data field's data
