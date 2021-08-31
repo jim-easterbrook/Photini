@@ -159,6 +159,9 @@ class MetadataHandler(GExiv2.Metadata):
             if self.has_iptc() and not self.xmp_only:
                 self.transcode_iptc()
 
+    def __bool__(self):
+        return True
+
     def transcode_exif(self):
         for tag in self.get_exif_tags():
             if self.get_tag_type(tag) != 'Ascii':
