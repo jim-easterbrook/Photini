@@ -367,7 +367,14 @@ class MetadataHandler(object):
         self._image.setExifData(self._exifData)
         self._image.setIptcData(self._iptcData)
         self._image.setXmpData(self._xmpData)
-        self._image.writeMetadata()
+        try:
+            self._image.writeMetadata()
+        except exiv2.AnyError as ex:
+            logger.error(str(ex))
+            return False
+        except Exception as ex:
+            logger.exception(ex)
+            return False
         return True
 
     def clear_maker_note(self):
