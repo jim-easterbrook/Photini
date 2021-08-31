@@ -382,9 +382,7 @@ class MetadataHandler(object):
 
     @staticmethod
     def create_sc(path, image_md):
-        # 10 is the image type defined in xmpsidecar.hpp
-        # python-exiv2 doesn't wrap every image format
-        image = exiv2.ImageFactory.create(10, path)
+        image = exiv2.ImageFactory.create(exiv2.ImageType.xmp, path)
         image.writeMetadata()
         if image_md:
             # let exiv2 copy as much metadata as it can into sidecar
