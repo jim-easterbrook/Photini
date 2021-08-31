@@ -161,6 +161,18 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
 
+    def get_exif_comment(self, datum):
+        value = exiv2.CommentValue.downCast(datum.value())
+        raw_value = value.comment().encode('utf-8', errors='surrogateescape')
+        try:
+            return raw_value.decode('utf-8')
+        except UnicodeDecodeError:
+            logger.error(
+                '%s: %s: %d bytes binary data will be deleted when metadata'
+                ' is saved',
+                os.path.basename(self._path), datum.key(), value.size())
+        return None
+
     def get_exif_value(self, tag):
         for datum in self._exifData:
             if datum.key() != tag:
@@ -170,9 +182,10 @@ class MetadataHandler(object):
                        'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
                        'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
                        'Exif.NikonLd2.LensIDNumber',
-                       'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID',
-                       'Exif.Photo.UserComment'):
+                       'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
                 return datum._print()
+            if tag == 'Exif.Photo.UserComment':
+                return self.get_exif_comment(datum)
             return datum.toString()
         return None
 

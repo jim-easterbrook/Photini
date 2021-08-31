@@ -140,45 +140,6 @@ class Exiv2Metadata(MetadataHandler):
             return buf
         return None
 
-    _charset_map = {
-        'ascii'  : 'ascii',
-        'unicode': 'utf-16-be',
-        'jis'    : 'euc_jp',
-        }
-
-    def get_exif_comment(self, tag):
-        result = self.get_raw_value(tag)
-        if not result:
-            return None
-        # first 8 bytes should be the encoding charset
-        try:
-            charset = result[:8].decode(
-                'ascii', 'replace').strip('\x00').lower()
-            if charset in self._charset_map:
-                result = result[8:].decode(self._charset_map[charset])
-            elif charset != '':
-                result = result.decode('ascii', 'replace')
-            else:
-                # blank charset, so try known encodings
-                for encoding in self.encodings:
-                    try:
-                        result = result[8:].decode(encoding)
-                        break
-                    except UnicodeDecodeError:
-                        pass
-                else:
-                    raise UnicodeDecodeError
-            if result:
-                result = result.strip('\x00')
-            if not result:
-                return None
-            return result
-        except UnicodeDecodeError:
-            logger.error('%s: %s: %d bytes binary data will be deleted'
-                         ' when metadata is saved',
-                         os.path.basename(self._path), tag, len(result))
-            raise
-
     def set_multi_group(self, tag, value):
         # delete unwanted old entries
         idx = len(value)
