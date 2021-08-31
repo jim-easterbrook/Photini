@@ -154,7 +154,7 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
         if data:
-            return data
+            return bytes(data)
         return None
 
     def set_exif_thumbnail_from_buffer(self, buffer):
