@@ -33,14 +33,6 @@ logger = logging.getLogger(__name__)
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.versionString())
 
-_iptc_encodings = {
-    'ascii'    : (b'\x1b\x28\x42',),
-    'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
-    'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
-    'utf-16-be': (b'\x1b\x25\x2f\x4c',),
-    'utf-32-be': (b'\x1b\x25\x2f\x46',),
-    }
-
 
 class MetadataHandler(object):
     @classmethod
@@ -100,6 +92,7 @@ class MetadataHandler(object):
             self.clear_exif()
             self.clear_iptc()
         # transcode any non utf-8 strings (Xmp is always utf-8)
+        encodings = self.encodings
         for data in self._exifData, self._iptcData:
             for datum in data:
                 if datum.typeId() not in (exiv2.asciiString, exiv2.string):
@@ -111,12 +104,23 @@ class MetadataHandler(object):
                         new_value = raw_value.decode(encoding)
                     except UnicodeDecodeError:
                         continue
-                    if new_value != value:
+                    if encoding != 'utf-8':
                         logger.info('%s: transcoded %s from %s',
                                     os.path.basename(self._path),
                                     str(datum.key()), encoding)
-                        datum.setValue(new_value)
                     break
+                else:
+                    logger.warning('%s: failed to transcode %s',
+                                   os.path.basename(self._path),
+                                   str(datum.key()))
+                    new_value = raw_value.decode('utf-8', errors='replace')
+                datum.setValue(new_value)
+            iptc_charset = self.get_iptc_encoding()
+            if iptc_charset in ('utf-8', 'ascii'):
+                # no need to translate anything
+                return
+            if iptc_charset:
+                encodings = [iptc_charset]
 
     def clear_exif(self):
         self._exifData.clear()
@@ -204,6 +208,13 @@ class MetadataHandler(object):
                 return result
             print('get_xmp_value', tag, '{:x}'.format(datum.typeId()), datum.getValue())
             return None
+        return None
+
+    def get_raw_value(self, tag):
+        for datum in self._data_set(tag):
+            if datum.key() != tag:
+                continue
+            return datum.toString().encode('utf-8', errors='surrogateescape')
         return None
 
     def set_exif_value(self, tag, value):

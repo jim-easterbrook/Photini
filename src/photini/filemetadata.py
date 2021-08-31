@@ -21,10 +21,10 @@ import os
 import sys
 
 try:
-    from photini.exiv2 import MetadataHandler, _iptc_encodings, exiv2_version
+    from photini.exiv2 import MetadataHandler, exiv2_version
 except ImportError as ex:
     print(str(ex))
-    from photini.gexiv2 import MetadataHandler, _iptc_encodings, exiv2_version
+    from photini.gexiv2 import MetadataHandler, exiv2_version
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +66,6 @@ class Exiv2Metadata(MetadataHandler):
             return
         self.clear_tag(tag)
 
-    _charset_map = {
-        'ascii'  : 'ascii',
-        'unicode': 'utf-16-be',
-        'jis'    : 'euc_jp',
-        }
-
     def get_multi_group(self, tag):
         result = []
         for idx in range(1, 100):
@@ -86,7 +80,7 @@ class Exiv2Metadata(MetadataHandler):
         for x in self._multi_tags[tag]:
             result.append(self.get_value(x, idx=idx))
         if tag == 'Exif.Thumbnail.ImageWidth':
-            result.append(self.get_exif_thumbnail())
+            result.append(self._get_exif_thumbnail())
         return result
 
     def get_value(self, tag, idx=1):
@@ -104,9 +98,9 @@ class Exiv2Metadata(MetadataHandler):
             return self.get_xmp_value(tag)
         assert False, 'Invalid tag ' + tag
 
-    def get_exif_thumbnail(self):
+    def _get_exif_thumbnail(self):
         # try normal thumbnail
-        data = super(Exiv2Metadata, self).get_exif_thumbnail()
+        data = self.get_exif_thumbnail()
         if data:
             return data
         # try subimage thumbnails
@@ -145,6 +139,45 @@ class Exiv2Metadata(MetadataHandler):
                 buf = f.read()
             return buf
         return None
+
+    _charset_map = {
+        'ascii'  : 'ascii',
+        'unicode': 'utf-16-be',
+        'jis'    : 'euc_jp',
+        }
+
+    def get_exif_comment(self, tag):
+        result = self.get_raw_value(tag)
+        if not result:
+            return None
+        # first 8 bytes should be the encoding charset
+        try:
+            charset = result[:8].decode(
+                'ascii', 'replace').strip('\x00').lower()
+            if charset in self._charset_map:
+                result = result[8:].decode(self._charset_map[charset])
+            elif charset != '':
+                result = result.decode('ascii', 'replace')
+            else:
+                # blank charset, so try known encodings
+                for encoding in self.encodings:
+                    try:
+                        result = result[8:].decode(encoding)
+                        break
+                    except UnicodeDecodeError:
+                        pass
+                else:
+                    raise UnicodeDecodeError
+            if result:
+                result = result.strip('\x00')
+            if not result:
+                return None
+            return result
+        except UnicodeDecodeError:
+            logger.error('%s: %s: %d bytes binary data will be deleted'
+                         ' when metadata is saved',
+                         os.path.basename(self._path), tag, len(result))
+            raise
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries
@@ -231,12 +264,30 @@ class Exiv2Metadata(MetadataHandler):
             value = [x.decode('utf-8') for x in value]
         self.set_tag_multiple(tag, value)
 
+    _iptc_encodings = {
+        'ascii'    : (b'\x1b\x28\x42',),
+        'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
+        'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
+        'utf-16-be': (b'\x1b\x25\x2f\x4c',),
+        'utf-32-be': (b'\x1b\x25\x2f\x46',),
+        }
+
+    def get_iptc_encoding(self):
+        iptc_charset_code = self.get_raw_value('Iptc.Envelope.CharacterSet')
+        for charset, codes in self._iptc_encodings.items():
+            if iptc_charset_code in codes:
+                return charset
+        return None
+
+    def set_iptc_encoding(self, encoding='utf-8'):
+        self.set_value('Iptc.Envelope.CharacterSet',
+                       self._iptc_encodings[encoding][0].decode('ascii'))
+
     def save(self, file_times=None, force_iptc=False):
         if self.read_only:
             return False
         if force_iptc:
-            self.set_value('Iptc.Envelope.CharacterSet',
-                           _iptc_encodings['utf-8'][0].decode('ascii'))
+            self.set_iptc_encoding()
         else:
             self.clear_iptc()
         if self.xmp_only:
@@ -565,6 +616,8 @@ class Exiv2Metadata(MetadataHandler):
             else:
                 self.set_group(tag, file_value)
 
+
+class ImageMetadata(Exiv2Metadata):
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
     def camera_change_ok(self, camera_model):
@@ -579,10 +632,6 @@ class Exiv2Metadata(MetadataHandler):
         if self.camera_change_ok(camera_model):
             return
         self.clear_maker_note()
-
-
-class ImageMetadata(Exiv2Metadata):
-    pass
 
 
 class Preview(object):

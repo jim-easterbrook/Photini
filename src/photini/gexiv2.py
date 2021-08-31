@@ -45,14 +45,6 @@ exiv2_version = 'GExiv2 {}.{}.{}, {} {}, GObject {}, GLib {}.{}.{}'.format(
     ('PyGObject', 'pgi')[using_pgi], gi.__version__,GObject._version,
     GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
 
-_iptc_encodings = {
-    'ascii'    : (b'\x1b\x28\x42',),
-    'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
-    'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
-    'utf-16-be': (b'\x1b\x25\x2f\x4c',),
-    'utf-32-be': (b'\x1b\x25\x2f\x46',),
-    }
-
 XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -173,7 +165,7 @@ class MetadataHandler(GExiv2.Metadata):
                     'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
                     'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
                 continue
-            raw_value = self._get_raw(tag)
+            raw_value = self.get_raw_value(tag)
             if not raw_value:
                 logger.error('%s: failed to read tag %s',
                              os.path.basename(self._path), tag)
@@ -191,13 +183,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     def transcode_iptc(self):
         encodings = self.encodings
-        iptc_charset_code = self._get_raw('Iptc.Envelope.CharacterSet')
-        for charset, codes in _iptc_encodings.items():
-            if iptc_charset_code in codes:
-                iptc_charset = charset
-                break
-        else:
-            iptc_charset = None
+        iptc_charset = self.get_iptc_encoding()
         if iptc_charset in ('utf-8', 'ascii'):
             # no need to translate anything
             return
@@ -230,7 +216,7 @@ class MetadataHandler(GExiv2.Metadata):
                 continue
             except UnicodeDecodeError:
                 pass
-            raw_value = self._get_raw(tag)
+            raw_value = self.get_raw_value(tag)
             if not raw_value:
                 logger.error('%s: failed to read tag %s',
                              os.path.basename(self._path), tag)
@@ -277,7 +263,7 @@ class MetadataHandler(GExiv2.Metadata):
         }
 
     def get_exif_comment(self, tag):
-        result = self._get_raw(tag)
+        result = self.get_raw_value(tag)
         if not result:
             return None
         # first 8 bytes should be the encoding charset
@@ -342,7 +328,7 @@ class MetadataHandler(GExiv2.Metadata):
             return self.get_tag_multiple(tag)
         return self.get_tag_string(tag)
 
-    def _get_raw(self, tag):
+    def get_raw_value(self, tag):
         if not self.has_tag(tag):
             return None
         try:
