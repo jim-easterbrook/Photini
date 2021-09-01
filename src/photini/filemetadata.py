@@ -579,20 +579,7 @@ class Exiv2Metadata(MetadataHandler):
 
 
 class ImageMetadata(Exiv2Metadata):
-    # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
-    # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
-    def camera_change_ok(self, camera_model):
-        if not (self.has_tag('Exif.Photo.MakerNote')
-                and self.has_tag('Exif.Image.Make')):
-            return True
-        if not camera_model:
-            return False
-        return self.get_value('Exif.Image.Make') == camera_model['make']
-
-    def delete_makernote(self, camera_model):
-        if self.camera_change_ok(camera_model):
-            return
-        self.clear_maker_note()
+    pass
 
 
 class Preview(object):

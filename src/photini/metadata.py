@@ -1156,8 +1156,13 @@ class Metadata(object):
                 self._if = VideoHeaderMetadata.open_old(path)
             video_md = FFMPEGMetadata.open_old(path)
         self.dirty = False
-        self._delete_makernote = False
         self.iptc_in_file = self._if and self._if.has_iptc()
+        # get maker note info
+        self._maker_note = {
+            'make': (self._if.has_tag('Exif.Photo.MakerNote') and
+                     self._if.get_value('Exif.Image.Make')),
+            'delete': False,
+            }
         # read Photini metadata items
         for name in self._data_type:
             # read data values from first file that has any
@@ -1201,12 +1206,14 @@ class Metadata(object):
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
     def camera_change_ok(self, camera_model):
-        if not self._if:
+        if not self._maker_note['make']:
             return True
-        return self._if.camera_change_ok(camera_model)
+        if not camera_model:
+            return False
+        return self._maker_note['make'] == camera_model['make']
 
     def set_delete_makernote(self):
-        self._delete_makernote = True
+        self._maker_note['delete'] = True
 
     @classmethod
     def clone(cls, path, other):
@@ -1241,9 +1248,10 @@ class Metadata(object):
         try:
             # save to image file
             if if_mode and self._if:
-                if self._delete_makernote:
-                    self._if.delete_makernote(self.camera_model)
-                    self._delete_makernote = False
+                if self._maker_note['delete']:
+                    if not self.camera_change_ok(self.camera_model):
+                        self._if.clear_maker_note()
+                    self._maker_note['delete'] = False
                 OK = self._handler_save(
                     self._if, file_times=file_times, force_iptc=force_iptc)
                 if OK:
