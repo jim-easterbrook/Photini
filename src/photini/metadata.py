@@ -171,8 +171,12 @@ class MD_Value(object):
         logger.info('%s: merged %s', info, tag)
 
     def log_replaced(self, info, tag, value):
-        logger.warning(
-            '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
+        if self._quiet:
+            logger.info(
+                '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
+        else:
+            logger.warning(
+                '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
 
     @classmethod
     def log_ignored(cls, info, tag, value):
