@@ -31,8 +31,8 @@ import pkg_resources
 from photini import __version__, build
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
+from photini.filemetadata import exiv2_version
 from photini.ffmpeg import ffmpeg_version
-from photini.gi import gi_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
@@ -505,7 +505,7 @@ def main(argv=None):
     # parse remaining arguments
     version = 'Photini ' + __version__ + ', build ' + build
     version += '\n  Python ' + sys.version
-    version += '\n  ' + gi_version
+    version += '\n  ' + exiv2_version
     version += '\n  ' + qt_version
     if spelling_version:
         version += '\n  ' + spelling_version
