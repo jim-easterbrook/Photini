@@ -40,9 +40,12 @@ if sys.platform == 'win32x':
     sys.platform = 'win32'
 
 if not enchant:
-    from photini.gi import gi, using_pgi, GSListPtr_to_list
-    gi.require_version('Gspell', '1')
-    from gi.repository import GLib, GObject, Gspell
+    try:
+        from photini.gi import gi, using_pgi, GSListPtr_to_list
+        gi.require_version('Gspell', '1')
+        from gi.repository import GLib, GObject, Gspell
+    except ImportError as ex:
+        print(str(ex))
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +112,8 @@ class SpellCheck(QtCore.QObject):
         elif enchant:
             if code and enchant.dict_exists(code):
                 self.dict = enchant.Dict(code)
+        else:
+            return
         if code and not self.dict:
             logger.warning('Failed to set dictionary %s', code)
         self.config_store.set('spelling', 'language', self.current_language())
