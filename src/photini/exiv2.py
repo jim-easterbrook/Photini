@@ -364,11 +364,19 @@ class MetadataHandler(object):
         assert False, 'Invalid tag ' + tag
 
     def save(self):
-        self._image.setExifData(self._exifData)
-        self._image.setIptcData(self._iptcData)
-        self._image.setXmpData(self._xmpData)
+        return self.save_file(self._path)
+
+    def save_file(self, path):
+        if path == self._path:
+            image = self._image
+        else:
+            image = exiv2.ImageFactory.open(self._path)
+            image.readMetadata()
+        image.setExifData(self._exifData)
+        image.setIptcData(self._iptcData)
+        image.setXmpData(self._xmpData)
         try:
-            self._image.writeMetadata()
+            image.writeMetadata()
         except exiv2.AnyError as ex:
             logger.error(str(ex))
             return False
