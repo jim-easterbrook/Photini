@@ -17,8 +17,6 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 
 from photini.pyqt import (
@@ -78,14 +76,18 @@ class EditSettings(QtWidgets.QDialog):
         sc_mode = self.config_store.get('files', 'sidecar', 'auto')
         if not if_mode:
             sc_mode = 'always'
+        button_group = QtWidgets.QButtonGroup(parent=self)
         self.sc_always = QtWidgets.QRadioButton(self.tr('Always create'))
+        button_group.addButton(self.sc_always)
         self.sc_always.setChecked(sc_mode == 'always')
         panel.layout().addRow(self.tr('Sidecar files'), self.sc_always)
         self.sc_auto = QtWidgets.QRadioButton(self.tr('Create if necessary'))
+        button_group.addButton(self.sc_auto)
         self.sc_auto.setChecked(sc_mode == 'auto')
         self.sc_auto.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_auto)
         self.sc_delete = QtWidgets.QRadioButton(self.tr('Delete when possible'))
+        button_group.addButton(self.sc_delete)
         self.sc_delete.setChecked(sc_mode == 'delete')
         self.sc_delete.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_delete)
@@ -95,11 +97,24 @@ class EditSettings(QtWidgets.QDialog):
         self.write_if.clicked.connect(self.new_write_if)
         panel.layout().addRow(self.tr('Write to image file'), self.write_if)
         # preserve file timestamps
-        keep_time = self.config_store.get('files', 'preserve_timestamps', False)
-        self.keep_time = QtWidgets.QCheckBox()
-        self.keep_time.setChecked(keep_time)
-        panel.layout().addRow(
-            self.tr('Preserve file timestamps'), self.keep_time)
+        keep_time = self.config_store.get('files', 'preserve_timestamps', 'now')
+        if isinstance(keep_time, bool):
+            # old config format
+            keep_time = ('now', 'keep')[keep_time]
+        button_group = QtWidgets.QButtonGroup(parent=self)
+        self.keep_time = QtWidgets.QRadioButton(self.tr('Keep original'))
+        button_group.addButton(self.keep_time)
+        self.keep_time.setChecked(keep_time=='keep')
+        panel.layout().addRow(self.tr('File timestamps'), self.keep_time)
+        self.time_taken = QtWidgets.QRadioButton(
+            self.tr('Set to when photo was taken'))
+        button_group.addButton(self.time_taken)
+        self.time_taken.setChecked(keep_time=='taken')
+        panel.layout().addRow('', self.time_taken)
+        button = QtWidgets.QRadioButton(self.tr('Set to when file is saved'))
+        button_group.addButton(button)
+        button.setChecked(keep_time=='now')
+        panel.layout().addRow('', button)
         # add panel to scroll area after its size is known
         scroll_area.setWidget(panel)
 
@@ -136,6 +151,11 @@ class EditSettings(QtWidgets.QDialog):
             sc_mode = 'delete'
         self.config_store.set('files', 'sidecar', sc_mode)
         self.config_store.set('files', 'image', self.write_if.isChecked())
-        self.config_store.set(
-            'files', 'preserve_timestamps', self.keep_time.isChecked())
+        if self.keep_time.isChecked():
+            keep_time = 'keep'
+        elif self.time_taken.isChecked():
+            keep_time = 'taken'
+        else:
+            keep_time = 'now'
+        self.config_store.set('files', 'preserve_timestamps', keep_time)
         return self.accept()

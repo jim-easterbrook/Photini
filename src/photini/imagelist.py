@@ -17,8 +17,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import datetime
 import io
 import logging
@@ -859,12 +857,19 @@ class ImageList(QtWidgets.QWidget):
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
         force_iptc = self.app.config_store.get('files', 'force_iptc', False)
         keep_time = self.app.config_store.get(
-            'files', 'preserve_timestamps', False)
+            'files', 'preserve_timestamps', 'now')
+        if isinstance(keep_time, bool):
+            # old config format
+            keep_time = ('now', 'keep')[keep_time]
         if not images:
             images = self.images
         with Busy():
             for image in images:
-                if keep_time:
+                if keep_time == 'taken' and image.metadata.date_taken:
+                    file_times = (
+                        image.file_times[0],
+                        image.metadata.date_taken['datetime'].timestamp())
+                elif keep_time == 'keep':
                     file_times = image.file_times
                 else:
                     file_times = None
