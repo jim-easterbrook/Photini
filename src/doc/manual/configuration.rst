@@ -11,7 +11,7 @@ The ``Options`` menu also has a ``Settings`` item which opens the dialog shown b
 
 .. image:: ../images/screenshot_36.png
 
-The top three items can be used to adjust the auto-generated copyright and creator fields on the descriptive metadata tab.
+The top three items can be used to adjust the auto-generated copyright and creator fields on the descriptive metadata and ownership tabs.
 The ``copyright text`` entry has place-holders where the photograph's "taken" year and the copyright holder's name are inserted.
 You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
 
@@ -31,9 +31,11 @@ Sidecar files allow metadata to be stored without needing to write to the actual
 If you deselect "write to image file" then sidecars will always be created.
 Otherwise, you can choose to have them always created (storing data in parallel with the image file), only created when necessary (e.g. an image file is write protected), or deleted when possible (if metadata can be copied to the image file the sidecar is deleted).
 
-Finally there is an option to preserve file timestamps.
-This allows Photini to write metadata to an image file without changing the file's "modification time" as displayed in a file browser.
-You may find this useful if you often use a browser to sort files by date.
+Finally there are options to adjust file timestamps.
+"Keep original" leaves image files' timestamps unchanged.
+"Set to when photo was taken" changes files' timestamps to the date & time taken (as shown on the technical tab).
+"Set to when the file is saved" sets files' timestamps to when you save the file with Photini, like most other computer programs do.
+You may find these options useful if you often use a file browser to sort files by date.
 
 .. _configuration-spell:
 
