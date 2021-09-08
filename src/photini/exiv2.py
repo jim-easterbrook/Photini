@@ -367,11 +367,8 @@ class MetadataHandler(object):
         return self.save_file(self._path)
 
     def save_file(self, path):
-        if path == self._path:
-            image = self._image
-        else:
-            image = exiv2.ImageFactory.open(self._path)
-            image.readMetadata()
+        image = exiv2.ImageFactory.open(path)
+        image.readMetadata()
         image.setExifData(self._exifData)
         image.setIptcData(self._iptcData)
         image.setXmpData(self._xmpData)
@@ -401,10 +398,26 @@ class MetadataHandler(object):
         image.writeMetadata()
         if image_md:
             # let exiv2 copy as much metadata as it can into sidecar
-            image.setExifData(image_md._exifData)
-            image.setIptcData(image_md._iptcData)
-            image.setXmpData(image_md._xmpData)
+            image.setMetadata(image_md._image)
             image.writeMetadata()
 
     def merge_sc(self, other):
-        pass
+        # open other image and read its metadata
+        image = exiv2.ImageFactory.open(other._path)
+        image.readMetadata()
+        # copy Exif data inferred by libexiv2
+        for o_datum in image.exifData():
+            tag = o_datum.key()
+            s_datum = self._exifData[tag]
+            s_datum.setValue(o_datum.value())
+        # copy Xmp data, except inferred Exif data
+        for o_datum in image.xmpData():
+            tag = o_datum.key()
+            if tag.startswith('Xmp.xmp.Thumbnails'):
+                continue
+            ns = tag.split('.')[1]
+            if ns in ('exif', 'exifEX', 'tiff', 'aux'):
+                # exiv2 will already have supplied the equivalent Exif tag
+                pass
+            s_datum = self._xmpData[tag]
+            s_datum.setValue(o_datum.value())
