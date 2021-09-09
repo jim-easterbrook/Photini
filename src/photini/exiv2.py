@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from contextlib import contextmanager
 import locale
 import logging
 import os
@@ -32,6 +33,31 @@ logger = logging.getLogger(__name__)
 
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.versionString())
+
+
+@contextmanager
+def temp_rename(path):
+    # Rename path to an ascii-safe file, further up the directory path
+    # if necessary, then restore to the original name and directory on
+    # completion. Only needed for workaround for lack of wchar paths on
+    # Windows
+    dir_name, file_name = os.path.split(path)
+    while dir_name.encode('ascii', 'replace').decode('ascii') != dir_name:
+        dir_name = os.path.dirname(dir_name)
+    while True:
+        tmp_path = os.path.join(dir_name, file_name)
+        if (tmp_path.encode('ascii', 'replace').decode('ascii') == tmp_path
+                and not os.path.exists(tmp_path)):
+            break
+        file_name = ''.join(
+            random.choices(string.ascii_lowercase, k=8)) + '.tmp'
+    try:
+        logger.warning('Renaming %s to %s', path, tmp_path)
+        shutil.move(path, tmp_path)
+        yield tmp_path
+    finally:
+        logger.warning('Renaming %s to %s', tmp_path, path)
+        shutil.move(tmp_path, path)
 
 
 class MetadataHandler(object):
@@ -67,9 +93,23 @@ class MetadataHandler(object):
         
     def __init__(self, path, buf=None, utf_safe=False):
         self._path = path
+        # Workaround for lack of wchar filename support in provided
+        # exiv2 on Windows. Will ultimately have to build it myself with
+        # EXV_UNICODE_PATH enabled.
+        self._gexiv_unsafe = False
+        if sys.platform == 'win32':
+            try:
+                self._path.encode('ascii')
+            except UnicodeEncodeError:
+                self._gexiv_unsafe = True
+        if self._gexiv_unsafe and not buf:
+            with open(self._path, 'rb') as f:
+                buf = f.read()
         # read metadata
         if buf:
             self._image = exiv2.ImageFactory.open(buf)
+        elif sys.platform == 'win32':
+            self._image = exiv2.ImageFactory.open(self._path.encode('utf-16'))
         else:
             self._image = exiv2.ImageFactory.open(self._path)
         self._image.readMetadata()
@@ -368,6 +408,9 @@ class MetadataHandler(object):
         assert False, 'Invalid tag ' + tag
 
     def save(self):
+        if self._gexiv_unsafe:
+            with temp_rename(self._path) as tmp_file:
+                return self.save_file(tmp_file)
         return self.save_file(self._path)
 
     def save_file(self, path):
