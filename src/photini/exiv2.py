@@ -77,12 +77,12 @@ class MetadataHandler(object):
         self._iptcData = self._image.iptcData()
         self._xmpData = self._image.xmpData()
         access_mode = {
-            'exif': self._image.checkMode(exiv2.mdExif),
-            'iptc': self._image.checkMode(exiv2.mdIptc),
-            'xmp': self._image.checkMode(exiv2.mdXmp),
+            'exif': self._image.checkMode(exiv2.MetadataId.Exif),
+            'iptc': self._image.checkMode(exiv2.MetadataId.Iptc),
+            'xmp': self._image.checkMode(exiv2.MetadataId.Xmp),
             }
         self.read_only = not any(
-            [x in (exiv2.amWrite, exiv2.amReadWrite)
+            [x in (exiv2.AccessMode.Write, exiv2.AccessMode.ReadWrite)
              for x in access_mode.values()])
         self.mime_type = self._image.mimeType()
         self.xmp_only = self.mime_type in (
@@ -95,7 +95,8 @@ class MetadataHandler(object):
         encodings = self.encodings
         for data in self._exifData, self._iptcData:
             for datum in data:
-                if datum.typeId() not in (exiv2.asciiString, exiv2.string):
+                if datum.typeId() not in (exiv2.TypeId.asciiString,
+                                          exiv2.TypeId.string):
                     continue
                 value = datum.toString()
                 raw_value = value.encode('utf-8', errors='surrogateescape')
@@ -207,13 +208,14 @@ class MetadataHandler(object):
             if datum.key() != tag:
                 continue
             type_id = datum.typeId()
-            if type_id == exiv2.xmpText:
+            if type_id == exiv2.TypeId.xmpText:
                 return datum.toString()
-            if type_id == exiv2.langAlt:
+            if type_id == exiv2.TypeId.langAlt:
                 # just get 'x-default' value for now
                 value = exiv2.LangAltValue.downCast(datum.value())
                 return value.toString(0)
-            if type_id in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+            if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                           exiv2.TypeId.xmpSeq):
                 value = exiv2.XmpArrayValue.downCast(datum.value())
                 result = []
                 for n in range(value.count()):
@@ -273,11 +275,12 @@ class MetadataHandler(object):
                 key = exiv2.XmpKey(container.replace('Iptc4xmpExt', 'iptcExt'))
                 type_id = exiv2.XmpProperties.propertyType(key)
                 print('container {}, type id {:x}'.format(container, type_id))
-                if type_id not in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+                if type_id not in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                                   exiv2.TypeId.xmpSeq):
                     if container == 'Xmp.xmp.Thumbnails':
-                        type_id = exiv2.xmpAlt
+                        type_id = exiv2.TypeId.xmpAlt
                     else:
-                        type_id = exiv2.xmpSeq
+                        type_id = exiv2.TypeId.xmpSeq
                     print('using {:x}'.format(type_id))
                 self._xmpData[container] = exiv2.XmpArrayValue.create(type_id)
         datum = self._xmpData[tag]
@@ -287,10 +290,11 @@ class MetadataHandler(object):
             return
         # set a list/tuple of values
         type_id = datum.typeId()
-        if type_id == exiv2.invalidTypeId:
+        if type_id == exiv2.TypeId.invalidTypeId:
             key = exiv2.XmpKey(datum.key())
             type_id = exiv2.XmpProperties.propertyType(key)
-        if type_id in (exiv2.xmpAlt, exiv2.xmpBag, exiv2.xmpSeq):
+        if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
+                       exiv2.TypeId.xmpSeq):
             xmp_value = exiv2.XmpArrayValue.create(type_id)
             xmp_value = exiv2.XmpArrayValue.downCast(xmp_value)
             for sub_value in value:
