@@ -21,31 +21,47 @@ import logging
 import re
 import sys
 
+import photini.filemetadata # to find out if GObject is being used
 from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 
 enchant = None
 Gspell = None
 
-# avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
-# copy of libenchant and associated libraries
-if sys.platform == 'win32':
-    # disable PyEnchant's forced use of its bundled DLLs
-    sys.platform = 'win32x'
-try:
-    import enchant
-except ImportError as ex:
-    print(str(ex))
-if sys.platform == 'win32x':
-    # reset sys.platform
-    sys.platform = 'win32'
+def import_enchant():
+    global enchant
+    # avoid "dll Hell" on Windows by getting PyEnchant to use GObject's
+    # copy of libenchant and associated libraries
+    if sys.platform == 'win32' and 'gi.repository' in sys.modules:
+        # disable PyEnchant's forced use of its bundled DLLs
+        sys.platform = 'win32x'
+    try:
+        import enchant
+    except ImportError as ex:
+        print(str(ex))
+    if sys.platform == 'win32x':
+        # reset sys.platform
+        sys.platform = 'win32'
 
-if not enchant:
+def import_Gspell():
+    global gi, using_pgi, GSListPtr_to_list, GLib, GObject, Gspell
     try:
         from photini.gi import gi, using_pgi, GSListPtr_to_list
         gi.require_version('Gspell', '1')
         from gi.repository import GLib, GObject, Gspell
     except ImportError as ex:
         print(str(ex))
+
+if 'gi.repository' in sys.modules:
+    # already using GObject, so its spell checker is "cheap"
+    import_Gspell()
+
+if not Gspell:
+    # if not using GObject, PyEnchant is lighter weight
+    import_enchant()
+
+if not enchant and not Gspell:
+    # use GObject, whatever the cost
+    import_Gspell()
 
 logger = logging.getLogger(__name__)
 
