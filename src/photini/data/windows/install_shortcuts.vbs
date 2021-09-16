@@ -16,7 +16,6 @@ End If
 strDesktopLink = strDesktop & "\Photini.lnk"
 strShortcutLink = strGroup & "\Photini.lnk"
 strDocumentationLink = strGroup & "\Photini documentation.url"
-strShellLink = strGroup & "\MinGW.lnk"
 
 On Error Resume Next
 
@@ -29,8 +28,6 @@ If options.Exists("remove") Then
     If FSO.FileExists(strShortcutLink) Then FSO.DeleteFile(strShortcutLink)
     If Err.Number <> 0 then WScript.Quit Err.Number
     If FSO.FileExists(strDocumentationLink) Then FSO.DeleteFile(strDocumentationLink)
-    If Err.Number <> 0 then WScript.Quit Err.Number
-    If FSO.FileExists(strShellLink) Then FSO.DeleteFile(strShellLink)
     If Err.Number <> 0 then WScript.Quit Err.Number
     If FSO.FolderExists(strGroup) Then FSO.DeleteFolder(strGroup)
     WScript.Quit Err.Number
@@ -74,13 +71,5 @@ If Err.Number <> 0 then WScript.Quit Err.Number
 'Create documentation start menu shortcut
 Set objShortcut = objShell.CreateShortcut(strDocumentationLink)
 objShortcut.TargetPath = "https://photini.readthedocs.io/"
-objShortcut.Save
-If Err.Number <> 0 then WScript.Quit Err.Number
-
-'Create command shell start menu shortcut
-Set objShortcut = objShell.CreateShortcut(strShellLink)
-objShortcut.TargetPath = strSystemPrefix & ".exe"
-objShortcut.Description = "MSYS2 MinGW command shell"
-objShortcut.IconLocation = strSystemPrefix & ".ico"
 objShortcut.Save
 If Err.Number <> 0 then WScript.Quit Err.Number
