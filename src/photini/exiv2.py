@@ -20,7 +20,6 @@ import codecs
 import locale
 import logging
 import os
-from pprint import pprint
 import random
 import shutil
 import string
@@ -221,7 +220,6 @@ class MetadataHandler(object):
                 for n in range(value.count()):
                     result.append(value.toString(n))
                 return result
-            print('get_xmp_value', tag, '{:x}'.format(datum.typeId()), datum.getValue())
             return None
         return None
 
@@ -274,14 +272,12 @@ class MetadataHandler(object):
                 # XmpProperties uses 'iptcExt' namespace abbreviation
                 key = exiv2.XmpKey(container.replace('Iptc4xmpExt', 'iptcExt'))
                 type_id = exiv2.XmpProperties.propertyType(key)
-                print('container {}, type id {:x}'.format(container, type_id))
                 if type_id not in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                                    exiv2.TypeId.xmpSeq):
                     if container == 'Xmp.xmp.Thumbnails':
                         type_id = exiv2.TypeId.xmpAlt
                     else:
                         type_id = exiv2.TypeId.xmpSeq
-                    print('using {:x}'.format(type_id))
                 self._xmpData[container] = exiv2.XmpArrayValue.create(type_id)
         datum = self._xmpData[tag]
         if isinstance(value, str):
@@ -300,7 +296,6 @@ class MetadataHandler(object):
             for sub_value in value:
                 xmp_value.read(sub_value)
         else:
-            print('set_xmp_value', tag, '{:x}'.format(type_id), value)
             return
         datum.setValue(xmp_value)
 
