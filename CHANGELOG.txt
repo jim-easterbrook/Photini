@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.9.0:
+  1/ New option to set file timestamps to photo's taken date/time.
+  2/ Improved GPX importer.
+  3/ Drop Windows MSYS2 installer and use Windows Python instead.
+  4/ Add option to use python-exiv2 for metadata access.
+
 Changes in v2021.7.0:
   1/ Added a tab for 'ownership' and copyright details.
   2/ Added 'tooltip' hints to some text fields.
