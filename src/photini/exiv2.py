@@ -35,7 +35,9 @@ exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
 
 class MetadataHandler(object):
     @classmethod
-    def initialise(cls):
+    def initialise(cls, verbosity):
+        exiv2.LogMsg.setLevel(
+            max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
         exiv2.XmpParser.initialize()
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is

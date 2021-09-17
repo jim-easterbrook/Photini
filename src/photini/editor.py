@@ -31,7 +31,7 @@ import pkg_resources
 from photini import __version__, build
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
-from photini.filemetadata import exiv2_version
+from photini.filemetadata import exiv2_version, Exiv2Metadata
 from photini.ffmpeg import ffmpeg_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
@@ -170,6 +170,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # logger window
         self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
+        # initialise metadata handler
+        Exiv2Metadata.initialise(options.verbose)
         # set network proxy
         proxies = urllib.request.getproxies()
         if 'http' in proxies:

@@ -28,10 +28,12 @@ except ImportError as ex:
 
 logger = logging.getLogger(__name__)
 
-MetadataHandler.initialise()
-
 
 class Exiv2Metadata(MetadataHandler):
+    @classmethod
+    def initialise(cls, verbosity):
+        super(Exiv2Metadata, cls).initialise(verbosity)
+
     def __init__(self, *args, **kwds):
         super(Exiv2Metadata, self).__init__(*args, **kwds)
         # file can contain several images, so choose largest one for

@@ -82,9 +82,11 @@ def temp_rename(path):
 
 class MetadataHandler(GExiv2.Metadata):
     @classmethod
-    def initialise(cls):
+    def initialise(cls, verbosity):
         if not GExiv2.initialize():
             raise RuntimeError('Failed to initialise GExiv2')
+        GExiv2.log_set_level(max(
+            GExiv2.LogLevel.DEBUG, min(GExiv2.LogLevel.ERROR, 4 - verbosity)))
         GExiv2.log_use_glib_logging()
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
