@@ -19,7 +19,7 @@ Python
 ^^^^^^
 
 Python_ is absolutely essential to run Photini.
-It is already installed on many computers, but on Windows you will almost certainly need to install it yourself.
+It is already installed on many computers, but on Windows you will probably need to install it yourself.
 Go to https://www.python.org/downloads/ and choose a suitable Windows installer.
 I suggest you use the 64-bit stable release with the highest version number that will run on your version of Windows.
 
@@ -60,7 +60,7 @@ Photini
 ^^^^^^^
 
 Now that Python is installed you can install Photini and the dependencies as listed in :ref:`essential-dependencies`.
-You can start by installing PySide2_::
+Start by installing PySide2_::
 
     C:\Users\Jim>pip install pyside2
     Collecting pyside2
@@ -73,7 +73,7 @@ You can start by installing PySide2_::
     Successfully installed pyside2-5.15.2 shiboken2-5.15.2
 
 Note that this installed two packages, pyside2 and shiboken2.
-This is because ``pip`` knows what packages other packages depend on installs them if required.
+This is because ``pip`` knows what packages other packages depend on and installs them if required.
 
 The rest of the dependencies are installed similarly::
 
@@ -101,7 +101,7 @@ Photini can be started more directly from a command shell::
     C:\Users\Jim>photini
 
 However, most Windows users would probably prefer to use the start menu or a desktop icon.
-These can be installed with the ``photini-post-install`` command::
+These can be installed with the ``photini-post-install`` command, as described in :ref:`installing-menu-entries` below::
 
     C:\Users\Jim>photini-post-install
 
@@ -111,12 +111,12 @@ Linux
 -----
 
 Photini is available from the package manager on some Linux distributions, but beware of versions that are very out of date.
-In general I recommend installing the dependencies with the package manager, to avoid breaking other software installed on your computer by installing an incompatible version.
+In general I recommend installing Photini with pip_ and the dependencies with the package manager, to avoid breaking other software installed on your computer by installing an incompatible version.
 
 See :ref:`essential-dependencies` and :ref:`installation-optional` for a full list of dependencies.
 Where there is a choice of package you should usually choose the one that's available from your package manager.
 
-If a package is not available from the system's package manager (or is not already in use by other software) then you can use ``pip`` to install it from PyPI_.
+If a package is not available from the system's package manager (or is not a dependency of other software) then you can use ``pip`` to install it from PyPI_.
 You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
 
 Different operating systems have different names for the same packages.
@@ -143,7 +143,7 @@ You can also use pip to install the optional dependencies when you install Photi
 Development version
 ^^^^^^^^^^^^^^^^^^^
 
-If you prefer to use the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a zip or tar.gz file and then unpack it.
+If you prefer to use the development version you can use git to clone the `GitHub repository <https://github.com/jim-easterbrook/Photini>`_ or download it as a .zip or .tar.gz file and then unpack it.
 Then set your working directory to the Photini top level directory before continuing.
 
 You can run Photini without installing it, using the ``run_photini.py`` script::
@@ -169,6 +169,8 @@ If you'd like to test or use one of Photini's translation files you will need to
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
+
+.. _installing-menu-entries:
 
 Installing menu entries
 -----------------------
@@ -223,27 +225,27 @@ One of these may already be included in your PyQt_ or PySide2_ installation.
 QtWebEngine is preferred, but is not available on all operating systems.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
-[3] `python-exiv2`_ is a new interface to the Exiv2_ library.
-If you cannot install it on your computer then you need to install these packages:
+[3] `python-exiv2`_ is a new interface to the Exiv2_ library, which Photini versions 2021.9.0 onwards can use.
+If you cannot install it on your computer then you need to install these packages instead:
 
 =============================  =================  ============================  =================
 Package                        Minimum version    Typical Linux package name    PyPI package name
 =============================  =================  ============================  =================
-gexiv2_ [4]                    0.10.3             libgexiv2-2
+gexiv2_                        0.10.3             libgexiv2-2
 gexiv2 introspection data                         typelib-1_0-GExiv2-0_10 or
                                                   gir1.2-gexiv2-0.10
-PyGObject_ [5]                                    python3-gobject or
+PyGObject_ [4]                                    python3-gobject or
                                                   python3-gi
-pgi_ [5]                       0.0.8                                            pgi
+pgi_ [4]                       0.0.8                                            pgi
 =============================  =================  ============================  =================
 
-[4] This is a more circuitous way to access photograph metadata from Python.
+This is a more circuitous way to access photograph metadata from Python.
 Exiv2_ is the core "C" library.
 gexiv2_ is a GObject wrapper around the Exiv2 library.
 It has extra "introspection bindings" that allow it to be used by other languages.
 PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
 
-[5] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
+[4] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
 If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
 
     $ sudo pip3 uninstall pgi
@@ -253,25 +255,28 @@ If pgi doesn't work on your system you can go back to using PyGObject by uninsta
 Optional dependencies
 ---------------------
 
-Some of Photini's features are optional - if you don't install these libraries Photini will work but the relevant feature will not be available.
-As before, you should use your system's package manager to install these if possible, otherwise use pip_.
-The system package manager names will probably have ``python-`` or ``python3-`` prefixes.
+Some of Photini's features are optional - if you don't install these packages Photini will work but the relevant feature will not be available.
+Linux users should use the system's package manager to install these if possible, otherwise use pip_.
+The package manager names will probably have ``python-`` or ``python3-`` prefixes.
 
 ============================  =================
 Feature                       Dependencies
 ============================  =================
-Spell check                   pyenchant_ 1.6+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
+Spell check[1]                pyenchant_ 1.6+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
-Thumbnail creation[1]         FFmpeg_, Pillow_ 2.0+
-Import photos from camera[2]  `python3-gphoto2`_ 0.10+
+Thumbnail creation[2]         FFmpeg_, Pillow_ 2.0+
+Import photos from camera[3]  `python3-gphoto2`_ 0.10+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
-[1] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
+[1] If you are using python-exiv2 for metadata access then pyenchant is the preferred spelling package.
+Using Gspell requires PyGObject or pgi to be installed as well, as described above.
+
+[2] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
 FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.
 
-[2]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed.
+[3]Photini can import pictures from any directory on your computer (e.g. a memory card) but on Linux and MacOS systems it can also import directly from a camera if python-gphoto2 is installed.
 Installation of python-gphoto2 will require the "development headers" versions of Python and libgphoto2.
 You should be able to install these with your system package manager.
 
@@ -292,11 +297,14 @@ On Linux you can run any terminal or console program.
 Start the Photini program as follows.
 If it fails to run you should get some diagnostic information::
 
-    C:\>python -m photini.editor
+    C:\>python -m photini.editor -v
 
 or ::
 
-    $ python3 -m photini.editor
+    $ python3 -m photini.editor -v
+
+Note the use of the ``-v`` option to increase the verbosity of Photini's message logging.
+This option can be repeated for even more verbosity.
 
 If you need more help, please email jim@jim-easterbrook.me.uk.
 It would probably be helpful to copy any diagnostic messages into your email.
