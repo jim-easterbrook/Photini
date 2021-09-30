@@ -144,6 +144,8 @@ class SpellCheck(QtCore.QObject):
     def check(self, word):
         if not (word and self.enabled and self.dict):
             return True
+        if word.isnumeric():
+            return True
         if Gspell:
             return self.dict.check_word(word, -1)
         if enchant:
