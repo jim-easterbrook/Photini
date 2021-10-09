@@ -128,7 +128,7 @@ Photini does not directly gather any information from its users, but the online 
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
-The default location of this file is ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
+The default location of this file is ``$HOME/.config/photini/`` (Linux), ``$HOME/Library/Preferences/photini`` (MacOS), or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
 OAuth_ access tokens for Flickr and Google Photos are securely stored on the user's computer using `Python keyring`_.
 
 

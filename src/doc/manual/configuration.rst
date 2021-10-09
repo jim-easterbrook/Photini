@@ -64,7 +64,7 @@ Configuration file location
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Photini stores its configuration in a file called ``editor.ini``.
-The default location of this file is ``$HOME/.config/photini/`` (Linux) or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
+The default location of this file is ``$HOME/.config/photini/`` (Linux), ``$HOME/Library/Preferences/photini`` (MacOS), or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
 If you'd like to store it elsewhere (e.g. on a networked drive so you can share configuration between several computers) you can set an environment variable ``PHOTINI_CONFIG`` to the directory you'd like to use.
 
 .. _configuration-pyqt:

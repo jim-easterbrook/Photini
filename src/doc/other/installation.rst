@@ -107,8 +107,8 @@ These can be installed with the ``photini-post-install`` command, as described i
 
 This will require administrator privileges if you are not already running your command shell as administrator.
 
-Linux
------
+Linux and MacOS
+---------------
 
 Photini is available from the package manager on some Linux distributions, but beware of versions that are very out of date.
 In general I recommend installing Photini with pip_ and the dependencies with the package manager, to avoid breaking other software installed on your computer by installing an incompatible version.
@@ -256,7 +256,7 @@ Optional dependencies
 ---------------------
 
 Some of Photini's features are optional - if you don't install these packages Photini will work but the relevant feature will not be available.
-Linux users should use the system's package manager to install these if possible, otherwise use pip_.
+Linux and MacOS users should use the system's package manager to install these if possible, otherwise use pip_.
 The package manager names will probably have ``python-`` or ``python3-`` prefixes.
 
 ============================  =================
@@ -271,7 +271,9 @@ Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
 [1] If you are using python-exiv2 for metadata access then pyenchant is the preferred spelling package.
-Using Gspell requires PyGObject or pgi to be installed as well, as described above.
+Pyenchant requires a C library and dictionaries to be installed.
+See the `pyenchant documentation`_ for detailed instructions.
+Gspell requires PyGObject or pgi to be installed as well, as described above.
 
 [2] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
 FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.
@@ -292,7 +294,7 @@ Troubleshooting
 
 If Photini fails to run for some reason you may be able to find out why by trying to run it in a command window.
 On Windows you need to run a command shell, for example ``cmd.exe``.
-On Linux you can run any terminal or console program.
+On Linux and MacOS you can run any terminal or console program.
 
 Start the Photini program as follows.
 If it fails to run you should get some diagnostic information::
@@ -350,6 +352,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _Pillow:            http://pillow.readthedocs.io/
 .. _pip:               https://pip.pypa.io/en/latest/
 .. _PyEnchant:         https://pypi.org/project/pyenchant/
+.. _pyenchant documentation: https://pyenchant.github.io/pyenchant/install.html
 .. _PyGObject:         https://pygobject.readthedocs.io/
 .. _Python:            https://www.python.org/
 .. _python-exiv2:      https://pypi.org/project/python-exiv2/
