@@ -373,6 +373,9 @@ class MetadataHandler(object):
         image.setExifData(self._exifData)
         image.setIptcData(self._iptcData)
         image.setXmpData(self._xmpData)
+        if self._image.iccProfileDefined() and path != self._path:
+            # copy ICC profile
+            image.setIccProfile(self._image.iccProfile())
         try:
             image.writeMetadata()
         except exiv2.AnyError as ex:
