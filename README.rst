@@ -1,7 +1,7 @@
 Photini
 =======
 
-A free, easy to use, digital photograph metadata (Exif, IPTC, XMP) editing application.
+A free, easy to use, digital photograph metadata (Exif, IPTC, XMP) editing application for Linux, Windows and MacOS.
 
 "Metadata" is said to mean "data about data".
 In the context of digital photographs this means information that isn't essential in order to display the image, but tells you something about it.
