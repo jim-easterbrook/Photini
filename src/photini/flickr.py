@@ -70,7 +70,8 @@ class FlickrSession(UploaderSession):
             client_key=self.api_key, client_secret=self.api_secret,
             callback_uri=redirect_uri)
         try:
-            self.api.fetch_request_token(self.oauth_url + 'request_token')
+            self.api.fetch_request_token(
+                self.oauth_url + 'request_token', timeout=20)
             return self.api.authorization_url(
                 self.oauth_url + 'authorize', perms='write')
         except Exception as ex:
@@ -82,7 +83,8 @@ class FlickrSession(UploaderSession):
         oauth_verifier = str(result['oauth_verifier'][0])
         try:
             token = self.api.fetch_access_token(
-                self.oauth_url + 'access_token', verifier=oauth_verifier)
+                self.oauth_url + 'access_token', verifier=oauth_verifier,
+                timeout=20)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -99,7 +101,7 @@ class FlickrSession(UploaderSession):
         params['nojsoncallback'] = '1'
         try:
             rsp = self.api.get('https://www.flickr.com/services/rest',
-                                timeout=5, params=params)
+                                timeout=20, params=params)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -201,7 +203,7 @@ class FlickrSession(UploaderSession):
             headers = {'Authorization': headers['Authorization'],
                        'Content-Type': data.content_type}
             # use requests to post data
-            rsp = requests.post(url, data=data, headers=headers)
+            rsp = requests.post(url, data=data, headers=headers, timeout=20)
             if rsp.status_code != 200:
                 logger.error('HTTP error %d', rsp.status_code)
                 return 'HTTP error {}'.format(rsp.status_code)
