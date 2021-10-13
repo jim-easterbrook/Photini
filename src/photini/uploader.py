@@ -136,6 +136,8 @@ class UploadWorker(QtCore.QObject):
             if convert:
                 os.unlink(path)
             if error:
+                if not session.api:
+                    break
                 self.retry = None
                 self.upload_error.emit(name, error)
                 # wait for response from user dialog

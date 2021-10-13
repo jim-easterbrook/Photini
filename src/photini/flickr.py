@@ -58,8 +58,9 @@ class FlickrSession(UploaderSession):
             )
         if not self.api:
             return None
-        self.connection_changed.emit(self.api.authorized)
-        return self.api.authorized
+        authorized = self.api.authorized
+        self.connection_changed.emit(authorized)
+        return authorized
 
     def get_auth_url(self, redirect_uri):
         # initialise oauth1 session
@@ -176,7 +177,6 @@ class FlickrSession(UploaderSession):
                 yield photo
             page += 1
 
-
     def do_upload(self, fileobj, image_type, image, params):
         photo_id = params['photo_id']
         if params['function']:
@@ -204,7 +204,7 @@ class FlickrSession(UploaderSession):
             rsp = requests.post(url, data=data, headers=headers)
             if rsp.status_code != 200:
                 logger.error('HTTP error %d', rsp.status_code)
-                return {}
+                return 'HTTP error {}'.format(rsp.status_code)
             # parse XML response
             rsp = ET.fromstring(rsp.text)
             status = rsp.attrib['stat']
@@ -230,12 +230,14 @@ class FlickrSession(UploaderSession):
             }
         for key in params:
             if params[key] and key in metadata_set_func:
-                self.api_call(metadata_set_func[key],
-                              photo_id=photo_id, **params[key])
+                rsp = self.api_call(metadata_set_func[key],
+                                    photo_id=photo_id, **params[key])
+                if not rsp:
+                    return 'Failed to set ' + key
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
-            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
+            self.api_call('flickr.photos.getInfo', photo_id=photo_id)
             if 'photo' in rsp and 'location' in rsp['photo']:
                 self.api_call(
                     'flickr.photos.geo.removeLocation', photo_id=photo_id)
