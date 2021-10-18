@@ -134,15 +134,15 @@ class MetadataHandler(object):
 
     def get_exif_tags(self):
         for datum in self._exifData:
-            yield str(datum.key())
+            yield datum.key()
 
     def get_iptc_tags(self):
         for datum in self._iptcData:
-            yield str(datum.key())
+            yield datum.key()
 
     def get_xmp_tags(self):
         for datum in self._xmpData:
-            yield str(datum.key())
+            yield datum.key()
 
     @classmethod
     def open_old(cls, *arg, **kw):
@@ -176,61 +176,60 @@ class MetadataHandler(object):
         return None
 
     def get_exif_value(self, tag):
-        for datum in self._exifData:
-            if datum.key() != tag:
-                continue
-            if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
-                       'Exif.Image.XPTitle', 'Exif.Image.XPComment',
-                       'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
-                       'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
-                       'Exif.NikonLd2.LensIDNumber',
-                       'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
-                return datum._print()
-            if tag == 'Exif.Photo.UserComment':
-                return self.get_exif_comment(datum)
-            return datum.toString()
-        return None
+        try:
+            datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        except exiv2.AnyError:
+            return None
+        if datum == self._exifData.end():
+            return None
+        if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
+                   'Exif.Image.XPTitle', 'Exif.Image.XPComment',
+                   'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
+                   'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
+                   'Exif.NikonLd2.LensIDNumber',
+                   'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
+            return datum._print()
+        if tag == 'Exif.Photo.UserComment':
+            return self.get_exif_comment(datum)
+        return datum.toString()
 
     def get_iptc_value(self, tag):
-        result = []
-        for datum in self._iptcData:
-            if datum.key() != tag:
-                continue
-            value = datum.toString()
-            if exiv2.IptcDataSets.dataSetRepeatable(datum.tag(),
+        end = self._iptcData.end()
+        datum = self._iptcData.findKey(exiv2.IptcKey(tag))
+        if datum == end:
+            return None
+        if not exiv2.IptcDataSets.dataSetRepeatable(datum.tag(),
                                                     datum.record()):
-                result.append(value)
-            else:
-                return value
+            return datum.toString()
+        result = []
+        while datum != end:
+            if datum.key() == tag:
+                result.append(datum.toString())
+            next(datum)
         return result or None
 
     def get_xmp_value(self, tag):
-        for datum in self._xmpData:
-            if datum.key() != tag:
-                continue
-            type_id = datum.typeId()
-            if type_id == exiv2.TypeId.xmpText:
-                return datum.toString()
-            if type_id == exiv2.TypeId.langAlt:
-                # just get 'x-default' value for now
-                value = exiv2.LangAltValue.downCast(datum.value())
-                return value.toString(0)
-            if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
-                           exiv2.TypeId.xmpSeq):
-                value = exiv2.XmpArrayValue.downCast(datum.value())
-                result = []
-                for n in range(value.count()):
-                    result.append(value.toString(n))
-                return result
+        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
+        if datum == self._xmpData.end():
             return None
-        return None
+        type_id = datum.typeId()
+        if type_id == exiv2.TypeId.xmpText:
+            return datum.toString()
+        if type_id == exiv2.TypeId.langAlt:
+            # just get 'x-default' value for now
+            value = exiv2.LangAltValue.downCast(datum.value())
+            return value.toString(0)
+        value = exiv2.XmpArrayValue.downCast(datum.value())
+        result = []
+        for n in range(value.count()):
+            result.append(value.toString(n))
+        return result
 
     def get_raw_value(self, tag):
-        for datum in self._data_set(tag):
-            if datum.key() != tag:
-                continue
-            return datum.toString().encode('utf-8', errors='surrogateescape')
-        return None
+        datum = self._iptcData.findKey(exiv2.IptcKey(tag))
+        if datum == self._iptcData.end():
+            return None
+        return datum.toString().encode('utf-8', errors='surrogateescape')
 
     def set_exif_value(self, tag, value):
         if not value:
@@ -302,16 +301,7 @@ class MetadataHandler(object):
         datum.setValue(xmp_value)
 
     def clear_tag(self, tag):
-        family = tag.split('.')[0]
-        if family == 'Exif':
-            data = self._exifData
-            key = exiv2.ExifKey(tag)
-        elif family == 'Iptc':
-            data = self._iptcData
-            key = exiv2.IptcKey(tag)
-        elif family == 'Xmp':
-            data = self._xmpData
-            key = exiv2.XmpKey(tag)
+        data, key = self._data_set(tag)
         while True:
             pos = data.findKey(key)
             if pos == data.end():
@@ -337,10 +327,8 @@ class MetadataHandler(object):
         return self._iptcData.count() > 0
 
     def has_tag(self, tag):
-        for datum in self._data_set(tag):
-            if datum.key() == tag:
-                return True
-        return False
+        data, key = self._data_set(tag)
+        return data.findKey(key) != data.end()
 
     @staticmethod
     def is_exif_tag(tag):
@@ -357,11 +345,11 @@ class MetadataHandler(object):
     def _data_set(self, tag):
         family = tag.split('.')[0]
         if family == 'Exif':
-            return self._exifData
+            return self._exifData, exiv2.ExifKey(tag)
         if family == 'Iptc':
-            return self._iptcData
+            return self._iptcData, exiv2.IptcKey(tag)
         if family == 'Xmp':
-            return self._xmpData
+            return self._xmpData, exiv2.XmpKey(tag)
         assert False, 'Invalid tag ' + tag
 
     def save(self):
