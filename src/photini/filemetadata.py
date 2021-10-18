@@ -39,10 +39,12 @@ class Exiv2Metadata(MetadataHandler):
         # file can contain several images, so choose largest one for
         # sensor size calculations
         possibles = ['Image']
-        for n in range(1, 10):
-            possibles.append('SubImage{}'.format(n))
-        for n in range(2, 11):
-            possibles.append('Image{}'.format(n))
+        for key in self.get_exif_tags():
+            family, group, tag = key.split('.')
+            if not (group.startswith('Image') or group.startswith('SubImage')):
+                continue
+            if tag == 'ImageWidth' and not group in possibles:
+                possibles.append(group)
         self.main_ifd = possibles[0]
         largest = 0
         for ifd in possibles:
@@ -107,11 +109,13 @@ class Exiv2Metadata(MetadataHandler):
             return data
         # try subimage thumbnails
         possibles = []
-        for n in range(1, 10):
-            possibles.append('SubImage{}'.format(n))
-            possibles.append('SubThumb{}'.format(n))
-        for n in range(2, 11):
-            possibles.append('Image{}'.format(n))
+        for key in self.get_exif_tags():
+            family, group, tag = key.split('.')
+            if not (group.startswith('Image') or group.startswith('SubImage')
+                    or group.startswith('SubThumb')):
+                continue
+            if tag == 'JPEGInterchangeFormat' and not group in possibles:
+                possibles.append(group)
         best = 0, 0
         for ifd in possibles:
             start = self.get_exif_value(
