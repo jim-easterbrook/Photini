@@ -57,15 +57,22 @@ class Exiv2Metadata(MetadataHandler):
                 largest = size
                 self.main_ifd = ifd
 
-    def clear_value(self, tag, idx=1):
-        if tag in self._multi_tags:
-            for t in self._multi_tags[tag]:
-                sub_tag = t.format(idx=idx)
-                self._clear_value(sub_tag)
-            return
-        self._clear_value(tag)
+    def clear_multi_group(self, tag, stop=0):
+        # count entries
+        idx = 1
+        while any(self.get_group(tag, idx=idx)):
+            idx += 1
+        # delete entries
+        while idx > stop + 1:
+            idx -= 1
+            self.clear_group(tag, idx=idx)
 
-    def _clear_value(self, tag):
+    def clear_group(self, tag, idx=1):
+        for t in self._multi_tags[tag]:
+            sub_tag = t.format(idx=idx)
+            self.clear_value(sub_tag)
+
+    def clear_value(self, tag):
         if not (tag and self.has_tag(tag)):
             return
         self.clear_tag(tag)
@@ -148,12 +155,7 @@ class Exiv2Metadata(MetadataHandler):
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries
-        idx = len(value)
-        while any(self.get_group(tag, idx=idx+1)):
-            idx += 1
-        while idx > len(value):
-            self.clear_value(tag, idx=idx)
-            idx -= 1
+        self.clear_multi_group(tag, stop=len(value))
         # set new entries
         for idx, sub_value in enumerate(value, 1):
             if not any(sub_value):
@@ -224,7 +226,7 @@ class Exiv2Metadata(MetadataHandler):
         if not tag:
             return
         if not value:
-            self._clear_value(tag)
+            self.clear_value(tag)
             return
         if self.is_iptc_tag(tag) and tag in self._max_bytes:
             value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
@@ -566,7 +568,12 @@ class Exiv2Metadata(MetadataHandler):
                 continue
             if ((not value) or (mode == 'W0')
                     or (mode == 'WX' and not self.xmp_only)):
-                self.clear_value(tag)
+                if tag not in self._multi_tags:
+                    self.clear_value(tag)
+                elif 'idx' in self._multi_tags[tag][0]:
+                    self.clear_multi_group(tag)
+                else:
+                    self.clear_group(tag)
                 continue
             if self.is_exif_tag(tag):
                 file_value = value.to_exif()
@@ -701,5 +708,5 @@ class SidecarMetadata(Exiv2Metadata):
         for name in ('date_digitised', 'date_modified', 'date_taken'):
             for mode, tag in self._tag_list[name]:
                 if mode in ('WA', 'W0'):
-                    self.clear_value(tag)
+                    self.clear_group(tag)
         self.save()
