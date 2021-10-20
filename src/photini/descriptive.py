@@ -130,8 +130,9 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
+        self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
+        self.favourites.setFixedWidth(self.favourites.minimumSizeHint().width())
         self.update_favourites()
-        self.favourites.setFixedWidth(self.favourites.title_width())
         self.favourites.currentIndexChanged.connect(self.add_favourite)
         layout.addWidget(self.favourites)
         # adopt child widget methods and signals

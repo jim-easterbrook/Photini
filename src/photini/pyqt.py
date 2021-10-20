@@ -274,10 +274,6 @@ class ComboBox(QtWidgets.QComboBox):
         margin = self.view().verticalScrollBar().sizeHint().width() * 3 // 2
         self.view().setMinimumWidth(width + margin)
 
-    def title_width(self):
-        margin = self.view().verticalScrollBar().sizeHint().width() * 3 // 2
-        return width_for_text(self, self.itemText(0)) + margin
-
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtSignal()
