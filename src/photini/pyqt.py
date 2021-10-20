@@ -271,10 +271,12 @@ class ComboBox(QtWidgets.QComboBox):
         width = 0
         for idx in range(self.count()):
             width = max(width, width_for_text(self, self.itemText(idx)))
-        self.view().setMinimumWidth(width + 30)
+        margin = self.view().verticalScrollBar().sizeHint().width() * 3 // 2
+        self.view().setMinimumWidth(width + margin)
 
     def title_width(self):
-        return width_for_text(self, self.itemText(0)) + 30
+        margin = self.view().verticalScrollBar().sizeHint().width() * 3 // 2
+        return width_for_text(self, self.itemText(0)) + margin
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
@@ -374,9 +376,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 class SingleLineEdit(MultiLineEdit):
     def __init__(self, *arg, **kw):
         super(SingleLineEdit, self).__init__(*arg, **kw)
-        self.setFixedHeight(
-            self.fontMetrics().lineSpacing() + 8 + (self.frameWidth() * 2))
-        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
+        self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
+        self.setLineWrapMode(self.NoWrap)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -425,14 +426,6 @@ class Slider(QtWidgets.QSlider):
 
     def is_multiple(self):
         return self._is_multiple
-
-
-class SquareButton(QtWidgets.QPushButton):
-    def sizeHint(self):
-        size = super(SquareButton, self).sizeHint()
-        size.setHeight(size.height() - 4)
-        size.setWidth(size.height())
-        return size
 
 
 class StartStopButton(QtWidgets.QPushButton):

@@ -29,7 +29,7 @@ from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
     catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
     QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
-    SquareButton, using_pyside2, width_for_text)
+    using_pyside2, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -615,17 +615,21 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.time_zone)
         self.layout().addSpacing(spacing)
         # add offset button
-        add_button = SquareButton(chr(0x002b))
+        add_button = QtWidgets.QPushButton(chr(0x002b))
         add_button.setStyleSheet('QPushButton {padding: 0px}')
         set_symbol_font(add_button)
         scale_font(add_button, 170)
+        add_button.setFixedWidth(self.offset.sizeHint().height())
+        add_button.setFixedHeight(self.offset.sizeHint().height())
         add_button.clicked.connect(self.add)
         self.layout().addWidget(add_button)
         # subtract offset button
-        sub_button = SquareButton(chr(0x2212))
+        sub_button = QtWidgets.QPushButton(chr(0x2212))
         sub_button.setStyleSheet('QPushButton {padding: 0px}')
         set_symbol_font(sub_button)
         scale_font(sub_button, 170)
+        sub_button.setFixedWidth(self.offset.sizeHint().height())
+        sub_button.setFixedHeight(self.offset.sizeHint().height())
         sub_button.clicked.connect(self.sub)
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)

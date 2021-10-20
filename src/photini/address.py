@@ -28,7 +28,8 @@ from photini.filemetadata import ImageMetadata
 from photini.metadata import Location
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit)
+    catch_all, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -48,7 +49,8 @@ class LocationInfo(QtWidgets.QWidget):
             self.members[key] = SingleLineEdit(
                 length_check=ImageMetadata.max_bytes(key))
             self.members[key].editingFinished.connect(self.editing_finished)
-        self.members['CountryCode'].setMaximumWidth(40)
+        self.members['CountryCode'].setMaximumWidth(
+            width_for_text(self.members['CountryCode'], 'WWW'))
         self.members['SubLocation'].setToolTip(translate(
             'AddressTab', 'Enter the name of the sublocation.'))
         self.members['City'].setToolTip(translate(

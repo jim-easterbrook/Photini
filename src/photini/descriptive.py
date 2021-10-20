@@ -25,7 +25,7 @@ import logging
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
     catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-    QtSlot, QtWidgets, SingleLineEdit, Slider)
+    QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -61,7 +61,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
         self.slider = Slider(Qt.Horizontal)
-        self.slider.setFixedWidth(200)
+        self.slider.setFixedWidth(width_for_text(self.slider, 'x' * 25))
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
         self.slider.valueChanged.connect(self.set_display)

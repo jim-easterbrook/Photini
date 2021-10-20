@@ -31,7 +31,7 @@ from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
     QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
-    SingleLineEdit)
+    SingleLineEdit, width_for_text)
 from photini.technical import DoubleSpinBox
 
 
@@ -217,7 +217,7 @@ class LatLongDisplay(SingleLineEdit):
         self.image_list = image_list
         self.label = QtWidgets.QLabel(translate('MapTabsAll', 'Lat, long'))
         self.label.setAlignment(Qt.AlignRight)
-        self.setFixedWidth(170)
+        self.setFixedWidth(width_for_text(self, '8' * 23))
         self.setEnabled(False)
         self.editingFinished.connect(self.editing_finished)
 

@@ -35,7 +35,7 @@ from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, DisableWidget, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, StartStopButton)
+    QtWidgets, StartStopButton, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -239,7 +239,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         user_group.layout().addWidget(self.user_photo)
         self.user_name = QtWidgets.QLabel()
         self.user_name.setWordWrap(True)
-        self.user_name.setFixedWidth(80)
+        self.user_name.setMinimumWidth(width_for_text(self.user_name, 'x' * 12))
         user_group.layout().addWidget(self.user_name)
         user_group.layout().addStretch(1)
         self.layout().addWidget(user_group, 0, 0, 1, 2)
