@@ -23,7 +23,8 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, MultiLineEdit, QtCore, QtSlot, QtWidgets, SingleLineEdit)
+    catch_all, MultiLineEdit, QtCore, QtSlot, QtWidgets, SingleLineEdit,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -297,8 +298,9 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def edit_template(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setFixedSize(min(800, self.window().width()),
-                            min(600, self.window().height()))
+        width = width_for_text(dialog, 'x' * 120)
+        dialog.setFixedSize(min(width, self.window().width()),
+                            min(width * 3 // 4, self.window().height()))
         dialog.setWindowTitle(self.tr('Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area

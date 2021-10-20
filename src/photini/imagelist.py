@@ -31,7 +31,7 @@ from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, image_types, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, scale_font, set_symbol_font, video_types)
+    QtWidgets, scale_font, set_symbol_font, video_types, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -719,8 +719,9 @@ class ImageList(QtWidgets.QWidget):
     def diff_selected_metadata(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setLayout(QtWidgets.QVBoxLayout())
-        dialog.setFixedSize(min(800, self.window().width()),
-                            min(400, self.window().height()))
+        width = width_for_text(dialog, 'x' * 120)
+        dialog.setFixedSize(min(width, self.window().width()),
+                            min(width // 2, self.window().height()))
         table = QtWidgets.QTableWidget()
         table.setColumnCount(3)
         table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
