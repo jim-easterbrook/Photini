@@ -39,14 +39,13 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 
 class Image(QtWidgets.QFrame):
-    def __init__(self, path, image_list, thumb_size=80, *arg, **kw):
+    def __init__(self, path, image_list, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.path = path
         self.image_list = image_list
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
-        self.thumb_size = thumb_size
         # read metadata
         self.metadata = Metadata(self.path, notify=self.show_status,
                                  utf_safe=self.app.options.utf_safe)
@@ -79,7 +78,7 @@ class Image(QtWidgets.QFrame):
         self.setObjectName("thumbnail")
         self.set_selected(False)
         self.show_status(False)
-        self._set_thumb_size(self.thumb_size)
+        self._set_thumb_size(thumb_size)
 
     def reload_metadata(self):
         self.metadata = Metadata(self.path, notify=self.show_status,
@@ -304,12 +303,12 @@ class Image(QtWidgets.QFrame):
     def _elide_name(self):
         self.status.adjustSize()
         elided_name = self.label.fontMetrics().elidedText(
-            self.name, Qt.ElideLeft, self.thumb_size - self.status.width())
+            self.name, Qt.ElideLeft, self.image.width() - self.status.width())
         self.label.setText(elided_name)
 
     def _set_thumb_size(self, thumb_size):
-        self.thumb_size = thumb_size
-        self.image.setFixedSize(self.thumb_size, self.thumb_size)
+        width = width_for_text(self.label, 'X' * thumb_size * 20) // 6
+        self.image.setFixedSize(width, width)
         self._elide_name()
 
     def set_thumb_size(self, thumb_size):
@@ -324,7 +323,7 @@ class Image(QtWidgets.QFrame):
         pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(
-            pixmap.scaled(self.thumb_size, self.thumb_size,
+            pixmap.scaled(self.image.width(), self.image.height(),
                           Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
     def set_selected(self, value):
@@ -503,7 +502,10 @@ class ImageList(QtWidgets.QWidget):
         self.images = []
         self.last_selected = None
         self.selection_anchor = None
-        self.thumb_size = self.app.config_store.get('controls', 'thumb_size', 80)
+        self.thumb_size = self.app.config_store.get('controls', 'thumb_size', 4)
+        if self.thumb_size > 20:
+            # old config, in pixels
+            self.thumb_size = self.thumb_size // 20
         layout = QtWidgets.QGridLayout()
         layout.setSpacing(0)
         layout.setRowStretch(0, 1)
@@ -548,10 +550,10 @@ class ImageList(QtWidgets.QWidget):
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
         self.size_slider.setPageStep(1)
-        self.size_slider.setValue(self.thumb_size // 20)
+        self.size_slider.setValue(self.thumb_size)
         self.size_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
-        width = self.size_slider.sizeHint().width()
-        self.size_slider.setMinimumWidth(width * 7 // 4)
+        self.size_slider.setMinimumWidth(
+            width_for_text(self.size_slider, 'x' * 20))
         self.size_slider.valueChanged.connect(self._new_thumb_size)
         layout.addWidget(self.size_slider, 1, 5)
 
@@ -959,7 +961,7 @@ class ImageList(QtWidgets.QWidget):
     @QtSlot(int)
     @catch_all
     def _new_thumb_size(self, value):
-        self.thumb_size = value * 20
+        self.thumb_size = value
         self.app.config_store.set('controls', 'thumb_size', self.thumb_size)
         for image in self.images:
             image.set_thumb_size(self.thumb_size)
