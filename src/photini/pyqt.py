@@ -270,8 +270,8 @@ class ComboBox(QtWidgets.QComboBox):
     def set_dropdown_width(self):
         width = 0
         for idx in range(self.count()):
-            width = max(width, width_for_text(self, self.itemText(idx)))
-        margin = self.view().verticalScrollBar().sizeHint().width() * 3 // 2
+            width = max(width, width_for_text(self, self.itemText(idx) + 'xx'))
+        margin = self.view().verticalScrollBar().sizeHint().width()
         self.view().setMinimumWidth(width + margin)
 
 
