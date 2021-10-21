@@ -22,6 +22,7 @@ from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
 import logging
+import os
 import re
 import sys
 
@@ -41,6 +42,9 @@ config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
 using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
+qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
+if qt_scale_factor != 1:
+    os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
 if not isinstance(using_pyside2, bool):
     using_pyside2 = False

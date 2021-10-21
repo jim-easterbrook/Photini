@@ -38,7 +38,7 @@ from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
     catch_all, Qt, QtCore, QtGui, QtNetwork, QNetworkProxy, QtSignal, QtSlot,
-    QtWidgets, qt_version, width_for_text)
+    QtWidgets, qt_version, qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -488,6 +488,10 @@ def main(argv=None):
     global app
     if argv:
         sys.argv = argv
+    if qt_version_info >= (5, 6):
+        QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    if qt_version_info >= (5, 0):
+        QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     # let Qt handle its options
     app = QtWidgets.QApplication(sys.argv)
     # get remaining argument list after Qt has swallowed its options
