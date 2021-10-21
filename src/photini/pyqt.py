@@ -48,9 +48,9 @@ qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
-_libs = ('PyQt5', 'PySide2', 'PySide6')
-
+# choose Qt package
 if qt_lib == 'auto':
+    _libs = ('PyQt5', 'PySide2', 'PySide6')
     for package in _libs:
         try:
             importlib.import_module('.QtCore', package)
@@ -60,75 +60,68 @@ if qt_lib == 'auto':
         break
     else:
         qt_lib = _libs[0]
-
 using_pyside2 = qt_lib != 'PyQt5'
 
+# import normal Qt stuff
 if qt_lib == 'PySide6':
     using_qtwebengine = True
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
     from PySide6.QtNetwork import QNetworkProxy
-    from PySide6 import QtWebChannel, QtWebEngineWidgets, QtWebEngineCore
     from PySide6.QtCore import Signal as QtSignal
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
     setattr(QtWidgets, 'QAction', QtGui.QAction)
     setattr(QtWidgets, 'QActionGroup', QtGui.QActionGroup)
     setattr(QtWidgets, 'QShortcut', QtGui.QShortcut)
-    setattr(QtWebEngineWidgets, 'QWebEnginePage',
-            QtWebEngineCore.QWebEnginePage)
-    setattr(QtWebEngineWidgets, 'QWebEngineSettings',
-            QtWebEngineCore.QWebEngineSettings)
 elif qt_lib == 'PySide2':
-    if not isinstance(using_qtwebengine, bool):
-        using_qtwebengine = True
-        try:
-            from PySide2 import QtWebEngineWidgets
-        except ImportError:
-            try:
-                from PySide2 import QtWebKit
-                using_qtwebengine = False
-            except ImportError:
-                pass
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtNetwork import QNetworkProxy
-    if using_qtwebengine:
-        from PySide2 import QtWebChannel, QtWebEngineWidgets
-    else:
-        from PySide2 import QtWebKit, QtWebKitWidgets
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
 elif qt_lib == 'PyQt5':
-    if not isinstance(using_qtwebengine, bool):
-        using_qtwebengine = True
-        try:
-            from PyQt5 import QtWebEngineWidgets
-        except ImportError:
-            try:
-                from PyQt5 import QtWebKit
-                using_qtwebengine = False
-            except ImportError:
-                pass
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
-    if using_qtwebengine:
-        from PyQt5 import QtWebChannel, QtWebEngineWidgets
-    else:
-        from PyQt5 import QtWebKit, QtWebKitWidgets
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
 else:
     raise RuntimeError('Unrecognised Qt library ' + qt_lib)
 
+# choose WebEngine or WebKit
+if not isinstance(using_qtwebengine, bool):
+    using_qtwebengine = True
+    try:
+        importlib.import_module('.QtWebEngineWidgets', qt_lib)
+    except ImportError:
+        using_qtwebengine = False
+
+# import WebEngine or WebKit stuff
 if using_qtwebengine:
-    QtWebKit = None
-    QtWebKitWidgets = None
+    if qt_lib == 'PySide6':
+        from PySide6 import QtWebChannel
+        from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
+        from PySide6.QtWebEngineWidgets import QWebEngineView
+    elif qt_lib == 'PySide2':
+        from PySide2 import QtWebChannel
+        from PySide2.QtWebEngineWidgets import (
+            QWebEnginePage, QWebEngineSettings, QWebEngineView)
+    else:
+        from PyQt5 import QtWebChannel
+        from PyQt5.QtWebEngineWidgets import (
+            QWebEnginePage, QWebEngineSettings, QWebEngineView)
 else:
     QtWebChannel = None
-    QtWebEngineWidgets = None
+    if qt_lib == 'PySide2':
+        from PySide2.QtWebKitWidgets import QWebPage as QWebEnginePage
+        from PySide2.QtWebKitWidgets import QWebView as QWebEngineView
+        from PySide2.QtWebKit import QWebSettings as QWebEngineSettings
+    else:
+        from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
+        from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
+        from PyQt5.QtWebKit import QWebSettings as QWebEngineSettings
 
 
 style = config.get('pyqt', 'style')
