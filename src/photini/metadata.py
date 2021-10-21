@@ -583,7 +583,7 @@ class Thumbnail(MD_Dict):
             if value['image'].isNull():
                 logger.error('thumbnail: %s', reader.errorString())
                 value['image'] = None
-        if len(value['data']) >= 50000:
+        if value['data'] and len(value['data']) >= 50000:
             # don't keep unusably large amount of data
             value['data'] = None
         if value['image'] and not value['data']:
@@ -596,7 +596,7 @@ class Thumbnail(MD_Dict):
                 value['data'] = buf.data().data()
                 if len(value['data']) < 50000:
                     break
-                quality -= 1
+                quality -= 5
         if value['image']:
             value['w'] = value['image'].width()
             value['h'] = value['image'].height()
@@ -636,10 +636,10 @@ class Thumbnail(MD_Dict):
     def to_xmp(self):
         save = self
         if save['fmt'] != 'JPEG':
-            save = Thumbnail({'image': self['image']})
+            save = Thumbnail({'image': save['image']})
         data = codecs.encode(save['data'], 'base64_codec')
         data = data.decode('ascii')
-        return (str(save['w']), str(save['h']), 'JPEG', data)
+        return (str(save['w']), str(save['h']), save['fmt'], data)
 
     def __str__(self):
         return '{fmt} thumbnail, {w}x{h}, {size} bytes'.format(
