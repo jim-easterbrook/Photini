@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
+import importlib
 import logging
 import os
 import re
@@ -42,22 +43,43 @@ config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
 using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
+qt_lib = config.get('pyqt', 'qt_lib', 'auto')
 qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
-if not isinstance(using_pyside2, bool):
-    using_pyside2 = False
-    try:
-        from PyQt5 import QtCore
-    except ImportError:
-        try:
-            from PySide2 import QtCore
-            using_pyside2 = True
-        except ImportError:
-            pass
+_libs = ('PyQt5', 'PySide2', 'PySide6')
 
-if using_pyside2:
+if qt_lib == 'auto':
+    for package in _libs:
+        try:
+            importlib.import_module('.QtCore', package)
+        except ImportError:
+            continue
+        qt_lib = package
+        break
+    else:
+        qt_lib = _libs[0]
+
+using_pyside2 = qt_lib != 'PyQt5'
+
+if qt_lib == 'PySide6':
+    using_qtwebengine = True
+    from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
+    from PySide6.QtCore import Qt
+    from PySide6.QtNetwork import QNetworkProxy
+    from PySide6 import QtWebChannel, QtWebEngineWidgets, QtWebEngineCore
+    from PySide6.QtCore import Signal as QtSignal
+    from PySide6.QtCore import Slot as QtSlot
+    from PySide6 import __version__ as PySide_version
+    setattr(QtWidgets, 'QAction', QtGui.QAction)
+    setattr(QtWidgets, 'QActionGroup', QtGui.QActionGroup)
+    setattr(QtWidgets, 'QShortcut', QtGui.QShortcut)
+    setattr(QtWebEngineWidgets, 'QWebEnginePage',
+            QtWebEngineCore.QWebEnginePage)
+    setattr(QtWebEngineWidgets, 'QWebEngineSettings',
+            QtWebEngineCore.QWebEngineSettings)
+elif qt_lib == 'PySide2':
     if not isinstance(using_qtwebengine, bool):
         using_qtwebengine = True
         try:
@@ -77,8 +99,8 @@ if using_pyside2:
         from PySide2 import QtWebKit, QtWebKitWidgets
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
-    from PySide2 import __version__ as PySide2_version
-else:
+    from PySide2 import __version__ as PySide_version
+elif qt_lib == 'PyQt5':
     if not isinstance(using_qtwebengine, bool):
         using_qtwebengine = True
         try:
@@ -98,6 +120,8 @@ else:
         from PyQt5 import QtWebKit, QtWebKitWidgets
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
+else:
+    raise RuntimeError('Unrecognised Qt library ' + qt_lib)
 
 if using_qtwebengine:
     QtWebKit = None
@@ -115,15 +139,16 @@ del config, style
 
 translate = QtCore.QCoreApplication.translate
 
-if using_pyside2:
-    qt_version_info = QtCore.__version_info__
-    qt_version = 'PySide {}, Qt {}'.format(PySide2_version, QtCore.__version__)
-else:
+if qt_lib == 'PyQt5':
     qt_version_info = namedtuple(
         'qt_version_info', ('major', 'minor', 'micro'))._make(
             map(int, QtCore.QT_VERSION_STR.split('.')))
     qt_version = 'PyQt {}, Qt {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+else:
+    qt_version_info = QtCore.__version_info__
+    qt_version = '{} {}, Qt {}'.format(
+        qt_lib, PySide_version, QtCore.__version__)
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
 
