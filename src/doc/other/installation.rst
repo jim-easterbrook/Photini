@@ -22,6 +22,8 @@ Python_ is absolutely essential to run Photini.
 It is already installed on many computers, but on Windows you will probably need to install it yourself.
 Go to https://www.python.org/downloads/ and choose a suitable Windows installer.
 I suggest you use the 64-bit stable release with the highest version number that will run on your version of Windows.
+Beware of using very recent versions though, as some dependencies may not have been updated to work with the latest Python.
+For example, PySide2_ is only available for Python 3.5 to 3.9 (as of 22/10/2021).
 
 When you run the Python installer make sure you select the "add Python to PATH" option.
 If you customise your installation then make sure you still select "pip".
@@ -359,7 +361,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _python3-gphoto2:   https://pypi.org/project/gphoto2/
 .. _PyPI:              https://pypi.org/
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
-.. _PySide2:           https://doc.qt.io/qtforpython/
+.. _PySide2:           https://pypi.org/project/PySide2/
 .. _QtWebEngine:       https://wiki.qt.io/QtWebEngine
 .. _QtWebKit:          https://wiki.qt.io/Qt_WebKit
 .. _requests:          http://python-requests.org/
