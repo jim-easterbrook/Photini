@@ -41,9 +41,14 @@ if sys.platform.startswith('linux'):
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
-using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
+using_pyside = config.get('pyqt', 'using_pyside2')
+config.delete('pyqt', 'using_pyside2')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
 qt_lib = config.get('pyqt', 'qt_lib', 'auto')
+if qt_lib == 'auto' and isinstance(using_pyside, bool):
+    # copy old config
+    qt_lib = ('PyQt5', 'PySide2')[using_pyside]
+    config.set('pyqt', 'qt_lib', qt_lib)
 qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
@@ -60,7 +65,7 @@ if qt_lib == 'auto':
         break
     else:
         qt_lib = _libs[0]
-using_pyside2 = qt_lib != 'PyQt5'
+using_pyside = qt_lib != 'PyQt5'
 
 # import normal Qt stuff
 if qt_lib == 'PySide6':
