@@ -50,7 +50,7 @@ class LocationInfo(QtWidgets.QWidget):
                 length_check=ImageMetadata.max_bytes(key))
             self.members[key].editingFinished.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
-            width_for_text(self.members['CountryCode'], 'WWW'))
+            width_for_text(self.members['CountryCode'], 'W' * 4))
         self.members['SubLocation'].setToolTip(translate(
             'AddressTab', 'Enter the name of the sublocation.'))
         self.members['City'].setToolTip(translate(
