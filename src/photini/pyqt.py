@@ -21,6 +21,7 @@ from __future__ import unicode_literals
 from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
+import importlib
 import logging
 import os
 import re
@@ -40,71 +41,90 @@ if sys.platform.startswith('linux'):
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
-using_pyside2 = config.get('pyqt', 'using_pyside2', 'auto')
+using_pyside = config.get('pyqt', 'using_pyside2')
+config.delete('pyqt', 'using_pyside2')
 using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
+qt_lib = config.get('pyqt', 'qt_lib', 'auto')
+if qt_lib == 'auto' and isinstance(using_pyside, bool):
+    # copy old config
+    qt_lib = ('PyQt5', 'PySide2')[using_pyside]
+    config.set('pyqt', 'qt_lib', qt_lib)
 qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
-if not isinstance(using_pyside2, bool):
-    using_pyside2 = False
-    try:
-        from PyQt5 import QtCore
-    except ImportError:
+# choose Qt package
+if qt_lib == 'auto':
+    _libs = ('PyQt5', 'PySide2', 'PySide6')
+    for package in _libs:
         try:
-            from PySide2 import QtCore
-            using_pyside2 = True
+            importlib.import_module('.QtCore', package)
         except ImportError:
-            pass
+            continue
+        qt_lib = package
+        break
+    else:
+        qt_lib = _libs[0]
+using_pyside = qt_lib != 'PyQt5'
 
-if using_pyside2:
-    if not isinstance(using_qtwebengine, bool):
-        using_qtwebengine = True
-        try:
-            from PySide2 import QtWebEngineWidgets
-        except ImportError:
-            try:
-                from PySide2 import QtWebKit
-                using_qtwebengine = False
-            except ImportError:
-                pass
+# import normal Qt stuff
+if qt_lib == 'PySide6':
+    using_qtwebengine = True
+    from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
+    from PySide6.QtCore import Qt
+    from PySide6.QtNetwork import QNetworkProxy
+    from PySide6.QtCore import Signal as QtSignal
+    from PySide6.QtCore import Slot as QtSlot
+    from PySide6 import __version__ as PySide_version
+    QtGui2 = QtGui
+elif qt_lib == 'PySide2':
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtNetwork import QNetworkProxy
-    if using_qtwebengine:
-        from PySide2 import QtWebChannel, QtWebEngineWidgets
-    else:
-        from PySide2 import QtWebKit, QtWebKitWidgets
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
-    from PySide2 import __version__ as PySide2_version
-else:
-    if not isinstance(using_qtwebengine, bool):
-        using_qtwebengine = True
-        try:
-            from PyQt5 import QtWebEngineWidgets
-        except ImportError:
-            try:
-                from PyQt5 import QtWebKit
-                using_qtwebengine = False
-            except ImportError:
-                pass
+    from PySide2 import __version__ as PySide_version
+    QtGui2 = QtWidgets
+elif qt_lib == 'PyQt5':
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
-    if using_qtwebengine:
-        from PyQt5 import QtWebChannel, QtWebEngineWidgets
-    else:
-        from PyQt5 import QtWebKit, QtWebKitWidgets
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
+    QtGui2 = QtWidgets
+else:
+    raise RuntimeError('Unrecognised Qt library ' + qt_lib)
 
+# choose WebEngine or WebKit
+if not isinstance(using_qtwebengine, bool):
+    using_qtwebengine = True
+    try:
+        importlib.import_module('.QtWebEngineWidgets', qt_lib)
+    except ImportError:
+        using_qtwebengine = False
+
+# import WebEngine or WebKit stuff
 if using_qtwebengine:
-    QtWebKit = None
-    QtWebKitWidgets = None
+    if qt_lib == 'PySide6':
+        from PySide6 import QtWebChannel
+        from PySide6 import QtWebEngineWidgets as QtWebWidgets
+        from PySide6 import QtWebEngineCore as QtWebCore
+    elif qt_lib == 'PySide2':
+        from PySide2 import QtWebChannel
+        from PySide2 import QtWebEngineWidgets as QtWebWidgets
+        QtWebCore = QtWebWidgets
+    else:
+        from PyQt5 import QtWebChannel
+        from PyQt5 import QtWebEngineWidgets as QtWebWidgets
+        QtWebCore = QtWebWidgets
 else:
     QtWebChannel = None
-    QtWebEngineWidgets = None
+    if qt_lib == 'PySide2':
+        from PySide2 import QtWebKitWidgets as QtWebWidgets
+        from PySide2 import QtWebKit as QtWebCore
+    else:
+        from PyQt5 import QtWebKitWidgets as QtWebWidgets
+        from PyQt5 import QtWebKit as QtWebCore
 
 
 style = config.get('pyqt', 'style')
@@ -115,15 +135,16 @@ del config, style
 
 translate = QtCore.QCoreApplication.translate
 
-if using_pyside2:
-    qt_version_info = QtCore.__version_info__
-    qt_version = 'PySide {}, Qt {}'.format(PySide2_version, QtCore.__version__)
-else:
+if qt_lib == 'PyQt5':
     qt_version_info = namedtuple(
         'qt_version_info', ('major', 'minor', 'micro'))._make(
             map(int, QtCore.QT_VERSION_STR.split('.')))
     qt_version = 'PyQt {}, Qt {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+else:
+    qt_version_info = QtCore.__version_info__
+    qt_version = '{} {}, Qt {}'.format(
+        qt_lib, PySide_version, QtCore.__version__)
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
 
@@ -307,7 +328,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
-        suggestion_group = QtWidgets.QActionGroup(menu)
+        suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple:
             if self.choices:
                 sep = menu.insertSeparator(menu.actions()[0])
@@ -315,7 +336,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 for suggestion in self.choices:
                     label = str(suggestion).replace('\n', ' ')
                     label = fm.elidedText(label, Qt.ElideMiddle, self.width())
-                    action = QtWidgets.QAction(label, suggestion_group)
+                    action = QtGui2.QAction(label, suggestion_group)
                     action.setData(str(suggestion))
                     menu.insertAction(sep, action)
         elif self.spell_check:
@@ -334,7 +355,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             if suggestions:
                 sep = menu.insertSeparator(menu.actions()[0])
                 for suggestion in suggestions:
-                    action = QtWidgets.QAction(suggestion, suggestion_group)
+                    action = QtGui2.QAction(suggestion, suggestion_group)
                     menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:

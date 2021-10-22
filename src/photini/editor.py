@@ -37,8 +37,8 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtNetwork, QNetworkProxy, QtSignal, QtSlot,
-    QtWidgets, qt_version, qt_version_info, width_for_text)
+    catch_all, Qt, QtCore, QtGui, QtGui2, QtNetwork, QNetworkProxy, QtSignal,
+    QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -301,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
         language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
         if languages:
-            language_group = QtWidgets.QActionGroup(self)
+            language_group = QtGui2.QActionGroup(self)
             for name, code in languages:
                 if name != code:
                     name = code + ': ' + name
@@ -393,10 +393,13 @@ class MainWindow(QtWidgets.QMainWindow):
     @catch_all
     def edit_settings(self):
         dialog = EditSettings(self)
-        dialog.exec_()
+        if qt_version_info >= (6, 0):
+            dialog.exec()
+        else:
+            dialog.exec_()
         self.tabs.currentWidget().refresh()
 
-    @QtSlot(QtWidgets.QAction)
+    @QtSlot(QtGui2.QAction)
     @catch_all
     def set_language(self, action):
         self.app.spell_check.set_language(action.data())
@@ -438,7 +441,10 @@ jim@jim-easterbrook.me.uk</a><br /><br />
             'This program is released with a GNU General Public'
             ' License. For details click the "{}" button.').format(
                 dialog.buttons()[0].text()))
-        dialog.exec_()
+        if qt_version_info >= (6, 0):
+            dialog.exec()
+        else:
+            dialog.exec_()
 
     @QtSlot(int, int)
     @catch_all
@@ -488,7 +494,7 @@ def main(argv=None):
     global app
     if argv:
         sys.argv = argv
-    if qt_version_info >= (5, 6):
+    if qt_version_info >= (5, 6) and qt_version_info < (6, 0):
         QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     if qt_version_info >= (5, 0):
         QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
@@ -546,7 +552,10 @@ def main(argv=None):
     # create GUI and run application event loop
     main = MainWindow(options, args)
     main.show()
-    return app.exec_()
+    if qt_version_info >= (6, 0):
+        return app.exec()
+    else:
+        return app.exec_()
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -30,8 +30,9 @@ except ImportError:
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, scale_font, set_symbol_font, video_types, width_for_text)
+    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot,
+    QtWidgets, qt_version_info, scale_font, set_symbol_font, video_types,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -222,12 +223,18 @@ class Image(QtWidgets.QFrame):
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
         self.image_list.add_selected_actions(menu)
-        menu.exec_(event.globalPos())
+        if qt_version_info >= (6, 0):
+            menu.exec(event.globalPos())
+        else:
+            menu.exec_(event.globalPos())
 
     @catch_all
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.drag_start_pos = event.pos()
+            if qt_version_info >= (6, 0):
+                self.drag_start_pos = event.position()
+            else:
+                self.drag_start_pos = event.pos()
 
     @catch_all
     def mouseReleaseEvent(self, event):
@@ -242,7 +249,11 @@ class Image(QtWidgets.QFrame):
     def mouseMoveEvent(self, event):
         if not self.image_list.drag_icon:
             return
-        if ((event.pos() - self.drag_start_pos).manhattanLength() <
+        if qt_version_info >= (6, 0):
+            pos = event.position()
+        else:
+            pos = event.pos()
+        if ((pos - self.drag_start_pos).manhattanLength() <
                                     QtWidgets.QApplication.startDragDistance()):
             return
         if not self.get_selected():
@@ -281,7 +292,10 @@ class Image(QtWidgets.QFrame):
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
-        dropAction = drag.exec_(Qt.CopyAction)
+        if qt_version_info >= (6, 0):
+            drag.exec(Qt.CopyAction)
+        else:
+            drag.exec_(Qt.CopyAction)
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
@@ -518,20 +532,20 @@ class ImageList(QtWidgets.QWidget):
         self.scroll_area.multi_row_changed.connect(
             self._ensure_selected_visible)
         layout.addWidget(self.scroll_area, 0, 0, 1, 6)
-        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
-                        self.scroll_area, self.move_to_prev_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToNextChar,
-                        self.scroll_area, self.move_to_next_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToStartOfLine,
-                        self.scroll_area, self.move_to_first_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.MoveToEndOfLine,
-                        self.scroll_area, self.move_to_last_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
-                        self.scroll_area, self.select_prev_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.SelectNextChar,
-                        self.scroll_area, self.select_next_thumb)
-        QtWidgets.QShortcut(QtGui.QKeySequence.SelectAll,
-                        self.scroll_area, self.select_all)
+        QtGui2.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
+                         self.scroll_area, self.move_to_prev_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.MoveToNextChar,
+                         self.scroll_area, self.move_to_next_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.MoveToStartOfLine,
+                         self.scroll_area, self.move_to_first_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.MoveToEndOfLine,
+                         self.scroll_area, self.move_to_last_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
+                         self.scroll_area, self.select_prev_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.SelectNextChar,
+                         self.scroll_area, self.select_next_thumb)
+        QtGui2.QShortcut(QtGui.QKeySequence.SelectAll,
+                         self.scroll_area, self.select_all)
         # sort key selector
         layout.addWidget(QtWidgets.QLabel(self.tr('sort by: ')), 1, 0)
         self.sort_name = QtWidgets.QRadioButton(self.tr('file name'))
@@ -783,7 +797,11 @@ class ImageList(QtWidgets.QWidget):
             table.resizeRowsToContents()
             if position:
                 dialog.move(position)
-            if dialog.exec_() != QtWidgets.QDialog.Accepted:
+            if qt_version_info >= (6, 0):
+                result = dialog.exec()
+            else:
+                result = dialog.exec_()
+            if result != QtWidgets.QDialog.Accepted:
                 return
             position = dialog.pos()
             undo_all = True
@@ -903,7 +921,10 @@ class ImageList(QtWidgets.QWidget):
             buttons |= QtWidgets.QMessageBox.Discard
         dialog.setStandardButtons(buttons)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Save)
-        result = dialog.exec_()
+        if qt_version_info >= (6, 0):
+            result = dialog.exec()
+        else:
+            result = dialog.exec_()
         if result == QtWidgets.QMessageBox.Save:
             self._save_files()
             return True

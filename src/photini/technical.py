@@ -27,9 +27,9 @@ import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
-    catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui,
+    catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui, QtGui2,
     QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
-    using_pyside2, width_for_text)
+    using_pyside, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -61,7 +61,7 @@ class DropdownEdit(ComboBox):
         for name, value in self.get_items():
             if value == current_value:
                 continue
-            action = QtWidgets.QAction(
+            action = QtGui2.QAction(
                 translate('TechnicalTab', 'Remove "{}"').format(name),
                 parent=self)
             action.setData(value)
@@ -222,7 +222,7 @@ class AugmentSpinBox(object):
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
-    class ContextAction(QtWidgets.QAction):
+    class ContextAction(QtGui2.QAction):
         def __init__(self, value, *arg, **kw):
             super(AugmentSpinBox.ContextAction, self).__init__(*arg, **kw)
             self.setData(value)
@@ -582,7 +582,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
                 continue
             new_value[key] = self.members[key].get_value()
             if key == 'datetime' and new_value[key]:
-                if using_pyside2:
+                if using_pyside:
                     new_value[key] = new_value[key].toPython()
                 else:
                     new_value[key] = new_value[key].toPyDateTime()

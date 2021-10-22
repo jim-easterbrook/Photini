@@ -30,8 +30,8 @@ import requests
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
-    QtWebEngineWidgets, QtWebKit, QtWebKitWidgets, QtWidgets, qt_version_info,
-    SingleLineEdit, width_for_text)
+    QtWebCore, QtWebWidgets, QtWidgets, qt_version_info, SingleLineEdit,
+    using_qtwebengine, width_for_text)
 from photini.technical import DoubleSpinBox
 
 
@@ -98,8 +98,8 @@ class CallHandler(QtCore.QObject):
         self.parent().marker_drop(lat, lng)
 
 
-if QtWebEngineWidgets:
-    class QWebPage(QtWebEngineWidgets.QWebEnginePage):
+if using_qtwebengine:
+    class QWebPage(QtWebCore.QWebEnginePage):
         def set_call_handler(self, call_handler):
             self.web_channel = QtWebChannel.QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
@@ -125,7 +125,7 @@ if QtWebEngineWidgets:
 
 
 else:
-    class QWebPage(QtWebKitWidgets.QWebPage):
+    class QWebPage(QtWebWidgets.QWebPage):
         def __init__(self, call_handler, *args, **kwds):
             super(QWebPage, self).__init__(*args, **kwds)
             self.call_handler = call_handler
@@ -161,29 +161,29 @@ class MapWebPage(QWebPage):
             logger.error('%s line %d: %s', source, line, msg)
 
 
-if QtWebEngineWidgets:
-    class QWebView(QtWebEngineWidgets.QWebEngineView):
+if using_qtwebengine:
+    class QWebView(QtWebWidgets.QWebEngineView):
         def __init__(self, call_handler, *args, **kwds):
             super(QWebView, self).__init__(*args, **kwds)
             self.setPage(MapWebPage(parent=self))
             self.page().set_call_handler(call_handler)
             self.settings().setAttribute(
-                QtWebEngineWidgets.QWebEngineSettings.Accelerated2dCanvasEnabled, False)
+                QtWebCore.QWebEngineSettings.Accelerated2dCanvasEnabled, False)
             self.settings().setAttribute(
-                QtWebEngineWidgets.QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
+                QtWebCore.QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
             self.settings().setAttribute(
-                QtWebEngineWidgets.QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+                QtWebCore.QWebEngineSettings.LocalContentCanAccessFileUrls, True)
 
 
 else:
-    class QWebView(QtWebKitWidgets.QWebView):
+    class QWebView(QtWebWidgets.QWebView):
         def __init__(self, call_handler, *args, **kwds):
             super(QWebView, self).__init__(*args, **kwds)
             self.setPage(MapWebPage(call_handler, parent=self))
             self.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessRemoteUrls, True)
+                QtWebCore.QWebSettings.LocalContentCanAccessRemoteUrls, True)
             self.settings().setAttribute(
-                QtWebKit.QWebSettings.LocalContentCanAccessFileUrls, True)
+                QtWebCore.QWebSettings.LocalContentCanAccessFileUrls, True)
 
 
 class MapWebView(QWebView):
@@ -376,7 +376,7 @@ class PhotiniMap(QtWidgets.QWidget):
 </html>'''
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = int(self.app.config_store.get('map', 'zoom', 11))
-        if QtWebEngineWidgets:
+        if using_qtwebengine:
             initialize = '''    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>

@@ -32,7 +32,7 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, image_types_lower, Qt, QtCore, QtGui,
+    Busy, catch_all, image_types_lower, Qt, QtCore, QtGui, QtGui2,
     QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
@@ -402,7 +402,7 @@ class TabWidget(QtWidgets.QWidget):
         roots.sort(key=lambda x: x[1], reverse=True)
         for root, last_transfer in roots:
             name = translate('ImporterTab', 'folder: {0}').format(root)
-            action = QtWidgets.QAction(
+            action = QtGui2.QAction(
                 translate('TechnicalTab', 'Remove "{}"').format(name),
                 parent=self)
             action.setData('importer folder ' + root)
