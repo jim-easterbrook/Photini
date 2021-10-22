@@ -189,7 +189,7 @@ class MetadataHandler(object):
                    'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             return datum._print()
-        if tag == 'Exif.Photo.UserComment':
+        if datum.typeId() == exiv2.TypeId.comment:
             return self.get_exif_comment(datum)
         return datum.toString()
 
