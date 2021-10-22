@@ -212,15 +212,16 @@ Package                        Minimum version    Typical Linux package name    
 Python_                        3.6                python3
 PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  PyQt5
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
+PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit        PyQtWebEngine
 `python-exiv2`_ [3]            0.3.1                                            python-exiv2
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
 =============================  =================  ============================  =================
 
-[1] PyQt_ and PySide2_ are both Python interfaces to the Qt GUI framework.
-Photini version 2020.12.0 and later can use either PyQt or PySide2, so you can install whichever one you prefer.
-If both are installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
+[1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework.
+Photini version 2020.12.0 and later can use either PyQt or PySide2, and Photini version 2021.11.0 and later can also use PySide6, so you can install whichever one you prefer.
+If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
 One of these may already be included in your PyQt_ or PySide2_ installation.
@@ -362,6 +363,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _PyPI:              https://pypi.org/
 .. _PyQt:              http://www.riverbankcomputing.co.uk/software/pyqt/
 .. _PySide2:           https://pypi.org/project/PySide2/
+.. _PySide6:           https://pypi.org/project/PySide6/
 .. _QtWebEngine:       https://wiki.qt.io/QtWebEngine
 .. _QtWebKit:          https://wiki.qt.io/Qt_WebKit
 .. _requests:          http://python-requests.org/

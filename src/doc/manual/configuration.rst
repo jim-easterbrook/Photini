@@ -72,7 +72,7 @@ If you'd like to store it elsewhere (e.g. on a networked drive so you can share 
 PyQt options
 ^^^^^^^^^^^^
 
-The configuration file includes options to select use of PyQt5 or PySide2, and use of QtWebKit instead of QtWebEngine.
+The configuration file includes options to select use of PyQt5, PySide2, or PySide6, and use of QtWebKit instead of QtWebEngine.
 These may be useful if one of these components on your computer is incompatible with Photini.
 There are so many versions of PyQt that it is impossible to test Photini with every one.
 
@@ -81,15 +81,20 @@ The default options in the configuration file are in the ``[pyqt]`` section:
 .. code-block:: guess
 
    [pyqt]
-   using_pyside2 = auto
-   using_qtwebengine = auto
+   using_qtwebengine = 'auto'
+   qt_lib = 'auto'
+   scale_factor = 1
    native_dialog = True
 
-To force use of PySide2 set the value of ``using_pyside2`` to ``True``.
+To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PySide2'``, or ``'PySide6'``.
 To force the use of QtWebKit set the value of ``using_qtwebengine`` to ``False``.
 You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::
 
    photini --version
+
+If your computer has a high resolution screen, or you have poor eyesight, you may find the Photini user interface's text is too small to read comfortably.
+Setting ``scale_factor`` to a value larger than ``1`` should enlarge Photini.
+Using non-integer values is possible, but might show artefacts from the scaling.
 
 Setting the ``native_dialog`` option to ``False`` makes Photini use a Qt dialog to select files to open instead of the normal operating system dialog.
 
@@ -137,8 +142,9 @@ Note that after doing this you can not set a different style on the command line
 .. code-block:: guess
 
    [pyqt]
-   using_pyside2 = auto
-   using_qtwebengine = auto
+   using_qtwebengine = 'auto'
+   qt_lib = 'auto'
+   scale_factor = 1
    native_dialog = True
    style = cleanlooks
 
@@ -155,25 +161,27 @@ You can reorder the tabs by reordering this list.
 
    [tabs]
    modules = ['photini.descriptive',
-            'photini.technical',
-            'photini.googlemap',
-            'photini.bingmap',
-            'photini.mapboxmap',
-            'photini.openstreetmap',
-            'photini.address',
-            'photini.flickr',
-            'photini.googlephotos',
-            'photini.importer']
+           'photini.ownership',
+           'photini.technical',
+           'photini.googlemap',
+           'photini.bingmap',
+           'photini.mapboxmap',
+           'photini.openstreetmap',
+           'photini.address',
+           'photini.flickr',
+           'photini.googlephotos',
+           'photini.importer']
    photini.descriptive = True
    photini.technical = True
    photini.googlemap = True
    photini.bingmap = True
    photini.mapboxmap = True
    photini.openstreetmap = True
-   photini.address = True
    photini.flickr = True
    photini.googlephotos = True
    photini.importer = True
+   photini.address = True
+   photini.ownership = True
 
 You could even use a tab provided by another Python package by adding its module name to the list.
 See :doc:`extending` for more information.
