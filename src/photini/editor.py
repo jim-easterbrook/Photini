@@ -37,8 +37,8 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtNetwork, QNetworkProxy, QtSignal, QtSlot,
-    QtWidgets, qt_version, qt_version_info, width_for_text)
+    catch_all, Qt, QtCore, QtGui, QtGui2, QtNetwork, QNetworkProxy, QtSignal,
+    QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -301,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
         language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
         if languages:
-            language_group = QtWidgets.QActionGroup(self)
+            language_group = QtGui2.QActionGroup(self)
             for name, code in languages:
                 if name != code:
                     name = code + ': ' + name
@@ -399,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dialog.exec_()
         self.tabs.currentWidget().refresh()
 
-    @QtSlot(QtWidgets.QAction)
+    @QtSlot(QtGui2.QAction)
     @catch_all
     def set_language(self, action):
         self.app.spell_check.set_language(action.data())

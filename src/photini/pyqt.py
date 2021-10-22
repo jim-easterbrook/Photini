@@ -71,9 +71,7 @@ if qt_lib == 'PySide6':
     from PySide6.QtCore import Signal as QtSignal
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
-    setattr(QtWidgets, 'QAction', QtGui.QAction)
-    setattr(QtWidgets, 'QActionGroup', QtGui.QActionGroup)
-    setattr(QtWidgets, 'QShortcut', QtGui.QShortcut)
+    QtGui2 = QtGui
 elif qt_lib == 'PySide2':
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
@@ -81,12 +79,14 @@ elif qt_lib == 'PySide2':
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
+    QtGui2 = QtWidgets
 elif qt_lib == 'PyQt5':
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtNetwork import QNetworkProxy
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
+    QtGui2 = QtWidgets
 else:
     raise RuntimeError('Unrecognised Qt library ' + qt_lib)
 
@@ -325,7 +325,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     @catch_all
     def contextMenuEvent(self, event):
         menu = self.createStandardContextMenu()
-        suggestion_group = QtWidgets.QActionGroup(menu)
+        suggestion_group = QtGui2.QActionGroup(menu)
         if self._is_multiple:
             if self.choices:
                 sep = menu.insertSeparator(menu.actions()[0])
@@ -333,7 +333,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 for suggestion in self.choices:
                     label = str(suggestion).replace('\n', ' ')
                     label = fm.elidedText(label, Qt.ElideMiddle, self.width())
-                    action = QtWidgets.QAction(label, suggestion_group)
+                    action = QtGui2.QAction(label, suggestion_group)
                     action.setData(str(suggestion))
                     menu.insertAction(sep, action)
         elif self.spell_check:
@@ -352,7 +352,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
             if suggestions:
                 sep = menu.insertSeparator(menu.actions()[0])
                 for suggestion in suggestions:
-                    action = QtWidgets.QAction(suggestion, suggestion_group)
+                    action = QtGui2.QAction(suggestion, suggestion_group)
                     menu.insertAction(sep, action)
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
