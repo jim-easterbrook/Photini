@@ -114,44 +114,8 @@ class Exiv2Metadata(MetadataHandler):
         data = self.get_exif_thumbnail()
         if data:
             return data
-        # try subimage thumbnails
-        possibles = []
-        for key in self.get_exif_tags():
-            family, group, tag = key.split('.')
-            if not (group.startswith('Image') or group.startswith('SubImage')
-                    or group.startswith('SubThumb')):
-                continue
-            if tag == 'JPEGInterchangeFormat' and not group in possibles:
-                possibles.append(group)
-        best = 0, 0
-        for ifd in possibles:
-            start = self.get_exif_value(
-                'Exif.{}.JPEGInterchangeFormat'.format(ifd))
-            length = self.get_exif_value(
-                'Exif.{}.JPEGInterchangeFormatLength'.format(ifd))
-            if not (start and length):
-                continue
-            start = int(start)
-            length = int(length)
-            if length > 64 * 1024:
-                # unlikely to be a thumbnail
-                continue
-            if length > best[1]:
-                best = start, length
-        start, length = best
-        if length >= 1024:
-            # probably is a thumbnail
-            with open(self._path, 'rb') as f:
-                buf = f.read(start + length)
-            return buf[start:]
-        # try "main" image
-        w = self.get_exif_value('Exif.Image.ImageWidth')
-        h = self.get_exif_value('Exif.Image.ImageLength')
-        if w and h and max(int(w), int(h)) <= 512:
-            with open(self._path, 'rb') as f:
-                buf = f.read()
-            return buf
-        return None
+        # try previews
+        return self.get_preview_thumbnail()
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries

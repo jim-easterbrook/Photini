@@ -231,6 +231,20 @@ class MetadataHandler(object):
             return None
         return datum.toString().encode('utf-8', errors='surrogateescape')
 
+    def get_preview_thumbnail(self):
+        preview_manager = exiv2.PreviewManager(self._image)
+        props = preview_manager.getPreviewProperties()
+        if not props:
+            return None
+        # get largest acceptable image
+        idx = len(props)
+        while idx > 0:
+            idx -= 1
+            if max(props[idx].width_, props[idx].height_) <= 640:
+                break
+        image = preview_manager.getPreviewImage(props[idx])
+        return bytes(image.copy())
+
     def set_exif_value(self, tag, value):
         if not value:
             self.clear_tag(tag)

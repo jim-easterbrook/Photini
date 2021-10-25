@@ -351,6 +351,19 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         return result
 
+    def get_preview_thumbnail(self):
+        props = self.get_preview_properties()
+        if not props:
+            return None
+        # get largest acceptable image
+        idx = len(props)
+        while idx > 0:
+            idx -= 1
+            if max(props[idx].get_width(), props[idx].get_height()) <= 640:
+                break
+        image = self.get_preview_image(props[idx])
+        return image.get_data()
+
     def set_exif_value(self, tag, value):
         if not value:
             self.clear_tag(tag)
