@@ -583,26 +583,16 @@ class Thumbnail(MD_Dict):
             if value['image'].isNull():
                 logger.error('thumbnail: %s', reader.errorString())
                 value['image'] = None
-        if value['data'] and len(value['data']) >= 50000:
-            # don't keep unusably large amount of data
-            value['data'] = None
-        if value['image'] and not value['data']:
-            buf = QtCore.QBuffer()
-            buf.open(buf.WriteOnly)
-            value['fmt'] = 'JPEG'
-            quality = 95
-            while True:
-                value['image'].save(buf, value['fmt'], quality)
-                value['data'] = buf.data().data()
-                if len(value['data']) < 50000:
-                    break
-                quality -= 5
         if value['image']:
             value['w'] = value['image'].width()
             value['h'] = value['image'].height()
+            if value['data'] and len(value['data']) >= 50000:
+                # don't keep unusably large amount of data
+                value['data'] = None
         else:
             value['w'] = 0
             value['h'] = 0
+            value['data'] = None
         return value
 
     @classmethod
@@ -631,19 +621,44 @@ class Thumbnail(MD_Dict):
         return cls({'data': data})
 
     def to_exif(self):
+        if max(self['w'], self['h']) > 160 or not self['image']:
+            return []
+        if not self['data']:
+            buf = QtCore.QBuffer()
+            buf.open(buf.WriteOnly)
+            self['fmt'] = 'JPEG'
+            quality = 95
+            while quality > 10:
+                self['image'].save(buf, self['fmt'], quality)
+                self['data'] = buf.data().data()
+                if len(self['data']) < 50000:
+                    break
+                self['data'] = None
+                quality -= 5
+        if not self['data']:
+            return []
         return (str(self['w']), str(self['h']), self['fmt'], self['data'])
 
     def to_xmp(self):
-        save = self
-        if save['fmt'] != 'JPEG':
-            save = Thumbnail({'image': save['image']})
-        data = codecs.encode(save['data'], 'base64_codec')
+        if not self['image']:
+            return []
+        if self['fmt'] != 'JPEG' or not self['data']:
+            buf = QtCore.QBuffer()
+            buf.open(buf.WriteOnly)
+            self['fmt'] = 'JPEG'
+            self['image'].save(buf, self['fmt'], 95)
+            self['data'] = buf.data().data()
+        if not self['data']:
+            return []
+        data = codecs.encode(self['data'], 'base64_codec')
         data = data.decode('ascii')
-        return (str(save['w']), str(save['h']), save['fmt'], data)
+        return (str(self['w']), str(self['h']), self['fmt'], data)
 
     def __str__(self):
-        return '{fmt} thumbnail, {w}x{h}, {size} bytes'.format(
-            size=len(self['data']), **self)
+        result = '{fmt} thumbnail, {w}x{h}'.format(**self)
+        if self['data']:
+            result += ', {} bytes'.format(len(self['data']))
+        return result
 
 
 class DateTime(MD_Dict):
