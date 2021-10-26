@@ -130,7 +130,7 @@ class Exiv2Metadata(MetadataHandler):
     def set_group(self, tag, value, idx=1):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             self.set_value(sub_tag, sub_value, idx=idx)
-        if tag == 'Exif.Thumbnail.ImageWidth':
+        if tag == 'Exif.Thumbnail.ImageWidth' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
     def set_value(self, tag, value, idx=1):

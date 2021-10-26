@@ -586,7 +586,7 @@ class Thumbnail(MD_Dict):
         if value['image']:
             value['w'] = value['image'].width()
             value['h'] = value['image'].height()
-            if value['data'] and len(value['data']) >= 50000:
+            if value['data'] and len(value['data']) >= 60000:
                 # don't keep unusably large amount of data
                 value['data'] = None
         else:
@@ -621,9 +621,7 @@ class Thumbnail(MD_Dict):
         return cls({'data': data})
 
     def to_exif(self):
-        if max(self['w'], self['h']) > 160 or not self['image']:
-            return []
-        if not self['data']:
+        if self['image'] and not self['data']:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             self['fmt'] = 'JPEG'
@@ -631,25 +629,21 @@ class Thumbnail(MD_Dict):
             while quality > 10:
                 self['image'].save(buf, self['fmt'], quality)
                 self['data'] = buf.data().data()
-                if len(self['data']) < 50000:
+                if len(self['data']) < 60000:
                     break
                 self['data'] = None
                 quality -= 5
-        if not self['data']:
-            return []
         return (str(self['w']), str(self['h']), self['fmt'], self['data'])
 
     def to_xmp(self):
-        if not self['image']:
-            return []
-        if self['fmt'] != 'JPEG' or not self['data']:
+        if self['fmt'] != 'JPEG':
+            self['data'] = None
+        if self['image'] and not self['data']:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             self['fmt'] = 'JPEG'
             self['image'].save(buf, self['fmt'], 95)
             self['data'] = buf.data().data()
-        if not self['data']:
-            return []
         data = codecs.encode(self['data'], 'base64_codec')
         data = data.decode('ascii')
         return (str(self['w']), str(self['h']), self['fmt'], data)
