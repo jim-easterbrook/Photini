@@ -620,7 +620,7 @@ class ImageList(QtWidgets.QWidget):
         self.done_opening(path_list[-1])
 
     def open_file(self, path):
-        path = os.path.abspath(path)
+        path = Metadata.abspath(path)
         if not os.path.isfile(path):
             return
         if self.get_image(path):
