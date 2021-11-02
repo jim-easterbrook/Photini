@@ -211,7 +211,7 @@ class ImageMetadata(MetadataHandler):
                        'Exif.MakerNote.Offset', 'Exif.Photo.MakerNote'):
                 # some tags disappear with good reason
                 continue
-            family, group, tagname = tag.split('.')
+            family, group, tagname = tag.split('.', 2)
             if family == 'Exif' and group[:5] in (
                     'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
                     'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):

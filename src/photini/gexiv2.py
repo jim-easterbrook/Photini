@@ -160,7 +160,7 @@ class MetadataHandler(GExiv2.Metadata):
         for tag in self.get_exif_tags():
             if self.get_tag_type(tag) != 'Ascii':
                 continue
-            family, group, name = tag.split('.')
+            family, group, name = tag.split('.', 2)
             if name == '0xea1c':
                 continue
             if group[:5] in (
