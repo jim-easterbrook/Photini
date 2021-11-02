@@ -646,7 +646,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def get_altitude(self):
         altitude = self.geocoder.get_altitude(
-            elf.widgets['latlon'].get_value())
+            self.widgets['latlon'].get_value())
         if altitude is not None:
             self.new_altitude(round(altitude, 1))
 
