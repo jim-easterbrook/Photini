@@ -148,6 +148,9 @@ class MetadataHandler(object):
     def open_old(cls, *arg, **kw):
         try:
             return cls(*arg, **kw)
+        except exiv2.AnyError:
+            # expected if unrecognised file format
+            return None
         except Exception as ex:
             logger.exception(ex)
             return None
