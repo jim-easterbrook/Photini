@@ -1076,48 +1076,6 @@ class Rating(MD_Value, float):
         return str(self)
 
 
-class Resolution(MD_Dict):
-    # stores sensor resolution
-    _keys = ('x','y', 'unit')
-
-    @classmethod
-    def convert(cls, value):
-        value['x'] = Fraction(value['x'])
-        value['y'] = Fraction(value['y'])
-        value['unit'] = int(value['unit'])
-        return value
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not all(file_value):
-            return None
-        return cls(file_value)
-
-
-class SensorSize(MD_Dict):
-    # stores sensor dimensions in pixels
-    _keys = ('x', 'y')
-    _quiet = True
-
-    @classmethod
-    def convert(cls, value):
-        value['x'] = int(value['x'])
-        value['y'] = int(value['y'])
-        return value
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not all(file_value):
-            return None
-        return cls(file_value)
-
-    def merge(self, info, tag, other):
-        if max(other.values()) > max(self.values()):
-            self.log_replaced(info, tag, other)
-            return other
-        return self
-
-
 class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
@@ -1144,8 +1102,6 @@ class Metadata(object):
         'location_taken' : Location,
         'orientation'    : Orientation,
         'rating'         : Rating,
-        'resolution'     : Resolution,
-        'sensor_size'    : SensorSize,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
@@ -1289,6 +1245,70 @@ class Metadata(object):
             self.dirty = False
             if self._notify:
                 self._notify(self.dirty)
+
+    def get_crop_factor(self):
+        md = self._if or self._sc
+        if not md:
+            return None
+        # get relevant metadata
+        resolution = {}
+        sensor_size = {}
+        resolution_source = None, None
+        for key in md.get_all_tags():
+            family, group, tag = key.split('.', 2)
+            if tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
+                       'FocalPlaneResolutionUnit'):
+                resolution[key] = md.get_value(key)
+                resolution_source = family, group
+            if tag in ('PixelXDimension', 'PixelYDimension',
+                       'ImageWidth', 'ImageLength'):
+                sensor_size[key] = md.get_value(key)
+        # convert resolution values
+        if not resolution:
+            return None
+        family, group = resolution_source
+        for tag in ('FocalPlaneXResolution', 'FocalPlaneYResolution',
+                    'FocalPlaneResolutionUnit'):
+            key = '.'.join((family, group, tag))
+            if key not in resolution:
+                return None
+            resolution[tag] = resolution[key]
+        resolution['x'] = Fraction(resolution['FocalPlaneXResolution'])
+        resolution['y'] = Fraction(resolution['FocalPlaneYResolution'])
+        resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
+        # find largest image dimensions
+        sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
+        for x_key in sensor_size:
+            if 'PixelXDimension' in x_key:
+                y_key = x_key.replace('PixelXDimension', 'PixelYDimension')
+            elif 'ImageWidth' in x_key:
+                y_key = x_key.replace('ImageWidth', 'ImageLength')
+            else:
+                continue
+            if y_key not in sensor_size:
+                continue
+            sensor_size['x'] = max(sensor_size['x'], int(sensor_size[x_key]))
+            sensor_size['y'] = max(sensor_size['y'], int(sensor_size[y_key]))
+        if not sensor_size['x'] or not sensor_size['y']:
+            return None
+        w = sensor_size['x'] / resolution['x']
+        h = sensor_size['y'] / resolution['y']
+        d = math.sqrt((h ** 2) + (w ** 2))
+        if resolution['unit'] == 3:
+            # unit is cm
+            d *= 10.0
+        elif resolution['unit'] in (None, 1, 2):
+            # unit is (assumed to be) inches
+            d *= 25.4
+        else:
+            logger.info('Unknown resolution unit %d', resolution['unit'])
+            return None
+        # 35 mm film diagonal is 43.27 mm
+        crop_factor = 43.27 / d
+        # round to 2 digits
+        scale = 10 ** int(math.log10(crop_factor))
+        crop_factor = round(crop_factor / scale, 1) * scale
+        return crop_factor
 
     def get_mime_type(self):
         result = None

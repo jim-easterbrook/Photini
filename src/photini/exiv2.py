@@ -245,6 +245,13 @@ class MetadataHandler(object):
         image = preview_manager.getPreviewImage(props[idx])
         return bytes(image.copy())
 
+    def get_preview_imagedims(self):
+        preview_manager = exiv2.PreviewManager(self._image)
+        props = preview_manager.getPreviewProperties()
+        if not props:
+            return 0, 0
+        return props[-1].width_, props[-1].height_
+
     def set_exif_value(self, tag, value):
         if not value:
             self.clear_tag(tag)

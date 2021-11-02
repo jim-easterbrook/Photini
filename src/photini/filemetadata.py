@@ -30,29 +30,6 @@ logger = logging.getLogger(__name__)
 
 
 class ImageMetadata(MetadataHandler):
-    def __init__(self, *args, **kwds):
-        super(ImageMetadata, self).__init__(*args, **kwds)
-        # file can contain several images, so choose largest one for
-        # sensor size calculations
-        possibles = ['Image']
-        for key in self.get_exif_tags():
-            family, group, tag = key.split('.')
-            if not (group.startswith('Image') or group.startswith('SubImage')):
-                continue
-            if tag == 'ImageWidth' and not group in possibles:
-                possibles.append(group)
-        self.main_ifd = possibles[0]
-        largest = 0
-        for ifd in possibles:
-            w = self.get_exif_value('Exif.{}.ImageWidth'.format(ifd))
-            h = self.get_exif_value('Exif.{}.ImageLength'.format(ifd))
-            if not (w and h):
-                continue
-            size = max(int(w), int(h))
-            if size > largest:
-                largest = size
-                self.main_ifd = ifd
-
     def clear_multi_group(self, tag, stop=0):
         # count entries
         idx = 1
@@ -96,8 +73,6 @@ class ImageMetadata(MetadataHandler):
         if 'idx' in tag:
             tag = tag.format(idx=idx)
         if self.is_exif_tag(tag):
-            if 'ifd' in tag:
-                tag = tag.format(ifd=self.main_ifd)
             return self.get_exif_value(tag)
         if self.is_iptc_tag(tag):
             return self.get_iptc_value(tag)
@@ -295,24 +270,12 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
         'Exif.Photo.FNumber': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.FocalPlaneXResolution': (
-            'Exif.Photo.FocalPlaneXResolution',
-            'Exif.Photo.FocalPlaneYResolution',
-            'Exif.Photo.FocalPlaneResolutionUnit'),
         'Exif.Photo.LensMake': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber'),
-        'Exif.Photo.PixelXDimension': (
-            'Exif.Photo.PixelXDimension', 'Exif.Photo.PixelYDimension'),
         'Exif.Thumbnail.ImageWidth': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Exif.{ifd}.FocalPlaneXResolution': (
-            'Exif.{ifd}.FocalPlaneXResolution',
-            'Exif.{ifd}.FocalPlaneYResolution',
-            'Exif.{ifd}.FocalPlaneResolutionUnit'),
-        'Exif.{ifd}.ImageWidth': (
-            'Exif.{ifd}.ImageWidth', 'Exif.{ifd}.ImageLength'),
         'Iptc.Application2.Contact': ('Iptc.Application2.Contact',),
         'Iptc.Application2.DateCreated': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
@@ -328,15 +291,10 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.Lens': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.FocalPlaneXResolution': ('Xmp.exif.FocalPlaneXResolution',
-                                           'Xmp.exif.FocalPlaneYResolution',
-                                           'Xmp.exif.FocalPlaneResolutionUnit'),
         'Xmp.exif.GPSAltitude': (
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
         'Xmp.exif.GPSLatitude': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
-        'Xmp.exif.PixelXDimension': (
-            'Xmp.exif.PixelXDimension', 'Xmp.exif.PixelYDimension'),
         'Xmp.exifEX.LensMake': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber'),
@@ -369,8 +327,6 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
-        'Xmp.tiff.ImageWidth': (
-            'Xmp.tiff.ImageWidth', 'Xmp.tiff.ImageLength'),
         'Xmp.xmp.Thumbnails': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
@@ -473,13 +429,6 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
-        'resolution'     : (('WN', 'Exif.Photo.FocalPlaneXResolution'),
-                            ('WN', 'Exif.{ifd}.FocalPlaneXResolution'),
-                            ('WN', 'Xmp.exif.FocalPlaneXResolution')),
-        'sensor_size'    : (('WN', 'Exif.Photo.PixelXDimension'),
-                            ('WN', 'Exif.{ifd}.ImageWidth'),
-                            ('WN', 'Xmp.exif.PixelXDimension'),
-                            ('WN', 'Xmp.tiff.ImageWidth')),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
                             ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),

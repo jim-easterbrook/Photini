@@ -17,12 +17,9 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from collections import defaultdict
 from datetime import datetime, timedelta
 import logging
-import math
 import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
@@ -1299,30 +1296,8 @@ class TabWidget(QtWidgets.QWidget):
                 'crop factor', md.camera_model.get_name(inc_serial=False))
             if crop_factor:
                 return crop_factor
-        if not (md.resolution and md.sensor_size):
-            return None
-        if (md.resolution['x'] <= 0 or md.resolution['y'] <= 0 or
-                md.sensor_size['x'] <= 0 or md.sensor_size['y'] <= 0):
-            return None
-        # calculate from image size and resolution
-        w = md.sensor_size['x'] / md.resolution['x']
-        h = md.sensor_size['y'] / md.resolution['y']
-        d = math.sqrt((h ** 2) + (w ** 2))
-        if md.resolution['unit'] == 3:
-            # unit is cm
-            d *= 10.0
-        elif md.resolution['unit'] in (None, 1, 2):
-            # unit is (assumed to be) inches
-            d *= 25.4
-        else:
-            logger.info('Unknown resolution unit %d', md.resolution['unit'])
-            return None
-        # 35 mm film diagonal is 43.27 mm
-        crop_factor = 43.27 / d
-        # round to 2 digits
-        scale = 10 ** int(math.log10(crop_factor))
-        crop_factor = round(crop_factor / scale, 1) * scale
-        if md.camera_model:
+        crop_factor = md.get_crop_factor()
+        if crop_factor and md.camera_model:
             self.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
                 crop_factor)

@@ -364,6 +364,12 @@ class MetadataHandler(GExiv2.Metadata):
         image = self.get_preview_image(props[idx])
         return image.get_data()
 
+    def get_preview_imagedims(self):
+        props = self.get_preview_properties()
+        if not props:
+            return 0, 0
+        return props[-1].get_width(), props[-1].get_height()
+
     def set_exif_value(self, tag, value):
         if not value:
             self.clear_tag(tag)
