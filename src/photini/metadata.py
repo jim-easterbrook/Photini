@@ -31,8 +31,7 @@ import re
 from photini import __version__
 from photini.pyqt import QtCore, QtGui
 from photini.ffmpeg import FFmpeg
-from photini.filemetadata import (
-    ImageMetadata, SidecarMetadata, VideoHeaderMetadata)
+from photini.filemetadata import ImageMetadata, SidecarMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -1165,17 +1164,16 @@ class Metadata(object):
         self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
-            if not self._if:
-                self._if = VideoHeaderMetadata.open_old(path)
             video_md = FFMPEGMetadata.open_old(path)
         self.dirty = False
         self.iptc_in_file = self._if and self._if.has_iptc()
         # get maker note info
-        self._maker_note = {
-            'make': (self._if.has_tag('Exif.Photo.MakerNote') and
-                     self._if.get_value('Exif.Image.Make')),
-            'delete': False,
-            }
+        if self._if:
+            self._maker_note = {
+                'make': (self._if.has_tag('Exif.Photo.MakerNote') and
+                         self._if.get_value('Exif.Image.Make')),
+                'delete': False,
+                }
         # read Photini metadata items
         for name in self._data_type:
             # read data values from first file that has any

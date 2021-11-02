@@ -29,13 +29,9 @@ except ImportError as ex:
 logger = logging.getLogger(__name__)
 
 
-class Exiv2Metadata(MetadataHandler):
-    @classmethod
-    def initialise(cls, verbosity):
-        super(Exiv2Metadata, cls).initialise(verbosity)
-
+class ImageMetadata(MetadataHandler):
     def __init__(self, *args, **kwds):
-        super(Exiv2Metadata, self).__init__(*args, **kwds)
+        super(ImageMetadata, self).__init__(*args, **kwds)
         # file can contain several images, so choose largest one for
         # sensor size calculations
         possibles = ['Image']
@@ -226,7 +222,7 @@ class Exiv2Metadata(MetadataHandler):
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
-        if not super(Exiv2Metadata, self).save():
+        if not super(ImageMetadata, self).save():
             return False
         if file_times:
             os.utime(self._path, file_times)
@@ -555,94 +551,7 @@ class Exiv2Metadata(MetadataHandler):
                 self.set_group(tag, file_value)
 
 
-class ImageMetadata(Exiv2Metadata):
-    pass
-
-
-class Preview(object):
-    def __init__(self, md, buf):
-        self.md = md
-        self.buf = buf
-
-    def get_data(self):
-        return self.buf
-
-    def get_height(self):
-        return self.md.get_pixel_height()
-
-    def get_mime_type(self):
-        return self.md.mime_type
-
-    def get_width(self):
-        return self.md.get_pixel_width()
-
-
-class VideoHeaderMetadata(Exiv2Metadata):
-    def __init__(self, props, *args, **kwds):
-        super(VideoHeaderMetadata, self).__init__(*args, **kwds)
-        self._props = props
-        # definitely read-only
-        self.read_only = True
-
-    @classmethod
-    def open_old(cls, path):
-        # scan first 2 MB of file for embedded JPEG images
-        with open(path, 'rb') as f:
-            data = f.read(2 * 1024 * 1024)
-        segments = []
-        soi = 0
-        while True:
-            soi = data.find(b'\xff\xd8\xff', soi)
-            if soi < 0:
-                break
-            eoi = data.find(b'\xff\xd9', soi + 6)
-            if eoi < 0:
-                break
-            segments.append(data[soi:eoi])
-            soi += 3
-        # get preview properties of each segment
-        props = []
-        for segment in segments:
-            try:
-                md = Exiv2Metadata(path, buf=segment)
-            except GLib.GError:
-                # expected if unrecognised data format
-                md = None
-            except Exception as ex:
-                logger.exception(ex)
-                md = None
-            if md:
-                props.append(Preview(md, segment))
-        if not props:
-            return None
-        # choose largest preview to be the master image
-        dim = 0
-        master = None
-        for prop in props:
-            new_dim = max(prop.get_height(), prop.get_width())
-            if new_dim > dim:
-                dim = new_dim
-                master = prop
-        if not master:
-            return None
-        return cls(props, path, buf=master.buf)
-
-    def read(self, name, type_):
-        result = super(VideoHeaderMetadata, self).read(name, type_)
-        if name == 'thumbnail':
-            try:
-                value = type_.from_video_header(self._props)
-                if value:
-                    result.append(('Preview', value))
-            except ValueError as ex:
-                logger.error('{}({}), {}: {}'.format(
-                    os.path.basename(self._path), name, 'Preview', str(ex)))
-            except Exception as ex:
-                logger.exception(ex)
-        return result
-
-
-class SidecarMetadata(Exiv2Metadata):
+class SidecarMetadata(ImageMetadata):
     @classmethod
     def open_old(cls, path):
         if not path:
