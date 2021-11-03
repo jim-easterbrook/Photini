@@ -25,7 +25,10 @@ import shutil
 import string
 import sys
 
-import exiv2
+import xexiv2
+if exiv2.__version__ < '0.6.0':
+    raise ImportError(
+        'exiv2 version {} is less than 0.6.0'.format(exiv2.__version__))
 
 logger = logging.getLogger(__name__)
 

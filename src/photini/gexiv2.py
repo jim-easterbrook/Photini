@@ -40,9 +40,14 @@ _gexiv2_version = namedtuple(
     'gexiv2_version', ('major', 'minor', 'micro'))._make((
         GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
 
-exiv2_version = 'GExiv2 {}.{}.{}, {} {}, GObject {}, GLib {}.{}.{}'.format(
-    _gexiv2_version[0], _gexiv2_version[1], _gexiv2_version[2],
-    ('PyGObject', 'pgi')[using_pgi], gi.__version__,GObject._version,
+exiv2_version = '{}.{}.{}'.format(*_gexiv2_version)
+if exiv2_version < '0.10.3':
+    raise ImportError(
+        'gexiv2 version {} is less than 0.10.3'.format(exiv2_version))
+
+exiv2_version = 'GExiv2 {}, {} {}, GObject {}, GLib {}.{}.{}'.format(
+    exiv2_version, ('PyGObject', 'pgi')[using_pgi], gi.__version__,
+    GObject._version,
     GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
 
 XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
