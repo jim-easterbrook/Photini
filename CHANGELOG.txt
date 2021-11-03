@@ -16,6 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.11.0:
+  1/ Can use PySide6 instead of PySide2 or PyQt5.
+  2/ New config option to enlarge user interface on high resolution screens.
+  3/ Other minor improvements and bug fixes.
+
 Changes in v2021.9.0:
   1/ New option to set file timestamps to photo's taken date/time.
   2/ Improved GPX importer.
