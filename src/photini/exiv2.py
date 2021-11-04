@@ -26,9 +26,9 @@ import string
 import sys
 
 import exiv2
-if exiv2.__version__ < '0.6.0':
+if exiv2.__version__ < '0.7.0':
     raise ImportError(
-        'exiv2 version {} is less than 0.6.0'.format(exiv2.__version__))
+        'exiv2 version {} is less than 0.7.0'.format(exiv2.__version__))
 
 logger = logging.getLogger(__name__)
 
@@ -170,8 +170,8 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, datum):
-        value = exiv2.CommentValue.downCast(datum.value())
-        raw_value = value.comment().encode('utf-8', errors='surrogateescape')
+        value = exiv2.CommentValue(datum.value()).comment()
+        raw_value = value.encode('utf-8', errors='surrogateescape').strip(b'\0')
         try:
             return raw_value.decode('utf-8')
         except UnicodeDecodeError:
@@ -195,7 +195,8 @@ class MetadataHandler(object):
                    'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
             return datum._print()
-        if datum.typeId() == exiv2.TypeId.comment:
+        if tag == 'Exif.Photo.UserComment' and datum.typeId() in (
+                exiv2.TypeId.comment, exiv2.TypeId.undefined):
             return self.get_exif_comment(datum)
         return datum.toString()
 
@@ -223,9 +224,9 @@ class MetadataHandler(object):
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
             # just get 'x-default' value for now
-            value = exiv2.LangAltValue.downCast(datum.value())
+            value = exiv2.LangAltValue(datum.value())
             return value.toString(0)
-        value = exiv2.XmpArrayValue.downCast(datum.value())
+        value = exiv2.XmpArrayValue(datum.value())
         result = []
         for n in range(value.count()):
             result.append(value.toString(n))
@@ -306,7 +307,7 @@ class MetadataHandler(object):
                         type_id = exiv2.TypeId.xmpAlt
                     else:
                         type_id = exiv2.TypeId.xmpSeq
-                self._xmpData[container] = exiv2.XmpArrayValue.create(type_id)
+                self._xmpData[container] = exiv2.XmpArrayValue(type_id)
         datum = self._xmpData[tag]
         if isinstance(value, str):
             # set a single value
@@ -319,8 +320,7 @@ class MetadataHandler(object):
             type_id = exiv2.XmpProperties.propertyType(key)
         if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                        exiv2.TypeId.xmpSeq):
-            xmp_value = exiv2.XmpArrayValue.create(type_id)
-            xmp_value = exiv2.XmpArrayValue.downCast(xmp_value)
+            xmp_value = exiv2.XmpArrayValue(type_id)
             for sub_value in value:
                 xmp_value.read(sub_value)
         else:
