@@ -178,7 +178,7 @@ class MetadataHandler(object):
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved',
-                os.path.basename(self._path), datum.key(), value.size())
+                os.path.basename(self._path), datum.key(), datum.size())
         return None
 
     def get_exif_value(self, tag):
