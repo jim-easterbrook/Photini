@@ -554,11 +554,10 @@ class LensSpec(MD_Dict):
         if isinstance(file_value, str):
             file_value = file_value.split()
         if tag == 'Exif.CanonCs.Lens':
-            long_focal, short_focal, focal_units = file_value
-            if focal_units == '0':
+            long_focal, short_focal, focal_units = [int(x) for x in file_value]
+            if focal_units == 0:
                 return None
-            file_value = ['{}/{}'.format(short_focal, focal_units),
-                          '{}/{}'.format(long_focal, focal_units)]
+            file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
 
     def to_exif(self):

@@ -191,16 +191,30 @@ class MetadataHandler(object):
                    'Exif.Image.XPSubject', 'Exif.NikonLd1.LensIDNumber',
                    'Exif.NikonLd2.LensIDNumber',
                    'Exif.NikonLd3.LensIDNumber', 'Exif.Pentax.ModelID'):
+            # use Exiv2's "interpreted string"
             return datum._print()
-        if tag == 'Exif.Photo.UserComment' and datum.typeId() in (
+        type_id = datum.typeId()
+        if tag == 'Exif.Photo.UserComment' and type_id in (
                 exiv2.TypeId.comment, exiv2.TypeId.undefined):
             return self.get_exif_comment(datum)
-        if datum.typeId() == exiv2.TypeId.unsignedRational:
+        if type_id == exiv2.TypeId.signedRational:
+            value = exiv2.RationalValue(datum.value())
+        elif type_id == exiv2.TypeId.unsignedRational:
             value = exiv2.URationalValue(datum.value())
-            if len(value) > 1:
-                return list(value)
-            return value[0]
-        return datum.toString()
+        elif type_id == exiv2.TypeId.signedShort:
+            value = exiv2.ShortValue(datum.value())
+        elif type_id == exiv2.TypeId.unsignedShort:
+            value = exiv2.UShortValue(datum.value())
+        elif type_id == exiv2.TypeId.signedLong:
+            value = exiv2.LongValue(datum.value())
+        elif type_id == exiv2.TypeId.unsignedLong:
+            value = exiv2.ULongValue(datum.value())
+        else:
+            # probably a string value, so use the string
+            return datum.toString()
+        if len(value) > 1:
+            return list(value)
+        return value[0]
 
     def get_iptc_value(self, tag):
         end = self._iptcData.end()
