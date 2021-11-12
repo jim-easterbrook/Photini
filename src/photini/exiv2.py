@@ -182,12 +182,9 @@ class MetadataHandler(object):
         return None
 
     def get_exif_value(self, tag):
-        try:
-            datum = self._exifData.findKey(exiv2.ExifKey(tag))
-        except exiv2.AnyError:
+        if tag not in self._exifData:
             return None
-        if datum == self._exifData.end():
-            return None
+        datum = self._exifData[tag]
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                    'Exif.Image.XPTitle', 'Exif.Image.XPComment',
                    'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
@@ -198,6 +195,11 @@ class MetadataHandler(object):
         if tag == 'Exif.Photo.UserComment' and datum.typeId() in (
                 exiv2.TypeId.comment, exiv2.TypeId.undefined):
             return self.get_exif_comment(datum)
+        if datum.typeId() == exiv2.TypeId.unsignedRational:
+            value = exiv2.URationalValue(datum.value())
+            if len(value) > 1:
+                return list(value)
+            return value[0]
         return datum.toString()
 
     def get_iptc_value(self, tag):
@@ -216,9 +218,9 @@ class MetadataHandler(object):
         return result or None
 
     def get_xmp_value(self, tag):
-        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
-        if datum == self._xmpData.end():
+        if tag not in self._xmpData:
             return None
+        datum = self._xmpData[tag]
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
@@ -233,9 +235,9 @@ class MetadataHandler(object):
         return result
 
     def get_raw_value(self, tag):
-        datum = self._iptcData.findKey(exiv2.IptcKey(tag))
-        if datum == self._iptcData.end():
+        if tag not in self._iptcData:
             return None
+        datum = self._iptcData[tag]
         return datum.toString().encode('utf-8', errors='surrogateescape')
 
     def get_preview_thumbnail(self):
@@ -328,12 +330,9 @@ class MetadataHandler(object):
         datum.setValue(xmp_value)
 
     def clear_tag(self, tag):
-        data, key = self._data_set(tag)
-        while True:
-            pos = data.findKey(key)
-            if pos == data.end():
-                break
-            data.erase(pos)
+        data = self._data_set(tag)
+        while tag in data:
+            del data[tag]
         # possibly delete Xmp container(s)
         for sep in ('/', '['):
             if sep not in tag:
@@ -344,18 +343,15 @@ class MetadataHandler(object):
                     # container is not empty
                     return
             container = tag.split(sep)[0]
-            pos = data.findKey(exiv2.XmpKey(container))
-            if pos == data.end():
-                # container does not exist
-                return
-            data.erase(pos)
+            if container in data:
+                del data[container]
 
     def has_iptc(self):
         return self._iptcData.count() > 0
 
     def has_tag(self, tag):
-        data, key = self._data_set(tag)
-        return data.findKey(key) != data.end()
+        data = self._data_set(tag)
+        return tag in data
 
     @staticmethod
     def is_exif_tag(tag):
@@ -372,11 +368,11 @@ class MetadataHandler(object):
     def _data_set(self, tag):
         family = tag.split('.')[0]
         if family == 'Exif':
-            return self._exifData, exiv2.ExifKey(tag)
+            return self._exifData
         if family == 'Iptc':
-            return self._iptcData, exiv2.IptcKey(tag)
+            return self._iptcData
         if family == 'Xmp':
-            return self._xmpData, exiv2.XmpKey(tag)
+            return self._xmpData
         assert False, 'Invalid tag ' + tag
 
     def save(self):

@@ -114,11 +114,15 @@ class FFMPEGMetadata(object):
 
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
-    if isinstance(value, str):
-        numerator, sep, denominator = value.partition('/')
-        if denominator and int(denominator) == 0:
-            return Fraction(0.0)
-    return Fraction(value).limit_denominator(1000000)
+    try:
+        if isinstance(value, (list, tuple)):
+            value = Fraction(*value)
+        else:
+            value = Fraction(value)
+    except ZeroDivisionError:
+        return Fraction(0.0)
+    # round off excessively large denominators
+    return value.limit_denominator(1000000)
 
 
 class MD_Value(object):
@@ -305,7 +309,9 @@ class LatLon(MD_Dict):
 
     @staticmethod
     def from_exif_part(value, ref):
-        parts = [float(Fraction(x)) for x in value.split()] + [0.0, 0.0]
+        if isinstance(value, str):
+            value = value.split()
+        parts = [float(safe_fraction(x)) for x in value] + [0.0, 0.0]
         result = parts[0] + (parts[1] / 60.0) + (parts[2] / 3600.0)
         if ref in ('S', 'W'):
             result = -result
@@ -545,7 +551,8 @@ class LensSpec(MD_Dict):
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
-        file_value = file_value.split()
+        if isinstance(file_value, str):
+            file_value = file_value.split()
         if tag == 'Exif.CanonCs.Lens':
             long_focal, short_focal, focal_units = file_value
             if focal_units == '0':
@@ -1288,8 +1295,8 @@ class Metadata(object):
             if key not in resolution:
                 return None
             resolution[tag] = resolution[key]
-        resolution['x'] = Fraction(resolution['FocalPlaneXResolution'])
-        resolution['y'] = Fraction(resolution['FocalPlaneYResolution'])
+        resolution['x'] = safe_fraction(resolution['FocalPlaneXResolution'])
+        resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
         sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
