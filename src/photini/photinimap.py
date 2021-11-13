@@ -495,7 +495,7 @@ class PhotiniMap(QtWidgets.QWidget):
             latlong = image.metadata.latlong
             if not latlong:
                 continue
-            location = [latlong['lat'], latlong['lon']]
+            location = [float(latlong['lat']), float(latlong['lon'])]
             if location not in locations:
                 locations.append(location)
         # get locations of GPS track points around time of selected images
@@ -529,7 +529,7 @@ class PhotiniMap(QtWidgets.QWidget):
             latlong = image.metadata.latlong
             if not latlong:
                 continue
-            location = [latlong['lat'], latlong['lon']]
+            location = [float(latlong['lat']), float(latlong['lon'])]
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -714,8 +714,8 @@ class PhotiniMap(QtWidgets.QWidget):
         info = self.marker_info[marker_id]
         for image in info['images']:
             image.metadata.latlong = lat, lng
-        info['location'] = [image.metadata.latlong['lat'],
-                            image.metadata.latlong['lon']]
+        info['location'] = [float(image.metadata.latlong['lat']),
+                            float(image.metadata.latlong['lon'])]
         self.widgets['latlon'].update_display()
 
     def JavaScript(self, command):

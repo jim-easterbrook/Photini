@@ -522,8 +522,10 @@ class TabWidget(PhotiniUploader):
             # location
             if image.metadata.latlong:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(image.metadata.latlong['lat']),
-                    'lon': '{:.6f}'.format(image.metadata.latlong['lon']),
+                    'lat': '{:.6f}'.format(
+                        float(image.metadata.latlong['lat'])),
+                    'lon': '{:.6f}'.format(
+                        float(image.metadata.latlong['lon'])),
                     }
             else:
                 # clear any existing location

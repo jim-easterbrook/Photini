@@ -240,13 +240,8 @@ class MetadataHandler(object):
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
             # just get 'x-default' value for now
-            value = exiv2.LangAltValue(datum.value())
-            return value.toString(0)
-        value = exiv2.XmpArrayValue(datum.value())
-        result = []
-        for n in range(value.count()):
-            result.append(value.toString(n))
-        return result
+            return exiv2.LangAltValue(datum.value()).toString(0)
+        return list(exiv2.XmpArrayValue(datum.value()))
 
     def get_raw_value(self, tag):
         if tag not in self._iptcData:
