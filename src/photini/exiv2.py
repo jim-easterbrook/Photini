@@ -388,14 +388,17 @@ class MetadataHandler(object):
         return self.save_file(self._path)
 
     def save_file(self, path):
-        image = exiv2.ImageFactory.open(path)
-        image.readMetadata()
-        image.setExifData(self._exifData)
-        image.setIptcData(self._iptcData)
-        image.setXmpData(self._xmpData)
-        if self._image.iccProfileDefined() and path != self._path:
-            # copy ICC profile
-            image.setIccProfile(self._image.iccProfile())
+        if path == self._path:
+            image = self._image
+        else:
+            image = exiv2.ImageFactory.open(path)
+            image.readMetadata()
+            image.setExifData(self._exifData)
+            image.setIptcData(self._iptcData)
+            image.setXmpData(self._xmpData)
+            if self._image.iccProfileDefined():
+                # copy ICC profile
+                image.setIccProfile(self._image.iccProfile())
         try:
             image.writeMetadata()
         except exiv2.AnyError as ex:
@@ -408,13 +411,10 @@ class MetadataHandler(object):
 
     def clear_maker_note(self):
         self.clear_tag('Exif.Image.Make')
-        self._image.setExifData(self._exifData)
         self._image.writeMetadata()
         self._image.readMetadata()
         self._exifData = self._image.exifData()
         self.clear_tag('Exif.Photo.MakerNote')
-        self._image.setExifData(self._exifData)
-        self._exifData = self._image.exifData()
 
     @staticmethod
     def create_sc(path, image_md):

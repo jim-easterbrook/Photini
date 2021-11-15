@@ -527,6 +527,7 @@ class SidecarMetadata(ImageMetadata):
 
     def clear_dates(self):
         # workaround for bug in exiv2 xmp timestamp altering
+        # see https://dev.exiv2.org/issues/1313
         for name in ('date_digitised', 'date_modified', 'date_taken'):
             self.write(name, None)
         self.save()
