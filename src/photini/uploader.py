@@ -277,6 +277,10 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def shutdown(self):
+        if self.upload_worker:
+            self.stop_upload()
+        while self.upload_worker and self.upload_worker.thread().isRunning():
+            self.app.processEvents()
         self.session.close_connection()
 
     @QtSlot(bool)
