@@ -26,9 +26,9 @@ import string
 import sys
 
 import exiv2
-if exiv2.__version__ < '0.7.0':
+if exiv2.__version__ < '0.8.1':
     raise ImportError(
-        'exiv2 version {} is less than 0.7.0'.format(exiv2.__version__))
+        'exiv2 version {} is less than 0.8.1'.format(exiv2.__version__))
 
 logger = logging.getLogger(__name__)
 
@@ -217,19 +217,20 @@ class MetadataHandler(object):
         return value[0]
 
     def get_iptc_value(self, tag):
-        end = self._iptcData.end()
-        datum = self._iptcData.findKey(exiv2.IptcKey(tag))
-        if datum == end:
-            return None
-        if not exiv2.IptcDataSets.dataSetRepeatable(datum.tag(),
-                                                    datum.record()):
-            return datum.toString()
-        result = []
-        while datum != end:
-            if datum.key() == tag:
-                result.append(datum.toString())
-            next(datum)
-        return result or None
+        result = None
+        # findKey gets first matching datum and returns an iterator
+        # which we use to search the rest of the data
+        for datum in self._iptcData.findKey(exiv2.IptcKey(tag)):
+            if result:
+                if datum.key() == tag:
+                    result.append(datum.toString())
+            else:
+                result = datum.toString()
+                if not exiv2.IptcDataSets.dataSetRepeatable(
+                                        datum.tag(), datum.record()):
+                    break
+                result = [result]
+        return result
 
     def get_xmp_value(self, tag):
         if tag not in self._xmpData:

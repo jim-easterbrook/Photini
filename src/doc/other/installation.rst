@@ -214,7 +214,7 @@ PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit        PyQtWebEngine
-`python-exiv2`_ [3]            0.7.0                                            python-exiv2
+`python-exiv2`_ [3]            0.8.1                                            python-exiv2
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
 =============================  =================  ============================  =================
