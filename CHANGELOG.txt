@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.11.1:
+  1/ Fix problems regenerating thumbnails if Pillow & FFmpeg are not available.
+  2/ Improved reading of Exif.Photo.UserComment values.
+  3/ Minimum version of python-exiv2 is now 0.8.1
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2021.11.0:
   1/ Can use PySide6 instead of PySide2 or PyQt5.
   2/ New config option to enlarge user interface on high resolution screens.
