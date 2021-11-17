@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import json
 import subprocess
 import sys
@@ -32,12 +30,15 @@ def startupinfo():
 
 try:
     ffmpeg_version = subprocess.check_output(
+        ['ffprobe', '-hide_banner', '-loglevel', 'warning', '-version'],
+        startupinfo=startupinfo())
+    ffmpeg_version = subprocess.check_output(
         ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-version'],
         startupinfo=startupinfo())
     ffmpeg_version = ffmpeg_version.decode('utf-8')
     ffmpeg_version = ffmpeg_version.splitlines()[0]
 except OSError as ex:
-    print('ffmpeg not found')
+    print('ffmpeg or ffprobe not found')
     ffmpeg_version = None
 
 
