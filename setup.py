@@ -16,9 +16,59 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
+import importlib.util
 import os
 from setuptools import setup
+import sys
 
+
+# list dependency packages
+install_requires = ['appdirs', 'requests']
+extras_require = {
+    'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
+    'google'   : ['requests-oauthlib', 'keyring'],
+    'importer' : ['gphoto2'],
+    'spelling' : [],
+    }
+
+# add packages with choices, using already installed ones if available
+qt_option = 'PySide2'
+if sys.version_info >= (3, 10, 0):
+    qt_option = 'PySide6'
+for name in 'PySide2', 'PySide6', 'PyQt5':
+    if importlib.util.find_spec(name) is not None:
+        qt_option = None
+        break
+if qt_option:
+    install_requires.append(qt_option)
+
+have_gexiv2 = True
+if importlib.util.find_spec('gi') is None:
+    have_gexiv2 = False
+else:
+    for name in 'GExiv2', 'GLib', 'GObject':
+        try:
+            if importlib.util.find_spec('gi.repository.' + name) is not None:
+                continue
+        except ImportError:
+            pass
+        have_gexiv2 = False
+        break
+if not have_gexiv2:
+    install_requires.append('python-exiv2')
+
+# add version numbers
+min_version = {
+    'appdirs': '1.3', 'gphoto2': '0.10', 'keyring': '7.0',
+    'PyQt5': '5.0.0', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
+    'python-exiv2': '0.8.1',
+    'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
+    }
+for option in extras_require:
+    extras_require[option] = ['{} >= {}'.format(x, min_version[x])
+                              for x in extras_require[option]]
+install_requires = ['{} >= {}'.format(x, min_version[x])
+                    for x in install_requires]
 
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
@@ -62,13 +112,7 @@ setup(name = 'Photini',
               'photini = photini.editor:main',
               ],
           },
-      install_requires = ['appdirs >= 1.3', 'requests >= 2.4.0'],
-      extras_require = {
-          'flickr'   : ['requests-oauthlib >= 1.0', 'requests-toolbelt >= 0.9',
-                        'keyring >= 7.0'],
-          'google'   : ['requests-oauthlib >= 1.0', 'keyring >= 7.0'],
-          'importer' : ['gphoto2 >= 0.10'],
-          'spelling' : [],
-          },
+      install_requires = install_requires,
+      extras_require = extras_require,
       zip_safe = False,
       )
