@@ -42,19 +42,19 @@ for name in 'PySide2', 'PySide6', 'PyQt5':
 if qt_option:
     install_requires.append(qt_option)
 
-have_gexiv2 = True
-if importlib.util.find_spec('gi') is None:
-    have_gexiv2 = False
-else:
+use_gexiv2 = importlib.util.find_spec('exiv2') is None
+if use_gexiv2 and importlib.util.find_spec('gi') is None:
+    use_gexiv2 = False
+if use_gexiv2:
     for name in 'GExiv2', 'GLib', 'GObject':
         try:
             if importlib.util.find_spec('gi.repository.' + name) is not None:
                 continue
         except ImportError:
             pass
-        have_gexiv2 = False
+        use_gexiv2 = False
         break
-if not have_gexiv2:
+if not use_gexiv2:
     install_requires.append('python-exiv2')
 
 # add version numbers
