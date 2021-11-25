@@ -832,8 +832,9 @@ class DateTime(MD_Dict):
         return date_string + ' ' + time_string, sub_sec_string
 
     # IPTC date & time should have no separators and be 8 and 11 chars
-    # respectively (time includes time zone offset). I suspect the exiv2
-    # library is adding separators, but am not sure.
+    # respectively (time includes time zone offset). The exiv2 library
+    # adds separators if the data is correctly formatted, otherwise it
+    # gives us the raw string.
 
     # The date (and time?) can have missing values represented by 00
     # according to
