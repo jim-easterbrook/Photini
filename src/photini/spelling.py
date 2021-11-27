@@ -48,7 +48,7 @@ def import_Gspell():
         from photini.gi import gi, using_pgi, GSListPtr_to_list
         gi.require_version('Gspell', '1')
         from gi.repository import GLib, GObject, Gspell
-    except ImportError as ex:
+    except Exception as ex:
         print(str(ex))
 
 if 'gi.repository' in sys.modules:
