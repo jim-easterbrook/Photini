@@ -331,7 +331,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.setTabBar(QTabBar())
         self.tabs.setElideMode(Qt.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
-        self.add_tabs(False)
+        self.add_tabs()
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)
         size = self.central_widget.sizes()
@@ -349,9 +349,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def open_initial_files(self):
         self.image_list.open_file_list(self.initial_files)
 
-    @QtSlot(bool)
+    @QtSlot()
     @catch_all
-    def add_tabs(self, checked):
+    def add_tabs(self):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
