@@ -32,6 +32,7 @@ if exiv2.__version__ < '0.8.1':
 
 logger = logging.getLogger(__name__)
 
+exiv2_version_info = tuple([int(x) for x in exiv2.versionString().split('.')])
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.versionString())
 

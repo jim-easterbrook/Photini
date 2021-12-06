@@ -20,8 +20,10 @@ import logging
 import os
 import sys
 
+using_gexiv2 = True
 try:
-    from photini.exiv2 import MetadataHandler, exiv2_version
+    from photini.exiv2 import MetadataHandler, exiv2_version, exiv2_version_info
+    using_gexiv2 = False
 except ImportError as ex:
     print(str(ex))
     from photini.gexiv2 import MetadataHandler, exiv2_version
@@ -526,8 +528,9 @@ class SidecarMetadata(ImageMetadata):
         return None
 
     def clear_dates(self):
-        # workaround for bug in exiv2 xmp timestamp altering
-        # see https://dev.exiv2.org/issues/1313
-        for name in ('date_digitised', 'date_modified', 'date_taken'):
-            self.write(name, None)
-        self.save()
+        if using_gexiv2 or exiv2_version_info < (1,0,0):
+            # workaround for bug in exiv2 xmp timestamp altering
+            # see https://github.com/Exiv2/exiv2/issues/1998
+            for name in ('date_digitised', 'date_modified', 'date_taken'):
+                self.write(name, None)
+            self.save()
