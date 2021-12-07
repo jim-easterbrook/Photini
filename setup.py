@@ -57,9 +57,16 @@ if use_gexiv2:
 if not use_gexiv2:
     install_requires.append('python-exiv2')
 
+if importlib.util.find_spec('gi') is not None:
+    try:
+        if importlib.util.find_spec('gi.repository.Gspell') is None:
+            extras_require['spelling'].append('pyenchant')
+    except ImportError:
+        pass
+
 # add version numbers
 min_version = {
-    'appdirs': '1.3', 'gphoto2': '0.10', 'keyring': '7.0',
+    'appdirs': '1.3', 'gphoto2': '0.10', 'keyring': '7.0', 'pyenchant': '1.6',
     'PyQt5': '5.0.0', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
     'python-exiv2': '0.8.1',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
