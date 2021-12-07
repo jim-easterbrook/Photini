@@ -32,10 +32,10 @@ extras_require = {
     }
 
 # add packages with choices, using already installed ones if available
-qt_option = 'PySide2'
-if sys.version_info >= (3, 10, 0):
-    qt_option = 'PySide6'
-for name in 'PySide2', 'PySide6', 'PyQt5':
+qt_option = 'PySide6'
+if sys.version_info < (3, 6, 0):
+    qt_option = 'PySide2'
+for name in 'PySide6', 'PySide2', 'PyQt5':
     if importlib.util.find_spec(name) is not None:
         qt_option = None
         break
