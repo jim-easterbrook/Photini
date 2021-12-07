@@ -23,7 +23,6 @@ It is already installed on many computers, but on Windows you will probably need
 Go to https://www.python.org/downloads/ and choose a suitable Windows installer.
 I suggest you use the 64-bit stable release with the highest version number that will run on your version of Windows.
 Beware of using very recent versions though, as some dependencies may not have been updated to work with the latest Python.
-For example, PySide2_ is only available for Python 3.5 to 3.9 (as of 22/10/2021).
 
 When you run the Python installer make sure you select the "add Python to PATH" option.
 If you customise your installation then make sure you still select "pip".
@@ -38,7 +37,7 @@ After installing Python, start a shell (e.g. ``cmd.exe``) and try running ``pip`
     ---------- -------
     pip        21.1.1
     setuptools 56.0.0
-    WARNING: You are using pip version 21.1.1; however, version 21.2.4 is available.
+    WARNING: You are using pip version 21.1.1; however, version 21.3.1 is available.
 
     You should consider upgrading via the 'c:\users\jim\appdata\local\programs\python\python38\python.exe -m pip install --upgrade pip' command.
 
@@ -49,65 +48,90 @@ Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::
     C:\Users\Jim>python -m pip install -U pip
     Requirement already satisfied: pip in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (21.1.1)
     Collecting pip
-      Downloading pip-21.2.4-py3-none-any.whl (1.6 MB)
-         |████████████████████████████████| 1.6 MB 652 kB/s
+      Downloading pip-21.3.1-py3-none-any.whl (1.7 MB)
+         |████████████████████████████████| 1.7 MB 652 kB/s
     Installing collected packages: pip
       Attempting uninstall: pip
         Found existing installation: pip 21.1.1
         Uninstalling pip-21.1.1:
           Successfully uninstalled pip-21.1.1
-    Successfully installed pip-21.2.4
+    Successfully installed pip-21.3.1
 
 Photini
 ^^^^^^^
 
-Now that Python is installed you can install Photini and the dependencies as listed in :ref:`essential-dependencies`.
-Start by installing PySide2_::
+Now that Python is installed you can install Photini and its dependencies (and their dependencies)::
 
-    C:\Users\Jim>pip install pyside2
-    Collecting pyside2
+    C:\Users\Jim>pip install photini
+    Collecting photini
+      Downloading Photini-2021.12.0.tar.gz (7.0 MB)
+         |████████████████████████████████| 7.0 MB 229 kB/s
+      Preparing metadata (setup.py) ... done
+    Collecting appdirs>=1.3
+      Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
+    Collecting requests>=2.4.0
+      Downloading requests-2.26.0-py2.py3-none-any.whl (62 kB)
+         |████████████████████████████████| 62 kB 64 kB/s
+    Collecting PySide2>=5.11.0
       Downloading PySide2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl (136.3 MB)
-         |████████████████████████████████| 136.3 MB 12 kB/s
+         |████████████████████████████████| 136.3 MB 10 kB/s
+    Collecting python-exiv2>=0.8.1
+      Downloading python_exiv2-0.8.1-cp38-cp38-win_amd64.whl (1.7 MB)
+         |████████████████████████████████| 1.7 MB 656 kB/s
     Collecting shiboken2==5.15.2
       Downloading shiboken2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl (2.3 MB)
          |████████████████████████████████| 2.3 MB 595 kB/s
-    Installing collected packages: shiboken2, pyside2
-    Successfully installed pyside2-5.15.2 shiboken2-5.15.2
+    Collecting urllib3<1.27,>=1.21.1
+      Downloading urllib3-1.26.7-py2.py3-none-any.whl (138 kB)
+         |████████████████████████████████| 138 kB 598 kB/s
+    Collecting charset-normalizer~=2.0.0
+      Downloading charset_normalizer-2.0.9-py3-none-any.whl (39 kB)
+    Collecting certifi>=2017.4.17
+      Downloading certifi-2021.10.8-py2.py3-none-any.whl (149 kB)
+         |████████████████████████████████| 149 kB 80 kB/s
+    Collecting idna<4,>=2.5
+      Downloading idna-3.3-py3-none-any.whl (61 kB)
+         |████████████████████████████████| 61 kB 155 kB/s
+    Using legacy 'setup.py install' for photini, since package 'wheel' is not installed.
+    Installing collected packages: urllib3, shiboken2, idna, charset-normalizer, certifi, requests, python-exiv2, PySide2, appdirs, photini
+        Running setup.py install for photini ... done
+    Successfully installed PySide2-5.15.2 appdirs-1.4.4 certifi-2021.10.8 charset-normalizer-2.0.9 idna-3.3 photini-2021.12.0 python-exiv2-0.8.1 requests-2.26.0 shiboken2-5.15.2 urllib3-1.26.7
 
-Note that this installed two packages, pyside2 and shiboken2.
-This is because ``pip`` knows what packages other packages depend on and installs them if required.
-
-The rest of the dependencies are installed similarly::
-
-    C:\Users\Jim>pip install python-exiv2 photini
+Note that this installed ``PySide2`` as I'm using Windows 7.
+On Windows 10 ``PySide6`` will be installed instead.
+The installer tries to choose appropriate packages for your computer, but might not always get it right.
+If this happens you can manually uninstall the unwanted package and install the correct one with pip.
 
 Now you should be able to run photini::
 
-    C:\Users\Jim>python -m photini.editor
-    ffmpeg not found
+    C:\Users\Jim>python -m photini
+    ffmpeg or ffprobe not found
     No module named 'enchant'
     No module named 'gi'
     No module named 'gpxpy'
     QWindowsEGLStaticContext::create: Could not initialize EGL display: error 0x3001
 
-    QWindowsEGLStaticContext::create: When using ANGLE, check if d3dcompiler_4x.dll is available
+    QWindowsEGLStaticContext::create: When using ANGLE, check if d3dcompiler_4x.dll
+    is available
     No module named 'requests_oauthlib'
     No module named 'requests_oauthlib'
 
-Note the list of ``No module named...`` statements.
+Note the list of ``No module named ...`` statements.
 These are optional dependencies that add functionality to Photini, for example ``enchant`` is used for spell checking.
 See :ref:`installation-optional` for a full list.
+The easiest way to install these packages is to specify them as extras when running pip::
 
-Photini can be started more directly from a command shell::
+    C:\Users\Jim>pip install photini[flickr,google,spelling]
 
-    C:\Users\Jim>photini
+You can do this when you first install Photini, or any time later on.
 
-However, most Windows users would probably prefer to use the start menu or a desktop icon.
+Although you can run Photini from a command shell, most Windows users would probably prefer to use the start menu or a desktop icon.
 These can be installed with the ``photini-post-install`` command, as described in :ref:`installing-menu-entries` below::
 
     C:\Users\Jim>photini-post-install
+    Creating menu shortcuts
 
-This will require administrator privileges if you are not already running your command shell as administrator.
+This will open a dialog to request administrator privileges if you are not already running your command shell as administrator.
 
 Linux and MacOS
 ---------------
@@ -138,7 +162,7 @@ If you prefer a single-user installation, which doesn't require root permission,
 
 You can also use pip to install the optional dependencies when you install Photini::
 
-    $ sudo pip3 install photini[flickr,google,importer]
+    $ sudo pip3 install photini[flickr,google,importer,spelling]
 
 .. _installation-photini:
 
