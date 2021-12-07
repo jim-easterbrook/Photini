@@ -50,7 +50,7 @@ Dependencies
 Photini requires at least the following:
 
 *   Python3: http://python.org/
-*   PyQt5 or PySide2: http://www.riverbankcomputing.co.uk/software/pyqt/ or https://doc.qt.io/qtforpython/
+*   PyQt5 or PySide2 or PySide6: http://www.riverbankcomputing.co.uk/software/pyqt/ or https://doc.qt.io/qtforpython/
 *   python-exiv2: https://pypi.org/project/python-exiv2/
 
 For a full list of dependencies, please see the `installation documentation`_.
