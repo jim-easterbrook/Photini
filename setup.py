@@ -18,6 +18,7 @@
 
 import importlib.util
 import os
+import platform
 from setuptools import setup
 import sys
 
@@ -28,18 +29,29 @@ extras_require = {
     'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2'],
-    'spelling' : [],
+    'spelling' : ['pyenchant'],
     }
 
 # add packages with choices, using already installed ones if available
 qt_option = 'PySide6'
-if sys.version_info < (3, 6, 0):
-    qt_option = 'PySide2'
 for name in 'PySide6', 'PySide2', 'PyQt5':
     if importlib.util.find_spec(name) is not None:
         qt_option = None
         break
 if qt_option:
+    # no already installed Qt package, choose one according to platform
+    # see https://doc.qt.io/archives/qt-6.0/supported-platforms.html
+    if platform.system() == 'Windows':
+        # PySide6 only works on Windows 10
+        if platform.release() != '10':
+            qt_option = 'PySide2'
+    elif platform.system() == 'Linux':
+        # PySide6 only works with GCC 9 or later, GCC 9 probably uses
+        # glibc 2.28 or later
+        libc = platform.libc_ver(version='0.0.0')[1]
+        libc = tuple([int(x) for x in libc.split('.')])
+        if libc < (2, 28, 0):
+            qt_option = 'PySide2'
     install_requires.append(qt_option)
 
 use_gexiv2 = importlib.util.find_spec('exiv2') is None
@@ -59,8 +71,8 @@ if not use_gexiv2:
 
 if importlib.util.find_spec('gi') is not None:
     try:
-        if importlib.util.find_spec('gi.repository.Gspell') is None:
-            extras_require['spelling'].append('pyenchant')
+        if importlib.util.find_spec('gi.repository.Gspell') is not None:
+            extras_require['spelling'] = []
     except ImportError:
         pass
 
