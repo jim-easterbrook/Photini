@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2021.12.0:
+  1/ Installing with pip should install dependencies if needed.
+  2/ Other minor improvements and bug fixes.
+
 Changes in v2021.11.1:
   1/ Fix problems regenerating thumbnails if Pillow & FFmpeg are not available.
   2/ Improved reading of Exif.Photo.UserComment values.
