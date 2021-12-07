@@ -31,13 +31,6 @@ from photini.configstore import BaseConfigStore
 
 logger = logging.getLogger(__name__)
 
-# workaround for Qt bug affecting QtWebEngine
-# https://bugreports.qt.io/browse/QTBUG-67537
-if sys.platform.startswith('linux'):
-    import ctypes
-    import ctypes.util
-    ctypes.CDLL(ctypes.util.find_library('GL'), ctypes.RTLD_GLOBAL)
-
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
@@ -95,6 +88,30 @@ elif qt_lib == 'PyQt5':
 else:
     raise RuntimeError('Unrecognised Qt library ' + qt_lib)
 
+style = config.get('pyqt', 'style')
+if style:
+    QtWidgets.QApplication.setStyle(style)
+config.save()
+del config, style
+
+if qt_lib == 'PyQt5':
+    qt_version_info = namedtuple(
+        'qt_version_info', ('major', 'minor', 'micro'))._make(
+            map(int, QtCore.QT_VERSION_STR.split('.')))
+    qt_version = 'PyQt {}, Qt {}'.format(
+        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
+else:
+    qt_version_info = QtCore.__version_info__
+    qt_version = '{} {}, Qt {}'.format(
+        qt_lib, PySide_version, QtCore.__version__)
+
+# workaround for Qt bug affecting QtWebEngine
+# https://bugreports.qt.io/browse/QTBUG-67537
+if sys.platform.startswith('linux') and qt_version_info < (5, 11, 0):
+    import ctypes
+    import ctypes.util
+    ctypes.CDLL(ctypes.util.find_library('GL'), ctypes.RTLD_GLOBAL)
+
 # choose WebEngine or WebKit
 if not isinstance(using_qtwebengine, bool):
     using_qtwebengine = True
@@ -126,27 +143,10 @@ else:
         from PyQt5 import QtWebKitWidgets as QtWebWidgets
         from PyQt5 import QtWebKit as QtWebCore
 
-
-style = config.get('pyqt', 'style')
-if style:
-    QtWidgets.QApplication.setStyle(style)
-config.save()
-del config, style
-
-translate = QtCore.QCoreApplication.translate
-
-if qt_lib == 'PyQt5':
-    qt_version_info = namedtuple(
-        'qt_version_info', ('major', 'minor', 'micro'))._make(
-            map(int, QtCore.QT_VERSION_STR.split('.')))
-    qt_version = 'PyQt {}, Qt {}'.format(
-        QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
-else:
-    qt_version_info = QtCore.__version_info__
-    qt_version = '{} {}, Qt {}'.format(
-        qt_lib, PySide_version, QtCore.__version__)
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
+
+translate = QtCore.QCoreApplication.translate
 
 # decorator for methods called by Qt that logs any exception raised
 def catch_all(func):
