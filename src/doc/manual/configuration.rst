@@ -47,18 +47,12 @@ The available languages depend on what dictionaries you have installed.
 Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate Aspell or Hunspell dictionary.
 
 Windows programs don't share spell checking dictionaries as easily as on Linux.
-You may be able to find a suitable dictionary to download directly.
-There is a list of Aspell dictionaries at ftp://ftp.gnu.org/gnu/aspell/dict/0index.html that might help.
-Installing these may not be easy.
-You'll need to run a command shell as described in :doc:`../other/installation`.
-The ``tar.bz2`` files can be unpacked with the ``bsdtar`` command, for example::
-
-   bsdtar xf aspell-cy-0.50-3.tar.bz2
-
-Then you may need to compile the dictionary before installing it.
-There should be instructions provided with the dictionary.
-In this case I needed to install ``make`` and edit the ``Makefile`` to change the Windows paths to simpler Linux-like ones.
-As a last resort you can try copying the files to the dictionary folder ``/mingw64/lib/aspell-0.60``.
+The Hunspell `LibreOffice dictionaries`_ can be used.
+Select the subdirectory with the language you need (e.g. ``fr_FR`` for French as spoken in France) and download the ``.aff`` and ``.dic`` files.
+(Ignore hyphen and thesaurus files.)
+Put these files in the same directory as the English dictionaries installed with pyenchant.
+On my computer the directory is ``C:\Users\Jim\AppData\Local\Programs\Python\Python38\Lib\``
+``site-packages\enchant\data\mingw64\share\enchant\hunspell`` but this will depend on your Python installation.
 
 Configuration file location
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -187,5 +181,6 @@ You could even use a tab provided by another Python package by adding its module
 See :doc:`extending` for more information.
 
 .. _IPTC standard:          http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
-.. _LibreOffice:            https://www.libreoffice.org/
+.. _LibreOffice dictionaries:
+        https://cgit.freedesktop.org/libreoffice/dictionaries/tree/
 .. _Metadata Working Group: https://en.wikipedia.org/wiki/Metadata_Working_Group
