@@ -22,6 +22,7 @@ import importlib
 import logging
 from optparse import OptionParser
 import os
+import socket
 import sys
 import urllib
 import warnings
@@ -138,23 +139,16 @@ def SendToInstance(files):
     port = config.get('server', 'port')
     if not port:
         return False
-    socket = QtNetwork.QTcpSocket()
-    socket.connectToHost(
-        QtNetwork.QHostAddress.LocalHost, int(port), QtCore.QIODevice.WriteOnly)
-    if not socket.waitForConnected(1000):
-        logger.info('Connect to server: %s', socket.errorString())
+    try:
+        sock = socket.create_connection(('127.0.0.1', int(port)), timeout=1000)
+    except ConnectionRefusedError:
         return False
     for path in files:
         data = os.path.abspath(path).encode('utf-8') + b'\n'
-        while data:
-            count = socket.write(data)
-            if count < 1:
-                logger.error('Write to server: %s', socket.errorString())
-                break
-            data = data[count:]
-    socket.waitForBytesWritten()
-    socket.close()
+        sock.sendall(data)
+    sock.close()
     return True
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
