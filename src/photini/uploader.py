@@ -336,7 +336,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_photo.setPixmap(pixmap)
 
     def get_temp_filename(self, image, ext='.jpg'):
-        temp_dir = appdirs.user_cache_dir('photini')
+        temp_dir = os.path.join(appdirs.user_cache_dir('photini'), 'uploader')
         if not os.path.isdir(temp_dir):
             os.makedirs(temp_dir)
         return os.path.join(temp_dir, os.path.basename(image.path) + ext)

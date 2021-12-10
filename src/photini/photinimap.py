@@ -24,6 +24,7 @@ import locale
 import logging
 import os
 
+import appdirs
 import pkg_resources
 import requests
 
@@ -167,12 +168,11 @@ if using_qtwebengine:
             super(QWebView, self).__init__(*args, **kwds)
             self.setPage(MapWebPage(parent=self))
             self.page().set_call_handler(call_handler)
-            self.settings().setAttribute(
-                QtWebCore.QWebEngineSettings.Accelerated2dCanvasEnabled, False)
-            self.settings().setAttribute(
-                QtWebCore.QWebEngineSettings.LocalContentCanAccessRemoteUrls, True)
-            self.settings().setAttribute(
-                QtWebCore.QWebEngineSettings.LocalContentCanAccessFileUrls, True)
+            self.page().profile().setCachePath(appdirs.user_cache_dir('photini'))
+            settings = self.settings()
+            settings.setAttribute(settings.Accelerated2dCanvasEnabled, False)
+            settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
+            settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
 
 
 else:
@@ -180,10 +180,9 @@ else:
         def __init__(self, call_handler, *args, **kwds):
             super(QWebView, self).__init__(*args, **kwds)
             self.setPage(MapWebPage(call_handler, parent=self))
-            self.settings().setAttribute(
-                QtWebCore.QWebSettings.LocalContentCanAccessRemoteUrls, True)
-            self.settings().setAttribute(
-                QtWebCore.QWebSettings.LocalContentCanAccessFileUrls, True)
+            settings = self.settings()
+            settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
+            settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
 
 
 class MapWebView(QWebView):
