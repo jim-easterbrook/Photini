@@ -269,7 +269,7 @@ class PhotiniMap(QtWidgets.QWidget):
             os.path.join(self.script_dir, '../map_pin_grey.png'))
         self.drag_hotspot = 11, 35
         self.search_string = None
-        self.map_loaded = False
+        self.map_loaded = 0     # not loaded
         self.marker_info = {}
         self.map_status = {}
         self.dropped_images = []
@@ -408,7 +408,7 @@ class PhotiniMap(QtWidgets.QWidget):
     @catch_all
     def initialize_finished(self):
         QtWidgets.QApplication.restoreOverrideCursor()
-        self.map_loaded = True
+        self.map_loaded = 2     # finished loading
         self.widgets['search'].setEnabled(True)
         self.widgets['map'].setAcceptDrops(True)
         self.new_selection(
@@ -416,14 +416,18 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def refresh(self):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
-        if not self.map_loaded:
+        selection = self.image_list.get_selected_images()
+        self.widgets['latlon'].update_display(selection)
+        if self.map_loaded < 1:
+            self.map_loaded = 1     # started loading
             self.initialise()
+            return
+        if self.map_loaded < 2:
             return
         lat, lng = self.app.config_store.get('map', 'centre')
         zoom = int(self.app.config_store.get('map', 'zoom'))
         self.JavaScript('setView({!r},{!r},{:d})'.format(lat, lng, zoom))
-        self.new_selection(
-            self.image_list.get_selected_images(), adjust_map=False)
+        self.new_selection(selection, adjust_map=False)
 
     def do_not_close(self):
         return False
@@ -520,7 +524,7 @@ class PhotiniMap(QtWidgets.QWidget):
             self.see_selection(selection)
 
     def redraw_markers(self):
-        if not self.map_loaded:
+        if self.map_loaded < 2:
             return
         for info in self.marker_info.values():
             info['images'] = []
@@ -558,7 +562,7 @@ class PhotiniMap(QtWidgets.QWidget):
                     'enableMarker({:d},{:d})'.format(marker_id, info['selected']))
 
     def redraw_gps_track(self, selected_images=None):
-        if not self.map_loaded:
+        if self.map_loaded < 2:
             return
         # update GPX track markers
         if not self.app.gpx_importer:
@@ -719,5 +723,5 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['latlon'].update_display()
 
     def JavaScript(self, command):
-        if self.map_loaded:
+        if self.map_loaded >= 2:
             self.widgets['map'].page().do_java_script(command)
