@@ -100,7 +100,7 @@ class FileObjWithCallback(object):
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
     upload_error = QtSignal(str, str)
-    upload_progress = QtSignal(float, str)
+    upload_progress = QtSignal(int, str)
 
     def __init__(self, session_factory, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
@@ -117,7 +117,7 @@ class UploadWorker(QtCore.QObject):
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
             name = os.path.basename(image.path)
-            self.upload_progress.emit(0.0, '{} ({}/{}) %p%'.format(
+            self.upload_progress.emit(0, '{} ({}/{}) %p%'.format(
                 name, 1 + upload_count, len(self.upload_list)))
             if convert:
                 path = convert(image)
@@ -147,7 +147,7 @@ class UploadWorker(QtCore.QObject):
                     break
             else:
                 upload_count += 1
-        self.upload_progress.emit(0.0, '%p%')
+        self.upload_progress.emit(0, '%p%')
         session.close_connection()
         self.finished.emit()
 
@@ -454,7 +454,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         thread.finished.connect(thread.deleteLater)
         thread.start()
 
-    @QtSlot(float, str)
+    @QtSlot(int, str)
     @catch_all
     def upload_progress(self, value, format_):
         self.total_progress.setValue(value)
