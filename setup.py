@@ -16,11 +16,8 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-import importlib.util
 import os
-import platform
 from setuptools import setup
-import sys
 
 
 # list dependency packages
@@ -30,55 +27,16 @@ extras_require = {
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2'],
     'spelling' : ['pyenchant'],
+    'win7'     : ['PySide2', 'python-exiv2', 'pyenchant', 'gpxpy',
+                  'requests-oauthlib', 'requests-toolbelt', 'keyring'],
+    'win10'    : ['PySide6', 'python-exiv2', 'pyenchant', 'gpxpy',
+                  'requests-oauthlib', 'requests-toolbelt', 'keyring'],
     }
-
-# add packages with choices, using already installed ones if available
-qt_option = 'PySide6'
-for name in 'PySide6', 'PySide2', 'PyQt5':
-    if importlib.util.find_spec(name) is not None:
-        qt_option = None
-        break
-if qt_option:
-    # no already installed Qt package, choose one according to platform
-    # see https://doc.qt.io/archives/qt-6.0/supported-platforms.html
-    if platform.system() == 'Windows':
-        # PySide6 only works on Windows 10
-        if platform.release() != '10':
-            qt_option = 'PySide2'
-    elif platform.system() == 'Linux':
-        # PySide6 only works with GCC 9 or later, GCC 9 probably uses
-        # glibc 2.28 or later
-        libc = platform.libc_ver(version='0.0.0')[1]
-        libc = tuple([int(x) for x in libc.split('.')])
-        if libc < (2, 28, 0):
-            qt_option = 'PySide2'
-    install_requires.append(qt_option)
-
-use_gexiv2 = importlib.util.find_spec('exiv2') is None
-if use_gexiv2 and importlib.util.find_spec('gi') is None:
-    use_gexiv2 = False
-if use_gexiv2:
-    for name in 'GExiv2', 'GLib', 'GObject':
-        try:
-            if importlib.util.find_spec('gi.repository.' + name) is not None:
-                continue
-        except ImportError:
-            pass
-        use_gexiv2 = False
-        break
-if not use_gexiv2:
-    install_requires.append('python-exiv2')
-
-if importlib.util.find_spec('gi') is not None:
-    try:
-        if importlib.util.find_spec('gi.repository.Gspell') is not None:
-            extras_require['spelling'] = []
-    except ImportError:
-        pass
 
 # add version numbers
 min_version = {
-    'appdirs': '1.3', 'gphoto2': '0.10', 'keyring': '7.0', 'pyenchant': '1.6',
+    'appdirs': '1.3', 'gphoto2': '0.10', 'gpxpy': '1.3.5', 'keyring': '7.0',
+    'pyenchant': '1.6',
     'PyQt5': '5.0.0', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
     'python-exiv2': '0.8.1',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
