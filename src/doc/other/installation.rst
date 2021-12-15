@@ -12,7 +12,8 @@ On other platforms you need to install several dependencies before installing Ph
 Windows
 -------
 
-Installing Photini on Windows is done in two stages.
+If you use MSYS2_ you should follow the instructions in :ref:`installation-linux` below, using the ``pacman`` package manager.
+Otherwise installing Photini on Windows is done in two stages.
 First install Python_ (if you don't already have Windows Python installed) and then use pip_ to install Photini and its dependencies.
 
 Python
@@ -60,13 +61,14 @@ Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::
 Photini
 ^^^^^^^
 
-Now that Python is installed you can install Photini and its dependencies (and their dependencies)::
+Now that Python is installed you can install Photini and its dependencies.
+If you are an experienced Python user you may prefer to choose the dependencies and install them manually.
+Otherwise you can install all of the recommended dependencies in one go by appending ``[win10]`` or ``[win7]`` to the pip command::
 
-    C:\Users\Jim>pip install photini
+    C:\Users\Jim>pip install photini[win7]
     Collecting photini
-      Downloading Photini-2021.12.0.tar.gz (7.0 MB)
-         |████████████████████████████████| 7.0 MB 229 kB/s
-      Preparing metadata (setup.py) ... done
+      Downloading Photini-2021.12.1-py3-none-any.whl (284 kB)
+         |████████████████████████████████| 284 kB 229 kB/s
     Collecting appdirs>=1.3
       Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
     Collecting requests>=2.4.0
@@ -92,38 +94,19 @@ Now that Python is installed you can install Photini and its dependencies (and t
     Collecting idna<4,>=2.5
       Downloading idna-3.3-py3-none-any.whl (61 kB)
          |████████████████████████████████| 61 kB 155 kB/s
-    Using legacy 'setup.py install' for photini, since package 'wheel' is not installed.
     Installing collected packages: urllib3, shiboken2, idna, charset-normalizer, certifi, requests, python-exiv2, PySide2, appdirs, photini
-        Running setup.py install for photini ... done
     Successfully installed PySide2-5.15.2 appdirs-1.4.4 certifi-2021.10.8 charset-normalizer-2.0.9 idna-3.3 photini-2021.12.0 python-exiv2-0.8.1 requests-2.26.0 shiboken2-5.15.2 urllib3-1.26.7
 
-Note that this installed ``PySide2`` as I'm using Windows 7.
-On Windows 10 ``PySide6`` will be installed instead.
-The installer tries to choose appropriate packages for your computer, but might not always get it right.
-If this happens you can manually uninstall the unwanted package and install the correct one with pip.
+Use ``[win10]`` if you have Windows 10 or later, ``[win7]`` if you have Windows 7 or Windows 8.
 
 Now you should be able to run photini::
 
     C:\Users\Jim>python -m photini
     ffmpeg or ffprobe not found
-    No module named 'enchant'
-    No module named 'gi'
-    No module named 'gpxpy'
-    QWindowsEGLStaticContext::create: Could not initialize EGL display: error 0x3001
 
-    QWindowsEGLStaticContext::create: When using ANGLE, check if d3dcompiler_4x.dll
-    is available
-    No module named 'requests_oauthlib'
-    No module named 'requests_oauthlib'
-
-Note the list of ``No module named ...`` statements.
-These are optional dependencies that add functionality to Photini, for example ``enchant`` is used for spell checking.
-See :ref:`installation-optional` for a full list.
-The easiest way to install these packages is to specify them as extras when running pip::
-
-    C:\Users\Jim>pip install photini[flickr,google,spelling]
-
-You can do this when you first install Photini, or any time later on.
+Don't worry about the ``ffmpeg or ffprobe not found`` message.
+Installing FFmpeg_ on Windows is not straightforward.
+Photini works without it, but you won't be able to read metadata from video files.
 
 Although you can run Photini from a command shell, most Windows users would probably prefer to use the start menu or a desktop icon.
 These can be installed with the ``photini-post-install`` command, as described in :ref:`installing-menu-entries` below::
@@ -132,6 +115,8 @@ These can be installed with the ``photini-post-install`` command, as described i
     Creating menu shortcuts
 
 This will open a dialog to request administrator privileges if you are not already running your command shell as administrator.
+
+.. _installation-linux:
 
 Linux and MacOS
 ---------------
@@ -190,8 +175,8 @@ You will need to install the optional dependencies separately.
 
 If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
 
-    $ python3 utils/extract_program.py
-    $ python3 setup.py lrelease
+    $ python3 utils/lang_update.py
+    $ python3 utils/build_lang.py
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
@@ -248,8 +233,9 @@ Photini version 2020.12.0 and later can use either PyQt or PySide2, and Photini 
 If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
-One of these may already be included in your PyQt_ or PySide2_ installation.
 QtWebEngine is preferred, but is not available on all operating systems.
+QtWebEngine is included in PySide6_, and some PyQt_ or PySide2_ installations also include QtWebEngine or QtWebKit.
+Try running Photini before installing either as an extra package.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [3] `python-exiv2`_ is a new interface to the Exiv2_ library, which Photini versions 2021.9.0 onwards can use.
