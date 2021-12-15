@@ -208,6 +208,22 @@ The menu entries can be removed with the ``--remove`` (or ``-r``) option::
 
 You need to do this **before** uninstalling Photini, as the post installation command gets deleted when Photini is uninstalled.
 
+Updating Photini
+----------------
+
+When a new release of Photini is issued you can easily update your installation with pip_::
+
+    C:\>pip install -U photini
+
+or ::
+
+    $ sudo pip3 install -U photini
+
+The ``-U`` option tells pip to update Photini to the latest available version.
+
+If you upgrade Python you shouldn't need to reinstall Photini or its dependencies if only the patch level changes (e.g. 3.8.9 to 3.8.10).
+After a more significant Python upgrade (e.g. 3.7.x to 3.8.y) you will need to do a fresh installation of Photini and its dependencies.
+
 .. _essential-dependencies:
 
 Essential dependencies
