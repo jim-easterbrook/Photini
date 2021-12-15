@@ -116,7 +116,7 @@ class SpellCheck(QtCore.QObject):
             return None
         for value in result.values():
             value.sort()
-        return dict(result)
+        return dict(result) or None
 
     def current_language(self):
         if not self.dict:
