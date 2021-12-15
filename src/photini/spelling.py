@@ -17,6 +17,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from collections import defaultdict
 import logging
 import re
 import sys
@@ -87,18 +88,35 @@ class SpellCheck(QtCore.QObject):
 
     @staticmethod
     def available_languages():
-        result = []
+        result = defaultdict(list)
         if Gspell:
             for lang in Gspell.Language.get_available():
-                result.append((lang.get_name(), lang.get_code()))
+                code = lang.get_code()
+                name = lang.get_name()
+                match = re.match('(.+)\s+\((.+?)\)', name)
+                if match:
+                    language = match.group(1)
+                    country = match.group(2)
+                    if country == 'any':
+                        country = ''
+                else:
+                    language = name
+                    country = ''
+                result[language].append((country, code))
         elif enchant:
-            languages = enchant.list_languages()
-            languages.sort()
-            for lang in languages:
-                result.append((lang, lang))
+            for code in enchant.list_languages():
+                locale = QtCore.QLocale(code)
+                language = locale.languageToString(locale.language())
+                if '_' in code and '_ANY' not in code:
+                    country = locale.countryToString(locale.country())
+                else:
+                    country = ''
+                result[language].append((country, code))
         else:
             return None
-        return result
+        for value in result.values():
+            value.sort()
+        return dict(result)
 
     def current_language(self):
         if not self.dict:
@@ -114,8 +132,8 @@ class SpellCheck(QtCore.QObject):
     @QtSlot(bool)
     @catch_all
     def enable(self, enabled):
+        self.config_store.set('spelling', 'enabled', enabled)
         self.enabled = enabled and bool(Gspell or enchant)
-        self.config_store.set('spelling', 'enabled', self.enabled)
         self.new_dict.emit()
 
     def set_language(self, code):

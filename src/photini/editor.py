@@ -290,25 +290,26 @@ class MainWindow(QtWidgets.QMainWindow):
         action.setCheckable(True)
         action.setChecked(self.app.spell_check.enabled)
         action.toggled.connect(self.app.spell_check.enable)
-        language_menu = spelling_menu.addMenu(
-            translate('MenuBar', 'Choose language'))
-        language_menu.setEnabled(languages is not None)
         current_language = self.app.spell_check.current_language()
         if languages:
             language_group = QtGui2.QActionGroup(self)
-            for name, code in languages:
-                if name != code:
-                    name = code + ': ' + name
-                action = language_menu.addAction(name)
-                action.setCheckable(True)
-                action.setChecked(code == current_language)
-                action.setData(code)
-                action.setActionGroup(language_group)
+            for language in sorted(languages):
+                dict_list = languages[language]
+                if len(dict_list) == 1:
+                    language_menu = spelling_menu
+                else:
+                    language_menu = spelling_menu.addMenu(language)
+                for country, code in dict_list:
+                    if country:
+                        name = '{}: {}'.format(language, country)
+                    else:
+                        name = language
+                    action = language_menu.addAction(name)
+                    action.setCheckable(True)
+                    action.setChecked(code == current_language)
+                    action.setData(code)
+                    action.setActionGroup(language_group)
             language_group.triggered.connect(self.set_language)
-        else:
-            action = language_menu.addAction(
-                translate('MenuBar', 'No dictionary installed'))
-            action.setEnabled(False)
         # help menu
         help_menu = self.menuBar().addMenu(translate('MenuBar', 'Help'))
         action = help_menu.addAction(translate('MenuBar', 'About Photini'))
