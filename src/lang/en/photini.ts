@@ -46,6 +46,38 @@
         <source>subject {}</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the details about a location where this image was created.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the details about a location which is shown in this image.</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -139,6 +171,20 @@
         <source>Please type in the creator&apos;s name</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
+this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
+Separate them with &quot;;&quot; characters.</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>EditSettings</name>
@@ -187,15 +233,27 @@
         <translation></translation>
     </message>
     <message>
-        <source>Preserve file timestamps</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>IPTC-IIM metadata</source>
         <translation></translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Keep original</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File timestamps</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set to when photo was taken</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set to when file is saved</source>
         <translation></translation>
     </message>
 </context>
@@ -386,26 +444,6 @@ this picture on Flickr?</source>
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>GPX options</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source> secs</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Max time between points</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Max dilution of precision</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Plot track on map</source>
         <translation></translation>
     </message>
 </context>
@@ -677,6 +715,18 @@ provided by Bing</source>
         <comment>repeat</comment>
         <translation></translation>
     </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>MenuBar</name>
@@ -686,10 +736,6 @@ provided by Bing</source>
     </message>
     <message>
         <source>File</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Import GPX file</source>
         <translation></translation>
     </message>
     <message>
@@ -710,14 +756,6 @@ provided by Bing</source>
     </message>
     <message>
         <source>Enable spell check</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Choose language</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No dictionary installed</source>
         <translation></translation>
     </message>
     <message>
@@ -764,6 +802,10 @@ provided by Bing</source>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Fix missing thumbnails</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>OpenCage</name>
@@ -777,6 +819,150 @@ provided by Bing</source>
     </message>
     <message encoding="UTF-8">
         <source>Geodata © OpenStreetMap contributors</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>OwnerTab</name>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;Ownership metadata</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit
+template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Apply
+template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creator</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the job title of the person listed in the Creator field.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creator&apos;s Jobtitle</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter who should be credited when this image is published.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Credit Line</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copyright Notice</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter instructions on how this image can legally be used.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Rights Usage Terms</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Instructions</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Email(s)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Web URL(s)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Phone(s)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter address for the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the city for the address of the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the postal code for the address of the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Postal Code</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the state for the address of the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>State/Province</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the country name for the address of the person that created this image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Contact Information</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Use %Y to insert the year the photograph was taken.</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>TabWidget</name>
+    <message>
+        <source>Photini: ownership template</source>
         <translation></translation>
     </message>
 </context>
