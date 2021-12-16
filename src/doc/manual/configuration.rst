@@ -180,6 +180,23 @@ You can reorder the tabs by reordering this list.
 You could even use a tab provided by another Python package by adding its module name to the list.
 See :doc:`extending` for more information.
 
+Metadata options
+^^^^^^^^^^^^^^^^
+
+Photini can optionally read metadata from "BMFF" based filed types CR3, HEIF, HEIC, and AVIF.
+This requires use of python-exiv2 with libexiv2 v0.27.4 or later.
+(See :ref:`essential-dependencies` for more details about Photini's dependencies.)
+Using BMFF files may infringe patents.
+Please read the `Exiv2 warning`_ before enabling this feature.
+
+To enable BMFF file reading, edit the configuration file and set the ``enable_bmff`` option to ``True``:
+
+.. code-block:: guess
+
+   [metadata]
+   enable_bmff = True
+
+.. _Exiv2 warning:          https://github.com/exiv2/exiv2#2-19
 .. _IPTC standard:          http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 .. _LibreOffice dictionaries:
         https://cgit.freedesktop.org/libreoffice/dictionaries/tree/
