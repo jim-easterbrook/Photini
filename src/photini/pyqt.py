@@ -163,7 +163,8 @@ def image_types_lower():
     result = [
         'jpeg', 'jpg', 'exv', 'cr2', 'crw', 'mrw', 'tiff', 'tif', 'dng',
         'nef', 'pef', 'arw', 'rw2', 'sr2', 'srw', 'orf', 'png', 'pgf',
-        'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm'
+        'raf', 'eps', 'gif', 'psd', 'tga', 'bmp', 'jp2', 'pnm',
+        'cr3', 'heif', 'heic', 'avif'
         ]
     for fmt in QtGui.QImageReader.supportedImageFormats():
         ext = fmt.data().decode('utf-8').lower()
