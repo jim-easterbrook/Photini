@@ -87,7 +87,7 @@ def temp_rename(path):
 
 class MetadataHandler(GExiv2.Metadata):
     @classmethod
-    def initialise(cls, verbosity):
+    def initialise(cls, config_store, verbosity):
         if not GExiv2.initialize():
             raise RuntimeError('Failed to initialise GExiv2')
         GExiv2.log_set_level(max(

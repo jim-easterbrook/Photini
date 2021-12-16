@@ -164,8 +164,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # logger window
         self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
-        # initialise metadata handler
-        ImageMetadata.initialise(options.verbose)
         # set network proxy
         proxies = urllib.request.getproxies()
         if 'http' in proxies:
@@ -182,6 +180,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.app.gpx_importer = None
         self.app.options = options
+        # initialise metadata handler
+        ImageMetadata.initialise(self.app.config_store, options.verbose)
         # restore size
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))

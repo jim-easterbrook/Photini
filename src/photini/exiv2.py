@@ -39,10 +39,12 @@ exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
 
 class MetadataHandler(object):
     @classmethod
-    def initialise(cls, verbosity):
+    def initialise(cls, config_store, verbosity):
         exiv2.LogMsg.setLevel(
             max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
         exiv2.XmpParser.initialize()
+        if exiv2_version_info >= (0, 27, 4):
+            exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
         # invalid, but Photini doesn't write xapGImg so it doesn't
