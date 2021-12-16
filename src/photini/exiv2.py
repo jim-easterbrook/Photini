@@ -26,9 +26,9 @@ import string
 import sys
 
 import exiv2
-if exiv2.__version__ < '0.8.1':
+if exiv2.__version__ < '0.8.3':
     raise ImportError(
-        'exiv2 version {} is less than 0.8.1'.format(exiv2.__version__))
+        'exiv2 version {} is less than 0.8.3'.format(exiv2.__version__))
 
 logger = logging.getLogger(__name__)
 
@@ -241,8 +241,15 @@ class MetadataHandler(object):
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
-            # just get 'x-default' value for now
-            return exiv2.LangAltValue(datum.value()).toString(0)
+            value = exiv2.LangAltValue(datum.value())
+            # concatenate all values, with language identifiers
+            result = []
+            for lang, text in value.items():
+                if lang == 'x-default':
+                    result = [text] + result
+                else:
+                    result.append('[{}] {}'.format(lang, text))
+            return '; '.join(result)
         return list(exiv2.XmpArrayValue(datum.value()))
 
     def get_raw_value(self, tag):
