@@ -40,6 +40,8 @@ _gexiv2_version = namedtuple(
     'gexiv2_version', ('major', 'minor', 'micro'))._make((
         GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
 
+# can't read libexiv2 version
+exiv2_version_info = (0, 0, 0)
 exiv2_version = '{}.{}.{}'.format(*_gexiv2_version)
 if exiv2_version < '0.10.3':
     raise ImportError(
