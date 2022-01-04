@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Installation
@@ -66,38 +66,63 @@ If you are an experienced Python user you may prefer to choose the dependencies 
 Otherwise you can install all of the recommended dependencies in one go by appending ``[win10]`` or ``[win7]`` to the pip command::
 
     C:\Users\Jim>pip install photini[win7]
-    Collecting photini
-      Downloading Photini-2021.12.1-py3-none-any.whl (284 kB)
-         |████████████████████████████████| 284 kB 229 kB/s
+    Collecting photini[win7]
+      Downloading Photini-2022.1.0-py3-none-any.whl (291 kB)
+         |████████████████████████████████| 291 kB 595 kB/s
     Collecting appdirs>=1.3
       Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
     Collecting requests>=2.4.0
-      Downloading requests-2.26.0-py2.py3-none-any.whl (62 kB)
-         |████████████████████████████████| 62 kB 64 kB/s
+      Downloading requests-2.27.0-py2.py3-none-any.whl (63 kB)
+         |████████████████████████████████| 63 kB 61 kB/s
+    Collecting pyenchant>=2.0
+      Downloading pyenchant-3.2.2-py3-none-win_amd64.whl (11.9 MB)
+         |████████████████████████████████| 11.9 MB 544 kB/s
+    Collecting gpxpy>=1.3.5
+      Downloading gpxpy-1.5.0.tar.gz (111 kB)
+         |████████████████████████████████| 111 kB 656 kB/s
+      Preparing metadata (setup.py) ... done
+    Collecting requests-oauthlib>=1.0
+      Downloading requests_oauthlib-1.3.0-py2.py3-none-any.whl (23 kB)
+    Collecting requests-toolbelt>=0.9
+      Downloading requests_toolbelt-0.9.1-py2.py3-none-any.whl (54 kB)
+         |████████████████████████████████| 54 kB 82 kB/s
+    Collecting keyring>=7.0
+      Downloading keyring-23.5.0-py3-none-any.whl (33 kB)
     Collecting PySide2>=5.11.0
-      Downloading PySide2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl (136.3 MB)
-         |████████████████████████████████| 136.3 MB 10 kB/s
+      Downloading PySide2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl(136.3 MB)
+         |████████████████████████████████| 136.3 MB 13 kB/s
     Collecting python-exiv2>=0.8.1
-      Downloading python_exiv2-0.8.1-cp38-cp38-win_amd64.whl (1.7 MB)
+      Downloading python_exiv2-0.8.3-cp38-cp38-win_amd64.whl (1.7 MB)
          |████████████████████████████████| 1.7 MB 656 kB/s
+    Collecting pywin32-ctypes!=0.1.0,!=0.1.1
+      Downloading pywin32_ctypes-0.2.0-py2.py3-none-any.whl (28 kB)
+    Collecting importlib-metadata>=3.6
+      Downloading importlib_metadata-4.10.0-py3-none-any.whl (17 kB)
     Collecting shiboken2==5.15.2
       Downloading shiboken2-5.15.2-5.15.2-cp35.cp36.cp37.cp38.cp39-none-win_amd64.whl (2.3 MB)
          |████████████████████████████████| 2.3 MB 595 kB/s
-    Collecting urllib3<1.27,>=1.21.1
-      Downloading urllib3-1.26.7-py2.py3-none-any.whl (138 kB)
-         |████████████████████████████████| 138 kB 598 kB/s
-    Collecting charset-normalizer~=2.0.0
-      Downloading charset_normalizer-2.0.9-py3-none-any.whl (39 kB)
     Collecting certifi>=2017.4.17
       Downloading certifi-2021.10.8-py2.py3-none-any.whl (149 kB)
-         |████████████████████████████████| 149 kB 80 kB/s
+         |████████████████████████████████| 149 kB 595 kB/s
+    Collecting charset-normalizer~=2.0.0
+      Downloading charset_normalizer-2.0.9-py3-none-any.whl (39 kB)
+    Collecting urllib3<1.27,>=1.21.1
+      Downloading urllib3-1.26.7-py2.py3-none-any.whl (138 kB)
+         |████████████████████████████████| 138 kB 656 kB/s
     Collecting idna<4,>=2.5
       Downloading idna-3.3-py3-none-any.whl (61 kB)
-         |████████████████████████████████| 61 kB 155 kB/s
-    Installing collected packages: urllib3, shiboken2, idna, charset-normalizer, certifi, requests, python-exiv2, PySide2, appdirs, photini
-    Successfully installed PySide2-5.15.2 appdirs-1.4.4 certifi-2021.10.8 charset-normalizer-2.0.9 idna-3.3 photini-2021.12.0 python-exiv2-0.8.1 requests-2.26.0 shiboken2-5.15.2 urllib3-1.26.7
+         |████████████████████████████████| 61 kB 298 kB/s
+    Collecting oauthlib>=3.0.0
+      Downloading oauthlib-3.1.1-py2.py3-none-any.whl (146 kB)
+         |████████████████████████████████| 146 kB 595 kB/s
+    Collecting zipp>=0.5
+      Downloading zipp-3.7.0-py3-none-any.whl (5.3 kB)
+    Using legacy 'setup.py install' for gpxpy, since package 'wheel' is not installed.
+    Installing collected packages: zipp, urllib3, idna, charset-normalizer, certifi, shiboken2, requests, pywin32-ctypes, oauthlib, importlib-metadata, appdirs, requests-toolbelt, requests-oauthlib, python-exiv2, PySide2, pyenchant, photini, keyring, gpxpy
+        Running setup.py install for gpxpy ... done
+    Successfully installed PySide2-5.15.2 appdirs-1.4.4 certifi-2021.10.8 charset-normalizer-2.0.9 gpxpy-1.5.0 idna-3.3 importlib-metadata-4.10.0 keyring-23.5.0 oauthlib-3.1.1 photini-2022.1.0 pyenchant-3.2.2 python-exiv2-0.8.3 pywin32-ctypes-0.2.0 requests-2.27.0 requests-oauthlib-1.3.0 requests-toolbelt-0.9.1 shiboken2-5.15.2 urllib3-1.26.7 zipp-3.7.0
 
-Use ``[win10]`` if you have Windows 10 or later, ``[win7]`` if you have Windows 7 or Windows 8.
+Use ``[win10]`` if you have Windows 10 or later, ``[win7]`` if you have an older version of Windows.
 
 Now you should be able to run photini::
 
