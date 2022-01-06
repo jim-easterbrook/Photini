@@ -38,8 +38,8 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtGui2, QtNetwork, QNetworkProxy, QtSignal,
-    QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
+    Busy, catch_all, Qt, QtCore, QtGui, QtGui2, QtNetwork, QNetworkProxy,
+    QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -314,6 +314,8 @@ class MainWindow(QtWidgets.QMainWindow):
         help_menu = self.menuBar().addMenu(translate('MenuBar', 'Help'))
         action = help_menu.addAction(translate('MenuBar', 'About Photini'))
         action.triggered.connect(self.about)
+        action = help_menu.addAction(translate('MenuBar', 'Check for update'))
+        action.triggered.connect(self.check_update)
         help_menu.addSeparator()
         action = help_menu.addAction(
             translate('MenuBar', 'Photini documentation'))
@@ -436,6 +438,31 @@ jim@jim-easterbrook.me.uk</a><br /><br />
             'This program is released with a GNU General Public'
             ' License. For details click the "{}" button.').format(
                 dialog.buttons()[0].text()))
+        if qt_version_info >= (6, 0):
+            dialog.exec()
+        else:
+            dialog.exec_()
+
+    @QtSlot()
+    @catch_all
+    def check_update(self):
+        import requests
+        with Busy():
+            try:
+                rsp = requests.get(
+                    'https://pypi.org/pypi/photini/json', timeout=20)
+            except:
+                logger.error(str(ex))
+                return
+        if rsp.status_code != 200:
+            logger.error('HTTP error %d', rsp.status_code)
+            return
+        release = rsp.json()['info']['version']
+        dialog = QtWidgets.QMessageBox(self)
+        dialog.setWindowTitle(translate('MenuBar', 'Photini: version check'))
+        dialog.setText(translate(
+            'MenuBar', 'You are currently running Photini version {0}. The'
+            ' latest release is {1}.').format(__version__, release))
         if qt_version_info >= (6, 0):
             dialog.exec()
         else:
