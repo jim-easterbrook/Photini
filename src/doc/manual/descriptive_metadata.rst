@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Descriptive metadata
@@ -77,6 +77,20 @@ Bad pictures can be given a ``reject`` rating.
 This is stored in the metadata as a rating value of -1.
 
 .. image:: ../images/screenshot_14.png
+
+Multi-language data fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some XMP data fields can store alternative language versions of the data.
+If a file has multi-lingual data (set by another application) then Photini displays all the languages simultaneously.
+In this contrived example the default English description has French and German alternatives.
+
+.. image:: ../images/screenshot_15.png
+
+Photini cannot correctly save this multi-lingual data at present.
+All the text as shown is saved as the default language.
+If you need proper multi-lingual data handling then please contact me.
+I have some ideas about how it could be added, but as a monoglot Englishman I don't need the feature myself.
 
 More information about the data fields
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
