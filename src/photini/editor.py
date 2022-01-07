@@ -186,7 +186,8 @@ class MainWindow(QtWidgets.QMainWindow):
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))
         window_state = self.app.config_store.get('main_window', 'state', 0)
-        full_screen = window_state & (Qt.WindowMaximized | Qt.WindowFullScreen)
+        full_screen = window_state & int(
+            Qt.WindowMaximized | Qt.WindowFullScreen)
         if full_screen:
             self.setWindowState(self.windowState() | full_screen)
         # image selector
@@ -512,7 +513,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     def resizeEvent(self, event):
         window_state = int(self.windowState())
         self.app.config_store.set('main_window', 'state', window_state)
-        if window_state & (
+        if window_state & int(
                 Qt.WindowMinimized | Qt.WindowMaximized | Qt.WindowFullScreen):
             return
         size = self.width(), self.height()
