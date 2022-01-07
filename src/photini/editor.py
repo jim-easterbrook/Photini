@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -182,9 +182,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app.options = options
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
-        # restore size
+        # restore size and state
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))
+        window_state = self.app.config_store.get('main_window', 'state', 0)
+        full_screen = window_state & (Qt.WindowMaximized | Qt.WindowFullScreen)
+        if full_screen:
+            self.setWindowState(self.windowState() | full_screen)
         # image selector
         self.image_list = ImageList()
         self.image_list.selection_changed.connect(self.new_selection)
@@ -506,6 +510,11 @@ jim@jim-easterbrook.me.uk</a><br /><br />
 
     @catch_all
     def resizeEvent(self, event):
+        window_state = int(self.windowState())
+        self.app.config_store.set('main_window', 'state', window_state)
+        if window_state & (
+                Qt.WindowMinimized | Qt.WindowMaximized | Qt.WindowFullScreen):
+            return
         size = self.width(), self.height()
         self.app.config_store.set('main_window', 'size', size)
 
