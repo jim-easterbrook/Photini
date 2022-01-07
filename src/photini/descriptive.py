@@ -200,7 +200,9 @@ class TabWidget(QtWidgets.QWidget):
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.form = QtWidgets.QFormLayout()
-        self.setLayout(self.form)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addLayout(self.form)
+        self.layout().addStretch(1)
         # construct widgets
         self.widgets = {}
         # title
