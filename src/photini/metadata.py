@@ -1018,7 +1018,7 @@ class Orientation(MD_Int):
 class Timezone(MD_Int):
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not file_value:
+        if file_value in (None, ''):
             return None
         if tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
