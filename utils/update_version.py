@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -59,7 +59,7 @@ def main(argv=None):
     else:
         micro = 0
     # update __init__.py if anything's changed
-    new_text = """from __future__ import unicode_literals
+    new_text = """\"\"\"Full documentation is at https://photini.readthedocs.io/\"\"\"
 
 __version__ = '{:4d}.{:d}.{:d}'
 build = '{:d} ({:s})'

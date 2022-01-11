@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+"""Full documentation is at https://photini.readthedocs.io/"""
 
 __version__ = '2022.1.1'
-build = '1922 (dcff116)'
+build = '1923 (02791ca)'
