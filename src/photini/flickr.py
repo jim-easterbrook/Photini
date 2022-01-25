@@ -26,7 +26,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 from requests_oauthlib import OAuth1Session
-from requests_toolbelt import MultipartEncoder
+from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
@@ -179,6 +179,9 @@ class FlickrSession(UploaderSession):
                 yield photo
             page += 1
 
+    def progress(self, monitor):
+        self.upload_progress.emit(monitor.bytes_read * 100 // monitor.len)
+
     def do_upload(self, fileobj, image_type, image, params):
         photo_id = params['photo_id']
         if params['function']:
@@ -199,7 +202,8 @@ class FlickrSession(UploaderSession):
                 'POST', url, data=data, auth=self.api.auth).prepare().headers
             # add photo to parameters now we've got the headers without it
             data['photo'] = ('dummy_name', fileobj)
-            data = MultipartEncoder(fields=data)
+            data = MultipartEncoderMonitor(
+                MultipartEncoder(fields=data), self.progress)
             headers = {'Authorization': headers['Authorization'],
                        'Content-Type': data.content_type}
             # use requests to post data
@@ -213,7 +217,6 @@ class FlickrSession(UploaderSession):
             if status != 'ok':
                 return params['function'] + ' ' + status
             photo_id = rsp.find('photoid').text
-        fileobj._callback(100)
         # store photo id in image keywords
         keyword = '{}={}'.format(ID_TAG, photo_id)
         if not image.metadata.keywords:

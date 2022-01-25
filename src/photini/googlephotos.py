@@ -177,12 +177,12 @@ class GooglePhotosSession(UploaderSession):
             if offset >= fileobj.len:
                 headers['X-Goog-Upload-Command'] = 'upload, finalize'
             rsp = self.api.post(upload_url, headers=headers, data=chunk)
+            self.upload_progress.emit(offset * 100 // fileobj.len)
             rsp = self.check_response(rsp, decode=False)
             if not rsp:
                 break
             if rsp.text:
                 upload_token = rsp.text
-        fileobj._callback(100)
         if not upload_token:
             return 'no upload token received'
         # 3/ convert uploaded bytes to a media item

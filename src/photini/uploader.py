@@ -42,6 +42,7 @@ translate = QtCore.QCoreApplication.translate
 
 class UploaderSession(QtCore.QObject):
     connection_changed = QtSignal(bool)
+    upload_progress = QtSignal(int)
 
     def __init__(self, *arg, **kwds):
         super(UploaderSession, self).__init__(*arg, **kwds)
@@ -73,10 +74,9 @@ class UploadAborted(Exception):
     pass
 
 
-class FileObjWithCallback(object):
-    def __init__(self, fileobj, callback):
+class AbortableFileReader(object):
+    def __init__(self, fileobj):
         self._f = fileobj
-        self._callback = callback
         # thread safe way to abort reading large file
         self._closing = threading.Event()
         self.abort = self._closing.set
@@ -86,8 +86,6 @@ class FileObjWithCallback(object):
 
     # substitute read method
     def read(self, size):
-        if self._callback:
-            self._callback(self._f.tell() * 100 // self.len)
         if self._closing.is_set():
             raise UploadAborted()
         return self._f.read(size)
@@ -113,6 +111,7 @@ class UploadWorker(QtCore.QObject):
     def start(self):
         session = self.session_factory()
         session.open_connection()
+        session.upload_progress.connect(self.progress)
         upload_count = 0
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
@@ -124,7 +123,7 @@ class UploadWorker(QtCore.QObject):
             else:
                 path = image.path
             with open(path, 'rb') as f:
-                self.fileobj = FileObjWithCallback(f, self.progress)
+                self.fileobj = AbortableFileReader(f)
                 try:
                     error = session.do_upload(
                         self.fileobj, imghdr.what(path), image, params)
