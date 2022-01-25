@@ -225,6 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.googlemap',    'photini.bingmap',
                            'photini.mapboxmap',    'photini.openstreetmap',
                            'photini.address',      'photini.flickr',
+                           'photini.ipernity',
                            'photini.googlephotos', 'photini.importer']
         modules = self.app.config_store.get('tabs', 'modules', default_modules)
         for n, module in enumerate(default_modules):

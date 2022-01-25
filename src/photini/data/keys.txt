@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2015-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2015-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,6 +19,10 @@
 [flickr]
 api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
 api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
+
+[ipernity]
+api_key    = MWYyMzY5MDkwMDAwMjk1MmVlNWRhOTY5ZmMwNThmODk=
+api_secret = ZGU2NmVlYWEwZDdjODY4Nw==
 
 [googlephotos]
 client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29t
