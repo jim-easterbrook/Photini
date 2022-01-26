@@ -465,7 +465,14 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot(int, str)
     @catch_all
     def upload_progress(self, value, format_):
-        self.total_progress.setValue(value)
+        if value < 0:
+            # set "busy"
+            self.total_progress.setMaximum(0)
+        else:
+            # set actual progress
+            if self.total_progress.maximum() != 100:
+                self.total_progress.setMaximum(100)
+            self.total_progress.setValue(value)
         if format_:
             self.total_progress.setFormat(format_)
 

@@ -20,6 +20,7 @@ import hashlib
 import html
 import logging
 import os
+import time
 
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
@@ -172,7 +173,7 @@ class IpernitySession(UploaderSession):
                         del(params[key])
             else:
                 data = {'doc_id': doc_id}
-            data['async'] = '0'
+            data['async'] = '1'
             # sign the request before including the file to upload
             data = self.sign_request(params['function'], auth=True, **data)
             # create multi-part data encoder
@@ -189,7 +190,21 @@ class IpernitySession(UploaderSession):
             rsp = rsp.json()
             if rsp['api']['status'] != 'ok':
                 return params['function'] + ' ' + str(rsp['api'])
-            doc_id = rsp['doc_id']
+            ticket = rsp['ticket']
+            # wait for processing to finish
+            self.upload_progress.emit(-1)
+            # upload.checkTickets returns an eta but it's very
+            # unreliable (e.g. saying 360 seconds for something that
+            # then takes 15). Easier to poll every two seconds.
+            while True:
+                time.sleep(2)
+                rsp = self.api_call('upload.checkTickets', tickets=ticket)
+                if not rsp:
+                    return 'Wait for processing failed'
+                if rsp['tickets']['done'] != '0':
+                    break
+            doc_id = rsp['tickets']['ticket'][0]['doc_id']
+            self.upload_progress.emit(100)
         # store photo id in image keywords
         keyword = '{}={}'.format(ID_TAG, doc_id)
         if not image.metadata.keywords:
