@@ -204,7 +204,6 @@ class IpernitySession(UploaderSession):
                 if rsp['tickets']['done'] != '0':
                     break
             doc_id = rsp['tickets']['ticket'][0]['doc_id']
-            self.upload_progress.emit(100)
         # store photo id in image keywords
         keyword = '{}={}'.format(ID_TAG, doc_id)
         if not image.metadata.keywords:

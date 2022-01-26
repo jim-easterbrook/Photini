@@ -22,10 +22,11 @@ from datetime import datetime, timedelta
 import html
 import logging
 import os
+import time
 import xml.etree.ElementTree as ET
 
 import requests
-from requests_oauthlib import OAuth1Session
+import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import DateTime, LatLon, Location
@@ -52,21 +53,28 @@ class FlickrSession(UploaderSession):
         if not stored_token:
             return False
         token, token_secret = stored_token.split('&')
-        self.api = OAuth1Session(
+        if self.api:
+            self.api.close()
+        self.auth = requests_oauthlib.OAuth1(
             client_key=self.api_key, client_secret=self.api_secret,
-            resource_owner_key=token, resource_owner_secret=token_secret,
-            )
+            resource_owner_key=token, resource_owner_secret=token_secret)
+        self.api = requests.session()
         if not self.api:
             return None
-        authorized = self.api.authorized
-        self.connection_changed.emit(authorized)
-        return authorized
+        rsp = self.api_call('flickr.auth.oauth.checkToken')
+        if not rsp:
+            return
+        authorised = rsp['oauth']['perms']['_content'] == 'write'
+        if authorised:
+            self.cached_data['nsid'] = rsp['oauth']['user']['nsid']
+        self.connection_changed.emit(authorised)
+        return authorised
 
     def get_auth_url(self, redirect_uri):
         # initialise oauth1 session
         if self.api:
             self.api.close()
-        self.api = OAuth1Session(
+        self.api = requests_oauthlib.OAuth1Session(
             client_key=self.api_key, client_secret=self.api_secret,
             callback_uri=redirect_uri)
         try:
@@ -91,7 +99,7 @@ class FlickrSession(UploaderSession):
             return
         self.set_password(
             token['oauth_token'] + '&' + token['oauth_token_secret'])
-        self.connection_changed.emit(self.api.authorized)
+        self.open_connection()
 
     def api_call(self, method, **params):
         if not self.api:
@@ -101,7 +109,7 @@ class FlickrSession(UploaderSession):
         params['nojsoncallback'] = '1'
         try:
             rsp = self.api.get('https://www.flickr.com/services/rest',
-                                timeout=20, params=params)
+                                auth=self.auth, timeout=20, params=params)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -120,10 +128,7 @@ class FlickrSession(UploaderSession):
             return self.cached_data['user']
         name, picture = None, None
         # get nsid of logged in user
-        rsp = self.api_call('flickr.auth.oauth.checkToken')
-        if not rsp:
-            return name, picture
-        nsid = rsp['oauth']['user']['nsid']
+        nsid = self.cached_data['nsid']
         # get user info
         rsp = self.api_call('flickr.people.getInfo', user_id=nsid)
         if not rsp:
@@ -136,7 +141,7 @@ class FlickrSession(UploaderSession):
         else:
             icon_url = 'https://www.flickr.com/images/buddyicon.gif'
         # get icon
-        rsp = requests.get(icon_url)
+        rsp = self.api.get(icon_url)
         if rsp.status_code == 200:
             picture = rsp.content
         else:
@@ -196,27 +201,42 @@ class FlickrSession(UploaderSession):
                         del(params[key])
             else:
                 data = {'photo_id': photo_id}
+            data['async'] = '1'
             # get the headers (without 'photo') from a dummy Request, an idea
             # I've stolen from https://github.com/sybrenstuvel/flickrapi
-            headers = requests.Request(
-                'POST', url, data=data, auth=self.api.auth).prepare().headers
+            headers = self.api.prepare_request(
+                requests.Request('POST', url, auth=self.auth, data=data)).headers
             # add photo to parameters now we've got the headers without it
             data['photo'] = ('dummy_name', fileobj)
             data = MultipartEncoderMonitor(
                 MultipartEncoder(fields=data), self.progress)
             headers = {'Authorization': headers['Authorization'],
                        'Content-Type': data.content_type}
-            # use requests to post data
-            rsp = requests.post(url, data=data, headers=headers, timeout=20)
+            # post data
+            rsp = self.api.post(url, data=data, headers=headers, timeout=20)
             if rsp.status_code != 200:
-                logger.error('HTTP error %d', rsp.status_code)
-                return 'HTTP error {}'.format(rsp.status_code)
+                return '{}: HTTP error {}'.format(
+                    params['function'], rsp.status_code)
             # parse XML response
             rsp = ET.fromstring(rsp.text)
             status = rsp.attrib['stat']
             if status != 'ok':
                 return params['function'] + ' ' + status
-            photo_id = rsp.find('photoid').text
+            ticket_id = rsp.find('ticketid').text
+            # wait for processing to finish
+            self.upload_progress.emit(-1)
+            while True:
+                rsp = self.api_call(
+                    'flickr.photos.upload.checkTickets', tickets=ticket_id)
+                if not rsp:
+                    return 'Wait for processing failed'
+                complete = rsp['uploader']['ticket'][0]['complete']
+                if complete == 1:
+                    photo_id = rsp['uploader']['ticket'][0]['photoid']
+                    break
+                elif complete != 0:
+                    return 'Flickr file conversion failed'
+                time.sleep(1)
         # store photo id in image keywords
         keyword = '{}={}'.format(ID_TAG, photo_id)
         if not image.metadata.keywords:
