@@ -16,13 +16,12 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import hashlib
 import html
 import logging
 import os
-import urllib
 
 import requests
-from requests_oauthlib import OAuth1Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (Busy, catch_all, ComboBox, MultiLineEdit, Qt, QtCore,
@@ -35,64 +34,62 @@ translate = QtCore.QCoreApplication.translate
 ID_TAG = 'ipernity:doc_id'
 
 # Ipernity API: http://www.ipernity.com/help/api
-# OAuth1Session: https://requests-oauthlib.readthedocs.io/en/latest/api.html
 # requests: https://docs.python-requests.org/
 
 class IpernitySession(UploaderSession):
     name = 'ipernity'
-    oauth_url = 'http://www.ipernity.com/apps/oauth/'
 
     def open_connection(self):
         self.cached_data = {}
-        stored_token = self.get_password()
-        if not stored_token:
+        self.auth_token = self.get_password()
+        if not self.auth_token:
             return False
-        token, token_secret = stored_token.split('&')
-        self.api = OAuth1Session(
-            client_key=self.api_key, client_secret=self.api_secret,
-            resource_owner_key=token, resource_owner_secret=token_secret,
-            )
-        if not self.api:
-            return None
-        authorized = self.api.authorized
-        self.connection_changed.emit(authorized)
-        return authorized
+        rsp = self.api_call('auth.checkToken')
+        authorised = rsp and rsp['auth']['permissions']['doc'] == 'write'
+        if authorised:
+            self.cached_data['user_id'] = rsp['auth']['user']['user_id']
+        self.connection_changed.emit(authorised)
+        return authorised
 
-    def get_auth_url(self, redirect_uri):
-        # initialise oauth1 session
-        if self.api:
-            self.api.close()
-        self.api = OAuth1Session(
-            client_key=self.api_key, client_secret=self.api_secret)
-        try:
-            self.api.fetch_request_token(
-                self.oauth_url + 'request', timeout=20)
-            return self.api.authorization_url(
-                self.oauth_url + 'authorize', perm_doc='write',
-                oauth_callback=redirect_uri)
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
-        return ''
+    def get_frob(self):
+        rsp = self.api_call('auth.getFrob', auth=False)
+        if not rsp:
+            return ''
+        return rsp['auth']['frob']
 
-    def get_access_token(self, result):
-        oauth_token = str(result['oauth_token'][0])
-        try:
-            token = self.api.fetch_access_token(
-                self.oauth_url + 'access', verifier=oauth_token,
-                timeout=20)
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
+    def get_auth_url(self, frob):
+        params = {'frob': frob, 'perm_doc': 'write'}
+        params = self.sign_request('', auth=False, **params)
+        request = requests.Request(
+            'GET', 'http://www.ipernity.com/apps/authorize', params=params)
+        return request.prepare().url
+
+    def get_access_token(self, frob):
+        if not frob:
             return
-        self.set_password(
-            token['oauth_token'] + '&' + token['oauth_token_secret'])
-        self.connection_changed.emit(self.api.authorized)
+        rsp = self.api_call('auth.getToken', auth=False, frob=frob)
+        if not rsp:
+            return
+        self.set_password(rsp['auth']['token'])
+        self.open_connection()
 
-    def api_call(self, method, post=False, **params):
+    def sign_request(self, method, auth=True, **params):
+        params = dict(params)
+        params['api_key'] = self.api_key
+        if auth:
+            params['auth_token'] = self.auth_token
+        string = ''
+        for key in sorted(params):
+            string += key + params[key]
+        string += method + self.api_secret
+        params['api_sig'] = hashlib.md5(string.encode('utf-8')).hexdigest()
+        return params
+
+    def api_call(self, method, post=False, auth=True, **params):
         if not self.api:
-            return {}
+            self.api = requests.session()
         url = 'http://api.ipernity.com/api/' + method
+        params = self.sign_request(method, auth=auth, **params)
         try:
             if post:
                 rsp = self.api.post(url, timeout=20, data=params)
@@ -103,11 +100,11 @@ class IpernitySession(UploaderSession):
             self.close_connection()
             return {}
         if rsp.status_code != 200:
-            logger.error('HTTP error %d', rsp.status_code)
+            logger.error('HTTP error %s: %d', method, rsp.status_code)
             return {}
         rsp = rsp.json()
         if rsp['api']['status'] != 'ok':
-            logger.error('API error %s', str(rsp['api']))
+            logger.error('API error %s: %s', method, str(rsp['api']))
             return {}
         return rsp
 
@@ -115,19 +112,15 @@ class IpernitySession(UploaderSession):
         if 'user' in self.cached_data:
             return self.cached_data['user']
         name, picture = None, None
-        # get user_id of logged in user
-        rsp = self.api_call('auth.checkToken')
-        if not rsp:
-            return name, picture
-        user_id = rsp['auth']['user']['user_id']
         # get user info
-        rsp = self.api_call('user.get', user_id=user_id)
+        rsp = self.api_call(
+            'user.get', auth=False, user_id=self.cached_data['user_id'])
         if not rsp:
             return name, picture
         name = rsp['user']['username']
         icon_url = rsp['user']['icon']
         # get icon
-        rsp = requests.get(icon_url)
+        rsp = self.api.get(icon_url)
         if rsp.status_code == 200:
             picture = rsp.content
         else:
@@ -180,18 +173,15 @@ class IpernitySession(UploaderSession):
             else:
                 data = {'doc_id': doc_id}
             data['async'] = '0'
-            # get the headers (without 'file') from a dummy Request, an idea
-            # I've stolen from https://github.com/sybrenstuvel/flickrapi
-            request = requests.Request('POST', url, data=data)
-            headers = self.api.prepare_request(request).headers
-            # add file to parameters now we've got the headers without it
+            # sign the request before including the file to upload
+            data = self.sign_request(params['function'], auth=True, **data)
+            # create multi-part data encoder
             data['file'] = ('dummy_name', fileobj)
             data = MultipartEncoderMonitor(
                 MultipartEncoder(fields=data), self.progress)
-            headers = {'Authorization': headers['Authorization'],
-                       'Content-Type': data.content_type}
-            # use requests to post data
-            rsp = requests.post(url, data=data, headers=headers, timeout=20)
+            headers = {'Content-Type': data.content_type}
+            # post data
+            rsp = self.api.post(url, data=data, headers=headers, timeout=20)
             if rsp.status_code != 200:
                 logger.error('HTTP error %d', rsp.status_code)
                 return 'HTTP error {}'.format(rsp.status_code)

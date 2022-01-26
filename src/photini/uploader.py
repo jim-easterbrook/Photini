@@ -69,6 +69,9 @@ class UploaderSession(QtCore.QObject):
     def set_password(self, password):
         keyring.set_password('photini', self.name, password)
 
+    def get_frob(self):
+        return None
+
 
 class UploadAborted(Exception):
     pass
@@ -500,26 +503,51 @@ class PhotiniUploader(QtWidgets.QWidget):
     def authorise(self):
         with Busy():
             # do full authentication procedure
-            http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
-            redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
-            auth_url = self.session.get_auth_url(redirect_uri)
-            if not auth_url:
-                logger.error('Failed to get auth URL')
-                http_server.server_close()
+            frob = self.session.get_frob()
+            if frob is not None:
+                auth_url = self.session.get_auth_url(frob)
+                if not auth_url:
+                    logger.error('Failed to get auth URL')
+                    return
+            else:
+                # create temporary local web server
+                http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
+                redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
+                auth_url = self.session.get_auth_url(redirect_uri)
+                if not auth_url:
+                    logger.error('Failed to get auth URL')
+                    http_server.server_close()
+                    return
+                server = AuthServer()
+                thread = QtCore.QThread(self)
+                server.moveToThread(thread)
+                server.server = http_server
+                server.response.connect(self.auth_response)
+                thread.started.connect(server.handle_requests)
+                server.finished.connect(thread.quit)
+                server.finished.connect(server.deleteLater)
+                thread.finished.connect(thread.deleteLater)
+                thread.start()
+            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
+                logger.error('Failed to open web browser')
                 return
-            server = AuthServer()
-            thread = QtCore.QThread(self)
-            server.moveToThread(thread)
-            server.server = http_server
-            server.response.connect(self.auth_response)
-            thread.started.connect(server.handle_requests)
-            server.finished.connect(thread.quit)
-            server.finished.connect(server.deleteLater)
-            thread.finished.connect(thread.deleteLater)
-            thread.start()
-            if QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
-                return
-            logger.error('Failed to open web browser')
+        if not frob:
+            # server will call auth_response with a token
+            return
+        # wait for user to authorise in web browser
+        dialog = QtWidgets.QMessageBox(self)
+        dialog.setWindowTitle(translate(
+            'UploaderTabsAll', 'Photini: authorise'))
+        dialog.setText(translate(
+            'UploaderTabsAll', '<h3>Authorisation required</h3>'))
+        dialog.setInformativeText(translate(
+            'UploaderTabsAll', 'Please use your web browser to authorise'
+            ' Photini, and then close this dialog.'))
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        dialog.exec_()
+        with Busy():
+            self.session.get_access_token(frob)
 
     @QtSlot(dict)
     @catch_all
