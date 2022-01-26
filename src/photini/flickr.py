@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -430,11 +430,6 @@ class TabWidget(PhotiniUploader):
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
         self.upload_config.sync_metadata.connect(self.sync_metadata)
-        self.image_types = {
-            'accepted': ('image/gif', 'image/jpeg', 'image/png',
-                         'video/mp4', 'video/quicktime', 'video/riff'),
-            'rejected': ('image/x-canon-cr2',),
-            }
         self.replace_prefs = {
             'set_metadata'  : True,
             'set_visibility': False,

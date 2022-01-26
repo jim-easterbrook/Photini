@@ -389,11 +389,6 @@ class TabWidget(PhotiniUploader):
         self.upload_config = IpernityUploadConfig()
         super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
         self.upload_config.new_album.connect(self.new_album)
-        self.image_types = {
-            'accepted': ('image/gif', 'image/jpeg', 'image/png',
-                         'video/mp4', 'video/quicktime', 'video/riff'),
-            'rejected': ('image/x-canon-cr2',),
-            }
         self.replace_prefs = {
             'set_metadata'   : True,
             'set_visibility' : False,
@@ -402,6 +397,10 @@ class TabWidget(PhotiniUploader):
             'replace_image'  : False,
             'new_photo'      : False,
             }
+
+    def accepted_file_type(self, file_type):
+        # ipernity accepts most RAW formats!
+        return file_type.split('/')[0] in ('image', 'video')
 
     def get_conversion_function(self, image, params):
         if not params['function']:

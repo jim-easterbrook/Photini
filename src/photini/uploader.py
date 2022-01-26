@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -369,8 +369,15 @@ class PhotiniUploader(QtWidgets.QWidget):
             return False
         return QtGui.QImageReader(image.path).canRead()
 
+    def accepted_file_type(self, file_type):
+        return file_type in ('image/gif', 'image/jpeg', 'image/png',
+                             'video/mp4', 'video/quicktime', 'video/riff')
+
+    def rejected_file_type(self, file_type):
+        return file_type in ('image/x-canon-cr2',)
+
     def get_conversion_function(self, image, params):
-        if image.file_type in self.image_types['accepted']:
+        if self.accepted_file_type(image.file_type):
             if image.file_type.startswith('video'):
                 # don't try to write metadata to videos
                 return None
@@ -384,8 +391,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 'File "{0}" is of type "{1}", which {2} does not' +
                 ' accept and Photini cannot convert.')
             buttons = QtWidgets.QMessageBox.Ignore
-        elif (self.image_types['rejected'] == '*' or
-              image.file_type in self.image_types['rejected']):
+        elif self.rejected_file_type(image.file_type):
             msg = translate(
                 'UploaderTabsAll',
                 'File "{0}" is of type "{1}", which {2} does not' +
