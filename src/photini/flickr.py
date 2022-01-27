@@ -200,7 +200,8 @@ class FlickrSession(UploaderSession):
             if params['function'] == 'upload':
                 data = {}
                 # set some metadata with upload function
-                for key in ('permissions', 'content_type', 'hidden', 'meta'):
+                for key in ('permissions', 'content_type', 'safety_level',
+                            'hidden', 'meta'):
                     if key in params and params[key]:
                         data.update(params[key])
                         del(params[key])
@@ -252,6 +253,7 @@ class FlickrSession(UploaderSession):
         metadata_set_func = {
             'permissions':  'flickr.photos.setPerms',
             'content_type': 'flickr.photos.setContentType',
+            'safety_level': 'flickr.photos.setSafetyLevel',
             'hidden':       'flickr.photos.setSafetyLevel',
             'licence':      'flickr.photos.licenses.setLicense',
             'meta':         'flickr.photos.setMeta',
@@ -280,7 +282,7 @@ class FlickrSession(UploaderSession):
         if params['function'] != 'upload':
             # get sets existing photo is in
             rsp = self.api_call(
-                'flickr.photos.getAllContexts', auth=False, photo_id=photo_id)
+                'flickr.photos.getAllContexts', photo_id=photo_id)
             if 'set' in rsp:
                 for p_set in rsp['set']:
                     current_sets[p_set['id']] = p_set
@@ -316,6 +318,9 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         super(FlickrUploadConfig, self).__init__(*arg, **kw)
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        ## first column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # privacy settings
         self.privacy = {}
         privacy_group = QtWidgets.QGroupBox(
@@ -340,11 +345,26 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         self.privacy['public'].toggled.connect(self.enable_ff)
         self.privacy['public'].setChecked(True)
         privacy_group.layout().addWidget(self.privacy['public'])
+        privacy_group.layout().addStretch(1)
+        column.addWidget(privacy_group, 0, 0)
+        # safety level
+        safety_group = QtWidgets.QGroupBox(
+            translate('FlickrTab', 'Set safety level'))
+        safety_group.setLayout(QtWidgets.QVBoxLayout())
+        self.safety_level = DropDownSelector(
+            ((translate('FlickrTab', 'Safe'), '1'),
+             (translate('FlickrTab', 'Moderate'), '2'),
+             (translate('FlickrTab', 'Restricted'), '3')),
+            default='1')
+        safety_group.layout().addWidget(self.safety_level)
         self.hidden = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Hidden from search'))
-        privacy_group.layout().addWidget(self.hidden)
-        privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 0, 4, 1)
+        safety_group.layout().addWidget(self.hidden)
+        column.addWidget(safety_group, 1, 0)
+        self.layout().addLayout(column, 0, 0)
+        ## second column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # licence
         licence_group = QtWidgets.QGroupBox(
             translate('FlickrTab', 'What licence to use?'))
@@ -364,7 +384,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             default='0')
         licence_group.layout().addWidget(self.licence)
         licence_group.layout().addStretch(1)
-        self.layout().addWidget(licence_group, 0, 1)
+        column.addWidget(licence_group, 0, 0)
         # content type
         content_group = QtWidgets.QGroupBox(
             translate('FlickrTab', 'Content type'))
@@ -378,17 +398,19 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             width_for_text(self.content_type, 'x' * 15))
         content_group.layout().addWidget(self.content_type)
         content_group.layout().addStretch(1)
-        self.layout().addWidget(content_group, 1, 1)
+        column.addWidget(content_group, 1, 0)
         # synchronise metadata
         self.sync_button = QtWidgets.QPushButton(
             translate('FlickrTab', 'Synchronise'))
         self.sync_button.clicked.connect(self.sync_metadata)
-        self.layout().addWidget(self.sync_button, 2, 1)
+        column.addWidget(self.sync_button, 2, 0)
         # create new set
         new_set_button = QtWidgets.QPushButton(
             translate('FlickrTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
-        self.layout().addWidget(new_set_button, 3, 1)
+        column.addWidget(new_set_button, 3, 0)
+        self.layout().addLayout(column, 0, 1)
+        ## 3rd column
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(
             translate('FlickrTab', 'Add to albums'))
@@ -404,9 +426,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.sets_widget)
         self.sets_widget.setAutoFillBackground(False)
         sets_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(sets_group, 0, 2, 4, 1)
-        self.layout().setRowStretch(0, 1)
-        self.layout().setRowStretch(1, 1)
+        self.layout().addWidget(sets_group, 0, 2)
         self.layout().setColumnStretch(2, 1)
 
     @QtSlot(bool)
@@ -429,6 +449,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
                 },
             'content_type': {'content_type': self.content_type.value()},
             'licence'     : {'license_id'  : self.licence.value()},
+            'safety_level': {'safety_level': self.safety_level.value()},
             'hidden'      : {'hidden'      : str(int(self.hidden.isChecked()))},
             }
 
@@ -473,6 +494,7 @@ class TabWidget(PhotiniUploader):
         self.replace_prefs = {
             'set_metadata'  : True,
             'set_visibility': False,
+            'set_safety_level': False,
             'set_licence'   : False,
             'set_type'      : False,
             'set_albums'    : False,
@@ -527,13 +549,18 @@ class TabWidget(PhotiniUploader):
         params['photo_id'] = photo_id
         # set config params that apply to all photos
         fixed_params = self.upload_config.get_fixed_params()
-        if option['new_photo'] or option['set_visibility']:
-            params['permissions'] = fixed_params['permissions']
-            params['hidden'] = fixed_params['hidden']
-        if option['new_photo'] or option['set_licence']:
-            params['licence'] = fixed_params['licence']
-        if option['new_photo'] or option['set_type']:
-            params['content_type'] = fixed_params['content_type']
+        if option['new_photo']:
+            params.update(fixed_params)
+        else:
+            if option['set_visibility']:
+                params['permissions'] = fixed_params['permissions']
+            if option['set_safety_level']:
+                params['safety_level'] = fixed_params['safety_level']
+                params['hidden'] = fixed_params['hidden']
+            if option['set_licence']:
+                params['licence'] = fixed_params['licence']
+            if option['set_type']:
+                params['content_type'] = fixed_params['content_type']
         # add metadata
         if option['new_photo'] or option['set_metadata']:
             # title & description
@@ -587,6 +614,7 @@ class TabWidget(PhotiniUploader):
             return {
                 'set_metadata'  : True,
                 'set_visibility': True,
+                'set_safety_level': True,
                 'set_licence'   : True,
                 'set_type'      : True,
                 'set_albums'    : True,
@@ -608,6 +636,8 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Replace metadata'))
         widget['set_visibility'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change who can see it'))
+        widget['set_safety_level'] = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'Change safety level'))
         widget['set_licence'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change the licence'))
         widget['set_type'] = QtWidgets.QCheckBox(
@@ -620,6 +650,7 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Upload as new photo'))
         widget['new_photo'].toggled.connect(widget['set_metadata'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_visibility'].setDisabled)
+        widget['new_photo'].toggled.connect(widget['set_safety_level'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_licence'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_type'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_albums'].setDisabled)
@@ -630,8 +661,9 @@ class TabWidget(PhotiniUploader):
         button_group.addButton(widget['replace_image'])
         button_group.addButton(widget['new_photo'])
         button_group.addButton(no_upload)
-        for key in ('set_metadata', 'set_visibility', 'set_licence', 'set_type',
-                    'set_albums', 'replace_image', 'new_photo'):
+        for key in ('set_metadata', 'set_visibility', 'set_safety_level',
+                    'set_licence', 'set_type', 'set_albums', 'replace_image',
+                    'new_photo'):
             dialog.layout().addWidget(widget[key])
             widget[key].setChecked(self.replace_prefs[key])
         dialog.layout().addWidget(no_upload)
