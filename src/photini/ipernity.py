@@ -169,7 +169,8 @@ class IpernitySession(UploaderSession):
             if params['function'] == 'upload.file':
                 data = {}
                 # set some metadata with upload function
-                for key in ('visibility', 'permissions', 'meta', 'location'):
+                for key in ('visibility', 'permissions', 'licence', 'meta',
+                            'location'):
                     if key in params and params[key]:
                         data.update(params[key])
                         del(params[key])
@@ -216,6 +217,7 @@ class IpernitySession(UploaderSession):
         metadata_set_func = {
             'visibility' : 'doc.setPerms',
             'permissions': 'doc.setPerms',
+            'licence'    : 'doc.setLicense',
             'meta'       : 'doc.set',
             'keywords'   : 'doc.tags.edit',
             'location'   : 'doc.setGeo',
@@ -268,6 +270,32 @@ class PermissionWidget(ComboBox):
         return self.itemData(self.currentIndex())
 
 
+class LicenceWidget(ComboBox):
+    def __init__(self, default='0', *arg, **kw):
+        super(LicenceWidget, self).__init__(*arg, **kw)
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLength)
+        self.addItem(translate(
+            'IpernityTab', 'Copyright (all rights reserved)'), '0')
+        self.addItem(translate('IpernityTab', 'Attribution'), '1')
+        self.addItem(translate(
+            'IpernityTab', 'Attribution + non commercial'), '3')
+        self.addItem(translate(
+            'IpernityTab', 'Attribution + no derivative'), '5')
+        self.addItem(translate('IpernityTab', 'Attribution + share alike'), '9')
+        self.addItem(translate(
+            'IpernityTab', 'Attribution + non commercial + no derivative'), '7')
+        self.addItem(translate(
+            'IpernityTab', 'Attribution + non commercial + share alike'), '11')
+        self.addItem(translate(
+            'IpernityTab',
+            'Free use (copyright surrendered, no licence)'), '255')
+        self.setCurrentIndex(self.findData(default))
+        self.set_dropdown_width()
+
+    def value(self):
+        return self.itemData(self.currentIndex())
+
+
 class IpernityUploadConfig(QtWidgets.QWidget):
     new_album = QtSignal()
 
@@ -300,7 +328,14 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         self.privacy['public'].setChecked(True)
         privacy_group.layout().addWidget(self.privacy['public'])
         privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 0, 3, 1)
+        self.layout().addWidget(privacy_group, 0, 0, 2, 1)
+        # licence
+        licence_group = QtWidgets.QGroupBox(
+            translate('IpernityTab', 'What licence to use?'))
+        licence_group.setLayout(QtWidgets.QVBoxLayout())
+        self.licence = LicenceWidget()
+        licence_group.layout().addWidget(self.licence)
+        self.layout().addWidget(licence_group, 2, 0, 2, 1)
         # comment and tagging settings
         self.perms = {}
         perms_group = QtWidgets.QGroupBox(
@@ -319,12 +354,12 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         perms_group.layout().addRow(
             translate('IpernityTab', 'Identify people'),
             self.perms['perm_tagme'])
-        self.layout().addWidget(perms_group, 0, 1, 2, 1)
+        self.layout().addWidget(perms_group, 0, 1, 3, 1)
         # create new album
         new_album_button = QtWidgets.QPushButton(
             translate('IpernityTab', 'New album'))
         new_album_button.clicked.connect(self.new_album)
-        self.layout().addWidget(new_album_button, 2, 1)
+        self.layout().addWidget(new_album_button, 3, 1)
         # list of albums widget
         albums_group = QtWidgets.QGroupBox(
             translate('IpernityTab', 'Add to albums'))
@@ -340,7 +375,8 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.albums_widget)
         self.albums_widget.setAutoFillBackground(False)
         albums_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(albums_group, 0, 2, 3, 1)
+        self.layout().addWidget(albums_group, 0, 2, 4, 1)
+        self.layout().setRowStretch(1, 1)
         self.layout().setColumnStretch(2, 1)
 
     @QtSlot(bool)
@@ -365,6 +401,9 @@ class IpernityUploadConfig(QtWidgets.QWidget):
                 'perm_comment': self.perms['perm_comment'].value(),
                 'perm_tag'    : self.perms['perm_tag'].value(),
                 'perm_tagme'  : self.perms['perm_tagme'].value(),
+                },
+            'licence': {
+                'license': self.licence.value(),
                 },
             }
 
@@ -408,6 +447,7 @@ class TabWidget(PhotiniUploader):
         self.replace_prefs = {
             'set_metadata'   : True,
             'set_visibility' : False,
+            'set_licence'    : False,
             'set_permissions': False,
             'set_albums'     : False,
             'replace_image'  : False,
@@ -467,6 +507,8 @@ class TabWidget(PhotiniUploader):
         fixed_params = self.upload_config.get_fixed_params()
         if option['new_photo'] or option['set_visibility']:
             params['visibility'] = fixed_params['visibility']
+        if option['new_photo'] or option['set_licence']:
+            params['licence'] = fixed_params['licence']
         if option['new_photo'] or option['set_permissions']:
             params['permissions'] = fixed_params['permissions']
         # add metadata
@@ -512,6 +554,7 @@ class TabWidget(PhotiniUploader):
             return {
                 'set_metadata'   : True,
                 'set_visibility' : True,
+                'set_licence'    : True,
                 'set_permissions': True,
                 'set_albums'     : True,
                 'replace_image'  : False,
@@ -532,6 +575,8 @@ class TabWidget(PhotiniUploader):
             translate('IpernityTab', 'Replace metadata'))
         widget['set_visibility'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Change who can see it'))
+        widget['set_licence'] = QtWidgets.QCheckBox(
+            translate('IpernityTab', 'Change the licence'))
         widget['set_permissions'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Change who can comment or tag'))
         widget['set_albums'] = QtWidgets.QCheckBox(
@@ -542,6 +587,7 @@ class TabWidget(PhotiniUploader):
             translate('IpernityTab', 'Upload as new photo'))
         widget['new_photo'].toggled.connect(widget['set_metadata'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_visibility'].setDisabled)
+        widget['new_photo'].toggled.connect(widget['set_licence'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_permissions'].setDisabled)
         widget['new_photo'].toggled.connect(widget['set_albums'].setDisabled)
         no_upload = QtWidgets.QCheckBox(
@@ -551,8 +597,9 @@ class TabWidget(PhotiniUploader):
         button_group.addButton(widget['replace_image'])
         button_group.addButton(widget['new_photo'])
         button_group.addButton(no_upload)
-        for key in ('set_metadata', 'set_visibility', 'set_permissions',
-                    'set_albums', 'replace_image', 'new_photo'):
+        for key in ('set_metadata', 'set_visibility', 'set_licence',
+                    'set_permissions', 'set_albums', 'replace_image',
+                    'new_photo'):
             dialog.layout().addWidget(widget[key])
             widget[key].setChecked(self.replace_prefs[key])
         dialog.layout().addWidget(no_upload)
