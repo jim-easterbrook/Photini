@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -24,8 +24,8 @@ import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
-    catch_all, ComboBox, multiple, multiple_values, Qt, QtCore, QtGui, QtGui2,
-    QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
+    catch_all, ComboBox, execute, multiple, multiple_values, Qt, QtCore, QtGui,
+    QtGui2, QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
     using_pyside, width_for_text)
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class DropdownEdit(ComboBox):
             menu.addAction(action)
         if menu.isEmpty():
             return
-        action = menu.exec_(self.mapToGlobal(pos))
+        action = execute(menu, self.mapToGlobal(pos))
         if not action:
             return
         self.remove_item(action.data())
@@ -961,7 +961,7 @@ class TabWidget(QtWidgets.QWidget):
     def add_camera_model(self):
         dialog = NewCameraDialog(
             self.image_list.get_selected_images(), parent=self)
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if execute(dialog) == QtWidgets.QDialog.Accepted:
             value = dialog.get_value()
             if value:
                 self.new_camera_model(value)
@@ -987,7 +987,7 @@ class TabWidget(QtWidgets.QWidget):
                     msg.setIcon(msg.Warning)
                     msg.setStandardButtons(msg.YesToAll | msg.NoToAll)
                     msg.setDefaultButton(msg.NoToAll)
-                    delete_makernote = msg.exec_() == msg.YesToAll
+                    delete_makernote = execute(msg) == msg.YesToAll
                 if delete_makernote:
                     image.metadata.set_delete_makernote()
             image.metadata.camera_model = value
@@ -998,7 +998,7 @@ class TabWidget(QtWidgets.QWidget):
     def add_lens_model(self):
         dialog = NewLensDialog(
             self.image_list.get_selected_images(), parent=self)
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if execute(dialog) == QtWidgets.QDialog.Accepted:
             value = dialog.get_value()
             if value[0]:
                 self.new_lens_model(value)

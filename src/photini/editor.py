@@ -38,8 +38,9 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.opencage import OpenCage
 from photini.pyqt import (
-    Busy, catch_all, Qt, QtCore, QtGui, QtGui2, QtNetwork, QNetworkProxy,
-    QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
+    Busy, catch_all, execute, Qt, QtCore, QtGui, QtGui2, QtNetwork,
+    QNetworkProxy, QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info,
+    width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -396,10 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @catch_all
     def edit_settings(self):
         dialog = EditSettings(self)
-        if qt_version_info >= (6, 0):
-            dialog.exec()
-        else:
-            dialog.exec_()
+        execute(dialog)
         self.tabs.currentWidget().refresh()
 
     @QtSlot(QtGui2.QAction)
@@ -444,10 +442,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
             'This program is released with a GNU General Public'
             ' License. For details click the "{}" button.').format(
                 dialog.buttons()[0].text()))
-        if qt_version_info >= (6, 0):
-            dialog.exec()
-        else:
-            dialog.exec_()
+        execute(dialog)
 
     @QtSlot()
     @catch_all
@@ -469,10 +464,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         dialog.setText(translate(
             'MenuBar', 'You are currently running Photini version {0}. The'
             ' latest release is {1}.').format(__version__, release))
-        if qt_version_info >= (6, 0):
-            dialog.exec()
-        else:
-            dialog.exec_()
+        execute(dialog)
 
     @QtSlot(int, int)
     @catch_all
@@ -585,10 +577,7 @@ def main(argv=None):
     # create GUI and run application event loop
     main = MainWindow(options, args)
     main.show()
-    if qt_version_info >= (6, 0):
-        return app.exec()
-    else:
-        return app.exec_()
+    return execute(app)
 
 if __name__ == "__main__":
     sys.exit(main())

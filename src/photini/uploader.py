@@ -34,8 +34,8 @@ import keyring
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, DisableWidget, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, StartStopButton, width_for_text)
+    Busy, catch_all, DisableWidget, execute, Qt, QtCore, QtGui, QtSignal,
+    QtSlot, QtWidgets, StartStopButton, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -320,7 +320,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setStandardButtons(
             QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        result = dialog.exec_()
+        result = execute(dialog)
         return result == QtWidgets.QMessageBox.Cancel
 
     def show_user(self, name, picture):
@@ -413,7 +413,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(buttons)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Yes)
-        result = dialog.exec_()
+        result = execute(dialog)
         if result == QtWidgets.QMessageBox.Ignore:
             return 'omit'
         if result == QtWidgets.QMessageBox.Yes:
@@ -490,7 +490,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setStandardButtons(QtWidgets.QMessageBox.Abort |
                                   QtWidgets.QMessageBox.Retry)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Retry)
-        self.abort_upload.emit(dialog.exec_() == QtWidgets.QMessageBox.Retry)
+        self.abort_upload.emit(execute(dialog) == QtWidgets.QMessageBox.Retry)
 
     @QtSlot()
     @catch_all
@@ -558,7 +558,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             ' Photini, and then close this dialog.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        dialog.exec_()
+        execute(dialog)
         with Busy():
             self.session.get_access_token(frob)
 

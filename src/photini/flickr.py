@@ -30,8 +30,9 @@ import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import DateTime, LatLon, Location
-from photini.pyqt import (Busy, catch_all, MultiLineEdit, Qt, QtCore, QtGui,
-                          QtSignal, QtSlot, QtWidgets, SingleLineEdit)
+from photini.pyqt import (
+    Busy, catch_all, execute, MultiLineEdit, Qt, QtCore, QtGui, QtSignal,
+    QtSlot, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -482,7 +483,7 @@ class TabWidget(PhotiniUploader):
                           os.path.basename(image.path), size, max_size))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ignore)
-        dialog.exec_()
+        execute(dialog)
         return 'omit'
 
     def show_album_list(self, albums):
@@ -613,7 +614,7 @@ class TabWidget(PhotiniUploader):
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
-        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
             return None, photo_id
         for key in self.replace_prefs:
             self.replace_prefs[key] = widget[key].isChecked()
@@ -703,7 +704,7 @@ class TabWidget(PhotiniUploader):
         button.setDefault(True)
         button.clicked.connect(dialog.reject)
         dialog.layout().addRow('', button)
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+        if execute(dialog) == QtWidgets.QDialog.Accepted:
             for button, candidate in buttons.items():
                 if button.isChecked():
                     return candidate
@@ -836,7 +837,7 @@ class TabWidget(PhotiniUploader):
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addRow(button_box)
-        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
             return
         title = title.toPlainText()
         if not title:

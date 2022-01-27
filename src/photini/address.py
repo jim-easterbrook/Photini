@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -28,8 +28,8 @@ from photini.filemetadata import ImageMetadata
 from photini.metadata import Location
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
-    width_for_text)
+    catch_all, execute, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
+    SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -169,7 +169,7 @@ class TabWidget(QtWidgets.QWidget):
             'AddressTab', 'Duplicate location'), self.duplicate_location)
         menu.addAction(translate(
             'AddressTab', 'Delete location'), self.delete_location)
-        action = menu.exec_(event.globalPos())
+        action = execute(menu, event.globalPos())
 
     @QtSlot()
     @catch_all

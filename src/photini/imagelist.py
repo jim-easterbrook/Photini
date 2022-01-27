@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -30,9 +30,9 @@ except ImportError:
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, image_types, Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot,
-    QtWidgets, qt_version_info, scale_font, set_symbol_font, video_types,
-    width_for_text)
+    Busy, catch_all, execute, image_types, Qt, QtCore, QtGui, QtGui2, QtSignal,
+    QtSlot, QtWidgets, qt_version_info, scale_font, set_symbol_font,
+    video_types, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -223,10 +223,7 @@ class Image(QtWidgets.QFrame):
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
         self.image_list.add_selected_actions(menu)
-        if qt_version_info >= (6, 0):
-            menu.exec(event.globalPos())
-        else:
-            menu.exec_(event.globalPos())
+        execute(menu, event.globalPos())
 
     @catch_all
     def mousePressEvent(self, event):
@@ -292,10 +289,7 @@ class Image(QtWidgets.QFrame):
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
-        if qt_version_info >= (6, 0):
-            drag.exec(Qt.CopyAction)
-        else:
-            drag.exec_(Qt.CopyAction)
+        execute(drag, Qt.CopyAction)
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
@@ -797,10 +791,7 @@ class ImageList(QtWidgets.QWidget):
             table.resizeRowsToContents()
             if position:
                 dialog.move(position)
-            if qt_version_info >= (6, 0):
-                result = dialog.exec()
-            else:
-                result = dialog.exec_()
+            result = execute(dialog)
             if result != QtWidgets.QDialog.Accepted:
                 return
             position = dialog.pos()
@@ -921,10 +912,7 @@ class ImageList(QtWidgets.QWidget):
             buttons |= QtWidgets.QMessageBox.Discard
         dialog.setStandardButtons(buttons)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Save)
-        if qt_version_info >= (6, 0):
-            result = dialog.exec()
-        else:
-            result = dialog.exec_()
+        result = execute(dialog)
         if result == QtWidgets.QMessageBox.Save:
             self._save_files()
             return True

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2021  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2021-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,8 +23,8 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, MultiLineEdit, QtCore, QtSlot, QtWidgets, SingleLineEdit,
-    width_for_text)
+    catch_all, execute, MultiLineEdit, QtCore, QtSlot, QtWidgets,
+    SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -327,7 +327,7 @@ class TabWidget(QtWidgets.QWidget):
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
-        if dialog.exec_() != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
             return
         for key in widgets:
             value = widgets[key].get_value()

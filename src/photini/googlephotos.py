@@ -25,7 +25,7 @@ import urllib
 import requests
 from requests_oauthlib import OAuth2Session
 
-from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
+from photini.pyqt import catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -301,7 +301,7 @@ class TabWidget(PhotiniUploader):
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore)
-        dialog.exec_()
+        execute(dialog)
         return 'omit'
 
     def show_album_list(self, albums):

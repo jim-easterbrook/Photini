@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, image_types_lower, Qt, QtCore, QtGui, QtGui2,
+    Busy, catch_all, execute, image_types_lower, Qt, QtCore, QtGui, QtGui2,
     QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
@@ -409,7 +409,7 @@ class TabWidget(QtWidgets.QWidget):
             menu.addAction(action)
         if menu.isEmpty():
             return
-        action = menu.exec_(self.mapToGlobal(pos))
+        action = execute(menu, self.mapToGlobal(pos))
         if not action:
             return
         self.config_store.remove_section(action.data())
@@ -507,7 +507,7 @@ class TabWidget(QtWidgets.QWidget):
         dialog.setStandardButtons(
             QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
-        result = dialog.exec_()
+        result = execute(dialog)
         if result == QtWidgets.QMessageBox.Close:
             self.stop_copy()
         return result == QtWidgets.QMessageBox.Cancel

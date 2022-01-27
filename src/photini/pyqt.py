@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -211,6 +211,11 @@ def scale_font(widget, scale):
 def width_for_text(widget, text):
     rect = widget.fontMetrics().boundingRect(text)
     return rect.width()
+
+def execute(widget, *arg, **kwds):
+    if qt_lib == 'PySide2':
+        return widget.exec_(*arg, **kwds)
+    return widget.exec(*arg, **kwds)
 
 
 @contextmanager
