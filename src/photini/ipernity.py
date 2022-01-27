@@ -158,7 +158,8 @@ class IpernitySession(UploaderSession):
         return self.cached_data['albums']
 
     def progress(self, monitor):
-        self.upload_progress.emit(monitor.bytes_read * 100 // monitor.len)
+        self.upload_progress.emit(
+            {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
         doc_id = params['doc_id']
@@ -193,7 +194,7 @@ class IpernitySession(UploaderSession):
                 return params['function'] + ' ' + str(rsp['api'])
             ticket = rsp['ticket']
             # wait for processing to finish
-            self.upload_progress.emit(-1)
+            self.upload_progress.emit({'busy': True})
             # upload.checkTickets returns an eta but it's very
             # unreliable (e.g. saying 360 seconds for something that
             # then takes 15). Easier to poll every two seconds.

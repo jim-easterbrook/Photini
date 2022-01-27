@@ -42,7 +42,7 @@ translate = QtCore.QCoreApplication.translate
 
 class UploaderSession(QtCore.QObject):
     connection_changed = QtSignal(bool)
-    upload_progress = QtSignal(int)
+    upload_progress = QtSignal(dict)
 
     def __init__(self, *arg, **kwds):
         super(UploaderSession, self).__init__(*arg, **kwds)
@@ -101,7 +101,7 @@ class AbortableFileReader(object):
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
     upload_error = QtSignal(str, str)
-    upload_progress = QtSignal(int, str)
+    upload_progress = QtSignal(dict)
 
     def __init__(self, session_factory, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
@@ -114,13 +114,15 @@ class UploadWorker(QtCore.QObject):
     def start(self):
         session = self.session_factory()
         session.open_connection()
-        session.upload_progress.connect(self.progress)
+        session.upload_progress.connect(self.upload_progress)
         upload_count = 0
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
             name = os.path.basename(image.path)
-            self.upload_progress.emit(0, '{} ({}/{}) %p%'.format(
-                name, 1 + upload_count, len(self.upload_list)))
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(
+                     name, 1 + upload_count, len(self.upload_list)),
+                })
             if convert:
                 path = convert(image)
             else:
@@ -134,6 +136,7 @@ class UploadWorker(QtCore.QObject):
                     break
                 except Exception as ex:
                     error = str(ex)
+                self.upload_progress.emit({'busy': False})
                 self.fileobj = None
             if convert:
                 os.unlink(path)
@@ -149,12 +152,9 @@ class UploadWorker(QtCore.QObject):
                     break
             else:
                 upload_count += 1
-        self.upload_progress.emit(0, '%p%')
+        self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
         session.close_connection()
         self.finished.emit()
-
-    def progress(self, value):
-        self.upload_progress.emit(value, '')
 
     @QtSlot(bool)
     @catch_all
@@ -244,16 +244,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_name.setMinimumWidth(width_for_text(self.user_name, 'x' * 12))
         user_group.layout().addWidget(self.user_name)
         user_group.layout().addStretch(1)
-        self.layout().addWidget(user_group, 0, 0, 1, 2)
+        self.layout().addWidget(user_group, 0, 0)
         # connect / disconnect button
         self.user_connect = StartStopButton(
             translate('UploaderTabsAll', 'Log in'),
             translate('UploaderTabsAll', 'Log out'))
         self.user_connect.click_start.connect(self.log_in)
         self.user_connect.click_stop.connect(self.session.log_out)
-        self.layout().addWidget(self.user_connect, 1, 0, 1, 2)
+        self.layout().addWidget(self.user_connect, 1, 0)
         # 'service' specific widget
-        self.layout().addWidget(upload_config_widget, 0, 2, 2, 2)
+        self.layout().addWidget(upload_config_widget, 0, 1, 2, 2)
         # upload button
         self.upload_button = StartStopButton(
             translate('UploaderTabsAll', 'Start upload'),
@@ -261,14 +261,20 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.setEnabled(False)
         self.upload_button.click_start.connect(self.start_upload)
         self.upload_button.click_stop.connect(self.stop_upload)
-        self.layout().addWidget(self.upload_button, 2, 3)
+        self.layout().addWidget(self.upload_button, 2, 2)
         # progress bar
-        self.layout().addWidget(
-            QtWidgets.QLabel(translate('UploaderTabsAll', 'Progress')), 2, 0)
-        self.total_progress = QtWidgets.QProgressBar()
-        self.layout().addWidget(self.total_progress, 2, 1, 1, 2)
+        progress_layout = QtWidgets.QGridLayout()
+        progress_layout.setContentsMargins(0, 0, 0, 0)
+        self.progress_label = QtWidgets.QLabel()
+        progress_layout.addWidget(self.progress_label, 0, 0)
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setFormat('%p%')
+        progress_layout.addWidget(self.progress_bar, 0, 1)
+        progress_layout.setColumnStretch(1, 1)
+        self.layout().addLayout(progress_layout, 2, 0, 1, 2)
+        self.upload_progress({'label': None})
         # adjust spacing
-        self.layout().setColumnStretch(2, 1)
+        self.layout().setColumnStretch(1, 1)
         self.layout().setRowStretch(0, 1)
         # initialise as not connected
         self.connection_changed(False)
@@ -462,19 +468,25 @@ class PhotiniUploader(QtWidgets.QWidget):
         thread.finished.connect(thread.deleteLater)
         thread.start()
 
-    @QtSlot(int, str)
+    @QtSlot(dict)
     @catch_all
-    def upload_progress(self, value, format_):
-        if value < 0:
-            # set "busy"
-            self.total_progress.setMaximum(0)
-        else:
-            # set actual progress
-            if self.total_progress.maximum() != 100:
-                self.total_progress.setMaximum(100)
-            self.total_progress.setValue(value)
-        if format_:
-            self.total_progress.setFormat(format_)
+    def upload_progress(self, update):
+        if 'busy' in update:
+            if update['busy']:
+                self.progress_bar.setMaximum(0)
+            else:
+                self.progress_bar.setMaximum(100)
+        if 'value' in update:
+            self.progress_bar.setValue(update['value'])
+        if 'label' in update:
+            if update['label']:
+                elided = self.progress_label.fontMetrics().elidedText(
+                    update['label'], Qt.ElideLeft,
+                    width_for_text(self.progress_label, 'X' * 20))
+                self.progress_label.setText(elided)
+            else:
+                self.progress_label.setText(translate(
+                    'UploaderTabsAll', 'Progress'))
 
     @QtSlot(str, str)
     @catch_all

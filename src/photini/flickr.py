@@ -186,7 +186,8 @@ class FlickrSession(UploaderSession):
             page += 1
 
     def progress(self, monitor):
-        self.upload_progress.emit(monitor.bytes_read * 100 // monitor.len)
+        self.upload_progress.emit(
+            {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
         photo_id = params['photo_id']
@@ -225,7 +226,7 @@ class FlickrSession(UploaderSession):
                 return params['function'] + ' ' + status
             ticket_id = rsp.find('ticketid').text
             # wait for processing to finish
-            self.upload_progress.emit(-1)
+            self.upload_progress.emit({'busy': True})
             while True:
                 rsp = self.api_call(
                     'flickr.photos.upload.checkTickets', tickets=ticket_id)
