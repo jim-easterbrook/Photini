@@ -26,8 +26,8 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
-    Busy, catch_all, ComboBox, execute, MultiLineEdit, Qt, QtCore, QtGui,
-    QtSignal, QtSlot, QtWidgets, SingleLineEdit)
+    Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
+    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -256,44 +256,32 @@ class IpernitySession(UploaderSession):
         return ''
 
 
-class PermissionWidget(ComboBox):
-    def __init__(self, default='5', *arg, **kw):
-        super(PermissionWidget, self).__init__(*arg, **kw)
-        self.addItem(translate('IpernityTab', 'Only you'), '0')
-        self.addItem(translate('IpernityTab', 'Friends and family'), '3')
-        self.addItem(translate('IpernityTab', 'Contacts'), '4')
-        self.addItem(translate('IpernityTab', 'Everyone'), '5')
-        self.setCurrentIndex(self.findData(default))
-        self.set_dropdown_width()
-
-    def value(self):
-        return self.itemData(self.currentIndex())
+class PermissionWidget(DropDownSelector):
+    def __init__(self, default='5'):
+        super(PermissionWidget, self).__init__(
+            ((translate('IpernityTab', 'Only you'), '0'),
+             (translate('IpernityTab', 'Friends and family'), '3'),
+             (translate('IpernityTab', 'Contacts'), '4'),
+             (translate('IpernityTab', 'Everyone'), '5')),
+            default=default)
 
 
-class LicenceWidget(ComboBox):
-    def __init__(self, default='0', *arg, **kw):
-        super(LicenceWidget, self).__init__(*arg, **kw)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLength)
-        self.addItem(translate(
-            'IpernityTab', 'Copyright (all rights reserved)'), '0')
-        self.addItem(translate('IpernityTab', 'Attribution'), '1')
-        self.addItem(translate(
-            'IpernityTab', 'Attribution + non commercial'), '3')
-        self.addItem(translate(
-            'IpernityTab', 'Attribution + no derivative'), '5')
-        self.addItem(translate('IpernityTab', 'Attribution + share alike'), '9')
-        self.addItem(translate(
-            'IpernityTab', 'Attribution + non commercial + no derivative'), '7')
-        self.addItem(translate(
-            'IpernityTab', 'Attribution + non commercial + share alike'), '11')
-        self.addItem(translate(
-            'IpernityTab',
-            'Free use (copyright surrendered, no licence)'), '255')
-        self.setCurrentIndex(self.findData(default))
-        self.set_dropdown_width()
-
-    def value(self):
-        return self.itemData(self.currentIndex())
+class LicenceWidget(DropDownSelector):
+    def __init__(self, default='0'):
+        super(LicenceWidget, self).__init__(
+            ((translate('IpernityTab', 'Copyright (all rights reserved)'), '0'),
+             (translate('IpernityTab', 'Attribution'), '1'),
+             (translate('IpernityTab', 'Attribution + non commercial'), '3'),
+             (translate('IpernityTab', 'Attribution + no derivative'), '5'),
+             (translate('IpernityTab', 'Attribution + share alike'), '9'),
+             (translate('IpernityTab',
+                        'Attribution + non commercial + no derivative'), '7'),
+             (translate('IpernityTab',
+                        'Attribution + non commercial + share alike'), '11'),
+             (translate(
+                 'IpernityTab',
+                 'Free use (copyright surrendered, no licence)'), '255')),
+            default=default)
 
 
 class IpernityUploadConfig(QtWidgets.QWidget):
@@ -341,6 +329,8 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         perms_group = QtWidgets.QGroupBox(
             translate('IpernityTab', 'Who can comment or tag?'))
         perms_group.setLayout(QtWidgets.QFormLayout())
+        perms_group.layout().setFieldGrowthPolicy(
+            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
         perms_group.layout().setRowWrapPolicy(QtWidgets.QFormLayout.WrapAllRows)
         self.perms['perm_comment'] = PermissionWidget()
         perms_group.layout().addRow(

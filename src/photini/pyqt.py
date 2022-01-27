@@ -306,6 +306,20 @@ class ComboBox(QtWidgets.QComboBox):
         self.view().setMinimumWidth(width + margin)
 
 
+class DropDownSelector(ComboBox):
+    def __init__(self, values, default=None):
+        super(DropDownSelector, self).__init__()
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLength)
+        for text, data in values:
+            self.addItem(text, data)
+        if default is not None:
+            self.setCurrentIndex(self.findData(default))
+        self.set_dropdown_width()
+
+    def value(self):
+        return self.itemData(self.currentIndex())
+
+
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
     editingFinished = QtSignal()
 
