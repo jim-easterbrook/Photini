@@ -200,7 +200,7 @@ class FlickrSession(UploaderSession):
             if params['function'] == 'upload':
                 data = {}
                 # set some metadata with upload function
-                for key in ('permissions', 'content_type', 'safety_level',
+                for key in ('visibility', 'content_type', 'safety_level',
                             'meta'):
                     if key in params and params[key]:
                         data.update(params[key])
@@ -251,6 +251,7 @@ class FlickrSession(UploaderSession):
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
         metadata_set_func = {
+            'visibility':   'flickr.photos.setPerms',
             'permissions':  'flickr.photos.setPerms',
             'content_type': 'flickr.photos.setContentType',
             'safety_level': 'flickr.photos.setSafetyLevel',
@@ -309,6 +310,16 @@ class FlickrSession(UploaderSession):
         return ''
 
 
+class PermissionWidget(DropDownSelector):
+    def __init__(self, default='3'):
+        super(PermissionWidget, self).__init__(
+            ((translate('FlickrTab', 'Only you'), '0'),
+             (translate('FlickrTab', 'Friends and family'), '1'),
+             (translate('FlickrTab', 'People you follow'), '2'),
+             (translate('FlickrTab', 'Any Flickr member'), '3')),
+            default=default)
+
+
 class ConfigFormLayout(QtWidgets.QFormLayout):
     def __init__(self, wrapped=False, **kwds):
         super(ConfigFormLayout, self).__init__(**kwds)
@@ -332,10 +343,10 @@ class TabWidget(PhotiniUploader):
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
-        # visibility
         group = QtWidgets.QGroupBox()
-        group.setMinimumWidth(width_for_text(group, 'x' * 25))
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(ConfigFormLayout(wrapped=True))
+        # visibility
         self.widget['visibility'] = DropDownSelector(
             ((translate('FlickrTab', 'Public'),
               {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
@@ -348,8 +359,28 @@ class TabWidget(PhotiniUploader):
              (translate('FlickrTab', 'Friends and family'),
               {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
             default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
-        group.layout().addRow(translate('FlickrTab', 'Visibility'),
+        group.layout().addRow(translate('FlickrTab', 'Viewing privacy'),
                               self.widget['visibility'])
+        # permissions
+        self.widget['perm_comment'] = PermissionWidget()
+        group.layout().addRow(translate('FlickrTab', 'Allow commenting'),
+                              self.widget['perm_comment'])
+        self.widget['perm_addmeta'] = PermissionWidget(default='2')
+        group.layout().addRow(translate('FlickrTab', 'Allow tags and notes'),
+                              self.widget['perm_addmeta'])
+        column.addWidget(group, 0, 0)
+        # synchronise metadata
+        self.sync_button = QtWidgets.QPushButton(
+            translate('FlickrTab', 'Synchronise'))
+        self.sync_button.clicked.connect(self.sync_metadata)
+        column.addWidget(self.sync_button, 1, 0)
+        yield column
+        ## second column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        group.setLayout(ConfigFormLayout(wrapped=True))
         # safety level
         self.widget['safety_level'] = DropDownSelector(
             ((translate('FlickrTab', 'Safe'), '1'),
@@ -361,15 +392,7 @@ class TabWidget(PhotiniUploader):
         self.widget['hidden'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Hidden from search'))
         group.layout().addRow(self.widget['hidden'])
-        column.addWidget(group, 0, 0)
-        yield column
-        ## second column
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
         # licence
-        group = QtWidgets.QGroupBox()
-        group.setMinimumWidth(width_for_text(group, 'x' * 25))
-        group.setLayout(ConfigFormLayout(wrapped=True))
         self.widget['license_id'] = DropDownSelector(
             ((translate('FlickrTab', 'All rights reserved'), '0'),
              (translate('FlickrTab', 'Public domain mark'), '10'),
@@ -394,11 +417,6 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(translate('FlickrTab', 'Content type'),
                               self.widget['content_type'])
         column.addWidget(group, 0, 0)
-        # synchronise metadata
-        self.sync_button = QtWidgets.QPushButton(
-            translate('FlickrTab', 'Synchronise'))
-        self.sync_button.clicked.connect(self.sync_metadata)
-        column.addWidget(self.sync_button, 1, 0)
         # create new set
         button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
         button.clicked.connect(self.new_set)
@@ -407,9 +425,9 @@ class TabWidget(PhotiniUploader):
         ## 3rd column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
-        # list of sets widget
         group = QtWidgets.QGroupBox()
         group.setLayout(QtWidgets.QVBoxLayout())
+        # list of sets widget
         group.layout().addWidget(
             QtWidgets.QLabel(translate('FlickrTab', 'Add to albums')))
         scrollarea = QtWidgets.QScrollArea()
@@ -431,8 +449,12 @@ class TabWidget(PhotiniUploader):
         for child in self.widget['sets'].children():
             if child.isWidgetType() and child.isChecked():
                 sets.append(child)
+        permissions = dict(self.widget['visibility'].value())
+        permissions['perm_comment'] = self.widget['perm_comment'].value()
+        permissions['perm_addmeta'] = self.widget['perm_addmeta'].value()
         return {
-            'permissions': self.widget['visibility'].value(),
+            'visibility': self.widget['visibility'].value(),
+            'permissions': permissions,
             'safety_level': {
                 'safety_level': self.widget['safety_level'].value(),
                 'hidden'      : str(int(self.widget['hidden'].isChecked())),
@@ -514,6 +536,8 @@ class TabWidget(PhotiniUploader):
             params.update(fixed_params)
         else:
             if option['set_visibility']:
+                params['visibility'] = fixed_params['visibility']
+            if option['set_permissions']:
                 params['permissions'] = fixed_params['permissions']
             if option['set_safety_level']:
                 params['safety_level'] = fixed_params['safety_level']
@@ -586,7 +610,9 @@ class TabWidget(PhotiniUploader):
         widget['set_metadata'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Replace metadata'))
         widget['set_visibility'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change who can see it'))
+            translate('FlickrTab', 'Change visibility'))
+        widget['set_permissions'] = QtWidgets.QCheckBox(
+            translate('FlickrTab', 'Change who can comment or tag'))
         widget['set_safety_level'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change safety level'))
         widget['set_licence'] = QtWidgets.QCheckBox(
@@ -610,8 +636,9 @@ class TabWidget(PhotiniUploader):
             widget[key].setChecked(self.replace_prefs[key])
         two_columns = QtWidgets.QHBoxLayout()
         column = QtWidgets.QVBoxLayout()
-        for key in ('set_metadata', 'set_visibility', 'set_safety_level',
-                    'set_licence', 'set_type', 'set_albums'):
+        for key in ('set_metadata', 'set_visibility', 'set_permissions',
+                    'set_safety_level', 'set_licence', 'set_type',
+                    'set_albums'):
             widget['new_photo'].toggled.connect(widget[key].setDisabled)
             column.addWidget(widget[key])
         two_columns.addLayout(column)
