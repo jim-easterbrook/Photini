@@ -222,7 +222,7 @@ class AuthServer(QtCore.QObject):
 class PhotiniUploader(QtWidgets.QWidget):
     abort_upload = QtSignal(bool)
 
-    def __init__(self, upload_config_widget, image_list, *arg, **kw):
+    def __init__(self, image_list, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.shutdown)
@@ -232,6 +232,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.session = self.session_factory()
         self.session.connection_changed.connect(self.connection_changed)
         self.upload_worker = None
+        ## first column
+        layout = QtWidgets.QGridLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.layout().addLayout(layout, 0, 0)
         # user details
         self.user = {}
         user_group = QtWidgets.QGroupBox(translate('UploaderTabsAll', 'User'))
@@ -244,16 +248,32 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_name.setMinimumWidth(width_for_text(self.user_name, 'x' * 12))
         user_group.layout().addWidget(self.user_name)
         user_group.layout().addStretch(1)
-        self.layout().addWidget(user_group, 0, 0)
+        layout.addWidget(user_group, 0, 0)
+        layout.setRowStretch(0, 1)
         # connect / disconnect button
         self.user_connect = StartStopButton(
             translate('UploaderTabsAll', 'Log in'),
             translate('UploaderTabsAll', 'Log out'))
         self.user_connect.click_start.connect(self.log_in)
         self.user_connect.click_stop.connect(self.session.log_out)
-        self.layout().addWidget(self.user_connect, 1, 0)
-        # 'service' specific widget
-        self.layout().addWidget(upload_config_widget, 0, 1, 2, 2)
+        layout.addWidget(self.user_connect, 1, 0)
+        ## other columns are 'service' specific
+        column_count = 1
+        for layout in self.config_columns():
+            self.layout().addLayout(layout, 0, column_count)
+            column_count += 1
+        ## bottom row
+        layout = QtWidgets.QGridLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.layout().addLayout(layout, 1, 0, 1, column_count)
+        # progress bar
+        self.progress_label = QtWidgets.QLabel()
+        layout.addWidget(self.progress_label, 0, 0)
+        self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.setFormat('%p%')
+        layout.addWidget(self.progress_bar, 0, 1)
+        layout.setColumnStretch(1, 1)
+        self.upload_progress({'label': None, 'value': 0})
         # upload button
         self.upload_button = StartStopButton(
             translate('UploaderTabsAll', 'Start upload'),
@@ -261,21 +281,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.setEnabled(False)
         self.upload_button.click_start.connect(self.start_upload)
         self.upload_button.click_stop.connect(self.stop_upload)
-        self.layout().addWidget(self.upload_button, 2, 2)
-        # progress bar
-        progress_layout = QtWidgets.QGridLayout()
-        progress_layout.setContentsMargins(0, 0, 0, 0)
-        self.progress_label = QtWidgets.QLabel()
-        progress_layout.addWidget(self.progress_label, 0, 0)
-        self.progress_bar = QtWidgets.QProgressBar()
-        self.progress_bar.setFormat('%p%')
-        progress_layout.addWidget(self.progress_bar, 0, 1)
-        progress_layout.setColumnStretch(1, 1)
-        self.layout().addLayout(progress_layout, 2, 0, 1, 2)
-        self.upload_progress({'label': None})
-        # adjust spacing
-        self.layout().setColumnStretch(1, 1)
-        self.layout().setRowStretch(0, 1)
+        layout.addWidget(self.upload_button, 0, 2)
         # initialise as not connected
         self.connection_changed(False)
 
@@ -302,7 +308,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.show_user(None, None)
             self.show_album_list([])
         self.user_connect.set_checked(connected)
-        self.upload_config.setEnabled(connected and not self.upload_worker)
+        self.enable_config(connected and not self.upload_worker)
         self.user_connect.setEnabled(not self.upload_worker)
         self.enable_upload_button()
 
@@ -450,7 +456,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.upload_button.setChecked(False)
             return
         self.upload_button.set_checked(True)
-        self.upload_config.setEnabled(False)
+        self.enable_config(False)
         self.user_connect.setEnabled(False)
         # do uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory, upload_list)
@@ -508,7 +514,7 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def uploader_finished(self):
         self.upload_button.set_checked(False)
-        self.upload_config.setEnabled(True)
+        self.enable_config(True)
         self.user_connect.setEnabled(True)
         self.upload_worker = None
         self.enable_upload_button()
@@ -595,3 +601,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         if selection is None:
             selection = self.image_list.get_selected_images()
         self.upload_button.setEnabled(len(selection) > 0)
+
+    # following methods are to be over-ridden by derived class as
+    # self.upload_config is eliminated
+    def config_columns(self):
+        layout = QtWidgets.QGridLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.upload_config, 0, 0)
+        yield layout
+
+    def enable_config(self, enabled):
+        self.upload_config.setEnabled(enabled)

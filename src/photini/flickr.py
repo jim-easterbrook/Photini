@@ -491,7 +491,7 @@ class TabWidget(PhotiniUploader):
     def __init__(self, *arg, **kw):
         self.service_name = translate('FlickrTab', 'Flickr')
         self.upload_config = FlickrUploadConfig()
-        super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
         self.upload_config.sync_metadata.connect(self.sync_metadata)
         self.replace_prefs = {'set_metadata': True}

@@ -276,7 +276,7 @@ class TabWidget(PhotiniUploader):
     def __init__(self, *arg, **kw):
         self.service_name = translate('GooglePhotosTab', 'Google Photos')
         self.upload_config = GoogleUploadConfig()
-        super(TabWidget, self).__init__(self.upload_config, *arg, **kw)
+        super(TabWidget, self).__init__(*arg, **kw)
         self.upload_config.new_set.connect(self.new_set)
 
     def get_conversion_function(self, image, params):
