@@ -309,7 +309,7 @@ class ComboBox(QtWidgets.QComboBox):
 class DropDownSelector(ComboBox):
     def __init__(self, values, default=None):
         super(DropDownSelector, self).__init__()
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLength)
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         for text, data in values:
             self.addItem(text, data)
         if default is not None:

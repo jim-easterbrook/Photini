@@ -309,6 +309,14 @@ class FlickrSession(UploaderSession):
         return ''
 
 
+class ConfigFormLayout(QtWidgets.QFormLayout):
+    def __init__(self, wrapped=False, **kwds):
+        super(ConfigFormLayout, self).__init__(**kwds)
+        if wrapped:
+            self.setRowWrapPolicy(self.WrapAllRows)
+        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
+
+
 class TabWidget(PhotiniUploader):
     session_factory = FlickrSession
 
@@ -324,53 +332,44 @@ class TabWidget(PhotiniUploader):
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
-        # privacy settings
-        privacy_group = QtWidgets.QGroupBox(
-            translate('FlickrTab', 'Who can see the photos?'))
-        privacy_group.setLayout(QtWidgets.QVBoxLayout())
-        self.widget['is_private'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Only you'))
-        privacy_group.layout().addWidget(self.widget['is_private'])
-        ff_group = QtWidgets.QGroupBox()
-        ff_group.setFlat(True)
-        ff_group.setLayout(QtWidgets.QVBoxLayout())
-        ff_group.layout().setContentsMargins(10, 0, 0, 0)
-        self.widget['is_friend'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Your friends'))
-        ff_group.layout().addWidget(self.widget['is_friend'])
-        self.widget['is_family'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Your family'))
-        ff_group.layout().addWidget(self.widget['is_family'])
-        privacy_group.layout().addWidget(ff_group)
-        self.widget['is_public'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Anyone'))
-        self.widget['is_public'].toggled.connect(self.enable_ff)
-        self.widget['is_public'].setChecked(True)
-        privacy_group.layout().addWidget(self.widget['is_public'])
-        privacy_group.layout().addStretch(1)
-        column.addWidget(privacy_group, 0, 0)
+        # visibility
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 25))
+        group.setLayout(ConfigFormLayout(wrapped=True))
+        self.widget['visibility'] = DropDownSelector(
+            ((translate('FlickrTab', 'Public'),
+              {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
+             (translate('FlickrTab', 'Private'),
+              {'is_friend': '0', 'is_family': '0', 'is_public': '0'}),
+             (translate('FlickrTab', 'Friends'),
+              {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
+             (translate('FlickrTab', 'Family'),
+              {'is_friend': '0', 'is_family': '1', 'is_public': '0'}),
+             (translate('FlickrTab', 'Friends and family'),
+              {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
+            default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
+        group.layout().addRow(translate('FlickrTab', 'Visibility'),
+                              self.widget['visibility'])
         # safety level
-        safety_group = QtWidgets.QGroupBox(
-            translate('FlickrTab', 'Set safety level'))
-        safety_group.setLayout(QtWidgets.QVBoxLayout())
         self.widget['safety_level'] = DropDownSelector(
             ((translate('FlickrTab', 'Safe'), '1'),
              (translate('FlickrTab', 'Moderate'), '2'),
              (translate('FlickrTab', 'Restricted'), '3')),
             default='1')
-        safety_group.layout().addWidget(self.widget['safety_level'])
+        group.layout().addRow(translate('FlickrTab', 'Safety level'),
+                              self.widget['safety_level'])
         self.widget['hidden'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Hidden from search'))
-        safety_group.layout().addWidget(self.widget['hidden'])
-        column.addWidget(safety_group, 1, 0)
+        group.layout().addRow(self.widget['hidden'])
+        column.addWidget(group, 0, 0)
         yield column
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # licence
-        licence_group = QtWidgets.QGroupBox(
-            translate('FlickrTab', 'What licence to use?'))
-        licence_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 25))
+        group.setLayout(ConfigFormLayout(wrapped=True))
         self.widget['license_id'] = DropDownSelector(
             ((translate('FlickrTab', 'All rights reserved'), '0'),
              (translate('FlickrTab', 'Public domain mark'), '10'),
@@ -384,44 +383,38 @@ class TabWidget(PhotiniUploader):
              (translate(
                  'FlickrTab', 'Attribution-NonCommercial-NoDerivs'), '3')),
             default='0')
-        licence_group.layout().addWidget(self.widget['license_id'])
-        licence_group.layout().addStretch(1)
-        column.addWidget(licence_group, 0, 0)
+        group.layout().addRow(translate('FlickrTab', 'Licence'),
+                              self.widget['license_id'])
         # content type
-        content_group = QtWidgets.QGroupBox(
-            translate('FlickrTab', 'Content type'))
-        content_group.setLayout(QtWidgets.QVBoxLayout())
         self.widget['content_type'] = DropDownSelector(
             ((translate('FlickrTab', 'Photo'), '1'),
              (translate('FlickrTab', 'Screenshot'), '2'),
              (translate('FlickrTab', 'Art/Illustration'), '3')),
             default='1')
-        self.widget['content_type'].setMinimumWidth(
-            width_for_text(self.widget['content_type'], 'x' * 15))
-        content_group.layout().addWidget(self.widget['content_type'])
-        content_group.layout().addStretch(1)
-        column.addWidget(content_group, 1, 0)
+        group.layout().addRow(translate('FlickrTab', 'Content type'),
+                              self.widget['content_type'])
+        column.addWidget(group, 0, 0)
         # synchronise metadata
         self.sync_button = QtWidgets.QPushButton(
             translate('FlickrTab', 'Synchronise'))
         self.sync_button.clicked.connect(self.sync_metadata)
-        column.addWidget(self.sync_button, 2, 0)
+        column.addWidget(self.sync_button, 1, 0)
         # create new set
-        new_set_button = QtWidgets.QPushButton(
-            translate('FlickrTab', 'New album'))
-        new_set_button.clicked.connect(self.new_set)
-        column.addWidget(new_set_button, 3, 0)
+        button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
+        button.clicked.connect(self.new_set)
+        column.addWidget(button, 2, 0)
         yield column
         ## 3rd column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # list of sets widget
-        sets_group = QtWidgets.QGroupBox(
-            translate('FlickrTab', 'Add to albums'))
-        sets_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setLayout(QtWidgets.QVBoxLayout())
+        group.layout().addWidget(
+            QtWidgets.QLabel(translate('FlickrTab', 'Add to albums')))
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
+        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
         self.widget['sets'] = QtWidgets.QWidget()
         self.widget['sets'].setLayout(QtWidgets.QVBoxLayout())
         self.widget['sets'].layout().setSpacing(0)
@@ -429,17 +422,9 @@ class TabWidget(PhotiniUploader):
             QtWidgets.QLayout.SetMinAndMaxSize)
         scrollarea.setWidget(self.widget['sets'])
         self.widget['sets'].setAutoFillBackground(False)
-        sets_group.layout().addWidget(scrollarea)
-        column.addWidget(sets_group, 0, 0)
+        group.layout().addWidget(scrollarea)
+        column.addWidget(group, 0, 0)
         yield column
-
-    @QtSlot(bool)
-    @catch_all
-    def enable_ff(self, value):
-        self.widget['is_friend'].setEnabled(
-            self.widget['is_private'].isChecked())
-        self.widget['is_family'].setEnabled(
-            self.widget['is_private'].isChecked())
 
     def get_fixed_params(self):
         sets = []
@@ -447,13 +432,7 @@ class TabWidget(PhotiniUploader):
             if child.isWidgetType() and child.isChecked():
                 sets.append(child)
         return {
-            'permissions': {
-                'is_public': str(int(self.widget['is_public'].isChecked())),
-                'is_friend': str(int(self.widget['is_private'].isChecked() and
-                                     self.widget['is_family'].isChecked())),
-                'is_family': str(int(self.widget['is_private'].isChecked() and
-                                     self.widget['is_friend'].isChecked())),
-                },
+            'permissions': self.widget['visibility'].value(),
             'safety_level': {
                 'safety_level': self.widget['safety_level'].value(),
                 'hidden'      : str(int(self.widget['hidden'].isChecked())),
@@ -707,9 +686,7 @@ class TabWidget(PhotiniUploader):
         # get user to choose matching image file
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Select an image'))
-        dialog.setLayout(QtWidgets.QFormLayout())
-        dialog.layout().setFieldGrowthPolicy(
-            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        dialog.setLayout(ConfigFormLayout(wrapped=True))
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(flickr_icon)
         label = QtWidgets.QLabel()
@@ -858,7 +835,7 @@ class TabWidget(PhotiniUploader):
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
-        dialog.setLayout(QtWidgets.QFormLayout())
+        dialog.setLayout(ConfigFormLayout())
         title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
         description = MultiLineEdit(spell_check=True)

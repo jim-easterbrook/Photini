@@ -238,7 +238,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.layout().addLayout(layout, 0, 0)
         # user details
         self.user = {}
-        user_group = QtWidgets.QGroupBox(translate('UploaderTabsAll', 'User'))
+        user_group = QtWidgets.QGroupBox()
         user_group.setLayout(QtWidgets.QVBoxLayout())
         self.user_photo = QtWidgets.QLabel()
         self.user_photo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
