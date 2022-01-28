@@ -610,28 +610,24 @@ class TabWidget(PhotiniUploader):
         widget['set_metadata'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Replace metadata'))
         widget['set_visibility'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change visibility'))
+            translate('FlickrTab', 'Change viewing privacy'))
         widget['set_permissions'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change who can comment or tag'))
         widget['set_safety_level'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change safety level'))
         widget['set_licence'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change the licence'))
+            translate('FlickrTab', 'Change licence'))
         widget['set_type'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change content type'))
         widget['set_albums'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change album membership'))
-        widget['replace_image'] = QtWidgets.QCheckBox(
+        widget['replace_image'] = QtWidgets.QRadioButton(
             translate('FlickrTab', 'Replace image'))
-        widget['new_photo'] = QtWidgets.QCheckBox(
+        widget['new_photo'] = QtWidgets.QRadioButton(
             translate('FlickrTab', 'Upload as new photo'))
-        widget['no_upload'] = QtWidgets.QCheckBox(
+        widget['no_upload'] = QtWidgets.QRadioButton(
             translate('FlickrTab', 'No image upload'))
         widget['no_upload'].setChecked(True)
-        button_group = QtWidgets.QButtonGroup()
-        button_group.addButton(widget['replace_image'])
-        button_group.addButton(widget['new_photo'])
-        button_group.addButton(widget['no_upload'])
         for key in self.replace_prefs:
             widget[key].setChecked(self.replace_prefs[key])
         two_columns = QtWidgets.QHBoxLayout()
@@ -643,7 +639,7 @@ class TabWidget(PhotiniUploader):
             column.addWidget(widget[key])
         two_columns.addLayout(column)
         column = QtWidgets.QVBoxLayout()
-        for key in ('replace_image', 'new_photo', 'no_upload'):
+        for key in ('no_upload', 'replace_image', 'new_photo'):
             column.addWidget(widget[key])
         column.addStretch(1)
         two_columns.addLayout(column)
