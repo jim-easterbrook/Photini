@@ -337,7 +337,8 @@ class TabWidget(PhotiniUploader):
 
     def config_columns(self):
         self.service_name = translate('FlickrTab', 'Flickr')
-        self.replace_prefs = {'set_metadata': True}
+        self.replace_prefs = {'metadata': True}
+        self.upload_prefs = {}
         # dictionary of all widgets with parameter settings
         self.widget = {}
         ## first column
@@ -517,38 +518,31 @@ class TabWidget(PhotiniUploader):
             self.add_set(*item)
 
     def get_upload_params(self, image):
-        option, photo_id = self._replace_dialog(image)
-        if not any(option.values()):
-            # user chose to do nothing
-            return None
+        upload_prefs, replace_prefs, photo_id = self._replace_dialog(image)
         # set upload function
-        if option['new_photo']:
+        if upload_prefs['new_photo']:
             params = {'function': 'upload'}
             photo_id = None
-        elif option['replace_image']:
+        elif upload_prefs['replace_image']:
             params = {'function': 'replace'}
         else:
             params = {'function': None}
+            if not any(replace_prefs.values()):
+                # user chose to do nothing
+                return None
         params['photo_id'] = photo_id
         # set config params that apply to all photos
         fixed_params = self.get_fixed_params()
-        if option['new_photo']:
+        if upload_prefs['new_photo']:
+            # apply all params
             params.update(fixed_params)
         else:
-            if option['set_visibility']:
-                params['visibility'] = fixed_params['visibility']
-            if option['set_permissions']:
-                params['permissions'] = fixed_params['permissions']
-            if option['set_safety_level']:
-                params['safety_level'] = fixed_params['safety_level']
-            if option['set_licence']:
-                params['licence'] = fixed_params['licence']
-            if option['set_type']:
-                params['content_type'] = fixed_params['content_type']
-            if option['set_albums']:
-                params['sets'] = fixed_params['sets']
+            # only apply the ones the user wants to change
+            for key in fixed_params:
+                if replace_prefs[key]:
+                    params[key] = fixed_params[key]
         # add metadata
-        if option['new_photo'] or option['set_metadata']:
+        if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # title & description
             params['meta'] = {
                 'title'      : image.metadata.title or image.name,
@@ -595,7 +589,7 @@ class TabWidget(PhotiniUploader):
                 break
         else:
             # new upload
-            return {'new_photo': True}, None
+            return {'new_photo': True}, {}, None
         # get user preferences
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Replace photo'))
@@ -606,41 +600,43 @@ class TabWidget(PhotiniUploader):
                 os.path.basename(image.path)))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
-        widget = {}
-        widget['set_metadata'] = QtWidgets.QCheckBox(
+        replace_options = {}
+        replace_options['metadata'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Replace metadata'))
-        widget['set_visibility'] = QtWidgets.QCheckBox(
+        replace_options['visibility'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change viewing privacy'))
-        widget['set_permissions'] = QtWidgets.QCheckBox(
+        replace_options['permissions'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change who can comment or tag'))
-        widget['set_safety_level'] = QtWidgets.QCheckBox(
+        replace_options['safety_level'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change safety level'))
-        widget['set_licence'] = QtWidgets.QCheckBox(
+        replace_options['licence'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change licence'))
-        widget['set_type'] = QtWidgets.QCheckBox(
+        replace_options['content_type'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change content type'))
-        widget['set_albums'] = QtWidgets.QCheckBox(
+        replace_options['sets'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change album membership'))
-        widget['replace_image'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Replace image'))
-        widget['new_photo'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Upload as new photo'))
-        widget['no_upload'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'No image upload'))
-        widget['no_upload'].setChecked(True)
         for key in self.replace_prefs:
-            widget[key].setChecked(self.replace_prefs[key])
+            replace_options[key].setChecked(self.replace_prefs[key])
+        upload_options = {}
+        upload_options['replace_image'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Replace image'))
+        upload_options['new_photo'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'Upload as new photo'))
+        upload_options['no_upload'] = QtWidgets.QRadioButton(
+            translate('FlickrTab', 'No image upload'))
+        upload_options['no_upload'].setChecked(True)
+        for key in self.upload_prefs:
+            upload_options[key].setChecked(self.upload_prefs[key])
         two_columns = QtWidgets.QHBoxLayout()
         column = QtWidgets.QVBoxLayout()
-        for key in ('set_metadata', 'set_visibility', 'set_permissions',
-                    'set_safety_level', 'set_licence', 'set_type',
-                    'set_albums'):
-            widget['new_photo'].toggled.connect(widget[key].setDisabled)
-            column.addWidget(widget[key])
+        for key in replace_options:
+            upload_options['new_photo'].toggled.connect(
+                replace_options[key].setDisabled)
+            column.addWidget(replace_options[key])
         two_columns.addLayout(column)
         column = QtWidgets.QVBoxLayout()
-        for key in ('no_upload', 'replace_image', 'new_photo'):
-            column.addWidget(widget[key])
+        for key in upload_options:
+            column.addWidget(upload_options[key])
         column.addStretch(1)
         two_columns.addLayout(column)
         dialog.layout().addLayout(two_columns)
@@ -650,11 +646,12 @@ class TabWidget(PhotiniUploader):
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
-            return {}, photo_id
-        for key in widget:
-            if key != 'no_upload':
-                self.replace_prefs[key] = widget[key].isChecked()
-        return dict(self.replace_prefs), photo_id
+            return {}, {}, photo_id
+        for key in replace_options:
+            self.replace_prefs[key] = replace_options[key].isChecked()
+        for key in upload_options:
+            self.upload_prefs[key] = upload_options[key].isChecked()
+        return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
 
     def _find_on_flickr(self, image):
         # get possible date range
