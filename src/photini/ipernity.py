@@ -284,13 +284,27 @@ class LicenceWidget(DropDownSelector):
             default=default)
 
 
-class IpernityUploadConfig(QtWidgets.QWidget):
-    new_album = QtSignal()
+class TabWidget(PhotiniUploader):
+    session_factory = IpernitySession
 
-    def __init__(self, *arg, **kw):
-        super(IpernityUploadConfig, self).__init__(*arg, **kw)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+    @staticmethod
+    def tab_name():
+        return translate('IpernityTab', '&Ipernity upload')
+
+    def config_columns(self):
+        self.service_name = translate('IpernityTab', 'Ipernity')
+        self.replace_prefs = {
+            'set_metadata'   : True,
+            'set_visibility' : False,
+            'set_licence'    : False,
+            'set_permissions': False,
+            'set_albums'     : False,
+            'replace_image'  : False,
+            'new_photo'      : False,
+            }
+        ## first column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # privacy settings
         self.privacy = {}
         privacy_group = QtWidgets.QGroupBox(
@@ -316,14 +330,18 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         self.privacy['public'].setChecked(True)
         privacy_group.layout().addWidget(self.privacy['public'])
         privacy_group.layout().addStretch(1)
-        self.layout().addWidget(privacy_group, 0, 0, 2, 1)
+        column.addWidget(privacy_group, 0, 0)
         # licence
         licence_group = QtWidgets.QGroupBox(
             translate('IpernityTab', 'What licence to use?'))
         licence_group.setLayout(QtWidgets.QVBoxLayout())
         self.licence = LicenceWidget()
         licence_group.layout().addWidget(self.licence)
-        self.layout().addWidget(licence_group, 2, 0, 2, 1)
+        column.addWidget(licence_group, 1, 0)
+        yield column
+        ## second column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # comment and tagging settings
         self.perms = {}
         perms_group = QtWidgets.QGroupBox(
@@ -344,12 +362,16 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         perms_group.layout().addRow(
             translate('IpernityTab', 'Identify people'),
             self.perms['perm_tagme'])
-        self.layout().addWidget(perms_group, 0, 1, 3, 1)
+        column.addWidget(perms_group, 0, 0)
         # create new album
         new_album_button = QtWidgets.QPushButton(
             translate('IpernityTab', 'New album'))
         new_album_button.clicked.connect(self.new_album)
-        self.layout().addWidget(new_album_button, 3, 1)
+        column.addWidget(new_album_button, 1, 0)
+        yield column
+        ## 3rd column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # list of albums widget
         albums_group = QtWidgets.QGroupBox(
             translate('IpernityTab', 'Add to albums'))
@@ -365,9 +387,8 @@ class IpernityUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.albums_widget)
         self.albums_widget.setAutoFillBackground(False)
         albums_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(albums_group, 0, 2, 4, 1)
-        self.layout().setRowStretch(1, 1)
-        self.layout().setColumnStretch(2, 1)
+        column.addWidget(albums_group, 0, 0)
+        yield column
 
     @QtSlot(bool)
     @catch_all
@@ -421,29 +442,6 @@ class IpernityUploadConfig(QtWidgets.QWidget):
             self.albums_widget.layout().addWidget(widget)
         return widget
 
-
-class TabWidget(PhotiniUploader):
-    session_factory = IpernitySession
-
-    @staticmethod
-    def tab_name():
-        return translate('IpernityTab', '&Ipernity upload')
-
-    def __init__(self, *arg, **kw):
-        self.service_name = translate('IpernityTab', 'Ipernity')
-        self.upload_config = IpernityUploadConfig()
-        super(TabWidget, self).__init__(*arg, **kw)
-        self.upload_config.new_album.connect(self.new_album)
-        self.replace_prefs = {
-            'set_metadata'   : True,
-            'set_visibility' : False,
-            'set_licence'    : False,
-            'set_permissions': False,
-            'set_albums'     : False,
-            'replace_image'  : False,
-            'new_photo'      : False,
-            }
-
     def accepted_file_type(self, file_type):
         # ipernity accepts most RAW formats!
         return file_type.split('/')[0] in ('image', 'video')
@@ -475,9 +473,9 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def show_album_list(self, albums):
-        self.upload_config.clear_albums()
+        self.clear_albums()
         for item in albums:
-            self.upload_config.add_album(*item)
+            self.add_album(*item)
 
     def get_upload_params(self, image):
         option, doc_id = self._replace_dialog(image)
@@ -494,7 +492,7 @@ class TabWidget(PhotiniUploader):
             params = {'function': None}
         params['doc_id'] = doc_id
         # set config params that apply to all photos
-        fixed_params = self.upload_config.get_fixed_params()
+        fixed_params = self.get_fixed_params()
         if option['new_photo'] or option['set_visibility']:
             params['visibility'] = fixed_params['visibility']
         if option['new_photo'] or option['set_licence']:
@@ -530,7 +528,7 @@ class TabWidget(PhotiniUploader):
                 params['location'] = {'lat': '-999', 'lng': '-999'}
         # make list of albums to add photos to
         if option['new_photo'] or option['set_albums']:
-            params['albums'] = self.upload_config.checked_albums()
+            params['albums'] = self.checked_albums()
         return params
 
     def _replace_dialog(self, image):
@@ -636,7 +634,7 @@ class TabWidget(PhotiniUploader):
         rsp = self.session.api_call('album.create', post=True, **params)
         if not rsp:
             return
-        widget = self.upload_config.add_album(
+        widget = self.add_album(
             params['title'], params['description'],
             rsp['album']['album_id'], index=0)
         widget.setChecked(True)

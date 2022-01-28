@@ -309,14 +309,16 @@ class FlickrSession(UploaderSession):
         return ''
 
 
-class FlickrUploadConfig(QtWidgets.QWidget):
-    new_set = QtSignal()
-    sync_metadata = QtSignal()
+class TabWidget(PhotiniUploader):
+    session_factory = FlickrSession
 
-    def __init__(self, *arg, **kw):
-        super(FlickrUploadConfig, self).__init__(*arg, **kw)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+    @staticmethod
+    def tab_name():
+        return translate('FlickrTab', '&Flickr upload')
+
+    def config_columns(self):
+        self.service_name = translate('FlickrTab', 'Flickr')
+        self.replace_prefs = {'set_metadata': True}
         # dictionary of all widgets with parameter settings
         self.widget = {}
         ## first column
@@ -361,7 +363,7 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             translate('FlickrTab', 'Hidden from search'))
         safety_group.layout().addWidget(self.widget['hidden'])
         column.addWidget(safety_group, 1, 0)
-        self.layout().addLayout(column, 0, 0)
+        yield column
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
@@ -409,8 +411,10 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             translate('FlickrTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
         column.addWidget(new_set_button, 3, 0)
-        self.layout().addLayout(column, 0, 1)
+        yield column
         ## 3rd column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(
             translate('FlickrTab', 'Add to albums'))
@@ -426,8 +430,8 @@ class FlickrUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.widget['sets'])
         self.widget['sets'].setAutoFillBackground(False)
         sets_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(sets_group, 0, 2)
-        self.layout().setColumnStretch(2, 1)
+        column.addWidget(sets_group, 0, 0)
+        yield column
 
     @QtSlot(bool)
     @catch_all
@@ -480,22 +484,6 @@ class FlickrUploadConfig(QtWidgets.QWidget):
             self.widget['sets'].layout().addWidget(widget)
         return widget
 
-
-class TabWidget(PhotiniUploader):
-    session_factory = FlickrSession
-
-    @staticmethod
-    def tab_name():
-        return translate('FlickrTab', '&Flickr upload')
-
-    def __init__(self, *arg, **kw):
-        self.service_name = translate('FlickrTab', 'Flickr')
-        self.upload_config = FlickrUploadConfig()
-        super(TabWidget, self).__init__(*arg, **kw)
-        self.upload_config.new_set.connect(self.new_set)
-        self.upload_config.sync_metadata.connect(self.sync_metadata)
-        self.replace_prefs = {'set_metadata': True}
-
     def get_conversion_function(self, image, params):
         if not params['function']:
             return None
@@ -523,9 +511,9 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def show_album_list(self, albums):
-        self.upload_config.clear_sets()
+        self.clear_sets()
         for item in albums:
-            self.upload_config.add_set(*item)
+            self.add_set(*item)
 
     def get_upload_params(self, image):
         option, photo_id = self._replace_dialog(image)
@@ -542,7 +530,7 @@ class TabWidget(PhotiniUploader):
             params = {'function': None}
         params['photo_id'] = photo_id
         # set config params that apply to all photos
-        fixed_params = self.upload_config.get_fixed_params()
+        fixed_params = self.get_fixed_params()
         if option['new_photo']:
             params.update(fixed_params)
         else:
@@ -889,10 +877,10 @@ class TabWidget(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        widget = self.upload_config.add_set(title, description, None, index=0)
+        widget = self.add_set(title, description, None, index=0)
         widget.setChecked(True)
 
     def new_selection(self, selection):
         super(TabWidget, self).new_selection(selection)
-        self.upload_config.sync_button.setEnabled(
+        self.sync_button.setEnabled(
             len(selection) > 0 and self.user_connect.is_checked())

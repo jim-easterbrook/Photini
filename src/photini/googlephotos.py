@@ -212,18 +212,28 @@ class GooglePhotosSession(UploaderSession):
         return ''
 
 
-class GoogleUploadConfig(QtWidgets.QWidget):
-    new_set = QtSignal()
+class TabWidget(PhotiniUploader):
+    session_factory = GooglePhotosSession
 
-    def __init__(self, *arg, **kw):
-        super(GoogleUploadConfig, self).__init__(*arg, **kw)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+    @staticmethod
+    def tab_name():
+        return translate('GooglePhotosTab', 'Google &Photos upload')
+
+    def config_columns(self):
+        self.service_name = translate('GooglePhotosTab', 'Google Photos')
+        ## first column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # create new set
         new_set_button = QtWidgets.QPushButton(
             translate('GooglePhotosTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
-        self.layout().addWidget(new_set_button, 2, 1)
+        column.addWidget(new_set_button, 1, 0)
+        column.setRowStretch(0, 1)
+        yield column
+        ## second column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
         # list of sets widget
         sets_group = QtWidgets.QGroupBox(
             translate('GooglePhotosTab', 'Add to albums'))
@@ -239,8 +249,8 @@ class GoogleUploadConfig(QtWidgets.QWidget):
         scrollarea.setWidget(self.sets_widget)
         self.sets_widget.setAutoFillBackground(False)
         sets_group.layout().addWidget(scrollarea)
-        self.layout().addWidget(sets_group, 0, 2, 3, 1)
-        self.layout().setColumnStretch(2, 1)
+        column.addWidget(sets_group, 0, 0)
+        yield column
 
     def clear_sets(self):
         for child in self.sets_widget.children():
@@ -264,20 +274,6 @@ class GoogleUploadConfig(QtWidgets.QWidget):
         else:
             self.sets_widget.layout().addWidget(widget)
         return widget
-
-
-class TabWidget(PhotiniUploader):
-    session_factory = GooglePhotosSession
-
-    @staticmethod
-    def tab_name():
-        return translate('GooglePhotosTab', 'Google &Photos upload')
-
-    def __init__(self, *arg, **kw):
-        self.service_name = translate('GooglePhotosTab', 'Google Photos')
-        self.upload_config = GoogleUploadConfig()
-        super(TabWidget, self).__init__(*arg, **kw)
-        self.upload_config.new_set.connect(self.new_set)
 
     def get_conversion_function(self, image, params):
         convert = super(
@@ -305,9 +301,9 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def show_album_list(self, albums):
-        self.upload_config.clear_sets()
+        self.clear_sets()
         for album in albums:
-            self.upload_config.add_album(album)
+            self.add_album(album)
 
     def get_upload_params(self, image):
         title = image.metadata.title
@@ -320,7 +316,7 @@ class TabWidget(PhotiniUploader):
             description = image.path
         params = {
             'description': description,
-            'albums'     : self.upload_config.checked_albums(),
+            'albums'     : self.checked_albums(),
             }
         return params
 
@@ -335,5 +331,5 @@ class TabWidget(PhotiniUploader):
         album = self.session.new_album(title)
         if not album:
             return
-        widget = self.upload_config.add_album(album, index=0)
+        widget = self.add_album(album, index=0)
         widget.setChecked(True)

@@ -258,8 +258,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_connect.click_stop.connect(self.session.log_out)
         layout.addWidget(self.user_connect, 1, 0)
         ## other columns are 'service' specific
+        self.config_layouts = []
         column_count = 1
         for layout in self.config_columns():
+            self.config_layouts.append(layout)
             self.layout().addLayout(layout, 0, column_count)
             column_count += 1
         ## bottom row
@@ -311,6 +313,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.enable_config(connected and not self.upload_worker)
         self.user_connect.setEnabled(not self.upload_worker)
         self.enable_upload_button()
+
+    def enable_config(self, enabled):
+        for layout in self.config_layouts:
+            for idx in range(layout.count()):
+                widget = layout.itemAt(idx).widget()
+                if widget:
+                    widget.setEnabled(enabled)
 
     def refresh(self):
         if not self.user_connect.is_checked():
@@ -601,14 +610,3 @@ class PhotiniUploader(QtWidgets.QWidget):
         if selection is None:
             selection = self.image_list.get_selected_images()
         self.upload_button.setEnabled(len(selection) > 0)
-
-    # following methods are to be over-ridden by derived class as
-    # self.upload_config is eliminated
-    def config_columns(self):
-        layout = QtWidgets.QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.upload_config, 0, 0)
-        yield layout
-
-    def enable_config(self, enabled):
-        self.upload_config.setEnabled(enabled)
