@@ -294,15 +294,8 @@ class TabWidget(PhotiniUploader):
 
     def config_columns(self):
         self.service_name = translate('IpernityTab', 'Ipernity')
-        self.replace_prefs = {
-            'set_metadata'   : True,
-            'set_visibility' : False,
-            'set_licence'    : False,
-            'set_permissions': False,
-            'set_albums'     : False,
-            'replace_image'  : False,
-            'new_photo'      : False,
-            }
+        self.replace_prefs = {'metadata': True}
+        self.upload_prefs = {}
         # dictionary of all widgets with parameter settings
         self.widget = {}
         ## first column
@@ -378,6 +371,10 @@ class TabWidget(PhotiniUploader):
         yield column
 
     def get_fixed_params(self):
+        albums = []
+        for child in self.widget['albums'].children():
+            if child.isWidgetType() and child.isChecked():
+                albums.append(child.property('album_id'))
         return {
             'visibility': self.widget['visibility'].value(),
             'permissions': {
@@ -388,6 +385,7 @@ class TabWidget(PhotiniUploader):
             'licence': {
                 'license': self.widget['license'].value(),
                 },
+            'albums': albums,
             }
 
     def clear_albums(self):
@@ -395,13 +393,6 @@ class TabWidget(PhotiniUploader):
             if child.isWidgetType():
                 self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
-
-    def checked_albums(self):
-        result = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                result.append(child.property('album_id'))
-        return result
 
     def add_album(self, title, description, album_id, index=-1):
         widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
@@ -450,29 +441,35 @@ class TabWidget(PhotiniUploader):
             self.add_album(*item)
 
     def get_upload_params(self, image):
-        option, doc_id = self._replace_dialog(image)
-        if not option or not any(option.values()):
-            # user chose to do nothing
+        # get user preferences for this upload
+        upload_prefs, replace_prefs, doc_id = self._replace_dialog(image)
+        print(upload_prefs, replace_prefs, doc_id)
+        if not upload_prefs:
+            # user cancelled dialog
             return None
-        # set upload function
-        if option['new_photo']:
-            params = {'function': 'upload.file'}
-            doc_id = None
-        elif option['replace_image']:
-            params = {'function': 'upload.replace'}
-        else:
-            params = {'function': None}
-        params['doc_id'] = doc_id
-        # set config params that apply to all photos
+        # get config params that apply to all photos
         fixed_params = self.get_fixed_params()
-        if option['new_photo'] or option['set_visibility']:
-            params['visibility'] = fixed_params['visibility']
-        if option['new_photo'] or option['set_licence']:
-            params['licence'] = fixed_params['licence']
-        if option['new_photo'] or option['set_permissions']:
-            params['permissions'] = fixed_params['permissions']
+        # set upload function and params
+        if upload_prefs['new_photo']:
+            params = {'function': 'upload.file'}
+            # apply all "fixed" params
+            params.update(fixed_params)
+            params['doc_id'] = None
+        else:
+            if upload_prefs['replace_image']:
+                params = {'function': 'upload.replace'}
+            else:
+                params = {'function': None}
+                if not any(replace_prefs.values()):
+                    # user chose to do nothing
+                    return None
+            # only apply the "fixed" params the user wants to change
+            for key in fixed_params:
+                if replace_prefs[key]:
+                    params[key] = fixed_params[key]
+            params['doc_id'] = doc_id
         # add metadata
-        if option['new_photo'] or option['set_metadata']:
+        if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # title & description
             params['meta'] = {
                 'title'      : image.metadata.title or image.name,
@@ -498,9 +495,6 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = {'lat': '-999', 'lng': '-999'}
-        # make list of albums to add photos to
-        if option['new_photo'] or option['set_albums']:
-            params['albums'] = self.checked_albums()
         return params
 
     def _replace_dialog(self, image):
@@ -511,15 +505,7 @@ class TabWidget(PhotiniUploader):
                 break
         else:
             # new upload
-            return {
-                'set_metadata'   : True,
-                'set_visibility' : True,
-                'set_licence'    : True,
-                'set_permissions': True,
-                'set_albums'     : True,
-                'replace_image'  : False,
-                'new_photo'      : True,
-                }, None
+            return {'new_photo': True}, {}, None
         # get user preferences
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('IpernityTab', 'Replace photo'))
@@ -530,49 +516,57 @@ class TabWidget(PhotiniUploader):
                 os.path.basename(image.path)))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
-        widget = {}
-        widget['set_metadata'] = QtWidgets.QCheckBox(
+        replace_options = {}
+        replace_options['metadata'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Replace metadata'))
-        widget['set_visibility'] = QtWidgets.QCheckBox(
+        replace_options['visibility'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Change who can see it'))
-        widget['set_licence'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Change the licence'))
-        widget['set_permissions'] = QtWidgets.QCheckBox(
+        replace_options['permissions'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Change who can comment or tag'))
-        widget['set_albums'] = QtWidgets.QCheckBox(
+        replace_options['licence'] = QtWidgets.QCheckBox(
+            translate('IpernityTab', 'Change the licence'))
+        replace_options['albums'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Change album membership'))
-        widget['replace_image'] = QtWidgets.QCheckBox(
+        for key in self.replace_prefs:
+            replace_options[key].setChecked(self.replace_prefs[key])
+        upload_options = {}
+        upload_options['replace_image'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Replace image'))
-        widget['new_photo'] = QtWidgets.QCheckBox(
+        upload_options['new_photo'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Upload as new photo'))
-        widget['new_photo'].toggled.connect(widget['set_metadata'].setDisabled)
-        widget['new_photo'].toggled.connect(widget['set_visibility'].setDisabled)
-        widget['new_photo'].toggled.connect(widget['set_licence'].setDisabled)
-        widget['new_photo'].toggled.connect(widget['set_permissions'].setDisabled)
-        widget['new_photo'].toggled.connect(widget['set_albums'].setDisabled)
-        no_upload = QtWidgets.QCheckBox(
+        upload_options['no_upload'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'No image upload'))
-        no_upload.setChecked(True)
-        button_group = QtWidgets.QButtonGroup()
-        button_group.addButton(widget['replace_image'])
-        button_group.addButton(widget['new_photo'])
-        button_group.addButton(no_upload)
-        for key in ('set_metadata', 'set_visibility', 'set_licence',
-                    'set_permissions', 'set_albums', 'replace_image',
-                    'new_photo'):
-            dialog.layout().addWidget(widget[key])
-            widget[key].setChecked(self.replace_prefs[key])
-        dialog.layout().addWidget(no_upload)
+        for key in self.upload_prefs:
+            if self.upload_prefs[key]:
+                upload_options[key].setChecked(True)
+                break
+        else:
+            upload_options['no_upload'].setChecked(True)
+        two_columns = QtWidgets.QHBoxLayout()
+        column = QtWidgets.QVBoxLayout()
+        for key in replace_options:
+            upload_options['new_photo'].toggled.connect(
+                replace_options[key].setDisabled)
+            column.addWidget(replace_options[key])
+        two_columns.addLayout(column)
+        column = QtWidgets.QVBoxLayout()
+        for key in upload_options:
+            column.addWidget(upload_options[key])
+        column.addStretch(1)
+        two_columns.addLayout(column)
+        dialog.layout().addLayout(two_columns)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
-            return None, doc_id
-        for key in self.replace_prefs:
-            self.replace_prefs[key] = widget[key].isChecked()
-        return dict(self.replace_prefs), doc_id
+            return {}, {}, doc_id
+        for key in replace_options:
+            self.replace_prefs[key] = replace_options[key].isChecked()
+        for key in upload_options:
+            self.upload_prefs[key] = upload_options[key].isChecked()
+        return self.upload_prefs, self.replace_prefs, doc_id
 
     @QtSlot()
     @catch_all
