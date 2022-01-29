@@ -303,35 +303,36 @@ class TabWidget(PhotiniUploader):
             'replace_image'  : False,
             'new_photo'      : False,
             }
+        # dictionary of all widgets with parameter settings
+        self.widget = {}
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # privacy settings
-        self.privacy = {}
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(QtWidgets.QVBoxLayout())
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'Who can see the photos?')))
-        self.privacy['private'] = QtWidgets.QRadioButton(
+        self.widget['is_private'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Only you (private)'))
-        group.layout().addWidget(self.privacy['private'])
+        group.layout().addWidget(self.widget['is_private'])
         ff_group = QtWidgets.QGroupBox()
         ff_group.setFlat(True)
         ff_group.setLayout(QtWidgets.QVBoxLayout())
         ff_group.layout().setContentsMargins(10, 0, 0, 0)
-        self.privacy['family'] = QtWidgets.QCheckBox(
+        self.widget['is_family'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Your family'))
-        ff_group.layout().addWidget(self.privacy['family'])
-        self.privacy['friends'] = QtWidgets.QCheckBox(
+        ff_group.layout().addWidget(self.widget['is_family'])
+        self.widget['is_friends'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Your friends'))
-        ff_group.layout().addWidget(self.privacy['friends'])
+        ff_group.layout().addWidget(self.widget['is_friends'])
         group.layout().addWidget(ff_group)
-        self.privacy['public'] = QtWidgets.QRadioButton(
+        self.widget['is_public'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Everyone (public)'))
-        self.privacy['public'].toggled.connect(self.enable_ff)
-        self.privacy['public'].setChecked(True)
-        group.layout().addWidget(self.privacy['public'])
+        self.widget['is_public'].toggled.connect(self.enable_ff)
+        self.widget['is_public'].setChecked(True)
+        group.layout().addWidget(self.widget['is_public'])
         group.layout().addStretch(1)
         column.addWidget(group, 0, 0)
         # licence
@@ -339,32 +340,31 @@ class TabWidget(PhotiniUploader):
         group.setLayout(QtWidgets.QVBoxLayout())
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'What licence to use?')))
-        self.licence = LicenceWidget()
-        group.layout().addWidget(self.licence)
+        self.widget['license'] = LicenceWidget()
+        group.layout().addWidget(self.widget['license'])
         column.addWidget(group, 1, 0)
         yield column
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # comment and tagging settings
-        self.perms = {}
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(ConfigFormLayout(wrapped=True))
         group.layout().addRow(QtWidgets.QLabel(
             translate('IpernityTab', 'Who can comment or tag?')))
-        self.perms['perm_comment'] = PermissionWidget()
+        self.widget['perm_comment'] = PermissionWidget()
         group.layout().addRow(
             translate('IpernityTab', 'Post a comment'),
-            self.perms['perm_comment'])
-        self.perms['perm_tag'] = PermissionWidget(default='4')
+            self.widget['perm_comment'])
+        self.widget['perm_tag'] = PermissionWidget(default='4')
         group.layout().addRow(
             translate('IpernityTab', 'Add keywords or notes'),
-            self.perms['perm_tag'])
-        self.perms['perm_tagme'] = PermissionWidget(default='4')
+            self.widget['perm_tag'])
+        self.widget['perm_tagme'] = PermissionWidget(default='4')
         group.layout().addRow(
             translate('IpernityTab', 'Identify people'),
-            self.perms['perm_tagme'])
+            self.widget['perm_tagme'])
         column.addWidget(group, 0, 0)
         # create new album
         new_album_button = QtWidgets.QPushButton(
@@ -383,13 +383,13 @@ class TabWidget(PhotiniUploader):
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
         scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
-        self.albums_widget = QtWidgets.QWidget()
-        self.albums_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.albums_widget.layout().setSpacing(0)
-        self.albums_widget.layout().setSizeConstraint(
+        self.widget['albums'] = QtWidgets.QWidget()
+        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
+        self.widget['albums'].layout().setSpacing(0)
+        self.widget['albums'].layout().setSizeConstraint(
             QtWidgets.QLayout.SetMinAndMaxSize)
-        scrollarea.setWidget(self.albums_widget)
-        self.albums_widget.setAutoFillBackground(False)
+        scrollarea.setWidget(self.widget['albums'])
+        self.widget['albums'].setAutoFillBackground(False)
         group.layout().addWidget(scrollarea)
         column.addWidget(group, 0, 0)
         yield column
@@ -397,15 +397,15 @@ class TabWidget(PhotiniUploader):
     @QtSlot(bool)
     @catch_all
     def enable_ff(self, value):
-        self.privacy['friends'].setEnabled(self.privacy['private'].isChecked())
-        self.privacy['family'].setEnabled(self.privacy['private'].isChecked())
+        self.widget['is_friends'].setEnabled(self.widget['is_private'].isChecked())
+        self.widget['is_family'].setEnabled(self.widget['is_private'].isChecked())
 
     def get_fixed_params(self):
-        is_public = str(int(self.privacy['public'].isChecked()))
-        is_family = str(int(self.privacy['private'].isChecked() and
-                            self.privacy['family'].isChecked()))
-        is_friend = str(int(self.privacy['private'].isChecked() and
-                            self.privacy['friends'].isChecked()))
+        is_public = str(int(self.widget['is_public'].isChecked()))
+        is_family = str(int(self.widget['is_private'].isChecked() and
+                            self.widget['is_family'].isChecked()))
+        is_friend = str(int(self.widget['is_private'].isChecked() and
+                            self.widget['is_friends'].isChecked()))
         return {
             'visibility': {
                 'is_public': is_public,
@@ -413,24 +413,24 @@ class TabWidget(PhotiniUploader):
                 'is_family': is_family,
                 },
             'permissions': {
-                'perm_comment': self.perms['perm_comment'].value(),
-                'perm_tag'    : self.perms['perm_tag'].value(),
-                'perm_tagme'  : self.perms['perm_tagme'].value(),
+                'perm_comment': self.widget['perm_comment'].value(),
+                'perm_tag'    : self.widget['perm_tag'].value(),
+                'perm_tagme'  : self.widget['perm_tagme'].value(),
                 },
             'licence': {
-                'license': self.licence.value(),
+                'license': self.widget['license'].value(),
                 },
             }
 
     def clear_albums(self):
-        for child in self.albums_widget.children():
+        for child in self.widget['albums'].children():
             if child.isWidgetType():
-                self.albums_widget.layout().removeWidget(child)
+                self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
 
     def checked_albums(self):
         result = []
-        for child in self.albums_widget.children():
+        for child in self.widget['albums'].children():
             if child.isWidgetType() and child.isChecked():
                 result.append(child.property('album_id'))
         return result
@@ -441,9 +441,9 @@ class TabWidget(PhotiniUploader):
             widget.setToolTip(html.unescape(description))
         widget.setProperty('album_id', album_id)
         if index >= 0:
-            self.albums_widget.layout().insertWidget(index, widget)
+            self.widget['albums'].layout().insertWidget(index, widget)
         else:
-            self.albums_widget.layout().addWidget(widget)
+            self.widget['albums'].layout().addWidget(widget)
         return widget
 
     def accepted_file_type(self, file_type):
