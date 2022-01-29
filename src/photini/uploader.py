@@ -239,13 +239,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         # user details
         self.user = {}
         user_group = QtWidgets.QGroupBox()
+        user_group.setMinimumWidth(width_for_text(user_group, 'x' * 17))
         user_group.setLayout(QtWidgets.QVBoxLayout())
         self.user_photo = QtWidgets.QLabel()
         self.user_photo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         user_group.layout().addWidget(self.user_photo)
         self.user_name = QtWidgets.QLabel()
         self.user_name.setWordWrap(True)
-        self.user_name.setMinimumWidth(width_for_text(self.user_name, 'x' * 12))
+        self.user_name.setMinimumWidth(10)
         user_group.layout().addWidget(self.user_name)
         user_group.layout().addStretch(1)
         layout.addWidget(user_group, 0, 0)
@@ -348,7 +349,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if name:
             self.user_name.setText(translate(
                 'UploaderTabsAll',
-                'Logged in as {0} on {1}').format(name, self.service_name))
+                'Logged in as<br>{0} on {1}').format(name, self.service_name))
         else:
             self.user_name.setText(translate(
                 'UploaderTabsAll',
