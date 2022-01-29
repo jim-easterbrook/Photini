@@ -261,7 +261,7 @@ class PermissionWidget(DropDownSelector):
     def __init__(self, default='5'):
         super(PermissionWidget, self).__init__(
             ((translate('IpernityTab', 'Only you'), '0'),
-             (translate('IpernityTab', 'Friends and family'), '3'),
+             (translate('IpernityTab', 'Family & friends'), '3'),
              (translate('IpernityTab', 'Contacts'), '4'),
              (translate('IpernityTab', 'Everyone'), '5')),
             default=default)
@@ -308,63 +308,46 @@ class TabWidget(PhotiniUploader):
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
-        # privacy settings
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(QtWidgets.QVBoxLayout())
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('IpernityTab', 'Who can see the photos?')))
-        self.widget['is_private'] = QtWidgets.QRadioButton(
-            translate('IpernityTab', 'Only you (private)'))
-        group.layout().addWidget(self.widget['is_private'])
-        ff_group = QtWidgets.QGroupBox()
-        ff_group.setFlat(True)
-        ff_group.setLayout(QtWidgets.QVBoxLayout())
-        ff_group.layout().setContentsMargins(10, 0, 0, 0)
-        self.widget['is_family'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Your family'))
-        ff_group.layout().addWidget(self.widget['is_family'])
-        self.widget['is_friends'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Your friends'))
-        ff_group.layout().addWidget(self.widget['is_friends'])
-        group.layout().addWidget(ff_group)
-        self.widget['is_public'] = QtWidgets.QRadioButton(
-            translate('IpernityTab', 'Everyone (public)'))
-        self.widget['is_public'].toggled.connect(self.enable_ff)
-        self.widget['is_public'].setChecked(True)
-        group.layout().addWidget(self.widget['is_public'])
-        group.layout().addStretch(1)
+        group.setLayout(ConfigFormLayout(wrapped=True))
+        # visibility
+        self.widget['visibility'] = DropDownSelector(
+            ((translate('IpernityTab', 'Everyone (public)'),
+              {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
+             (translate('IpernityTab', 'Only me (private)'),
+              {'is_friend': '0', 'is_family': '0', 'is_public': '0'}),
+             (translate('IpernityTab', 'Friends'),
+              {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
+             (translate('IpernityTab', 'Family'),
+              {'is_friend': '0', 'is_family': '1', 'is_public': '0'}),
+             (translate('IpernityTab', 'Family & friends'),
+              {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
+            default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
+        group.layout().addRow(translate('IpernityTab', 'Who can: see it'),
+                              self.widget['visibility'])
+        # comment and tagging settings
+        self.widget['perm_comment'] = PermissionWidget()
+        group.layout().addRow(translate('IpernityTab', ' add comments'),
+                              self.widget['perm_comment'])
+        self.widget['perm_tag'] = PermissionWidget(default='4')
+        group.layout().addRow(translate('IpernityTab', ' add keywords, notes'),
+                              self.widget['perm_tag'])
+        self.widget['perm_tagme'] = PermissionWidget(default='4')
+        group.layout().addRow(translate('IpernityTab', ' identify people'),
+                              self.widget['perm_tagme'])
         column.addWidget(group, 0, 0)
-        # licence
-        group = QtWidgets.QGroupBox()
-        group.setLayout(QtWidgets.QVBoxLayout())
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('IpernityTab', 'What licence to use?')))
-        self.widget['license'] = LicenceWidget()
-        group.layout().addWidget(self.widget['license'])
-        column.addWidget(group, 1, 0)
         yield column
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
-        # comment and tagging settings
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(ConfigFormLayout(wrapped=True))
-        group.layout().addRow(QtWidgets.QLabel(
-            translate('IpernityTab', 'Who can comment or tag?')))
-        self.widget['perm_comment'] = PermissionWidget()
+        # licence
+        self.widget['license'] = LicenceWidget()
         group.layout().addRow(
-            translate('IpernityTab', 'Post a comment'),
-            self.widget['perm_comment'])
-        self.widget['perm_tag'] = PermissionWidget(default='4')
-        group.layout().addRow(
-            translate('IpernityTab', 'Add keywords or notes'),
-            self.widget['perm_tag'])
-        self.widget['perm_tagme'] = PermissionWidget(default='4')
-        group.layout().addRow(
-            translate('IpernityTab', 'Identify people'),
-            self.widget['perm_tagme'])
+            translate('IpernityTab', 'Licence'), self.widget['license'])
         column.addWidget(group, 0, 0)
         # create new album
         new_album_button = QtWidgets.QPushButton(
@@ -394,24 +377,9 @@ class TabWidget(PhotiniUploader):
         column.addWidget(group, 0, 0)
         yield column
 
-    @QtSlot(bool)
-    @catch_all
-    def enable_ff(self, value):
-        self.widget['is_friends'].setEnabled(self.widget['is_private'].isChecked())
-        self.widget['is_family'].setEnabled(self.widget['is_private'].isChecked())
-
     def get_fixed_params(self):
-        is_public = str(int(self.widget['is_public'].isChecked()))
-        is_family = str(int(self.widget['is_private'].isChecked() and
-                            self.widget['is_family'].isChecked()))
-        is_friend = str(int(self.widget['is_private'].isChecked() and
-                            self.widget['is_friends'].isChecked()))
         return {
-            'visibility': {
-                'is_public': is_public,
-                'is_friend': is_friend,
-                'is_family': is_family,
-                },
+            'visibility': self.widget['visibility'].value(),
             'permissions': {
                 'perm_comment': self.widget['perm_comment'].value(),
                 'perm_tag'    : self.widget['perm_tag'].value(),
