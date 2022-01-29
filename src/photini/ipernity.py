@@ -61,7 +61,7 @@ class IpernitySession(UploaderSession):
 
     def get_auth_url(self, frob):
         params = {'frob': frob, 'perm_doc': 'write'}
-        params = self.sign_request('', auth=False, **params)
+        params = self.sign_request('', False, params)
         request = requests.Request(
             'GET', 'http://www.ipernity.com/apps/authorize', params=params)
         return request.prepare().url
@@ -75,7 +75,7 @@ class IpernitySession(UploaderSession):
         self.set_password(rsp['auth']['token'])
         self.open_connection()
 
-    def sign_request(self, method, auth=True, **params):
+    def sign_request(self, method, auth, params):
         params = dict(params)
         params['api_key'] = self.api_key
         if auth:
@@ -91,7 +91,7 @@ class IpernitySession(UploaderSession):
         if not self.api:
             self.api = requests.session()
         url = 'http://api.ipernity.com/api/' + method
-        params = self.sign_request(method, auth=auth, **params)
+        params = self.sign_request(method, auth, params)
         try:
             if post:
                 rsp = self.api.post(url, timeout=20, data=params)
@@ -179,7 +179,7 @@ class IpernitySession(UploaderSession):
                 data = {'doc_id': doc_id}
             data['async'] = '1'
             # sign the request before including the file to upload
-            data = self.sign_request(params['function'], auth=True, **data)
+            data = self.sign_request(params['function'], True, data)
             # create multi-part data encoder
             data['file'] = ('dummy_name', fileobj)
             data = MultipartEncoderMonitor(
@@ -443,7 +443,6 @@ class TabWidget(PhotiniUploader):
     def get_upload_params(self, image):
         # get user preferences for this upload
         upload_prefs, replace_prefs, doc_id = self._replace_dialog(image)
-        print(upload_prefs, replace_prefs, doc_id)
         if not upload_prefs:
             # user cancelled dialog
             return None
