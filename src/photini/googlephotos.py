@@ -25,7 +25,8 @@ import urllib
 import requests
 from requests_oauthlib import OAuth2Session
 
-from photini.pyqt import catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets
+from photini.pyqt import (
+    catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
@@ -227,6 +228,9 @@ class TabWidget(PhotiniUploader):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # create new set
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        column.addWidget(group, 0, 0)
         new_set_button = QtWidgets.QPushButton(
             translate('GooglePhotosTab', 'New album'))
         new_set_button.clicked.connect(self.new_set)
@@ -237,9 +241,10 @@ class TabWidget(PhotiniUploader):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # list of sets widget
-        sets_group = QtWidgets.QGroupBox(
-            translate('GooglePhotosTab', 'Add to albums'))
+        sets_group = QtWidgets.QGroupBox()
         sets_group.setLayout(QtWidgets.QVBoxLayout())
+        sets_group.layout().addWidget(
+            QtWidgets.QLabel(translate('GooglePhotosTab', 'Add to albums')))
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
         scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
