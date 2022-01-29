@@ -33,7 +33,7 @@ from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (
     Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession
+from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -323,14 +323,6 @@ class PermissionWidget(DropDownSelector):
              (translate('FlickrTab', 'People you follow'), '2'),
              (translate('FlickrTab', 'Any Flickr member'), '3')),
             default=default)
-
-
-class ConfigFormLayout(QtWidgets.QFormLayout):
-    def __init__(self, wrapped=False, **kwds):
-        super(ConfigFormLayout, self).__init__(**kwds)
-        if wrapped:
-            self.setRowWrapPolicy(self.WrapAllRows)
-        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
 
 
 class TabWidget(PhotiniUploader):

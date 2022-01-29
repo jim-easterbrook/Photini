@@ -27,8 +27,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
     Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
-    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit)
-from photini.uploader import PhotiniUploader, UploaderSession
+    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -308,12 +308,14 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         # privacy settings
         self.privacy = {}
-        privacy_group = QtWidgets.QGroupBox(
-            translate('IpernityTab', 'Who can see the photos?'))
-        privacy_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        group.setLayout(QtWidgets.QVBoxLayout())
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'Who can see the photos?')))
         self.privacy['private'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Only you (private)'))
-        privacy_group.layout().addWidget(self.privacy['private'])
+        group.layout().addWidget(self.privacy['private'])
         ff_group = QtWidgets.QGroupBox()
         ff_group.setFlat(True)
         ff_group.setLayout(QtWidgets.QVBoxLayout())
@@ -324,46 +326,46 @@ class TabWidget(PhotiniUploader):
         self.privacy['friends'] = QtWidgets.QCheckBox(
             translate('IpernityTab', 'Your friends'))
         ff_group.layout().addWidget(self.privacy['friends'])
-        privacy_group.layout().addWidget(ff_group)
+        group.layout().addWidget(ff_group)
         self.privacy['public'] = QtWidgets.QRadioButton(
             translate('IpernityTab', 'Everyone (public)'))
         self.privacy['public'].toggled.connect(self.enable_ff)
         self.privacy['public'].setChecked(True)
-        privacy_group.layout().addWidget(self.privacy['public'])
-        privacy_group.layout().addStretch(1)
-        column.addWidget(privacy_group, 0, 0)
+        group.layout().addWidget(self.privacy['public'])
+        group.layout().addStretch(1)
+        column.addWidget(group, 0, 0)
         # licence
-        licence_group = QtWidgets.QGroupBox(
-            translate('IpernityTab', 'What licence to use?'))
-        licence_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setLayout(QtWidgets.QVBoxLayout())
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'What licence to use?')))
         self.licence = LicenceWidget()
-        licence_group.layout().addWidget(self.licence)
-        column.addWidget(licence_group, 1, 0)
+        group.layout().addWidget(self.licence)
+        column.addWidget(group, 1, 0)
         yield column
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # comment and tagging settings
         self.perms = {}
-        perms_group = QtWidgets.QGroupBox(
-            translate('IpernityTab', 'Who can comment or tag?'))
-        perms_group.setLayout(QtWidgets.QFormLayout())
-        perms_group.layout().setFieldGrowthPolicy(
-            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
-        perms_group.layout().setRowWrapPolicy(QtWidgets.QFormLayout.WrapAllRows)
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        group.setLayout(ConfigFormLayout(wrapped=True))
+        group.layout().addRow(QtWidgets.QLabel(
+            translate('IpernityTab', 'Who can comment or tag?')))
         self.perms['perm_comment'] = PermissionWidget()
-        perms_group.layout().addRow(
+        group.layout().addRow(
             translate('IpernityTab', 'Post a comment'),
             self.perms['perm_comment'])
         self.perms['perm_tag'] = PermissionWidget(default='4')
-        perms_group.layout().addRow(
+        group.layout().addRow(
             translate('IpernityTab', 'Add keywords or notes'),
             self.perms['perm_tag'])
         self.perms['perm_tagme'] = PermissionWidget(default='4')
-        perms_group.layout().addRow(
+        group.layout().addRow(
             translate('IpernityTab', 'Identify people'),
             self.perms['perm_tagme'])
-        column.addWidget(perms_group, 0, 0)
+        column.addWidget(group, 0, 0)
         # create new album
         new_album_button = QtWidgets.QPushButton(
             translate('IpernityTab', 'New album'))
@@ -374,9 +376,10 @@ class TabWidget(PhotiniUploader):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         # list of albums widget
-        albums_group = QtWidgets.QGroupBox(
-            translate('IpernityTab', 'Add to albums'))
-        albums_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setLayout(QtWidgets.QVBoxLayout())
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'Add to albums')))
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
         scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
@@ -387,8 +390,8 @@ class TabWidget(PhotiniUploader):
             QtWidgets.QLayout.SetMinAndMaxSize)
         scrollarea.setWidget(self.albums_widget)
         self.albums_widget.setAutoFillBackground(False)
-        albums_group.layout().addWidget(scrollarea)
-        column.addWidget(albums_group, 0, 0)
+        group.layout().addWidget(scrollarea)
+        column.addWidget(group, 0, 0)
         yield column
 
     @QtSlot(bool)

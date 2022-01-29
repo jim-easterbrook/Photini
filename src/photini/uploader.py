@@ -219,6 +219,14 @@ class AuthServer(QtCore.QObject):
         self.finished.emit()
 
 
+class ConfigFormLayout(QtWidgets.QFormLayout):
+    def __init__(self, wrapped=False, **kwds):
+        super(ConfigFormLayout, self).__init__(**kwds)
+        if wrapped:
+            self.setRowWrapPolicy(self.WrapAllRows)
+        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
+
+
 class PhotiniUploader(QtWidgets.QWidget):
     abort_upload = QtSignal(bool)
 
