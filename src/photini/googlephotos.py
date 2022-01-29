@@ -168,6 +168,7 @@ class GooglePhotosSession(UploaderSession):
         upload_url = rsp.headers['X-Goog-Upload-URL']
         chunk_size = int(rsp.headers['X-Goog-Upload-Chunk-Granularity'])
         # 2/ upload data in chunks, size set by google
+        self.upload_progress.emit({'busy': False})
         headers = {'X-Goog-Upload-Command': 'upload'}
         offset = 0
         while offset < fileobj.len:
@@ -183,6 +184,7 @@ class GooglePhotosSession(UploaderSession):
                 break
             if rsp.text:
                 upload_token = rsp.text
+        self.upload_progress.emit({'busy': True})
         if not upload_token:
             return 'no upload token received'
         # 3/ convert uploaded bytes to a media item

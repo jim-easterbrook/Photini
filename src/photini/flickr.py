@@ -199,6 +199,7 @@ class FlickrSession(UploaderSession):
         photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
+            self.upload_progress.emit({'busy': False})
             url = 'https://up.flickr.com/services/{}/'.format(params['function'])
             if params['function'] == 'upload':
                 data = {}
@@ -318,7 +319,7 @@ class PermissionWidget(DropDownSelector):
     def __init__(self, default='3'):
         super(PermissionWidget, self).__init__(
             ((translate('FlickrTab', 'Only you'), '0'),
-             (translate('FlickrTab', 'Friends and family'), '1'),
+             (translate('FlickrTab', 'Friends & family'), '1'),
              (translate('FlickrTab', 'People you follow'), '2'),
              (translate('FlickrTab', 'Any Flickr member'), '3')),
             default=default)
@@ -361,7 +362,7 @@ class TabWidget(PhotiniUploader):
               {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
              (translate('FlickrTab', 'Family'),
               {'is_friend': '0', 'is_family': '1', 'is_public': '0'}),
-             (translate('FlickrTab', 'Friends and family'),
+             (translate('FlickrTab', 'Friends & family'),
               {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
             default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
         group.layout().addRow(translate('FlickrTab', 'Viewing privacy'),

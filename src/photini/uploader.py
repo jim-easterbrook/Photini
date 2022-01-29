@@ -467,6 +467,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_button.set_checked(True)
         self.enable_config(False)
         self.user_connect.setEnabled(False)
+        self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory, upload_list)
         thread = QtCore.QThread(self)

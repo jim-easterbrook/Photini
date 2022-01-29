@@ -165,6 +165,7 @@ class IpernitySession(UploaderSession):
         doc_id = params['doc_id']
         if params['function']:
             # upload or replace photo
+            self.upload_progress.emit({'busy': False})
             url = 'http://api.ipernity.com/api/' + params['function']
             if params['function'] == 'upload.file':
                 data = {}
