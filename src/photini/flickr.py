@@ -97,7 +97,7 @@ class FlickrSession(UploaderSession):
             token['oauth_token'] + '&' + token['oauth_token_secret'])
         self.open_connection()
 
-    def api_call(self, method, auth=True, **params):
+    def api_call(self, method, post=False, auth=True, **params):
         if not self.api:
             self.api = requests.session()
         params['method'] = method
@@ -108,9 +108,12 @@ class FlickrSession(UploaderSession):
             kwds['auth'] = self.auth
         else:
             params['api_key'] = self.api_key
-        kwds['params'] = params
+        url = 'https://www.flickr.com/services/rest'
         try:
-            rsp = self.api.get('https://www.flickr.com/services/rest', **kwds)
+            if post:
+                rsp = self.api.post(url, data=params, **kwds)
+            else:
+                rsp = self.api.get(url, params=params, **kwds)
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
@@ -263,7 +266,7 @@ class FlickrSession(UploaderSession):
             }
         for key in params:
             if params[key] and key in metadata_set_func:
-                rsp = self.api_call(metadata_set_func[key],
+                rsp = self.api_call(metadata_set_func[key], post=True,
                                     photo_id=photo_id, **params[key])
                 if not rsp:
                     return 'Failed to set ' + key
@@ -273,8 +276,8 @@ class FlickrSession(UploaderSession):
             self.api_call(
                 'flickr.photos.getInfo', auth=False, photo_id=photo_id)
             if 'photo' in rsp and 'location' in rsp['photo']:
-                self.api_call(
-                    'flickr.photos.geo.removeLocation', photo_id=photo_id)
+                self.api_call('flickr.photos.geo.removeLocation',
+                              post=True, photo_id=photo_id)
         # add to or remove from sets
         if 'sets' not in params:
             return ''
@@ -291,7 +294,8 @@ class FlickrSession(UploaderSession):
             if not photoset_id:
                 # create new set
                 rsp = self.api_call(
-                    'flickr.photosets.create', primary_photo_id=photo_id,
+                    'flickr.photosets.create', post=True,
+                    primary_photo_id=photo_id,
                     title=widget.text().replace('&&', '&'),
                     description=widget.toolTip())
                 if rsp:
@@ -301,11 +305,11 @@ class FlickrSession(UploaderSession):
                 del current_sets[photoset_id]
             else:
                 # add to existing set
-                self.api_call('flickr.photosets.addPhoto',
+                self.api_call('flickr.photosets.addPhoto', post=True,
                               photo_id=photo_id, photoset_id=photoset_id)
         # remove from any other sets
         for p_set in current_sets.values():
-            self.api_call('flickr.photosets.removePhoto',
+            self.api_call('flickr.photosets.removePhoto', post=True,
                           photo_id=photo_id, photoset_id=p_set['id'])
         return ''
 
@@ -450,6 +454,11 @@ class TabWidget(PhotiniUploader):
         for child in self.widget['sets'].children():
             if child.isWidgetType() and child.isChecked():
                 sets.append(child)
+        # is_public etc are optional parameters to
+        # https://up.flickr.com/services/upload/ but required for
+        # flickr.photos.setPerms. perm_comment and perm_addmeta are
+        # optional for flickr.photos.setPerms but not accepted by
+        # https://up.flickr.com/services/upload/
         permissions = dict(self.widget['visibility'].value())
         permissions['perm_comment'] = self.widget['perm_comment'].value()
         permissions['perm_addmeta'] = self.widget['perm_addmeta'].value()
@@ -518,26 +527,28 @@ class TabWidget(PhotiniUploader):
             self.add_set(*item)
 
     def get_upload_params(self, image):
+        # get user preferences for this upload
         upload_prefs, replace_prefs, photo_id = self._replace_dialog(image)
-        # set upload function
+        if not upload_prefs:
+            # user cancelled dialog
+            return None
+        # get config params that apply to all photos
+        fixed_params = self.get_fixed_params()
+        # set upload function and params
         if upload_prefs['new_photo']:
             params = {'function': 'upload'}
             photo_id = None
-        elif upload_prefs['replace_image']:
-            params = {'function': 'replace'}
-        else:
-            params = {'function': None}
-            if not any(replace_prefs.values()):
-                # user chose to do nothing
-                return None
-        params['photo_id'] = photo_id
-        # set config params that apply to all photos
-        fixed_params = self.get_fixed_params()
-        if upload_prefs['new_photo']:
-            # apply all params
+            # apply all "fixed" params
             params.update(fixed_params)
         else:
-            # only apply the ones the user wants to change
+            if upload_prefs['replace_image']:
+                params = {'function': 'replace'}
+            else:
+                params = {'function': None}
+                if not any(replace_prefs.values()):
+                    # user chose to do nothing
+                    return None
+            # only apply the "fixed" params the user wants to change
             for key in fixed_params:
                 if replace_prefs[key]:
                     params[key] = fixed_params[key]
@@ -579,6 +590,7 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = None
+        params['photo_id'] = photo_id
         return params
 
     def _replace_dialog(self, image):
@@ -624,9 +636,12 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Upload as new photo'))
         upload_options['no_upload'] = QtWidgets.QRadioButton(
             translate('FlickrTab', 'No image upload'))
-        upload_options['no_upload'].setChecked(True)
         for key in self.upload_prefs:
-            upload_options[key].setChecked(self.upload_prefs[key])
+            if self.upload_prefs[key]:
+                upload_options[key].setChecked(True)
+                break
+        else:
+            upload_options['no_upload'].setChecked(True)
         two_columns = QtWidgets.QHBoxLayout()
         column = QtWidgets.QVBoxLayout()
         for key in replace_options:
@@ -651,7 +666,7 @@ class TabWidget(PhotiniUploader):
             self.replace_prefs[key] = replace_options[key].isChecked()
         for key in upload_options:
             self.upload_prefs[key] = upload_options[key].isChecked()
-        return dict(self.upload_prefs), dict(self.replace_prefs), photo_id
+        return self.upload_prefs, self.replace_prefs, photo_id
 
     def _find_on_flickr(self, image):
         # get possible date range
