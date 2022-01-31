@@ -315,6 +315,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             with Busy():
                 self.show_user(*self.session.get_user())
                 self.show_album_list(self.session.get_albums())
+                self.finalise_config()
         else:
             self.show_user(None, None)
             self.show_album_list([])
@@ -322,6 +323,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.enable_config(connected and not self.upload_worker)
         self.user_connect.setEnabled(not self.upload_worker)
         self.enable_upload_button()
+
+    def finalise_config(self):
+        # allow derived class to make any changes that require a connection
+        pass
 
     def enable_config(self, enabled):
         for layout in self.config_layouts:

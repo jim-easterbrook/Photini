@@ -391,19 +391,7 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Hidden from search'))
         group.layout().addRow(self.widget['hidden'])
         # licence
-        self.widget['license_id'] = DropDownSelector(
-            ((translate('FlickrTab', 'All rights reserved'), '0'),
-             (translate('FlickrTab', 'Public domain mark'), '10'),
-             (translate('FlickrTab', 'Public domain dedication (CC0)'), '9'),
-             (translate('FlickrTab', 'Attribution'), '4'),
-             (translate('FlickrTab', 'Attribution-ShareAlike'), '5'),
-             (translate('FlickrTab', 'Attribution-NoDerivs'), '6'),
-             (translate('FlickrTab', 'Attribution-NonCommercial'), '2'),
-             (translate(
-                 'FlickrTab', 'Attribution-NonCommercial-ShareAlike'), '1'),
-             (translate(
-                 'FlickrTab', 'Attribution-NonCommercial-NoDerivs'), '3')),
-            default='0')
+        self.widget['license_id'] = DropDownSelector(())
         group.layout().addRow(translate('FlickrTab', 'Licence'),
                               self.widget['license_id'])
         # content type
@@ -518,6 +506,19 @@ class TabWidget(PhotiniUploader):
         self.clear_sets()
         for item in albums:
             self.add_set(*item)
+
+    def finalise_config(self):
+        rsp = self.session.api_call(
+            'flickr.photos.licenses.getInfo', auth=False)
+        if not rsp:
+            return
+        values = []
+        for licence in rsp['licenses']['license']:
+            if licence['id'] == '7':
+                continue
+            values.append((licence['name'], licence['id']))
+        if values:
+            self.widget['license_id'].set_values(values, default='0')
 
     def get_upload_params(self, image):
         # get user preferences for this upload

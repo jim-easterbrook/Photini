@@ -310,6 +310,10 @@ class DropDownSelector(ComboBox):
     def __init__(self, values, default=None):
         super(DropDownSelector, self).__init__()
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.set_values(values, default=default)
+
+    def set_values(self, values, default=None):
+        self.clear()
         for text, data in values:
             self.addItem(text, data)
         if default is not None:
