@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from datetime import datetime, timedelta
 import hashlib
 import html
 import logging
@@ -25,6 +26,7 @@ import time
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
+from photini.metadata import DateTime, LatLon
 from photini.pyqt import (
     Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
@@ -156,6 +158,31 @@ class IpernitySession(UploaderSession):
             self.cached_data['albums'].append((
                 album['title'], album['description'], album['album_id']))
         return self.cached_data['albums']
+
+    def get_info(self, doc_id):
+        rsp = self.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+        if not rsp:
+            return None
+        return rsp['doc']
+
+    def find_photos(self, min_taken_date, max_taken_date):
+        # search Ipernity
+        page = 1
+        while True:
+            with Busy():
+                rsp = self.api_call(
+                    'doc.search', user_id=self.cached_data['user_id'],
+                    media='photo,video', page=str(page),
+                    created_min=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    created_max=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    extra='dates', thumbsize='100')
+            if not (rsp and rsp['docs']['doc']):
+                return
+            for photo in rsp['docs']['doc']:
+                yield photo
+            if page == int(rsp['docs']['pages']):
+                return
+            page += 1
 
     def progress(self, monitor):
         self.upload_progress.emit(
@@ -303,6 +330,7 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         # "who can" group spans two columns
         group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 46))
         group.setLayout(QtWidgets.QGridLayout())
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'Who can:')), 0, 0)
@@ -331,6 +359,7 @@ class TabWidget(PhotiniUploader):
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'identify people')), 3, 1)
         group.layout().addWidget(self.widget['perm_tagme'], 4, 1)
+        group.layout().setRowStretch(5, 1)
         column.addWidget(group, 0, 0, 1, 2)
         # left hand column group
         group = QtWidgets.QGroupBox()
@@ -341,17 +370,17 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(
             translate('IpernityTab', 'Licence'), self.widget['license'])
         column.addWidget(group, 1, 0, 2, 1)
-        # right hand column group (empty)
-        group = QtWidgets.QGroupBox()
-        group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(ConfigFormLayout(wrapped=True))
-        column.addWidget(group, 1, 1)
+        # synchronise metadata
+        self.sync_button = QtWidgets.QPushButton(
+            translate('IpernityTab', 'Synchronise'))
+        self.sync_button.clicked.connect(self.sync_metadata)
+        column.addWidget(self.sync_button, 1, 1)
         # create new album
         new_album_button = QtWidgets.QPushButton(
             translate('IpernityTab', 'New album'))
         new_album_button.clicked.connect(self.new_album)
         column.addWidget(new_album_button, 2, 1)
-        column.setRowStretch(1, 1)
+        column.setRowStretch(0, 1)
         yield column
         ## 3rd column
         column = QtWidgets.QGridLayout()
@@ -578,6 +607,167 @@ class TabWidget(PhotiniUploader):
         for key in upload_options:
             self.upload_prefs[key] = upload_options[key].isChecked()
         return self.upload_prefs, self.replace_prefs, doc_id
+
+
+    def _find_on_ipernity(self, image):
+        # get possible date range
+        if not image.metadata.date_taken:
+            return
+        precision = min(image.metadata.date_taken['precision'], 6)
+        min_taken_date = image.metadata.date_taken.truncate_datetime(
+            image.metadata.date_taken['datetime'], precision)
+        if precision >= 6:
+            max_taken_date = min_taken_date + timedelta(seconds=1)
+        elif precision >= 5:
+            max_taken_date = min_taken_date + timedelta(minutes=1)
+        elif precision >= 4:
+            max_taken_date = min_taken_date + timedelta(hours=1)
+        elif precision >= 3:
+            max_taken_date = min_taken_date + timedelta(days=1)
+        elif precision >= 2:
+            max_taken_date = min_taken_date + timedelta(days=31)
+        else:
+            max_taken_date = min_taken_date + timedelta(days=366)
+        max_taken_date -= timedelta(seconds=1)
+        # search Flickr
+        for photo in self.session.find_photos(min_taken_date, max_taken_date):
+            yield photo
+
+    def _find_local(self, photo, unknowns):
+        min_taken_date = datetime.strptime(
+            photo['dates']['created'], '%Y-%m-%d %H:%M:%S')
+        max_taken_date = min_taken_date + timedelta(seconds=1)
+        candidates = []
+        for candidate in unknowns:
+            if not candidate.metadata.date_taken:
+                continue
+            date_taken = candidate.metadata.date_taken['datetime']
+            if date_taken < min_taken_date or date_taken > max_taken_date:
+                continue
+            candidates.append(candidate)
+        if not candidates:
+            return None
+        rsp = requests.get(photo['thumb']['url'])
+        if rsp.status_code == 200:
+            ipernity_icon = rsp.content
+        else:
+            logger.error('HTTP error %d (%s)', rsp.status_code, photo['url_t'])
+            return None
+        # get user to choose matching image file
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('IpernityTab', 'Select an image'))
+        dialog.setLayout(ConfigFormLayout(wrapped=True))
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(ipernity_icon)
+        label = QtWidgets.QLabel()
+        label.setPixmap(pixmap)
+        dialog.layout().addRow(label, QtWidgets.QLabel(translate(
+            'IpernityTab', 'Which image file matches\nthis picture on Ipernity?')))
+        divider = QtWidgets.QFrame()
+        divider.setFrameStyle(QtWidgets.QFrame.HLine)
+        dialog.layout().addRow(divider)
+        buttons = {}
+        for candidate in candidates:
+            label = QtWidgets.QLabel()
+            pixmap = candidate.image.pixmap()
+            if pixmap:
+                label.setPixmap(pixmap)
+            else:
+                label.setText(candidate.image.text())
+            button = QtWidgets.QPushButton(
+                os.path.basename(candidate.path))
+            button.setToolTip(candidate.path)
+            button.setCheckable(True)
+            button.clicked.connect(dialog.accept)
+            dialog.layout().addRow(label, button)
+            buttons[button] = candidate
+        button = QtWidgets.QPushButton(translate('IpernityTab', 'No match'))
+        button.setDefault(True)
+        button.clicked.connect(dialog.reject)
+        dialog.layout().addRow('', button)
+        if execute(dialog) == QtWidgets.QDialog.Accepted:
+            for button, candidate in buttons.items():
+                if button.isChecked():
+                    return candidate
+        return None
+
+    def _merge_metadata(self, doc_id, image):
+        photo = self.session.get_info(doc_id)
+        if not photo:
+            return
+        del photo['thumbs']
+        md = image.metadata
+        # sync title
+        title = photo['title']
+        if md.title:
+            md.title = md.title.merge(
+                image.name + '(title)', 'ipernity title', title)
+        else:
+            md.title = title
+        # sync description
+        description = photo['description']
+        if md.description:
+            md.description = md.description.merge(
+                image.name + '(description)', 'ipernity description',
+                description)
+        else:
+            md.description = description
+        # sync keywords
+        tags = []
+        for tag in photo['tags']['tag']:
+            if tag['tag'] == 'uploaded:by=photini':
+                continue
+            tags.append(tag['tag'])
+        md.keywords = md.keywords.merge(
+            image.name + '(keywords)', 'ipernity tags', tags)
+        # sync location
+        if 'geo' in photo:
+            location = photo['geo']
+            latlong = LatLon((location['lat'], location['lng']))
+            if md.latlong:
+                md.latlong = md.latlong.merge(
+                    image.name + '(latlong)', 'ipernity location', latlong)
+            else:
+                md.latlong = latlong
+        # sync date_taken
+        date_taken = DateTime((
+            datetime.strptime(photo['dates']['created'], '%Y-%m-%d %H:%M:%S'),))
+        if md.date_taken:
+            md.date_taken = md.date_taken.merge(
+                image.name + '(date_taken)', 'ipernity date taken', date_taken)
+        else:
+            md.date_taken = date_taken
+
+    @QtSlot()
+    @catch_all
+    def sync_metadata(self):
+        # make list of known photo ids
+        doc_ids = {}
+        unknowns = []
+        for image in self.image_list.get_selected_images():
+            for keyword in image.metadata.keywords or []:
+                name_pred, sep, value = keyword.partition('=')
+                if name_pred == ID_TAG:
+                    doc_ids[value] = image
+                    break
+            else:
+                unknowns.append(image)
+        # try to find unknowns on Ipernity
+        for image in unknowns:
+            for photo in self._find_on_ipernity(image):
+                if photo['doc_id'] in doc_ids:
+                    continue
+                match = self._find_local(photo, unknowns)
+                if match:
+                    match.metadata.keywords = list(
+                        match.metadata.keywords or []) + [
+                            '{}={}'.format(ID_TAG, photo['doc_id'])]
+                    doc_ids[photo['doc_id']] = match
+                    unknowns.remove(match)
+        # merge Ipernity metadata into file
+        with Busy():
+            for doc_id, image in doc_ids.items():
+                self._merge_metadata(doc_id, image)
 
     @QtSlot()
     @catch_all
