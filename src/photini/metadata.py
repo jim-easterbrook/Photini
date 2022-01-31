@@ -984,6 +984,8 @@ class MD_String(MD_Value, str):
     def merge_item(this, other):
         if other in this:
             return this, False, False
+        if this in other:
+            return other, True, False
         return this + ' // ' + other, True, False
 
 
