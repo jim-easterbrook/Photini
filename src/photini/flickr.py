@@ -204,8 +204,7 @@ class FlickrSession(UploaderSession):
             if params['function'] == 'upload':
                 data = {}
                 # set some metadata with upload function
-                for key in ('visibility', 'content_type', 'safety_level',
-                            'meta'):
+                for key in ('privacy', 'content_type', 'safety_level', 'meta'):
                     if key == 'safety_level':
                         # upload function has different 'hidden' values
                         # than flickr.photos.setSafetyLevel
@@ -259,7 +258,7 @@ class FlickrSession(UploaderSession):
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
         metadata_set_func = {
-            'visibility':   'flickr.photos.setPerms',
+            'privacy':      'flickr.photos.setPerms',
             'permissions':  'flickr.photos.setPerms',
             'content_type': 'flickr.photos.setContentType',
             'safety_level': 'flickr.photos.setSafetyLevel',
@@ -348,21 +347,15 @@ class TabWidget(PhotiniUploader):
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(ConfigFormLayout(wrapped=True))
-        # visibility
-        self.widget['visibility'] = DropDownSelector(
-            ((translate('FlickrTab', 'Public'),
-              {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
-             (translate('FlickrTab', 'Private'),
-              {'is_friend': '0', 'is_family': '0', 'is_public': '0'}),
-             (translate('FlickrTab', 'Friends'),
-              {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
-             (translate('FlickrTab', 'Family'),
-              {'is_friend': '0', 'is_family': '1', 'is_public': '0'}),
-             (translate('FlickrTab', 'Friends & family'),
-              {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
-            default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
+        # privacy
+        self.widget['privacy'] = DropDownSelector(
+            ((translate('FlickrTab', 'Public'), '1'),
+             (translate('FlickrTab', 'Private'), '5'),
+             (translate('FlickrTab', 'Friends'), '2'),
+             (translate('FlickrTab', 'Family'), '3'),
+             (translate('FlickrTab', 'Friends & family'), '4')), default='1')
         group.layout().addRow(translate('FlickrTab', 'Viewing privacy'),
-                              self.widget['visibility'])
+                              self.widget['privacy'])
         # permissions
         self.widget['perm_comment'] = PermissionWidget()
         group.layout().addRow(translate('FlickrTab', 'Allow commenting'),
@@ -444,11 +437,18 @@ class TabWidget(PhotiniUploader):
         # flickr.photos.setPerms. perm_comment and perm_addmeta are
         # optional for flickr.photos.setPerms but not accepted by
         # https://up.flickr.com/services/upload/
-        permissions = dict(self.widget['visibility'].value())
+        privacy = {
+            '1': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
+            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
+            '3': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
+            '4': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
+            '5': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
+            }[self.widget['privacy'].value()]
+        permissions = dict(privacy)
         permissions['perm_comment'] = self.widget['perm_comment'].value()
         permissions['perm_addmeta'] = self.widget['perm_addmeta'].value()
         return {
-            'visibility': self.widget['visibility'].value(),
+            'privacy': privacy,
             'permissions': permissions,
             'safety_level': {
                 'safety_level': self.widget['safety_level'].value(),
@@ -512,6 +512,7 @@ class TabWidget(PhotiniUploader):
             self.add_set(*item)
 
     def finalise_config(self):
+        # get licences
         rsp = self.session.api_call(
             'flickr.photos.licenses.getInfo', auth=False)
         if not rsp:
@@ -523,6 +524,20 @@ class TabWidget(PhotiniUploader):
             values.append((licence['name'], licence['id']))
         if values:
             self.widget['license_id'].set_values(values, default='0')
+        # get user's default settings
+        for key, function in (
+                ('privacy', 'flickr.prefs.getPrivacy'),
+                ('safety_level', 'flickr.prefs.getSafetyLevel'),
+                ('hidden', 'flickr.prefs.getHidden'),
+                ('content_type', 'flickr.prefs.getContentType'),
+                ):
+            rsp = self.session.api_call(function)
+            if not rsp:
+                return
+            if key == 'hidden':
+                self.widget[key].setChecked(int(rsp['person'][key]) == 2)
+            else:
+                self.widget[key].set_value(str(rsp['person'][key]))
 
     def get_upload_params(self, image):
         # get user preferences for this upload
@@ -613,7 +628,7 @@ class TabWidget(PhotiniUploader):
         replace_options = {}
         replace_options['metadata'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Replace metadata'))
-        replace_options['visibility'] = QtWidgets.QCheckBox(
+        replace_options['privacy'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change viewing privacy'))
         replace_options['permissions'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change who can comment or tag'))

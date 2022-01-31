@@ -317,8 +317,11 @@ class DropDownSelector(ComboBox):
         for text, data in values:
             self.addItem(text, data)
         if default is not None:
-            self.setCurrentIndex(self.findData(default))
+            self.set_value(default)
         self.set_dropdown_width()
+
+    def set_value(self, value):
+        self.setCurrentIndex(self.findData(value))
 
     def value(self):
         return self.itemData(self.currentIndex())
