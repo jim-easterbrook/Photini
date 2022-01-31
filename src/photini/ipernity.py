@@ -585,7 +585,7 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate(
             'IpernityTab', 'Create new Ipernity album'))
-        dialog.setLayout(QtWidgets.QFormLayout())
+        dialog.setLayout(ConfigFormLayout())
         title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
         description = MultiLineEdit(spell_check=True)
