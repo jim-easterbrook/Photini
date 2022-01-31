@@ -206,9 +206,13 @@ class FlickrSession(UploaderSession):
                 # set some metadata with upload function
                 for key in ('visibility', 'content_type', 'safety_level',
                             'meta'):
-                    if key in params and params[key]:
-                        data.update(params[key])
-                        del(params[key])
+                    if key == 'safety_level':
+                        # upload function has different 'hidden' values
+                        # than flickr.photos.setSafetyLevel
+                        params[key]['hidden'] = str(
+                            int(params[key]['hidden']) + 1)
+                    data.update(params[key])
+                    del(params[key])
             else:
                 data = {'photo_id': photo_id}
             data['async'] = '1'
