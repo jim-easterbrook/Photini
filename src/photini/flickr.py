@@ -371,12 +371,11 @@ class TabWidget(PhotiniUploader):
         self.widget['perm_addmeta'] = PermissionWidget(default='2')
         group.layout().addRow(translate('FlickrTab', 'Allow tags and notes'),
                               self.widget['perm_addmeta'])
+        # licence
+        self.widget['license_id'] = DropDownSelector(())
+        group.layout().addRow(translate('FlickrTab', 'Licence'),
+                              self.widget['license_id'])
         column.addWidget(group, 0, 0)
-        # synchronise metadata
-        self.sync_button = QtWidgets.QPushButton(
-            translate('FlickrTab', 'Synchronise'))
-        self.sync_button.clicked.connect(self.sync_metadata)
-        column.addWidget(self.sync_button, 1, 0)
         yield column
         ## second column
         column = QtWidgets.QGridLayout()
@@ -393,12 +392,8 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(translate('FlickrTab', 'Safety level'),
                               self.widget['safety_level'])
         self.widget['hidden'] = HiddenWidget(
-            translate('FlickrTab', 'Hidden from search'))
+            translate('FlickrTab', 'Hide from search'))
         group.layout().addRow(self.widget['hidden'])
-        # licence
-        self.widget['license_id'] = DropDownSelector(())
-        group.layout().addRow(translate('FlickrTab', 'Licence'),
-                              self.widget['license_id'])
         # content type
         self.widget['content_type'] = DropDownSelector(
             ((translate('FlickrTab', 'Photo'), '1'),
@@ -408,6 +403,11 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(translate('FlickrTab', 'Content type'),
                               self.widget['content_type'])
         column.addWidget(group, 0, 0)
+        # synchronise metadata
+        self.sync_button = QtWidgets.QPushButton(
+            translate('FlickrTab', 'Synchronise'))
+        self.sync_button.clicked.connect(self.sync_metadata)
+        column.addWidget(self.sync_button, 1, 0)
         # create new set
         button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
         button.clicked.connect(self.new_set)
