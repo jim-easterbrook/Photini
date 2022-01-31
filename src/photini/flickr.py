@@ -205,11 +205,6 @@ class FlickrSession(UploaderSession):
                 data = {}
                 # set some metadata with upload function
                 for key in ('privacy', 'content_type', 'safety_level', 'meta'):
-                    if key == 'safety_level':
-                        # upload function has different 'hidden' values
-                        # than flickr.photos.setSafetyLevel
-                        params[key]['hidden'] = str(
-                            int(params[key]['hidden']) + 1)
                     data.update(params[key])
                     del(params[key])
             else:
@@ -270,6 +265,11 @@ class FlickrSession(UploaderSession):
             }
         for key in params:
             if params[key] and key in metadata_set_func:
+                if key == 'safety_level':
+                    # flickr.photos.setSafetyLevel has different
+                    # 'hidden' values than upload function
+                    params[key]['hidden'] = str(
+                        int(params[key]['hidden']) - 1)
                 rsp = self.api_call(metadata_set_func[key], post=True,
                                     photo_id=photo_id, **params[key])
                 if not rsp:
@@ -328,6 +328,14 @@ class PermissionWidget(DropDownSelector):
             default=default)
 
 
+class HiddenWidget(QtWidgets.QCheckBox):
+    def set_value(self, value):
+        self.setChecked(value == '2')
+
+    def value(self):
+        return ('1', '2')[self.isChecked()]
+
+
 class TabWidget(PhotiniUploader):
     session_factory = FlickrSession
 
@@ -384,7 +392,7 @@ class TabWidget(PhotiniUploader):
             default='1')
         group.layout().addRow(translate('FlickrTab', 'Safety level'),
                               self.widget['safety_level'])
-        self.widget['hidden'] = QtWidgets.QCheckBox(
+        self.widget['hidden'] = HiddenWidget(
             translate('FlickrTab', 'Hidden from search'))
         group.layout().addRow(self.widget['hidden'])
         # licence
@@ -452,7 +460,7 @@ class TabWidget(PhotiniUploader):
             'permissions': permissions,
             'safety_level': {
                 'safety_level': self.widget['safety_level'].value(),
-                'hidden'      : str(int(self.widget['hidden'].isChecked())),
+                'hidden'      : self.widget['hidden'].value(),
                 },
             'licence': {
                 'license_id'  : self.widget['license_id'].value(),
@@ -534,10 +542,7 @@ class TabWidget(PhotiniUploader):
             rsp = self.session.api_call(function)
             if not rsp:
                 return
-            if key == 'hidden':
-                self.widget[key].setChecked(int(rsp['person'][key]) == 2)
-            else:
-                self.widget[key].set_value(str(rsp['person'][key]))
+            self.widget[key].set_value(str(rsp['person'][key]))
 
     def get_upload_params(self, image):
         # get user preferences for this upload
@@ -633,7 +638,7 @@ class TabWidget(PhotiniUploader):
         replace_options['permissions'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change who can comment or tag'))
         replace_options['safety_level'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change safety level'))
+            translate('FlickrTab', 'Change safety and hidden'))
         replace_options['licence'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change licence'))
         replace_options['content_type'] = QtWidgets.QCheckBox(
