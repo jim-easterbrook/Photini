@@ -308,17 +308,11 @@ class TabWidget(PhotiniUploader):
             translate('IpernityTab', 'Who can:')), 0, 0)
         # visibility
         self.widget['visibility'] = DropDownSelector(
-            ((translate('IpernityTab', 'Everyone (public)'),
-              {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
-             (translate('IpernityTab', 'Only you (private)'),
-              {'is_friend': '0', 'is_family': '0', 'is_public': '0'}),
-             (translate('IpernityTab', 'Friends'),
-              {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
-             (translate('IpernityTab', 'Family'),
-              {'is_friend': '0', 'is_family': '1', 'is_public': '0'}),
-             (translate('IpernityTab', 'Family & friends'),
-              {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
-            default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
+            ((translate('IpernityTab', 'Everyone (public)'), '4'),
+             (translate('IpernityTab', 'Only you (private)'), '0'),
+             (translate('IpernityTab', 'Friends'), '2'),
+             (translate('IpernityTab', 'Family'), '1'),
+             (translate('IpernityTab', 'Family & friends'), '3')), default='4')
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'see the photo')), 1, 0)
         group.layout().addWidget(self.widget['visibility'], 2, 0)
@@ -386,8 +380,15 @@ class TabWidget(PhotiniUploader):
         for child in self.widget['albums'].children():
             if child.isWidgetType() and child.isChecked():
                 albums.append(child.property('album_id'))
+        visibility = {
+            '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
+            '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
+            '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
+            '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
+            '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
+            }[self.widget['visibility'].value()]
         return {
-            'visibility': self.widget['visibility'].value(),
+            'visibility': visibility,
             'permissions': {
                 'perm_comment': self.widget['perm_comment'].value(),
                 'perm_tag'    : self.widget['perm_tag'].value(),
