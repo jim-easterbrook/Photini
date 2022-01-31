@@ -301,14 +301,16 @@ class TabWidget(PhotiniUploader):
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
+        # "who can" group spans two columns
         group = QtWidgets.QGroupBox()
-        group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(ConfigFormLayout(wrapped=True))
+        group.setLayout(QtWidgets.QGridLayout())
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'Who can:')), 0, 0)
         # visibility
         self.widget['visibility'] = DropDownSelector(
             ((translate('IpernityTab', 'Everyone (public)'),
               {'is_friend': '0', 'is_family': '0', 'is_public': '1'}),
-             (translate('IpernityTab', 'Only me (private)'),
+             (translate('IpernityTab', 'Only you (private)'),
               {'is_friend': '0', 'is_family': '0', 'is_public': '0'}),
              (translate('IpernityTab', 'Friends'),
               {'is_friend': '1', 'is_family': '0', 'is_public': '0'}),
@@ -317,23 +319,26 @@ class TabWidget(PhotiniUploader):
              (translate('IpernityTab', 'Family & friends'),
               {'is_friend': '1', 'is_family': '1', 'is_public': '0'})),
             default={'is_friend': '0', 'is_family': '0', 'is_public': '1'})
-        group.layout().addRow(translate('IpernityTab', 'Who can: see it'),
-                              self.widget['visibility'])
-        # comment and tagging settings
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'see the photo')), 1, 0)
+        group.layout().addWidget(self.widget['visibility'], 2, 0)
+        # comment permission
         self.widget['perm_comment'] = PermissionWidget()
-        group.layout().addRow(translate('IpernityTab', ' add comments'),
-                              self.widget['perm_comment'])
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'post a comment')), 1, 1)
+        group.layout().addWidget(self.widget['perm_comment'], 2, 1)
+        # keywords & notes permission
         self.widget['perm_tag'] = PermissionWidget(default='4')
-        group.layout().addRow(translate('IpernityTab', ' add keywords, notes'),
-                              self.widget['perm_tag'])
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'add keywords, notes')), 3, 0)
+        group.layout().addWidget(self.widget['perm_tag'], 4, 0)
+        # people permission
         self.widget['perm_tagme'] = PermissionWidget(default='4')
-        group.layout().addRow(translate('IpernityTab', ' identify people'),
-                              self.widget['perm_tagme'])
-        column.addWidget(group, 0, 0)
-        yield column
-        ## second column
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('IpernityTab', 'identify people')), 3, 1)
+        group.layout().addWidget(self.widget['perm_tagme'], 4, 1)
+        column.addWidget(group, 0, 0, 1, 2)
+        # left hand column group
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(ConfigFormLayout(wrapped=True))
@@ -341,12 +346,18 @@ class TabWidget(PhotiniUploader):
         self.widget['license'] = LicenceWidget()
         group.layout().addRow(
             translate('IpernityTab', 'Licence'), self.widget['license'])
-        column.addWidget(group, 0, 0)
+        column.addWidget(group, 1, 0, 2, 1)
+        # right hand column group (empty)
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        group.setLayout(ConfigFormLayout(wrapped=True))
+        column.addWidget(group, 1, 1)
         # create new album
         new_album_button = QtWidgets.QPushButton(
             translate('IpernityTab', 'New album'))
         new_album_button.clicked.connect(self.new_album)
-        column.addWidget(new_album_button, 1, 0)
+        column.addWidget(new_album_button, 2, 1)
+        column.setRowStretch(1, 1)
         yield column
         ## 3rd column
         column = QtWidgets.QGridLayout()
