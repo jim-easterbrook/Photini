@@ -659,7 +659,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         min_taken_date, max_taken_date = self.date_range(image)
         # search remote service
-        for result in self.find_photos(min_taken_date, max_taken_date):
+        for result in self.session.find_photos(min_taken_date, max_taken_date):
             yield result
 
     def find_local(self, unknowns, date_taken, icon_url):
@@ -682,7 +682,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return None
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Select an image'))
-        dialog.setLayout(ConfigFormLayout(wrapped=True))
+        dialog.setLayout(ConfigFormLayout(wrapped=False))
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(remote_icon)
         label = QtWidgets.QLabel()

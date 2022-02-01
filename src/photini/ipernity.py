@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import hashlib
 import html
 import logging
@@ -177,7 +177,9 @@ class IpernitySession(UploaderSession):
             if not (rsp and rsp['docs']['doc']):
                 return
             for photo in rsp['docs']['doc']:
-                yield photo
+                date_taken = datetime.strptime(
+                    photo['dates']['created'], '%Y-%m-%d %H:%M:%S')
+                yield photo['doc_id'], date_taken, photo['thumb']['url']
             if page == int(rsp['docs']['pages']):
                 return
             page += 1
@@ -603,12 +605,6 @@ class TabWidget(PhotiniUploader):
         for key in upload_options:
             self.upload_prefs[key] = upload_options[key].isChecked()
         return self.upload_prefs, self.replace_prefs, doc_id
-
-    def find_photos(self, min_taken_date, max_taken_date):
-        for photo in self.session.find_photos(min_taken_date, max_taken_date):
-            date_taken = datetime.strptime(
-                photo['dates']['created'], '%Y-%m-%d %H:%M:%S')
-            yield photo['doc_id'], date_taken, photo['thumb']['url']
 
     def merge_metadata(self, doc_id, image):
         photo = self.session.get_info(doc_id)

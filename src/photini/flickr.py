@@ -16,7 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import html
 import logging
 import os
@@ -184,7 +184,9 @@ class FlickrSession(UploaderSession):
                 if not ('photos' in rsp and rsp['photos']['photo']):
                     return
             for photo in rsp['photos']['photo']:
-                yield photo
+                date_taken = datetime.strptime(
+                    photo['datetaken'], '%Y-%m-%d %H:%M:%S')
+                yield photo['id'], date_taken, photo['url_t']
             page += 1
 
     def progress(self, monitor):
@@ -679,12 +681,6 @@ class TabWidget(PhotiniUploader):
         for key in upload_options:
             self.upload_prefs[key] = upload_options[key].isChecked()
         return self.upload_prefs, self.replace_prefs, photo_id
-
-    def find_photos(self, min_taken_date, max_taken_date):
-        for photo in self.session.find_photos(min_taken_date, max_taken_date):
-            date_taken = datetime.strptime(
-                photo['datetaken'], '%Y-%m-%d %H:%M:%S')
-            yield photo['id'], date_taken, photo['url_t']
 
     _address_map = {
         'CountryName':   ('country',),
