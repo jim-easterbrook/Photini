@@ -17,12 +17,12 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
+from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import imghdr
 import logging
 import os
+import re
 import shutil
 import threading
 import time
@@ -30,6 +30,7 @@ import urllib
 
 import appdirs
 import keyring
+import requests
 
 from photini.configstore import key_store
 from photini.metadata import Metadata
@@ -240,6 +241,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.session = self.session_factory()
         self.session.connection_changed.connect(self.connection_changed)
         self.upload_worker = None
+        # dictionary of all widgets with parameter settings
+        self.widget = {}
+        # dictionary of control buttons
+        self.buttons = {}
         ## first column
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -260,12 +265,12 @@ class PhotiniUploader(QtWidgets.QWidget):
         layout.addWidget(user_group, 0, 0)
         layout.setRowStretch(0, 1)
         # connect / disconnect button
-        self.user_connect = StartStopButton(
+        self.buttons['connect'] = StartStopButton(
             translate('UploaderTabsAll', 'Log in'),
             translate('UploaderTabsAll', 'Log out'))
-        self.user_connect.click_start.connect(self.log_in)
-        self.user_connect.click_stop.connect(self.session.log_out)
-        layout.addWidget(self.user_connect, 1, 0)
+        self.buttons['connect'].click_start.connect(self.log_in)
+        self.buttons['connect'].click_stop.connect(self.session.log_out)
+        layout.addWidget(self.buttons['connect'], 1, 0)
         ## other columns are 'service' specific
         self.config_layouts = []
         column_count = 1
@@ -286,13 +291,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         layout.setColumnStretch(1, 1)
         self.upload_progress({'label': None, 'value': 0})
         # upload button
-        self.upload_button = StartStopButton(
+        self.buttons['upload'] = StartStopButton(
             translate('UploaderTabsAll', 'Start upload'),
             translate('UploaderTabsAll', 'Stop upload'))
-        self.upload_button.setEnabled(False)
-        self.upload_button.click_start.connect(self.start_upload)
-        self.upload_button.click_stop.connect(self.stop_upload)
-        layout.addWidget(self.upload_button, 0, 2)
+        self.buttons['upload'].setEnabled(False)
+        self.buttons['upload'].click_start.connect(self.start_upload)
+        self.buttons['upload'].click_stop.connect(self.stop_upload)
+        layout.addWidget(self.buttons['upload'], 0, 2)
         # initialise as not connected
         self.connection_changed(False)
 
@@ -319,9 +324,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         else:
             self.show_user(None, None)
             self.show_album_list([])
-        self.user_connect.set_checked(connected)
+        self.buttons['connect'].set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
-        self.user_connect.setEnabled(not self.upload_worker)
+        self.buttons['connect'].setEnabled(not self.upload_worker)
         self.enable_upload_button()
 
     def finalise_config(self):
@@ -336,7 +341,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     widget.setEnabled(enabled)
 
     def refresh(self):
-        if not self.user_connect.is_checked():
+        if not self.buttons['connect'].is_checked():
             self.log_in(do_auth=False)
         self.enable_upload_button()
 
@@ -476,11 +481,11 @@ class PhotiniUploader(QtWidgets.QWidget):
                 continue
             upload_list.append((image, convert, params))
         if not upload_list:
-            self.upload_button.setChecked(False)
+            self.buttons['upload'].setChecked(False)
             return
-        self.upload_button.set_checked(True)
+        self.buttons['upload'].set_checked(True)
         self.enable_config(False)
-        self.user_connect.setEnabled(False)
+        self.buttons['connect'].setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory, upload_list)
@@ -537,16 +542,16 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def uploader_finished(self):
-        self.upload_button.set_checked(False)
+        self.buttons['upload'].set_checked(False)
         self.enable_config(True)
-        self.user_connect.setEnabled(True)
+        self.buttons['connect'].setEnabled(True)
         self.upload_worker = None
         self.enable_upload_button()
 
     @QtSlot()
     @catch_all
     def log_in(self, do_auth=True):
-        with DisableWidget(self.user_connect):
+        with DisableWidget(self.buttons['connect']):
             with Busy():
                 connect = self.session.open_connection()
             if connect is None:
@@ -614,14 +619,137 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.enable_upload_button(selection=selection)
 
     def enable_upload_button(self, selection=None):
-        if self.upload_button.is_checked():
+        if self.buttons['upload'].is_checked():
             # can always cancel upload in progress
-            self.upload_button.setEnabled(True)
+            self.buttons['upload'].setEnabled(True)
             return
-        if not self.user_connect.is_checked():
+        if not self.buttons['connect'].is_checked():
             # can't upload if not logged in
-            self.upload_button.setEnabled(False)
+            self.buttons['upload'].setEnabled(False)
             return
         if selection is None:
             selection = self.image_list.get_selected_images()
-        self.upload_button.setEnabled(len(selection) > 0)
+        self.buttons['upload'].setEnabled(len(selection) > 0)
+        if 'sync' in self.buttons:
+            self.buttons['sync'].setEnabled(
+                len(selection) > 0 and self.buttons['connect'].is_checked())
+
+    def date_range(self, image):
+        precision = min(image.metadata.date_taken['precision'], 6)
+        min_taken_date = image.metadata.date_taken.truncate_datetime(
+            image.metadata.date_taken['datetime'], precision)
+        if precision >= 6:
+            max_taken_date = min_taken_date + timedelta(seconds=1)
+        elif precision >= 5:
+            max_taken_date = min_taken_date + timedelta(minutes=1)
+        elif precision >= 4:
+            max_taken_date = min_taken_date + timedelta(hours=1)
+        elif precision >= 3:
+            max_taken_date = min_taken_date + timedelta(days=1)
+        elif precision >= 2:
+            max_taken_date = min_taken_date + timedelta(days=31)
+        else:
+            max_taken_date = min_taken_date + timedelta(days=366)
+        max_taken_date -= timedelta(seconds=1)
+        return min_taken_date, max_taken_date
+
+    def find_remote(self, image):
+        # get possible date range
+        if not image.metadata.date_taken:
+            return
+        min_taken_date, max_taken_date = self.date_range(image)
+        # search remote service
+        for result in self.find_photos(min_taken_date, max_taken_date):
+            yield result
+
+    def find_local(self, unknowns, date_taken, icon_url):
+        candidates = []
+        for candidate in unknowns:
+            if not candidate.metadata.date_taken:
+                continue
+            min_taken_date, max_taken_date = self.date_range(candidate)
+            if date_taken < min_taken_date or date_taken > max_taken_date:
+                continue
+            candidates.append(candidate)
+        if not candidates:
+            return None
+        # get user to choose matching image file
+        rsp = requests.get(icon_url)
+        if rsp.status_code == 200:
+            remote_icon = rsp.content
+        else:
+            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
+            return None
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('UploaderTabsAll', 'Select an image'))
+        dialog.setLayout(ConfigFormLayout(wrapped=True))
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(remote_icon)
+        label = QtWidgets.QLabel()
+        label.setPixmap(pixmap)
+        dialog.layout().addRow(label, QtWidgets.QLabel(translate(
+            'UploaderTabsAll',
+            'Which image file matches\nthis picture on {}?'.format(
+                self.service_name))))
+        divider = QtWidgets.QFrame()
+        divider.setFrameStyle(QtWidgets.QFrame.HLine)
+        dialog.layout().addRow(divider)
+        buttons = {}
+        for candidate in candidates:
+            label = QtWidgets.QLabel()
+            pixmap = candidate.image.pixmap()
+            if pixmap:
+                label.setPixmap(pixmap)
+            else:
+                label.setText(candidate.image.text())
+            button = QtWidgets.QPushButton(
+                os.path.basename(candidate.path))
+            button.setToolTip(candidate.path)
+            button.setCheckable(True)
+            button.clicked.connect(dialog.accept)
+            dialog.layout().addRow(label, button)
+            buttons[button] = candidate
+        button = QtWidgets.QPushButton(translate('UploaderTabsAll', 'No match'))
+        button.setDefault(True)
+        button.clicked.connect(dialog.reject)
+        dialog.layout().addRow('', button)
+        if execute(dialog) == QtWidgets.QDialog.Accepted:
+            for button, candidate in buttons.items():
+                if button.isChecked():
+                    return candidate
+        return None
+
+    @QtSlot()
+    @catch_all
+    def sync_metadata(self):
+        machine_tag = re.compile('^(.+):(.+)=(.+)$')
+        # make list of known photo ids
+        photo_ids = {}
+        unknowns = []
+        for image in self.image_list.get_selected_images():
+            for keyword in image.metadata.keywords or []:
+                match = machine_tag.match(keyword)
+                if match:
+                    ns, predicate, value = match.groups()
+                    if (ns == self.session.name and
+                            predicate in ('photo_id', 'doc_id', 'id')):
+                        photo_ids[value] = image
+                        break
+            else:
+                unknowns.append(image)
+        # try to find unknowns on remote
+        for image in unknowns:
+            for photo_id, date_taken, icon_url in self.find_remote(image):
+                if photo_id in photo_ids:
+                    continue
+                match = self.find_local(unknowns, date_taken, icon_url)
+                if match:
+                    match.metadata.keywords = list(
+                        match.metadata.keywords or []) + [
+                            '{}:id={}'.format(self.session.name, photo_id)]
+                    photo_ids[photo_id] = match
+                    unknowns.remove(match)
+        # merge remote metadata into file
+        with Busy():
+            for photo_id, image in photo_ids.items():
+                self.merge_metadata(photo_id, image)

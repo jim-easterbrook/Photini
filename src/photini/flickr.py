@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import datetime, timedelta
 import html
 import logging
@@ -169,7 +167,7 @@ class FlickrSession(UploaderSession):
 
     def get_info(self, photo_id):
         rsp = self.api_call(
-            'flickr.photos.getInfo', photo_id=photo_id, auth=False)
+            'flickr.photos.getInfo', photo_id=photo_id)
         if not rsp:
             return None
         return rsp['photo']
@@ -180,7 +178,7 @@ class FlickrSession(UploaderSession):
         while True:
             with Busy():
                 rsp = self.api_call(
-                    'flickr.people.getPhotos', auth=False,
+                    'flickr.people.getPhotos',
                     user_id=self.cached_data['nsid'],
                     page=page, extras='date_taken,url_t',
                     min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -347,8 +345,6 @@ class TabWidget(PhotiniUploader):
         self.service_name = translate('FlickrTab', 'Flickr')
         self.replace_prefs = {'metadata': True}
         self.upload_prefs = {}
-        # dictionary of all widgets with parameter settings
-        self.widget = {}
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
@@ -404,10 +400,10 @@ class TabWidget(PhotiniUploader):
                               self.widget['content_type'])
         column.addWidget(group, 0, 0)
         # synchronise metadata
-        self.sync_button = QtWidgets.QPushButton(
+        self.buttons['sync'] = QtWidgets.QPushButton(
             translate('FlickrTab', 'Synchronise'))
-        self.sync_button.clicked.connect(self.sync_metadata)
-        column.addWidget(self.sync_button, 1, 0)
+        self.buttons['sync'].clicked.connect(self.sync_metadata)
+        column.addWidget(self.buttons['sync'], 1, 0)
         # create new set
         button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
         button.clicked.connect(self.new_set)
@@ -686,93 +682,11 @@ class TabWidget(PhotiniUploader):
             self.upload_prefs[key] = upload_options[key].isChecked()
         return self.upload_prefs, self.replace_prefs, photo_id
 
-    def _find_on_flickr(self, image):
-        # get possible date range
-        if not image.metadata.date_taken:
-            return
-        precision = min(image.metadata.date_taken['precision'], 6)
-        min_taken_date = image.metadata.date_taken.truncate_datetime(
-            image.metadata.date_taken['datetime'], precision)
-        if precision >= 6:
-            max_taken_date = min_taken_date + timedelta(seconds=1)
-        elif precision >= 5:
-            max_taken_date = min_taken_date + timedelta(minutes=1)
-        elif precision >= 4:
-            max_taken_date = min_taken_date + timedelta(hours=1)
-        elif precision >= 3:
-            max_taken_date = min_taken_date + timedelta(days=1)
-        elif precision >= 2:
-            max_taken_date = min_taken_date + timedelta(days=31)
-        else:
-            max_taken_date = min_taken_date + timedelta(days=366)
-        max_taken_date -= timedelta(seconds=1)
-        # search Flickr
+    def find_photos(self, min_taken_date, max_taken_date):
         for photo in self.session.find_photos(min_taken_date, max_taken_date):
-            yield photo
-
-    def _find_local(self, photo, unknowns):
-        granularity = int(photo['datetakengranularity'])
-        min_taken_date = datetime.strptime(
-            photo['datetaken'], '%Y-%m-%d %H:%M:%S')
-        if granularity <= 0:
-            max_taken_date = min_taken_date + timedelta(seconds=1)
-        elif granularity <= 4:
-            max_taken_date = min_taken_date + timedelta(days=31)
-        else:
-            max_taken_date = min_taken_date + timedelta(days=366)
-        candidates = []
-        for candidate in unknowns:
-            if not candidate.metadata.date_taken:
-                continue
-            date_taken = candidate.metadata.date_taken['datetime']
-            if date_taken < min_taken_date or date_taken > max_taken_date:
-                continue
-            candidates.append(candidate)
-        if not candidates:
-            return None
-        rsp = requests.get(photo['url_t'])
-        if rsp.status_code == 200:
-            flickr_icon = rsp.content
-        else:
-            logger.error('HTTP error %d (%s)', rsp.status_code, photo['url_t'])
-            return None
-        # get user to choose matching image file
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('FlickrTab', 'Select an image'))
-        dialog.setLayout(ConfigFormLayout(wrapped=True))
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(flickr_icon)
-        label = QtWidgets.QLabel()
-        label.setPixmap(pixmap)
-        dialog.layout().addRow(label, QtWidgets.QLabel(translate(
-            'FlickrTab', 'Which image file matches\nthis picture on Flickr?')))
-        divider = QtWidgets.QFrame()
-        divider.setFrameStyle(QtWidgets.QFrame.HLine)
-        dialog.layout().addRow(divider)
-        buttons = {}
-        for candidate in candidates:
-            label = QtWidgets.QLabel()
-            pixmap = candidate.image.pixmap()
-            if pixmap:
-                label.setPixmap(pixmap)
-            else:
-                label.setText(candidate.image.text())
-            button = QtWidgets.QPushButton(
-                os.path.basename(candidate.path))
-            button.setToolTip(candidate.path)
-            button.setCheckable(True)
-            button.clicked.connect(dialog.accept)
-            dialog.layout().addRow(label, button)
-            buttons[button] = candidate
-        button = QtWidgets.QPushButton(translate('FlickrTab', 'No match'))
-        button.setDefault(True)
-        button.clicked.connect(dialog.reject)
-        dialog.layout().addRow('', button)
-        if execute(dialog) == QtWidgets.QDialog.Accepted:
-            for button, candidate in buttons.items():
-                if button.isChecked():
-                    return candidate
-        return None
+            date_taken = datetime.strptime(
+                photo['datetaken'], '%Y-%m-%d %H:%M:%S')
+            yield photo['id'], date_taken, photo['url_t']
 
     _address_map = {
         'CountryName':   ('country',),
@@ -780,7 +694,7 @@ class TabWidget(PhotiniUploader):
         'City':          ('neighbourhood', 'locality'),
         }
 
-    def _merge_metadata(self, photo_id, image):
+    def merge_metadata(self, photo_id, image):
         photo = self.session.get_info(photo_id)
         if not photo:
             return
@@ -854,37 +768,6 @@ class TabWidget(PhotiniUploader):
 
     @QtSlot()
     @catch_all
-    def sync_metadata(self):
-        # make list of known photo ids
-        photo_ids = {}
-        unknowns = []
-        for image in self.image_list.get_selected_images():
-            for keyword in image.metadata.keywords or []:
-                name_pred, sep, value = keyword.partition('=')
-                if name_pred == ID_TAG:
-                    photo_ids[value] = image
-                    break
-            else:
-                unknowns.append(image)
-        # try to find unknowns on Flickr
-        for image in unknowns:
-            for photo in self._find_on_flickr(image):
-                if photo['id'] in photo_ids:
-                    continue
-                match = self._find_local(photo, unknowns)
-                if match:
-                    match.metadata.keywords = list(
-                        match.metadata.keywords or []) + [
-                            '{}={}'.format(ID_TAG, photo['id'])]
-                    photo_ids[photo['id']] = match
-                    unknowns.remove(match)
-        # merge Flickr metadata into file
-        with Busy():
-            for photo_id, image in photo_ids.items():
-                self._merge_metadata(photo_id, image)
-
-    @QtSlot()
-    @catch_all
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
@@ -909,8 +792,3 @@ class TabWidget(PhotiniUploader):
         description = description.toPlainText()
         widget = self.add_set(title, description, None, index=0)
         widget.setChecked(True)
-
-    def new_selection(self, selection):
-        super(TabWidget, self).new_selection(selection)
-        self.sync_button.setEnabled(
-            len(selection) > 0 and self.user_connect.is_checked())
