@@ -150,18 +150,18 @@ class FlickrSession(UploaderSession):
         return self.cached_data['user']
 
     def get_albums(self):
-        if 'sets' in self.cached_data:
-            return self.cached_data['sets']
-        self.cached_data['sets'] = []
-        sets = self.api_call('flickr.photosets.getList', auth=False,
-                             user_id=self.cached_data['nsid'])
-        if not sets:
-            return self.cached_data['sets']
-        for item in sets['photosets']['photoset']:
-            self.cached_data['sets'].append((
+        if 'albums' in self.cached_data:
+            return self.cached_data['albums']
+        self.cached_data['albums'] = []
+        albums = self.api_call('flickr.photosets.getList', auth=False,
+                               user_id=self.cached_data['nsid'])
+        if not albums:
+            return self.cached_data['albums']
+        for item in albums['photosets']['photoset']:
+            self.cached_data['albums'].append((
                 item['title']['_content'], item['description']['_content'],
                 item['id']))
-        return self.cached_data['sets']
+        return self.cached_data['albums']
 
     def get_info(self, photo_id):
         rsp = self.api_call(
@@ -279,18 +279,18 @@ class FlickrSession(UploaderSession):
             if 'photo' in rsp and 'location' in rsp['photo']:
                 self.api_call('flickr.photos.geo.removeLocation',
                               post=True, photo_id=photo_id)
-        # add to or remove from sets
-        if 'sets' not in params:
+        # add to or remove from albums
+        if 'albums' not in params:
             return ''
-        current_sets = {}
+        current_albums = {}
         if params['function'] != 'upload':
-            # get sets existing photo is in
+            # get albums existing photo is in
             rsp = self.api_call(
                 'flickr.photos.getAllContexts', photo_id=photo_id)
             if 'set' in rsp:
                 for p_set in rsp['set']:
-                    current_sets[p_set['id']] = p_set
-        for widget in params['sets']:
+                    current_albums[p_set['id']] = p_set
+        for widget in params['albums']:
             photoset_id = widget.property('photoset_id')
             if not photoset_id:
                 # create new set
@@ -301,15 +301,15 @@ class FlickrSession(UploaderSession):
                     description=widget.toolTip())
                 if rsp:
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
-            elif photoset_id in current_sets:
+            elif photoset_id in current_albums:
                 # photo is already in the set
-                del current_sets[photoset_id]
+                del current_albums[photoset_id]
             else:
                 # add to existing set
                 self.api_call('flickr.photosets.addPhoto', post=True,
                               photo_id=photo_id, photoset_id=photoset_id)
-        # remove from any other sets
-        for p_set in current_sets.values():
+        # remove from any other albums
+        for p_set in current_albums.values():
             self.api_call('flickr.photosets.removePhoto', post=True,
                           photo_id=photo_id, photoset_id=p_set['id'])
         return ''
@@ -408,33 +408,12 @@ class TabWidget(PhotiniUploader):
         button.clicked.connect(self.new_set)
         column.addWidget(button, 2, 0)
         yield column
-        ## 3rd column
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
-        group = QtWidgets.QGroupBox()
-        group.setLayout(QtWidgets.QVBoxLayout())
-        # list of sets widget
-        group.layout().addWidget(
-            QtWidgets.QLabel(translate('FlickrTab', 'Add to albums')))
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
-        self.widget['sets'] = QtWidgets.QWidget()
-        self.widget['sets'].setLayout(QtWidgets.QVBoxLayout())
-        self.widget['sets'].layout().setSpacing(0)
-        self.widget['sets'].layout().setSizeConstraint(
-            QtWidgets.QLayout.SetMinAndMaxSize)
-        scrollarea.setWidget(self.widget['sets'])
-        self.widget['sets'].setAutoFillBackground(False)
-        group.layout().addWidget(scrollarea)
-        column.addWidget(group, 0, 0)
-        yield column
 
     def get_fixed_params(self):
-        sets = []
-        for child in self.widget['sets'].children():
+        albums = []
+        for child in self.widget['albums'].children():
             if child.isWidgetType() and child.isChecked():
-                sets.append(child)
+                albums.append(child)
         # is_public etc are optional parameters to
         # https://up.flickr.com/services/upload/ but required for
         # flickr.photos.setPerms. perm_comment and perm_addmeta are
@@ -463,13 +442,13 @@ class TabWidget(PhotiniUploader):
             'content_type': {
                 'content_type': self.widget['content_type'].value(),
                 },
-            'sets': sets,
+            'albums': albums,
             }
 
-    def clear_sets(self):
-        for child in self.widget['sets'].children():
+    def clear_albums(self):
+        for child in self.widget['albums'].children():
             if child.isWidgetType():
-                self.widget['sets'].layout().removeWidget(child)
+                self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
 
     def add_set(self, title, description, photoset_id, index=-1):
@@ -478,9 +457,9 @@ class TabWidget(PhotiniUploader):
             widget.setToolTip(html.unescape(description))
         widget.setProperty('photoset_id', photoset_id)
         if index >= 0:
-            self.widget['sets'].layout().insertWidget(index, widget)
+            self.widget['albums'].layout().insertWidget(index, widget)
         else:
-            self.widget['sets'].layout().addWidget(widget)
+            self.widget['albums'].layout().addWidget(widget)
         return widget
 
     def get_conversion_function(self, image, params):
@@ -510,7 +489,7 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def show_album_list(self, albums):
-        self.clear_sets()
+        self.clear_albums()
         for item in albums:
             self.add_set(*item)
 
@@ -638,7 +617,7 @@ class TabWidget(PhotiniUploader):
             translate('FlickrTab', 'Change licence'))
         replace_options['content_type'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change content type'))
-        replace_options['sets'] = QtWidgets.QCheckBox(
+        replace_options['albums'] = QtWidgets.QCheckBox(
             translate('FlickrTab', 'Change album membership'))
         for key in self.replace_prefs:
             replace_options[key].setChecked(self.replace_prefs[key])

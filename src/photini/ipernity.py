@@ -379,27 +379,6 @@ class TabWidget(PhotiniUploader):
         column.addWidget(new_album_button, 2, 1)
         column.setRowStretch(0, 1)
         yield column
-        ## 3rd column
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
-        # list of albums widget
-        group = QtWidgets.QGroupBox()
-        group.setLayout(QtWidgets.QVBoxLayout())
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('IpernityTab', 'Add to albums')))
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
-        self.widget['albums'] = QtWidgets.QWidget()
-        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
-        self.widget['albums'].layout().setSpacing(0)
-        self.widget['albums'].layout().setSizeConstraint(
-            QtWidgets.QLayout.SetMinAndMaxSize)
-        scrollarea.setWidget(self.widget['albums'])
-        self.widget['albums'].setAutoFillBackground(False)
-        group.layout().addWidget(scrollarea)
-        column.addWidget(group, 0, 0)
-        yield column
 
     def get_fixed_params(self):
         albums = []

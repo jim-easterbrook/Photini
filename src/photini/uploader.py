@@ -251,18 +251,18 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.layout().addLayout(layout, 0, 0)
         # user details
         self.user = {}
-        user_group = QtWidgets.QGroupBox()
-        user_group.setMinimumWidth(width_for_text(user_group, 'x' * 17))
-        user_group.setLayout(QtWidgets.QVBoxLayout())
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 17))
+        group.setLayout(QtWidgets.QVBoxLayout())
         self.user_photo = QtWidgets.QLabel()
         self.user_photo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-        user_group.layout().addWidget(self.user_photo)
+        group.layout().addWidget(self.user_photo)
         self.user_name = QtWidgets.QLabel()
         self.user_name.setWordWrap(True)
         self.user_name.setMinimumWidth(10)
-        user_group.layout().addWidget(self.user_name)
-        user_group.layout().addStretch(1)
-        layout.addWidget(user_group, 0, 0)
+        group.layout().addWidget(self.user_name)
+        group.layout().addStretch(1)
+        layout.addWidget(group, 0, 0)
         layout.setRowStretch(0, 1)
         # connect / disconnect button
         self.buttons['connect'] = StartStopButton(
@@ -271,13 +271,35 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.buttons['connect'].click_start.connect(self.log_in)
         self.buttons['connect'].click_stop.connect(self.session.log_out)
         layout.addWidget(self.buttons['connect'], 1, 0)
-        ## other columns are 'service' specific
+        ## middle columns are 'service' specific
         self.config_layouts = []
         column_count = 1
         for layout in self.config_columns():
             self.config_layouts.append(layout)
             self.layout().addLayout(layout, 0, column_count)
             column_count += 1
+        ## last column is list of albums
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        group = QtWidgets.QGroupBox()
+        group.setLayout(QtWidgets.QVBoxLayout())
+        # list of albums widget
+        group.layout().addWidget(
+            QtWidgets.QLabel(translate('UploaderTabsAll', 'Add to albums')))
+        scrollarea = QtWidgets.QScrollArea()
+        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
+        self.widget['albums'] = QtWidgets.QWidget()
+        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
+        self.widget['albums'].layout().setSpacing(0)
+        self.widget['albums'].layout().setSizeConstraint(
+            QtWidgets.QLayout.SetMinAndMaxSize)
+        scrollarea.setWidget(self.widget['albums'])
+        self.widget['albums'].setAutoFillBackground(False)
+        group.layout().addWidget(scrollarea)
+        column.addWidget(group, 0, 0)
+        self.layout().addLayout(column, 0, column_count)
+        column_count += 1
         ## bottom row
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)

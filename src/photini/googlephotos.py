@@ -237,37 +237,16 @@ class TabWidget(PhotiniUploader):
         column.addWidget(new_set_button, 1, 0)
         column.setRowStretch(0, 1)
         yield column
-        ## second column
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
-        # list of sets widget
-        sets_group = QtWidgets.QGroupBox()
-        sets_group.setLayout(QtWidgets.QVBoxLayout())
-        sets_group.layout().addWidget(
-            QtWidgets.QLabel(translate('GooglePhotosTab', 'Add to albums')))
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea { background-color: transparent }")
-        self.sets_widget = QtWidgets.QWidget()
-        self.sets_widget.setLayout(QtWidgets.QVBoxLayout())
-        self.sets_widget.layout().setSpacing(0)
-        self.sets_widget.layout().setSizeConstraint(
-            QtWidgets.QLayout.SetMinAndMaxSize)
-        scrollarea.setWidget(self.sets_widget)
-        self.sets_widget.setAutoFillBackground(False)
-        sets_group.layout().addWidget(scrollarea)
-        column.addWidget(sets_group, 0, 0)
-        yield column
 
-    def clear_sets(self):
-        for child in self.sets_widget.children():
+    def clear_albums(self):
+        for child in self.widget['albums'].children():
             if child.isWidgetType():
-                self.sets_widget.layout().removeWidget(child)
+                self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
 
     def checked_albums(self):
         result = []
-        for child in self.sets_widget.children():
+        for child in self.widget['albums'].children():
             if child.isWidgetType() and child.isChecked():
                 result.append(child.property('id'))
         return result
@@ -277,9 +256,9 @@ class TabWidget(PhotiniUploader):
         widget.setProperty('id', album['id'])
         widget.setEnabled(album['isWriteable'])
         if index >= 0:
-            self.sets_widget.layout().insertWidget(index, widget)
+            self.widget['albums'].layout().insertWidget(index, widget)
         else:
-            self.sets_widget.layout().addWidget(widget)
+            self.widget['albums'].layout().addWidget(widget)
         return widget
 
     def get_conversion_function(self, image, params):
@@ -308,7 +287,7 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def show_album_list(self, albums):
-        self.clear_sets()
+        self.clear_albums()
         for album in albums:
             self.add_album(album)
 
