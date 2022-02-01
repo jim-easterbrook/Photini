@@ -28,7 +28,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import DateTime, LatLon
 from photini.pyqt import (
-    Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
+    catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 
@@ -167,13 +167,12 @@ class IpernitySession(UploaderSession):
         # search Ipernity
         page = 1
         while True:
-            with Busy():
-                rsp = self.api_call(
-                    'doc.search', user_id=self.cached_data['user_id'],
-                    media='photo,video', page=str(page),
-                    created_min=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    created_max=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    extra='dates', thumbsize='100')
+            rsp = self.api_call(
+                'doc.search', user_id=self.cached_data['user_id'],
+                media='photo,video', page=str(page),
+                created_min=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                created_max=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                extra='dates', thumbsize='100')
             if not (rsp and rsp['docs']['doc']):
                 return
             for photo in rsp['docs']['doc']:

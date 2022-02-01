@@ -36,7 +36,7 @@ from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, DisableWidget, execute, Qt, QtCore, QtGui, QtSignal,
-    QtSlot, QtWidgets, StartStopButton, width_for_text)
+    QtSlot, QtWidgets, StartStopButton, UnBusy, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -713,10 +713,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         button.setDefault(True)
         button.clicked.connect(dialog.reject)
         dialog.layout().addRow('', button)
-        if execute(dialog) == QtWidgets.QDialog.Accepted:
-            for button, candidate in buttons.items():
-                if button.isChecked():
-                    return candidate
+        with UnBusy():
+            if execute(dialog) == QtWidgets.QDialog.Accepted:
+                for button, candidate in buttons.items():
+                    if button.isChecked():
+                        return candidate
         return None
 
     _machine_tag = re.compile('^(.+):(.+)=(.+)$')
@@ -734,31 +735,30 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def sync_metadata(self):
-        machine_tag = re.compile('^(.+):(.+)=(.+)$')
-        # make list of known photo ids
-        photo_ids = {}
-        unknowns = []
-        for image in self.image_list.get_selected_images():
-            for keyword in image.metadata.keywords or []:
-                photo_id = self.uploaded_id(keyword)
-                if photo_id:
-                    photo_ids[photo_id] = image
-                    break
-            else:
-                unknowns.append(image)
-        # try to find unknowns on remote
-        for image in unknowns:
-            for photo_id, date_taken, icon_url in self.find_remote(image):
-                if photo_id in photo_ids:
-                    continue
-                match = self.find_local(unknowns, date_taken, icon_url)
-                if match:
-                    match.metadata.keywords = list(
-                        match.metadata.keywords or []) + [
-                            '{}:id={}'.format(self.session.name, photo_id)]
-                    photo_ids[photo_id] = match
-                    unknowns.remove(match)
-        # merge remote metadata into file
         with Busy():
+            # make list of known photo ids
+            photo_ids = {}
+            unknowns = []
+            for image in self.image_list.get_selected_images():
+                for keyword in image.metadata.keywords or []:
+                    photo_id = self.uploaded_id(keyword)
+                    if photo_id:
+                        photo_ids[photo_id] = image
+                        break
+                else:
+                    unknowns.append(image)
+            # try to find unknowns on remote
+            for image in unknowns:
+                for photo_id, date_taken, icon_url in self.find_remote(image):
+                    if photo_id in photo_ids:
+                        continue
+                    match = self.find_local(unknowns, date_taken, icon_url)
+                    if match:
+                        match.metadata.keywords = list(
+                            match.metadata.keywords or []) + [
+                                '{}:id={}'.format(self.session.name, photo_id)]
+                        photo_ids[photo_id] = match
+                        unknowns.remove(match)
+            # merge remote metadata into file
             for photo_id, image in photo_ids.items():
                 self.merge_metadata(photo_id, image)

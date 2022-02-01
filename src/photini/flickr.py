@@ -29,7 +29,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import DateTime, LatLon, Location
 from photini.pyqt import (
-    Busy, catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
+    catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 
@@ -174,15 +174,14 @@ class FlickrSession(UploaderSession):
         # search Flickr
         page = 1
         while True:
-            with Busy():
-                rsp = self.api_call(
-                    'flickr.people.getPhotos',
-                    user_id=self.cached_data['nsid'],
-                    page=page, extras='date_taken,url_t',
-                    min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
-                if not ('photos' in rsp and rsp['photos']['photo']):
-                    return
+            rsp = self.api_call(
+                'flickr.people.getPhotos',
+                user_id=self.cached_data['nsid'],
+                page=page, extras='date_taken,url_t',
+                min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+                max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
+            if not ('photos' in rsp and rsp['photos']['photo']):
+                return
             for photo in rsp['photos']['photo']:
                 date_taken = datetime.strptime(
                     photo['datetaken'], '%Y-%m-%d %H:%M:%S')

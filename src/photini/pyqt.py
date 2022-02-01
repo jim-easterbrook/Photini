@@ -228,6 +228,22 @@ def Busy():
 
 
 @contextmanager
+def UnBusy():
+    cursors = []
+    while True:
+        cursor = QtWidgets.QApplication.overrideCursor()
+        if not cursor:
+            break
+        cursors.append(cursor.shape())
+        QtWidgets.QApplication.restoreOverrideCursor()
+    try:
+        yield
+    finally:
+        while cursors:
+            QtWidgets.QApplication.setOverrideCursor(cursors.pop())
+
+
+@contextmanager
 def DisableWidget(widget):
     widget.setEnabled(False)
     QtWidgets.QApplication.processEvents()
