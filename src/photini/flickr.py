@@ -153,18 +153,25 @@ class FlickrSession(UploaderSession):
         if 'albums' in self.cached_data:
             return self.cached_data['albums']
         self.cached_data['albums'] = []
-        albums = self.api_call('flickr.photosets.getList', auth=False,
-                               user_id=self.cached_data['nsid'])
-        if not albums:
-            return self.cached_data['albums']
-        for item in albums['photosets']['photoset']:
-            album = {
-                'title': item['title']['_content'],
-                'description': item['description']['_content'],
-                'id': item['id'],
-                }
-            self.cached_data['albums'].append(album)
-            yield album
+        page = 1
+        while True:
+            rsp = self.api_call(
+                'flickr.photosets.getList', auth=False,
+                user_id=self.cached_data['nsid'],
+                page=str(page), per_page='10')
+            if not rsp:
+                return self.cached_data['albums']
+            for item in rsp['photosets']['photoset']:
+                album = {
+                    'title': item['title']['_content'],
+                    'description': item['description']['_content'],
+                    'id': item['id'],
+                    }
+                self.cached_data['albums'].append(album)
+                yield album
+            if rsp['photosets']['page'] == rsp['photosets']['pages']:
+                break
+            page += 1
 
     def get_info(self, photo_id):
         rsp = self.api_call(
