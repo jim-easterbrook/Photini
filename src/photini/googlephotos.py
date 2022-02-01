@@ -286,11 +286,6 @@ class TabWidget(PhotiniUploader):
         execute(dialog)
         return 'omit'
 
-    def show_album_list(self, albums):
-        self.clear_albums()
-        for album in albums:
-            self.add_album(album)
-
     def get_upload_params(self, image):
         title = image.metadata.title
         description = image.metadata.description

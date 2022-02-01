@@ -158,10 +158,13 @@ class FlickrSession(UploaderSession):
         if not albums:
             return self.cached_data['albums']
         for item in albums['photosets']['photoset']:
-            self.cached_data['albums'].append((
-                item['title']['_content'], item['description']['_content'],
-                item['id']))
-        return self.cached_data['albums']
+            album = {
+                'title': item['title']['_content'],
+                'description': item['description']['_content'],
+                'id': item['id'],
+                }
+            self.cached_data['albums'].append(album)
+            yield album
 
     def get_info(self, photo_id):
         rsp = self.api_call(
@@ -451,11 +454,11 @@ class TabWidget(PhotiniUploader):
                 self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
 
-    def add_set(self, title, description, photoset_id, index=-1):
-        widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
-        if description:
-            widget.setToolTip(html.unescape(description))
-        widget.setProperty('photoset_id', photoset_id)
+    def add_album(self, album, index=-1):
+        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
+        if album['description']:
+            widget.setToolTip(html.unescape(album['description']))
+        widget.setProperty('photoset_id', album['id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
         else:
@@ -487,11 +490,6 @@ class TabWidget(PhotiniUploader):
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ignore)
         execute(dialog)
         return 'omit'
-
-    def show_album_list(self, albums):
-        self.clear_albums()
-        for item in albums:
-            self.add_set(*item)
 
     def finalise_config(self):
         # get licences
@@ -762,5 +760,6 @@ class TabWidget(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        widget = self.add_set(title, description, None, index=0)
+        widget = self.add_album(
+            {'title': title, 'description': description, 'id': None}, index=0)
         widget.setChecked(True)

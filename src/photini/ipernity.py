@@ -152,10 +152,14 @@ class IpernitySession(UploaderSession):
             rsp = self.api_call('album.get', album_id=album_id)
             if not rsp:
                 continue
-            album = rsp['album']
-            self.cached_data['albums'].append((
-                album['title'], album['description'], album['album_id']))
-        return self.cached_data['albums']
+            item = rsp['album']
+            album = {
+                'title': item['title'],
+                'description': item['description'],
+                'id': item['album_id'],
+                }
+            self.cached_data['albums'].append(album)
+            yield album
 
     def get_info(self, doc_id):
         rsp = self.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
@@ -411,11 +415,11 @@ class TabWidget(PhotiniUploader):
                 self.widget['albums'].layout().removeWidget(child)
                 child.setParent(None)
 
-    def add_album(self, title, description, album_id, index=-1):
-        widget = QtWidgets.QCheckBox(title.replace('&', '&&'))
-        if description:
-            widget.setToolTip(html.unescape(description))
-        widget.setProperty('album_id', album_id)
+    def add_album(self, album, index=-1):
+        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
+        if album['description']:
+            widget.setToolTip(html.unescape(album['description']))
+        widget.setProperty('album_id', album['id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
         else:
@@ -451,11 +455,6 @@ class TabWidget(PhotiniUploader):
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ignore)
         execute(dialog)
         return 'omit'
-
-    def show_album_list(self, albums):
-        self.clear_albums()
-        for item in albums:
-            self.add_album(*item)
 
     def get_upload_params(self, image):
         # get user preferences for this upload
@@ -664,6 +663,7 @@ class TabWidget(PhotiniUploader):
         if not rsp:
             return
         widget = self.add_album(
-            params['title'], params['description'],
-            rsp['album']['album_id'], index=0)
+            {'title': params['title'],
+             'description': params['description'],
+             'id': rsp['album']['album_id']}, index=0)
         widget.setChecked(True)

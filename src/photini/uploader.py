@@ -351,6 +351,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.buttons['connect'].setEnabled(not self.upload_worker)
         self.enable_upload_button()
 
+    def show_album_list(self, albums):
+        self.clear_albums()
+        for album in albums:
+            self.add_album(album)
+
     def finalise_config(self):
         # allow derived class to make any changes that require a connection
         pass
