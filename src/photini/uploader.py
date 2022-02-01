@@ -719,6 +719,18 @@ class PhotiniUploader(QtWidgets.QWidget):
                     return candidate
         return None
 
+    _machine_tag = re.compile('^(.+):(.+)=(.+)$')
+
+    def uploaded_id(self, keyword):
+        match = self._machine_tag.match(keyword)
+        if not match:
+            return None
+        ns, predicate, value = match.groups()
+        if ns == self.session.name and predicate in (
+                'photo_id', 'doc_id', 'id'):
+            return value
+        return None
+
     @QtSlot()
     @catch_all
     def sync_metadata(self):
@@ -728,13 +740,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         unknowns = []
         for image in self.image_list.get_selected_images():
             for keyword in image.metadata.keywords or []:
-                match = machine_tag.match(keyword)
-                if match:
-                    ns, predicate, value = match.groups()
-                    if (ns == self.session.name and
-                            predicate in ('photo_id', 'doc_id', 'id')):
-                        photo_ids[value] = image
-                        break
+                photo_id = self.uploaded_id(keyword)
+                if photo_id:
+                    photo_ids[photo_id] = image
+                    break
             else:
                 unknowns.append(image)
         # try to find unknowns on remote

@@ -36,8 +36,6 @@ from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
-ID_TAG = 'flickr:photo_id'
-
 # Flickr API: https://www.flickr.com/services/api/
 # OAuth1Session: https://requests-oauthlib.readthedocs.io/en/latest/api.html
 # requests: https://docs.python-requests.org/
@@ -244,7 +242,7 @@ class FlickrSession(UploaderSession):
                     return 'Flickr file conversion failed'
                 time.sleep(1)
         # store photo id in image keywords
-        keyword = '{}={}'.format(ID_TAG, photo_id)
+        keyword = 'flickr:id=' + photo_id
         if not image.metadata.keywords:
             image.metadata.keywords = [keyword]
         elif keyword not in image.metadata.keywords:
@@ -576,7 +574,7 @@ class TabWidget(PhotiniUploader):
             # keywords
             keywords = ['uploaded:by=photini']
             for keyword in image.metadata.keywords or []:
-                if not keyword.startswith(ID_TAG):
+                if not self.uploaded_id(keyword):
                     keyword = keyword.replace('"', "'")
                     if ',' in keyword:
                         keyword = '"' + keyword + '"'
@@ -610,8 +608,8 @@ class TabWidget(PhotiniUploader):
     def _replace_dialog(self, image):
         # has image already been uploaded?
         for keyword in image.metadata.keywords or []:
-            name_pred, sep, photo_id = keyword.partition('=')
-            if name_pred == ID_TAG:
+            photo_id = self.uploaded_id(keyword)
+            if photo_id:
                 break
         else:
             # new upload

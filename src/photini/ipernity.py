@@ -35,8 +35,6 @@ from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
-ID_TAG = 'ipernity:doc_id'
-
 # Ipernity API: http://www.ipernity.com/help/api
 # requests: https://docs.python-requests.org/
 
@@ -236,7 +234,7 @@ class IpernitySession(UploaderSession):
                     break
             doc_id = rsp['tickets']['ticket'][0]['doc_id']
         # store photo id in image keywords
-        keyword = '{}={}'.format(ID_TAG, doc_id)
+        keyword = 'ipernity:id=' + doc_id
         if not image.metadata.keywords:
             image.metadata.keywords = [keyword]
         elif keyword not in image.metadata.keywords:
@@ -516,7 +514,7 @@ class TabWidget(PhotiniUploader):
             # keywords
             keywords = ['uploaded:by=photini']
             for keyword in image.metadata.keywords or []:
-                if not keyword.startswith(ID_TAG):
+                if not self.uploaded_id(keyword):
                     keyword = keyword.replace('"', "'")
                     if ',' in keyword:
                         keyword = '"' + keyword + '"'
@@ -538,8 +536,8 @@ class TabWidget(PhotiniUploader):
     def _replace_dialog(self, image):
         # has image already been uploaded?
         for keyword in image.metadata.keywords or []:
-            name_pred, sep, doc_id = keyword.partition('=')
-            if name_pred == ID_TAG:
+            doc_id = self.uploaded_id(keyword)
+            if doc_id:
                 break
         else:
             # new upload
