@@ -678,15 +678,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         max_taken_date -= timedelta(seconds=1)
         return min_taken_date, max_taken_date
 
-    def find_remote(self, image):
-        # get possible date range
-        if not image.metadata.date_taken:
-            return
-        min_taken_date, max_taken_date = self.date_range(image)
-        # search remote service
-        for result in self.session.find_photos(min_taken_date, max_taken_date):
-            yield result
-
     def find_local(self, unknowns, date_taken, icon_url):
         candidates = []
         for candidate in unknowns:
@@ -774,9 +765,16 @@ class PhotiniUploader(QtWidgets.QWidget):
                     unknowns.append(image)
             # try to find unknowns on remote
             for image in unknowns:
-                for photo_id, date_taken, icon_url in self.find_remote(image):
+                # get possible date range
+                if not image.metadata.date_taken:
+                    continue
+                min_taken_date, max_taken_date = self.date_range(image)
+                # search remote service
+                for photo_id, date_taken, icon_url in self.session.find_photos(
+                        min_taken_date, max_taken_date):
                     if photo_id in photo_ids:
                         continue
+                    # find local image that matches remote date & icon
                     match = self.find_local(unknowns, date_taken, icon_url)
                     if match:
                         match.metadata.keywords = list(
