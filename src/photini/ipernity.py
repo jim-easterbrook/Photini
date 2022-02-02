@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
+import html
 import hashlib
 import logging
 import os
@@ -408,7 +409,7 @@ class TabWidget(PhotiniUploader):
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
-            widget.setToolTip(album['description'])
+            widget.setToolTip(html.unescape(album['description']))
         widget.setProperty('album_id', album['album_id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
