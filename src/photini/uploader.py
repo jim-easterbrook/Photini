@@ -298,6 +298,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.widget['albums'].setAutoFillBackground(False)
         group.layout().addWidget(scrollarea)
         column.addWidget(group, 0, 0)
+        self.config_layouts.append(column)
         self.layout().addLayout(column, 0, column_count)
         column_count += 1
         ## bottom row
