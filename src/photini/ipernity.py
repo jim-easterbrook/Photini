@@ -25,7 +25,7 @@ import time
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini.metadata import DateTime, LatLon
+from photini.metadata import DateTime
 from photini.pyqt import (
     catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
@@ -156,12 +156,6 @@ class IpernitySession(UploaderSession):
             if albums['page'] == albums['pages']:
                 break
             page += 1
-
-    def get_info(self, doc_id):
-        rsp = self.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
-        if not rsp:
-            return None
-        return rsp['doc']
 
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
@@ -454,7 +448,7 @@ class TabWidget(PhotiniUploader):
 
     def get_upload_params(self, image):
         # get user preferences for this upload
-        upload_prefs, replace_prefs, doc_id = self._replace_dialog(image)
+        upload_prefs, replace_prefs, doc_id = self.replace_dialog(image)
         if not upload_prefs:
             # user cancelled dialog
             return None
@@ -508,123 +502,30 @@ class TabWidget(PhotiniUploader):
                 params['location'] = {'lat': '-999', 'lng': '-999'}
         return params
 
-    def _replace_dialog(self, image):
-        # has image already been uploaded?
-        for keyword in image.metadata.keywords or []:
-            doc_id = self.uploaded_id(keyword)
-            if doc_id:
-                break
-        else:
-            # new upload
-            return {'new_photo': True}, {}, None
-        # get user preferences
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('IpernityTab', 'Replace photo'))
-        dialog.setLayout(QtWidgets.QVBoxLayout())
-        message = QtWidgets.QLabel(translate(
-            'IpernityTab', 'File {0} has already been uploaded to Ipernity.'
-            ' How would you like to update it?').format(
-                os.path.basename(image.path)))
-        message.setWordWrap(True)
-        dialog.layout().addWidget(message)
-        replace_options = {}
-        replace_options['metadata'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Replace metadata'))
-        replace_options['visibility'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Change who can see it'))
-        replace_options['permissions'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Change who can comment or tag'))
-        replace_options['licence'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Change the licence'))
-        replace_options['albums'] = QtWidgets.QCheckBox(
-            translate('IpernityTab', 'Change album membership'))
-        for key in self.replace_prefs:
-            replace_options[key].setChecked(self.replace_prefs[key])
-        upload_options = {}
-        upload_options['replace_image'] = QtWidgets.QRadioButton(
-            translate('IpernityTab', 'Replace image'))
-        upload_options['new_photo'] = QtWidgets.QRadioButton(
-            translate('IpernityTab', 'Upload as new photo'))
-        upload_options['no_upload'] = QtWidgets.QRadioButton(
-            translate('IpernityTab', 'No image upload'))
-        for key in self.upload_prefs:
-            if self.upload_prefs[key]:
-                upload_options[key].setChecked(True)
-                break
-        else:
-            upload_options['no_upload'].setChecked(True)
-        two_columns = QtWidgets.QHBoxLayout()
-        column = QtWidgets.QVBoxLayout()
-        for key in replace_options:
-            upload_options['new_photo'].toggled.connect(
-                replace_options[key].setDisabled)
-            column.addWidget(replace_options[key])
-        two_columns.addLayout(column)
-        column = QtWidgets.QVBoxLayout()
-        for key in upload_options:
-            column.addWidget(upload_options[key])
-        column.addStretch(1)
-        two_columns.addLayout(column)
-        dialog.layout().addLayout(two_columns)
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addWidget(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
-            return {}, {}, doc_id
-        for key in replace_options:
-            self.replace_prefs[key] = replace_options[key].isChecked()
-        for key in upload_options:
-            self.upload_prefs[key] = upload_options[key].isChecked()
-        return self.upload_prefs, self.replace_prefs, doc_id
+    def replace_dialog(self, image):
+        return super(TabWidget, self).replace_dialog(image, (
+            ('metadata', translate('IpernityTab', 'Replace metadata')),
+            ('visibility', translate('IpernityTab', 'Change who can see it')),
+            ('permissions',
+             translate('IpernityTab', 'Change who can comment or tag')),
+            ('licence', translate('IpernityTab', 'Change the licence')),
+            ('albums', translate('IpernityTab', 'Change album membership'))))
 
     def merge_metadata(self, doc_id, image):
-        photo = self.session.get_info(doc_id)
-        if not photo:
+        rsp = self.session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+        if not rsp:
             return
-        del photo['thumbs']
-        md = image.metadata
-        # sync title
-        title = photo['title']
-        if md.title:
-            md.title = md.title.merge(
-                image.name + '(title)', 'ipernity title', title)
-        else:
-            md.title = title
-        # sync description
-        description = photo['description']
-        if md.description:
-            md.description = md.description.merge(
-                image.name + '(description)', 'ipernity description',
-                description)
-        else:
-            md.description = description
-        # sync keywords
-        tags = []
-        for tag in photo['tags']['tag']:
-            if tag['tag'] == 'uploaded:by=photini':
-                continue
-            tags.append(tag['tag'])
-        md.keywords = md.keywords.merge(
-            image.name + '(keywords)', 'ipernity tags', tags)
-        # sync location
+        photo = rsp['doc']
+        data = {
+            'title': photo['title'],
+            'description': photo['description'],
+            'keywords': [x['tag'] for x in photo['tags']['tag']],
+            'date_taken': (datetime.strptime(
+                photo['dates']['created'], '%Y-%m-%d %H:%M:%S'), 6, None),
+            }
         if 'geo' in photo:
-            location = photo['geo']
-            latlong = LatLon((location['lat'], location['lng']))
-            if md.latlong:
-                md.latlong = md.latlong.merge(
-                    image.name + '(latlong)', 'ipernity location', latlong)
-            else:
-                md.latlong = latlong
-        # sync date_taken
-        date_taken = DateTime((
-            datetime.strptime(photo['dates']['created'], '%Y-%m-%d %H:%M:%S'),))
-        if md.date_taken:
-            md.date_taken = md.date_taken.merge(
-                image.name + '(date_taken)', 'ipernity date taken', date_taken)
-        else:
-            md.date_taken = date_taken
+            data['latlong'] = photo['geo']['lat'], photo['geo']['lng']
+        self.merge_metadata_items(image, **data)
 
     @QtSlot()
     @catch_all

@@ -173,13 +173,6 @@ class FlickrSession(UploaderSession):
                 break
             page += 1
 
-    def get_info(self, photo_id):
-        rsp = self.api_call(
-            'flickr.photos.getInfo', photo_id=photo_id)
-        if not rsp:
-            return None
-        return rsp['photo']
-
     def find_photos(self, min_taken_date, max_taken_date):
         # search Flickr
         page = 1
@@ -525,7 +518,7 @@ class TabWidget(PhotiniUploader):
 
     def get_upload_params(self, image):
         # get user preferences for this upload
-        upload_prefs, replace_prefs, photo_id = self._replace_dialog(image)
+        upload_prefs, replace_prefs, photo_id = self.replace_dialog(image)
         if not upload_prefs:
             # user cancelled dialog
             return None
@@ -590,80 +583,17 @@ class TabWidget(PhotiniUploader):
         params['photo_id'] = photo_id
         return params
 
-    def _replace_dialog(self, image):
-        # has image already been uploaded?
-        for keyword in image.metadata.keywords or []:
-            photo_id = self.uploaded_id(keyword)
-            if photo_id:
-                break
-        else:
-            # new upload
-            return {'new_photo': True}, {}, None
-        # get user preferences
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('FlickrTab', 'Replace photo'))
-        dialog.setLayout(QtWidgets.QVBoxLayout())
-        message = QtWidgets.QLabel(translate(
-            'FlickrTab', 'File {0} has already been uploaded to Flickr.'
-            ' How would you like to update it?').format(
-                os.path.basename(image.path)))
-        message.setWordWrap(True)
-        dialog.layout().addWidget(message)
-        replace_options = {}
-        replace_options['metadata'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Replace metadata'))
-        replace_options['privacy'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change viewing privacy'))
-        replace_options['permissions'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change who can comment or tag'))
-        replace_options['safety_level'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change safety and hidden'))
-        replace_options['licence'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change licence'))
-        replace_options['content_type'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change content type'))
-        replace_options['albums'] = QtWidgets.QCheckBox(
-            translate('FlickrTab', 'Change album membership'))
-        for key in self.replace_prefs:
-            replace_options[key].setChecked(self.replace_prefs[key])
-        upload_options = {}
-        upload_options['replace_image'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Replace image'))
-        upload_options['new_photo'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'Upload as new photo'))
-        upload_options['no_upload'] = QtWidgets.QRadioButton(
-            translate('FlickrTab', 'No image upload'))
-        for key in self.upload_prefs:
-            if self.upload_prefs[key]:
-                upload_options[key].setChecked(True)
-                break
-        else:
-            upload_options['no_upload'].setChecked(True)
-        two_columns = QtWidgets.QHBoxLayout()
-        column = QtWidgets.QVBoxLayout()
-        for key in replace_options:
-            upload_options['new_photo'].toggled.connect(
-                replace_options[key].setDisabled)
-            column.addWidget(replace_options[key])
-        two_columns.addLayout(column)
-        column = QtWidgets.QVBoxLayout()
-        for key in upload_options:
-            column.addWidget(upload_options[key])
-        column.addStretch(1)
-        two_columns.addLayout(column)
-        dialog.layout().addLayout(two_columns)
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addWidget(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
-            return {}, {}, photo_id
-        for key in replace_options:
-            self.replace_prefs[key] = replace_options[key].isChecked()
-        for key in upload_options:
-            self.upload_prefs[key] = upload_options[key].isChecked()
-        return self.upload_prefs, self.replace_prefs, photo_id
+    def replace_dialog(self, image):
+        return super(TabWidget, self).replace_dialog(image, (
+            ('metadata', translate('FlickrTab', 'Replace metadata')),
+            ('privacy', translate('FlickrTab', 'Change viewing privacy')),
+            ('permissions',
+             translate('FlickrTab', 'Change who can comment or tag')),
+            ('safety_level',
+             translate('FlickrTab', 'Change safety and hidden')),
+            ('licence', translate('FlickrTab', 'Change licence')),
+            ('content_type', translate('FlickrTab', 'Change content type')),
+            ('albums', translate('FlickrTab', 'Change album membership'))))
 
     _address_map = {
         'CountryName':   ('country',),
@@ -672,59 +602,16 @@ class TabWidget(PhotiniUploader):
         }
 
     def merge_metadata(self, photo_id, image):
-        photo = self.session.get_info(photo_id)
-        if not photo:
+        rsp = self.session.api_call(
+            'flickr.photos.getInfo', photo_id=photo_id)
+        if not rsp:
             return
-        md = image.metadata
-        # sync title
-        title = html.unescape(photo['title']['_content'])
-        if md.title:
-            md.title = md.title.merge(
-                image.name + '(title)', 'flickr title', title)
-        else:
-            md.title = title
-        # sync description
-        description = html.unescape(photo['description']['_content'])
-        if md.description:
-            md.description = md.description.merge(
-                image.name + '(description)', 'flickr description', description)
-        else:
-            md.description = description
-        # sync keywords
-        tags = []
-        for tag in photo['tags']['tag']:
-            if tag['raw'] == 'uploaded:by=photini':
-                continue
-            if md.location_taken and tag['raw'] in (
-                    md.location_taken['CountryCode'],
-                    md.location_taken['CountryName'],
-                    md.location_taken['ProvinceState'],
-                    md.location_taken['City']):
-                continue
-            tags.append(tag['raw'])
-        md.keywords = md.keywords.merge(
-            image.name + '(keywords)', 'flickr tags', tags)
-        # sync location
-        if 'location' in photo:
-            location = photo['location']
-            latlong = LatLon((location['latitude'], location['longitude']))
-            if md.latlong:
-                md.latlong = md.latlong.merge(
-                    image.name + '(latlong)', 'flickr location', latlong)
-            else:
-                md.latlong = latlong
-            address = {}
-            for key in location:
-                if '_content' in location[key]:
-                    address[key] = location[key]['_content']
-            location_taken = Location.from_address(address, self._address_map)
-            if md.location_taken:
-                md.location_taken = md.location_taken.merge(
-                    image.name + '(location_taken)', 'flickr location',
-                    location_taken)
-            else:
-                md.location_taken = location_taken
-        # sync date_taken
+        photo = rsp['photo']
+        data = {
+            'title': html.unescape(photo['title']['_content']),
+            'description': html.unescape(photo['description']['_content']),
+            'keywords': [x['raw'] for x in photo['tags']['tag']],
+            }
         if photo['dates']['takenunknown'] == '0':
             granularity = int(photo['dates']['takengranularity'])
             if granularity >= 6:
@@ -733,15 +620,19 @@ class TabWidget(PhotiniUploader):
                 precision = 2
             else:
                 precision = 6
-            date_taken = DateTime((
-                datetime.strptime(
-                    photo['dates']['taken'], '%Y-%m-%d %H:%M:%S'),
-                precision, None))
-            if md.date_taken:
-                md.date_taken = md.date_taken.merge(
-                    image.name + '(date_taken)', 'flickr date taken', date_taken)
-            else:
-                md.date_taken = date_taken
+            data['date_taken'] = (
+                datetime.strptime(photo['dates']['taken'], '%Y-%m-%d %H:%M:%S'),
+                precision, None)
+        if 'location' in photo:
+            data['latlong'] = (photo['location']['latitude'],
+                               photo['location']['longitude'])
+            address = {}
+            for key in photo['location']:
+                if '_content' in photo['location'][key]:
+                    address[key] = photo['location'][key]['_content']
+            data['location_taken'] = Location.from_address(address,
+                                                           self._address_map)
+        self.merge_metadata_items(image, **data)
 
     @QtSlot()
     @catch_all

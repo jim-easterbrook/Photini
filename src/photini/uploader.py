@@ -659,6 +659,69 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.buttons['sync'].setEnabled(
                 len(selection) > 0 and self.buttons['connect'].is_checked())
 
+    def replace_dialog(self, image, options):
+        # has image already been uploaded?
+        for keyword in image.metadata.keywords or []:
+            photo_id = self.uploaded_id(keyword)
+            if photo_id:
+                break
+        else:
+            # new upload
+            return {'new_photo': True}, {}, None
+        # get user preferences
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('UploaderTabsAll', 'Replace photo'))
+        dialog.setLayout(QtWidgets.QVBoxLayout())
+        message = QtWidgets.QLabel(translate(
+            'UploaderTabsAll', 'File {0} has already been uploaded to {1}.'
+            ' How would you like to update it?').format(
+                os.path.basename(image.path), self.service_name))
+        message.setWordWrap(True)
+        dialog.layout().addWidget(message)
+        replace_options = {}
+        for key, label in options:
+            replace_options[key] = QtWidgets.QCheckBox(label)
+        for key in self.replace_prefs:
+            replace_options[key].setChecked(self.replace_prefs[key])
+        upload_options = {}
+        upload_options['replace_image'] = QtWidgets.QRadioButton(
+            translate('UploaderTabsAll', 'Replace image'))
+        upload_options['new_photo'] = QtWidgets.QRadioButton(
+            translate('UploaderTabsAll', 'Upload as new photo'))
+        upload_options['no_upload'] = QtWidgets.QRadioButton(
+            translate('UploaderTabsAll', 'No image upload'))
+        for key in self.upload_prefs:
+            if self.upload_prefs[key]:
+                upload_options[key].setChecked(True)
+                break
+        else:
+            upload_options['no_upload'].setChecked(True)
+        two_columns = QtWidgets.QHBoxLayout()
+        column = QtWidgets.QVBoxLayout()
+        for key in replace_options:
+            upload_options['new_photo'].toggled.connect(
+                replace_options[key].setDisabled)
+            column.addWidget(replace_options[key])
+        two_columns.addLayout(column)
+        column = QtWidgets.QVBoxLayout()
+        for key in upload_options:
+            column.addWidget(upload_options[key])
+        column.addStretch(1)
+        two_columns.addLayout(column)
+        dialog.layout().addLayout(two_columns)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addWidget(button_box)
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
+            return {}, {}, photo_id
+        for key in replace_options:
+            self.replace_prefs[key] = replace_options[key].isChecked()
+        for key in upload_options:
+            self.upload_prefs[key] = upload_options[key].isChecked()
+        return self.upload_prefs, self.replace_prefs, photo_id
+
     def date_range(self, image):
         precision = min(image.metadata.date_taken['precision'], 6)
         min_taken_date = image.metadata.date_taken.truncate_datetime(
@@ -785,3 +848,57 @@ class PhotiniUploader(QtWidgets.QWidget):
             # merge remote metadata into file
             for photo_id, image in photo_ids.items():
                 self.merge_metadata(photo_id, image)
+
+    def merge_metadata_items(self, image, title=None, description=None,
+                             keywords=[], date_taken=None, latlong=None,
+                             location_taken=None):
+        md = image.metadata
+        # sync title
+        if title:
+            old_value = md.title
+            md.title = title
+            if old_value:
+                md.title = md.title.merge(
+                    image.name + '(title)', 'file value', old_value)
+        # sync description
+        if description:
+            old_value = md.description
+            md.description = description
+            if old_value:
+                md.description = md.description.merge(
+                    image.name + '(description)', 'file value', old_value)
+        # sync keywords
+        keywords = [x for x in keywords if x != 'uploaded:by=photini']
+        if keywords:
+            old_value = md.keywords
+            md.keywords = keywords
+            if old_value:
+                md.keywords = md.keywords.merge(
+                    image.name + '(keywords)', 'file value', old_value)
+        # sync date_taken
+        if date_taken:
+            date_taken, precision, tz_offset = date_taken
+            old_value = md.date_taken
+            if old_value:
+                if precision is None:
+                    precision = old_value['precision']
+                if tz_offset is None:
+                    tz_offset = old_value['tz_offset']
+            md.date_taken = date_taken, precision, tz_offset
+            if old_value:
+                md.date_taken = md.date_taken.merge(
+                    image.name + '(date_taken)', 'file value', old_value)
+        # sync location
+        if latlong:
+            old_value = md.latlong
+            md.latlong = latlong
+            if old_value:
+                md.latlong = md.latlong.merge(
+                    image.name + '(latlong)', 'file value', old_value)
+        # sync address
+        if location_taken:
+            old_value = md.location_taken
+            md.location_taken = location_taken
+            if old_value:
+                md.location_taken = md.location_taken.merge(
+                    image.name + '(location_taken)', 'file value', old_value)
