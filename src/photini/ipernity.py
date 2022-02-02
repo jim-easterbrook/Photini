@@ -18,7 +18,6 @@
 
 from datetime import datetime
 import hashlib
-import html
 import logging
 import os
 import time
@@ -133,33 +132,30 @@ class IpernitySession(UploaderSession):
     def get_albums(self):
         if 'albums' in self.cached_data:
             return self.cached_data['albums']
-        # get list of album ids
-        album_ids = []
-        params = {'empty': '1'}
+        self.cached_data['albums'] = []
+        page = 1
         while True:
-            rsp = self.api_call('album.getList', **params)
+            # get list of album ids
+            rsp = self.api_call(
+                'album.getList', empty='1', page=str(page), per_page='10')
             if not rsp:
                 break
             albums = rsp['albums']
+            # get details of each album
             for album in albums['album']:
-                album_ids.append(album['album_id'])
+                rsp = self.api_call('album.get', album_id=album['album_id'])
+                if not rsp:
+                    continue
+                details = {
+                    'title': rsp['album']['title'],
+                    'description': rsp['album']['description'],
+                    'album_id': rsp['album']['album_id'],
+                    }
+                self.cached_data['albums'].append(details)
+                yield details
             if albums['page'] == albums['pages']:
                 break
-            params['page'] = str(int(albums['page']) + 1)
-        # get details of each album
-        self.cached_data['albums'] = []
-        for album_id in album_ids:
-            rsp = self.api_call('album.get', album_id=album_id)
-            if not rsp:
-                continue
-            item = rsp['album']
-            album = {
-                'title': item['title'],
-                'description': item['description'],
-                'id': item['album_id'],
-                }
-            self.cached_data['albums'].append(album)
-            yield album
+            page += 1
 
     def get_info(self, doc_id):
         rsp = self.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
@@ -418,8 +414,8 @@ class TabWidget(PhotiniUploader):
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
-            widget.setToolTip(html.unescape(album['description']))
-        widget.setProperty('album_id', album['id'])
+            widget.setToolTip(album['description'])
+        widget.setProperty('album_id', album['album_id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
         else:
@@ -665,5 +661,5 @@ class TabWidget(PhotiniUploader):
         widget = self.add_album(
             {'title': params['title'],
              'description': params['description'],
-             'id': rsp['album']['album_id']}, index=0)
+             'album_id': rsp['album']['album_id']}, index=0)
         widget.setChecked(True)

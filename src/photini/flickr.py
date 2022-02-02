@@ -160,15 +160,15 @@ class FlickrSession(UploaderSession):
                 user_id=self.cached_data['nsid'],
                 page=str(page), per_page='10')
             if not rsp:
-                return self.cached_data['albums']
-            for item in rsp['photosets']['photoset']:
-                album = {
-                    'title': item['title']['_content'],
-                    'description': item['description']['_content'],
-                    'id': item['id'],
+                break
+            for album in rsp['photosets']['photoset']:
+                details = {
+                    'title': album['title']['_content'],
+                    'description': album['description']['_content'],
+                    'photoset_id': album['id'],
                     }
-                self.cached_data['albums'].append(album)
-                yield album
+                self.cached_data['albums'].append(details)
+                yield details
             if rsp['photosets']['page'] == rsp['photosets']['pages']:
                 break
             page += 1
@@ -465,7 +465,7 @@ class TabWidget(PhotiniUploader):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
             widget.setToolTip(html.unescape(album['description']))
-        widget.setProperty('photoset_id', album['id'])
+        widget.setProperty('photoset_id', album['photoset_id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
         else:
@@ -768,5 +768,6 @@ class TabWidget(PhotiniUploader):
             return
         description = description.toPlainText()
         widget = self.add_album(
-            {'title': title, 'description': description, 'id': None}, index=0)
+            {'title': title, 'description': description, 'photoset_id': None},
+            index=0)
         widget.setChecked(True)
