@@ -252,6 +252,8 @@ class FlickrSession(UploaderSession):
         elif keyword not in image.metadata.keywords:
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
+        if 'privacy' in params and 'permissions' in params:
+            del params['privacy']
         metadata_set_func = {
             'privacy':      'flickr.photos.setPerms',
             'permissions':  'flickr.photos.setPerms',
@@ -588,7 +590,8 @@ class TabWidget(PhotiniUploader):
             ('metadata', translate('FlickrTab', 'Replace metadata')),
             ('privacy', translate('FlickrTab', 'Change viewing privacy')),
             ('permissions',
-             translate('FlickrTab', 'Change who can comment or tag')),
+             translate('FlickrTab', 'Change who can comment or tag'
+                       ' (and viewing privacy)')),
             ('safety_level',
              translate('FlickrTab', 'Change safety and hidden')),
             ('licence', translate('FlickrTab', 'Change licence')),
