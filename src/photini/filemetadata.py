@@ -26,6 +26,8 @@ except ImportError as ex1:
     print(str(ex1))
     try:
         from photini.gexiv2 import MetadataHandler, exiv2_version, exiv2_version_info
+        print('Use of GExiv2 library will be withdrawn in a future release'
+              ' of Photini.\nPlease install python-exiv2 soon.')
     except (ImportError, ValueError) as ex2:
         print(str(ex2))
         raise ex1 from None
