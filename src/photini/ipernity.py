@@ -202,7 +202,7 @@ class IpernitySession(UploaderSession):
             # sign the request before including the file to upload
             data = self.sign_request(params['function'], True, data)
             # create multi-part data encoder
-            data['file'] = ('dummy_name', fileobj)
+            data = list(data.items()) + [('file', ('dummy_name', fileobj))]
             data = MultipartEncoderMonitor(
                 MultipartEncoder(fields=data), self.progress)
             headers = {'Content-Type': data.content_type}

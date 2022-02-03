@@ -215,7 +215,7 @@ class FlickrSession(UploaderSession):
             headers = self.api.prepare_request(
                 requests.Request('POST', url, auth=self.auth, data=data)).headers
             # add photo to parameters now we've got the headers without it
-            data['photo'] = ('dummy_name', fileobj)
+            data = list(data.items()) + [('photo', ('dummy_name', fileobj))]
             data = MultipartEncoderMonitor(
                 MultipartEncoder(fields=data), self.progress)
             headers = {'Authorization': headers['Authorization'],
