@@ -236,6 +236,9 @@ class IpernitySession(UploaderSession):
         elif keyword not in image.metadata.keywords:
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set remaining metadata after uploading image
+        if 'visibility' in params and 'permissions' in params:
+            params['permissions'].update(params['visibility'])
+            del params['visibility']
         metadata_set_func = {
             'visibility' : 'doc.setPerms',
             'permissions': 'doc.setPerms',
