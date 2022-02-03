@@ -26,10 +26,9 @@ import time
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini.metadata import DateTime
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore,
-    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    catch_all, DropDownSelector, execute, MultiLineEdit, QtCore,
+    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
