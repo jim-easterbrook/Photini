@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 import os
 import urllib
@@ -32,6 +30,7 @@ from photini.uploader import PhotiniUploader, UploaderSession
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
+# Google Photos API: https://developers.google.com/photos/library/reference/rest
 
 class GooglePhotosSession(UploaderSession):
     name       = 'googlephotos'
@@ -260,6 +259,14 @@ class TabWidget(PhotiniUploader):
         else:
             self.widget['albums'].layout().addWidget(widget)
         return widget
+
+    def accepted_file_type(self, file_type):
+        if file_type.startswith('video'):
+            # Google seems to accept any video format
+            return True
+        return file_type in ('image/gif', 'image/heic', 'image/jpeg',
+                             'image/png', 'image/tiff', 'image/webp',
+                             'image/x-ms-bmp')
 
     def get_conversion_function(self, image, params):
         convert = super(
