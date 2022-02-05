@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 User manual
@@ -18,6 +18,7 @@ I suggest you read the :doc:`image selector <image_selector>` and :doc:`descript
    map
    address
    flickr
+   ipernity
    google_photos
    importer
    video

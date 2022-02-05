@@ -172,7 +172,7 @@ If you prefer a single-user installation, which doesn't require root permission,
 
 You can also use pip to install the optional dependencies when you install Photini::
 
-    $ sudo pip3 install photini[flickr,google,importer,spelling]
+    $ sudo pip3 install photini[flickr,ipernity,google,importer,spelling]
 
 .. _installation-photini:
 
@@ -318,6 +318,7 @@ Feature                       Dependencies
 ============================  =================
 Spell check[1]                pyenchant_ 1.6+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
+Ipernity upload               `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[2]         FFmpeg_, Pillow_ 2.0+
 Import photos from camera[3]  `python3-gphoto2`_ 0.10+
