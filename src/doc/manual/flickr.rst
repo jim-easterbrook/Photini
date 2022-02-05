@@ -1,12 +1,11 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-20  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying condidions.
 
 Flickr uploader
 ===============
 
-The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload your photographs to `Flickr <http://www.flickr.com/>`_.
-Flickr is a popular online photograph sharing service.
+The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload your photographs to `Flickr <http://www.flickr.com/>`_, a popular online photograph sharing service.
 The Flickr upload tab uses the Flickr API but is not endorsed or certified by Flickr.
 
 Unlike some other Flickr uploaders, Photini uses the descriptive metadata you've created to set Flickr's title, description and tags.
@@ -27,7 +26,7 @@ The first time you click ``Log in`` Photini connects your web browser to Flickr,
 .. image:: ../images/screenshot_151b.png
 
 In January 2020 Flickr introduced a bug in the authorisation process.
-They are changing the "callback URL" from HTTP to HTTPS, which causes an error like the one shown above.
+They change the "callback URL" from HTTP to HTTPS, which causes an error like the one shown above.
 (Other browsers may show a different error.)
 
 .. image:: ../images/screenshot_151c.png
@@ -46,8 +45,6 @@ You should not need to redo this authorisation process unless you click the ``Lo
 Your current Flickr albums are shown on the right hand side of the Flickr uploader tab.
 You can add a new album with the ``New album`` button.
 This opens a pop-up dialog as shown below.
-
-.. image:: ../images/screenshot_153.png
 
 .. image:: ../images/screenshot_154.png
 
@@ -70,7 +67,7 @@ After uploading a photograph it is marked as having new metadata.
 
 .. image:: ../images/screenshot_158.png
 
-If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:photo_id=11-digit-number``.
+If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:id=11-digit-number``.
 Photini uses this `triple tag`_ to store the Flickr photo id so it can be used to synchronise metadata later on, as described below.
 
 Synchronising local metadata to Flickr
@@ -81,14 +78,14 @@ Select the image(s) you would like to update and click the ``Synchronise`` butto
 
 .. image:: ../images/screenshot_159.png
 
-If an image does not have a ``flickr:photo_id`` keyword then Photini will try to find the photograph on Flickr by matching the date and time it was taken.
+If an image does not have a ``flickr:id`` keyword then Photini will try to find the photograph on Flickr by matching the date and time it was taken.
 If there is new metadata on Flickr then it is merged into the image's metadata.
 
 .. image:: ../images/screenshot_160.png
 
 You can see what changed with the image's context menu ``View changes``.
-In this case Flickr has set its location city to "Chateau-Gontier" whereas I had set it to "Château-Gontier".
-I chose to ignore this new metadata value.
+In this case Flickr has made an insignificant change to the latitude or longitude, and set the location city to its new name of "Château-Gontier-sur-Mayenne".
+I chose to ignore these new metadata values.
 
 Synchronising Flickr metadata to local
 --------------------------------------
@@ -97,7 +94,7 @@ If you change your image file metadata and would like to make the same changes o
 
 .. image:: ../images/screenshot_161.png
 
-If you upload an image that already has a ``flickr:photo_id`` keyword then Photini allows you to change the photograph's metadata instead of uploading a new photograph.
+If you upload an image that already has a ``flickr:id`` keyword then Photini allows you to change the photograph's metadata instead of uploading a new photograph.
 You can also replace the image itself, which might be useful if you've processed it in another application.
 
 .. _triple tag: https://en.wikipedia.org/wiki/Tag_(metadata)#Triple_tags
