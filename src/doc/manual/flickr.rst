@@ -22,6 +22,7 @@ It's only usable after you've authorised Photini to access your Flickr account b
 .. image:: ../images/screenshot_151a.png
 
 The first time you click ``Log in`` Photini connects your web browser to Flickr, from where you can log in and give Photini permission to access Flickr on your behalf.
+(Note that Photini does not interact with other people's photos and videos.)
 
 .. image:: ../images/screenshot_151b.png
 
@@ -67,7 +68,7 @@ After uploading a photograph it is marked as having new metadata.
 
 .. image:: ../images/screenshot_158.png
 
-If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:id=11-digit-number``.
+If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:id=<11-digit-number>``.
 Photini uses this `triple tag`_ to store the Flickr photo id so it can be used to synchronise metadata later on, as described below.
 
 Synchronising local metadata to Flickr
