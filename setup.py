@@ -26,7 +26,7 @@ extras_require = {
     'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2'],
-    'ipernity' : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
+    'ipernity' : ['requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
     'win7'     : ['PySide2', 'python-exiv2', 'pyenchant', 'gpxpy',
                   'requests-oauthlib', 'requests-toolbelt', 'keyring'],
