@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@ extras_require = {
     'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2'],
+    'ipernity' : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
     'win7'     : ['PySide2', 'python-exiv2', 'pyenchant', 'gpxpy',
                   'requests-oauthlib', 'requests-toolbelt', 'keyring'],
