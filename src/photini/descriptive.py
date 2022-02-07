@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -163,8 +163,8 @@ class KeywordsEditor(QtWidgets.QWidget):
     def update_league_table(self, images):
         today = date.today().isoformat()
         for image in images:
-            value = list(filter(lambda x: not x.startswith('flickr:photo_id'),
-                                image.metadata.keywords or []))
+            keywords = image.metadata.keywords or []
+            value = [x for x in keywords if ':' not in x]
             if not value:
                 continue
             for keyword in value:
