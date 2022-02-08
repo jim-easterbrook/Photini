@@ -802,11 +802,15 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     _machine_tag = re.compile('^(.+):(.+)=(.+)$')
 
-    def uploaded_id(self, keyword):
-        match = self._machine_tag.match(keyword)
+    @classmethod
+    def machine_tag(cls, keyword):
+        match = cls._machine_tag.match(keyword)
         if not match:
-            return None
-        ns, predicate, value = match.groups()
+            return None, None, None
+        return match.groups()
+
+    def uploaded_id(self, keyword):
+        ns, predicate, value = self.machine_tag(keyword)
         if ns == self.session.name and predicate in (
                 'photo_id', 'doc_id', 'id'):
             return value

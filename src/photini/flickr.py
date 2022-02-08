@@ -554,11 +554,15 @@ class TabWidget(PhotiniUploader):
             # keywords
             keywords = ['uploaded:by=photini']
             for keyword in image.metadata.keywords or []:
-                if not self.uploaded_id(keyword):
-                    keyword = keyword.replace('"', "'")
-                    if ',' in keyword:
-                        keyword = '"' + keyword + '"'
-                    keywords.append(keyword)
+                ns, predicate, value = self.machine_tag(keyword)
+                if (ns in ('flickr', 'ipernity')
+                        and predicate in ('photo_id', 'doc_id', 'id')):
+                    # Photini "internal" tag
+                    continue
+                keyword = keyword.replace('"', "'")
+                if ',' in keyword:
+                    keyword = '"' + keyword + '"'
+                keywords.append(keyword)
             params['tags'] = {'tags': ','.join(keywords)}
             # date_taken
             date_taken = image.metadata.date_taken
