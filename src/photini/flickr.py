@@ -261,7 +261,7 @@ class FlickrSession(UploaderSession):
             'safety_level': 'flickr.photos.setSafetyLevel',
             'licence':      'flickr.photos.licenses.setLicense',
             'meta':         'flickr.photos.setMeta',
-            'tags':         'flickr.photos.setTags',
+            'keywords':     'flickr.photos.setTags',
             'dates':        'flickr.photos.setDates',
             'location':     'flickr.photos.geo.setLocation',
             }
@@ -518,52 +518,19 @@ class TabWidget(PhotiniUploader):
                 return
             self.widget[key].set_value(str(rsp['person'][key]))
 
-    def get_upload_params(self, image):
-        # get user preferences for this upload
-        upload_prefs, replace_prefs, photo_id = self.replace_dialog(image)
-        if not upload_prefs:
-            # user cancelled dialog
-            return None
-        # get config params that apply to all photos
-        fixed_params = self.get_fixed_params()
-        # set upload function and params
+    def get_variable_params(self, image, upload_prefs, replace_prefs, photo_id):
+        params = {}
+        # set upload function
         if upload_prefs['new_photo']:
-            params = {'function': 'upload'}
+            params['function'] = 'upload'
             photo_id = None
-            # apply all "fixed" params
-            params.update(fixed_params)
+        elif upload_prefs['replace_image']:
+            params['function'] = 'replace'
         else:
-            if upload_prefs['replace_image']:
-                params = {'function': 'replace'}
-            else:
-                params = {'function': None}
-                if not any(replace_prefs.values()):
-                    # user chose to do nothing
-                    return None
-            # only apply the "fixed" params the user wants to change
-            for key in fixed_params:
-                if replace_prefs[key]:
-                    params[key] = fixed_params[key]
+            params['function'] = None
+        params['photo_id'] = photo_id
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
-            # title & description
-            params['meta'] = {
-                'title'      : image.metadata.title or image.name,
-                'description': image.metadata.description or '',
-                }
-            # keywords
-            keywords = ['uploaded:by=photini']
-            for keyword in image.metadata.keywords or []:
-                ns, predicate, value = self.machine_tag(keyword)
-                if (ns in ('flickr', 'ipernity')
-                        and predicate in ('photo_id', 'doc_id', 'id')):
-                    # Photini "internal" tag
-                    continue
-                keyword = keyword.replace('"', "'")
-                if ',' in keyword:
-                    keyword = '"' + keyword + '"'
-                keywords.append(keyword)
-            params['tags'] = {'tags': ','.join(keywords)}
             # date_taken
             date_taken = image.metadata.date_taken
             if date_taken:
@@ -586,7 +553,6 @@ class TabWidget(PhotiniUploader):
             else:
                 # clear any existing location
                 params['location'] = None
-        params['photo_id'] = photo_id
         return params
 
     def replace_dialog(self, image):
