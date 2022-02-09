@@ -701,7 +701,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             params['keywords'] = {'keywords': ','.join(keywords)}
         return params
 
-    def replace_dialog(self, image, options):
+    def replace_dialog(self, image, options, replace=True):
         # has image already been uploaded?
         for keyword in image.metadata.keywords or []:
             photo_id = self.uploaded_id(keyword)
@@ -726,8 +726,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         for key in self.replace_prefs:
             replace_options[key].setChecked(self.replace_prefs[key])
         upload_options = {}
-        upload_options['replace_image'] = QtWidgets.QRadioButton(
-            translate('UploaderTabsAll', 'Replace image'))
+        if replace:
+            upload_options['replace_image'] = QtWidgets.QRadioButton(
+                translate('UploaderTabsAll', 'Replace image'))
         upload_options['new_photo'] = QtWidgets.QRadioButton(
             translate('UploaderTabsAll', 'Upload as new photo'))
         upload_options['no_upload'] = QtWidgets.QRadioButton(
@@ -762,8 +763,8 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.replace_prefs[key] = replace_options[key].isChecked()
         for key in upload_options:
             self.upload_prefs[key] = upload_options[key].isChecked()
-        if not (self.upload_prefs['replace_image']
-                or any(self.replace_prefs.values())):
+        if self.upload_prefs['no_upload'] and not any(
+                self.replace_prefs.values()):
             # user chose to do nothing
             return {}, {}, photo_id
         return self.upload_prefs, self.replace_prefs, photo_id

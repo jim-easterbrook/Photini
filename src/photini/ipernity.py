@@ -482,7 +482,8 @@ class TabWidget(PhotiniUploader):
             ('permissions',
              translate('IpernityTab', 'Change who can comment or tag')),
             ('licence', translate('IpernityTab', 'Change the licence')),
-            ('albums', translate('IpernityTab', 'Change album membership'))))
+            ('albums', translate('IpernityTab', 'Change album membership'))
+            ), replace=False)
 
     def merge_metadata(self, doc_id, image):
         rsp = self.session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
