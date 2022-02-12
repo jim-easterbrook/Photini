@@ -191,7 +191,7 @@ class IpernitySession(UploaderSession):
                 data = {}
                 # set some metadata with upload function
                 for key in ('visibility', 'permissions', 'licence', 'meta',
-                            'location'):
+                            'dates', 'location'):
                     if key in params and params[key]:
                         data.update(params[key])
                         del(params[key])
@@ -455,13 +455,18 @@ class TabWidget(PhotiniUploader):
         if upload_prefs['new_photo']:
             params['function'] = 'upload.file'
             doc_id = None
-        elif upload_prefs['replace_image']:
-            params['function'] = 'upload.replace'
         else:
             params['function'] = None
         params['doc_id'] = doc_id
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
+            # date_taken
+            date_taken = image.metadata.date_taken
+            if date_taken:
+                params['dates'] = {
+                    'created_at':
+                    date_taken['datetime'].strftime('%Y-%m-%d %H:%M:%S')
+                    }
             # location
             if image.metadata.latlong:
                 params['location'] = {
