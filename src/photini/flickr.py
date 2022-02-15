@@ -279,8 +279,7 @@ class FlickrSession(UploaderSession):
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
-            self.api_call(
-                'flickr.photos.getInfo', auth=False, photo_id=photo_id)
+            rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
             if 'photo' in rsp and 'location' in rsp['photo']:
                 self.api_call('flickr.photos.geo.removeLocation',
                               post=True, photo_id=photo_id)
