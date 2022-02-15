@@ -88,6 +88,5 @@ If you change your image file metadata and would like to make the same changes o
 .. image:: ../images/screenshot_242.png
 
 If you upload an image that already has a ``ipernity:id`` keyword then Photini allows you to change the photograph's metadata instead of uploading a new photograph.
-You can also replace the image itself, which might be useful if you've processed it in another application.
 
 .. _triple tag: https://en.wikipedia.org/wiki/Tag_(metadata)#Triple_tags
