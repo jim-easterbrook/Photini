@@ -68,7 +68,7 @@ After uploading a photograph it is marked as having new metadata.
 
 .. image:: ../images/screenshot_158.png
 
-If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:id=<11-digit-number>``.
+If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``flickr:id=<long-number>``.
 Photini uses this `triple tag`_ to store the Flickr photo id so it can be used to synchronise metadata later on, as described below.
 
 Synchronising local metadata to Flickr

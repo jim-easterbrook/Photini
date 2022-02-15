@@ -60,7 +60,7 @@ After uploading a photograph it is marked as having new metadata.
 
 .. image:: ../images/screenshot_239.png
 
-If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``ipernity:id=<8-digit-number>``.
+If you switch to the ``Descriptive metadata`` tab you can see there is a new keyword ``ipernity:id=<long-number>``.
 Photini uses this `triple tag`_ to store the Ipernity photo id so it can be used to synchronise metadata later on, as described below.
 
 Synchronising local metadata to Ipernity
