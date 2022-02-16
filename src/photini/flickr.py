@@ -204,7 +204,8 @@ class FlickrSession(UploaderSession):
             if params['function'] == 'upload':
                 data = {}
                 # set some metadata with upload function
-                for key in ('privacy', 'content_type', 'safety_level', 'meta'):
+                for key in ('privacy', 'content_type', 'hidden',
+                            'safety_level', 'meta'):
                     data.update(params[key])
                     del(params[key])
             else:
@@ -252,6 +253,13 @@ class FlickrSession(UploaderSession):
         elif keyword not in image.metadata.keywords:
             image.metadata.keywords = list(image.metadata.keywords) + [keyword]
         # set metadata after uploading image
+        if 'hidden' in params:
+            # flickr.photos.setSafetyLevel has different 'hidden' values
+            # than upload function
+            params['hidden']['hidden'] = str(int(params['hidden']['hidden']) - 1)
+            if 'safety_level' in params:
+                params['safety_level'].update(params['hidden'])
+                del params['hidden']
         if 'privacy' in params and 'permissions' in params:
             del params['privacy']
         metadata_set_func = {
@@ -259,6 +267,7 @@ class FlickrSession(UploaderSession):
             'permissions':  'flickr.photos.setPerms',
             'content_type': 'flickr.photos.setContentType',
             'safety_level': 'flickr.photos.setSafetyLevel',
+            'hidden':       'flickr.photos.setSafetyLevel',
             'licence':      'flickr.photos.licenses.setLicense',
             'meta':         'flickr.photos.setMeta',
             'keywords':     'flickr.photos.setTags',
@@ -267,11 +276,6 @@ class FlickrSession(UploaderSession):
             }
         for key in params:
             if params[key] and key in metadata_set_func:
-                if key == 'safety_level':
-                    # flickr.photos.setSafetyLevel has different
-                    # 'hidden' values than upload function
-                    params[key]['hidden'] = str(
-                        int(params[key]['hidden']) - 1)
                 rsp = self.api_call(metadata_set_func[key], post=True,
                                     photo_id=photo_id, **params[key])
                 if not rsp:
@@ -438,6 +442,8 @@ class TabWidget(PhotiniUploader):
             'permissions': permissions,
             'safety_level': {
                 'safety_level': self.widget['safety_level'].value(),
+                },
+            'hidden': {
                 'hidden'      : self.widget['hidden'].value(),
                 },
             'licence': {
@@ -562,7 +568,9 @@ class TabWidget(PhotiniUploader):
              translate('FlickrTab', 'Change who can comment or tag'
                        ' (and viewing privacy)')),
             ('safety_level',
-             translate('FlickrTab', 'Change safety and hidden')),
+             translate('FlickrTab', 'Change safety level')),
+            ('hidden',
+             translate('FlickrTab', 'Change hide from search')),
             ('licence', translate('FlickrTab', 'Change licence')),
             ('content_type', translate('FlickrTab', 'Change content type')),
             ('albums', translate('FlickrTab', 'Change album membership'))))
