@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.2.0:
+  1/ Add uploader tab for "Ipernity" photo sharing club.
+  2/ Substantial rewrite of uploader tabs.
+  3/ Main window "maximised" state is saved.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2022.1.0:
   1/ Simplified selection of dependencies when installing with pip.
   2/ Improved spell check language menu.
