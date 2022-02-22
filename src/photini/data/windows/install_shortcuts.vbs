@@ -1,20 +1,16 @@
 Set options = WScript.Arguments.Named
+Set args = WScript.Arguments.Unnamed
+strTargetPath = args(0)
+strIconPath = args(1)
+strSystemPrefix = args(2)
 
-If Not (options.Exists("user") Or options.Exists("elevated")) Then
-    'Re-run this script as administrator
-    ReDim argList(WScript.Arguments.Count - 1)
-    For i = 0 To WScript.Arguments.Count - 1
-        argList(i) = """" + WScript.Arguments(i) + """"
-        Next
-    Set appShell = CreateObject("Shell.Application")
-    appShell.ShellExecute "cscript.exe", """" & WScript.ScriptFullName & """ " & _
-      Join(argList) & " /elevated", , "runas", 0
-    WScript.Quit Err.Number
-End If
+On Error Resume Next
 
 Set objShell = WScript.CreateObject("Wscript.Shell")
 
-If options.Exists("user") Then
+'Attempt to read registry to find out if we have administrator rights
+objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
+If Err.Number <> 0 Then
   'Use this user's start menu and desktop
   strDesktop = objShell.SpecialFolders("Desktop")
   strGroup = objShell.SpecialFolders("StartMenu") & "\Photini"
@@ -27,8 +23,6 @@ End If
 strDesktopLink = strDesktop & "\Photini.lnk"
 strShortcutLink = strGroup & "\Photini.lnk"
 strDocumentationLink = strGroup & "\Photini documentation.url"
-
-On Error Resume Next
 
 Set FSO = WScript.CreateObject("Scripting.FileSystemObject")
 
@@ -43,11 +37,6 @@ If options.Exists("remove") Then
     If FSO.FolderExists(strGroup) Then FSO.DeleteFolder(strGroup)
     WScript.Quit Err.Number
 End If
-
-Set args = WScript.Arguments.Unnamed
-strTargetPath = args(0)
-strIconPath = args(1)
-strSystemPrefix = args(2)
 
 'Create start menu group
 If Not FSO.FolderExists(strGroup) Then

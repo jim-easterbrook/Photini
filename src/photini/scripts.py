@@ -37,8 +37,6 @@ def post_install(argv=None):
         usage='Usage: %prog [options] [file_name, ...]',
         description='Install Photini start/application menu entry')
     parser.add_option(
-        '-u', '--user', action='store_true', help='install for single user')
-    parser.add_option(
         '-r', '--remove', action='store_true', help='uninstall menu entry')
     options, args = parser.parse_args()
     exec_path = os.path.join(os.path.dirname(sys.argv[0]), 'photini')
@@ -50,8 +48,6 @@ def post_install(argv=None):
                pkg_resources.resource_filename(
                    'photini', 'data/windows/install_shortcuts.vbs'),
                exec_path, icon_path, sys.prefix]
-        if options.user:
-            cmd.append('/user')
         if options.remove:
             cmd.append('/remove')
             print('Removing menu shortcuts')
