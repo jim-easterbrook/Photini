@@ -1,5 +1,16 @@
-Set args = WScript.Arguments.Unnamed
 Set options = WScript.Arguments.Named
+
+If Not (options.Exists("user") Or options.Exists("elevated")) Then
+    'Re-run this script as administrator
+    ReDim argList(WScript.Arguments.Count - 1)
+    For i = 0 To WScript.Arguments.Count - 1
+        argList(i) = """" + WScript.Arguments(i) + """"
+        Next
+    Set appShell = CreateObject("Shell.Application")
+    appShell.ShellExecute "cscript.exe", """" & WScript.ScriptFullName & """ " & _
+      Join(argList) & " /elevated", , "runas", 0
+    WScript.Quit Err.Number
+End If
 
 Set objShell = WScript.CreateObject("Wscript.Shell")
 
@@ -33,18 +44,10 @@ If options.Exists("remove") Then
     WScript.Quit Err.Number
 End If
 
+Set args = WScript.Arguments.Unnamed
 strTargetPath = args(0)
 strIconPath = args(1)
 strSystemPrefix = args(2)
-
-If Not (options.Exists("user") Or options.Exists("elevated")) Then
-    'Re-run this script as administrator
-    Set appShell = CreateObject("Shell.Application")
-    appShell.ShellExecute "cscript.exe", """" & WScript.ScriptFullName & """" & _
-      " """ & strTargetPath & """ """ & strIconPath & """ """ & strSystemPrefix & _
-      """ /elevated", , "runas", 0
-    WScript.Quit Err.Number
-End If
 
 'Create start menu group
 If Not FSO.FolderExists(strGroup) Then
