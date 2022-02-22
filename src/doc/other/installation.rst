@@ -21,9 +21,10 @@ Python
 
 Python_ is absolutely essential to run Photini.
 It is already installed on many computers, but on Windows you will probably need to install it yourself.
-Go to https://www.python.org/downloads/ and choose a suitable Windows installer.
-I suggest you use the 64-bit stable release with the highest version number that will run on your version of Windows.
-Beware of using very recent versions though, as some dependencies may not have been updated to work with the latest Python.
+I suggest reading `Using Python on Windows`_ before you begin.
+Go to https://www.python.org/downloads/windows/ and choose a suitable Python 3 installer.
+Use the 64-bit stable release with the highest version number that will run on your version of Windows.
+Beware of using very new releases though, as some dependencies may not have been updated to work with the latest Python.
 
 When you run the Python installer make sure you select the "add Python to PATH" option.
 If you customise your installation then make sure you still select "pip".
@@ -31,7 +32,9 @@ If you would like other users to be able to run Photini then you need to install
 
 .. highlight:: none
 
-After installing Python, start a shell (e.g. ``cmd.exe``) and try running ``pip``::
+After installing Python, start a shell such as ``cmd.exe``.
+(If you installed Python for all users you will need to run the shell as administrator.)
+Now try running pip_::
 
     C:\Users\Jim>pip list
     Package    Version
@@ -43,7 +46,6 @@ After installing Python, start a shell (e.g. ``cmd.exe``) and try running ``pip`
     You should consider upgrading via the 'c:\users\jim\appdata\local\programs\python\python38\python.exe -m pip install --upgrade pip' command.
 
 As suggested, you should upgrade pip now.
-(If you installed Python for all users you will need to run the shell as administrator.)
 Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::
 
     C:\Users\Jim>python -m pip install -U pip
@@ -136,9 +138,10 @@ Photini works without it, but you won't be able to read metadata from video file
 Although you can run Photini from a command shell, most Windows users would probably prefer to use the start menu or a desktop icon.
 These can be installed with the ``photini-post-install`` command, as described in :ref:`installing-menu-entries` below::
 
-    C:\Users\Jim>photini-post-install
+    C:\Users\Jim>photini-post-install --user
     Creating menu shortcuts
 
+If you are installing Photini for all users then leave out the ``--user`` option.
 This will open a dialog to request administrator privileges if you are not already running your command shell as administrator.
 
 .. _installation-linux:
@@ -147,13 +150,11 @@ Linux and MacOS
 ---------------
 
 Photini is available from the package manager on some Linux distributions, but beware of versions that are very out of date.
-In general I recommend installing Photini with pip_ and the dependencies with the package manager, to avoid breaking other software installed on your computer by installing an incompatible version.
+Most of Photini's dependencies can be installed with pip_ or with the system package manager.
+For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
 
 See :ref:`essential-dependencies` and :ref:`installation-optional` for a full list of dependencies.
-Where there is a choice of package you should usually choose the one that's available from your package manager.
-
-If a package is not available from the system's package manager (or is not a dependency of other software) then you can use ``pip`` to install it from PyPI_.
-You may need to use ``pip3`` rather than ``pip`` to install Python3 packages.
+I suggest installing PySide6 or PySide2 or PyQt (whichever is available) with your system package manager so that you get the same GUI style as other Qt based applications.
 
 Different operating systems have different names for the same packages.
 If you run into problems, please let me know (email jim@jim-easterbrook.me.uk) and once we've worked out what needs to be done I'll be able to improve these instructions.
@@ -163,16 +164,13 @@ Latest release
 
 The easiest way to install the latest release of Photini is with the pip_ command::
 
-    $ sudo pip3 install photini
+    $ pip3 install --user photini
 
-This will install Photini and any Python packages it requires, for all users.
-If you prefer a single-user installation, which doesn't require root permission, you can use the ``--user`` option::
-
-    $ pip3 install photini --user
+This will install Photini and some of the Python packages it requires, for a single user.
 
 You can also use pip to install the optional dependencies when you install Photini::
 
-    $ sudo pip3 install photini[flickr,ipernity,google,importer,spelling]
+    $ pip3 install --user photini[flickr,ipernity,google,importer,spelling]
 
 .. _installation-photini:
 
@@ -190,21 +188,64 @@ This can be useful during development as the script should also work within an I
 
 The development version can be built and installed using pip::
 
-    $ sudo pip3 install .
+    $ pip3 install --user .
 
-or::
+You can also use pip to install the optional dependencies::
 
-    $ pip3 install . --user
-
-You will need to install the optional dependencies separately.
+    $ pip3 install --user .[flickr,ipernity,google,importer,spelling]
 
 If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
 
     $ python3 utils/lang_update.py
     $ python3 utils/build_lang.py
+    $ pip3 install --user .
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
+
+Multi-user installation
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The pip_ commands given above install Photini for a single user.
+Other users will probably not be able to run Photini as it is installed in that user's ``$HOME/.local/bin`` directory.
+The solution is to use a Python `virtual environment`_.
+
+First create and activate a virtual environment for Photini in a convenient place, e.g. ``$HOME/photini``::
+
+    jim@brains:~$ python3 -m venv photini
+    jim@brains:~$ source photini/bin/activate
+    (photini) jim@brains:~$
+
+Next install Photini and any dependencies that haven't already been installed with the system package manager.
+Note that you do not need the ``--user`` option when in a virtual environment::
+
+    (photini) jim@brains:~$ pip install photini python-exiv2 gphoto2 gpxpy
+
+The virtual environment ``bin`` directory now contains a ``photini`` command that can be run by any user::
+
+    (photini) jim@brains:~$ ls -l /home/jim/photini/bin
+    total 52
+    -rw-r--r-- 1 jim users 2199 Feb 22 14:18 activate
+    -rw-r--r-- 1 jim users 1255 Feb 22 14:18 activate.csh
+    -rw-r--r-- 1 jim users 2419 Feb 22 14:18 activate.fish
+    -rwxr-xr-x 1 jim users  243 Feb 22 14:18 easy_install
+    -rwxr-xr-x 1 jim users  243 Feb 22 14:18 easy_install-3.6
+    -rwxr-xr-x 1 jim users 5282 Feb 22 14:21 gpxinfo
+    -rwxr-xr-x 1 jim users  257 Feb 22 14:21 normalizer
+    -rwxr-xr-x 1 jim users  226 Feb 22 14:21 photini
+    -rwxr-xr-x 1 jim users  243 Feb 22 14:21 photini-post-install
+    -rwxr-xr-x 1 jim users  234 Feb 22 14:18 pip
+    -rwxr-xr-x 1 jim users  234 Feb 22 14:18 pip3
+    -rwxr-xr-x 1 jim users  234 Feb 22 14:18 pip3.6
+    lrwxrwxrwx 1 jim users    7 Feb 22 14:18 python -> python3
+    lrwxrwxrwx 1 jim users   16 Feb 22 14:18 python3 -> /usr/bin/python3
+    (photini) jim@brains:~$ 
+
+Any user can add Photini to their application menu by running the ``photini-post-install`` command using its full path::
+
+    sarah@brains:~> /home/jim/photini/bin/photini-post-install --user
+    desktop-file-install --dir=/home/sarah/.local/share/applications --set-key=Exec --set-value=/home/jim/photini/bin/photini %F --set-key=Icon --set-value=/home/jim/photini/lib64/python3.6/site-packages/photini/data/icons/photini_48.png /home/jim/photini/lib64/python3.6/site-packages/photini/data/linux/photini.desktop
+    sarah@brains:~>
 
 .. _installing-menu-entries:
 
@@ -217,17 +258,21 @@ In previous versions of Photini installing with pip_ created start menu (Windows
 Recent versions of pip have made this a lot more difficult, so now the menu entries need to be created after installation.
 Run a command window, as described in the troubleshooting_ section, then run Photini's post installation command::
 
-    $ sudo photini-post-install
+    $ photini-post-install --user
 
 or ::
 
-    C:\>photini-post-install
+    C:\>photini-post-install --user
 
-If you only want menu entries for a single user, run the command with the ``--user`` (or ``-u``) option::
+If you want to install menu entries for all users, run the command without the ``--user`` option::
 
-    $ photini-post-install --user
+    $ sudo photini-post-install
 
-The menu entries can be removed with the ``--remove`` (or ``-r``) option::
+The menu entries can be removed with the ``--remove`` option::
+
+    $ photini-post-install --user --remove
+
+or::
 
     $ sudo photini-post-install --remove
 
@@ -242,7 +287,7 @@ When a new release of Photini is issued you can easily update your installation 
 
 or ::
 
-    $ sudo pip3 install -U photini
+    $ pip3 install --user -U photini
 
 The ``-U`` option tells pip to update Photini to the latest available version.
 
@@ -395,10 +440,13 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _FFmpeg:            https://ffmpeg.org/
 .. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
-.. _Windows installers: https://github.com/jim-easterbrook/Photini/releases/tag/2020.4.0-win
+.. _Windows installers:
+        https://github.com/jim-easterbrook/Photini/releases/tag/2020.4.0-win
 .. _gpxpy:             https://pypi.org/project/gpxpy/
 .. _Gspell:            https://gitlab.gnome.org/GNOME/gspell
 .. _keyring:           https://keyring.readthedocs.io/
+.. _Managing Python packages the right way:
+        https://opensource.com/article/19/4/managing-python-packages
 .. _MSYS2:             http://www.msys2.org/
 .. _NumPy:             http://www.numpy.org/
 .. _OpenCV:            http://opencv.org/
@@ -407,7 +455,8 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _Pillow:            http://pillow.readthedocs.io/
 .. _pip:               https://pip.pypa.io/en/latest/
 .. _PyEnchant:         https://pypi.org/project/pyenchant/
-.. _pyenchant documentation: https://pyenchant.github.io/pyenchant/install.html
+.. _pyenchant documentation:
+        https://pyenchant.github.io/pyenchant/install.html
 .. _PyGObject:         https://pygobject.readthedocs.io/
 .. _Python:            https://www.python.org/
 .. _python-exiv2:      https://pypi.org/project/python-exiv2/
@@ -421,4 +470,8 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _requests:          http://python-requests.org/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
 .. _requests-toolbelt: https://toolbelt.readthedocs.io/
+.. _Using Python on Windows:
+        https://docs.python.org/3/using/windows.html
+.. _virtual environment:
+        https://docs.python.org/3/tutorial/venv.html
 .. _WinPython:         http://winpython.github.io/
