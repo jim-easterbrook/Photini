@@ -57,7 +57,7 @@ if qt_lib == 'auto':
         qt_lib = package
         break
     else:
-        qt_lib = _libs[0]
+        raise RuntimeError('Please install ' + ' or '.join(_libs))
 using_pyside = qt_lib != 'PyQt5'
 
 # import normal Qt stuff
