@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -61,7 +61,8 @@ def post_install(argv=None):
     elif sys.platform.startswith('linux'):
         local_dir = os.path.expanduser('~/.local/share/applications')
         if options.remove:
-            if options.user:
+            if os.geteuid() != 0:
+                # not running as root
                 paths = [local_dir]
             else:
                 paths = ['/usr/share/applications/',
@@ -76,12 +77,13 @@ def post_install(argv=None):
             return 1
         icon_path = os.path.join(icon_path, 'photini_48.png')
         cmd = ['desktop-file-install']
-        if options.user:
+        if os.geteuid() != 0:
+            # not running as root
             cmd.append('--dir={}'.format(local_dir))
         cmd += ['--set-key=Exec', '--set-value={} %F'.format(exec_path)]
         cmd += ['--set-key=Icon', '--set-value={}'.format(icon_path)]
         cmd.append(pkg_resources.resource_filename(
             'photini', 'data/linux/photini.desktop'))
-        print(' '.join(cmd))
+        print(' \\\n  '.join(cmd))
         return subprocess.call(cmd)
     return 0
