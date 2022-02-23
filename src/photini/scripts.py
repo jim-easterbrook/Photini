@@ -39,7 +39,8 @@ def post_install(argv=None):
     parser.add_option(
         '-r', '--remove', action='store_true', help='uninstall menu entry')
     options, args = parser.parse_args()
-    exec_path = os.path.join(os.path.dirname(sys.argv[0]), 'photini')
+    exec_path = os.path.abspath(
+        os.path.join(os.path.dirname(sys.argv[0]), 'photini'))
     icon_path = pkg_resources.resource_filename('photini', 'data/icons')
     if sys.platform == 'win32':
         exec_path += '.exe'
