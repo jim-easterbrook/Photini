@@ -103,7 +103,7 @@ You should stay in this virtual environment while installing and testing Photini
 Minimal installation
 ^^^^^^^^^^^^^^^^^^^^
 
-Photini and its required dependencies can all be installed with pip_.
+Photini and a set of essential dependencies can all be installed with pip_.
 Windows |nbsp| 7 users should install PySide2, users of later Windows versions should install PySide6.
 
 .. tabs::
@@ -208,7 +208,7 @@ Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
 Most of the dependencies required for Photini's optional features can also be installed with pip_.
-They are specified as one or more "extras" in square brackets:
+Many are specified as one or more "extras" in square brackets:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -288,6 +288,37 @@ They are specified as one or more "extras" in square brackets:
              |████████████████████████████████| 151 kB 595 kB/s
         Installing collected packages: zipp, pywin32-ctypes, oauthlib, importlib-metadata, requests-toolbelt, requests-oauthlib, pyenchant, keyring
         Successfully installed importlib-metadata-4.11.1 keyring-23.5.0 oauthlib-3.2.0 pyenchant-3.2.2 pywin32-ctypes-0.2.0 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1 zipp-3.7.0
+
+Other optional dependencies (Pillow_, gpxpy_) can also be installed with pip_, but may not be available for all Python and operating system combinations:
+
+.. tabs::
+    .. code-tab:: none Linux/MacOS
+
+        jim@mint:~$ pip install pillow gpxpy
+        Collecting pillow
+          Downloading Pillow-9.0.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.3 MB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 637.1 kB/s eta 0:00:00
+        Collecting gpxpy
+          Downloading gpxpy-1.5.0.tar.gz (111 kB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.6/111.6 KB 384.5 kB/s eta 0:00:00
+          Preparing metadata (setup.py) ... done
+        Using legacy 'setup.py install' for gpxpy, since package 'wheel' is not installed.
+        Installing collected packages: pillow, gpxpy
+          Running setup.py install for gpxpy ... done
+        Successfully installed gpxpy-1.5.0 pillow-9.0.1
+    .. code-tab:: none Windows
+
+        C:\Users\Jim>pip install pillow gpxpy
+        Collecting pillow
+          Downloading Pillow-9.0.1-cp38-cp38-win_amd64.whl (3.2 MB)
+             |████████████████████████████████| 3.2 MB 13 kB/s
+        Collecting gpxpy
+          Downloading gpxpy-1.5.0.tar.gz (111 kB)
+             |████████████████████████████████| 111 kB 595 kB/s
+        Using legacy 'setup.py install' for gpxpy, since package 'wheel' is not installed.
+        Installing collected packages: pillow, gpxpy
+            Running setup.py install for gpxpy ... done
+        Successfully installed gpxpy-1.5.0 pillow-9.0.1
 
 One optional dependency that cannot be installed with pip_ is FFmpeg_.
 This is used to read metadata from video files.
