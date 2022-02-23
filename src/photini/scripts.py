@@ -51,9 +51,6 @@ def post_install(argv=None):
                exec_path, icon_path, sys.prefix]
         if options.remove:
             cmd.append('/remove')
-            print('Removing menu shortcuts')
-        else:
-            print('Creating menu shortcuts')
         return subprocess.call(cmd)
     elif sys.platform.startswith('linux'):
         local_dir = os.path.expanduser('~/.local/share/applications')
