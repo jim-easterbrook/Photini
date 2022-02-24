@@ -546,7 +546,8 @@ Try running Photini before installing either as an extra package.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [3] `python-exiv2`_ is a new interface to the Exiv2_ library, which Photini versions 2021.9.0 onwards can use.
-If you cannot install it on your computer then you need to install these packages instead:
+If you cannot install it on your computer then you need to install the packages shown below instead.
+A future release of Photini will not have this option, so please let me know if you are unable to install python-exiv2.
 
 =============================  =================  ============================  =================
 Package                        Minimum version    Typical Linux package name    PyPI package name
