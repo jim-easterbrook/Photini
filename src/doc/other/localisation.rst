@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-20  Jim Easterbrook.
+   Copyright (C)  2015-22  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -38,23 +38,23 @@ If possible, install these with your operating system software manager.
 ``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
 Otherwise, you can use pip::
 
-   sudo pip install transifex-client Babel
+   $ pip3 install transifex-client Babel
 
 Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
 For example, if you are going to translate Photini into Dutch::
 
-   tx pull -l nl -f
+   $ tx pull -l nl -f
 
 (The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
 
 Now update (or initialise if they don't exist) the translation files with the current program strings::
 
-   python utils/lang_update.py -l nl
+   $ python utils/lang_update.py -l nl
 
 Now you can open a translation file in your chosen editor, for example::
 
-   linguist-qt5 src/lang/nl/photini.ts
-   linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
+   $ linguist-qt5 src/lang/nl/photini.ts
+   $ linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
 
 You can use any text editor for your translations, but a special purpose translation editor is preferable.
 The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings or the ``.po`` file format used for the documentation should be acceptable.
@@ -86,14 +86,14 @@ The program strings are stored in files with names like ``src/lang/nl/photini.ts
 You can open the translation file in any editor, but a translation tool is best.
 For example::
 
-   linguist-qt5 src/lang/nl/photini.ts
+   $ linguist-qt5 src/lang/nl/photini.ts
 
 See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
 
 If you have a Transifex account then you should upload your translation as it progresses.
 This will ensure that your work isn't accidentally duplicated by other translators::
 
-   tx push -t -l nl
+   $ tx push -t -l nl
 
 .. _localisation-program-notes:
 
@@ -145,24 +145,24 @@ Testing your translation
 If you've been working online then the Transifex client is used to download your translated strings.
 For example, if you've been working on a Dutch translation with the language code ``nl``::
 
-   tx pull -l nl -f
+   $ tx pull -l nl -f
 
 The translation file (e.g. ``src/lang/nl/photini.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
 
 You can easily update and compile all the language files::
 
-   python utils/lang_update.py
-   python utils/build_lang.py
+   $ python utils/lang_update.py
+   $ python utils/build_lang.py
 
 Now you can install Photini with your new translation(s)::
 
-   sudo python -m pip install .
+   $ pip install .
 
 Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately.
 You can force this when running Photini from the command line::
 
-   LANG=nl photini
+   $ LANG=nl photini
 
 Photini should now be using your translations.
 
@@ -185,14 +185,14 @@ The documentation translation uses ``.po`` files as specified by the `GNU gettex
 You can open the translation file in any editor, but a translation tool is best.
 For example::
 
-   linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
+   $ linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
 If you have a Transifex account then you should upload your translation as it progresses.
 This will ensure that your work isn't accidentally duplicated by other translators::
 
-   tx push -t -l nl
+   $ tx push -t -l nl
 
 .. _localisation-documentation-notes:
 
@@ -230,12 +230,12 @@ Testing your translation
 The Transifex client is used to download your translated strings.
 For example, if you've been working online on a Dutch translation with the language code ``nl``::
 
-   tx pull -l nl -f
+   $ tx pull -l nl -f
 
 If you install Sphinx_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::
 
-   LANG=nl python utils/build_docs.py
+   $ LANG=nl python utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the translated documentation.
 

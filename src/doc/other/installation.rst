@@ -5,10 +5,12 @@
 .. |nbsp| unicode:: 0xA0
     :trim:
 
+.. highlight:: none
+
 Installation
 ============
 
-Installation of Photini is done in two parts - first install Python, then use Python to install Photini.
+Installation of Photini is done in two parts - first install Python, then use Python to install and run Photini.
 
 Installing Python
 -----------------
@@ -16,60 +18,83 @@ Installing Python
 Python_ is absolutely essential to run Photini.
 It is already installed on many computers, but on Windows you will probably need to install it yourself.
 
-Windows
-^^^^^^^
+.. tabs::
+    .. tab:: Linux/MacOS
 
-I suggest reading `Using Python on Windows`_ before you begin.
-Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer.
-Use the 64-bit stable release with the highest version number that will run on your version of Windows.
-Beware of using very new releases though, as some dependencies may not have been updated to work with the latest Python.
+        Python should already be installed, but make sure you have Python |nbsp| 3.
+        Open a terminal window and run the ``python3`` command::
 
-When you run the Python installer make sure you select the "add Python to PATH" option.
-If you customise your installation then make sure you still select "pip".
-If you would like other users to be able to run Photini then you need to install Python for all users (in the "Advanced Options" part of customised installation).
+            jim@mint:~$ python3 -V
+            Python 3.8.10
 
-.. highlight:: none
+        Note that the command is ``python3``.
+        On many machines the ``python`` command still runs Python |nbsp| 2.
+        If you do not have Python |nbsp| 3 installed then use your operating system's package manager to install it.
 
-After installing Python, start a command window such as ``cmd.exe``.
-Now try running pip_::
+        You should also check what version of pip_ is installed::
 
-    C:\Users\Jim>pip list
-    Package    Version
-    ---------- -------
-    pip        21.1.1
-    setuptools 56.0.0
-    WARNING: You are using pip version 21.1.1; however, version 22.0.3 is available.
+            jim@mint:~$ pip --version
+            pip 20.0.2 from /usr/lib/python3/dist-packages/pip (python 3.8)
 
-    You should consider upgrading via the 'c:\program files\python38\python.exe -m pip install --upgrade pip' command.
+        Most Linux systems suppress pip's normal version check, but I recommend upgrading pip anyway::
 
-As suggested, you should upgrade pip now.
-(If you installed Python for all users you will need to run the shell as administrator.)
-Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::
+            jim@mint:~$ python3 -m pip install -U pip
+            Collecting pip
+              Downloading pip-22.0.3-py3-none-any.whl (2.1 MB)
+                 |████████████████████████████████| 2.1 MB 185 kB/s 
+            Installing collected packages: pip
+            Successfully installed pip-22.0.3
+            Installing collected packages: pip
+              WARNING: The scripts pip, pip3 and pip3.8 are installed in '/home/jim/.local/bin' which is not on PATH.
+              Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+            Successfully installed pip-22.0.3
 
-    C:\Windows\system32>python -m pip install -U pip
-    Requirement already satisfied: pip in c:\program files\python38\lib\site-packages (21.1.1)
-    Collecting pip
-      Downloading pip-22.0.3-py3-none-any.whl (2.1 MB)
-         |████████████████████████████████| 2.1 MB 161 kB/s
-    Installing collected packages: pip
-      Attempting uninstall: pip
-        Found existing installation: pip 21.1.1
-        Uninstalling pip-21.1.1:
-          Successfully uninstalled pip-21.1.1
-    Successfully installed pip-22.0.3
+        Note that pip has installed the new version in ``/home/jim/.local`` as normal users can't write to ``/usr``.
+        You may need to log out and then log in again to update your PATH settings.
 
-Linux/MacOS
-^^^^^^^^^^^
+        Running ``pip --version`` again shows the new version::
 
-Python should already be installed, but make sure you have Python |nbsp| 3::
+            jim@mint:~$ pip --version
+            pip 22.0.3 from /home/jim/.local/lib/python3.8/site-packages/pip (python 3.8)
 
-    jim@mint:~$ python3 -V
-    Python 3.8.10
+    .. tab:: Windows
 
-Note that the command is ``python3``.
-On many machines the ``python`` command still runs Python |nbsp| 2.
+        I suggest reading `Using Python on Windows`_ before you begin.
+        Go to https://www.python.org/downloads/windows/ and choose a suitable Python |nbsp| 3 installer.
+        Use the 64-bit stable release with the highest version number that will run on your version of Windows.
+        Beware of using very new releases though, as some dependencies may not have been updated to work with the latest Python.
 
-If you do not have Python |nbsp| 3 installed then use your operating system's package manager to install it.
+        When you run the Python installer make sure you select the "add Python to PATH" option.
+        If you customise your installation then make sure you still select "pip".
+        If you would like other users to be able to run Photini then you need to install Python for all users (in the "Advanced Options" part of customised installation).
+
+        After installing Python, start a command window such as ``cmd.exe``.
+        Now try running pip_::
+
+            C:\Users\Jim>pip list
+            Package    Version
+            ---------- -------
+            pip        21.1.1
+            setuptools 56.0.0
+            WARNING: You are using pip version 21.1.1; however, version 22.0.3 is available.
+
+            You should consider upgrading via the 'c:\program files\python38\python.exe -m pip install --upgrade pip' command.
+
+        As suggested, you should upgrade pip now.
+        (If you installed Python for all users you will need to run the shell as administrator.)
+        Note that ``pip`` must be run as ``python -m pip`` when upgrading itself::
+
+            C:\Windows\system32>python -m pip install -U pip
+            Requirement already satisfied: pip in c:\program files\python38\lib\site-packages (21.1.1)
+            Collecting pip
+            Downloading pip-22.0.3-py3-none-any.whl (2.1 MB)
+                |████████████████████████████████| 2.1 MB 161 kB/s
+            Installing collected packages: pip
+            Attempting uninstall: pip
+                Found existing installation: pip 21.1.1
+                Uninstalling pip-21.1.1:
+                Successfully uninstalled pip-21.1.1
+            Successfully installed pip-22.0.3
 
 Installing Photini
 ------------------
@@ -597,13 +622,13 @@ This can be useful during development as the script should also work within an I
 
 The development version can be built and installed using pip::
 
-    $ pip3 install --user .
+    $ pip3 install .
 
 If you'd like to test or use one of Photini's translation files you will need to update and compile the translations before installing or running Photini::
 
     $ python3 utils/lang_update.py
     $ python3 utils/build_lang.py
-    $ pip3 install --user .
+    $ pip3 install .
 
 This requires the Qt "linguist" software to be installed.
 See :ref:`localisation-program-testing` for more information about using translations.
@@ -679,9 +704,9 @@ You can view previous messages and ask to join the group at https://groups.googl
 Photini documentation
 ---------------------
 
-If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install `Sphinx <http://sphinx-doc.org/index.html>`_ and then "compile" the documentation::
+If you would like to have a local copy of the Photini documentation, and have downloaded or cloned the source files, you can install Sphinx_ and associated packages and then "compile" the documentation::
 
-    $ pip3 install sphinx
+    $ pip3 install -r src/doc/requirements.txt
     $ python3 utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the local documentation.
@@ -720,6 +745,7 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _requests:          http://python-requests.org/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
 .. _requests-toolbelt: https://toolbelt.readthedocs.io/
+.. _Sphinx:            https://www.sphinx-doc.org/
 .. _Using Python on Windows:
         https://docs.python.org/3/using/windows.html
 .. _virtual environment:
