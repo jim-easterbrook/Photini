@@ -4,10 +4,9 @@ strTargetPath = args(0)
 strIconPath = args(1)
 strSystemPrefix = args(2)
 
-On Error Resume Next
-
 Set objShell = WScript.CreateObject("Wscript.Shell")
 
+On Error Resume Next
 'Attempt to read registry to find out if we have administrator rights
 objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
 If Err.Number <> 0 Then
@@ -20,6 +19,7 @@ Else
   strDesktop = objShell.SpecialFolders("AllUsersDesktop")
   strGroup = objShell.SpecialFolders("AllUsersStartMenu") & "\Photini"
 End If
+On Error GoTo 0
 
 strDesktopLink = strDesktop & "\Photini.lnk"
 strShortcutLink = strGroup & "\Photini.lnk"
@@ -32,25 +32,26 @@ If options.Exists("remove") Then
     If FSO.FileExists(strDesktopLink) Then
         WScript.Echo "Deleting " & strDesktopLink
         FSO.DeleteFile(strDesktopLink)
-        If Err.Number <> 0 then WScript.Quit Err.Number
     End If
     If FSO.FileExists(strShortcutLink) Then
         WScript.Echo "Deleting " & strShortcutLink
         FSO.DeleteFile(strShortcutLink)
-        If Err.Number <> 0 then WScript.Quit Err.Number
+    End If
+    If FSO.FileExists(strDocumentationLink) Then
+        WScript.Echo "Deleting " & strDocumentationLink
+        FSO.DeleteFile(strDocumentationLink)
     End If
     If FSO.FolderExists(strGroup) Then
         WScript.Echo "Deleting " & strGroup
         FSO.DeleteFolder(strGroup)
     End If
-    WScript.Quit Err.Number
+    WScript.Quit 0
 End If
 
 'Create start menu group
 If Not FSO.FolderExists(strGroup) Then
     WScript.Echo "Creating " & strGroup
     FSO.CreateFolder(strGroup)
-    If Err.Number <> 0 then WScript.Quit Err.Number
 End If
 
 'Create program desktop shortcut
@@ -60,7 +61,6 @@ objShortcut.TargetPath = strTargetPath
 objShortcut.Description = "Photini metadata editor"
 objShortcut.IconLocation = strIconPath
 objShortcut.Save
-If Err.Number <> 0 then WScript.Quit Err.Number
 
 'Create program start menu shortcut
 WScript.Echo "Creating " & strShortcutLink
@@ -69,11 +69,9 @@ objShortcut.TargetPath = strTargetPath
 objShortcut.Description = "Photini metadata editor"
 objShortcut.IconLocation = strIconPath
 objShortcut.Save
-If Err.Number <> 0 then WScript.Quit Err.Number
 
 'Create documentation start menu shortcut
 WScript.Echo "Creating " & strDocumentationLink
 Set objShortcut = objShell.CreateShortcut(strDocumentationLink)
 objShortcut.TargetPath = "https://photini.readthedocs.io/"
 objShortcut.Save
-If Err.Number <> 0 then WScript.Quit Err.Number

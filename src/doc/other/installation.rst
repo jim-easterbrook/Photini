@@ -369,7 +369,10 @@ These can be installed with the ``photini-post-install`` command:
     .. code-tab:: none Windows
 
         C:\Users\Jim>photini-post-install --user
-        Creating menu shortcuts
+        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
+        Creating C:\Users\Jim\Desktop\Photini.lnk
+        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
 
 Additional users
 ^^^^^^^^^^^^^^^^
@@ -401,7 +404,10 @@ This is not a very convenient way to run Photini, so most users will want to add
     .. code-tab:: none Windows
 
         C:\Users\Sarah>..\Jim\photini\Scripts\photini-post-install.exe --user
-        Creating menu shortcuts
+        Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
+        Creating C:\Users\Sarah\Desktop\Photini.lnk
+        Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
 
 To install Photini menu shortcuts for all users you can run the post install command as root (Linux) or in a command window run as administrator (Windows).
 It is important to use the full path to the post install command:
@@ -420,7 +426,10 @@ It is important to use the full path to the post install command:
     .. code-tab:: none Windows
 
         C:\Windows\system32>c:\Users\Jim\photini\Scripts\photini-post-install.exe
-        Creating menu shortcuts
+        Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini
+        Creating C:\Users\Public\Desktop\Photini.lnk
+        Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Creating C:\ProgramData\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
 
 Uninstalling Photini
 ^^^^^^^^^^^^^^^^^^^^
@@ -435,7 +444,10 @@ Before removing Photini you should use the ``photini-post-install`` command to r
     .. code-tab:: none Windows
 
         C:\Users\Jim>photini-post-install --user --remove
-        Removing menu shortcuts
+        Deleting C:\Users\Jim\Desktop\Photini.lnk
+        Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
+        Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
+        Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
 
 If you used a virtual environment you can simply delete the top level directory created when setting up the virtual environment.
 Otherwise you can use pip to uninstall Photini and as many of its dependencies as you want to remove:
