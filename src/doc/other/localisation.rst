@@ -49,7 +49,7 @@ For example, if you are going to translate Photini into Dutch::
 
 Now update (or initialise if they don't exist) the translation files with the current program strings::
 
-   $ python utils/lang_update.py -l nl
+   $ python3 utils/lang_update.py -l nl
 
 Now you can open a translation file in your chosen editor, for example::
 
@@ -152,8 +152,8 @@ This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-lingui
 
 You can easily update and compile all the language files::
 
-   $ python utils/lang_update.py
-   $ python utils/build_lang.py
+   $ python3 utils/lang_update.py
+   $ python3 utils/build_lang.py
 
 Now you can install Photini with your new translation(s)::
 
@@ -235,7 +235,7 @@ For example, if you've been working online on a Dutch translation with the langu
 If you install Sphinx_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::
 
-   $ LANG=nl python utils/build_docs.py
+   $ LANG=nl python3 utils/build_docs.py
 
 Open ``doc/html/index.html`` with a web browser to read the translated documentation.
 
