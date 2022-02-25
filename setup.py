@@ -23,16 +23,20 @@ from setuptools import setup
 # list dependency packages
 install_requires = ['appdirs', 'requests']
 extras_require = {
+    'basic'    : ['python-exiv2', 'PySide2'],
     'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'google'   : ['requests-oauthlib', 'keyring'],
-    'importer' : ['gphoto2'],
+    'importer' : ['gphoto2; platform_system != "Windows"'],
     'ipernity' : ['requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
-    'win7'     : ['PySide2', 'python-exiv2', 'pyenchant', 'gpxpy',
-                  'requests-oauthlib', 'requests-toolbelt', 'keyring'],
-    'win10'    : ['PySide6', 'python-exiv2', 'pyenchant', 'gpxpy',
-                  'requests-oauthlib', 'requests-toolbelt', 'keyring'],
     }
+extras_require['extras'] = list(
+    set(extras_require['flickr']) | set(extras_require['google']) |
+    set(extras_require['importer']) | set(extras_require['ipernity']) |
+    set(extras_require['spelling']) | set(['gpxpy']))
+extras_require['win7'] = list(
+    set(extras_require['basic']) | set(extras_require['extras']))
+extras_require['win10'] = extras_require['win7']
 
 # add version numbers
 min_version = {
@@ -42,11 +46,14 @@ min_version = {
     'python-exiv2': '0.8.1',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
     }
+
+def add_version(package):
+    package, sep, marker = package.partition(';')
+    return '{} >= {}'.format(package, min_version[package]) + sep + marker
+
 for option in extras_require:
-    extras_require[option] = ['{} >= {}'.format(x, min_version[x])
-                              for x in extras_require[option]]
-install_requires = ['{} >= {}'.format(x, min_version[x])
-                    for x in install_requires]
+    extras_require[option] = [add_version(x) for x in extras_require[option]]
+install_requires = [add_version(x) for x in install_requires]
 
 # read current version info without importing package
 with open('src/photini/__init__.py') as f:
