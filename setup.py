@@ -33,7 +33,7 @@ extras_require = {
 extras_require['extras'] = list(
     set(extras_require['flickr']) | set(extras_require['google']) |
     set(extras_require['importer']) | set(extras_require['ipernity']) |
-    set(extras_require['spelling']) | set(['gpxpy']))
+    set(extras_require['spelling']) | set(['gpxpy', 'Pillow']))
 extras_require['win7'] = list(
     set(extras_require['basic']) | set(extras_require['extras']))
 extras_require['win10'] = extras_require['win7']
@@ -43,7 +43,7 @@ min_version = {
     'appdirs': '1.3', 'gphoto2': '0.10', 'gpxpy': '1.3.5', 'keyring': '7.0',
     'pyenchant': '2.0',
     'PyQt5': '5.0.0', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
-    'python-exiv2': '0.8.1',
+    'Pillow': '2.0.0', 'python-exiv2': '0.8.1',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
     }
 
