@@ -135,7 +135,7 @@ class UploadWorker(QtCore.QObject):
                         self.fileobj, imghdr.what(path), image, params)
                 except UploadAborted:
                     error = 'UploadAborted'
-                    session.api = None
+                    session.close_connection()
                 except Exception as ex:
                     error = str(ex)
             self.upload_progress.emit({'busy': False})
