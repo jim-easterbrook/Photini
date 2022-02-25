@@ -342,6 +342,7 @@ class HiddenWidget(QtWidgets.QCheckBox):
 
 
 class TabWidget(PhotiniUploader):
+    logger = logger
     session_factory = FlickrSession
 
     @staticmethod

@@ -309,6 +309,7 @@ class LicenceWidget(DropDownSelector):
 
 
 class TabWidget(PhotiniUploader):
+    logger = logger
     session_factory = IpernitySession
 
     @staticmethod

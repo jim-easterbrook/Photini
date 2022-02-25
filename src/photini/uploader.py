@@ -235,7 +235,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.shutdown)
-        logger.debug('using %s', keyring.get_keyring().__module__)
+        self.logger.debug('using %s', keyring.get_keyring().__module__)
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
@@ -593,7 +593,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             if frob is not None:
                 auth_url = self.session.get_auth_url(frob)
                 if not auth_url:
-                    logger.error('Failed to get auth URL')
+                    self.logger.error('Failed to get auth URL')
                     return
             else:
                 # create temporary local web server
@@ -601,7 +601,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
                 auth_url = self.session.get_auth_url(redirect_uri)
                 if not auth_url:
-                    logger.error('Failed to get auth URL')
+                    self.logger.error('Failed to get auth URL')
                     http_server.server_close()
                     return
                 server = AuthServer()
@@ -615,7 +615,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 thread.finished.connect(thread.deleteLater)
                 thread.start()
             if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
-                logger.error('Failed to open web browser')
+                self.logger.error('Failed to open web browser')
                 return
         if not frob:
             # server will call auth_response with a token
@@ -804,7 +804,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if rsp.status_code == 200:
             remote_icon = rsp.content
         else:
-            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
+            self.logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
             return None
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Select an image'))
