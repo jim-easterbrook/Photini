@@ -105,7 +105,7 @@ Using a virtual environment has other advantages, such as easy uninstallation, s
 
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
-All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 or PySide2 or PyQt (whichever is available) with the package manager so that you get the same GUI style as other Qt based applications.
+All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 or PySide2 or PyQt5 (whichever is available) with the package manager so that you get the same GUI style as other Qt based applications.
 
 Virtual environment
 ^^^^^^^^^^^^^^^^^^^
@@ -128,8 +128,7 @@ You should stay in this virtual environment while installing and testing Photini
 Minimal installation
 ^^^^^^^^^^^^^^^^^^^^
 
-Photini and a set of essential dependencies can all be installed with pip_.
-Windows |nbsp| 7 users should install PySide2, users of later Windows versions should install PySide6.
+Photini and a set of essential dependencies can all be installed with pip_:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
@@ -548,7 +547,7 @@ requests_                      2.4                python3-requests              
 =============================  =================  ============================  =================
 
 [1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework.
-Photini can use any of them, so you can install whichever one you prefer that is available for your operating system.
+Photini can use any of them (although PySide2 is preferred), so you can install whichever one you prefer that is available for your operating system.
 If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
