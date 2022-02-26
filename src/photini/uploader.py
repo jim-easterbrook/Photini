@@ -526,7 +526,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         thread.started.connect(self.upload_worker.start)
         self.upload_worker.finished.connect(self.uploader_finished)
         self.upload_worker.finished.connect(thread.quit)
-        self.upload_worker.finished.connect(self.upload_worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
         thread.start()
 
