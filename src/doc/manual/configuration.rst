@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Configuration
@@ -44,7 +44,7 @@ Spell checking
 
 The ``Spelling`` menu allows you to enable or disable spell checking on Photini's text fields, and to select the language dictionary to use.
 The available languages depend on what dictionaries you have installed.
-Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate Aspell or Hunspell dictionary.
+Adding extra languages on Linux is easy -- just use your system's package manager to install the appropriate dictionary (and make sure you have the appropriate enchant "backend" installed).
 
 Windows programs don't share spell checking dictionaries as easily as on Linux.
 The Hunspell `LibreOffice dictionaries`_ can be used.

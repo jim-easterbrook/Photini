@@ -344,6 +344,9 @@ Other optional dependencies (Pillow_, gpxpy_) can also be installed with pip_, b
             Running setup.py install for gpxpy ... done
         Successfully installed gpxpy-1.5.0 pillow-9.0.1
 
+Photini's spelling checker may require some other files to be installed.
+See the `pyenchant documentation`_ for platform specific instructions.
+
 One optional dependency that cannot be installed with pip_ is FFmpeg_.
 This is used to read metadata from video files.
 Linux & MacOS users can install it with the system package manager, but installing it on Windows is non-trivial.
