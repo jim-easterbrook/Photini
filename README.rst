@@ -32,7 +32,7 @@ Features
 *   Reads Exif, IPTC and XMP metadata, writes all three to maximise compatibility with other software.
 *   Writes metadata to image files or to XMP "sidecar" files.
 *   Can import photographs from many digital cameras.
-*   Upload to Flickr_ and/or `Google Photos`_ with reuse of metadata.
+*   Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata.
 
 .. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_136.png
    :alt: Geotagging screenshot
@@ -89,7 +89,7 @@ Licence
 
 | Photini - a simple photo metadata editor.
 | http://github.com/jim-easterbrook/Photini
-| Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+| Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 
 | German translation by Jan Rimmek
 | Spanish translation by Esteban Martinena & Cristos Ruiz
@@ -124,12 +124,12 @@ The Flickr upload tab uses the Flickr API but is not endorsed or certified by Fl
 Privacy statement
 ^^^^^^^^^^^^^^^^^
 
-Photini does not directly gather any information from its users, but the online services it can use (maps, Flickr, and Google Photos) may do so.
+Photini does not directly gather any information from its users, but the online services it can use (maps and uploaders) may do so.
 You should read these services' privacy policies before using them.
 
 Photini stores user preferences in a text file on the user's computer.
 The default location of this file is ``$HOME/.config/photini/`` (Linux), ``$HOME/Library/Preferences/photini`` (MacOS), or ``%USERPROFILE%\AppData\Local\photini\`` (Windows).
-OAuth_ access tokens for Flickr and Google Photos are securely stored on the user's computer using `Python keyring`_.
+OAuth_ access tokens for the uploader tabs are securely stored on the user's computer using `Python keyring`_.
 
 
 Documentation licence
@@ -147,6 +147,7 @@ A copy of the license is included in the documentation section entitled "GNU Fre
                    http://www.google.com/policies/privacy/
 .. _installation documentation:
                    http://photini.readthedocs.io/en/latest/other/installation.html
+.. _Ipernity:      http://www.ipernity.com/
 .. _"issues" page: https://github.com/jim-easterbrook/Photini/issues
 .. _Linux Format:  http://www.linuxformat.com/archives?issue=166
 .. _localisation documentation:
