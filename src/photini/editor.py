@@ -301,12 +301,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if languages:
             language_group = QtGui2.QActionGroup(self)
             for language in sorted(languages):
-                dict_list = languages[language]
-                if len(dict_list) == 1:
-                    language_menu = spelling_menu
-                else:
-                    language_menu = spelling_menu.addMenu(language)
-                for country, code in dict_list:
+                language_menu = spelling_menu.addMenu(language)
+                for country, code in languages[language]:
                     if country:
                         name = '{}: {}'.format(language, country)
                     else:
