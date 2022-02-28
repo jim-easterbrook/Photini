@@ -153,7 +153,7 @@ class IpernitySession(UploaderSession):
                     }
                 self.cached_data['albums'].append(details)
                 yield details
-            if albums['page'] == albums['pages']:
+            if int(albums['page']) >= int(albums['pages']):
                 break
             page += 1
 
