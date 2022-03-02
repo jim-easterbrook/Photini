@@ -68,7 +68,7 @@ class RightsDropDown(ComboBox):
              'https://creativecommons.org/publicdomain/mark/1.0/'),
             ]
         # add user defined licences
-        licences += self.config_store.get('ownership', 'licences', [])
+        licences += self.config_store.get('ownership', 'licences') or []
         # set up widget
         for name, value in licences:
             self.addItem(name, value)
@@ -109,7 +109,7 @@ class RightsDropDown(ComboBox):
         url = url.toPlainText()
         if not name and url:
             return
-        licences = self.config_store.get('ownership', 'licences', [])
+        licences = self.config_store.get('ownership', 'licences') or []
         licences.append((name, url))
         self.config_store.set('ownership', 'licences', licences)
         self.insertItem(idx, name, url)
