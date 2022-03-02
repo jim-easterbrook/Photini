@@ -23,11 +23,138 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, execute, MultiLineEdit, QtCore, QtSlot, QtWidgets,
-    SingleLineEdit, width_for_text)
+    catch_all, ComboBox, execute, MultiLineEdit, multiple_values, Qt, QtCore,
+    QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class RightsDropDown(ComboBox):
+    editingFinished = QtSignal()
+
+    def __init__(self):
+        super(RightsDropDown, self).__init__()
+        self.config_store = QtWidgets.QApplication.instance().config_store
+        # list of known licences
+        licences = [
+            (translate('OwnerTab', 'All rights reserved'), ''),
+            (translate('OwnerTab', 'Attribution 4.0 (CC BY 4.0)'),
+             'https://creativecommons.org/licenses/by/4.0/'),
+            (translate(
+                'OwnerTab', 'Attribution-ShareAlike 4.0 (CC BY-SA 4.0)'),
+             'https://creativecommons.org/licenses/by-sa/4.0/'),
+            (translate(
+                'OwnerTab', 'Attribution-NonCommercial 4.0 (CC BY-NC 4.0)'),
+             'https://creativecommons.org/licenses/by-nc/4.0/'),
+            (translate(
+                'OwnerTab',
+                'Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)'),
+             'https://creativecommons.org/licenses/by-nc-sa/4.0/'),
+            (translate(
+                'OwnerTab',
+                'Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)'),
+             'https://creativecommons.org/licenses/by-nd/4.0/'),
+            (translate(
+                'OwnerTab',
+                'Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)'),
+             'https://creativecommons.org/licenses/by-nc-nd/4.0/'),
+            (translate(
+                'OwnerTab',
+                'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
+             'https://creativecommons.org/publicdomain/zero/1.0/'),
+            (translate(
+                'OwnerTab', 'Public Domain Mark 1.0'),
+             'https://creativecommons.org/publicdomain/mark/1.0/'),
+            ]
+        # add user defined licences
+        licences += self.config_store.get('ownership', 'licences', [])
+        # set up widget
+        for name, value in licences:
+            self.addItem(name, value)
+        self.addItem(translate('OwnerTab', '<new>'))
+        self.addItem(multiple_values())
+        self.setItemData(self.count() - 1, '<multiple>', Qt.UserRole - 1)
+        self.currentIndexChanged.connect(self.index_changed)
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.set_dropdown_width()
+        self.old_idx = 0
+
+    @QtSlot(int)
+    @catch_all
+    def index_changed(self, idx):
+        if idx < self.count() - 2:
+            # normal item selection
+            self.editingFinished.emit()
+            return
+        # add new licence
+        blocked = self.blockSignals(True)
+        self.setCurrentIndex(self.old_idx)
+        self.blockSignals(blocked)
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
+        dialog.setLayout(QtWidgets.QFormLayout())
+        name = SingleLineEdit(spell_check=True)
+        dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
+        url = SingleLineEdit()
+        dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
+            return
+        name = name.toPlainText()
+        url = url.toPlainText()
+        if not name and url:
+            return
+        licences = self.config_store.get('ownership', 'licences', [])
+        licences.append((name, url))
+        self.config_store.set('ownership', 'licences', licences)
+        self.insertItem(idx, name, url)
+        self.set_value(url)
+        self.editingFinished.emit()
+
+    @QtSlot(QtGui.QContextMenuEvent)
+    @catch_all
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu()
+        for n in range(1, self.count() - 2):
+            action = QtGui2.QAction(
+                translate('OwnerTab',
+                          'Open link to "{}"').format(self.itemText(n)),
+                parent=self)
+            action.setData(self.itemData(n))
+            menu.addAction(action)
+        action = execute(menu, event.globalPos())
+        if not action:
+            return
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(action.data()))
+
+    def set_value(self, value):
+        blocked = self.blockSignals(True)
+        if value:
+            idx = self.findData(value)
+            if idx < 0:
+                idx = self.count() - 2
+                self.insertItem(idx, value, value)
+        else:
+            idx = 0
+        self.setCurrentIndex(idx)
+        self.old_idx = idx
+        self.blockSignals(blocked)
+
+    def get_value(self):
+        return self.itemData(self.currentIndex())
+
+    def is_multiple(self):
+        return self.currentIndex() == self.count() - 1
+
+    def set_multiple(self, choices=[]):
+        blocked = self.blockSignals(True)
+        self.setCurrentIndex(self.count() - 1)
+        self.blockSignals(blocked)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -108,15 +235,22 @@ class TabWidget(QtWidgets.QWidget):
             ' copyright for this image, such as "©2008 Jane Doe".'))
         form.layout().addRow(translate(
             'OwnerTab', 'Copyright Notice'), widgets['copyright'])
+        ## contact information
+        rights_group = QtWidgets.QGroupBox()
+        rights_group.setLayout(QtWidgets.QFormLayout())
         # usage terms
-        widgets['usageterms'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('usageterms'),
-            spell_check=True)
-        widgets['usageterms'].setToolTip(translate(
+        widgets['rights_UsageTerms'] = SingleLineEdit(spell_check=True)
+        widgets['rights_UsageTerms'].setToolTip(translate(
             'OwnerTab',
             'Enter instructions on how this image can legally be used.'))
+        rights_group.layout().addRow(translate(
+            'OwnerTab', 'Usage Terms'), widgets['rights_UsageTerms'])
+        # web statement of rights
+        widgets['rights_WebStatement'] = RightsDropDown()
+        rights_group.layout().addRow(translate(
+            'OwnerTab', 'Web Statement'), widgets['rights_WebStatement'])
         form.layout().addRow(translate(
-            'OwnerTab', 'Rights Usage Terms'), widgets['usageterms'])
+            'OwnerTab', 'Rights'), rights_group)
         # special instructions
         widgets['instructions'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('instructions'),
@@ -189,7 +323,7 @@ class TabWidget(QtWidgets.QWidget):
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Country'), widgets['CiAdrCtry'])
         form.layout().addRow(translate(
-            'OwnerTab', 'Contact Information'), contact_group)
+            'OwnerTab', 'Contact<br>Information'), contact_group)
         scrollarea.setWidget(form)
         return scrollarea, widgets
 
@@ -225,8 +359,13 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtSlot()
     @catch_all
-    def new_usageterms(self):
-        self._new_value('usageterms')
+    def new_rights_UsageTerms(self):
+        self._new_value('rights_UsageTerms')
+
+    @QtSlot()
+    @catch_all
+    def new_rights_WebStatement(self):
+        self._new_value('rights_WebStatement')
 
     @QtSlot()
     @catch_all
@@ -309,6 +448,12 @@ class TabWidget(QtWidgets.QWidget):
             widgets['copyright'].toolTip() + ' ' +
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
+        # move config usageterms to rights_UsageTerms
+        value = self.config_store.get('ownership', 'usageterms')
+        if value:
+            self.config_store.set('ownership', 'rights_UsageTerms', value)
+            self.config_store.delete('ownership', 'usageterms')
+        # read config
         for key in widgets:
             value = self.config_store.get('ownership', key)
             if key == 'copyright' and not value:
@@ -361,6 +506,11 @@ class TabWidget(QtWidgets.QWidget):
             info = dict(image.metadata.contact_info or {})
             info[key] = value
             image.metadata.contact_info = info
+        elif key.startswith('rights_'):
+            key = key.split('_')[1]
+            info = dict(image.metadata.rights or {})
+            info[key] = value
+            image.metadata.rights = info
         else:
             setattr(image.metadata, key, value)
 
@@ -368,6 +518,12 @@ class TabWidget(QtWidgets.QWidget):
         if key.startswith('Ci'):
             info = image.metadata.contact_info
             if info:
+                return info[key]
+            return None
+        if key.startswith('rights_'):
+            info = image.metadata.rights
+            if info:
+                key = key.split('_')[1]
                 return info[key]
             return None
         return getattr(image.metadata, key)

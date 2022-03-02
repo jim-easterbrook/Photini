@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -312,8 +312,7 @@ class ImageMetadata(MetadataHandler):
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiTelWork',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrPcode',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrRegion',
-            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork',
-            ),
+            'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
         'Xmp.iptc.Location': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
@@ -343,6 +342,9 @@ class ImageMetadata(MetadataHandler):
             'Xmp.xmp.Thumbnails[1]/xapGImg:height',
             'Xmp.xmp.Thumbnails[1]/xapGImg:format',
             'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
+        'Xmp.xmpRights.UsageTerms': (
+            'Xmp.xmpRights.UsageTerms',
+            'Xmp.xmpRights.WebStatement'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of
@@ -435,6 +437,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
+        'rights'         : (('WA', 'Xmp.xmpRights.UsageTerms'),),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
                             ('WA', 'Iptc.Application2.Program'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
@@ -452,7 +455,6 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.ObjectName'),
                             ('W0', 'Exif.Image.XPTitle'),
                             ('W0', 'Iptc.Application2.Headline')),
-        'usageterms'     : (('WA', 'Xmp.xmpRights.UsageTerms'),),
         }
 
     def read(self, name, type_):

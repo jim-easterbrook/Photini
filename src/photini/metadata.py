@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -233,6 +233,13 @@ class MD_Dict(MD_Value, dict):
     def to_exif(self):
         return [self[x] for x in self._keys]
 
+    def __str__(self):
+        result = []
+        for key in self._keys:
+            if self[key]:
+                result.append('{}: {}'.format(key, self[key]))
+        return '\n'.join(result)
+
 
 class MD_Dict_Mergeable(MD_Dict):
     @staticmethod
@@ -263,6 +270,12 @@ class MD_Dict_Mergeable(MD_Dict):
             elif merged:
                 self.log_merged(info, tag, {key: other[key]})
         return self.__class__(result)
+
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        return this + ' // ' + other, True, False
 
 
 class Coordinate(MD_Dict):
@@ -408,19 +421,6 @@ class ContactInformation(MD_Dict_Mergeable):
     _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
              'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
 
-    def __str__(self):
-        result = []
-        for key in self._keys:
-            if self[key]:
-                result.append('{}: {}'.format(key, self[key]))
-        return '\n'.join(result)
-
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        return this + ' // ' + other, True, False
-
 
 class Location(MD_Dict_Mergeable):
     # stores IPTC defined location heirarchy
@@ -458,19 +458,6 @@ class Location(MD_Dict_Mergeable):
             result[key] = ', '.join(result[key]) or None
         return cls(result)
 
-    def __str__(self):
-        result = []
-        for key in self._keys:
-            if self[key]:
-                result.append('{}: {}'.format(key, self[key]))
-        return '\n'.join(result)
-
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        return this + ' // ' + other, True, False
-
 
 class MultiLocation(tuple):
     def __new__(cls, value):
@@ -507,6 +494,11 @@ class MultiLocation(tuple):
             if location:
                 result += str(location) + '\n'
         return result
+
+
+class Rights(MD_Dict_Mergeable):
+    # stores IPTC rights information
+    _keys = ('UsageTerms', 'WebStatement')
 
 
 class CameraModel(MD_Dict_Mergeable):
@@ -1145,11 +1137,11 @@ class Metadata(object):
         'location_taken' : Location,
         'orientation'    : Orientation,
         'rating'         : Rating,
+        'rights'         : Rights,
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
         'title'          : MD_String,
-        'usageterms'     : MD_String,
         }
 
     def __init__(self, path, notify=None, utf_safe=False):
