@@ -249,6 +249,13 @@ class TabWidget(QtWidgets.QWidget):
         widgets['rights_WebStatement'] = RightsDropDown()
         rights_group.layout().addRow(translate(
             'OwnerTab', 'Web Statement'), widgets['rights_WebStatement'])
+        # licensor URL
+        widgets['rights_LicensorURL'] = SingleLineEdit()
+        widgets['rights_LicensorURL'].setToolTip(translate(
+            'OwnerTab', 'URL for a licensor web page. May facilitate licensing'
+            ' of the image.'))
+        rights_group.layout().addRow(translate(
+            'OwnerTab', 'Licensor URL'), widgets['rights_LicensorURL'])
         form.layout().addRow(translate(
             'OwnerTab', 'Rights'), rights_group)
         # special instructions
@@ -361,6 +368,11 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def new_rights_UsageTerms(self):
         self._new_value('rights_UsageTerms')
+
+    @QtSlot()
+    @catch_all
+    def new_rights_LicensorURL(self):
+        self._new_value('rights_LicensorURL')
 
     @QtSlot()
     @catch_all

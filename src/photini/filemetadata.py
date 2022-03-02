@@ -344,7 +344,8 @@ class ImageMetadata(MetadataHandler):
             'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
         'Xmp.xmpRights.UsageTerms': (
             'Xmp.xmpRights.UsageTerms',
-            'Xmp.xmpRights.WebStatement'),
+            'Xmp.xmpRights.WebStatement',
+            'Xmp.plus.Licensor[1]/plus:LicensorURL'),
         }
 
     # Mapping of tags to Photini data fields Each field has a list of

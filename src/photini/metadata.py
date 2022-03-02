@@ -498,7 +498,7 @@ class MultiLocation(tuple):
 
 class Rights(MD_Dict_Mergeable):
     # stores IPTC rights information
-    _keys = ('UsageTerms', 'WebStatement')
+    _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
 
 
 class CameraModel(MD_Dict_Mergeable):
