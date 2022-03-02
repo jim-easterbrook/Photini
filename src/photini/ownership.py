@@ -174,8 +174,7 @@ class TabWidget(QtWidgets.QWidget):
         form, self.widgets = self.data_form()
         self.enableable.append(form.widget())
         for key in self.widgets:
-            self.widgets[key].editingFinished.connect(
-                getattr(self, 'new_' + key))
+            self.widgets[key].editingFinished.connect(self.new_value)
         self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -346,91 +345,15 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtSlot()
     @catch_all
-    def new_creator(self):
-        self._new_value('creator')
-
-    @QtSlot()
-    @catch_all
-    def new_creator_title(self):
-        self._new_value('creator_title')
-
-    @QtSlot()
-    @catch_all
-    def new_credit_line(self):
-        self._new_value('credit_line')
-
-    @QtSlot()
-    @catch_all
-    def new_copyright(self):
-        self._new_value('copyright')
-
-    @QtSlot()
-    @catch_all
-    def new_rights_UsageTerms(self):
-        self._new_value('rights_UsageTerms')
-
-    @QtSlot()
-    @catch_all
-    def new_rights_LicensorURL(self):
-        self._new_value('rights_LicensorURL')
-
-    @QtSlot()
-    @catch_all
-    def new_rights_WebStatement(self):
-        self._new_value('rights_WebStatement')
-
-    @QtSlot()
-    @catch_all
-    def new_instructions(self):
-        self._new_value('instructions')
-
-    @QtSlot()
-    @catch_all
-    def new_CiEmailWork(self):
-        self._new_value('CiEmailWork')
-
-    @QtSlot()
-    @catch_all
-    def new_CiUrlWork(self):
-        self._new_value('CiUrlWork')
-
-    @QtSlot()
-    @catch_all
-    def new_CiTelWork(self):
-        self._new_value('CiTelWork')
-
-    @QtSlot()
-    @catch_all
-    def new_CiAdrExtadr(self):
-        self._new_value('CiAdrExtadr')
-
-    @QtSlot()
-    @catch_all
-    def new_CiAdrCity(self):
-        self._new_value('CiAdrCity')
-
-    @QtSlot()
-    @catch_all
-    def new_CiAdrPcode(self):
-        self._new_value('CiAdrPcode')
-
-    @QtSlot()
-    @catch_all
-    def new_CiAdrRegion(self):
-        self._new_value('CiAdrRegion')
-
-    @QtSlot()
-    @catch_all
-    def new_CiAdrCtry(self):
-        self._new_value('CiAdrCtry')
-
-    def _new_value(self, key):
+    def new_value(self):
         images = self.image_list.get_selected_images()
-        if not self.widgets[key].is_multiple():
+        for key in self.widgets:
+            if self.widgets[key].is_multiple():
+                continue
             value = self.widgets[key].get_value()
             for image in images:
                 self._set_value(image, key, value)
-        self._update_widget(key, images)
+            self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:
