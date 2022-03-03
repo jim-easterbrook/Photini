@@ -322,6 +322,17 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
 
 
 class ComboBox(QtWidgets.QComboBox):
+    def __init__(self, *args, **kwds):
+        super(ComboBox, self).__init__(*args, **kwds)
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    @catch_all
+    def wheelEvent(self, event):
+        if self.hasFocus():
+            return super(ComboBox, self).wheelEvent(event)
+        event.ignore()
+        return True
+
     def set_dropdown_width(self):
         width = 0
         for idx in range(self.count()):
