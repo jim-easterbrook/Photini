@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Tag reference
@@ -24,24 +24,26 @@ You may prefer not to use these fields to ensure compatibility with software tha
 Some of the field names in the table below lingk to their definition in the IPTC standard.
 You may find this useful when deciding what to write in those fields.
 
-========================  ================================  ==============================  ==================
-Photini field             Exif tag                          XMP tag                         IPTC-IIM tag
-========================  ================================  ==============================  ==================
-`Title / Object Name`_                                      Xmp.dc.title                    Iptc.Application2.ObjectName
-`Description / Caption`_  Exif.Image.ImageDescription       Xmp.dc.description              Iptc.Application2.Caption
-Keywords_                                                   Xmp.dc.subject                  Iptc.Application2.Keywords
+========================  ================================  =====================================  ==================
+Photini field             Exif tag                          XMP tag                                IPTC-IIM tag
+========================  ================================  =====================================  ==================
+`Title / Object Name`_                                      Xmp.dc.title                           Iptc.Application2.ObjectName
+`Description / Caption`_  Exif.Image.ImageDescription       Xmp.dc.description                     Iptc.Application2.Caption
+Keywords_                                                   Xmp.dc.subject                         Iptc.Application2.Keywords
 Rating_                                                     Xmp.xmp.Rating
-`Creator / Artist`_       Exif.Image.Artist                 Xmp.dc.creator                  Iptc.Application2.Byline
-`Creator's Jobtitle`_                                       Xmp.photoshop.AuthorsPosition   Iptc.Application2.BylineTitle
-`Credit Line`_                                              Xmp.photoshop.Credit            Iptc.Application2.Credit
-`Copyright Notice`_       Exif.Image.Copyright              Xmp.dc.rights                   Iptc.Application2.Copyright
-`Rights Usage Terms`_                                       Xmp.xmpRights.UsageTerms
-Instructions_                                               Xmp.photoshop.Instructions      Iptc.Application2.SpecialInstructions
-`Contact Information`_                                      Xmp.iptc.CreatorContactInfo     Iptc.Application2.Contact
-`Date / time Taken`_      Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated       Iptc.Application2.DateCreated
-                          Exif.Photo.SubSecTimeOriginal                                     Iptc.Application2.TimeCreated
-Date / time Digitised     Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate              Iptc.Application2.DigitizationDate
-                          Exif.Photo.SubSecTimeDigitized                                    Iptc.Application2.DigitizationTime
+`Creator / Artist`_       Exif.Image.Artist                 Xmp.dc.creator                         Iptc.Application2.Byline
+`Creator's Jobtitle`_                                       Xmp.photoshop.AuthorsPosition          Iptc.Application2.BylineTitle
+`Credit Line`_                                              Xmp.photoshop.Credit                   Iptc.Application2.Credit
+`Copyright Notice`_       Exif.Image.Copyright              Xmp.dc.rights                          Iptc.Application2.Copyright
+`Rights: Usage Terms`_                                      Xmp.xmpRights.UsageTerms
+`Rights: Web Statement`_                                    Xmp.xmpRights.WebStatement
+`Rights: Licensor URL`_                                     Xmp.plus.Licensor[1]/plus:LicensorURL
+Instructions_                                               Xmp.photoshop.Instructions             Iptc.Application2.SpecialInstructions
+`Contact Information`_                                      Xmp.iptc.CreatorContactInfo            Iptc.Application2.Contact
+`Date / time Taken`_      Exif.Photo.DateTimeOriginal       Xmp.photoshop.DateCreated              Iptc.Application2.DateCreated
+                          Exif.Photo.SubSecTimeOriginal                                            Iptc.Application2.TimeCreated
+Date / time Digitised     Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate                     Iptc.Application2.DigitizationDate
+                          Exif.Photo.SubSecTimeDigitized                                           Iptc.Application2.DigitizationTime
 Date / time Modified      Exif.Image.DateTime               Xmp.xmp.ModifyDate
                           Exif.Photo.SubSecTime
 Orientation               Exif.Image.Orientation
@@ -62,16 +64,16 @@ Latitude_, longitude_     Exif.GPSInfo.GPSLatitude
 Altitude_                 Exif.GPSInfo.GPSAltitude
                           Exif.GPSInfo.GPSAltitudeRef
 `Camera address`_                                           Xmp.iptcExt.LocationCreated
-                                                            Xmp.iptc.Location               Iptc.Application2.SubLocation
-                                                            Xmp.photoshop.City              Iptc.Application2.City
-                                                            Xmp.photoshop.State             Iptc.Application2.ProvinceState
-                                                            Xmp.photoshop.Country           Iptc.Application2.CountryName
-                                                            Xmp.iptc.CountryCode            Iptc.Application2.CountryCode
+                                                            Xmp.iptc.Location                      Iptc.Application2.SubLocation
+                                                            Xmp.photoshop.City                     Iptc.Application2.City
+                                                            Xmp.photoshop.State                    Iptc.Application2.ProvinceState
+                                                            Xmp.photoshop.Country                  Iptc.Application2.CountryName
+                                                            Xmp.iptc.CountryCode                   Iptc.Application2.CountryCode
 `Subject address`_                                          Xmp.iptcExt.LocationShown
 Thumbnail image           Exif.Thumbnail.Compression
                           Exif.Thumbnail.ImageWidth
                           Exif.Thumbnail.ImageLength
-========================  ================================  ==============================  ==================
+========================  ================================  =====================================  ==================
 
 Secondary tags
 --------------
@@ -176,6 +178,10 @@ It is applied to the Date / time Taken, Date / time Digitised and Date / time Mo
 .. _Latitude:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-latitude
 .. _longitude:             http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-longitude
 .. _Rating:                http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating
-.. _Rights Usage Terms:    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms
+.. _Rights\: Licensor URL:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#licensor
+.. _Rights\: Usage Terms:  http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms
+.. _Rights\: Web Statement:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-statement-of-rights
 .. _Subject address:       http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#location-shown-in-the-image
 .. _Title / Object Name:   http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#title

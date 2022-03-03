@@ -26,11 +26,11 @@ This is probably only useful in the ``Copyright Notice``, but is available for a
 
 .. image:: ../images/screenshot_203.png
 
-The ``Web Statement`` field is a drop down list of `Creative Commons`_ licences which you can extend with any other licences you use.
+The ``Rights: Web Statement`` field is a drop down list of `Creative Commons`_ licences which you can extend with any other licences you use.
 The widget's context menu allows you to visit any of the licence URLs with your web browser.
 
 Google Image Search displays the ``Creator``, ``Credit Line``, and ``Copyright Notice`` values alongside search results.
-It also uses the ``Rights`` ``Web Statement`` and ``Licensor URL`` to help people find images that can be licensed for reuse.
+It also uses the ``Rights: Web Statement`` and ``Rights: Licensor URL`` to help people find images that can be licensed for reuse.
 See the `Quick guide to IPTC Photo Metadata and Google Images`_ for more detail.
 
 .. image:: ../images/screenshot_204.png
@@ -57,14 +57,14 @@ Some of them are also stored in "legacy" IPTC-IIM data.
 `Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
   Who owns the copyright.
   This shows the same information as the :doc:`descriptive_metadata` ``Copyright`` field.
-`Rights Usage Terms <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms>`_
+`Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms>`_
   Plain text summary of how the image may be reused.
   Not stored in IPTC-IIM.
-`Rights Web Statement <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-statement-of-rights>`_
+`Rights: Web Statement <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-statement-of-rights>`_
   URL of a web page describing the usage rights of an image.
   `All rights reserved`_ is shown for any image with no URL set.
   Not stored in IPTC-IIM.
-`Rights Licensor URL <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#licensor>`_
+`Rights: Licensor URL <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#licensor>`_
   URL of a person or company who can grant a right to reuse the image.
   Not stored in IPTC-IIM.
 `Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions>`_
