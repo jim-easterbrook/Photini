@@ -24,22 +24,23 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, multiple_values, MultiLineEdit, Qt, QtCore,
-    QtGui, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
+    catch_all, ComboBox, FormLayout, MetadataMultiLine, MetadataSingleLine,
+    multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
+    Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
 class LineEditWithAuto(QtWidgets.QWidget):
-    def __init__(self, **kw):
+    def __init__(self, key, **kw):
         super(LineEditWithAuto, self).__init__()
         self._is_multiple = False
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = SingleLineEdit(**kw)
+        self.edit = MetadataSingleLine(key, **kw)
         layout.addWidget(self.edit)
         # auto complete button
         self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
@@ -49,13 +50,16 @@ class LineEditWithAuto(QtWidgets.QWidget):
         self.get_value = self.edit.get_value
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
-        self.editingFinished = self.edit.editingFinished
+        self.new_value = self.edit.new_value
         self.autoComplete = self.auto.clicked
 
 
 class RatingWidget(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
+    new_value = QtSignal(str, str)
+
+    def __init__(self, key, *arg, **kw):
         super(RatingWidget, self).__init__(*arg, **kw)
+        self._key = key
         self.multiple_values = multiple_values()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -65,6 +69,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
         self.slider.valueChanged.connect(self.set_display)
+        self.slider.editing_finished.connect(self._new_value)
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
@@ -76,7 +81,11 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.is_multiple = self.slider.is_multiple
-        self.editing_finished = self.slider.editing_finished
+
+    @QtSlot()
+    @catch_all
+    def _new_value(self):
+        self.new_value.emit(self._key, self.get_value())
 
     @QtSlot(int)
     @catch_all
@@ -100,8 +109,8 @@ class RatingWidget(QtWidgets.QWidget):
     def get_value(self):
         value = self.slider.value()
         if value == -2:
-            return None
-        return value
+            return ''
+        return str(value)
 
     def set_multiple(self, choices=[]):
         self.slider.set_multiple()
@@ -110,7 +119,7 @@ class RatingWidget(QtWidgets.QWidget):
 
 
 class KeywordsEditor(QtWidgets.QWidget):
-    def __init__(self, **kw):
+    def __init__(self, key, **kw):
         super(KeywordsEditor, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.league_table = {}
@@ -126,7 +135,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = SingleLineEdit(**kw)
+        self.edit = MetadataSingleLine(key, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -140,7 +149,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.set_value = self.edit.set_value
         self.set_multiple = self.edit.set_multiple
         self.is_multiple = self.edit.is_multiple
-        self.editingFinished = self.edit.editingFinished
+        self.new_value = self.edit.new_value
 
     def update_favourites(self):
         self.favourites.clear()
@@ -187,7 +196,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         if current_value:
             new_value = current_value + '; ' + new_value
         self.set_value(new_value)
-        self.editingFinished.emit()
+        self.new_value.emit(self.edit._key, new_value)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -206,63 +215,63 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = SingleLineEdit(
-            spell_check=True,
+        self.widgets['title'] = MetadataSingleLine(
+            'title', spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].setToolTip(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.'))
-        self.widgets['title'].editingFinished.connect(self.new_title)
+        self.widgets['title'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # description
-        self.widgets['description'] = MultiLineEdit(
-            spell_check=True,
+        self.widgets['description'] = MetadataMultiLine(
+            'description', spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
         self.widgets['description'].setToolTip(translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
             ' and why of what is happening in this image,\nthis might include'
             ' names of people, and/or their role in the action that is taking'
             ' place within the image.'))
-        self.widgets['description'].editingFinished.connect(
-            self.new_description)
+        self.widgets['description'].new_value.connect(self.new_value)
         self.form.addRow(
             translate('DescriptiveTab', 'Description / Caption'),
             self.widgets['description'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
-            spell_check=True, length_check=ImageMetadata.max_bytes('keywords'),
-            multi_string=True)
+            'keywords', spell_check=True, multi_string=True,
+            length_check=ImageMetadata.max_bytes('keywords'))
         self.widgets['keywords'].setToolTip(translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
             '\nSeparate them with ";" characters.'))
-        self.widgets['keywords'].editingFinished.connect(self.new_keywords)
+        self.widgets['keywords'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Keywords'), self.widgets['keywords'])
         self.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
-        self.widgets['rating'] = RatingWidget()
-        self.widgets['rating'].editing_finished.connect(self.new_rating)
+        self.widgets['rating'] = RatingWidget('rating')
+        self.widgets['rating'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Rating'), self.widgets['rating'])
         # copyright
         self.widgets['copyright'] = LineEditWithAuto(
-            length_check=ImageMetadata.max_bytes('copyright'))
+            'copyright', length_check=ImageMetadata.max_bytes('copyright'))
         self.widgets['copyright'].setToolTip(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".'))
-        self.widgets['copyright'].editingFinished.connect(self.new_copyright)
+        self.widgets['copyright'].new_value.connect(self.new_value)
         self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
         self.form.addRow(translate(
             'DescriptiveTab', 'Copyright'), self.widgets['copyright'])
         # creator
         self.widgets['creator'] = LineEditWithAuto(
-            length_check=ImageMetadata.max_bytes('creator'), multi_string=True)
+            'creator', multi_string=True,
+            length_check=ImageMetadata.max_bytes('creator'))
         self.widgets['creator'].setToolTip(translate(
             'OwnerTab',
             'Enter the name of the person that created this image.'))
-        self.widgets['creator'].editingFinished.connect(self.new_creator)
+        self.widgets['creator'].new_value.connect(self.new_value)
         self.widgets['creator'].autoComplete.connect(self.auto_creator)
         self.form.addRow(translate(
             'DescriptiveTab', 'Creator / Artist'), self.widgets['creator'])
@@ -280,38 +289,6 @@ class TabWidget(QtWidgets.QWidget):
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
-
-    @QtSlot()
-    @catch_all
-    def new_title(self):
-        self._new_value('title')
-
-    @QtSlot()
-    @catch_all
-    def new_description(self):
-        self._new_value('description')
-
-    @QtSlot()
-    @catch_all
-    def new_keywords(self):
-        self._new_value('keywords')
-        self.widgets['keywords'].update_league_table(
-            self.image_list.get_selected_images())
-
-    @QtSlot()
-    @catch_all
-    def new_rating(self):
-        self._new_value('rating')
-
-    @QtSlot()
-    @catch_all
-    def new_copyright(self):
-        self._new_value('copyright')
-
-    @QtSlot()
-    @catch_all
-    def new_creator(self):
-        self._new_value('creator')
 
     @QtSlot()
     @catch_all
@@ -360,13 +337,15 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.creator = name
         self._update_widget('creator', images)
 
-    def _new_value(self, key):
+    @QtSlot(str, str)
+    @catch_all
+    def new_value(self, key, value):
         images = self.image_list.get_selected_images()
-        if not self.widgets[key].is_multiple():
-            value = self.widgets[key].get_value()
-            for image in images:
-                setattr(image.metadata, key, value)
+        for image in images:
+            setattr(image.metadata, key, value)
         self._update_widget(key, images)
+        if key == 'keywords':
+            self.widgets[key].update_league_table(images)
 
     def _update_widget(self, key, images):
         if not images:
