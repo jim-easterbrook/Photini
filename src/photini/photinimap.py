@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -212,19 +212,19 @@ class LatLongDisplay(SingleLineEdit):
     changed = QtSignal()
 
     def __init__(self, image_list, *args, **kwds):
-        super(LatLongDisplay, self).__init__(*args, **kwds)
+        super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
         self.image_list = image_list
         self.label = QtWidgets.QLabel(translate('MapTabsAll', 'Lat, long'))
         self.label.setAlignment(Qt.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
         self.setEnabled(False)
-        self.editingFinished.connect(self.editing_finished)
+        self.new_value.connect(self.editing_finished)
 
-    @QtSlot()
+    @QtSlot(str, str)
     @catch_all
-    def editing_finished(self):
+    def editing_finished(self, key, value):
         selected_images = self.image_list.get_selected_images()
-        new_value = self.get_value().strip() or None
+        new_value = value.strip() or None
         if new_value:
             try:
                 new_value = list(map(float, new_value.split(',')))

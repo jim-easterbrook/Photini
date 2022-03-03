@@ -47,8 +47,8 @@ class LocationInfo(QtWidgets.QWidget):
         for key in ('SubLocation', 'City', 'ProvinceState',
                     'CountryName', 'CountryCode', 'WorldRegion'):
             self.members[key] = SingleLineEdit(
-                length_check=ImageMetadata.max_bytes(key))
-            self.members[key].editingFinished.connect(self.editing_finished)
+                key, length_check=ImageMetadata.max_bytes(key))
+            self.members[key].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
         self.members['SubLocation'].setToolTip(translate(
@@ -90,9 +90,9 @@ class LocationInfo(QtWidgets.QWidget):
             new_value[key] = self.members[key].get_value().strip() or None
         return new_value
 
-    @QtSlot()
+    @QtSlot(str, str)
     @catch_all
-    def editing_finished(self):
+    def editing_finished(self, key, value):
         self.new_value.emit(self, self.get_value())
 
 

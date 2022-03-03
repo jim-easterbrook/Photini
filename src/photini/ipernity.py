@@ -561,9 +561,9 @@ class TabWidget(PhotiniUploader):
         dialog.setWindowTitle(translate(
             'IpernityTab', 'Create new Ipernity album'))
         dialog.setLayout(FormLayout())
-        title = SingleLineEdit(spell_check=True)
+        title = SingleLineEdit('title', spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
-        description = MultiLineEdit(spell_check=True)
+        description = MultiLineEdit('description', spell_check=True)
         dialog.layout().addRow(translate(
             'IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget()

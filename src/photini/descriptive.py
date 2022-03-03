@@ -24,9 +24,8 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, MetadataMultiLine, MetadataSingleLine,
-    multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
-    Slider, width_for_text)
+    catch_all, ComboBox, FormLayout, MultiLineEdit, multiple_values, Qt, QtCore,
+    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -40,7 +39,7 @@ class LineEditWithAuto(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MetadataSingleLine(key, **kw)
+        self.edit = SingleLineEdit(key, **kw)
         layout.addWidget(self.edit)
         # auto complete button
         self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
@@ -135,7 +134,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         # line edit box
-        self.edit = MetadataSingleLine(key, **kw)
+        self.edit = SingleLineEdit(key, **kw)
         layout.addWidget(self.edit)
         # favourites drop down
         self.favourites = ComboBox()
@@ -215,7 +214,7 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = MetadataSingleLine(
+        self.widgets['title'] = SingleLineEdit(
             'title', spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].setToolTip(translate(
@@ -225,7 +224,7 @@ class TabWidget(QtWidgets.QWidget):
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # description
-        self.widgets['description'] = MetadataMultiLine(
+        self.widgets['description'] = MultiLineEdit(
             'description', spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
         self.widgets['description'].setToolTip(translate(

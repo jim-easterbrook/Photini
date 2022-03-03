@@ -621,9 +621,9 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
         dialog.setLayout(FormLayout())
-        title = SingleLineEdit(spell_check=True)
+        title = SingleLineEdit('title', spell_check=True)
         dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
-        description = MultiLineEdit(spell_check=True)
+        description = MultiLineEdit('description', spell_check=True)
         dialog.layout().addRow(translate(
             'FlickrTab', 'Description'), description)
         dialog.layout().addRow(QtWidgets.QLabel(translate(

@@ -44,19 +44,19 @@ class EditSettings(QtWidgets.QDialog):
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # copyright holder name
-        self.copyright_name = SingleLineEdit(spell_check=True)
+        self.copyright_name = SingleLineEdit('name', spell_check=True)
         self.copyright_name.set_value(
             self.config_store.get('user', 'copyright_name', ''))
         panel.layout().addRow(self.tr('Copyright holder name'), self.copyright_name)
         # copyright text
-        self.copyright_text = SingleLineEdit(spell_check=True)
+        self.copyright_text = SingleLineEdit('text', spell_check=True)
         self.copyright_text.set_value(
             self.config_store.get('user', 'copyright_text', ''))
         self.copyright_text.setMinimumWidth(
             width_for_text(self.copyright_text, 'x' * 50))
         panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
         # creator name
-        self.creator_name = SingleLineEdit(spell_check=True)
+        self.creator_name = SingleLineEdit('creator', spell_check=True)
         self.creator_name.set_value(
             self.config_store.get('user', 'creator_name', ''))
         panel.layout().addRow(self.tr('Creator name'), self.creator_name)

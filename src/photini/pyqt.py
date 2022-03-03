@@ -363,11 +363,12 @@ class DropDownSelector(ComboBox):
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    editingFinished = QtSignal()
+    new_value = QtSignal(str, str)
 
-    def __init__(self, spell_check=False, length_check=None,
+    def __init__(self, key, *arg, spell_check=False, length_check=None,
                  multi_string=False, **kw):
-        super(MultiLineEdit, self).__init__(**kw)
+        super(MultiLineEdit, self).__init__(*arg, **kw)
+        self._key = key
         self.multiple_values = multiple_values()
         self.setTabChangesFocus(True)
         self._is_multiple = False
@@ -377,7 +378,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def focusOutEvent(self, event):
         if not self._is_multiple:
-            self.editingFinished.emit()
+            self.new_value.emit(self._key, self.get_value())
         super(MultiLineEdit, self).focusOutEvent(event)
 
     def keyPressEvent(self, event):
@@ -456,20 +457,6 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         return self._is_multiple and not bool(self.get_value())
 
 
-class MetadataMultiLine(MultiLineEdit):
-    new_value = QtSignal(str, str)
-
-    def __init__(self, key, *arg, **kw):
-        super(MetadataMultiLine, self).__init__(*arg, **kw)
-        self._key = key
-        self.editingFinished.connect(self._editing_finished)
-
-    @QtSlot()
-    @catch_all
-    def _editing_finished(self):
-        self.new_value.emit(self._key, self.get_value())
-
-
 class SingleLineEdit(MultiLineEdit):
     def __init__(self, *arg, **kw):
         super(SingleLineEdit, self).__init__(*arg, **kw)
@@ -486,20 +473,6 @@ class SingleLineEdit(MultiLineEdit):
 
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
-
-
-class MetadataSingleLine(SingleLineEdit):
-    new_value = QtSignal(str, str)
-
-    def __init__(self, key, *arg, **kw):
-        super(MetadataSingleLine, self).__init__(*arg, **kw)
-        self._key = key
-        self.editingFinished.connect(self._editing_finished)
-
-    @QtSlot()
-    @catch_all
-    def _editing_finished(self):
-        self.new_value.emit(self._key, self.get_value())
 
 
 class Slider(QtWidgets.QSlider):
