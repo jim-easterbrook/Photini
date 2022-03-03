@@ -29,9 +29,9 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.metadata import Location
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, MultiLineEdit, QtCore,
+    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit, QtCore,
     QtSlot, QtWidgets, SingleLineEdit, width_for_text)
-from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
+from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -358,7 +358,7 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(ConfigFormLayout(wrapped=True))
+        group.setLayout(FormLayout(wrapped=True))
         # privacy
         self.widget['privacy'] = DropDownSelector(
             ((translate('FlickrTab', 'Public'), '1'),
@@ -386,7 +386,7 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(ConfigFormLayout(wrapped=True))
+        group.setLayout(FormLayout(wrapped=True))
         # safety level
         self.widget['safety_level'] = DropDownSelector(
             ((translate('FlickrTab', 'Safe'), '1'),
@@ -620,7 +620,7 @@ class TabWidget(PhotiniUploader):
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
-        dialog.setLayout(ConfigFormLayout())
+        dialog.setLayout(FormLayout())
         title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
         description = MultiLineEdit(spell_check=True)

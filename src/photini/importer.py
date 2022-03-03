@@ -32,8 +32,8 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, execute, image_types_lower, Qt, QtCore, QtGui, QtGui2,
-    QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
+    Busy, catch_all, execute, FormLayout, image_types_lower, Qt, QtCore, QtGui,
+    QtGui2, QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -283,8 +283,7 @@ class TabWidget(QtWidgets.QWidget):
         self.config_store = self.app.config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
-        form = QtWidgets.QFormLayout()
-        form.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        form = FormLayout()
         self.nm = NameMangler()
         self.file_data = {}
         self.file_list = []

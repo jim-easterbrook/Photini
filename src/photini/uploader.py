@@ -35,8 +35,8 @@ import requests
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, DisableWidget, execute, Qt, QtCore, QtGui, QtSignal,
-    QtSlot, QtWidgets, StartStopButton, UnBusy, width_for_text)
+    Busy, catch_all, DisableWidget, execute, FormLayout, Qt, QtCore, QtGui,
+    QtSignal, QtSlot, QtWidgets, StartStopButton, UnBusy, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -219,14 +219,6 @@ class AuthServer(QtCore.QObject):
                 break
         self.server.server_close()
         self.finished.emit()
-
-
-class ConfigFormLayout(QtWidgets.QFormLayout):
-    def __init__(self, wrapped=False, **kwds):
-        super(ConfigFormLayout, self).__init__(**kwds)
-        if wrapped:
-            self.setRowWrapPolicy(self.WrapAllRows)
-        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
 
 
 class PhotiniUploader(QtWidgets.QWidget):
@@ -808,7 +800,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return None
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Select an image'))
-        dialog.setLayout(ConfigFormLayout(wrapped=False))
+        dialog.setLayout(FormLayout(wrapped=False))
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(remote_icon)
         label = QtWidgets.QLabel()

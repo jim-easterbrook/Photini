@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -19,8 +19,8 @@
 
 import logging
 
-from photini.pyqt import (
-    catch_all, Qt, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+from photini.pyqt import (catch_all, FormLayout, Qt, QtSlot, QtWidgets,
+                          SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class EditSettings(QtWidgets.QDialog):
         scroll_area = QtWidgets.QScrollArea()
         self.layout().addWidget(scroll_area)
         panel = QtWidgets.QWidget()
-        panel.setLayout(QtWidgets.QFormLayout())
+        panel.setLayout(FormLayout())
         panel.layout().setRowWrapPolicy(max(QtWidgets.QFormLayout.WrapLongRows,
                                             panel.layout().rowWrapPolicy()))
         # apply & cancel buttons

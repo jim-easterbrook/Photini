@@ -23,8 +23,9 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, execute, MultiLineEdit, multiple_values, Qt, QtCore,
-    QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    catch_all, ComboBox, execute, FormLayout, MultiLineEdit, multiple_values,
+    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -93,7 +94,7 @@ class RightsDropDown(ComboBox):
         self.blockSignals(blocked)
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
-        dialog.setLayout(QtWidgets.QFormLayout())
+        dialog.setLayout(FormLayout())
         name = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
         url = SingleLineEdit()
@@ -198,7 +199,7 @@ class TabWidget(QtWidgets.QWidget):
         scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
         scrollarea.setWidgetResizable(True)
         form = QtWidgets.QWidget()
-        form.setLayout(QtWidgets.QFormLayout())
+        form.setLayout(FormLayout())
         # creator
         widgets['creator'] = SingleLineEdit(
             length_check=ImageMetadata.max_bytes('creator'),
@@ -236,7 +237,7 @@ class TabWidget(QtWidgets.QWidget):
             'OwnerTab', 'Copyright Notice'), widgets['copyright'])
         ## contact information
         rights_group = QtWidgets.QGroupBox()
-        rights_group.setLayout(QtWidgets.QFormLayout())
+        rights_group.setLayout(FormLayout())
         # usage terms
         widgets['rights_UsageTerms'] = SingleLineEdit(spell_check=True)
         widgets['rights_UsageTerms'].setToolTip(translate(
@@ -268,7 +269,7 @@ class TabWidget(QtWidgets.QWidget):
             'OwnerTab', 'Instructions'), widgets['instructions'])
         ## contact information
         contact_group = QtWidgets.QGroupBox()
-        contact_group.setLayout(QtWidgets.QFormLayout())
+        contact_group.setLayout(FormLayout())
         # email addresses
         widgets['CiEmailWork'] = SingleLineEdit()
         widgets['CiEmailWork'].setToolTip(translate(

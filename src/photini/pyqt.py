@@ -253,6 +253,14 @@ def DisableWidget(widget):
         widget.setEnabled(True)
 
 
+class FormLayout(QtWidgets.QFormLayout):
+    def __init__(self, wrapped=False, **kwds):
+        super(FormLayout, self).__init__(**kwds)
+        if wrapped:
+            self.setRowWrapPolicy(self.WrapAllRows)
+        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
+
+
 class CompactButton(QtWidgets.QPushButton):
     def __init__(self, *args, **kwds):
         super(CompactButton, self).__init__(*args, **kwds)

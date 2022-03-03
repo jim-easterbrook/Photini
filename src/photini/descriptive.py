@@ -24,8 +24,8 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, multiple_values, MultiLineEdit, Qt, QtCore, QtGui,
-    QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
+    catch_all, ComboBox, FormLayout, multiple_values, MultiLineEdit, Qt, QtCore,
+    QtGui, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -199,7 +199,7 @@ class TabWidget(QtWidgets.QWidget):
         super(TabWidget, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
-        self.form = QtWidgets.QFormLayout()
+        self.form = FormLayout()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().addLayout(self.form)
         self.layout().addStretch(1)

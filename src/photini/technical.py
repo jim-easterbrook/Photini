@@ -24,9 +24,9 @@ import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
-    catch_all, ComboBox, execute, multiple, multiple_values, Qt, QtCore, QtGui,
-    QtGui2, QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font, Slider,
-    using_pyside, width_for_text)
+    catch_all, ComboBox, execute, FormLayout, multiple, multiple_values, Qt,
+    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
+    set_symbol_font, Slider, using_pyside, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -689,9 +689,7 @@ class NewItemDialog(QtWidgets.QDialog):
         scroll_area.setWidgetResizable(True)
         self.layout().addWidget(scroll_area)
         self.panel = QtWidgets.QWidget()
-        self.panel.setLayout(QtWidgets.QFormLayout())
-        self.panel.layout().setFieldGrowthPolicy(
-            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        self.panel.setLayout(FormLayout())
         # ok & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -812,7 +810,7 @@ class TabWidget(QtWidgets.QWidget):
         # date and time
         date_group = QtWidgets.QGroupBox(
             translate('TechnicalTab', 'Date and time'))
-        date_group.setLayout(QtWidgets.QFormLayout())
+        date_group.setLayout(FormLayout())
         # create date and link widgets
         for master in self._master_slave:
             self.date_widget[master] = DateAndTimeWidget(master)
@@ -842,9 +840,7 @@ class TabWidget(QtWidgets.QWidget):
         self.layout().addWidget(date_group)
         # other
         other_group = QtWidgets.QGroupBox(translate('TechnicalTab', 'Other'))
-        other_group.setLayout(QtWidgets.QFormLayout())
-        other_group.layout().setFieldGrowthPolicy(
-            QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+        other_group.setLayout(FormLayout())
         # orientation
         self.widgets['orientation'] = DropdownEdit()
         self.widgets['orientation'].add_item(

@@ -31,9 +31,9 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, MultiLineEdit, Qt, QtCore, QtGui,
-    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
-from photini.uploader import ConfigFormLayout, PhotiniUploader, UploaderSession
+    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit, Qt, QtCore,
+    QtGui, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+from photini.uploader import PhotiniUploader, UploaderSession
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -364,7 +364,7 @@ class TabWidget(PhotiniUploader):
         # left hand column group
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
-        group.setLayout(ConfigFormLayout(wrapped=True))
+        group.setLayout(FormLayout(wrapped=True))
         # licence
         self.widget['license'] = LicenceWidget()
         group.layout().addRow(
@@ -560,7 +560,7 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate(
             'IpernityTab', 'Create new Ipernity album'))
-        dialog.setLayout(ConfigFormLayout())
+        dialog.setLayout(FormLayout())
         title = SingleLineEdit(spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
         description = MultiLineEdit(spell_check=True)
