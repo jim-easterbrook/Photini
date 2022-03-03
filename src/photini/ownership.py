@@ -23,20 +23,21 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, execute, FormLayout, MultiLineEdit, multiple_values,
-    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
-    width_for_text)
+    catch_all, ComboBox, execute, FormLayout, MetadataMultiLine,
+    MetadataSingleLine, multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal,
+    QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
 class RightsDropDown(ComboBox):
-    editingFinished = QtSignal()
+    new_value = QtSignal(str, str)
 
-    def __init__(self):
+    def __init__(self, key):
         super(RightsDropDown, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
+        self._key = key
         # list of known licences
         licences = [
             (translate('OwnerTab', 'All rights reserved'), ''),
@@ -86,7 +87,7 @@ class RightsDropDown(ComboBox):
     def index_changed(self, idx):
         if idx < self.count() - 2:
             # normal item selection
-            self.editingFinished.emit()
+            self.new_value.emit(self._key, self.itemData(idx))
             return
         # add new licence
         blocked = self.blockSignals(True)
@@ -95,9 +96,9 @@ class RightsDropDown(ComboBox):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
         dialog.setLayout(FormLayout())
-        name = SingleLineEdit(spell_check=True)
+        name = MetadataSingleLine('name', spell_check=True)
         dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
-        url = SingleLineEdit()
+        url = MetadataSingleLine('url')
         dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -115,7 +116,7 @@ class RightsDropDown(ComboBox):
         self.config_store.set('ownership', 'licences', licences)
         self.insertItem(idx, name, url)
         self.set_value(url)
-        self.editingFinished.emit()
+        self.new_value.emit(self._key, url)
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
@@ -175,7 +176,7 @@ class TabWidget(QtWidgets.QWidget):
         form, self.widgets = self.data_form()
         self.enableable.append(form.widget())
         for key in self.widgets:
-            self.widgets[key].editingFinished.connect(self.new_value)
+            self.widgets[key].new_value.connect(self.new_value)
         self.layout().addWidget(form)
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
@@ -201,35 +202,36 @@ class TabWidget(QtWidgets.QWidget):
         form = QtWidgets.QWidget()
         form.setLayout(FormLayout())
         # creator
-        widgets['creator'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('creator'),
-            spell_check=True, multi_string=True)
+        widgets['creator'] = MetadataSingleLine(
+            'creator', spell_check=True, multi_string=True,
+            length_check=ImageMetadata.max_bytes('creator'))
         widgets['creator'].setToolTip(translate(
             'OwnerTab',
             'Enter the name of the person that created this image.'))
         form.layout().addRow(translate(
             'OwnerTab', 'Creator'), widgets['creator'])
         # creator title
-        widgets['creator_title'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('creator_title'),
-            spell_check=True, multi_string=True)
+        widgets['creator_title'] = MetadataSingleLine(
+            'creator_title', spell_check=True, multi_string=True,
+            length_check=ImageMetadata.max_bytes('creator_title'))
         widgets['creator_title'].setToolTip(translate(
             'OwnerTab',
             'Enter the job title of the person listed in the Creator field.'))
         form.layout().addRow(translate(
             'OwnerTab', "Creator's Jobtitle"), widgets['creator_title'])
         # credit line
-        widgets['credit_line'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('credit_line'),
-            spell_check=True)
+        widgets['credit_line'] = MetadataSingleLine(
+            'credit_line', spell_check=True,
+            length_check=ImageMetadata.max_bytes('credit_line'))
         widgets['credit_line'].setToolTip(translate(
             'OwnerTab',
             'Enter who should be credited when this image is published.'))
         form.layout().addRow(translate(
             'OwnerTab', 'Credit Line'), widgets['credit_line'])
         # copyright
-        widgets['copyright'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('copyright'), spell_check=True)
+        widgets['copyright'] = MetadataSingleLine(
+            'copyright', spell_check=True,
+            length_check=ImageMetadata.max_bytes('copyright'))
         widgets['copyright'].setToolTip(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
             ' copyright for this image, such as "©2008 Jane Doe".'))
@@ -239,18 +241,19 @@ class TabWidget(QtWidgets.QWidget):
         rights_group = QtWidgets.QGroupBox()
         rights_group.setLayout(FormLayout())
         # usage terms
-        widgets['rights_UsageTerms'] = SingleLineEdit(spell_check=True)
+        widgets['rights_UsageTerms'] = MetadataSingleLine(
+            'rights_UsageTerms', spell_check=True)
         widgets['rights_UsageTerms'].setToolTip(translate(
             'OwnerTab',
             'Enter instructions on how this image can legally be used.'))
         rights_group.layout().addRow(translate(
             'OwnerTab', 'Usage Terms'), widgets['rights_UsageTerms'])
         # web statement of rights
-        widgets['rights_WebStatement'] = RightsDropDown()
+        widgets['rights_WebStatement'] = RightsDropDown('rights_WebStatement')
         rights_group.layout().addRow(translate(
             'OwnerTab', 'Web Statement'), widgets['rights_WebStatement'])
         # licensor URL
-        widgets['rights_LicensorURL'] = SingleLineEdit()
+        widgets['rights_LicensorURL'] = MetadataSingleLine('rights_LicensorURL')
         widgets['rights_LicensorURL'].setToolTip(translate(
             'OwnerTab', 'URL for a licensor web page. May facilitate licensing'
             ' of the image.'))
@@ -259,9 +262,9 @@ class TabWidget(QtWidgets.QWidget):
         form.layout().addRow(translate(
             'OwnerTab', 'Rights'), rights_group)
         # special instructions
-        widgets['instructions'] = SingleLineEdit(
-            length_check=ImageMetadata.max_bytes('instructions'),
-            spell_check=True)
+        widgets['instructions'] = MetadataSingleLine(
+            'instructions', spell_check=True,
+            length_check=ImageMetadata.max_bytes('instructions'))
         widgets['instructions'].setToolTip(translate(
             'OwnerTab', 'Enter information about embargoes, or other'
             ' restrictions not covered by the Rights Usage Terms field.'))
@@ -271,21 +274,21 @@ class TabWidget(QtWidgets.QWidget):
         contact_group = QtWidgets.QGroupBox()
         contact_group.setLayout(FormLayout())
         # email addresses
-        widgets['CiEmailWork'] = SingleLineEdit()
+        widgets['CiEmailWork'] = MetadataSingleLine('CiEmailWork')
         widgets['CiEmailWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work email address(es) for the person'
             ' that created this image, such as name@domain.com.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Email(s)'), widgets['CiEmailWork'])
         # URLs
-        widgets['CiUrlWork'] = SingleLineEdit()
+        widgets['CiUrlWork'] = MetadataSingleLine('CiUrlWork')
         widgets['CiUrlWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work Web URL(s) for the person'
             ' that created this image, such as http://www.domain.com/.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Web URL(s)'), widgets['CiUrlWork'])
         # phone numbers
-        widgets['CiTelWork'] = SingleLineEdit()
+        widgets['CiTelWork'] = MetadataSingleLine('CiTelWork')
         widgets['CiTelWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work phone number(s) for the person'
             ' that created this image, using the international format,'
@@ -293,7 +296,8 @@ class TabWidget(QtWidgets.QWidget):
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Phone(s)'), widgets['CiTelWork'])
         # address
-        widgets['CiAdrExtadr'] = MultiLineEdit(
+        widgets['CiAdrExtadr'] = MetadataMultiLine(
+            'CiAdrExtadr',
             length_check=ImageMetadata.max_bytes('contact_info'),
             spell_check=True)
         widgets['CiAdrExtadr'].setToolTip(translate(
@@ -302,28 +306,29 @@ class TabWidget(QtWidgets.QWidget):
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Address'), widgets['CiAdrExtadr'])
         # city
-        widgets['CiAdrCity'] = SingleLineEdit(spell_check=True)
+        widgets['CiAdrCity'] = MetadataSingleLine('CiAdrCity', spell_check=True)
         widgets['CiAdrCity'].setToolTip(translate(
             'OwnerTab', 'Enter the city for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'City'), widgets['CiAdrCity'])
         # postcode
-        widgets['CiAdrPcode'] = SingleLineEdit()
+        widgets['CiAdrPcode'] = MetadataSingleLine('CiAdrPcode')
         widgets['CiAdrPcode'].setToolTip(translate(
             'OwnerTab', 'Enter the postal code for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Postal Code'), widgets['CiAdrPcode'])
         # region
-        widgets['CiAdrRegion'] = SingleLineEdit(spell_check=True)
+        widgets['CiAdrRegion'] = MetadataSingleLine(
+            'CiAdrRegion', spell_check=True)
         widgets['CiAdrRegion'].setToolTip(translate(
             'OwnerTab', 'Enter the state for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'State/Province'), widgets['CiAdrRegion'])
         # country
-        widgets['CiAdrCtry'] = SingleLineEdit(spell_check=True)
+        widgets['CiAdrCtry'] = MetadataSingleLine('CiAdrCtry', spell_check=True)
         widgets['CiAdrCtry'].setToolTip(translate(
             'OwnerTab', 'Enter the country name for the address of the person'
             ' that created this image.'))
@@ -344,17 +349,13 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtSlot()
+    @QtSlot(str, str)
     @catch_all
-    def new_value(self):
+    def new_value(self, key, value):
         images = self.image_list.get_selected_images()
-        for key in self.widgets:
-            if self.widgets[key].is_multiple():
-                continue
-            value = self.widgets[key].get_value()
-            for image in images:
-                self._set_value(image, key, value)
-            self._update_widget(key, images)
+        for image in images:
+            self._set_value(image, key, value)
+        self._update_widget(key, images)
 
     def _update_widget(self, key, images):
         if not images:

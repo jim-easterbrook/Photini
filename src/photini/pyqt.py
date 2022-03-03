@@ -445,6 +445,20 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         return self._is_multiple and not bool(self.get_value())
 
 
+class MetadataMultiLine(MultiLineEdit):
+    new_value = QtSignal(str, str)
+
+    def __init__(self, key, *arg, **kw):
+        super(MetadataMultiLine, self).__init__(*arg, **kw)
+        self._key = key
+        self.editingFinished.connect(self._editing_finished)
+
+    @QtSlot()
+    @catch_all
+    def _editing_finished(self):
+        self.new_value.emit(self._key, self.get_value())
+
+
 class SingleLineEdit(MultiLineEdit):
     def __init__(self, *arg, **kw):
         super(SingleLineEdit, self).__init__(*arg, **kw)
@@ -461,6 +475,20 @@ class SingleLineEdit(MultiLineEdit):
 
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
+
+
+class MetadataSingleLine(SingleLineEdit):
+    new_value = QtSignal(str, str)
+
+    def __init__(self, key, *arg, **kw):
+        super(MetadataSingleLine, self).__init__(*arg, **kw)
+        self._key = key
+        self.editingFinished.connect(self._editing_finished)
+
+    @QtSlot()
+    @catch_all
+    def _editing_finished(self):
+        self.new_value.emit(self._key, self.get_value())
 
 
 class Slider(QtWidgets.QSlider):
