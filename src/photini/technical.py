@@ -24,9 +24,9 @@ import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
-    catch_all, ComboBox, execute, FormLayout, multiple, multiple_values, Qt,
-    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
-    set_symbol_font, Slider, using_pyside, width_for_text)
+    catch_all, ComboBox, DropDownSelector, execute, FormLayout, multiple,
+    multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets,
+    scale_font, set_symbol_font, Slider, using_pyside, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -38,9 +38,8 @@ class DropdownEdit(ComboBox):
 
     def __init__(self, extendable=False, **kw):
         super(DropdownEdit, self).__init__(**kw)
-        if extendable:
-            self.setContextMenuPolicy(Qt.CustomContextMenu)
-            self.customContextMenuRequested.connect(self.remove_from_list)
+        self._extendable = extendable
+        if self._extendable:
             self.addItem(
                 translate('TechnicalTab', '<new>'), self.extend_list.emit)
         self.addItem('', None)
@@ -50,9 +49,11 @@ class DropdownEdit(ComboBox):
             self.count() - 1, self.itemData(self.count() - 1), Qt.UserRole - 1)
         self.currentIndexChanged.connect(self.current_index_changed)
 
-    @QtSlot(QtCore.QPoint)
+    @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
-    def remove_from_list(self, pos):
+    def contextMenuEvent(self, event):
+        if not self._extendable:
+            return super(DropdownEdit, self).contextMenuEvent(event)
         current_value = self.itemData(self.currentIndex())
         menu = QtWidgets.QMenu()
         for name, value in self.get_items():
@@ -65,7 +66,7 @@ class DropdownEdit(ComboBox):
             menu.addAction(action)
         if menu.isEmpty():
             return
-        action = execute(menu, self.mapToGlobal(pos))
+        action = execute(menu, event.globalPos())
         if not action:
             return
         self.remove_item(action.data())
@@ -151,7 +152,7 @@ class CameraList(DropdownEdit):
         for key, value in camera.items():
             if value:
                 self.config_store.set(section, key, value)
-        super(CameraList, self).add_item(name, camera, ordered=True)
+        super(CameraList, self).add_item(name, camera)
 
     def remove_item(self, camera):
         self.config_store.remove_section('camera ' + camera.get_name())
@@ -199,7 +200,7 @@ class LensList(DropdownEdit):
                 self.config_store.set(section, k, v)
         if lens_spec:
             self.config_store.set(section, 'lens_spec', str(lens_spec))
-        super(LensList, self).add_item(name, value, ordered=True)
+        super(LensList, self).add_item(name, value)
 
     def remove_item(self, value):
         lens_model, lens_spec = value
@@ -842,23 +843,17 @@ class TabWidget(QtWidgets.QWidget):
         other_group = QtWidgets.QGroupBox(translate('TechnicalTab', 'Other'))
         other_group.setLayout(FormLayout())
         # orientation
-        self.widgets['orientation'] = DropdownEdit()
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'normal'), 1, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate -90'), 6, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate +90'), 8, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'rotate 180'), 3, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect left-right'), 2, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect top-bottom'), 4, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect tr-bl'), 5, ordered=False)
-        self.widgets['orientation'].add_item(
-            translate('TechnicalTab', 'reflect tl-br'), 7, ordered=False)
+        self.widgets['orientation'] = DropDownSelector(
+            'orientation', values=(
+                ('', None),
+                (translate('TechnicalTab', 'normal'), 1),
+                (translate('TechnicalTab', 'rotate -90'), 6),
+                (translate('TechnicalTab', 'rotate +90'), 8),
+                (translate('TechnicalTab', 'rotate 180'), 3),
+                (translate('TechnicalTab', 'reflect left-right'), 2),
+                (translate('TechnicalTab', 'reflect top-bottom'), 4),
+                (translate('TechnicalTab', 'reflect tr-bl'), 5),
+                (translate('TechnicalTab', 'reflect tl-br'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
@@ -944,9 +939,9 @@ class TabWidget(QtWidgets.QWidget):
         else:
             self.date_widget[slave].set_enabled(True)
 
-    @QtSlot(object)
+    @QtSlot(str, object)
     @catch_all
-    def new_orientation(self, value):
+    def new_orientation(self, key, value):
         for image in self.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
@@ -1106,7 +1101,7 @@ class TabWidget(QtWidgets.QWidget):
                 # multiple values
                 self.widgets['orientation'].set_multiple()
                 return
-        self.widgets['orientation'].set_value(value)
+        self.widgets['orientation'].set_value(value and int(value))
 
     def _update_camera_model(self):
         images = self.image_list.get_selected_images()

@@ -286,31 +286,34 @@ class IpernitySession(UploaderSession):
 
 
 class PermissionWidget(DropDownSelector):
-    def __init__(self, default='5'):
+    def __init__(self, *args, default='5'):
         super(PermissionWidget, self).__init__(
-            ((translate('IpernityTab', 'Only you'), '0'),
-             (translate('IpernityTab', 'Family & friends'), '3'),
-             (translate('IpernityTab', 'Contacts'), '4'),
-             (translate('IpernityTab', 'Everyone'), '5')),
-            default=default)
+            *args, values=(
+                (translate('IpernityTab', 'Only you'), '0'),
+                (translate('IpernityTab', 'Family & friends'), '3'),
+                (translate('IpernityTab', 'Contacts'), '4'),
+                (translate('IpernityTab', 'Everyone'), '5')),
+            default=default, with_multiple=False)
 
 
 class LicenceWidget(DropDownSelector):
-    def __init__(self, default='0'):
+    def __init__(self, *args, default='0'):
         super(LicenceWidget, self).__init__(
-            ((translate('IpernityTab', 'Copyright (all rights reserved)'), '0'),
-             (translate('IpernityTab', 'Attribution'), '1'),
-             (translate('IpernityTab', 'Attribution + non commercial'), '3'),
-             (translate('IpernityTab', 'Attribution + no derivative'), '5'),
-             (translate('IpernityTab', 'Attribution + share alike'), '9'),
-             (translate('IpernityTab',
-                        'Attribution + non commercial + no derivative'), '7'),
-             (translate('IpernityTab',
-                        'Attribution + non commercial + share alike'), '11'),
-             (translate(
-                 'IpernityTab',
-                 'Free use (copyright surrendered, no licence)'), '255')),
-            default=default)
+            *args, values=(
+                (translate('IpernityTab',
+                           'Copyright (all rights reserved)'), '0'),
+                (translate('IpernityTab', 'Attribution'), '1'),
+                (translate('IpernityTab', 'Attribution + non commercial'), '3'),
+                (translate('IpernityTab', 'Attribution + no derivative'), '5'),
+                (translate('IpernityTab', 'Attribution + share alike'), '9'),
+                (translate('IpernityTab',
+                           'Attribution + non commercial + no derivative'), '7'),
+                (translate('IpernityTab',
+                           'Attribution + non commercial + share alike'), '11'),
+                (translate(
+                    'IpernityTab',
+                    'Free use (copyright surrendered, no licence)'), '255')),
+            default=default, with_multiple=False)
 
 
 class TabWidget(PhotiniUploader):
@@ -336,26 +339,28 @@ class TabWidget(PhotiniUploader):
             translate('IpernityTab', 'Who can:')), 0, 0)
         # visibility
         self.widget['visibility'] = DropDownSelector(
-            ((translate('IpernityTab', 'Everyone (public)'), '4'),
-             (translate('IpernityTab', 'Only you (private)'), '0'),
-             (translate('IpernityTab', 'Friends'), '2'),
-             (translate('IpernityTab', 'Family'), '1'),
-             (translate('IpernityTab', 'Family & friends'), '3')), default='4')
+            'visibility', values=(
+                (translate('IpernityTab', 'Everyone (public)'), '4'),
+                (translate('IpernityTab', 'Only you (private)'), '0'),
+                (translate('IpernityTab', 'Friends'), '2'),
+                (translate('IpernityTab', 'Family'), '1'),
+                (translate('IpernityTab', 'Family & friends'), '3')),
+            default='4', with_multiple=False)
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'see the photo')), 1, 0)
         group.layout().addWidget(self.widget['visibility'], 2, 0)
         # comment permission
-        self.widget['perm_comment'] = PermissionWidget()
+        self.widget['perm_comment'] = PermissionWidget('perm_comment')
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'post a comment')), 1, 1)
         group.layout().addWidget(self.widget['perm_comment'], 2, 1)
         # keywords & notes permission
-        self.widget['perm_tag'] = PermissionWidget(default='4')
+        self.widget['perm_tag'] = PermissionWidget('perm_tag', default='4')
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'add keywords, notes')), 3, 0)
         group.layout().addWidget(self.widget['perm_tag'], 4, 0)
         # people permission
-        self.widget['perm_tagme'] = PermissionWidget(default='4')
+        self.widget['perm_tagme'] = PermissionWidget('perm_tagme', default='4')
         group.layout().addWidget(QtWidgets.QLabel(
             translate('IpernityTab', 'identify people')), 3, 1)
         group.layout().addWidget(self.widget['perm_tagme'], 4, 1)
@@ -366,7 +371,7 @@ class TabWidget(PhotiniUploader):
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(FormLayout(wrapped=True))
         # licence
-        self.widget['license'] = LicenceWidget()
+        self.widget['license'] = LicenceWidget('license')
         group.layout().addRow(
             translate('IpernityTab', 'Licence'), self.widget['license'])
         column.addWidget(group, 1, 0, 2, 1)
@@ -394,16 +399,16 @@ class TabWidget(PhotiniUploader):
             '2': {'is_friend': '1', 'is_family': '0', 'is_public': '0'},
             '3': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
             '4': {'is_friend': '0', 'is_family': '0', 'is_public': '1'},
-            }[self.widget['visibility'].value()]
+            }[self.widget['visibility'].get_value()]
         return {
             'visibility': visibility,
             'permissions': {
-                'perm_comment': self.widget['perm_comment'].value(),
-                'perm_tag'    : self.widget['perm_tag'].value(),
-                'perm_tagme'  : self.widget['perm_tagme'].value(),
+                'perm_comment': self.widget['perm_comment'].get_value(),
+                'perm_tag'    : self.widget['perm_tag'].get_value(),
+                'perm_tagme'  : self.widget['perm_tagme'].get_value(),
                 },
             'licence': {
-                'license': self.widget['license'].value(),
+                'license': self.widget['license'].get_value(),
                 },
             'albums': albums,
             }
@@ -566,7 +571,7 @@ class TabWidget(PhotiniUploader):
         description = MultiLineEdit('description', spell_check=True)
         dialog.layout().addRow(translate(
             'IpernityTab', 'Description'), description)
-        perm_comment = PermissionWidget()
+        perm_comment = PermissionWidget('comment')
         dialog.layout().addRow(translate(
             'IpernityTab', 'Who can comment<br>on album'), perm_comment)
         button_box = QtWidgets.QDialogButtonBox(
@@ -579,7 +584,7 @@ class TabWidget(PhotiniUploader):
         params = {
             'title': title.toPlainText(),
             'description': description.toPlainText(),
-            'perm_comment': perm_comment.value(),
+            'perm_comment': perm_comment.get_value(),
             }
         if not params['title']:
             return

@@ -54,7 +54,7 @@ class LineEditWithAuto(QtWidgets.QWidget):
 
 
 class RatingWidget(QtWidgets.QWidget):
-    new_value = QtSignal(str, str)
+    new_value = QtSignal(str, object)
 
     def __init__(self, key, *arg, **kw):
         super(RatingWidget, self).__init__(*arg, **kw)
@@ -108,8 +108,8 @@ class RatingWidget(QtWidgets.QWidget):
     def get_value(self):
         value = self.slider.value()
         if value == -2:
-            return ''
-        return str(value)
+            return None
+        return value
 
     def set_multiple(self, choices=[]):
         self.slider.set_multiple()
@@ -336,7 +336,7 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.creator = name
         self._update_widget('creator', images)
 
-    @QtSlot(str, str)
+    @QtSlot(str, object)
     @catch_all
     def new_value(self, key, value):
         images = self.image_list.get_selected_images()

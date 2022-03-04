@@ -32,8 +32,9 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, execute, FormLayout, image_types_lower, Qt, QtCore, QtGui,
-    QtGui2, QtSignal, QtSlot, QtWidgets, StartStopButton, video_types_lower)
+    Busy, catch_all, ComboBox, execute, FormLayout, image_types_lower, Qt,
+    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, StartStopButton,
+    video_types_lower)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -293,7 +294,7 @@ class TabWidget(QtWidgets.QWidget):
         # source selector
         box = QtWidgets.QHBoxLayout()
         box.setContentsMargins(0, 0, 0, 0)
-        self.source_selector = QtWidgets.QComboBox()
+        self.source_selector = ComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
         self.source_selector.setContextMenuPolicy(Qt.CustomContextMenu)
         self.source_selector.customContextMenuRequested.connect(

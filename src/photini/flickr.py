@@ -324,20 +324,21 @@ class FlickrSession(UploaderSession):
 
 
 class PermissionWidget(DropDownSelector):
-    def __init__(self, default='3'):
+    def __init__(self, *args, default='3'):
         super(PermissionWidget, self).__init__(
-            ((translate('FlickrTab', 'Only you'), '0'),
-             (translate('FlickrTab', 'Friends & family'), '1'),
-             (translate('FlickrTab', 'People you follow'), '2'),
-             (translate('FlickrTab', 'Any Flickr member'), '3')),
-            default=default)
+            *args, values = (
+                (translate('FlickrTab', 'Only you'), '0'),
+                (translate('FlickrTab', 'Friends & family'), '1'),
+                (translate('FlickrTab', 'People you follow'), '2'),
+                (translate('FlickrTab', 'Any Flickr member'), '3')),
+            default=default, with_multiple=False)
 
 
 class HiddenWidget(QtWidgets.QCheckBox):
     def set_value(self, value):
         self.setChecked(value == '2')
 
-    def value(self):
+    def get_value(self):
         return ('1', '2')[self.isChecked()]
 
 
@@ -361,22 +362,26 @@ class TabWidget(PhotiniUploader):
         group.setLayout(FormLayout(wrapped=True))
         # privacy
         self.widget['privacy'] = DropDownSelector(
-            ((translate('FlickrTab', 'Public'), '1'),
-             (translate('FlickrTab', 'Private'), '5'),
-             (translate('FlickrTab', 'Friends'), '2'),
-             (translate('FlickrTab', 'Family'), '3'),
-             (translate('FlickrTab', 'Friends & family'), '4')), default='1')
+            'privacy', values = (
+                (translate('FlickrTab', 'Public'), '1'),
+                (translate('FlickrTab', 'Private'), '5'),
+                (translate('FlickrTab', 'Friends'), '2'),
+                (translate('FlickrTab', 'Family'), '3'),
+                (translate('FlickrTab', 'Friends & family'), '4')),
+            default='1', with_multiple=False)
         group.layout().addRow(translate('FlickrTab', 'Viewing privacy'),
                               self.widget['privacy'])
         # permissions
-        self.widget['perm_comment'] = PermissionWidget()
+        self.widget['perm_comment'] = PermissionWidget('perm_comment')
         group.layout().addRow(translate('FlickrTab', 'Allow commenting'),
                               self.widget['perm_comment'])
-        self.widget['perm_addmeta'] = PermissionWidget(default='2')
+        self.widget['perm_addmeta'] = PermissionWidget(
+            'perm_addmeta', default='2')
         group.layout().addRow(translate('FlickrTab', 'Allow tags and notes'),
                               self.widget['perm_addmeta'])
         # licence
-        self.widget['license_id'] = DropDownSelector(())
+        self.widget['license_id'] = DropDownSelector(
+            'license_id', with_multiple=False)
         group.layout().addRow(translate('FlickrTab', 'Licence'),
                               self.widget['license_id'])
         column.addWidget(group, 0, 0)
@@ -389,10 +394,11 @@ class TabWidget(PhotiniUploader):
         group.setLayout(FormLayout(wrapped=True))
         # safety level
         self.widget['safety_level'] = DropDownSelector(
-            ((translate('FlickrTab', 'Safe'), '1'),
-             (translate('FlickrTab', 'Moderate'), '2'),
-             (translate('FlickrTab', 'Restricted'), '3')),
-            default='1')
+            'safety_level', values=(
+                (translate('FlickrTab', 'Safe'), '1'),
+                (translate('FlickrTab', 'Moderate'), '2'),
+                (translate('FlickrTab', 'Restricted'), '3')),
+            default='1', with_multiple=False)
         group.layout().addRow(translate('FlickrTab', 'Safety level'),
                               self.widget['safety_level'])
         self.widget['hidden'] = HiddenWidget(
@@ -400,10 +406,11 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(self.widget['hidden'])
         # content type
         self.widget['content_type'] = DropDownSelector(
-            ((translate('FlickrTab', 'Photo'), '1'),
-             (translate('FlickrTab', 'Screenshot'), '2'),
-             (translate('FlickrTab', 'Art/Illustration'), '3')),
-            default='1')
+            'content_type', values=(
+                (translate('FlickrTab', 'Photo'), '1'),
+                (translate('FlickrTab', 'Screenshot'), '2'),
+                (translate('FlickrTab', 'Art/Illustration'), '3')),
+            default='1', with_multiple=False)
         group.layout().addRow(translate('FlickrTab', 'Content type'),
                               self.widget['content_type'])
         column.addWidget(group, 0, 0)
@@ -434,24 +441,24 @@ class TabWidget(PhotiniUploader):
             '3': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
             '4': {'is_friend': '1', 'is_family': '1', 'is_public': '0'},
             '5': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
-            }[self.widget['privacy'].value()]
+            }[self.widget['privacy'].get_value()]
         permissions = dict(privacy)
-        permissions['perm_comment'] = self.widget['perm_comment'].value()
-        permissions['perm_addmeta'] = self.widget['perm_addmeta'].value()
+        permissions['perm_comment'] = self.widget['perm_comment'].get_value()
+        permissions['perm_addmeta'] = self.widget['perm_addmeta'].get_value()
         return {
             'privacy': privacy,
             'permissions': permissions,
             'safety_level': {
-                'safety_level': self.widget['safety_level'].value(),
+                'safety_level': self.widget['safety_level'].get_value(),
                 },
             'hidden': {
-                'hidden'      : self.widget['hidden'].value(),
+                'hidden'      : self.widget['hidden'].get_value(),
                 },
             'licence': {
-                'license_id'  : self.widget['license_id'].value(),
+                'license_id'  : self.widget['license_id'].get_value(),
                 },
             'content_type': {
-                'content_type': self.widget['content_type'].value(),
+                'content_type': self.widget['content_type'].get_value(),
                 },
             'albums': albums,
             }

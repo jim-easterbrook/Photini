@@ -220,7 +220,7 @@ class LatLongDisplay(SingleLineEdit):
         self.setEnabled(False)
         self.new_value.connect(self.editing_finished)
 
-    @QtSlot(str, str)
+    @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
         selected_images = self.image_list.get_selected_images()
@@ -304,7 +304,7 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(label, 3, 0)
         self.widgets['search'] = ComboBox()
         self.widgets['search'].setEditable(True)
-        self.widgets['search'].setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.widgets['search'].setInsertPolicy(ComboBox.NoInsert)
         self.widgets['search'].lineEdit().setPlaceholderText(
             translate('MapTabsAll', '<new search>'))
         self.widgets['search'].lineEdit().returnPressed.connect(self.search)

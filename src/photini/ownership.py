@@ -23,7 +23,7 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, execute, FormLayout, MultiLineEdit, multiple_values,
+    catch_all, ComboBox, DropDownSelector, execute, FormLayout, MultiLineEdit, multiple_values,
     Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
     width_for_text)
 
@@ -31,16 +31,12 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-class RightsDropDown(ComboBox):
-    new_value = QtSignal(str, str)
-
+class RightsDropDown(DropDownSelector):
     def __init__(self, key):
-        super(RightsDropDown, self).__init__()
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self._key = key
         # list of known licences
         licences = [
-            (translate('OwnerTab', 'All rights reserved'), ''),
+            (translate('OwnerTab', 'All rights reserved'), None),
             (translate('OwnerTab', 'Attribution 4.0 (CC BY 4.0)'),
              'https://creativecommons.org/licenses/by/4.0/'),
             (translate(
@@ -72,27 +68,10 @@ class RightsDropDown(ComboBox):
         # add user defined licences
         licences += self.config_store.get('ownership', 'licences') or []
         # set up widget
-        for name, value in licences:
-            self.addItem(name, value)
-        self.addItem(translate('OwnerTab', '<new>'))
-        self.addItem(multiple_values())
-        self.setItemData(self.count() - 1, '<multiple>', Qt.UserRole - 1)
-        self.currentIndexChanged.connect(self.index_changed)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
-        self.set_dropdown_width()
-        self.old_idx = 0
+        super(RightsDropDown, self).__init__(
+            key, values=licences, extendable=True)
 
-    @QtSlot(int)
-    @catch_all
-    def index_changed(self, idx):
-        if idx < self.count() - 2:
-            # normal item selection
-            self.new_value.emit(self._key, self.itemData(idx))
-            return
-        # add new licence
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self.old_idx)
-        self.blockSignals(blocked)
+    def define_new_value(self):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
         dialog.setLayout(FormLayout())
@@ -106,23 +85,21 @@ class RightsDropDown(ComboBox):
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addRow(button_box)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
-            return
+            return None, None
         name = name.toPlainText()
         url = url.toPlainText()
         if not name and url:
-            return
+            return None, None
         licences = self.config_store.get('ownership', 'licences') or []
         licences.append((name, url))
         self.config_store.set('ownership', 'licences', licences)
-        self.insertItem(idx, name, url)
-        self.set_value(url)
-        self.new_value.emit(self._key, url)
+        return name, url
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu()
-        for n in range(1, self.count() - 2):
+        for n in range(1, self._last_idx()):
             action = QtGui2.QAction(
                 translate('OwnerTab',
                           'Open link to "{}"').format(self.itemText(n)),
@@ -133,30 +110,6 @@ class RightsDropDown(ComboBox):
         if not action:
             return
         QtGui.QDesktopServices.openUrl(QtCore.QUrl(action.data()))
-
-    def set_value(self, value):
-        blocked = self.blockSignals(True)
-        if value:
-            idx = self.findData(value)
-            if idx < 0:
-                idx = self.count() - 2
-                self.insertItem(idx, value, value)
-        else:
-            idx = 0
-        self.setCurrentIndex(idx)
-        self.old_idx = idx
-        self.blockSignals(blocked)
-
-    def get_value(self):
-        return self.itemData(self.currentIndex())
-
-    def is_multiple(self):
-        return self.currentIndex() == self.count() - 1
-
-    def set_multiple(self, choices=[]):
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self.count() - 1)
-        self.blockSignals(blocked)
 
 
 class TabWidget(QtWidgets.QWidget):
@@ -349,7 +302,7 @@ class TabWidget(QtWidgets.QWidget):
     def do_not_close(self):
         return False
 
-    @QtSlot(str, str)
+    @QtSlot(str, object)
     @catch_all
     def new_value(self, key, value):
         images = self.image_list.get_selected_images()

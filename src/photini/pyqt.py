@@ -342,28 +342,90 @@ class ComboBox(QtWidgets.QComboBox):
 
 
 class DropDownSelector(ComboBox):
-    def __init__(self, values, default=None):
+    new_value = QtSignal(str, object)
+
+    def __init__(self, key, values=[], default=None,
+                 with_multiple=True, extendable=False):
         super(DropDownSelector, self).__init__()
+        self._key = key
+        self._with_multiple = with_multiple
+        self._extendable = extendable
+        self._old_idx = 0
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.set_values(values, default=default)
+        self.currentIndexChanged.connect(self._index_changed)
 
     def set_values(self, values, default=None):
+        blocked = self.blockSignals(True)
         self.clear()
         for text, data in values:
             self.addItem(text, data)
+        if self._extendable:
+            self.addItem(self.tr('<new>'))
+        if self._with_multiple:
+            self.addItem(multiple_values())
+            self.setItemData(self.count() - 1, '', Qt.UserRole - 1)
+        self.set_dropdown_width()
+        self.blockSignals(blocked)
         if default is not None:
             self.set_value(default)
-        self.set_dropdown_width()
+
+    def get_value(self):
+        return self.itemData(self.currentIndex())
 
     def set_value(self, value):
-        self.setCurrentIndex(self.findData(value))
+        blocked = self.blockSignals(True)
+        self._old_idx = self.findData(value)
+        if self._old_idx < 0:
+            self._old_idx = self._last_idx()
+            self.insertItem(self._old_idx, str(value), value)
+        self.setCurrentIndex(self._old_idx)
+        self.blockSignals(blocked)
 
-    def value(self):
-        return self.itemData(self.currentIndex())
+    def is_multiple(self):
+        return self._with_multiple and self.currentIndex() == self.count() - 1
+
+    def set_multiple(self):
+        if self._with_multiple:
+            blocked = self.blockSignals(True)
+            self._old_idx = self.count() - 1
+            self.setCurrentIndex(self._old_idx)
+            self.blockSignals(blocked)
+
+    @QtSlot(int)
+    @catch_all
+    def _index_changed(self, idx):
+        if idx < self._last_idx():
+            # normal item selection
+            self._old_idx = idx
+            self.new_value.emit(self._key, self.itemData(idx))
+            return
+        # user must have clicked '<new>'
+        text, data = self.define_new_value()
+        if text:
+            self._old_idx = self._last_idx()
+            blocked = self.blockSignals(True)
+            self.insertItem(self._old_idx, text, data)
+            self.set_dropdown_width()
+            self.setCurrentIndex(self._old_idx)
+            self.blockSignals(blocked)
+            self.new_value.emit(self._key, data)
+            return
+        blocked = self.blockSignals(True)
+        self.setCurrentIndex(self._old_idx)
+        self.blockSignals(blocked)
+
+    def _last_idx(self):
+        idx = self.count()
+        if self._extendable:
+            idx -= 1
+        if self._with_multiple:
+            idx -= 1
+        return idx
 
 
 class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    new_value = QtSignal(str, str)
+    new_value = QtSignal(str, object)
 
     def __init__(self, key, *arg, spell_check=False, length_check=None,
                  multi_string=False, **kw):

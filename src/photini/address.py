@@ -90,7 +90,7 @@ class LocationInfo(QtWidgets.QWidget):
             new_value[key] = self.members[key].get_value().strip() or None
         return new_value
 
-    @QtSlot(str, str)
+    @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
         self.new_value.emit(self, self.get_value())
