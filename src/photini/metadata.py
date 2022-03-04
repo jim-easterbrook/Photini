@@ -515,20 +515,27 @@ class CameraModel(MD_Dict_Mergeable):
         return str(dict([(x, y) for x, y in self.items() if y]))
 
     def get_name(self, inc_serial=True):
+        result = []
         # start with 'model'
-        result = self['model'] or ''
-        # only add 'make' if it's really needed
-        if (self['make']
-                and self['make'].split()[0].lower() not in result.lower()):
-            if result:
-                result = ' ' + result
-            result = self['make'] + result
+        if self['model']:
+            result.append(self['model'])
+        # only add 'make' if it's not part of model
+        if self['make']:
+            if not (result
+                    and self['make'].split()[0].lower() in result[0].lower()):
+                result = [self['make']] + result
         # add serial no if a unique answer is needed
         if inc_serial and self['serial_no']:
-            if result:
-                result += ' '
-            result += '(S/N: ' + self['serial_no'] + ')'
-        return result
+            result += ['(S/N: ' + self['serial_no'] + ')']
+        return ' '.join(result)
+
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        if this in other:
+            return other, True, False
+        return this, False, True
 
 
 class LensModel(MD_Dict_Mergeable):
