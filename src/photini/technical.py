@@ -24,45 +24,35 @@ import re
 
 from photini.metadata import CameraModel, LensModel, LensSpec
 from photini.pyqt import (
-    catch_all, ComboBox, DropDownSelector, execute, FormLayout, multiple,
-    multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets,
-    scale_font, set_symbol_font, Slider, using_pyside, width_for_text)
+    catch_all, DropDownSelector, execute, FormLayout, multiple, multiple_values,
+    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
+    set_symbol_font, Slider, using_pyside, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-class DropdownEdit(ComboBox):
-    extend_list = QtSignal()
-    new_value = QtSignal(object)
-
-    def __init__(self, extendable=False, **kw):
-        super(DropdownEdit, self).__init__(**kw)
-        self._extendable = extendable
-        if self._extendable:
-            self.addItem(
-                translate('TechnicalTab', '<new>'), self.extend_list.emit)
-        self.addItem('', None)
-        self.first_value_idx = self.count()
-        self.addItem(multiple_values(), '<multiple>')
-        self.setItemData(
-            self.count() - 1, self.itemData(self.count() - 1), Qt.UserRole - 1)
-        self.currentIndexChanged.connect(self.current_index_changed)
+class DropdownEdit(DropDownSelector):
+    def __init__(self, key, image_list, *arg, **kw):
+        super(DropdownEdit, self).__init__(
+            key, *arg, extendable=True, ordered=True, **kw)
+        self._image_list = image_list
+        self.config_store = QtWidgets.QApplication.instance().config_store
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
     def contextMenuEvent(self, event):
-        if not self._extendable:
-            return super(DropdownEdit, self).contextMenuEvent(event)
-        current_value = self.itemData(self.currentIndex())
         menu = QtWidgets.QMenu()
-        for name, value in self.get_items():
-            if value == current_value:
+        for n in range(self._last_idx()):
+            if n == self.currentIndex():
+                continue
+            name = self.itemText(n)
+            if not name:
                 continue
             action = QtGui2.QAction(
                 translate('TechnicalTab', 'Remove "{}"').format(name),
                 parent=self)
-            action.setData(value)
+            action.setData(self.itemData(n))
             menu.addAction(action)
         if menu.isEmpty():
             return
@@ -71,112 +61,61 @@ class DropdownEdit(ComboBox):
             return
         self.remove_item(action.data())
 
-    @QtSlot(int)
-    @catch_all
-    def current_index_changed(self, idx):
-        value = self.itemData(idx)
-        if callable(value):
-            (value)()
-        else:
-            self.new_value.emit(value)
-
-    def add_item(self, text, value, ordered=True):
-        blocked = self.blockSignals(True)
-        position = self.count() - 1
-        if ordered:
-            for n in range(self.first_value_idx, self.count() - 1):
-                if self.itemText(n).lower() > text.lower():
-                    position = n
-                    break
-        self.insertItem(position, text, value)
-        self.set_dropdown_width()
-        self.blockSignals(blocked)
-
-    def remove_item(self, value):
-        blocked = self.blockSignals(True)
-        self.removeItem(self.find_data(value))
-        self.set_dropdown_width()
-        self.blockSignals(blocked)
-
-    def known_value(self, value):
-        if not value:
-            return True
-        return self.find_data(value) >= 0
-
-    def set_value(self, value):
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self.find_data(value))
-        self.blockSignals(blocked)
-
-    def find_data(self, value):
-        # Qt's findData only works for simple types
-        for n in range(self.count()):
-            if self.itemData(n) == value:
-                return n
-        return -1
-
-    def get_items(self):
-        for n in range(self.first_value_idx, self.count() - 1):
-            yield self.itemText(n), self.itemData(n)
-
-    def set_multiple(self):
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self.count() - 1)
-        self.blockSignals(blocked)
-
 
 class CameraList(DropdownEdit):
-    def __init__(self, **kw):
-        super(CameraList, self).__init__(**kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+    def __init__(self, *args, **kwds):
+        super(CameraList, self).__init__(*args, **kwds)
+        values = [('', None)]
         # read cameras from config, updating if neccessary
-        camera_names = []
+        sections = []
         for section in self.config_store.config.sections():
             if not section.startswith('camera '):
                 continue
-            camera_names.append(section[7:])
-        for camera_name in camera_names:
-            section = 'camera ' + camera_name
             camera = {}
             for key in 'make', 'model', 'serial_no':
                 camera[key] = self.config_store.get(section, key)
             camera = CameraModel(camera)
             name = camera.get_name()
-            if name != camera_name:
+            if name != section[7:]:
                 self.config_store.remove_section(section)
-            self.add_item(camera)
+            values.append((name, camera))
+        self.set_values(values)
 
-    def add_item(self, camera):
-        name = camera.get_name()
-        section = 'camera ' + name
-        for key, value in camera.items():
-            if value:
-                self.config_store.set(section, key, value)
-        super(CameraList, self).add_item(name, camera)
+    def define_new_value(self):
+        dialog = NewCameraDialog(
+            self._image_list.get_selected_images(), parent=self)
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
+            return None, None
+        camera = CameraModel(dialog.get_value())
+        if not camera:
+            return None, None
+        return camera.get_name(), camera
 
-    def remove_item(self, camera):
+    def add_item(self, text, camera, **kwds):
+        if camera:
+            section = 'camera ' + camera.get_name()
+            for key, value in camera.items():
+                if value:
+                    self.config_store.set(section, key, value)
+        return super(CameraList, self).add_item(text, camera, **kwds)
+
+    def remove_item(self, camera, **kwds):
         self.config_store.remove_section('camera ' + camera.get_name())
-        super(CameraList, self).remove_item(camera)
+        return super(CameraList, self).remove_item(camera, **kwds)
 
-    def set_value(self, camera):
-        if not self.known_value(camera):
-            self.add_item(camera)
-        super(CameraList, self).set_value(camera)
+    def data_to_text(self, camera):
+        return camera.get_name()
 
 
 class LensList(DropdownEdit):
-    def __init__(self, **kw):
-        super(LensList, self).__init__(**kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+    def __init__(self, *args, **kwds):
+        super(LensList, self).__init__(*args, **kwds)
+        values = [('', None)]
         # read lenses from config, updating if neccessary
         self.config_store.delete('technical', 'lenses')
-        lens_names = []
         for section in self.config_store.config.sections():
             if not section.startswith('lens '):
                 continue
-            lens_names.append(section[5:])
-        for lens_name in lens_names:
-            section = 'lens ' + lens_name
             lens_model = {}
             for old_key, new_key in (('lens_make', 'make'),
                                      ('lens_model', 'model'),
@@ -187,30 +126,41 @@ class LensList(DropdownEdit):
                 self.config_store.delete(section, old_key)
             lens_model = LensModel(lens_model)
             lens_spec = LensSpec(self.config_store.get(section, 'lens_spec'))
-            if lens_model.get_name() != lens_name:
+            name = lens_model.get_name()
+            if name != section[5:]:
                 self.config_store.remove_section(section)
-            self.add_item((lens_model, lens_spec))
+            values.append((name, (lens_model, lens_spec)))
+        self.set_values(values)
 
-    def add_item(self, value):
-        lens_model, lens_spec = value
-        name = lens_model.get_name()
-        section = 'lens ' + name
-        for k, v in lens_model.items():
-            if v:
-                self.config_store.set(section, k, v)
-        if lens_spec:
-            self.config_store.set(section, 'lens_spec', str(lens_spec))
-        super(LensList, self).add_item(name, value)
+    def define_new_value(self):
+        dialog = NewLensDialog(
+            self._image_list.get_selected_images(), parent=self)
+        if execute(dialog) != QtWidgets.QDialog.Accepted:
+            return None, None
+        lens_model, lens_spec = dialog.get_value()
+        if not lens_model:
+            return None, None
+        return lens_model.get_name(), (lens_model, lens_spec)
 
-    def remove_item(self, value):
-        lens_model, lens_spec = value
+    def add_item(self, text, data, **kwds):
+        if data:
+            lens_model, lens_spec = data
+            section = 'lens ' + lens_model.get_name()
+            for key, value in lens_model.items():
+                if value:
+                    self.config_store.set(section, key, value)
+            if lens_spec:
+                self.config_store.set(section, 'lens_spec', str(lens_spec))
+        return super(LensList, self).add_item(text, data, **kwds)
+
+    def remove_item(self, data, **kwds):
+        lens_model, lens_spec = data
         self.config_store.remove_section('lens ' + lens_model.get_name())
-        super(LensList, self).remove_item(value)
+        return super(LensList, self).remove_item(data, **kwds)
 
-    def set_value(self, value):
-        if not self.known_value(value):
-            self.add_item(value)
-        super(LensList, self).set_value(value)
+    def data_to_text(self, data):
+        lens_model, lens_spec = data
+        return lens_model.get_name()
 
 
 class AugmentSpinBox(object):
@@ -858,19 +808,18 @@ class TabWidget(QtWidgets.QWidget):
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model
-        self.widgets['camera_model'] = CameraList(extendable=True)
+        self.widgets['camera_model'] = CameraList(
+            'camera_model', self.image_list)
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].new_value.connect(self.new_camera_model)
-        self.widgets['camera_model'].extend_list.connect(self.add_camera_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Camera'), self.widgets['camera_model'])
         # lens model
-        self.widgets['lens_model'] = LensList(extendable=True)
+        self.widgets['lens_model'] = LensList('lens_model', self.image_list)
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
-        self.widgets['lens_model'].extend_list.connect(self.add_lens_model)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Lens model'), self.widgets['lens_model'])
         # focal length
@@ -947,21 +896,9 @@ class TabWidget(QtWidgets.QWidget):
             image.load_thumbnail()
         self._update_orientation()
 
-    @QtSlot()
+    @QtSlot(str, object)
     @catch_all
-    def add_camera_model(self):
-        dialog = NewCameraDialog(
-            self.image_list.get_selected_images(), parent=self)
-        if execute(dialog) == QtWidgets.QDialog.Accepted:
-            value = dialog.get_value()
-            if value:
-                self.new_camera_model(value)
-                return
-        self._update_camera_model()
-
-    @QtSlot(object)
-    @catch_all
-    def new_camera_model(self, value):
+    def new_camera_model(self, key, value):
         delete_makernote = 'ask'
         for image in self.image_list.get_selected_images():
             if not image.metadata.camera_change_ok(value):
@@ -984,21 +921,9 @@ class TabWidget(QtWidgets.QWidget):
             image.metadata.camera_model = value
         self._update_camera_model()
 
-    @QtSlot()
+    @QtSlot(str, object)
     @catch_all
-    def add_lens_model(self):
-        dialog = NewLensDialog(
-            self.image_list.get_selected_images(), parent=self)
-        if execute(dialog) == QtWidgets.QDialog.Accepted:
-            value = dialog.get_value()
-            if value[0]:
-                self.new_lens_model(value)
-                return
-        self._update_lens_model()
-
-    @QtSlot(object)
-    @catch_all
-    def new_lens_model(self, value):
+    def new_lens_model(self, key, value):
         if value:
             lens_model, lens_spec = value
         else:

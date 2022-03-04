@@ -345,26 +345,53 @@ class DropDownSelector(ComboBox):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, values=[], default=None,
-                 with_multiple=True, extendable=False):
+                 with_multiple=True, extendable=False, ordered=False):
         super(DropDownSelector, self).__init__()
         self._key = key
         self._with_multiple = with_multiple
         self._extendable = extendable
+        self._ordered = ordered
         self._old_idx = 0
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.set_values(values, default=default)
         self.currentIndexChanged.connect(self._index_changed)
 
+    def add_item(self, text, data, adjust_width=True):
+        idx = self.findData(data)
+        if idx >= 0:
+            self.setItemText(idx, text)
+            return idx
+        idx = self._last_idx()
+        if self._ordered:
+            for n in range(idx):
+                if self.itemText(n).lower() > text.lower():
+                    idx = n
+                    break
+        blocked = self.blockSignals(True)
+        self.insertItem(idx, text, data)
+        self.blockSignals(blocked)
+        if adjust_width:
+            self.set_dropdown_width()
+        return idx
+
+    def remove_item(self, data, adjust_width=True):
+        idx = self.findData(data)
+        if idx < 0:
+            return
+        blocked = self.blockSignals(True)
+        self.removeItem(idx)
+        self.blockSignals(blocked)
+
     def set_values(self, values, default=None):
         blocked = self.blockSignals(True)
         self.clear()
-        for text, data in values:
-            self.addItem(text, data)
         if self._extendable:
             self.addItem(self.tr('<new>'))
         if self._with_multiple:
             self.addItem(multiple_values())
             self.setItemData(self.count() - 1, '', Qt.UserRole - 1)
+        for text, data in values:
+            self.add_item(text, data, adjust_width=False)
         self.set_dropdown_width()
         self.blockSignals(blocked)
         if default is not None:
@@ -374,13 +401,15 @@ class DropDownSelector(ComboBox):
         return self.itemData(self.currentIndex())
 
     def set_value(self, value):
-        blocked = self.blockSignals(True)
         self._old_idx = self.findData(value)
         if self._old_idx < 0:
-            self._old_idx = self._last_idx()
-            self.insertItem(self._old_idx, str(value), value)
+            self._old_idx = self.add_item(self.data_to_text(value), value)
+        blocked = self.blockSignals(True)
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
+
+    def data_to_text(self, data):
+        return str(data)
 
     def is_multiple(self):
         return self._with_multiple and self.currentIndex() == self.count() - 1
@@ -391,6 +420,13 @@ class DropDownSelector(ComboBox):
             self._old_idx = self.count() - 1
             self.setCurrentIndex(self._old_idx)
             self.blockSignals(blocked)
+
+    def findData(self, data):
+        # Qt's findData only works with simple types
+        for n in range(self._last_idx()):
+            if self.itemData(n) == data:
+                return n
+        return -1
 
     @QtSlot(int)
     @catch_all
@@ -403,10 +439,8 @@ class DropDownSelector(ComboBox):
         # user must have clicked '<new>'
         text, data = self.define_new_value()
         if text:
-            self._old_idx = self._last_idx()
+            self._old_idx = self.add_item(text, data)
             blocked = self.blockSignals(True)
-            self.insertItem(self._old_idx, text, data)
-            self.set_dropdown_width()
             self.setCurrentIndex(self._old_idx)
             self.blockSignals(blocked)
             self.new_value.emit(self._key, data)
