@@ -278,6 +278,16 @@ class MD_Dict_Mergeable(MD_Dict):
         return this + ' // ' + other, True, False
 
 
+class MD_Dict_String(MD_Dict_Mergeable):
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        if this in other:
+            return other, True, False
+        return this, False, True
+
+
 class Coordinate(MD_Dict):
     # stores latitude or longitude as three fractions and a sign boolean
     _keys = ('pstv', 'deg', 'min', 'sec')
@@ -501,7 +511,7 @@ class Rights(MD_Dict_Mergeable):
     _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
 
 
-class CameraModel(MD_Dict_Mergeable):
+class CameraModel(MD_Dict_String):
     _keys = ('make', 'model', 'serial_no')
     _quiet = True
 
@@ -529,16 +539,8 @@ class CameraModel(MD_Dict_Mergeable):
             result += ['(S/N: ' + self['serial_no'] + ')']
         return ' '.join(result)
 
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        if this in other:
-            return other, True, False
-        return this, False, True
 
-
-class LensModel(MD_Dict_Mergeable):
+class LensModel(MD_Dict_String):
     _keys = ('make', 'model', 'serial_no')
     _quiet = True
 

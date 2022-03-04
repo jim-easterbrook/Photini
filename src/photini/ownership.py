@@ -23,9 +23,8 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, DropDownSelector, execute, FormLayout, MultiLineEdit, multiple_values,
-    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, SingleLineEdit,
-    width_for_text)
+    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit,
+    QtCore, QtGui, QtGui2, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
