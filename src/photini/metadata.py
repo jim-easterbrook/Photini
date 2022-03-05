@@ -644,12 +644,12 @@ class LensModel(MD_Collection):
         if self['spec'] and not result:
             # generic name based on spec
             fl = [float(self['spec']['min_fl']), float(self['spec']['max_fl'])]
-            fl = '-'.join([str(x) for x in fl if x])
+            fl = '–'.join(['{:g}'.format(x) for x in fl if x])
             fn = [float(self['spec']['min_fl_fn']),
                   float(self['spec']['max_fl_fn'])]
-            fn = '-'.join([str(x) for x in fn if x])
+            fn = '–'.join(['{:g}'.format(x) for x in fn if x])
             if fl:
-                model = fl + 'mm'
+                model = fl + ' mm'
                 if fn:
                     model += ' ƒ/' + fn
                 result.append(model)
