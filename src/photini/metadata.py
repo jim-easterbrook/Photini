@@ -187,7 +187,7 @@ class MD_Value(object):
 
 class MD_String(MD_Value, str):
     def __new__(cls, value):
-        value = value and value.strip()
+        value = isinstance(value, str) and value.strip()
         if not value:
             return None
         return super(MD_String, cls).__new__(cls, value)
@@ -196,7 +196,7 @@ class MD_String(MD_Value, str):
     def from_exiv2(cls, file_value, tag):
         if not file_value:
             return None
-        if not isinstance(file_value, str):
+        if isinstance(file_value, list):
             file_value = ' // '.join(file_value)
         return cls(file_value)
 
@@ -287,7 +287,7 @@ class MD_Collection(MD_Dict):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if not any(file_value):
+        if not (file_value and any(file_value)):
             return None
         value = dict(zip(cls._keys, file_value))
         for key in value:
