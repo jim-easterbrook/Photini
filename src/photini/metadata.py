@@ -174,19 +174,49 @@ class MD_Value(object):
         logger.info('%s: merged %s', info, tag)
 
     def log_replaced(self, info, tag, value):
-        if self._quiet:
-            logger.info(
-                '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
-        else:
-            logger.warning(
-                '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
+        logger.log(
+            (logging.WARNING, logging.INFO)[self._quiet],
+            '%s: "%s" replaced by %s "%s"', info, str(self), tag, str(value))
 
     @classmethod
     def log_ignored(cls, info, tag, value):
-        if cls._quiet:
-            logger.info('%s: ignored %s "%s"', info, tag, str(value))
-        else:
-            logger.warning('%s: ignored %s "%s"', info, tag, str(value))
+        logger.log(
+            (logging.WARNING, logging.INFO)[cls._quiet],
+            '%s: ignored %s "%s"', info, tag, str(value))
+
+
+class MD_String(MD_Value, str):
+    def __new__(cls, value):
+        value = value and value.strip()
+        if not value:
+            return None
+        return super(MD_String, cls).__new__(cls, value)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if not isinstance(file_value, str):
+            file_value = ' // '.join(file_value)
+        return cls(file_value)
+
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        if this in other:
+            return other, True, False
+        return this + ' // ' + other, True, False
+
+
+class MD_FixedString(MD_String, str):
+    @staticmethod
+    def merge_item(this, other):
+        if other in this:
+            return this, False, False
+        if this in other:
+            return other, True, False
+        return this, False, True
 
 
 class MD_Dict(MD_Value, dict):
@@ -241,16 +271,28 @@ class MD_Dict(MD_Value, dict):
         return '\n'.join(result)
 
 
-class MD_Dict_Mergeable(MD_Dict):
-    @staticmethod
-    def convert(value):
+class MD_Collection(MD_Dict):
+    # class for a group of independent items, each of which is an MD_Value
+    _type = {}
+    _default_type = MD_String
+
+    @classmethod
+    def convert(cls, value):
         for key in value:
-            if value[key] is None:
-                continue
-            if not isinstance(value[key], str):
-                value[key] = str(value[key])
-            value[key] = value[key].strip() or None
+            if key in cls._type:
+                value[key] = cls._type[key](value[key])
+            else:
+                value[key] = cls._default_type(value[key])
         return value
+
+    def to_exif(self):
+        return [self[x] and self[x].to_exif() for x in self._keys]
+
+    def to_iptc(self):
+        return [self[x] and self[x].to_iptc() for x in self._keys]
+
+    def to_xmp(self):
+        return [self[x] and self[x].to_xmp() for x in self._keys]
 
     def merge(self, info, tag, other):
         if other == self:
@@ -263,29 +305,13 @@ class MD_Dict_Mergeable(MD_Dict):
                 result[key] = other[key]
                 merged, ignored = True, False
             else:
-                result[key], merged, ignored = self.merge_item(
+                result[key], merged, ignored = result[key].merge_item(
                                                         result[key], other[key])
             if ignored:
                 self.log_ignored(info, tag, {key: other[key]})
             elif merged:
                 self.log_merged(info, tag, {key: other[key]})
         return self.__class__(result)
-
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        return this + ' // ' + other, True, False
-
-
-class MD_Dict_String(MD_Dict_Mergeable):
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        if this in other:
-            return other, True, False
-        return this, False, True
 
 
 class Coordinate(MD_Dict):
@@ -426,22 +452,22 @@ class LatLon(MD_Dict):
         return this, False, True
 
 
-class ContactInformation(MD_Dict_Mergeable):
+class ContactInformation(MD_Collection):
     # stores IPTC contact information
     _keys = ('CiAdrExtadr', 'CiAdrCity', 'CiAdrCtry', 'CiEmailWork',
              'CiTelWork', 'CiAdrPcode', 'CiAdrRegion', 'CiUrlWork')
 
 
-class Location(MD_Dict_Mergeable):
+class Location(MD_Collection):
     # stores IPTC defined location heirarchy
     _keys = ('SubLocation', 'City', 'ProvinceState',
              'CountryName', 'CountryCode', 'WorldRegion')
+    _type = {'CountryCode': MD_FixedString}
 
     def convert(self, value):
-        value = super(Location, self).convert(value)
         if value['CountryCode']:
             value['CountryCode'] = value['CountryCode'].upper()
-        return value
+        return super(Location, self).convert(value)
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -506,20 +532,22 @@ class MultiLocation(tuple):
         return result
 
 
-class Rights(MD_Dict_Mergeable):
+class Rights(MD_Collection):
     # stores IPTC rights information
     _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
+    _default_type = MD_FixedString
+    _type = {'UsageTerms': MD_String}
 
 
-class CameraModel(MD_Dict_String):
+class CameraModel(MD_Collection):
     _keys = ('make', 'model', 'serial_no')
+    _default_type = MD_FixedString
     _quiet = True
 
     def convert(self, value):
-        value = super(CameraModel, self).convert(value)
         if value['model'] == 'unknown':
             value['model'] = None
-        return value
+        return super(CameraModel, self).convert(value)
 
     def __str__(self):
         return str(dict([(x, y) for x, y in self.items() if y]))
@@ -540,17 +568,17 @@ class CameraModel(MD_Dict_String):
         return ' '.join(result)
 
 
-class LensModel(MD_Dict_String):
+class LensModel(MD_Collection):
     _keys = ('make', 'model', 'serial_no')
+    _default_type = MD_FixedString
     _quiet = True
 
     def convert(self, value):
-        value = super(LensModel, self).convert(value)
         if value['model'] in ('n/a', '(0)', '65535'):
             value['model'] = None
         if value['serial_no'] == '0000000000':
             value['serial_no'] = None
-        return value
+        return super(LensModel, self).convert(value)
 
     def __str__(self):
         return str(dict([(x, y) for x, y in self.items() if y]))
@@ -964,30 +992,6 @@ class MultiString(MD_Value, tuple):
             self.log_merged(info, tag, other)
             return MultiString(result)
         return self
-
-
-class MD_String(MD_Value, str):
-    def __new__(cls, value):
-        value = value.strip()
-        if not value:
-            return None
-        return super(MD_String, cls).__new__(cls, value)
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
-        if not isinstance(file_value, str):
-            file_value = ' // '.join(file_value)
-        return cls(file_value)
-
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        if this in other:
-            return other, True, False
-        return this + ' // ' + other, True, False
 
 
 class Software(MD_String):
