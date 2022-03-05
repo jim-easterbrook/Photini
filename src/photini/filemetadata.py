@@ -244,7 +244,8 @@ class ImageMetadata(MetadataHandler):
         'Exif.Canon.LensModel': ('', 'Exif.Canon.LensModel'),
         'Exif.Canon.ModelID': (
             '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
-        'Exif.CanonCs.LensType': ('', 'Exif.CanonCs.LensType'),
+        'Exif.CanonCs.LensType': ('', 'Exif.CanonCs.LensType',
+                                  '', 'Exif.CanonCs.Lens'),
         'Exif.Fujifilm.SerialNumber': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPSAltitude': (
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
@@ -255,11 +256,13 @@ class ImageMetadata(MetadataHandler):
         'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal', ''),
         'Exif.Image.FNumber': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
+        'Exif.Image.Lens': ('', '', '', 'Exif.Image.LensInfo'),
         'Exif.Image.Make': (
             'Exif.Image.Make', 'Exif.Image.Model',
             'Exif.Photo.BodySerialNumber'),
         'Exif.Image.UniqueCameraModel': (
             '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
+        'Exif.Nikon3.Lens': ('', '', '', 'Exif.Nikon3.Lens'),
         'Exif.Nikon3.SerialNumber': ('', '', 'Exif.Nikon3.SerialNumber'),
         'Exif.NikonLd1.LensIDNumber': ('', 'Exif.NikonLd1.LensIDNumber'),
         'Exif.NikonLd2.LensIDNumber': ('', 'Exif.NikonLd2.LensIDNumber'),
@@ -276,9 +279,9 @@ class ImageMetadata(MetadataHandler):
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
         'Exif.Photo.FNumber': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.LensMake': (
+        'Exif.Photo.Lens': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
-            'Exif.Photo.LensSerialNumber'),
+            'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
         'Exif.Thumbnail.ImageWidth': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
@@ -301,9 +304,9 @@ class ImageMetadata(MetadataHandler):
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
         'Xmp.exif.GPSLatitude': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
-        'Xmp.exifEX.LensMake': (
+        'Xmp.exifEX.Lens': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
-            'Xmp.exifEX.LensSerialNumber'),
+            'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
         'Xmp.iptc.CreatorContactInfo': (
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCity',
@@ -414,20 +417,17 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.XPKeywords')),
         'latlong'        : (('WA', 'Exif.GPSInfo.GPSLatitude'),
                             ('WX', 'Xmp.exif.GPSLatitude')),
-        'lens_model'     : (('WA', 'Exif.Photo.LensMake'),
-                            ('WX', 'Xmp.exifEX.LensMake'),
+        'lens_model'     : (('WA', 'Exif.Photo.Lens'),
+                            ('WX', 'Xmp.exifEX.Lens'),
+                            ('W0', 'Exif.Image.Lens'),
                             ('WN', 'Exif.Canon.LensModel'),
                             ('WN', 'Exif.CanonCs.LensType'),
                             ('WN', 'Exif.OlympusEq.LensModel'),
+                            ('WN', 'Exif.Nikon3.Lens'),
                             ('WN', 'Exif.NikonLd1.LensIDNumber'),
                             ('WN', 'Exif.NikonLd2.LensIDNumber'),
                             ('WN', 'Exif.NikonLd3.LensIDNumber'),
                             ('W0', 'Xmp.aux.Lens')),
-        'lens_spec'      : (('WA', 'Exif.Photo.LensSpecification'),
-                            ('WX', 'Xmp.exifEX.LensSpecification'),
-                            ('W0', 'Exif.Image.LensInfo'),
-                            ('WN', 'Exif.CanonCs.Lens'),
-                            ('WN', 'Exif.Nikon3.Lens')),
         'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown'),),
         'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated'),
                             ('WA', 'Xmp.iptc.Location'),

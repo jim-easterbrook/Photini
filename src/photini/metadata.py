@@ -285,6 +285,18 @@ class MD_Collection(MD_Dict):
                 value[key] = cls._default_type(value[key])
         return value
 
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not any(file_value):
+            return None
+        value = dict(zip(cls._keys, file_value))
+        for key in value:
+            if key in cls._type:
+                value[key] = cls._type[key].from_exiv2(value[key], tag)
+            else:
+                value[key] = cls._default_type.from_exiv2(value[key], tag)
+        return cls(value)
+
     def to_exif(self):
         return [self[x] and self[x].to_exif() for x in self._keys]
 
@@ -308,9 +320,9 @@ class MD_Collection(MD_Dict):
                 result[key], merged, ignored = result[key].merge_item(
                                                         result[key], other[key])
             if ignored:
-                self.log_ignored(info, tag, {key: other[key]})
+                self.log_ignored(info, tag, {key: str(other[key])})
             elif merged:
-                self.log_merged(info, tag, {key: other[key]})
+                self.log_merged(info, tag, {key: str(other[key])})
         return self.__class__(result)
 
 
@@ -564,38 +576,8 @@ class CameraModel(MD_Collection):
                 result = [self['make']] + result
         # add serial no if a unique answer is needed
         if inc_serial and self['serial_no']:
-            result += ['(S/N: ' + self['serial_no'] + ')']
+            result.append('(S/N: ' + self['serial_no'] + ')')
         return ' '.join(result)
-
-
-class LensModel(MD_Collection):
-    _keys = ('make', 'model', 'serial_no')
-    _default_type = MD_FixedString
-    _quiet = True
-
-    def convert(self, value):
-        if value['model'] in ('n/a', '(0)', '65535'):
-            value['model'] = None
-        if value['serial_no'] == '0000000000':
-            value['serial_no'] = None
-        return super(LensModel, self).convert(value)
-
-    def __str__(self):
-        return str(dict([(x, y) for x, y in self.items() if y]))
-
-    def get_name(self, inc_serial=True):
-        result = self['make'] or ''
-        if self['model']:
-            if result in self['model']:
-                result = ''
-            if result:
-                result += ' '
-            result += self['model']
-        if inc_serial and self['serial_no']:
-            if result:
-                result += ' '
-            result += '(S/N: ' + self['serial_no'] + ')'
-        return result
 
 
 class LensSpec(MD_Dict):
@@ -615,7 +597,7 @@ class LensSpec(MD_Dict):
             return None
         if isinstance(file_value, str):
             file_value = file_value.split()
-        if tag == 'Exif.CanonCs.Lens':
+        if 'CanonCs' in tag:
             long_focal, short_focal, focal_units = [int(x) for x in file_value]
             if focal_units == 0:
                 return None
@@ -632,6 +614,46 @@ class LensSpec(MD_Dict):
 
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
+
+
+class LensModel(MD_Collection):
+    _keys = ('make', 'model', 'serial_no', 'spec')
+    _default_type = MD_FixedString
+    _type = {'spec': LensSpec}
+    _quiet = True
+
+    def convert(self, value):
+        if value['model'] in ('n/a', '(0)', '65535'):
+            value['model'] = None
+        if value['serial_no'] == '0000000000':
+            value['serial_no'] = None
+        return super(LensModel, self).convert(value)
+
+    def get_name(self, inc_serial=True):
+        result = []
+        # start with 'model'
+        if self['model']:
+            result.append(self['model'])
+        # only add 'make' if it's not part of model
+        if self['make']:
+            if not (result
+                    and self['make'].split()[0].lower() in result[0].lower()):
+                result = [self['make']] + result
+        if inc_serial and self['serial_no']:
+            result.append('(S/N: ' + self['serial_no'] + ')')
+        if self['spec'] and not result:
+            # generic name based on spec
+            fl = [float(self['spec']['min_fl']), float(self['spec']['max_fl'])]
+            fl = '-'.join([str(x) for x in fl if x])
+            fn = [float(self['spec']['min_fl_fn']),
+                  float(self['spec']['max_fl_fn'])]
+            fn = '-'.join([str(x) for x in fn if x])
+            if fl:
+                model = fl + 'mm'
+                if fn:
+                    model += ' ƒ/' + fn
+                result.append(model)
+        return ' '.join(result)
 
 
 class Thumbnail(MD_Dict):
@@ -1145,7 +1167,6 @@ class Metadata(object):
         'keywords'       : MultiString,
         'latlong'        : LatLon,
         'lens_model'     : LensModel,
-        'lens_spec'      : LensSpec,
         'location_shown' : MultiLocation,
         'location_taken' : Location,
         'orientation'    : Orientation,

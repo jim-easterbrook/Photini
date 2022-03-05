@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 import logging
 import re
 
-from photini.metadata import CameraModel, LensModel, LensSpec
+from photini.metadata import CameraModel, LensModel
 from photini.pyqt import (
     catch_all, DropDownSelector, execute, FormLayout, multiple, multiple_values,
     Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
@@ -119,17 +119,17 @@ class LensList(DropdownEdit):
             lens_model = {}
             for old_key, new_key in (('lens_make', 'make'),
                                      ('lens_model', 'model'),
-                                     ('lens_serial', 'serial_no')):
+                                     ('lens_serial', 'serial_no'),
+                                     ('lens_spec', 'spec')):
                 lens_model[new_key] = self.config_store.get(section, new_key)
                 if not lens_model[new_key]:
                     lens_model[new_key] = self.config_store.get(section, old_key)
                 self.config_store.delete(section, old_key)
             lens_model = LensModel(lens_model)
-            lens_spec = LensSpec(self.config_store.get(section, 'lens_spec'))
             name = lens_model.get_name()
             if name != section[5:]:
                 self.config_store.remove_section(section)
-            values.append((name, (lens_model, lens_spec)))
+            values.append((name, lens_model))
         self.set_values(values)
 
     def define_new_value(self):
@@ -137,29 +137,24 @@ class LensList(DropdownEdit):
             self._image_list.get_selected_images(), parent=self)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
             return None, None
-        lens_model, lens_spec = dialog.get_value()
+        lens_model = dialog.get_value()
         if not lens_model:
             return None, None
-        return lens_model.get_name(), (lens_model, lens_spec)
+        return lens_model.get_name(), lens_model
 
-    def add_item(self, text, data, **kwds):
-        if data:
-            lens_model, lens_spec = data
+    def add_item(self, text, lens_model, **kwds):
+        if lens_model:
             section = 'lens ' + lens_model.get_name()
             for key, value in lens_model.items():
                 if value:
-                    self.config_store.set(section, key, value)
-            if lens_spec:
-                self.config_store.set(section, 'lens_spec', str(lens_spec))
-        return super(LensList, self).add_item(text, data, **kwds)
+                    self.config_store.set(section, key, str(value))
+        return super(LensList, self).add_item(text, lens_model, **kwds)
 
-    def remove_item(self, data, **kwds):
-        lens_model, lens_spec = data
+    def remove_item(self, lens_model, **kwds):
         self.config_store.remove_section('lens ' + lens_model.get_name())
-        return super(LensList, self).remove_item(data, **kwds)
+        return super(LensList, self).remove_item(lens_model, **kwds)
 
-    def data_to_text(self, data):
-        lens_model, lens_spec = data
+    def data_to_text(self, lens_model):
         return lens_model.get_name()
 
 
@@ -692,12 +687,16 @@ class NewLensDialog(NewItemDialog):
         # fill in any values we can from existing metadata
         for image in images:
             model = image.metadata.lens_model
+            if not model:
+                continue
             for key in self.model_widgets:
-                if model and model[key]:
+                if model[key]:
                     self.model_widgets[key].setText(model[key])
-            spec = image.metadata.lens_spec
+            spec = model['spec']
+            if not spec:
+                continue
             for key in self.lens_spec:
-                if spec and spec[key]:
+                if spec[key]:
                     self.lens_spec[key].set_value(spec[key])
 
     def extend_data(self):
@@ -722,13 +721,12 @@ class NewLensDialog(NewItemDialog):
 
     def get_value(self):
         lens_model = super(NewLensDialog, self).get_value()
-        lens_model = LensModel(lens_model) or None
         min_fl = self.lens_spec['min_fl'].get_value() or 0
         max_fl = self.lens_spec['max_fl'].get_value() or min_fl
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
         max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
-        lens_spec = LensSpec((min_fl, max_fl, min_fl_fn, max_fl_fn)) or None
-        return lens_model, lens_spec
+        lens_model['spec'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
+        return LensModel(lens_model) or None
 
 
 class DateLink(QtWidgets.QCheckBox):
@@ -924,15 +922,9 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def new_lens_model(self, key, value):
-        if value:
-            lens_model, lens_spec = value
-        else:
-            lens_model, lens_spec = None, None
         for image in self.image_list.get_selected_images():
-            image.metadata.lens_model = lens_model
-            image.metadata.lens_spec = lens_spec
+            image.metadata.lens_model = value
         self._update_lens_model()
-        self._update_lens_spec()
 
     @QtSlot(object)
     @catch_all
@@ -1044,29 +1036,18 @@ class TabWidget(QtWidgets.QWidget):
         if not images:
             return
         self.widgets['lens_model'].setToolTip('')
-        value = images[0].metadata.lens_model, images[0].metadata.lens_spec
+        value = images[0].metadata.lens_model
         for image in images[1:]:
-            if (image.metadata.lens_model, image.metadata.lens_spec) != value:
+            if image.metadata.lens_model != value:
                 # multiple values
                 self.widgets['lens_model'].set_multiple()
                 return
-        lens_model, lens_spec = value
-        if lens_spec and not lens_model:
-            lens_model = '{}'.format(float(lens_spec['min_fl']) or '')
-            if lens_spec['max_fl'] != lens_spec['min_fl']:
-                lens_model += '-{}'.format(float(lens_spec['max_fl']) or '')
-            lens_model += ' mm'
-            if lens_spec['min_fl_fn']:
-                lens_model += ' 1:{}'.format(float(lens_spec['min_fl_fn']) or '')
-            if lens_spec['max_fl_fn'] != lens_spec['min_fl_fn']:
-                lens_model += '-{}'.format(float(lens_spec['max_fl_fn']) or '')
-            lens_model = LensModel({'model': lens_model})
-            value = lens_model, lens_spec
-        if not lens_model:
-            value = None
         self.widgets['lens_model'].set_value(value)
-        if not lens_spec:
-            lens_spec = LensSpec(None)
+        if not value:
+            return
+        spec = value['spec']
+        if not spec:
+            return
         tool_tip = ('<table><tr><th></th><th width="70">{th_min}</th>'
                     '<th width="70">{th_max}</th></tr>'
                     '<tr><th align="right">{th_fl}</th>'
@@ -1080,20 +1061,8 @@ class TabWidget(QtWidgets.QWidget):
             th_max=translate('TechnicalTab', 'max'),
             th_fl=translate('TechnicalTab', 'Focal length'),
             th_ap=translate('TechnicalTab', 'Max aperture'),
-            **dict([(x, float(y) or '') for (x, y) in lens_spec.items()]))
+            **dict([(x, float(y) or '') for (x, y) in spec.items()]))
         self.widgets['lens_model'].setToolTip(tool_tip)
-
-    def _update_lens_spec(self):
-        images = self.image_list.get_selected_images()
-        if not images:
-            return
-        spec = images[0].metadata.lens_spec
-        if not spec:
-            return
-        for image in images[1:]:
-            if image.metadata.lens_spec != spec:
-                # multiple values
-                return
         make_changes = False
         for image in images:
             new_aperture = image.metadata.aperture or 0
