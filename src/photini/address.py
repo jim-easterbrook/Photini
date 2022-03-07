@@ -26,6 +26,7 @@ import requests
 
 from photini.filemetadata import ImageMetadata
 from photini.metadata import Location
+from photini.opencage import OpenCage
 from photini.photinimap import LatLongDisplay
 from photini.pyqt import (
     catch_all, execute, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
@@ -112,7 +113,7 @@ class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, parent=None):
         super(TabWidget, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
-        self.geocoder = self.app.open_cage
+        self.geocoder = OpenCage(parent=self)
         self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
@@ -129,7 +130,7 @@ class TabWidget(QtWidgets.QWidget):
         self.auto_location.clicked.connect(self.get_address)
         left_side.addWidget(self.auto_location, 1, 0, 1, 2)
         # terms and conditions
-        terms = self.geocoder.search_terms(search=False)
+        terms = self.geocoder.search_terms()
         left_side.addWidget(terms[0], 3, 0, 1, 2)
         left_side.addWidget(terms[1], 4, 0, 1, 2)
         left_side.setColumnStretch(1, 1)

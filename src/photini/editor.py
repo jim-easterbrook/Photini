@@ -36,7 +36,6 @@ from photini.filemetadata import exiv2_version, ImageMetadata
 from photini.ffmpeg import ffmpeg_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
-from photini.opencage import OpenCage
 from photini.pyqt import (
     Busy, catch_all, execute, Qt, QtCore, QtGui, QtGui2, QtNetwork,
     QNetworkProxy, QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info,
@@ -175,7 +174,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
         self.app.spell_check = SpellCheck(parent=self)
-        self.app.open_cage = OpenCage(parent=self)
         if GpxImporter:
             self.app.gpx_importer = GpxImporter(parent=self)
         else:

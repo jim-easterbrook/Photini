@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -134,11 +134,8 @@ class OpenCage(GeocoderBase):
             del address['state_code']
         return Location.from_address(address, self.address_map)
 
-    def search_terms(self, search=True):
-        if search:
-            text = self.tr('Search powered by OpenCage')
-        else:
-            text = self.tr('Address lookup powered by OpenCage')
+    def search_terms(self):
+        text = self.tr('Address lookup powered by OpenCage')
         tou_opencage = CompactButton(text)
         tou_opencage.clicked.connect(self.load_tou_opencage)
         tou_osm = CompactButton(
