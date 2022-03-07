@@ -208,7 +208,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 'map_google'          : 'photini.googlemap',
                 'map_bing'            : 'photini.bingmap',
                 'map_mapbox'          : 'photini.mapboxmap',
-                'map_osm'             : 'photini.openstreetmap',
                 'address'             : 'photini.address',
                 'flickr_upload'       : 'photini.flickr',
                 'import_photos'       : 'photini.importer',
@@ -218,23 +217,26 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.app.config_store.set(
                         'tabs', conv[key],
                         self.app.config_store.get('tabs', key))
-                    self.app.config_store.config.remove_option('tabs', key)
+                    self.app.config_store.delete('tabs', key)
         # prepare list of tabs and associated stuff
         self.tab_list = []
         default_modules = ['photini.descriptive',  'photini.ownership',
                            'photini.technical',
                            'photini.googlemap',    'photini.bingmap',
-                           'photini.mapboxmap',    'photini.openstreetmap',
-                           'photini.address',      'photini.flickr',
-                           'photini.ipernity',
+                           'photini.mapboxmap',    'photini.address',
+                           'photini.flickr',       'photini.ipernity',
                            'photini.googlephotos', 'photini.importer']
         modules = self.app.config_store.get('tabs', 'modules', default_modules)
+        if 'photini.openstreetmap' in modules:
+            modules.remove('photini.openstreetmap')
+            self.app.config_store.set('tabs', 'modules', modules)
+            self.app.config_store.delete('tabs', 'photini.openstreetmap')
         for n, module in enumerate(default_modules):
             if module not in modules:
                 modules = list(modules)
                 modules.insert(n, module)
                 self.app.config_store.set('tabs', 'modules', modules)
-        for module in modules:
+        for module in list(modules):
             tab = {'module': module}
             try:
                 mod = importlib.import_module(tab['module'])

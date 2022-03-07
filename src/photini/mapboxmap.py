@@ -116,7 +116,5 @@ class TabWidget(PhotiniMap):
     </script>
     <script type="text/javascript">
       L.mapbox.accessToken = "{key}";
-    </script>
-    <script type="text/javascript" src="../openstreetmap/common.js">
     </script>'''.format(key=self.api_key,
                         url='https://api.mapbox.com/mapbox.js/v3.3.1')
