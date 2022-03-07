@@ -110,7 +110,7 @@ class OpenCage(GeocoderBase):
                           'district', 'quarter', 'residential', 'commercial',
                           'industrial', 'houses', 'subdivision',
                           'village', 'town', 'municipality', 'city',
-                          'postcode'),
+                          'partial_postcode', 'postcode'),
         'SubLocation'   :('house_number', 'street_number',
                           'house', 'public_building', 'building', 'water',
                           'road', 'pedestrian', 'path',
@@ -132,6 +132,8 @@ class OpenCage(GeocoderBase):
             del address['county_code']
         if 'state_code' in address and 'state' in address:
             del address['state_code']
+        if 'partial_postcode' in address and 'postcode' in address:
+            del address['partial_postcode']
         return Location.from_address(address, self.address_map)
 
     def search_terms(self):
