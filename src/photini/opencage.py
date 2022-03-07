@@ -123,7 +123,8 @@ class OpenCage(GeocoderBase):
         }
 
     def get_address(self, coords):
-        results = self.cached_query({'q': coords.replace(' ', '')})
+        coords = [float(x) for x in coords.split(',')]
+        results = self.cached_query({'q': '{:.5f},{:.5f}'.format(*coords)})
         if not results:
             return None
         address = dict(results[0]['components'])
