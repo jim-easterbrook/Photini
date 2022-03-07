@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2018-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2018-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ class MapboxGeocoder(GeocoderBase):
                 south = max(south - margin, -90.0)
             params['bbox'] = '{:.4f},{:.4f},{:.4f},{:.4f}'.format(
                 west, south, east, north)
-        for feature in self.cached_query(params):
+        for feature in self.query(params):
             if 'place_name' not in feature:
                 continue
             if 'bbox' in feature:
