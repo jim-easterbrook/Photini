@@ -18,15 +18,14 @@
 
 from __future__ import unicode_literals
 
-from collections import OrderedDict
-from datetime import timedelta, timezone
-import locale
+from datetime import timezone
 import logging
 import os
+import pickle
 
 import appdirs
+import cachetools
 import pkg_resources
-import requests
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
@@ -42,6 +41,8 @@ translate = QtCore.QCoreApplication.translate
 
 class GeocoderBase(QtCore.QObject):
     interval = 5000
+    cache_size = 200
+    cache_ttl = 30 * 24 * 3600
 
     def __init__(self, *args, **kwds):
         super(GeocoderBase, self).__init__(*args, **kwds)
@@ -49,7 +50,26 @@ class GeocoderBase(QtCore.QObject):
         self.block_timer = QtCore.QTimer(self)
         self.block_timer.setInterval(self.interval)
         self.block_timer.setSingleShot(True)
-        self.query_cache = OrderedDict()
+        if self.cache_size:
+            self.cache_file = os.path.join(
+                appdirs.user_cache_dir('photini'),
+                self.__class__.__name__ + '.pkl')
+            try:
+                with open(self.cache_file, 'rb') as f:
+                    self.query_cache = pickle.load(f)
+            except (AttributeError, FileNotFoundError):
+                self.query_cache = cachetools.TTLCache(
+                    self.cache_size, self.cache_ttl)
+            logger.info('cache count %d', self.query_cache.currsize)
+            self.app.aboutToQuit.connect(self.save_cache)
+        else:
+            self.query_cache = None
+
+    @QtSlot()
+    @catch_all
+    def save_cache(self):
+        with open(self.cache_file, 'wb') as f:
+            pickle.dump(self.query_cache, f)
 
     def rate_limit(self):
         while self.block_timer.isActive():
@@ -62,8 +82,6 @@ class GeocoderBase(QtCore.QObject):
             return self.query_cache[cache_key]
         results = self.query(params, *args)
         self.query_cache[cache_key] = results
-        while len(self.query_cache) > 20:
-            self.query_cache.popitem(last=False)
         return results
 
 

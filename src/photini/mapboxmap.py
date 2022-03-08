@@ -34,6 +34,7 @@ translate = QtCore.QCoreApplication.translate
 
 class MapboxGeocoder(GeocoderBase):
     api_key = key_store.get('mapboxmap', 'api_key')
+    cache_size = 0
 
     def query(self, params):
         query = params['query']
