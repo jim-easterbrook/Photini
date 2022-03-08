@@ -869,25 +869,27 @@ class PhotiniUploader(QtWidgets.QWidget):
                         break
                 else:
                     unknowns.append(image)
-            # try to find unknowns on remote
+            # get date range of photos without an id
+            search_min, search_max = datetime.max, datetime.min
             for image in unknowns:
-                # get possible date range
                 if not image.metadata.date_taken:
                     continue
                 min_taken_date, max_taken_date = self.date_range(image)
-                # search remote service
-                for photo_id, date_taken, icon_url in self.session.find_photos(
-                        min_taken_date, max_taken_date):
-                    if photo_id in photo_ids:
-                        continue
-                    # find local image that matches remote date & icon
-                    match = self.find_local(unknowns, date_taken, icon_url)
-                    if match:
-                        match.metadata.keywords = list(
-                            match.metadata.keywords or []) + [
-                                '{}:id={}'.format(self.session.name, photo_id)]
-                        photo_ids[photo_id] = match
-                        unknowns.remove(match)
+                search_min = min(search_min, min_taken_date)
+                search_max = max(search_max, max_taken_date)
+            # search remote service
+            for photo_id, date_taken, icon_url in self.session.find_photos(
+                    search_min, search_max):
+                if photo_id in photo_ids:
+                    continue
+                # find local image that matches remote date & icon
+                match = self.find_local(unknowns, date_taken, icon_url)
+                if match:
+                    match.metadata.keywords = list(
+                        match.metadata.keywords or []) + [
+                            '{}:id={}'.format(self.session.name, photo_id)]
+                    photo_ids[photo_id] = match
+                    unknowns.remove(match)
             # merge remote metadata into file
             for photo_id, image in photo_ids.items():
                 self.merge_metadata(photo_id, image)
