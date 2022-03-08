@@ -869,81 +869,41 @@ class PhotiniUploader(QtWidgets.QWidget):
                         break
                 else:
                     unknowns.append(image)
-            # get date range of photos without an id
-            search_min, search_max = datetime.max, datetime.min
-            for image in unknowns:
-                if not image.metadata.date_taken:
-                    continue
-                min_taken_date, max_taken_date = self.date_range(image)
-                search_min = min(search_min, min_taken_date)
-                search_max = max(search_max, max_taken_date)
-            # search remote service
-            for photo_id, date_taken, icon_url in self.session.find_photos(
-                    search_min, search_max):
-                if photo_id in photo_ids:
-                    continue
-                # find local image that matches remote date & icon
-                match = self.find_local(unknowns, date_taken, icon_url)
-                if match:
-                    match.metadata.keywords = list(
-                        match.metadata.keywords or []) + [
-                            '{}:id={}'.format(self.session.name, photo_id)]
-                    photo_ids[photo_id] = match
-                    unknowns.remove(match)
+            if unknowns:
+                # get date range of photos without an id
+                search_min, search_max = datetime.max, datetime.min
+                for image in unknowns:
+                    if not image.metadata.date_taken:
+                        continue
+                    min_taken_date, max_taken_date = self.date_range(image)
+                    search_min = min(search_min, min_taken_date)
+                    search_max = max(search_max, max_taken_date)
+                # search remote service
+                for photo_id, date_taken, icon_url in self.session.find_photos(
+                        search_min, search_max):
+                    if photo_id in photo_ids:
+                        continue
+                    # find local image that matches remote date & icon
+                    match = self.find_local(unknowns, date_taken, icon_url)
+                    if match:
+                        match.metadata.keywords = list(
+                            match.metadata.keywords or []) + [
+                                '{}:id={}'.format(self.session.name, photo_id)]
+                        photo_ids[photo_id] = match
+                        unknowns.remove(match)
             # merge remote metadata into file
             for photo_id, image in photo_ids.items():
                 self.merge_metadata(photo_id, image)
 
-    def merge_metadata_items(self, image, title=None, description=None,
-                             keywords=[], date_taken=None, latlong=None,
-                             location_taken=None):
+    def merge_metadata_items(self, image, data):
         md = image.metadata
-        # sync title
-        if title:
-            old_value = md.title
-            md.title = title
-            if old_value:
-                md.title = md.title.merge(
-                    image.name + '(title)', 'file value', old_value)
-        # sync description
-        if description:
-            old_value = md.description
-            md.description = description
-            if old_value:
-                md.description = md.description.merge(
-                    image.name + '(description)', 'file value', old_value)
-        # sync keywords
-        keywords = [x for x in keywords if x != 'uploaded:by=photini']
-        if keywords:
-            old_value = md.keywords
-            md.keywords = keywords
-            if old_value:
-                md.keywords = md.keywords.merge(
-                    image.name + '(keywords)', 'file value', old_value)
-        # sync date_taken
-        if date_taken:
-            date_taken, precision, tz_offset = date_taken
-            old_value = md.date_taken
-            if old_value:
-                if precision is None:
-                    precision = old_value['precision']
-                if tz_offset is None:
-                    tz_offset = old_value['tz_offset']
-            md.date_taken = date_taken, precision, tz_offset
-            if old_value:
-                md.date_taken = md.date_taken.merge(
-                    image.name + '(date_taken)', 'file value', old_value)
-        # sync location
-        if latlong:
-            old_value = md.latlong
-            md.latlong = latlong
-            if old_value:
-                md.latlong = md.latlong.merge(
-                    image.name + '(latlong)', 'file value', old_value)
-        # sync address
-        if location_taken:
-            old_value = md.location_taken
-            md.location_taken = location_taken
-            if old_value:
-                md.location_taken = md.location_taken.merge(
-                    image.name + '(location_taken)', 'file value', old_value)
+        for key, value in data.items():
+            if key == 'keywords':
+                value = value or []
+                value = [x for x in value if x != 'uploaded:by=photini']
+            if value:
+                old_value = getattr(md, key)
+                if old_value:
+                    value = old_value.merge('{}({})'.format(image.name, key),
+                                            self.service_name, value)
+                setattr(md, key, value)

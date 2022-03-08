@@ -488,7 +488,7 @@ class Location(MD_Collection):
             result[key] = []
         for key in key_map:
             for foreign_key in key_map[key]:
-                if foreign_key not in address:
+                if foreign_key not in address or not address[foreign_key]:
                     continue
                 if key in result and address[foreign_key] not in result[key]:
                     result[key].append(address[foreign_key])

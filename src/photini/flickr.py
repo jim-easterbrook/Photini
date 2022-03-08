@@ -608,19 +608,20 @@ class TabWidget(PhotiniUploader):
                 precision = 2
             else:
                 precision = 6
-            data['date_taken'] = (
-                datetime.strptime(photo['dates']['taken'], '%Y-%m-%d %H:%M:%S'),
-                precision, None)
+            data['date_taken'] = {
+                'datetime': datetime.strptime(photo['dates']['taken'],
+                                              '%Y-%m-%d %H:%M:%S'),
+                'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['latlong'] = (photo['location']['latitude'],
-                               photo['location']['longitude'])
+            data['latlong'] = {'lat': photo['location']['latitude'],
+                               'lon': photo['location']['longitude']}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:
                     address[key] = photo['location'][key]['_content']
             data['location_taken'] = Location.from_address(address,
                                                            self._address_map)
-        self.merge_metadata_items(image, **data)
+        self.merge_metadata_items(image, data)
 
     @QtSlot()
     @catch_all

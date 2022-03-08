@@ -172,7 +172,7 @@ class IpernitySession(UploaderSession):
                 created_min=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
                 created_max=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
                 extra='dates', thumbsize='100')
-            if not (rsp and rsp['docs']['doc']):
+            if not (rsp and 'doc' in rsp['docs']):
                 return
             for photo in rsp['docs']['doc']:
                 date_taken = datetime.strptime(
@@ -552,12 +552,16 @@ class TabWidget(PhotiniUploader):
             'title': photo['title'],
             'description': photo['description'],
             'keywords': [x['tag'] for x in photo['tags']['tag']],
-            'date_taken': (datetime.strptime(
-                photo['dates']['created'], '%Y-%m-%d %H:%M:%S'), 6, None),
+            'date_taken': {
+                'datetime': datetime.strptime(photo['dates']['created'],
+                                              '%Y-%m-%d %H:%M:%S'),
+                'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['latlong'] = photo['geo']['lat'], photo['geo']['lng']
-        self.merge_metadata_items(image, **data)
+            data['latlong'] = {'lat': photo['geo']['lat'],
+                               'lon': photo['geo']['lng']}
+        print(data)
+        self.merge_metadata_items(image, data)
 
     @QtSlot()
     @catch_all
