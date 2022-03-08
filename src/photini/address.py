@@ -19,21 +19,122 @@
 from __future__ import unicode_literals
 
 from collections import defaultdict
+import locale
 import logging
 import os
 
 import requests
 
+from photini.configstore import key_store
 from photini.filemetadata import ImageMetadata
 from photini.metadata import Location
-from photini.opencage import OpenCage
-from photini.photinimap import LatLongDisplay
+from photini.photinimap import GeocoderBase, LatLongDisplay
 from photini.pyqt import (
-    catch_all, execute, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
-    SingleLineEdit, width_for_text)
+    Busy, catch_all, CompactButton, execute, Qt, QtCore, QtGui, QtSignal,
+    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
+
+
+class OpenCage(GeocoderBase):
+    api_key = key_store.get('opencage', 'api_key')
+
+    def query(self, params):
+        params['key'] = self.api_key
+        params['abbrv'] = '1'
+        params['no_annotations'] = '1'
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        with Busy():
+            self.rate_limit()
+            try:
+                rsp = requests.get(
+                    'https://api.opencagedata.com/geocode/v1/json',
+                    params=params, timeout=5)
+            except Exception as ex:
+                logger.error(str(ex))
+                return []
+        if rsp.status_code >= 400:
+            logger.error('Search error %d', rsp.status_code)
+            return []
+        rsp = rsp.json()
+        status = rsp['status']
+        if status['code'] != 200:
+            logger.error(
+                'Search error %d: %s', status['code'], status['message'])
+            return []
+        if rsp['total_results'] < 1:
+            logger.error('No results found')
+            return []
+        rate = rsp['rate']
+        self.block_timer.setInterval(
+            5000 * rate['limit'] // max(rate['remaining'], 1))
+        return rsp['results']
+
+    # Map OpenCage address components to IPTC address heirarchy. There
+    # are many possible components (user generated data) so any
+    # unrecognised ones are put in 'SubLocation'. See
+    # https://github.com/OpenCageData/address-formatting/blob/master/conf/components.yaml
+    address_map = {
+        'WorldRegion'   :('continent',),
+        'CountryCode'   :('ISO_3166-1_alpha-3', 'ISO_3166-1_alpha-2',
+                          'country_code'),
+        'CountryName'   :('country', 'country_name'),
+        'ProvinceState' :('county', 'county_code', 'local_administrative_area',
+                          'state_district', 'state', 'state_code', 'province',
+                          'region', 'island'),
+        'City'          :('neighbourhood', 'suburb', 'city_district',
+                          'district', 'quarter', 'residential', 'commercial',
+                          'industrial', 'houses', 'subdivision',
+                          'village', 'town', 'municipality', 'city',
+                          'partial_postcode', 'postcode'),
+        'SubLocation'   :('house_number', 'street_number',
+                          'house', 'public_building', 'building', 'water',
+                          'road', 'pedestrian', 'path',
+                          'street_name', 'street', 'cycleway', 'footway',
+                          'place', 'square',
+                          'locality', 'hamlet', 'croft'),
+        'ignore'        :('political_union', 'road_reference',
+                          'road_reference_intl', 'road_type',
+                          '_category', '_type'),
+        }
+
+    def get_address(self, coords):
+        coords = [float(x) for x in coords.split(',')]
+        results = self.cached_query({'q': '{:.5f},{:.5f}'.format(*coords)})
+        if not results:
+            return None
+        address = dict(results[0]['components'])
+        if 'county_code' in address and 'county' in address:
+            del address['county_code']
+        if 'state_code' in address and 'state' in address:
+            del address['state_code']
+        if 'partial_postcode' in address and 'postcode' in address:
+            del address['partial_postcode']
+        return Location.from_address(address, self.address_map)
+
+    def search_terms(self):
+        text = self.tr('Address lookup powered by OpenCage')
+        tou_opencage = CompactButton(text)
+        tou_opencage.clicked.connect(self.load_tou_opencage)
+        tou_osm = CompactButton(
+            self.tr('Geodata © OpenStreetMap contributors'))
+        tou_osm.clicked.connect(self.load_tou_osm)
+        return [tou_opencage, tou_osm]
+
+    @QtSlot()
+    @catch_all
+    def load_tou_opencage(self):
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl('https://geocoder.opencagedata.com/'))
+
+    @QtSlot()
+    @catch_all
+    def load_tou_osm(self):
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl('http://www.openstreetmap.org/copyright'))
 
 
 class LocationInfo(QtWidgets.QWidget):
