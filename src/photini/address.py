@@ -44,9 +44,6 @@ class OpenCage(GeocoderBase):
         params['key'] = self.api_key
         params['abbrv'] = '1'
         params['no_annotations'] = '1'
-        lang, encoding = locale.getdefaultlocale()
-        if lang:
-            params['language'] = lang
         with Busy():
             self.rate_limit()
             try:
@@ -103,7 +100,11 @@ class OpenCage(GeocoderBase):
 
     def get_address(self, coords):
         coords = [float(x) for x in coords.split(',')]
-        results = self.cached_query({'q': '{:.5f},{:.5f}'.format(*coords)})
+        params = {'q': '{:.5f},{:.5f}'.format(*coords)}
+        lang, encoding = locale.getdefaultlocale()
+        if lang:
+            params['language'] = lang
+        results = self.cached_query(params)
         if not results:
             return None
         address = dict(results[0]['components'])
