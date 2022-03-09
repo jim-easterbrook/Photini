@@ -73,12 +73,7 @@ Select the image(s) you would like to update and click the ``Synchronise`` butto
 
 If an image does not have a ``ipernity:id`` keyword then Photini will try to find the photograph on Ipernity by matching the date and time it was taken.
 If there is new metadata on Ipernity then it is merged into the image's metadata.
-
-.. image:: ../images/screenshot_241.png
-
 You can see what changed with the image's context menu ``View changes``.
-In this case Ipernity has made an insignificant change to the latitude or longitude.
-I chose to ignore the new metadata value.
 
 Synchronising Ipernity metadata to local
 ----------------------------------------

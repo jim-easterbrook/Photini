@@ -85,8 +85,8 @@ If there is new metadata on Flickr then it is merged into the image's metadata.
 .. image:: ../images/screenshot_160.png
 
 You can see what changed with the image's context menu ``View changes``.
-In this case Flickr has made an insignificant change to the latitude or longitude, and set the location city to its new name of "Château-Gontier-sur-Mayenne".
-I chose to ignore these new metadata values.
+In this case Flickr has set the location city to its new name of "Château-Gontier-sur-Mayenne".
+I chose to ignore this new metadata.
 
 Synchronising Flickr metadata to local
 --------------------------------------
