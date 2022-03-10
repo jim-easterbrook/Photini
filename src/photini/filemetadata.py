@@ -69,7 +69,7 @@ class ImageMetadata(MetadataHandler):
         result = []
         for x in self._multi_tags[tag]:
             result.append(self.get_value(x, idx=idx))
-        if tag == 'Exif.Thumbnail.ImageWidth':
+        if tag == 'Exif.Thumbnail.*':
             result.append(self._get_exif_thumbnail())
         return result
 
@@ -107,7 +107,7 @@ class ImageMetadata(MetadataHandler):
     def set_group(self, tag, value, idx=1):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
             self.set_value(sub_tag, sub_value, idx=idx)
-        if tag == 'Exif.Thumbnail.ImageWidth' and value[3]:
+        if tag == 'Exif.Thumbnail.*' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
     def set_value(self, tag, value, idx=1):
@@ -241,73 +241,73 @@ class ImageMetadata(MetadataHandler):
     # some tags are always read & written in groups, but are represented
     # by a single name
     _multi_tags = {
-        'Exif.Canon.LensModel': ('', 'Exif.Canon.LensModel'),
-        'Exif.Canon.ModelID': (
+        'Exif.Canon.LensModel*': ('', 'Exif.Canon.LensModel'),
+        'Exif.Canon.ModelID*': (
             '', 'Exif.Canon.ModelID', 'Exif.Canon.SerialNumber'),
-        'Exif.CanonCs.LensType': ('', 'Exif.CanonCs.LensType',
-                                  '', 'Exif.CanonCs.Lens'),
-        'Exif.Fujifilm.SerialNumber': ('', '', 'Exif.Fujifilm.SerialNumber'),
-        'Exif.GPSInfo.GPSAltitude': (
+        'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
+                               '', 'Exif.CanonCs.Lens'),
+        'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
+        'Exif.GPSInfo.GPSAltitude*': (
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
-        'Exif.GPSInfo.GPSLatitude': (
+        'Exif.GPSInfo.GPSCoords*': (
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
-        'Exif.Image.DateTime': ('Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
-        'Exif.Image.DateTimeOriginal': ('Exif.Image.DateTimeOriginal', ''),
-        'Exif.Image.FNumber': (
+        'Exif.Image.DateTime*': (
+            'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
+        'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', ''),
+        'Exif.Image.FNumber*': (
             'Exif.Image.FNumber', 'Exif.Image.ApertureValue'),
-        'Exif.Image.Lens': ('', '', '', 'Exif.Image.LensInfo'),
-        'Exif.Image.Make': (
+        'Exif.Image.Lens*': ('', '', '', 'Exif.Image.LensInfo'),
+        'Exif.Image.Make*': (
             'Exif.Image.Make', 'Exif.Image.Model',
             'Exif.Photo.BodySerialNumber'),
-        'Exif.Image.UniqueCameraModel': (
+        'Exif.Image.UniqueCameraModel*': (
             '', 'Exif.Image.UniqueCameraModel', 'Exif.Image.CameraSerialNumber'),
-        'Exif.Nikon3.Lens': ('', '', '', 'Exif.Nikon3.Lens'),
-        'Exif.Nikon3.SerialNumber': ('', '', 'Exif.Nikon3.SerialNumber'),
-        'Exif.NikonLd1.LensIDNumber': ('', 'Exif.NikonLd1.LensIDNumber'),
-        'Exif.NikonLd2.LensIDNumber': ('', 'Exif.NikonLd2.LensIDNumber'),
-        'Exif.NikonLd3.LensIDNumber': ('', 'Exif.NikonLd3.LensIDNumber'),
-        'Exif.OlympusEq.CameraType': (
+        'Exif.Nikon3.Lens*': ('', '', '', 'Exif.Nikon3.Lens'),
+        'Exif.Nikon3.SerialNumber*': ('', '', 'Exif.Nikon3.SerialNumber'),
+        'Exif.NikonLd1.LensIDNumber*': ('', 'Exif.NikonLd1.LensIDNumber'),
+        'Exif.NikonLd2.LensIDNumber*': ('', 'Exif.NikonLd2.LensIDNumber'),
+        'Exif.NikonLd3.LensIDNumber*': ('', 'Exif.NikonLd3.LensIDNumber'),
+        'Exif.OlympusEq.Camera*': (
             '', 'Exif.OlympusEq.CameraType', 'Exif.OlympusEq.SerialNumber'),
-        'Exif.OlympusEq.LensModel': (
+        'Exif.OlympusEq.LensModel*': (
             '', 'Exif.OlympusEq.LensModel', 'Exif.OlympusEq.LensSerialNumber'),
-        'Exif.Pentax.ModelID': (
+        'Exif.Pentax.ModelID*': (
             '', 'Exif.Pentax.ModelID', 'Exif.Pentax.SerialNumber'),
-        'Exif.Photo.DateTimeDigitized': (
+        'Exif.Photo.DateTimeDigitized*': (
             'Exif.Photo.DateTimeDigitized', 'Exif.Photo.SubSecTimeDigitized'),
-        'Exif.Photo.DateTimeOriginal': (
+        'Exif.Photo.DateTimeOriginal*': (
             'Exif.Photo.DateTimeOriginal', 'Exif.Photo.SubSecTimeOriginal'),
-        'Exif.Photo.FNumber': (
+        'Exif.Photo.FNumber*': (
             'Exif.Photo.FNumber', 'Exif.Photo.ApertureValue'),
-        'Exif.Photo.Lens': (
+        'Exif.Photo.Lens*': (
             'Exif.Photo.LensMake', 'Exif.Photo.LensModel',
             'Exif.Photo.LensSerialNumber', 'Exif.Photo.LensSpecification'),
-        'Exif.Thumbnail.ImageWidth': (
+        'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
-        'Iptc.Application2.Contact': ('Iptc.Application2.Contact',),
-        'Iptc.Application2.DateCreated': (
+        'Iptc.Application2.DateCreated*': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
-        'Iptc.Application2.DigitizationDate': (
+        'Iptc.Application2.DigitizationDate*': (
             'Iptc.Application2.DigitizationDate',
             'Iptc.Application2.DigitizationTime'),
-        'Iptc.Application2.SubLocation': (
+        'Iptc.Application2.Location*': (
             'Iptc.Application2.SubLocation', 'Iptc.Application2.City',
             'Iptc.Application2.ProvinceState', 'Iptc.Application2.CountryName',
             'Iptc.Application2.CountryCode'),
-        'Iptc.Application2.Program': (
+        'Iptc.Application2.Program*': (
             'Iptc.Application2.Program', 'Iptc.Application2.ProgramVersion'),
-        'Xmp.aux.Lens': ('', 'Xmp.aux.Lens'),
-        'Xmp.aux.SerialNumber': ('', '', 'Xmp.aux.SerialNumber'),
-        'Xmp.exif.FNumber': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.GPSAltitude': (
+        'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
+        'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
+        'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
+        'Xmp.exif.GPSAltitude*': (
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
-        'Xmp.exif.GPSLatitude': (
+        'Xmp.exif.GPSCoords*': (
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
-        'Xmp.exifEX.Lens': (
+        'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
-        'Xmp.iptc.CreatorContactInfo': (
+        'Xmp.iptc.CreatorContactInfo*': (
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrExtadr',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCity',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrCtry',
@@ -316,10 +316,10 @@ class ImageMetadata(MetadataHandler):
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrPcode',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiAdrRegion',
             'Xmp.iptc.CreatorContactInfo/Iptc4xmpCore:CiUrlWork'),
-        'Xmp.iptc.Location': (
+        'Xmp.iptc.Location*': (
             'Xmp.iptc.Location', 'Xmp.photoshop.City', 'Xmp.photoshop.State',
             'Xmp.photoshop.Country', 'Xmp.iptc.CountryCode'),
-        'Xmp.Iptc4xmpExt.LocationShown': (
+        'Xmp.Iptc4xmpExt.LocationShown*': (
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:Sublocation',
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:City',
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:ProvinceState',
@@ -327,7 +327,7 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:CountryCode',
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationShown[{idx}]/Iptc4xmpExt:LocationId'),
-        'Xmp.Iptc4xmpExt.LocationCreated': (
+        'Xmp.Iptc4xmpExt.LocationCreated*': (
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:Sublocation',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:ProvinceState',
@@ -335,17 +335,17 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
-        'Xmp.xmp.Thumbnails': (
+        'Xmp.xmp.Thumbnails*': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:format',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:image'),
-        'Xmp.xmp.ThumbnailsXap': (
+        'Xmp.xmp.ThumbnailsXap*': (
             'Xmp.xmp.Thumbnails[1]/xapGImg:width',
             'Xmp.xmp.Thumbnails[1]/xapGImg:height',
             'Xmp.xmp.Thumbnails[1]/xapGImg:format',
             'Xmp.xmp.Thumbnails[1]/xapGImg:image'),
-        'Xmp.xmpRights.UsageTerms': (
+        'Xmp.xmpRights.*': (
             'Xmp.xmpRights.UsageTerms',
             'Xmp.xmpRights.WebStatement',
             'Xmp.plus.Licensor[1]/plus:LicensorURL'),
@@ -357,20 +357,20 @@ class ImageMetadata(MetadataHandler):
     # WN (never). The order of the tags sets the precedence when values
     # conflict.
     _tag_list = {
-        'altitude'       : (('WA', 'Exif.GPSInfo.GPSAltitude'),
-                            ('WX', 'Xmp.exif.GPSAltitude')),
-        'aperture'       : (('WA', 'Exif.Photo.FNumber'),
-                            ('W0', 'Exif.Image.FNumber'),
-                            ('WX', 'Xmp.exif.FNumber')),
-        'camera_model'   : (('WA', 'Exif.Image.Make'),
-                            ('WN', 'Exif.Image.UniqueCameraModel'),
-                            ('WN', 'Exif.Canon.ModelID'),
-                            ('WN', 'Exif.Fujifilm.SerialNumber'),
-                            ('WN', 'Exif.Nikon3.SerialNumber'),
-                            ('WN', 'Exif.OlympusEq.CameraType'),
-                            ('WN', 'Exif.Pentax.ModelID'),
-                            ('WN', 'Xmp.aux.SerialNumber')),
-        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo'),
+        'altitude'       : (('WA', 'Exif.GPSInfo.GPSAltitude*'),
+                            ('WX', 'Xmp.exif.GPSAltitude*')),
+        'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
+                            ('W0', 'Exif.Image.FNumber*'),
+                            ('WX', 'Xmp.exif.FNumber*')),
+        'camera_model'   : (('WA', 'Exif.Image.Make*'),
+                            ('WN', 'Exif.Image.UniqueCameraModel*'),
+                            ('WN', 'Exif.Canon.ModelID*'),
+                            ('WN', 'Exif.Fujifilm.SerialNumber*'),
+                            ('WN', 'Exif.Nikon3.SerialNumber*'),
+                            ('WN', 'Exif.OlympusEq.Camera*'),
+                            ('WN', 'Exif.Pentax.ModelID*'),
+                            ('WN', 'Xmp.aux.SerialNumber*')),
+        'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
                             ('WA', 'Iptc.Application2.Contact')),
         'copyright'      : (('WA', 'Exif.Image.Copyright'),
                             ('WA', 'Xmp.dc.rights'),
@@ -385,18 +385,18 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.BylineTitle')),
         'credit_line'    : (('WA', 'Xmp.photoshop.Credit'),
                             ('WA', 'Iptc.Application2.Credit')),
-        'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized'),
+        'date_digitised' : (('WA', 'Exif.Photo.DateTimeDigitized*'),
                             ('WA', 'Xmp.xmp.CreateDate'),
                             ('W0', 'Xmp.exif.DateTimeDigitized'),
-                            ('WA', 'Iptc.Application2.DigitizationDate')),
-        'date_modified'  : (('WA', 'Exif.Image.DateTime'),
+                            ('WA', 'Iptc.Application2.DigitizationDate*')),
+        'date_modified'  : (('WA', 'Exif.Image.DateTime*'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
                             ('W0', 'Xmp.tiff.DateTime')),
-        'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal'),
-                            ('W0', 'Exif.Image.DateTimeOriginal'),
+        'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal*'),
+                            ('W0', 'Exif.Image.DateTimeOriginal*'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
-                            ('WA', 'Iptc.Application2.DateCreated')),
+                            ('WA', 'Iptc.Application2.DateCreated*')),
         'description'    : (('WA', 'Exif.Image.ImageDescription'),
                             ('W0', 'Exif.Image.XPComment'),
                             ('W0', 'Exif.Image.XPSubject'),
@@ -415,40 +415,40 @@ class ImageMetadata(MetadataHandler):
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
-        'latlong'        : (('WA', 'Exif.GPSInfo.GPSLatitude'),
-                            ('WX', 'Xmp.exif.GPSLatitude')),
-        'lens_model'     : (('WA', 'Exif.Photo.Lens'),
-                            ('WX', 'Xmp.exifEX.Lens'),
-                            ('W0', 'Exif.Image.Lens'),
-                            ('WN', 'Exif.Canon.LensModel'),
-                            ('WN', 'Exif.CanonCs.LensType'),
-                            ('WN', 'Exif.OlympusEq.LensModel'),
+        'latlong'        : (('WA', 'Exif.GPSInfo.GPSCoords*'),
+                            ('WX', 'Xmp.exif.GPSCoords*')),
+        'lens_model'     : (('WA', 'Exif.Photo.Lens*'),
+                            ('WX', 'Xmp.exifEX.Lens*'),
+                            ('W0', 'Exif.Image.Lens*'),
+                            ('WN', 'Exif.Canon.LensModel*'),
+                            ('WN', 'Exif.CanonCs.Lens*'),
+                            ('WN', 'Exif.OlympusEq.LensModel*'),
                             ('WN', 'Exif.OlympusEq.LensType'),
-                            ('WN', 'Exif.Nikon3.Lens'),
-                            ('WN', 'Exif.NikonLd1.LensIDNumber'),
-                            ('WN', 'Exif.NikonLd2.LensIDNumber'),
-                            ('WN', 'Exif.NikonLd3.LensIDNumber'),
-                            ('W0', 'Xmp.aux.Lens')),
-        'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown'),),
-        'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated'),
-                            ('WA', 'Xmp.iptc.Location'),
-                            ('WA', 'Iptc.Application2.SubLocation')),
+                            ('WN', 'Exif.Nikon3.Lens*'),
+                            ('WN', 'Exif.NikonLd1.LensIDNumber*'),
+                            ('WN', 'Exif.NikonLd2.LensIDNumber*'),
+                            ('WN', 'Exif.NikonLd3.LensIDNumber*'),
+                            ('W0', 'Xmp.aux.Lens*')),
+        'location_shown' : (('WA', 'Xmp.Iptc4xmpExt.LocationShown*'),),
+        'location_taken' : (('WA', 'Xmp.Iptc4xmpExt.LocationCreated*'),
+                            ('WA', 'Xmp.iptc.Location*'),
+                            ('WA', 'Iptc.Application2.Location*')),
         'orientation'    : (('WA', 'Exif.Image.Orientation'),
                             ('WX', 'Xmp.tiff.Orientation')),
         'rating'         : (('WA', 'Xmp.xmp.Rating'),
                             ('W0', 'Exif.Image.Rating'),
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
-        'rights'         : (('WA', 'Xmp.xmpRights.UsageTerms'),),
+        'rights'         : (('WA', 'Xmp.xmpRights.*'),),
         'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
-                            ('WA', 'Iptc.Application2.Program'),
+                            ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
         # Both xmpGImg and xapGImg namespaces are specified in different
         # Adobe documents I've seen. xmpGImg appears to be more recent,
         # so we write that but read either.
-        'thumbnail'      : (('WA', 'Exif.Thumbnail.ImageWidth'),
-                            ('WX', 'Xmp.xmp.Thumbnails'),
-                            ('W0', 'Xmp.xmp.ThumbnailsXap')),
+        'thumbnail'      : (('WA', 'Exif.Thumbnail.*'),
+                            ('WX', 'Xmp.xmp.Thumbnails*'),
+                            ('W0', 'Xmp.xmp.ThumbnailsXap*')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
                             ('WN', 'Exif.CanonTi.TimeZone'),
                             ('WN', 'Exif.NikonWt.Timezone')),

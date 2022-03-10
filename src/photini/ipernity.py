@@ -560,7 +560,6 @@ class TabWidget(PhotiniUploader):
         if 'geo' in photo:
             data['latlong'] = {'lat': photo['geo']['lat'],
                                'lon': photo['geo']['lng']}
-        print(data)
         self.merge_metadata_items(image, data)
 
     @QtSlot()
