@@ -454,6 +454,6 @@ class MetadataHandler(object):
             ns = tag.split('.')[1]
             if ns in ('exif', 'exifEX', 'tiff', 'aux'):
                 # exiv2 will already have supplied the equivalent Exif tag
-                pass
+                continue
             s_datum = self._xmpData[tag]
             s_datum.setValue(o_datum.value())
