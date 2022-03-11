@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 exiv2_version_info = tuple([int(x) for x in exiv2.versionString().split('.')])
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
-    exiv2.__version__, exiv2.versionString())
+    exiv2.__version__, exiv2.version())
 
 
 class MetadataHandler(object):
