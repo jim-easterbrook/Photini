@@ -800,7 +800,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return None
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Select an image'))
-        dialog.setLayout(FormLayout(wrapped=False))
+        dialog.setLayout(FormLayout())
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(remote_icon)
         label = QtWidgets.QLabel()
@@ -809,10 +809,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             'UploaderTabsAll',
             'Which image file matches\nthis picture on {}?'.format(
                 self.service_name))))
-        divider = QtWidgets.QFrame()
-        divider.setFrameStyle(QtWidgets.QFrame.HLine)
-        dialog.layout().addRow(divider)
         buttons = {}
+        frame = QtWidgets.QFrame()
+        frame.setLayout(FormLayout())
         for candidate in candidates:
             label = QtWidgets.QLabel()
             pixmap = candidate.image.pixmap()
@@ -825,12 +824,15 @@ class PhotiniUploader(QtWidgets.QWidget):
             button.setToolTip(candidate.path)
             button.setCheckable(True)
             button.clicked.connect(dialog.accept)
-            dialog.layout().addRow(label, button)
+            frame.layout().addRow(label, button)
             buttons[button] = candidate
         button = QtWidgets.QPushButton(translate('UploaderTabsAll', 'No match'))
         button.setDefault(True)
         button.clicked.connect(dialog.reject)
-        dialog.layout().addRow('', button)
+        frame.layout().addRow('', button)
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.setWidget(frame)
+        dialog.layout().addRow(scroll_area)
         with UnBusy():
             if execute(dialog) == QtWidgets.QDialog.Accepted:
                 for button, candidate in buttons.items():
