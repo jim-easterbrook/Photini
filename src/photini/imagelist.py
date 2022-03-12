@@ -813,6 +813,7 @@ class ImageList(QtWidgets.QWidget):
             for image in self.get_selected_images():
                 if image.regenerate_thumbnail():
                     image.load_thumbnail()
+                    self.app.processEvents()
 
     @QtSlot()
     @catch_all
@@ -823,6 +824,7 @@ class ImageList(QtWidgets.QWidget):
                 if not thumb or not thumb['image']:
                     if image.regenerate_thumbnail():
                         image.load_thumbnail()
+                        self.app.processEvents()
         self.image_list_changed.emit()
 
     @QtSlot()
