@@ -341,14 +341,18 @@ class MetadataHandler(object):
         if type_id == exiv2.TypeId.invalidTypeId:
             key = exiv2.XmpKey(datum.key())
             type_id = exiv2.XmpProperties.propertyType(key)
+            type_name = exiv2.XmpProperties.propertyInfo(key).xmpValueType_
+        else:
+            type_name = datum.typeName()
         if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                        exiv2.TypeId.xmpSeq):
             xmp_value = exiv2.XmpArrayValue(type_id)
             for sub_value in value:
                 xmp_value.read(sub_value)
+            datum.setValue(xmp_value)
         else:
-            return
-        datum.setValue(xmp_value)
+            logger.error('%s: %s: setting type "%s" from list',
+                         os.path.basename(self._path), tag, type_name)
 
     def clear_tag(self, tag):
         data = self._data_set(tag)
