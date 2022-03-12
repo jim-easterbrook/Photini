@@ -1033,6 +1033,11 @@ class MultiString(MD_Value, tuple):
         return self
 
 
+class CreatorTitle(MultiString):
+    def to_xmp(self):
+        return ';'.join(self)
+
+
 class Software(MD_String):
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -1172,7 +1177,7 @@ class Metadata(object):
         'contact_info'   : ContactInformation,
         'copyright'      : MD_String,
         'creator'        : MultiString,
-        'creator_title'  : MultiString,
+        'creator_title'  : CreatorTitle,
         'credit_line'    : MD_String,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
