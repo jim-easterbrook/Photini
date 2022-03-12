@@ -31,7 +31,8 @@ import re
 from photini import __version__
 from photini.pyqt import QtCore, QtGui
 from photini.ffmpeg import FFmpeg
-from photini.filemetadata import ImageMetadata, SidecarMetadata
+from photini.filemetadata import (
+    exiv2_version_info, ImageMetadata, SidecarMetadata)
 
 logger = logging.getLogger(__name__)
 
@@ -889,15 +890,27 @@ class DateTime(MD_Dict):
 
     # The date (and time?) can have missing values represented by 00
     # according to
-    # https://de.wikipedia.org/wiki/IPTC-IIM-Standard#IPTC-Felder
+    # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
     @classmethod
     def from_iptc(cls, file_value):
         date_string, time_string = file_value
         if not date_string:
             return None
-        # remove missing date values, allowing for GIMP not writing
-        # leading zeros (some GIMP versions write '-' instead of zero!)
-        parts = [int(x) for x in date_string.split('-') if x]
+        # try and cope with any format - no separators, duplicate
+        # separators, whatever
+        parts = []
+        expected = 4
+        while date_string:
+            while date_string and not date_string[0].isdecimal():
+                date_string = date_string[1:]
+            part = ''
+            while expected and date_string and date_string[0].isdecimal():
+                part += date_string[0]
+                date_string = date_string[1:]
+                expected -= 1
+            parts.append(int(part))
+            expected = 2
+        # remove missing values
         while parts[-1] == 0:
             parts = parts[:-1]
             if not parts:
@@ -914,8 +927,12 @@ class DateTime(MD_Dict):
         return cls.from_ISO_8601(datetime_string)
 
     def to_iptc(self):
-        if self['precision'] <= 3:
-            date_string = self.to_ISO_8601()
+        precision = self['precision']
+        if precision <= 3:
+            if exiv2_version_info >= (0, 27, 5):
+                # libexiv2 v0.27.5 won't accept zero months or days
+                precision = 3
+            date_string = self.to_ISO_8601(precision=precision)
             #               YYYY mm dd
             date_string += '0000-00-00'[len(date_string):]
             time_string = None
