@@ -929,7 +929,7 @@ class DateTime(MD_Dict):
     def to_iptc(self):
         precision = self['precision']
         if precision <= 3:
-            if exiv2_version_info >= (0, 27, 5):
+            if exiv2_version_info == (0, 27, 5):
                 # libexiv2 v0.27.5 won't accept zero months or days
                 precision = 3
             date_string = self.to_ISO_8601(precision=precision)

@@ -196,12 +196,12 @@ class ImageMetadata(MetadataHandler):
     def save(self, file_times=None, force_iptc=False):
         if self.read_only:
             return False
-        if force_iptc:
-            self.set_iptc_encoding()
-        else:
-            self.clear_iptc()
         if self.xmp_only:
             self.clear_exif()
+            self.clear_iptc()
+        elif force_iptc:
+            self.set_iptc_encoding()
+        else:
             self.clear_iptc()
         if not super(ImageMetadata, self).save():
             return False
@@ -286,6 +286,7 @@ class ImageMetadata(MetadataHandler):
         'Exif.Thumbnail.*': (
             'Exif.Thumbnail.ImageWidth', 'Exif.Thumbnail.ImageLength',
             'Exif.Thumbnail.Compression'),
+        'Iptc.Application2.Contact*': ('', '', '', 'Iptc.Application2.Contact'),
         'Iptc.Application2.DateCreated*': (
             'Iptc.Application2.DateCreated', 'Iptc.Application2.TimeCreated'),
         'Iptc.Application2.DigitizationDate*': (
@@ -371,7 +372,7 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Pentax.ModelID*'),
                             ('WN', 'Xmp.aux.SerialNumber*')),
         'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
-                            ('WA', 'Iptc.Application2.Contact')),
+                            ('WA', 'Iptc.Application2.Contact*')),
         'copyright'      : (('WA', 'Exif.Image.Copyright'),
                             ('WA', 'Xmp.dc.rights'),
                             ('W0', 'Xmp.tiff.Copyright'),
@@ -524,6 +525,7 @@ class SidecarMetadata(ImageMetadata):
     @classmethod
     def open_new(cls, path, image_md):
         sc_path = path + '.xmp'
+        print('open_new', sc_path)
         try:
             cls.create_sc(sc_path, image_md)
             return cls(sc_path)

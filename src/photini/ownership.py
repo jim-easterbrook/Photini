@@ -189,7 +189,7 @@ class TabWidget(QtWidgets.QWidget):
             ' copyright for this image, such as "©2008 Jane Doe".'))
         form.layout().addRow(translate(
             'OwnerTab', 'Copyright Notice'), widgets['copyright'])
-        ## contact information
+        ## usage information
         rights_group = QtWidgets.QGroupBox()
         rights_group.setLayout(FormLayout())
         # usage terms
