@@ -222,7 +222,7 @@ class TabWidget(QtWidgets.QWidget):
             ' restrictions not covered by the Rights Usage Terms field.'))
         form.layout().addRow(translate(
             'OwnerTab', 'Instructions'), widgets['instructions'])
-        ## contact information
+        ## creator contact information
         contact_group = QtWidgets.QGroupBox()
         contact_group.setLayout(FormLayout())
         # email addresses
@@ -287,7 +287,7 @@ class TabWidget(QtWidgets.QWidget):
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Country'), widgets['CiAdrCtry'])
         form.layout().addRow(translate(
-            'OwnerTab', 'Contact<br>Information'), contact_group)
+            'OwnerTab', 'Creator<br>Contact<br>Information'), contact_group)
         scrollarea.setWidget(form)
         return scrollarea, widgets
 
