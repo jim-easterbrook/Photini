@@ -353,6 +353,7 @@ class MetadataHandler(object):
         else:
             logger.error('%s: %s: setting type "%s" from list',
                          os.path.basename(self._path), tag, type_name)
+            datum.setValue(';'.join(value))
 
     def clear_tag(self, tag):
         data = self._data_set(tag)
