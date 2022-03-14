@@ -51,7 +51,8 @@ Some of them are also stored in "legacy" IPTC-IIM data.
   If there is more than one creator, separate them with a ``;`` character.
   This shows the same information as the :doc:`descriptive_metadata` ``Creator / Artist`` field.
 `Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-jobtitle>`_
-  If there is more than one creator, there should be a matching number of creator jobtitles, separated by ``;`` characters.
+  Job title of the first creator.
+  Do not fill in this field unless the creator field is filled in.
 `Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#credit-line>`_
   Usually the photographer's name, but could be their employer or client.
 `Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
