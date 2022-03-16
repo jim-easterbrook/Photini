@@ -131,6 +131,12 @@ class MetadataHandler(object):
             if iptc_charset:
                 encodings = [iptc_charset]
 
+    def get_iptc_encoding(self):
+        charset = self._iptcData.detectCharset()
+        if charset:
+            return charset.lower()
+        return super(MetadataHandler, self).get_iptc_encoding()
+
     def clear_exif(self):
         self._exifData.clear()
         self._image.clearExifData()
