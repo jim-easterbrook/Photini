@@ -16,6 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.3.0:
+  1/ Removed OpenStreetMap tab.
+  2/ Added licence related stuf to ownership tab.
+  3/ Removed --user option from post install script.
+  4/ Better caching of geocoder results.
+  5/ Other minor improvements and bug fixes.
+
 Changes in v2022.2.0:
   1/ Add uploader tab for "Ipernity" photo sharing club.
   2/ Substantial rewrite of uploader tabs.
