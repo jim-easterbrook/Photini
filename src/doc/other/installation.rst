@@ -360,7 +360,7 @@ These can be installed with the ``photini-post-install`` command:
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ photini-post-install --user
+        jim@mint:~$ photini-post-install
         desktop-file-install \
           --dir=/home/jim/.local/share/applications \
           --set-key=Exec \
@@ -370,7 +370,7 @@ These can be installed with the ``photini-post-install`` command:
           /home/jim/photini/lib/python3.8/site-packages/photini/data/linux/photini.desktop
     .. code-tab:: none Windows
 
-        C:\Users\Jim>photini-post-install --user
+        C:\Users\Jim>photini-post-install
         Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
         Creating C:\Users\Jim\Desktop\Photini.lnk
         Creating C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
@@ -395,7 +395,7 @@ This is not a very convenient way to run Photini, so most users will want to add
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        sarah@mint:~$ /home/jim/photini/bin/photini-post-install --user
+        sarah@mint:~$ /home/jim/photini/bin/photini-post-install
         desktop-file-install \
           --dir=/home/sarah/.local/share/applications \
           --set-key=Exec \
@@ -405,7 +405,7 @@ This is not a very convenient way to run Photini, so most users will want to add
           /home/jim/photini/lib/python3.8/site-packages/photini/data/linux/photini.desktop
     .. code-tab:: none Windows
 
-        C:\Users\Sarah>..\Jim\photini\Scripts\photini-post-install.exe --user
+        C:\Users\Sarah>..\Jim\photini\Scripts\photini-post-install.exe
         Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini
         Creating C:\Users\Sarah\Desktop\Photini.lnk
         Creating C:\Users\Sarah\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
@@ -441,11 +441,11 @@ Before removing Photini you should use the ``photini-post-install`` command to r
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ photini-post-install --user --remove
+        jim@mint:~$ photini-post-install --remove
         Deleting /home/jim/.local/share/applications/photini.desktop
     .. code-tab:: none Windows
 
-        C:\Users\Jim>photini-post-install --user --remove
+        C:\Users\Jim>photini-post-install --remove
         Deleting C:\Users\Jim\Desktop\Photini.lnk
         Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini.lnk
         Deleting C:\Users\Jim\AppData\Roaming\Microsoft\Windows\Start Menu\Photini\Photini documentation.url
