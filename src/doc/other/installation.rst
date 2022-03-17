@@ -198,6 +198,9 @@ Photini and a set of essential dependencies can all be installed with pip_:
         Installing collected packages: urllib3, idna, charset-normalizer, certifi, shiboken2, requests, appdirs, python-exiv2, pyside2, photini
         Successfully installed appdirs-1.4.4 certifi-2021.10.8 charset-normalizer-2.0.12 idna-3.3 photini-2022.2.0 pyside2-5.15.2.1 python-exiv2-0.9.0 requests-2.27.1 shiboken2-5.15.2.1 urllib3-1.26.8
 
+.. versionadded:: 2022.3.0
+    Instead of listing the dependencies individually you can install them as a set with ``pip3 install photini[basic]``.
+
 Test the installation
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -312,6 +315,9 @@ Many are specified as one or more "extras" in square brackets:
              |████████████████████████████████| 151 kB 595 kB/s
         Installing collected packages: zipp, pywin32-ctypes, oauthlib, importlib-metadata, requests-toolbelt, requests-oauthlib, pyenchant, keyring
         Successfully installed importlib-metadata-4.11.1 keyring-23.5.0 oauthlib-3.2.0 pyenchant-3.2.2 pywin32-ctypes-0.2.0 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1 zipp-3.7.0
+
+.. versionadded:: 2022.3.0
+    You can install all the extra dependencies in one go with ``pip3 install photini[extras]``.
 
 Other optional dependencies (Pillow_, gpxpy_) can also be installed with pip_, but may not be available for all Python and operating system combinations:
 
