@@ -43,7 +43,7 @@ _gexiv2_version = namedtuple(
 # can't read libexiv2 version
 exiv2_version_info = (0, 0, 0)
 exiv2_version = '{}.{}.{}'.format(*_gexiv2_version)
-if exiv2_version < '0.10.3':
+if _gexiv2_version < (0, 10, 3):
     raise ImportError(
         'gexiv2 version {} is less than 0.10.3'.format(exiv2_version))
 

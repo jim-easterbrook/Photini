@@ -26,7 +26,7 @@ import string
 import sys
 
 import exiv2
-if exiv2.__version__ < '0.8.3':
+if [int(x) for x in exiv2.__version__.split('.')] < [0, 8, 3]:
     raise ImportError(
         'exiv2 version {} is less than 0.8.3'.format(exiv2.__version__))
 
