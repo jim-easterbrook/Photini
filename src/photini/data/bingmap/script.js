@@ -235,7 +235,7 @@ function delMarker(id)
         for (var i = 0; i < markers.length; i++)
             if (markers[i].metadata.id == id)
             {
-                layers[j].remove(marker);
+                layers[j].remove(markers[i]);
                 return markers[i];
             }
     }
