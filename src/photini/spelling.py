@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -71,8 +70,7 @@ if enchant:
 elif Gspell:
     spelling_version = 'Gspell {}, {} {}, GObject {}, GLib {}.{}.{}'.format(
         Gspell._version, ('PyGObject', 'pgi')[using_pgi],
-        gi.__version__, GObject._version,
-        GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
+        gi.__version__, GObject._version, *GObject.glib_version)
 else:
     spelling_version = None
 

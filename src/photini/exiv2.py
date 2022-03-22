@@ -26,13 +26,15 @@ import string
 import sys
 
 import exiv2
-if [int(x) for x in exiv2.__version__.split('.')] < [0, 8, 3]:
-    raise ImportError(
-        'exiv2 version {} is less than 0.8.3'.format(exiv2.__version__))
 
 logger = logging.getLogger(__name__)
 
-exiv2_version_info = tuple([int(x) for x in exiv2.versionString().split('.')])
+pyexiv2_version_info = tuple(map(int, exiv2.__version__.split('.')))
+if pyexiv2_version_info < (0, 8, 3):
+    raise ImportError(
+        'python-exiv2 version {} is less than 0.8.3'.format(exiv2.__version__))
+
+exiv2_version_info = tuple(map(int, exiv2.version().split('.')))
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
 

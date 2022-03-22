@@ -17,7 +17,6 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
-from collections import namedtuple
 from contextlib import contextmanager
 import locale
 import logging
@@ -36,21 +35,19 @@ logger = logging.getLogger(__name__)
 
 # pydoc gi.repository.GExiv2.Metadata is useful to see methods available
 
-_gexiv2_version = namedtuple(
-    'gexiv2_version', ('major', 'minor', 'micro'))._make((
-        GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION))
+gexiv2_version_info = (
+        GExiv2.MAJOR_VERSION, GExiv2.MINOR_VERSION, GExiv2.MICRO_VERSION)
+_gexiv2_version = '{}.{}.{}'.format(*gexiv2_version_info)
+if gexiv2_version_info < (0, 10, 3):
+    raise ImportError(
+        'gexiv2 version {} is less than 0.10.3'.format(_gexiv2_version))
 
 # can't read libexiv2 version
 exiv2_version_info = (0, 0, 0)
-exiv2_version = '{}.{}.{}'.format(*_gexiv2_version)
-if _gexiv2_version < (0, 10, 3):
-    raise ImportError(
-        'gexiv2 version {} is less than 0.10.3'.format(exiv2_version))
 
 exiv2_version = 'GExiv2 {}, {} {}, GObject {}, GLib {}.{}.{}'.format(
-    exiv2_version, ('PyGObject', 'pgi')[using_pgi], gi.__version__,
-    GObject._version,
-    GLib.MAJOR_VERSION, GLib.MINOR_VERSION, GLib.MICRO_VERSION)
+    _gexiv2_version, ('PyGObject', 'pgi')[using_pgi], gi.__version__,
+    GObject._version, *GObject.glib_version)
 
 XMP_WRAPPER = '''<?xpacket begin="" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 4.4.0-Exiv2">
@@ -130,7 +127,7 @@ class MetadataHandler(GExiv2.Metadata):
         # workaround for bug in GExiv2 on Windows
         # https://gitlab.gnome.org/GNOME/gexiv2/-/issues/59
         self._gexiv_unsafe = False
-        if sys.platform == 'win32' and _gexiv2_version <= (0, 12, 1):
+        if sys.platform == 'win32' and gexiv2_version_info <= (0, 12, 1):
             try:
                 self._path.encode('ascii')
             except UnicodeEncodeError:
@@ -442,7 +439,7 @@ class MetadataHandler(GExiv2.Metadata):
 
     @staticmethod
     def create_sc(path, image_md):
-        if image_md and _gexiv2_version >= (0, 10, 6):
+        if image_md and gexiv2_version_info >= (0, 10, 6):
             image_md.save_external(path)
         else:
             with open(path, 'w') as of:
