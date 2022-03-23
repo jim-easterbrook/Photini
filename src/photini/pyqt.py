@@ -65,7 +65,6 @@ if qt_lib == 'PySide6':
     using_qtwebengine = True
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
-    from PySide6.QtNetwork import QNetworkProxy
     from PySide6.QtCore import Signal as QtSignal
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
@@ -73,7 +72,6 @@ if qt_lib == 'PySide6':
 elif qt_lib == 'PySide2':
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
-    from PySide2.QtNetwork import QNetworkProxy
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
@@ -81,7 +79,6 @@ elif qt_lib == 'PySide2':
 elif qt_lib == 'PyQt5':
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
-    from PyQt5.QtNetwork import QNetworkProxy
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
@@ -104,6 +101,21 @@ else:
     qt_version_info = QtCore.__version_info__
     qt_version = '{} {}, Qt {}'.format(
         qt_lib, PySide_version, QtCore.__version__)
+
+# set network proxy
+if qt_version_info >= (5, 8):
+    QtNetwork.QNetworkProxyFactory.setUseSystemConfiguration(True)
+else:
+    import urllib.parse
+    import urllib.request
+    proxies = urllib.request.getproxies()
+    if 'http' in proxies:
+        parsed = urllib.parse.urlparse(proxies['http'])
+        QtNetwork.QNetworkProxy.setApplicationProxy(
+            QtNetwork.QNetworkProxy(
+                QtNetwork.QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
+        del parsed
+    del proxies
 
 # workaround for Qt bug affecting QtWebEngine
 # https://bugreports.qt.io/browse/QTBUG-67537

@@ -24,8 +24,6 @@ from optparse import OptionParser
 import os
 import socket
 import sys
-import urllib.parse
-import urllib.request
 import warnings
 
 import pkg_resources
@@ -39,8 +37,7 @@ from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
 from photini.pyqt import (
     Busy, catch_all, execute, Qt, QtCore, QtGui, QtGui2, QtNetwork,
-    QNetworkProxy, QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info,
-    width_for_text)
+    QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
 from photini.spelling import SpellCheck, spelling_version
 
 try:
@@ -165,12 +162,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # logger window
         self.loggerwindow = LoggerWindow(options.verbose)
         self.loggerwindow.setWindowIcon(icon)
-        # set network proxy
-        proxies = urllib.request.getproxies()
-        if 'http' in proxies:
-            parsed = urllib.parse.urlparse(proxies['http'])
-            QNetworkProxy.setApplicationProxy(QNetworkProxy(
-                QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
         # create shared global objects
         self.app = QtWidgets.QApplication.instance()
         self.app.config_store = ConfigStore('editor', parent=self)
