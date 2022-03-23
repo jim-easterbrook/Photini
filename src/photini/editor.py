@@ -24,7 +24,8 @@ from optparse import OptionParser
 import os
 import socket
 import sys
-import urllib
+import urllib.parse
+import urllib.request
 import warnings
 
 import pkg_resources
