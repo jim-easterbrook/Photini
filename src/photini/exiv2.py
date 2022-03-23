@@ -38,6 +38,11 @@ exiv2_version_info = tuple(map(int, exiv2.version().split('.')))
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
 
+if pyexiv2_version_info < (0, 10):
+    Exiv2Error = exiv2.AnyError
+else:
+    Exiv2Error = exiv2.Exiv2Error
+
 
 class MetadataHandler(object):
     @classmethod
@@ -163,7 +168,7 @@ class MetadataHandler(object):
     def open_old(cls, *arg, **kw):
         try:
             return cls(*arg, **kw)
-        except exiv2.AnyError:
+        except Exiv2Error:
             # expected if unrecognised file format
             return None
         except Exception as ex:
@@ -426,7 +431,7 @@ class MetadataHandler(object):
                 image.setIccProfile(self._image.iccProfile())
         try:
             image.writeMetadata()
-        except exiv2.AnyError as ex:
+        except Exiv2Error as ex:
             logger.error(str(ex))
             return False
         except Exception as ex:
