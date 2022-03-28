@@ -68,8 +68,10 @@ class GeocoderBase(QtCore.QObject):
     @QtSlot()
     @catch_all
     def save_cache(self):
-        with open(self.cache_file, 'wb') as f:
-            pickle.dump(self.query_cache, f)
+        if self.query_cache:
+            os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
+            with open(self.cache_file, 'wb') as f:
+                pickle.dump(self.query_cache, f)
 
     def rate_limit(self):
         while self.block_timer.isActive():
