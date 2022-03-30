@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.3.2:
+  1/ Fix urllib import error porblem on some systems.
+  2/ Fix non-existing cache directory error.
+
 Changes in v2022.3.1:
   1/ Fix bug when removing marker from Bing map.
   2/ Fix bug in comparing version numbers.
