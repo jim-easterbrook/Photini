@@ -546,7 +546,7 @@ These are all required for Photini to be usable.
 Package                        Minimum version    Typical Linux package name    PyPI package name
 =============================  =================  ============================  =================
 Python_                        3.6                python3
-PyQt_ [1]                      5.0.0              python3-qt5 or python3-pyqt5  PyQt5
+PyQt_ [1]                      5.9                python3-qt5 or python3-pyqt5  PyQt5
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit        PyQtWebEngine
@@ -602,12 +602,12 @@ Linux package manager names will probably have ``python-`` or ``python3-`` prefi
 ============================  =================
 Feature                       Dependencies
 ============================  =================
-Spell check[1]                pyenchant_ 1.6+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
+Spell check[1]                pyenchant_ 2.0+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Ipernity upload               `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[2]         FFmpeg_, Pillow_ 2.0+
-Import photos from camera[3]  `python3-gphoto2`_ 0.10+
+Import photos from camera[3]  `python3-gphoto2`_ 1.8+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
