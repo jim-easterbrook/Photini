@@ -30,8 +30,8 @@ import pkg_resources
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
     catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
-    QtWebCore, QtWebWidgets, QtWidgets, qt_version_info, SingleLineEdit,
-    using_qtwebengine, width_for_text)
+    QtWebCore, QtWebWidgets, QtWidgets, SingleLineEdit, using_qtwebengine,
+    width_for_text)
 from photini.technical import DoubleSpinBox
 
 
@@ -173,13 +173,9 @@ else:
 
 
 class MapWebPage(QWebPage):
-    if qt_version_info >= (5, 6):
-        def javaScriptConsoleMessage(self, level, msg, line, source):
-            logger.log(logging.INFO + (level * 10),
-                       '%s line %d: %s', source, line, msg)
-    else:
-        def javaScriptConsoleMessage(self, msg, line, source):
-            logger.error('%s line %d: %s', source, line, msg)
+    def javaScriptConsoleMessage(self, level, msg, line, source):
+        logger.log(
+            logging.INFO + (level * 10), '%s line %d: %s', source, line, msg)
 
 
 if using_qtwebengine:

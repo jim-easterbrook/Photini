@@ -101,21 +101,12 @@ else:
     qt_version_info = QtCore.__version_info__
     qt_version = '{} {}, Qt {}'.format(
         qt_lib, PySide_version, QtCore.__version__)
+if qt_version_info < (5, 8):
+    raise ImportError(
+        'Qt version {}.{}.{} is less than 5.8'.format(*qt_version_info))
 
 # set network proxy
-if qt_version_info >= (5, 8):
-    QtNetwork.QNetworkProxyFactory.setUseSystemConfiguration(True)
-else:
-    import urllib.parse
-    import urllib.request
-    proxies = urllib.request.getproxies()
-    if 'http' in proxies:
-        parsed = urllib.parse.urlparse(proxies['http'])
-        QtNetwork.QNetworkProxy.setApplicationProxy(
-            QtNetwork.QNetworkProxy(
-                QtNetwork.QNetworkProxy.HttpProxy, parsed.hostname, parsed.port))
-        del parsed
-    del proxies
+QtNetwork.QNetworkProxyFactory.setUseSystemConfiguration(True)
 
 # workaround for Qt bug affecting QtWebEngine
 # https://bugreports.qt.io/browse/QTBUG-67537
@@ -492,8 +483,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def keyPressEvent(self, event):
         if self._is_multiple:
             self._is_multiple = False
-            if qt_version_info >= (5, 3):
-                self.setPlaceholderText('')
+            self.setPlaceholderText('')
         super(MultiLineEdit, self).keyPressEvent(event)
 
     @catch_all
@@ -541,25 +531,18 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         self._is_multiple = False
         if not value:
             self.clear()
-            if qt_version_info >= (5, 3):
-                self.setPlaceholderText('')
+            self.setPlaceholderText('')
         else:
             self.setPlainText(str(value))
 
     def get_value(self):
-        value = self.toPlainText()
-        if qt_version_info < (5, 3) and value == self.multiple_values:
-            return ''
-        return value
+        return self.toPlainText()
 
     def set_multiple(self, choices=[]):
         self._is_multiple = True
         self.choices = list(choices)
-        if qt_version_info >= (5, 3):
-            self.setPlaceholderText(self.multiple_values)
-            self.clear()
-        else:
-            self.setPlainText(self.multiple_values)
+        self.setPlaceholderText(self.multiple_values)
+        self.clear()
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())

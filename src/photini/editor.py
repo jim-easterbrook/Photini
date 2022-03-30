@@ -507,10 +507,9 @@ def main(argv=None):
     global app
     if argv:
         sys.argv = argv
-    if qt_version_info >= (5, 6) and qt_version_info < (6, 0):
+    if qt_version_info < (6, 0):
         QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    if qt_version_info >= (5, 0):
-        QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     # let Qt handle its options
     app = QtWidgets.QApplication(sys.argv)
     # get remaining argument list after Qt has swallowed its options
