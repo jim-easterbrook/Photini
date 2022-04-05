@@ -274,6 +274,7 @@ class FlickrSession(UploaderSession):
             'dates':        'flickr.photos.setDates',
             'location':     'flickr.photos.geo.setLocation',
             }
+        params['keywords'] = {'tags': params['keywords']['keywords']}
         for key in params:
             if params[key] and key in metadata_set_func:
                 rsp = self.api_call(metadata_set_func[key], post=True,
