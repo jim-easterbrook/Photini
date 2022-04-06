@@ -417,7 +417,7 @@ class DropDownSelector(ComboBox):
     def is_multiple(self):
         return self._with_multiple and self.currentIndex() == self.count() - 1
 
-    def set_multiple(self):
+    def set_multiple(self, choices=[]):
         if self._with_multiple:
             blocked = self.blockSignals(True)
             self._old_idx = self.count() - 1
