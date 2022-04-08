@@ -233,12 +233,8 @@ class IpernitySession(UploaderSession):
                 if rsp['tickets']['done'] != '0':
                     break
             doc_id = rsp['tickets']['ticket'][0]['doc_id']
-        # store photo id in image keywords
-        keyword = 'ipernity:id=' + doc_id
-        if not image.metadata.keywords:
-            image.metadata.keywords = [keyword]
-        elif keyword not in image.metadata.keywords:
-            image.metadata.keywords = list(image.metadata.keywords) + [keyword]
+        # store photo id in image keywords, in main thread
+        self.upload_progress.emit({'keyword': (image, 'ipernity:id=' + doc_id)})
         # set remaining metadata after uploading image
         if 'visibility' in params and 'permissions' in params:
             params['permissions'].update(params['visibility'])

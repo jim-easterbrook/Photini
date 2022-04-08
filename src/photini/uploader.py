@@ -524,6 +524,11 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot(dict)
     @catch_all
     def upload_progress(self, update):
+        if 'keyword' in update:
+            # store photo id in image keywords, in main thread
+            image, keyword = update['keyword']
+            image.metadata.keywords = list(
+                image.metadata.keywords or []) + [keyword]
         if 'busy' in update:
             if update['busy']:
                 self.progress_bar.setMaximum(0)

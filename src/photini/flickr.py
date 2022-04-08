@@ -246,12 +246,8 @@ class FlickrSession(UploaderSession):
                 elif complete != 0:
                     return 'Flickr file conversion failed'
                 time.sleep(1)
-        # store photo id in image keywords
-        keyword = 'flickr:id=' + photo_id
-        if not image.metadata.keywords:
-            image.metadata.keywords = [keyword]
-        elif keyword not in image.metadata.keywords:
-            image.metadata.keywords = list(image.metadata.keywords) + [keyword]
+        # store photo id in image keywords, in main thread
+        self.upload_progress.emit({'keyword': (image, 'flickr:id=' + photo_id)})
         # set metadata after uploading image
         if 'hidden' in params:
             # flickr.photos.setSafetyLevel has different 'hidden' values
