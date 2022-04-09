@@ -595,7 +595,8 @@ class TabWidget(PhotiniUploader):
         data = {
             'title': html.unescape(photo['title']['_content']),
             'description': html.unescape(photo['description']['_content']),
-            'keywords': [x['raw'] for x in photo['tags']['tag']],
+            'keywords': [x['raw'] for x in photo['tags']['tag']
+                         if x['machine_tag'] == 0],
             }
         if photo['dates']['takenunknown'] == '0':
             granularity = int(photo['dates']['takengranularity'])
