@@ -547,7 +547,8 @@ class TabWidget(PhotiniUploader):
         data = {
             'title': photo['title'],
             'description': photo['description'],
-            'keywords': [x['tag'] for x in photo['tags']['tag']],
+            'keywords': [x['tag'] for x in photo['tags']['tag']
+                         if x['type'] == 'keyword'],
             'date_taken': {
                 'datetime': datetime.strptime(photo['dates']['created'],
                                               '%Y-%m-%d %H:%M:%S'),
