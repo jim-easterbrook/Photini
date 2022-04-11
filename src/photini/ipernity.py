@@ -164,23 +164,26 @@ class IpernitySession(UploaderSession):
 
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
-        page = 1
+        params = {
+            'user_id': self.cached_data['user_id'],
+            'media': 'photo,video',
+            'created_min': min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_max': max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'extra': 'dates',
+            'thumbsize': '100',
+            }
         while True:
-            rsp = self.api_call(
-                'doc.search', user_id=self.cached_data['user_id'],
-                media='photo,video', page=str(page),
-                created_min=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                created_max=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
-                extra='dates', thumbsize='100')
-            if not (rsp and 'doc' in rsp['docs']):
+            rsp = self.api_call('doc.search', **params)
+            if not (rsp and 'doc' in rsp['docs'] and rsp['docs']['doc']):
                 return
             for photo in rsp['docs']['doc']:
                 date_taken = datetime.strptime(
                     photo['dates']['created'], '%Y-%m-%d %H:%M:%S')
                 yield photo['doc_id'], date_taken, photo['thumb']['url']
+            page = int(rsp['docs']['page'])
             if page == int(rsp['docs']['pages']):
                 return
-            page += 1
+            params['page'] = str(page + 1)
 
     def progress(self, monitor):
         self.upload_progress.emit(
