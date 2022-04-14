@@ -330,7 +330,12 @@ class MetadataHandler(GExiv2.Metadata):
         if not self.has_tag(tag):
             return None
         if self.get_tag_type(tag) == 'LangAlt':
-            return self.get_tag_multiple(tag)[0]
+            value = self.get_tag_multiple(tag)
+            print(value)
+            if len(value) > 1:
+                logger.warning(
+                    '%s: alternative languages not read by Gexiv2', tag)
+            return value[0]
         if self.get_tag_type(tag) in ('XmpBag', 'XmpSeq'):
             return self.get_tag_multiple(tag)
         return self.get_tag_string(tag)
@@ -412,6 +417,11 @@ class MetadataHandler(GExiv2.Metadata):
                 self.set_xmp_tag_struct(container, type_)
         if isinstance(value, str):
             self.set_tag_string(tag, value)
+        elif isinstance(value, dict):
+            if len(value) > 1:
+                logger.warning(
+                    '%s: alternative languages not written by Gexiv2', tag)
+            self.set_tag_string(tag, value['x-default'])
         else:
             self.set_tag_multiple(tag, value)
 

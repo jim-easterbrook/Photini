@@ -191,7 +191,7 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = SingleLineEdit(
+        self.widgets['title'] = MultiLineEdit(
             'title', spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].setToolTip(translate(

@@ -186,6 +186,69 @@ class MD_Value(object):
             '%s: ignored %s "%s"', info, tag, str(value))
 
 
+class LangAlt(MD_Value, dict):
+    _default = 'x-default'
+    _marker = re.compile('---- (.*?) ----')
+
+    def __init__(self, value):
+        if isinstance(value, str):
+            parts = self._marker.split(value)
+            k = [self._default] + [x.strip() for x in parts[1::2]]
+            v = [x.strip() for x in parts[0::2]]
+            value = dict(zip(k, v))
+        return super(LangAlt, self).__init__(value)
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if not file_value:
+            return None
+        if isinstance(file_value, list):
+            file_value = ' // '.join(file_value)
+        return cls(file_value)
+
+    def to_exif(self):
+        # Xmp spec says to store only the default language in Exif
+        return self[self._default]
+
+    def to_xmp(self):
+        return dict(self)
+
+    def merge(self, info, tag, other):
+        if other == self:
+            return self
+        result = dict(self)
+        for key in other:
+            if key not in result:
+                result[key] = other[key]
+            elif other[key] in result[key]:
+                continue
+            elif result[key] in other[key]:
+                result[key] = other[key]
+            else:
+                result[key] += ' // ' + other[key]
+            self.log_merged(info, tag + '(' + key + ')', {key: other[key]})
+        return self.__class__(result)
+
+    def __setattr__(self, name, value):
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
+
+    def __setitem__(self, key, value):
+        raise TypeError(
+            "{} does not support item assignment".format(self.__class__))
+
+    def __bool__(self):
+        return any([x is not None for x in self.values()])
+
+    def __str__(self):
+        result = [self[self._default]]
+        for key in sorted(self.keys()):
+            if key != self._default:
+                result.append('---- {} ----'.format(key))
+                result.append(self[key])
+        return '\n'.join(result)
+
+
 class MD_String(MD_Value, str):
     def __new__(cls, value):
         value = isinstance(value, str) and value.strip()
@@ -1170,14 +1233,14 @@ class Metadata(object):
         'aperture'       : Aperture,
         'camera_model'   : CameraModel,
         'contact_info'   : ContactInformation,
-        'copyright'      : MD_String,
+        'copyright'      : LangAlt,
         'creator'        : MultiString,
         'creator_title'  : MD_String,
         'credit_line'    : MD_String,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
-        'description'    : MD_String,
+        'description'    : LangAlt,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
         'instructions'   : MD_String,
@@ -1192,7 +1255,7 @@ class Metadata(object):
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
-        'title'          : MD_String,
+        'title'          : LangAlt,
         }
 
     def __init__(self, path, notify=None, utf_safe=False):
@@ -1432,6 +1495,7 @@ class Metadata(object):
         if value in (None, '', [], {}):
             value = None
         elif not isinstance(value, self._data_type[name]):
+            new_value = self._data_type[name](value)
             value = self._data_type[name](value) or None
         if getattr(self, name) == value:
             return

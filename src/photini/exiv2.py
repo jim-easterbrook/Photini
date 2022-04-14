@@ -258,15 +258,7 @@ class MetadataHandler(object):
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
-            value = exiv2.LangAltValue(datum.value())
-            # concatenate all values, with language identifiers
-            result = []
-            for lang, text in value.items():
-                if lang == 'x-default':
-                    result = [text] + result
-                else:
-                    result.append('[{}] {}'.format(lang, text))
-            return '; '.join(result)
+            return dict(exiv2.LangAltValue(datum.value()))
         return list(exiv2.XmpArrayValue(datum.value()))
 
     def get_raw_value(self, tag):
@@ -350,7 +342,7 @@ class MetadataHandler(object):
             # set a single value
             datum.setValue(value)
             return
-        # set a list/tuple of values
+        # set a list/tuple/dict of values
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.invalidTypeId:
             key = exiv2.XmpKey(datum.key())
@@ -360,10 +352,9 @@ class MetadataHandler(object):
             type_name = datum.typeName()
         if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                        exiv2.TypeId.xmpSeq):
-            xmp_value = exiv2.XmpArrayValue(type_id)
-            for sub_value in value:
-                xmp_value.read(sub_value)
-            datum.setValue(xmp_value)
+            datum.setValue(exiv2.XmpArrayValue(value, type_id))
+        elif type_id == exiv2.TypeId.langAlt:
+            datum.setValue(exiv2.LangAltValue(value))
         else:
             logger.error('%s: %s: setting type "%s" from list',
                          os.path.basename(self._path), tag, type_name)

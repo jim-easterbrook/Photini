@@ -181,7 +181,7 @@ class TabWidget(QtWidgets.QWidget):
         form.layout().addRow(translate(
             'OwnerTab', 'Credit Line'), widgets['credit_line'])
         # copyright
-        widgets['copyright'] = SingleLineEdit(
+        widgets['copyright'] = MultiLineEdit(
             'copyright', spell_check=True,
             length_check=ImageMetadata.max_bytes('copyright'))
         widgets['copyright'].setToolTip(translate(
