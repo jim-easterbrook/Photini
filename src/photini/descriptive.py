@@ -31,28 +31,6 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 
-class LineEditWithAuto(QtWidgets.QWidget):
-    def __init__(self, key, **kw):
-        super(LineEditWithAuto, self).__init__()
-        self._is_multiple = False
-        layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        # line edit box
-        self.edit = SingleLineEdit(key, **kw)
-        layout.addWidget(self.edit)
-        # auto complete button
-        self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
-        layout.addWidget(self.auto)
-        # adopt child widget methods and signals
-        self.set_value = self.edit.set_value
-        self.get_value = self.edit.get_value
-        self.set_multiple = self.edit.set_multiple
-        self.is_multiple = self.edit.is_multiple
-        self.new_value = self.edit.new_value
-        self.autoComplete = self.auto.clicked
-
-
 class RatingWidget(QtWidgets.QWidget):
     new_value = QtSignal(str, object)
 
@@ -205,7 +183,6 @@ class TabWidget(QtWidgets.QWidget):
 
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.form = FormLayout()
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -253,27 +230,6 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['rating'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Rating'), self.widgets['rating'])
-        # copyright
-        self.widgets['copyright'] = LineEditWithAuto(
-            'copyright', length_check=ImageMetadata.max_bytes('copyright'))
-        self.widgets['copyright'].setToolTip(translate(
-            'OwnerTab', 'Enter a notice on the current owner of the'
-            ' copyright for this image, such as "©2008 Jane Doe".'))
-        self.widgets['copyright'].new_value.connect(self.new_value)
-        self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
-        self.form.addRow(translate(
-            'DescriptiveTab', 'Copyright'), self.widgets['copyright'])
-        # creator
-        self.widgets['creator'] = LineEditWithAuto(
-            'creator', multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator'))
-        self.widgets['creator'].setToolTip(translate(
-            'OwnerTab',
-            'Enter the name of the person that created this image.'))
-        self.widgets['creator'].new_value.connect(self.new_value)
-        self.widgets['creator'].autoComplete.connect(self.auto_creator)
-        self.form.addRow(translate(
-            'DescriptiveTab', 'Creator / Artist'), self.widgets['creator'])
         # disable until an image is selected
         self.setEnabled(False)
 
@@ -288,53 +244,6 @@ class TabWidget(QtWidgets.QWidget):
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
-
-    @QtSlot()
-    @catch_all
-    def auto_copyright(self):
-        name = self.config_store.get('user', 'copyright_name')
-        if not name:
-            name, OK = QtWidgets.QInputDialog.getText(
-                self, translate('DescriptiveTab', 'Photini: input name'),
-                translate('DescriptiveTab',
-                          "Please type in the copyright holder's name"),
-                text=self.config_store.get('user', 'creator_name', ''))
-            if OK and name:
-                self.config_store.set('user', 'copyright_name', name)
-            else:
-                name = ''
-        copyright_text = self.config_store.get(
-            'user', 'copyright_text',
-            translate('DescriptiveTab',
-                      'Copyright ©{year} {name}. All rights reserved.'))
-        images = self.image_list.get_selected_images()
-        for image in images:
-            date_taken = image.metadata.date_taken
-            if date_taken is None:
-                date_taken = datetime.now()
-            else:
-                date_taken = date_taken['datetime']
-            value = copyright_text.format(year=date_taken.year, name=name)
-            image.metadata.copyright = value
-        self._update_widget('copyright', images)
-
-    @QtSlot()
-    @catch_all
-    def auto_creator(self):
-        name = self.config_store.get('user', 'creator_name')
-        if not name:
-            name, OK = QtWidgets.QInputDialog.getText(
-                self, translate('DescriptiveTab', 'Photini: input name'),
-                translate('DescriptiveTab', "Please type in the creator's name"),
-                text=self.config_store.get('user', 'copyright_name', ''))
-            if OK and name:
-                self.config_store.set('user', 'creator_name', name)
-            else:
-                name = ''
-        images = self.image_list.get_selected_images()
-        for image in images:
-            image.metadata.creator = name
-        self._update_widget('creator', images)
 
     @QtSlot(str, object)
     @catch_all

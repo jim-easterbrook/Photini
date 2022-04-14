@@ -355,6 +355,7 @@ class TabWidget(QtWidgets.QWidget):
                 value = self.config_store.get('user', 'creator_name')
             widgets[key].set_value(value)
         dialog.layout().addWidget(form)
+        self.config_store.remove_section('user')
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)

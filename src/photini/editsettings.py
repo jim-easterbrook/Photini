@@ -43,27 +43,12 @@ class EditSettings(QtWidgets.QDialog):
             QtWidgets.QDialogButtonBox.Apply | QtWidgets.QDialogButtonBox.Cancel)
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
-        # copyright holder name
-        self.copyright_name = SingleLineEdit('name', spell_check=True)
-        self.copyright_name.set_value(
-            self.config_store.get('user', 'copyright_name', ''))
-        panel.layout().addRow(self.tr('Copyright holder name'), self.copyright_name)
-        # copyright text
-        self.copyright_text = SingleLineEdit('text', spell_check=True)
-        self.copyright_text.set_value(
-            self.config_store.get('user', 'copyright_text', ''))
-        self.copyright_text.setMinimumWidth(
-            width_for_text(self.copyright_text, 'x' * 50))
-        panel.layout().addRow(self.tr('Copyright text'), self.copyright_text)
-        # creator name
-        self.creator_name = SingleLineEdit('creator', spell_check=True)
-        self.creator_name.set_value(
-            self.config_store.get('user', 'creator_name', ''))
-        panel.layout().addRow(self.tr('Creator name'), self.creator_name)
         # IPTC data
         force_iptc = self.config_store.get('files', 'force_iptc', False)
         self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
         self.write_iptc.setChecked(force_iptc)
+        self.write_iptc.setMinimumWidth(
+            width_for_text(self.write_iptc, 'x' * 35))
         panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
         # show IPTC-IIM length limits
         length_warning = self.config_store.get('files', 'length_warning', True)
@@ -133,12 +118,6 @@ class EditSettings(QtWidgets.QDialog):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()
         # change config
-        self.config_store.set(
-            'user', 'copyright_name', self.copyright_name.get_value())
-        self.config_store.set(
-            'user', 'copyright_text', self.copyright_text.get_value())
-        self.config_store.set(
-            'user', 'creator_name', self.creator_name.get_value())
         self.config_store.set(
             'files', 'force_iptc', self.write_iptc.isChecked())
         self.config_store.set(
