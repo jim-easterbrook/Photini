@@ -411,6 +411,8 @@ class ImageMetadata(MetadataHandler):
                             ('WX', 'Xmp.exif.FocalLength')),
         'focal_length_35': (('WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
                             ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
+        'headline'       : (('WA', 'Xmp.photoshop.Headline'),
+                            ('WA', 'Iptc.Application2.Headline')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
                             ('WA', 'Iptc.Application2.SpecialInstructions')),
         'keywords'       : (('WA', 'Xmp.dc.subject'),
@@ -454,10 +456,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.CanonTi.TimeZone'),
                             ('WN', 'Exif.NikonWt.Timezone')),
         'title'          : (('WA', 'Xmp.dc.title'),
-                            ('W0', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.ObjectName'),
-                            ('W0', 'Exif.Image.XPTitle'),
-                            ('W0', 'Iptc.Application2.Headline')),
+                            ('W0', 'Exif.Image.XPTitle')),
         }
 
     def read(self, name, type_):

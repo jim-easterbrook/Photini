@@ -530,6 +530,13 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
                 cursor.insertText(action.iconText())
 
+    def set_height(self, rows):
+        margins = self.contentsMargins()
+        self.setFixedHeight((self.fontMetrics().lineSpacing() * rows)
+                            + (self.document().documentMargin() * 2)
+                            + (self.frameWidth() * 2)
+                            + (margins.top() + margins.bottom()))
+
     def set_value(self, value):
         self._is_multiple = False
         if not value:

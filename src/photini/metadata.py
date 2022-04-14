@@ -1233,6 +1233,7 @@ class Metadata(object):
         'description'    : LangAlt,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
+        'headline'       : MD_String,
         'instructions'   : MD_String,
         'keywords'       : MultiString,
         'latlong'        : LatLon,

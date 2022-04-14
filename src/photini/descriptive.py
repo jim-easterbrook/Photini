@@ -24,8 +24,9 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, LangAltWidget, multiple_values, Qt, QtCore,
-    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
+    catch_all, ComboBox, FormLayout, LangAltWidget, MultiLineEdit,
+    multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
+    SingleLineEdit, Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -200,6 +201,17 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['title'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
+        # headline
+        self.widgets['headline'] = MultiLineEdit(
+            'headline', spell_check=True,
+            length_check=ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'].set_height(3)
+        self.widgets['headline'].setToolTip(translate(
+            'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
+            ' of the contents of the image.'))
+        self.widgets['headline'].new_value.connect(self.new_value)
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Headline'), self.widgets['headline'])
         # description
         self.widgets['description'] = LangAltWidget(
             'description', spell_check=True,
