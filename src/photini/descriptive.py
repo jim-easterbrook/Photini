@@ -24,7 +24,7 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, MultiLineEdit, multiple_values, Qt, QtCore,
+    catch_all, ComboBox, FormLayout, LangAltWidget, multiple_values, Qt, QtCore,
     QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
 
 logger = logging.getLogger(__name__)
@@ -117,7 +117,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         # favourites drop down
         self.favourites = ComboBox()
         self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
-        self.favourites.setFixedWidth(self.favourites.minimumSizeHint().width())
+        self.favourites.setFixedWidth(width_for_text(self.favourites, 'x' * 16))
         self.update_favourites()
         self.favourites.currentIndexChanged.connect(self.add_favourite)
         layout.addWidget(self.favourites)
@@ -191,8 +191,8 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = MultiLineEdit(
-            'title', spell_check=True,
+        self.widgets['title'] = LangAltWidget(
+            'title', multi_line=False, spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].setToolTip(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
@@ -201,7 +201,7 @@ class TabWidget(QtWidgets.QWidget):
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # description
-        self.widgets['description'] = MultiLineEdit(
+        self.widgets['description'] = LangAltWidget(
             'description', spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
         self.widgets['description'].setToolTip(translate(
@@ -264,7 +264,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets[key].set_multiple(choices=filter(None, values))
+            self.widgets[key].set_multiple(choices=[x for x in values if x])
         else:
             self.widgets[key].set_value(values[0])
 

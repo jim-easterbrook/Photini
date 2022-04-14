@@ -23,8 +23,9 @@ import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit,
-    QtCore, QtGui, QtGui2, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    catch_all, DropDownSelector, execute, FormLayout, LangAltWidget,
+    MultiLineEdit, QtCore, QtGui, QtGui2, QtSlot, QtWidgets, SingleLineEdit,
+    width_for_text)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -181,8 +182,8 @@ class TabWidget(QtWidgets.QWidget):
         form.layout().addRow(translate(
             'OwnerTab', 'Credit Line'), widgets['credit_line'])
         # copyright
-        widgets['copyright'] = MultiLineEdit(
-            'copyright', spell_check=True,
+        widgets['copyright'] = LangAltWidget(
+            'copyright', multi_line=False, spell_check=True,
             length_check=ImageMetadata.max_bytes('copyright'))
         widgets['copyright'].setToolTip(translate(
             'OwnerTab', 'Enter a notice on the current owner of the'
@@ -374,11 +375,11 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def apply_template(self):
-        value = {}
+        template = {}
         for key in self.widgets:
-            text = self.config_store.get('ownership', key)
-            if text:
-                value[key] = text
+            value = self.config_store.get('ownership', key)
+            if value:
+                template[key] = value
         images = self.image_list.get_selected_images()
         for image in images:
             date_taken = image.metadata.date_taken
@@ -386,9 +387,16 @@ class TabWidget(QtWidgets.QWidget):
                 date_taken = datetime.now()
             else:
                 date_taken = date_taken['datetime']
-            for key in value:
-                self._set_value(image, key, date_taken.strftime(value[key]))
-        for key in value:
+            for key in template:
+                value = template[key]
+                if isinstance(value, dict):
+                    # langalt copyright
+                    for k in value:
+                        value[k] = date_taken.strftime(value[k])
+                else:
+                    value = date_taken.strftime(value)
+                self._set_value(image, key, value)
+        for key in template:
             self._update_widget(key, images)
 
     def _set_value(self, image, key, value):

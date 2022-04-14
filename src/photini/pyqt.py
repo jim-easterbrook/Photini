@@ -524,7 +524,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         action = menu.exec_(event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
-                self.set_value(action.data())
+                self.new_value.emit(self._key, action.data())
             else:
                 cursor.setPosition(block_pos + start)
                 cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
@@ -567,6 +567,92 @@ class SingleLineEdit(MultiLineEdit):
 
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
+
+
+class LangAltWidget(QtWidgets.QWidget):
+    new_value = QtSignal(str, object)
+
+    def __init__(self, key, multi_line=True, **kw):
+        super(LangAltWidget, self).__init__()
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        self.value = {}
+        # text edit
+        if multi_line:
+            self.edit = MultiLineEdit(key, **kw)
+        else:
+            self.edit = SingleLineEdit(key, **kw)
+        self.edit.new_value.connect(self._new_value)
+        layout.addWidget(self.edit)
+        # language drop down
+        self.lang = DropDownSelector('lang', extendable=True, ordered=True)
+        self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
+        self.lang.new_value.connect(self._change_lang)
+        layout.addWidget(self.lang)
+        layout.setAlignment(self.lang, Qt.AlignTop)
+        # adopt some child methods ...
+        self.is_multiple = self.edit.is_multiple
+        # ... and vice versa
+        self.lang.define_new_value = self._define_new_lang
+
+    @QtSlot(str, object)
+    @catch_all
+    def _change_lang(self, key, lang):
+        if lang in self.value:
+            self.edit.set_value(self.value[lang])
+        else:
+            self.edit.set_value('')
+
+    @QtSlot(str, object)
+    @catch_all
+    def _new_value(self, key, value):
+        if self.is_multiple():
+            self.value = self.choices[value]
+        else:
+            self.value[self.lang.get_value()] = value
+        self.new_value.emit(key, self.value)
+
+    def _define_new_lang(self):
+        lang, OK = QtWidgets.QInputDialog.getText(
+            self, translate('LangAltWidget', 'New language'),
+            translate('LangAltWidget', 'RFC3066 language tag:'))
+        if not OK:
+            return None, None
+        return self.labeled_lang(lang)
+
+    def labeled_lang(self, lang):
+        label = translate('LangAltWidget', 'Lang:')
+        if lang != 'x-default':
+            label += ' ' + lang
+        return label, lang
+
+    def set_value(self, value):
+        self.lang.setEnabled(True)
+        if isinstance(value, str):
+            self.value = {'x-default': value}
+        elif value:
+            self.value = dict(value)
+        else:
+            self.value = {'x-default': ''}
+        lang = self.lang.get_value()
+        if lang not in self.value:
+            lang = 'x-default'
+        selection = []
+        for key in self.value:
+            selection.append(self.labeled_lang(key))
+        self.lang.set_values(selection, default=lang)
+        self._change_lang('', lang)
+
+    def get_value(self):
+        return self.value
+
+    def set_multiple(self, choices=[]):
+        self.choices = {}
+        for choice in choices:
+            self.choices[str(choice)] = dict(choice)
+        self.edit.set_multiple(choices=self.choices.keys())
+        self.lang.setEnabled(False)
 
 
 class Slider(QtWidgets.QSlider):

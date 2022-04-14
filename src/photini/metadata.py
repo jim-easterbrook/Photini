@@ -188,23 +188,13 @@ class MD_Value(object):
 
 class LangAlt(MD_Value, dict):
     _default = 'x-default'
-    _marker = re.compile('---- (.*?) ----')
 
     def __init__(self, value):
         if isinstance(value, str):
-            parts = self._marker.split(value)
-            k = [self._default] + [x.strip() for x in parts[1::2]]
-            v = [x.strip() for x in parts[0::2]]
-            value = dict(zip(k, v))
-        return super(LangAlt, self).__init__(value)
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not file_value:
-            return None
-        if isinstance(file_value, list):
-            file_value = ' // '.join(file_value)
-        return cls(file_value)
+            value = {self._default: value}
+        if self._default not in value:
+            value[self._default] = ''
+        super(LangAlt, self).__init__(value)
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
@@ -238,13 +228,13 @@ class LangAlt(MD_Value, dict):
             "{} does not support item assignment".format(self.__class__))
 
     def __bool__(self):
-        return any([x is not None for x in self.values()])
+        return any([bool(x) for x in self.values()])
 
     def __str__(self):
         result = [self[self._default]]
         for key in sorted(self.keys()):
             if key != self._default:
-                result.append('---- {} ----'.format(key))
+                result.append('-- {} --'.format(key))
                 result.append(self[key])
         return '\n'.join(result)
 
