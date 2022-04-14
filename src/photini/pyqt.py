@@ -618,7 +618,7 @@ class LangAltWidget(QtWidgets.QWidget):
             self.value = self.choices[value]
         else:
             self.value[self.lang.get_value()] = value
-        self.new_value.emit(key, self.value)
+        self.new_value.emit(key, self.get_value())
 
     def _define_new_lang(self):
         lang, OK = QtWidgets.QInputDialog.getText(
@@ -652,7 +652,11 @@ class LangAltWidget(QtWidgets.QWidget):
         self._change_lang('', lang)
 
     def get_value(self):
-        return self.value
+        result = {}
+        for k in self.value:
+            if self.value[k]:
+                result[k] = self.value[k]
+        return result
 
     def set_multiple(self, choices=[]):
         self.choices = {}
