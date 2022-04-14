@@ -293,9 +293,12 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
             self.length_formatter.setUnderlineColor(Qt.blue)
             self.length_formatter.setUnderlineStyle(
                 QtGui.QTextCharFormat.SingleUnderline)
+            if multi_string:
+                self.pattern = re.compile(r'\s*(.+?)(;|$)')
+            else:
+                self.pattern = re.compile(r'\s*(.+)')
         else:
             self.length_check = None
-        self.multi_string = multi_string
 
     @catch_all
     def highlightBlock(self, text):
@@ -305,19 +308,19 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
             length_warning = self.config_store.get(
                 'files', 'length_warning', True)
             if length_warning:
-                if self.multi_string:
-                    pattern = '\s*(.+?)(;|$)'
-                else:
-                    pattern = '\s*(.+)'
-                for match in re.finditer(pattern, text):
+                consumed = max(self.previousBlockState(), 0)
+                max_len = max(self.length_check - consumed, 0)
+                for match in self.pattern.finditer(text):
                     start = match.start(1)
                     end = match.end(1)
-                    truncated = text[start:end]
-                    truncated = truncated.encode('utf-8')[:self.length_check]
+                    truncated = text[start:end].encode('utf-8')
+                    consumed += len(truncated)
+                    truncated = truncated[:max_len]
                     start += len(truncated.decode('utf-8', errors='ignore'))
                     if start < end:
                         self.setFormat(start, end - start,
                                        self.length_formatter)
+                self.setCurrentBlockState(max(consumed, 0))
         if self.spell_check:
             for word, start, end in self.find_words(text):
                 if not self.spell_check.check(word):
