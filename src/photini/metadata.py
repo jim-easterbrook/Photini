@@ -196,7 +196,7 @@ class LangAlt(MD_Value, dict):
         for k, v in value.items():
             if isinstance(v, str):
                 v = v.strip()
-            if v:
+            if isinstance(k, str) and v:
                 clean_value[k] = v
         super(LangAlt, self).__init__(clean_value)
 

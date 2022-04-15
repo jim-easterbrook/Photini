@@ -593,7 +593,8 @@ class LangAltWidget(QtWidgets.QWidget):
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit)
         # language drop down
-        self.lang = DropDownSelector('lang', extendable=True, ordered=True)
+        self.lang = DropDownSelector(
+            'lang', with_multiple=False, extendable=True, ordered=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.new_value.connect(self._change_lang)
         layout.addWidget(self.lang)
@@ -610,6 +611,8 @@ class LangAltWidget(QtWidgets.QWidget):
             self.edit.set_value(self.value[lang])
         else:
             self.edit.set_value('')
+        self.lang.clearFocus()
+        self.edit.setFocus()
 
     @QtSlot(str, object)
     @catch_all
@@ -624,7 +627,7 @@ class LangAltWidget(QtWidgets.QWidget):
         lang, OK = QtWidgets.QInputDialog.getText(
             self, translate('LangAltWidget', 'New language'),
             translate('LangAltWidget', 'RFC3066 language tag:'))
-        if not OK:
+        if not (OK and lang):
             return None, None
         return self.labeled_lang(lang)
 
