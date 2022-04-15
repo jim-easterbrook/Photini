@@ -194,8 +194,8 @@ class TabWidget(QtWidgets.QWidget):
         rights_group = QtWidgets.QGroupBox()
         rights_group.setLayout(FormLayout())
         # usage terms
-        widgets['rights_UsageTerms'] = SingleLineEdit(
-            'rights_UsageTerms', spell_check=True)
+        widgets['rights_UsageTerms'] = LangAltWidget(
+            'rights_UsageTerms', multi_line=False, spell_check=True)
         widgets['rights_UsageTerms'].setToolTip(translate(
             'OwnerTab',
             'Enter instructions on how this image can legally be used.'))

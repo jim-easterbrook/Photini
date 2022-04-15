@@ -190,15 +190,15 @@ class LangAlt(MD_Value, dict):
     _default = 'x-default'
 
     def __init__(self, value):
-        if isinstance(value, str):
+        if not isinstance(value, dict):
             value = {self._default: value}
-        for key in list(value.keys()):
-            value[key] = value[key].strip()
-            if not value[key]:
-                del value[key]
-        if self._default not in value:
-            value[self._default] = ''
-        super(LangAlt, self).__init__(value)
+        clean_value = {self._default: ''}
+        for k, v in value.items():
+            if isinstance(v, str):
+                v = v.strip()
+            if v:
+                clean_value[k] = v
+        super(LangAlt, self).__init__(clean_value)
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
@@ -608,7 +608,7 @@ class Rights(MD_Collection):
     # stores IPTC rights information
     _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
     _default_type = MD_FixedString
-    _type = {'UsageTerms': MD_String}
+    _type = {'UsageTerms': LangAlt}
 
 
 class CameraModel(MD_Collection):
