@@ -38,6 +38,7 @@ class DropdownEdit(DropDownSelector):
             key, *arg, extendable=True, ordered=True, **kw)
         self._image_list = image_list
         self.config_store = QtWidgets.QApplication.instance().config_store
+        self.setFocusPolicy(Qt.NoFocus)
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
@@ -803,6 +804,7 @@ class TabWidget(QtWidgets.QWidget):
                 (translate('TechnicalTab', 'reflect tr-bl'), 5),
                 (translate('TechnicalTab', 'reflect tl-br'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
+        self.widgets['orientation'].setFocusPolicy(Qt.NoFocus)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model
