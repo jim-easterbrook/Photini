@@ -596,6 +596,7 @@ class LangAltWidget(QtWidgets.QWidget):
         self.lang = DropDownSelector(
             'lang', with_multiple=False, extendable=True, ordered=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
+        self.lang.setFocusPolicy(Qt.NoFocus)
         self.lang.new_value.connect(self._change_lang)
         layout.addWidget(self.lang)
         layout.setAlignment(self.lang, Qt.AlignTop)
@@ -611,8 +612,6 @@ class LangAltWidget(QtWidgets.QWidget):
             self.edit.set_value(self.value[lang])
         else:
             self.edit.set_value('')
-        self.lang.clearFocus()
-        self.edit.setFocus()
 
     @QtSlot(str, object)
     @catch_all
