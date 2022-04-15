@@ -60,6 +60,7 @@ class MetadataHandler(object):
         # 'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City'.
         # Re-registering it under its full name means I have to use
         # 'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City' instead.
+        registered = exiv2.XmpProperties.registeredNamespaces()
         for prefix, ns in (
                 ('exifEX',      'http://cipa.jp/exif/1.0/'),
                 ('Iptc4xmpExt', 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/'),
@@ -68,7 +69,8 @@ class MetadataHandler(object):
                 ('xmpGImg',     'http://ns.adobe.com/xap/1.0/g/img/'),
                 ('xmpRights',   'http://ns.adobe.com/xap/1.0/rights/'),
                 ):
-            exiv2.XmpProperties.registerNs(ns, prefix)
+            if prefix == 'Iptc4xmpExt' or prefix not in registered:
+                exiv2.XmpProperties.registerNs(ns, prefix)
         # make list of possible character encodings
         cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
