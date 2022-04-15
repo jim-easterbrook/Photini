@@ -192,6 +192,10 @@ class LangAlt(MD_Value, dict):
     def __init__(self, value):
         if isinstance(value, str):
             value = {self._default: value}
+        for key in list(value.keys()):
+            value[key] = value[key].strip()
+            if not value[key]:
+                del value[key]
         if self._default not in value:
             value[self._default] = ''
         super(LangAlt, self).__init__(value)
@@ -201,6 +205,8 @@ class LangAlt(MD_Value, dict):
         return self[self._default]
 
     def to_xmp(self):
+        if not self:
+            return None
         return dict(self)
 
     def merge(self, info, tag, other):
@@ -228,7 +234,7 @@ class LangAlt(MD_Value, dict):
             "{} does not support item assignment".format(self.__class__))
 
     def __bool__(self):
-        return any([bool(x) for x in self.values()])
+        return any(self.values())
 
     def __str__(self):
         result = [self[self._default]]
