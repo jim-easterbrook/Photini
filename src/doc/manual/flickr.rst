@@ -54,7 +54,10 @@ Note that the album will not be created on Flickr until you upload a photo to it
 
 .. image:: ../images/screenshot_155.png
 
-To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your albums to add them to and set any of the other attributes, then click on the ``Start upload`` button.
+To upload one or more photographs to Flickr, select them in the image selector area, then choose which (if any) of your albums to add them to and set the privacy, safety level and other settings, then click on the ``Start upload`` button.
+
+The album membership and privacy & other settings apply to all the photographs in this upload.
+If you want some photographs to have different album membership or privacy & other settings you need to upload them as a separate batch.
 
 .. image:: ../images/screenshot_156.png
 

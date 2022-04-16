@@ -46,7 +46,10 @@ Note that the album will not be visible on Ipernity until you upload a photo to 
 
 .. image:: ../images/screenshot_236.png
 
-To upload one or more photographs to Ipernity, select them in the image selector area, then choose which (if any) of your albums to add them to and set any of the other attributes, then click on the ``Start upload`` button.
+To upload one or more photographs to Ipernity, select them in the image selector area, then choose which (if any) of your albums to add them to and set the permissions and licence, then click on the ``Start upload`` button.
+
+The permissions, licence, and album membership apply to all the photographs in this upload.
+If you want some photographs to have different permissions, licence, or album membership you need to upload them as a separate batch.
 
 .. image:: ../images/screenshot_237.png
 
