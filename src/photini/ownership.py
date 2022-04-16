@@ -134,6 +134,11 @@ class TabWidget(QtWidgets.QWidget):
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
+        init_template = QtWidgets.QPushButton(
+            translate('OwnerTab', 'Initialise\ntemplate'))
+        init_template.clicked.connect(self.init_template)
+        self.enableable.append(init_template)
+        buttons.addWidget(init_template)
         edit_template = QtWidgets.QPushButton(
             translate('OwnerTab', 'Edit\ntemplate'))
         edit_template.clicked.connect(self.edit_template)
@@ -322,6 +327,36 @@ class TabWidget(QtWidgets.QWidget):
             self.widgets[key].set_multiple(choices=filter(None, values))
         else:
             self.widgets[key].set_value(values[0])
+
+    @QtSlot()
+    @catch_all
+    def init_template(self):
+        template = {}
+        for image in self.image_list.get_selected_images():
+            date_taken = image.metadata.date_taken
+            if date_taken is None:
+                date_taken = datetime.now()
+            else:
+                date_taken = date_taken['datetime']
+            year = str(date_taken.year)
+            for key in self.widgets:
+                value = self._get_value(image, key)
+                if not value:
+                    continue
+                if isinstance(value, dict):
+                    # langalt copyright
+                    value = dict(value)
+                    for k in value:
+                        if year in value[k]:
+                            value[k] = value[k].replace(year, '%Y')
+                else:
+                    value = str(value)
+                    if year in value:
+                        value = value.replace(year, '%Y')
+                template[key] = value
+        self.config_store.remove_section('ownership')
+        for key, value in template.items():
+            self.config_store.set('ownership', key, value)
 
     @QtSlot()
     @catch_all
