@@ -207,7 +207,9 @@ class LangAlt(MD_Value, dict):
     def to_xmp(self):
         if not self:
             return None
-        return dict(self)
+        result = dict(self)
+        result[self._default] = result[self._default] or ' '
+        return result
 
     def merge(self, info, tag, other):
         if other == self:
