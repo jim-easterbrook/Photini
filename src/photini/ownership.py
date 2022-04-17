@@ -354,13 +354,35 @@ class TabWidget(QtWidgets.QWidget):
                     if year in value:
                         value = value.replace(year, '%Y')
                 template[key] = value
-        self.config_store.remove_section('ownership')
-        for key, value in template.items():
-            self.config_store.set('ownership', key, value)
+        # let user edit results
+        self._edit_template(template)
 
     @QtSlot()
     @catch_all
     def edit_template(self):
+        # move config usageterms to rights_UsageTerms
+        value = self.config_store.get('ownership', 'usageterms')
+        if value:
+            self.config_store.set('ownership', 'rights_UsageTerms', value)
+            self.config_store.delete('ownership', 'usageterms')
+        # read config
+        template = {}
+        for key in widgets:
+            value = self.config_store.get('ownership', key)
+            if key == 'copyright' and not value:
+                name = self.config_store.get('user', 'copyright_name') or ''
+                text = (self.config_store.get('user', 'copyright_text') or
+                        translate('DescriptiveTab', 'Copyright ©{year} {name}.'
+                                  ' All rights reserved.'))
+                value = text.format(year='%Y', name=name)
+            elif key == 'creator' and not value:
+                value = self.config_store.get('user', 'creator_name')
+            template[key] = value
+        self.config_store.remove_section('user')
+        # do dialog
+        self._edit_template(template)
+
+    def _edit_template(self, template):
         dialog = QtWidgets.QDialog(parent=self)
         width = width_for_text(dialog, 'x' * 120)
         dialog.setFixedSize(min(width, self.window().width()),
@@ -373,25 +395,13 @@ class TabWidget(QtWidgets.QWidget):
             widgets['copyright'].toolTip() + ' ' +
             translate('OwnerTab',
                       'Use %Y to insert the year the photograph was taken.'))
-        # move config usageterms to rights_UsageTerms
-        value = self.config_store.get('ownership', 'usageterms')
-        if value:
-            self.config_store.set('ownership', 'rights_UsageTerms', value)
-            self.config_store.delete('ownership', 'usageterms')
-        # read config
+        # initialise values
         for key in widgets:
-            value = self.config_store.get('ownership', key)
-            if key == 'copyright' and not value:
-                name = self.config_store.get('user', 'copyright_name') or ''
-                text = (self.config_store.get('user', 'copyright_text') or
-                        translate('DescriptiveTab', 'Copyright ©{year} {name}.'
-                                  ' All rights reserved.'))
-                value = text.format(year='%Y', name=name)
-            elif key == 'creator' and not value:
-                value = self.config_store.get('user', 'creator_name')
-            widgets[key].set_value(value)
+            if key in template:
+                widgets[key].set_value(template[key])
+            else:
+                widgets[key].set_value(None)
         dialog.layout().addWidget(form)
-        self.config_store.remove_section('user')
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -400,12 +410,11 @@ class TabWidget(QtWidgets.QWidget):
         dialog.layout().addWidget(button_box)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
             return
+        self.config_store.remove_section('ownership')
         for key in widgets:
             value = widgets[key].get_value()
             if value:
                 self.config_store.set('ownership', key, value)
-            else:
-                self.config_store.delete('ownership', key)
 
     @QtSlot()
     @catch_all
