@@ -367,7 +367,7 @@ class TabWidget(QtWidgets.QWidget):
             self.config_store.delete('ownership', 'usageterms')
         # read config
         template = {}
-        for key in widgets:
+        for key in self.widgets:
             value = self.config_store.get('ownership', key)
             if key == 'copyright' and not value:
                 name = self.config_store.get('user', 'copyright_name') or ''

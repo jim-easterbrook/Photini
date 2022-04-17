@@ -525,7 +525,6 @@ class SidecarMetadata(ImageMetadata):
     @classmethod
     def open_new(cls, path, image_md):
         sc_path = path + '.xmp'
-        print('open_new', sc_path)
         try:
             cls.create_sc(sc_path, image_md)
             return cls(sc_path)
