@@ -20,7 +20,7 @@ Read my `blog post`_ on how I chose a name.
 Features
 --------
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_11.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_024.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
