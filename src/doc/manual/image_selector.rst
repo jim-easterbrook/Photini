@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image selector
@@ -44,7 +44,7 @@ The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
 Selecting multiple files allows you to set metadata, such as the image title, on several files at once.
 This is much quicker than having to edit the metadata of each file separately.
 You will probably want to select a different group of files before editing each metadata item.
-For example, you might give the same title (and copyright and creator) to all the images, then select only the first two or three before writing a description.
+For example, you might give the same title to all the images, then select only the first two or three before writing a description.
 
 Context menu
 ------------
@@ -63,7 +63,7 @@ The context menu currently has five items.
 .. image:: ../images/screenshot_008.png
 
 The ``view changes`` context menu item displays all the metadata items that have changed.
-In this example I've set four items that were previously empty.
+In this example I've set two items that were previously empty.
 If you want to discard any of these changes then select the appropriate ``undo`` checkboxes and click on ``OK``.
 
 .. image:: ../images/screenshot_009.png
