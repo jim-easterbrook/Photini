@@ -151,6 +151,33 @@ class TabWidget(QtWidgets.QWidget):
         self.layout().addLayout(buttons)
         # disable data entry until an image is selected
         self.set_enabled(False)
+        # update config
+        value = self.config_store.get('ownership', 'usageterms')
+        if value:
+            self.config_store.set('ownership', 'rights/UsageTerms', value)
+            self.config_store.delete('ownership', 'usageterms')
+        for key in self.widgets:
+            if '/' not in key:
+                continue
+            if key.startswith('rights'):
+                old_key = key.replace('/', '_')
+            else:
+                old_key = key.split('/')[1]
+            value = self.config_store.get('ownership', old_key)
+            if value:
+                self.config_store.set('ownership', key, value)
+                self.config_store.delete('ownership', old_key)
+        if not self.config_store.get('ownership', 'copyright'):
+            name = self.config_store.get('user', 'copyright_name') or ''
+            text = self.config_store.get('user', 'copyright_text') or ''
+            if text:
+                self.config_store.set('ownership', 'copyright',
+                                      text.format(year='%Y', name=name))
+        if not self.config_store.get('ownership', 'creator'):
+            name = self.config_store.get('user', 'creator_name')
+            if name:
+                self.config_store.set('ownership', 'creator', name)
+        self.config_store.remove_section('user')
 
     def data_form(self):
         widgets = {}
@@ -199,24 +226,24 @@ class TabWidget(QtWidgets.QWidget):
         rights_group = QtWidgets.QGroupBox()
         rights_group.setLayout(FormLayout())
         # usage terms
-        widgets['rights_UsageTerms'] = LangAltWidget(
-            'rights_UsageTerms', multi_line=False, spell_check=True)
-        widgets['rights_UsageTerms'].setToolTip(translate(
+        widgets['rights/UsageTerms'] = LangAltWidget(
+            'rights/UsageTerms', multi_line=False, spell_check=True)
+        widgets['rights/UsageTerms'].setToolTip(translate(
             'OwnerTab',
             'Enter instructions on how this image can legally be used.'))
         rights_group.layout().addRow(translate(
-            'OwnerTab', 'Usage Terms'), widgets['rights_UsageTerms'])
+            'OwnerTab', 'Usage Terms'), widgets['rights/UsageTerms'])
         # web statement of rights
-        widgets['rights_WebStatement'] = RightsDropDown('rights_WebStatement')
+        widgets['rights/WebStatement'] = RightsDropDown('rights/WebStatement')
         rights_group.layout().addRow(translate(
-            'OwnerTab', 'Web Statement'), widgets['rights_WebStatement'])
+            'OwnerTab', 'Web Statement'), widgets['rights/WebStatement'])
         # licensor URL
-        widgets['rights_LicensorURL'] = SingleLineEdit('rights_LicensorURL')
-        widgets['rights_LicensorURL'].setToolTip(translate(
+        widgets['rights/LicensorURL'] = SingleLineEdit('rights/LicensorURL')
+        widgets['rights/LicensorURL'].setToolTip(translate(
             'OwnerTab', 'URL for a licensor web page. May facilitate licensing'
             ' of the image.'))
         rights_group.layout().addRow(translate(
-            'OwnerTab', 'Licensor URL'), widgets['rights_LicensorURL'])
+            'OwnerTab', 'Licensor URL'), widgets['rights/LicensorURL'])
         form.layout().addRow(translate(
             'OwnerTab', 'Rights'), rights_group)
         # special instructions
@@ -232,66 +259,72 @@ class TabWidget(QtWidgets.QWidget):
         contact_group = QtWidgets.QGroupBox()
         contact_group.setLayout(FormLayout())
         # email addresses
-        widgets['CiEmailWork'] = SingleLineEdit('CiEmailWork')
-        widgets['CiEmailWork'].setToolTip(translate(
+        widgets['contact_info/CiEmailWork'] = SingleLineEdit(
+            'contact_info/CiEmailWork')
+        widgets['contact_info/CiEmailWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work email address(es) for the person'
             ' that created this image, such as name@domain.com.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Email(s)'), widgets['CiEmailWork'])
+            'OwnerTab', 'Email(s)'), widgets['contact_info/CiEmailWork'])
         # URLs
-        widgets['CiUrlWork'] = SingleLineEdit('CiUrlWork')
-        widgets['CiUrlWork'].setToolTip(translate(
+        widgets['contact_info/CiUrlWork'] = SingleLineEdit(
+            'contact_info/CiUrlWork')
+        widgets['contact_info/CiUrlWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work Web URL(s) for the person'
             ' that created this image, such as http://www.domain.com/.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Web URL(s)'), widgets['CiUrlWork'])
+            'OwnerTab', 'Web URL(s)'), widgets['contact_info/CiUrlWork'])
         # phone numbers
-        widgets['CiTelWork'] = SingleLineEdit('CiTelWork')
-        widgets['CiTelWork'].setToolTip(translate(
+        widgets['contact_info/CiTelWork'] = SingleLineEdit(
+            'contact_info/CiTelWork')
+        widgets['contact_info/CiTelWork'].setToolTip(translate(
             'OwnerTab', 'Enter the work phone number(s) for the person'
             ' that created this image, using the international format,'
             ' such as +1 (123) 456789.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Phone(s)'), widgets['CiTelWork'])
+            'OwnerTab', 'Phone(s)'), widgets['contact_info/CiTelWork'])
         # address
-        widgets['CiAdrExtadr'] = MultiLineEdit(
-            'CiAdrExtadr',
+        widgets['contact_info/CiAdrExtadr'] = MultiLineEdit(
+            'contact_info/CiAdrExtadr',
             length_check=ImageMetadata.max_bytes('contact_info'),
             spell_check=True)
-        widgets['CiAdrExtadr'].setToolTip(translate(
+        widgets['contact_info/CiAdrExtadr'].setToolTip(translate(
             'OwnerTab',
             'Enter address for the person that created this image.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Address'), widgets['CiAdrExtadr'])
+            'OwnerTab', 'Address'), widgets['contact_info/CiAdrExtadr'])
         # city
-        widgets['CiAdrCity'] = SingleLineEdit('CiAdrCity', spell_check=True)
-        widgets['CiAdrCity'].setToolTip(translate(
+        widgets['contact_info/CiAdrCity'] = SingleLineEdit(
+            'contact_info/CiAdrCity', spell_check=True)
+        widgets['contact_info/CiAdrCity'].setToolTip(translate(
             'OwnerTab', 'Enter the city for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'City'), widgets['CiAdrCity'])
+            'OwnerTab', 'City'), widgets['contact_info/CiAdrCity'])
         # postcode
-        widgets['CiAdrPcode'] = SingleLineEdit('CiAdrPcode')
-        widgets['CiAdrPcode'].setToolTip(translate(
+        widgets['contact_info/CiAdrPcode'] = SingleLineEdit(
+            'contact_info/CiAdrPcode')
+        widgets['contact_info/CiAdrPcode'].setToolTip(translate(
             'OwnerTab', 'Enter the postal code for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Postal Code'), widgets['CiAdrPcode'])
+            'OwnerTab', 'Postal Code'), widgets['contact_info/CiAdrPcode'])
         # region
-        widgets['CiAdrRegion'] = SingleLineEdit(
-            'CiAdrRegion', spell_check=True)
-        widgets['CiAdrRegion'].setToolTip(translate(
+        widgets['contact_info/CiAdrRegion'] = SingleLineEdit(
+            'contact_info/CiAdrRegion', spell_check=True)
+        widgets['contact_info/CiAdrRegion'].setToolTip(translate(
             'OwnerTab', 'Enter the state for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'State/Province'), widgets['CiAdrRegion'])
+            'OwnerTab', 'State/Province'), widgets['contact_info/CiAdrRegion'])
         # country
-        widgets['CiAdrCtry'] = SingleLineEdit('CiAdrCtry', spell_check=True)
-        widgets['CiAdrCtry'].setToolTip(translate(
+        widgets['contact_info/CiAdrCtry'] = SingleLineEdit(
+            'contact_info/CiAdrCtry', spell_check=True)
+        widgets['contact_info/CiAdrCtry'].setToolTip(translate(
             'OwnerTab', 'Enter the country name for the address of the person'
             ' that created this image.'))
         contact_group.layout().addRow(translate(
-            'OwnerTab', 'Country'), widgets['CiAdrCtry'])
+            'OwnerTab', 'Country'), widgets['contact_info/CiAdrCtry'])
         form.layout().addRow(translate(
             'OwnerTab', 'Creator<br>Contact<br>Information'), contact_group)
         scrollarea.setWidget(form)
@@ -360,25 +393,10 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def edit_template(self):
-        # move config usageterms to rights_UsageTerms
-        value = self.config_store.get('ownership', 'usageterms')
-        if value:
-            self.config_store.set('ownership', 'rights_UsageTerms', value)
-            self.config_store.delete('ownership', 'usageterms')
         # read config
         template = {}
         for key in self.widgets:
-            value = self.config_store.get('ownership', key)
-            if key == 'copyright' and not value:
-                name = self.config_store.get('user', 'copyright_name') or ''
-                text = (self.config_store.get('user', 'copyright_text') or
-                        translate('DescriptiveTab', 'Copyright ©{year} {name}.'
-                                  ' All rights reserved.'))
-                value = text.format(year='%Y', name=name)
-            elif key == 'creator' and not value:
-                value = self.config_store.get('user', 'creator_name')
-            template[key] = value
-        self.config_store.remove_section('user')
+            template[key] = self.config_store.get('ownership', key)
         # do dialog
         self._edit_template(template)
 
@@ -444,29 +462,20 @@ class TabWidget(QtWidgets.QWidget):
             self._update_widget(key, images)
 
     def _set_value(self, image, key, value):
-        if key.startswith('Ci'):
-            info = dict(image.metadata.contact_info or {})
-            info[key] = value
-            image.metadata.contact_info = info
-        elif key.startswith('rights_'):
-            key = key.split('_')[1]
-            info = dict(image.metadata.rights or {})
-            info[key] = value
-            image.metadata.rights = info
+        if '/' in key:
+            key, sep, member = key.partition('/')
+            info = dict(getattr(image.metadata, key) or {})
+            info[member] = value
+            setattr(image.metadata, key, info)
         else:
             setattr(image.metadata, key, value)
 
     def _get_value(self, image, key):
-        if key.startswith('Ci'):
-            info = image.metadata.contact_info
+        if '/' in key:
+            key, sep, member = key.partition('/')
+            info = getattr(image.metadata, key)
             if info:
-                return info[key]
-            return None
-        if key.startswith('rights_'):
-            info = image.metadata.rights
-            if info:
-                key = key.split('_')[1]
-                return info[key]
+                return info[member]
             return None
         return getattr(image.metadata, key)
 
