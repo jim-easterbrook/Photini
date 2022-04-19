@@ -527,8 +527,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         if 'keyword' in update:
             # store photo id in image keywords, in main thread
             image, keyword = update['keyword']
-            image.metadata.keywords = list(
-                image.metadata.keywords or []) + [keyword]
+            keywords = list(image.metadata.keywords or [])
+            if keyword not in keywords:
+                image.metadata.keywords = keywords + [keyword]
         if 'busy' in update:
             if update['busy']:
                 self.progress_bar.setMaximum(0)
