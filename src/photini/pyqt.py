@@ -363,9 +363,8 @@ class DropDownSelector(ComboBox):
         self.currentIndexChanged.connect(self._index_changed)
 
     def add_item(self, text, data, adjust_width=True):
-        idx = self.findData(data)
+        idx = self.findText(text)
         if idx >= 0:
-            self.setItemText(idx, text)
             return idx
         idx = self._last_idx()
         if self._ordered:
@@ -444,16 +443,21 @@ class DropDownSelector(ComboBox):
             return
         # user must have clicked '<new>'
         text, data = self.define_new_value()
-        if text:
-            self._old_idx = self.add_item(text, data)
-            blocked = self.blockSignals(True)
+        blocked = self.blockSignals(True)
+        if not text:
             self.setCurrentIndex(self._old_idx)
             self.blockSignals(blocked)
-            self.new_value.emit(self._key, data)
             return
-        blocked = self.blockSignals(True)
+        self._old_idx = self.findText(text)
+        if self._old_idx >= 0:
+            # update existing item
+            self.setItemData(self._old_idx, data)
+        else:
+            # add new item
+            self._old_idx = self.add_item(text, data)
         self.setCurrentIndex(self._old_idx)
         self.blockSignals(blocked)
+        self.new_value.emit(self._key, data)
 
     def _last_idx(self):
         idx = self.count()
