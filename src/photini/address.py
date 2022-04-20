@@ -196,6 +196,7 @@ class LocationInfo(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
+        self.members[key].set_value(value)
         self.new_value.emit(self, self.get_value())
 
 
