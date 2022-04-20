@@ -10,13 +10,13 @@ The ``Ownership metadata`` tab (keyboard shortcut ``Alt+O``) allows you to edit 
 .. image:: ../images/screenshot_200.png
 
 Most of this data will be the same for all your photographs, so Photini uses a "template" to apply the same text to all the selected images.
-The ``Edit template`` button opens the dialog shown below.
+If your photographs already have some of this information (some cameras set the creator and copyright notice) you can copy it to the template by selecting one or more photographs and clicking on ``Initialise template``.
+Otherwise use the ``Edit template`` button to open the dialog shown below.
 
 .. image:: ../images/screenshot_201.png
 
 Fill in any of the fields you want to use on every photograph.
 The field labels are copied from the `IPTC standard`_, as is the help text which should pop up if you hover your mouse over a field.
-If you have already set your copyright holder and creator names on the :doc:`descriptive_metadata` tab then this information should already be on the form.
 
 .. image:: ../images/screenshot_202.png
 
