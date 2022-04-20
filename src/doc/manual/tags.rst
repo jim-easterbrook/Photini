@@ -28,6 +28,7 @@ You may find this useful when deciding what to write in those fields.
 Photini field             Exif tag                          XMP tag                                IPTC-IIM tag
 ========================  ================================  =====================================  ==================
 `Title / Object Name`_                                      Xmp.dc.title                           Iptc.Application2.ObjectName
+Headline_                                                   Xmp.photoshop.Headline                 Iptc.Application2.Headline
 `Description / Caption`_  Exif.Image.ImageDescription       Xmp.dc.description                     Iptc.Application2.Caption
 Keywords_                                                   Xmp.dc.subject                         Iptc.Application2.Keywords
 Rating_                                                     Xmp.xmp.Rating
@@ -47,13 +48,13 @@ Date / time Digitised     Exif.Photo.DateTimeDigitized      Xmp.xmp.CreateDate  
 Date / time Modified      Exif.Image.DateTime               Xmp.xmp.ModifyDate
                           Exif.Photo.SubSecTime
 Orientation               Exif.Image.Orientation
-Camera maker name         Exif.Image.Make
-Camera model name         Exif.Image.Model
-Camera serial number      Exif.Photo.BodySerialNumber
-Lens maker name           Exif.Photo.LensMake
-Lens model name           Exif.Photo.LensModel
-Lens serial number        Exif.Photo.LensSerialNumber
-Lens specification        Exif.Photo.LensSpecification
+Camera                    Exif.Image.Make
+                          Exif.Image.Model
+                          Exif.Photo.BodySerialNumber
+Lens                      Exif.Photo.LensMake
+                          Exif.Photo.LensModel
+                          Exif.Photo.LensSerialNumber
+                          Exif.Photo.LensSpecification
 Focal length              Exif.Photo.FocalLength
 35mm equiv                Exif.Photo.FocalLengthIn35mmFilm
 Aperture                  Exif.Photo.FNumber
@@ -84,7 +85,7 @@ These tags are deleted when the corresponding primary tags are saved.
 =====================  ===============================  ==============================  ==================
 Photini field          Exif tag                         XMP tag                         IPTC-IIM tag
 =====================  ===============================  ==============================  ==================
-Title / Object Name    Exif.Image.XPTitle               Xmp.photoshop.Headline          Iptc.Application2.Headline
+Title / Object Name    Exif.Image.XPTitle
 Description / Caption  Exif.Image.XPComment             Xmp.tiff.ImageDescription
                        Exif.Image.XPSubject
                        Exif.Photo.UserComment
@@ -96,8 +97,7 @@ Copyright                                               Xmp.tiff.Copyright
 Date / time Taken      Exif.Image.DateTimeOriginal      Xmp.exif.DateTimeOriginal
 Date / time Digitised                                   Xmp.exif.DateTimeDigitized
 Date / time Modified                                    Xmp.tiff.DateTime
-Lens model name                                         Xmp.aux.Lens
-Lens specification     Exif.Image.LensInfo
+Lens                   Exif.Image.LensInfo              Xmp.aux.Lens
 Focal length           Exif.Image.FocalLength
 Aperture               Exif.Image.FNumber               Xmp.exif.ApertureValue
                        Exif.Image.ApertureValue
@@ -114,10 +114,10 @@ These tags are read if present, but are only written if the file format doesn't 
 Photini field          Exif tag  XMP tag                           IPTC-IIM tag
 =====================  ========  ================================  ==================
 Orientation                      Xmp.tiff.Orientation
-Lens maker name                  Xmp.exifEX.LensMake
-Lens model name                  Xmp.exifEX.LensModel
-Lens serial number               Xmp.exifEX.LensSerialNumber
-Lens specification               Xmp.exifEX.LensSpecification
+Lens                             Xmp.exifEX.LensMake
+                                 Xmp.exifEX.LensModel
+                                 Xmp.exifEX.LensSerialNumber
+                                 Xmp.exifEX.LensSpecification
 Focal length                     Xmp.exif.FocalLength
 35mm equiv                       Xmp.exif.FocalLengthIn35mmFilm
 Aperture                         Xmp.exif.FNumber
@@ -139,25 +139,25 @@ Photini field          Exif tag                         XMP tag                 
 =====================  ===============================  ================================  ==================
 Time zone offset[1]    Exif.Image.TimeZoneOffset
                        Exif.NikonWt.Timezone
-Camera model name      Exif.Image.UniqueCameraModel
+Camera                 Exif.Image.CameraSerialNumber    Xmp.aux.SerialNumber
+                       Exif.Image.UniqueCameraModel
                        Exif.Canon.ModelID
-                       Exif.OlympusEq.CameraType
-                       Exif.Pentax.ModelID
-Camera serial number   Exif.Image.CameraSerialNumber    Xmp.aux.SerialNumber
                        Exif.Canon.SerialNumber
                        Exif.Fujifilm.SerialNumber
                        Exif.Nikon3.SerialNumber
+                       Exif.OlympusEq.CameraType
                        Exif.OlympusEq.SerialNumber
+                       Exif.Pentax.ModelID
                        Exif.Pentax.SerialNumber
-Lens model name        Exif.Canon.LensModel
+Lens                   Exif.Canon.LensModel
+                       Exif.CanonCs.Lens
                        Exif.CanonCs.LensType
-                       Exif.OlympusEq.LensModel
-Lens serial number     Exif.OlympusEq.LensSerialNumber
+                       Exif.Nikon3.Lens
                        Exif.NikonLd1.LensIDNumber
                        Exif.NikonLd2.LensIDNumber
                        Exif.NikonLd3.LensIDNumber
-Lens specification     Exif.CanonCs.Lens
-                       Exif.Nikon3.Lens
+                       Exif.OlympusEq.LensModel
+                       Exif.OlympusEq.LensSerialNumber
 Thumbnail image        Exif.SubImage*
 =====================  ===============================  ================================  ==================
 
@@ -173,6 +173,7 @@ It is applied to the Date / time Taken, Date / time Digitised and Date / time Mo
 .. _Credit Line:           http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#credit-line
 .. _Date / time Taken:     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
 .. _Description / Caption: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#description
+.. _Headline:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#headline
 .. _Instructions:          http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions
 .. _Keywords:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords
 .. _Latitude:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-latitude
