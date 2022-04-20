@@ -90,15 +90,12 @@ class CameraList(DropdownEdit):
         camera = CameraModel(dialog.get_value())
         if not camera:
             return None, None
-        return camera.get_name(), camera
-
-    def add_item(self, text, camera, **kwds):
-        if camera:
-            section = 'camera ' + camera.get_name()
-            for key, value in camera.items():
-                if value:
-                    self.config_store.set(section, key, value)
-        return super(CameraList, self).add_item(text, camera, **kwds)
+        name = camera.get_name()
+        section = 'camera ' + name
+        for key, value in camera.items():
+            if value:
+                self.config_store.set(section, key, value)
+        return name, camera
 
     def remove_item(self, camera, **kwds):
         self.config_store.remove_section('camera ' + camera.get_name())
@@ -141,15 +138,12 @@ class LensList(DropdownEdit):
         lens_model = dialog.get_value()
         if not lens_model:
             return None, None
-        return lens_model.get_name(), lens_model
-
-    def add_item(self, text, lens_model, **kwds):
-        if lens_model:
-            section = 'lens ' + lens_model.get_name()
-            for key, value in lens_model.items():
-                if value:
-                    self.config_store.set(section, key, str(value))
-        return super(LensList, self).add_item(text, lens_model, **kwds)
+        name = lens_model.get_name()
+        section = 'lens ' + name
+        for key, value in lens_model.items():
+            if value:
+                self.config_store.set(section, key, str(value))
+        return name, lens_model
 
     def remove_item(self, lens_model, **kwds):
         self.config_store.remove_section('lens ' + lens_model.get_name())
