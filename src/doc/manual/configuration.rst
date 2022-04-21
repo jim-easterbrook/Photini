@@ -11,11 +11,7 @@ The ``Options`` menu also has a ``Settings`` item which opens the dialog shown b
 
 .. image:: ../images/screenshot_36.png
 
-The top three items can be used to adjust the auto-generated copyright and creator fields on the descriptive metadata and ownership tabs.
-The ``copyright text`` entry has place-holders where the photograph's "taken" year and the copyright holder's name are inserted.
-You might want to change the surrounding text to suit the law in your country, or even to make your photographs rights free if you like.
-
-The next items adjust how Photini uses IPTC-IIM "legacy" metadata.
+The first item adjusts how Photini uses IPTC-IIM "legacy" metadata.
 (Since 2004 the `IPTC standard`_ uses XMP to store metadata.
 Photini always writes these XMP fields.)
 The `Metadata Working Group`_ recommended that IPTC-IIM metadata is not written to files unless already present.
@@ -115,15 +111,15 @@ To find out what styles are available on your computer you can use Photini's ``-
 (You need to run Photini from a command window to do this, see the :ref:`installation troubleshooting<installation-troubleshooting>` section.)
 You can then try one of these styles as follows::
 
-   jim@brains:~$ photini --version
-   Photini 2021.6.0, build 1695 (69baf7e)
-     Python 3.6.12 (default, Dec 02 2020, 09:44:23) [GCC]
-     PyGObject 3.34.0, GExiv2 0.11.0, GObject 2.0, GLib 2.62.5, Gspell 1
-     PySide 5.12.3, Qt 5.12.7, using QtWebEngine
-     ffmpeg version 3.4.8 Copyright (c) 2000-2020 the FFmpeg developers
-     available styles: Breeze, bb10dark, bb10bright, cleanlooks, gtk2, cde, motif, plastique, Windows, Fusion
-     using style: breeze
-   jim@brains:~$ photini -style cleanlooks
+    $ photini --version
+    Photini 2022.3.2, build 2084 (3194bd4)
+      Python 3.6.15 (default, Sep 23 2021, 15:41:43) [GCC]
+      python-exiv2 0.11.0, exiv2 0.27.5
+      PySide2 5.12.3, Qt 5.12.7, using QtWebEngine
+      PyEnchant 3.2.2
+      ffmpeg version 3.4.9 Copyright (c) 2000-2021 the FFmpeg developers
+      available styles: Breeze, bb10dark, bb10bright, cleanlooks, gtk2, cde, motif, plastique, Windows, Fusion
+      using style: breeze
 
 Note that the style names are not case sensitive.
 If none of the available styles is to your liking you may be able to install extra ones.
