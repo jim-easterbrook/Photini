@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-19  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 Typical workflow
@@ -9,6 +9,8 @@ This is a suggestion for how to use Photini.
 It roughly reflects what I do, but is just a guideline for beginners.
 As you gain experience you may choose to do things differently.
 There is no requirement to fill in all the metadata fields, nor to do them in any particular order.
+You might like to adjust the order of Photini's tabs to reflect your preferred workflow.
+See :ref:`configuration-tabs` for more detail.
 
 Make a backup copy
 ------------------
@@ -33,19 +35,15 @@ The thumbnails can be made larger or smaller with the ``thumbnail size`` slider.
 Choose a size that allows you to see a reasonable number of images, yet still tell one from another.
 Double click on any thumbnail to view the full size image in your default picture viewing program.
 
-Set text metadata
------------------
+Set ownership
+-------------
 
-I usually start by setting the fields that are the same for all the photos I've loaded - ``Creator / Artist``, ``Copyright`` and ``Title / Object Name``.
-First you need to select the images whose metadata you want to change.
-Images are selected by clicking on their thumbnails.
-Shift+click and Ctrl+click can be used to select multiple images in the usual way.
-The quickest way to select all the images is the keyboard shortcut ``Ctrl+A``.
+I usually start by setting the copyright notice and other information on the ``Ownership metadata`` tab.
+I select all the images with the keyboard shortcut ``Ctrl+A``, then click the ``Apply template`` button.
+Then I switch to the ``Descriptive metadata`` tab.
 
-The ``Creator / Artist`` and ``Copyright`` fields have ``Auto`` buttons to help fill them in.
-The first time you use these buttons Photini will ask for the names of the creator and the copyright owner.
-For amateur photographers these will probably be the same person, but in some cases the copyright might be owned by a company or some other organisation.
-The values you supply are saved for future use in Photini's configuration file.
+Set descriptive metadata
+------------------------
 
 If all your selected pictures have the same title then type it into the ``Title / Object Name`` field now.
 Otherwise it's time to start selecting single images, or groups of images, and filling in the remaining text fields.
@@ -67,7 +65,7 @@ Amongst the commonly used image metadata items are the latitude and longitude of
 (Some people argue that it should be the position of the subject of the photograph, but what about photographs of the Moon?)
 Photini makes it easy to set the latitude and longitude of any photograph by dragging and dropping it onto a map.
 
-There are currently four map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing, Mapbox, and Open Street Map.
+There are currently three map tabs in the Photini editor, each of which gets maps (or aerial photographs) from a different provider: Google, Microsoft Bing, and Mapbox.
 (Each of these providers has terms and conditions you should read and accept before using their maps.)
 The maps differ in appearance, and show different levels of detail for different parts of the world.
 You should use the one that you like best, but it's very easy to switch to another at any time.
