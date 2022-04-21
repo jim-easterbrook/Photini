@@ -139,6 +139,8 @@ Photini field          Exif tag                         XMP tag                 
 =====================  ===============================  ================================  ==================
 Time zone offset[1]    Exif.Image.TimeZoneOffset
                        Exif.NikonWt.Timezone
+`Creator / Artist`_    Exif.Photo.CameraOwnerName
+                       Exif.Canon.OwnerName
 Camera                 Exif.Image.CameraSerialNumber    Xmp.aux.SerialNumber
                        Exif.Image.UniqueCameraModel
                        Exif.Canon.ModelID

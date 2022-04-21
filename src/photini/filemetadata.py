@@ -379,6 +379,8 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.Copyright')),
         'creator'        : (('WA', 'Exif.Image.Artist'),
                             ('W0', 'Exif.Image.XPAuthor'),
+                            ('WN', 'Exif.Photo.CameraOwnerName'),
+                            ('WN', 'Exif.Canon.OwnerName'),
                             ('WA', 'Xmp.dc.creator'),
                             ('W0', 'Xmp.tiff.Artist'),
                             ('WA', 'Iptc.Application2.Byline')),
