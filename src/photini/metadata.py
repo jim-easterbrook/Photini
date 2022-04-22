@@ -1256,21 +1256,6 @@ class Metadata(object):
                     return sc_path
         return None
 
-    @staticmethod
-    def abspath(path):
-        # if file is an Xmp sidecar, return the corresponding image file
-        path = os.path.abspath(path)
-        base, ext = os.path.splitext(path)
-        if ext.lower() != '.xmp':
-            return path
-        if os.path.isfile(base):
-            return base
-        for entry in os.scandir(os.path.dirname(path)):
-            b, e = os.path.splitext(entry.path)
-            if b == base and e != ext:
-                path = entry.path
-        return path
-
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
     def camera_change_ok(self, camera_model):

@@ -618,7 +618,20 @@ class ImageList(QtWidgets.QWidget):
         self.done_opening(path_list[-1])
 
     def open_file(self, path):
-        path = Metadata.abspath(path)
+        path = os.path.abspath(path)
+        base, ext = os.path.splitext(path)
+        if ext.lower() == '.xmp':
+            if os.path.isfile(base):
+                path = base
+            else:
+                dir_name = os.path.dirname(path)
+                for file in os.listdir(dir_name):
+                    path = os.path.join(dir_name, file)
+                    b, e = os.path.splitext(path)
+                    if b == base and e.lower() != '.xmp':
+                        break
+                else:
+                    return
         if not os.path.isfile(path):
             return
         if self.get_image(path):
