@@ -610,7 +610,11 @@ class ImageList(QtWidgets.QWidget):
     def open_file_list(self, path_list):
         with Busy():
             for path in path_list:
-                self.open_file(path)
+                if os.path.isdir(path):
+                    for file in os.listdir(path):
+                        self.open_file(os.path.join(path, file))
+                else:
+                    self.open_file(path)
         self.done_opening(path_list[-1])
 
     def open_file(self, path):
