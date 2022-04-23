@@ -331,7 +331,6 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         if self.get_tag_type(tag) == 'LangAlt':
             value = self.get_tag_multiple(tag)
-            print(value)
             if len(value) > 1:
                 logger.warning(
                     '%s: alternative languages not read by Gexiv2', tag)

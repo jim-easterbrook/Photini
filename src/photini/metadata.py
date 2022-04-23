@@ -186,64 +186,94 @@ class MD_Value(object):
             '%s: ignored %s "%s"', info, tag, str(value))
 
 
-class LangAlt(MD_Value, dict):
+class LangAlt(MD_Value, tuple):
+    # LangAlt values are a sequence of RFC3066 language tag keys and
+    # text values. The sequence can have a single default value, but if
+    # it has more than one value, the default should be repeated with a
+    # language tag. See
+    # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
+    # We store a tuple of (lang, text) pairs, with the first one the
+    # default.
     _default = 'x-default'
 
-    def __init__(self, value):
-        if not isinstance(value, dict):
-            value = {self._default: value}
-        clean_value = {self._default: ''}
-        for k, v in value.items():
-            if isinstance(v, str):
-                v = v.strip()
-            if isinstance(k, str) and v:
-                clean_value[k] = v
-        super(LangAlt, self).__init__(clean_value)
+    def __new__(cls, value):
+        if not value:
+            return None
+        if isinstance(value, (list, tuple)):
+            value = list(value)
+        else:
+            value = [(cls._default, value)]
+        # Exiv2 doesn't preserve the order of items, so we can't assume
+        # the first item is the default language
+        if value[0][0] == cls._default:
+            # check for a duplicate value
+            for pair in value[1:]:
+                if pair[1] == value[0][1]:
+                    value.remove(pair)
+                    value[0] = pair
+                    break
+        else:
+            # check for locale
+            lang = QtCore.QLocale.system().bcp47Name().lower()
+            for idx in range(1, len(value)):
+                if lang.startswith(value[idx][0].lower()):
+                    value[0], value[idx] = value[idx], value[0]
+                    break
+        # filter out empty values
+        value = [x for x in value if x[1] or x[0] == cls._default]
+        return super(LangAlt, cls).__new__(cls, value)
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
-        return self[self._default]
+        if not self:
+            return None
+        return self[0][1]
 
     def to_xmp(self):
         if not self:
             return None
-        result = dict(self)
-        result[self._default] = result[self._default] or ' '
+        result = {}
+        if self[0][0] != self._default:
+            result[self._default] = self[0][1]
+        for k, v in self:
+            result[k] = v
         return result
 
     def merge(self, info, tag, other):
         if other == self:
             return self
-        result = dict(self)
-        for key in other:
-            if key not in result:
-                result[key] = other[key]
-            elif other[key] in result[key]:
-                continue
-            elif result[key] in other[key]:
-                result[key] = other[key]
+        result = list(self)
+        for key, value in other:
+            if key == self._default:
+                # try to find matching value
+                for idx, (k, v) in enumerate(result):
+                    if value in v or v in value:
+                        break
+                else:
+                    idx = 0
             else:
-                result[key] += ' // ' + other[key]
-            self.log_merged(info, tag + '(' + key + ')', {key: other[key]})
+                # try to find matching language
+                idx = [x[0].lower() for x in result].find(key.lower())
+            if idx < 0:
+                result.append((key, value))
+            elif value in result[idx][1]:
+                continue
+            elif result[idx][1] in value:
+                result[idx] = result[idx][0], value
+            else:
+                result[idx] = result[idx][0], result[idx][1] + ' // ' + value
+            self.log_merged(info, tag + '(' + key + ')', {key: value})
         return self.__class__(result)
 
-    def __setattr__(self, name, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
-
-    def __setitem__(self, key, value):
-        raise TypeError(
-            "{} does not support item assignment".format(self.__class__))
-
     def __bool__(self):
-        return any(self.values())
+        return any([bool(x[1]) for x in self])
 
     def __str__(self):
-        result = [self[self._default]]
-        for key in sorted(self.keys()):
+        result = []
+        for key, value in self:
             if key != self._default:
                 result.append('-- {} --'.format(key))
-                result.append(self[key])
+            result.append(value)
         return '\n'.join(result)
 
 

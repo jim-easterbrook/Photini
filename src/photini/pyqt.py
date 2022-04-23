@@ -588,7 +588,7 @@ class LangAltWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.value = {}
+        self.value = []
         # text edit
         if multi_line:
             self.edit = MultiLineEdit(key, **kw)
@@ -598,7 +598,7 @@ class LangAltWidget(QtWidgets.QWidget):
         layout.addWidget(self.edit)
         # language drop down
         self.lang = DropDownSelector(
-            'lang', with_multiple=False, extendable=True, ordered=True)
+            'lang', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.NoFocus)
         self.lang.new_value.connect(self._change_lang)
@@ -612,10 +612,11 @@ class LangAltWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
-        if lang in self.value:
-            self.edit.set_value(self.value[lang])
-        else:
-            self.edit.set_value('')
+        for k, v in self.value:
+            if k == lang:
+                self.edit.set_value(v)
+                return
+        self.edit.set_value('')
 
     @QtSlot(str, object)
     @catch_all
@@ -623,13 +624,33 @@ class LangAltWidget(QtWidgets.QWidget):
         if self.is_multiple():
             self.value = self.choices[value]
         else:
-            self.value[self.lang.get_value()] = value
+            lang = self.lang.get_value()
+            for idx, (k, v) in enumerate(self.value):
+                if k == lang:
+                    self.value[idx] = lang, value
+                    break
+            else:
+                self.value.append((lang, value))
         self.new_value.emit(key, self.get_value())
 
     def _define_new_lang(self):
+        if self.value[0][0] == 'x-default' and self.value[0][1]:
+            self.edit.set_value(self.value[0][1])
+            lang, OK = QtWidgets.QInputDialog.getText(
+                self, translate('LangAltWidget', 'New language'),
+                translate('LangAltWidget', 'What language is the current text'
+                          ' in?<br>Please enter an RFC3066 language tag:'),
+                text=QtCore.QLocale.system().bcp47Name())
+            if not (OK and lang):
+                return None, None
+            label, lang = self.labeled_lang(lang)
+            self.value[0] = lang, self.value[0][1]
+            self.lang.setItemText(0, label)
+            self.lang.setItemData(1, lang)
         lang, OK = QtWidgets.QInputDialog.getText(
             self, translate('LangAltWidget', 'New language'),
-            translate('LangAltWidget', 'RFC3066 language tag:'))
+            translate('LangAltWidget', 'What language would you like to add?'
+                      '<br>Please enter an RFC3066 language tag:'))
         if not (OK and lang):
             return None, None
         return self.labeled_lang(lang)
@@ -643,31 +664,27 @@ class LangAltWidget(QtWidgets.QWidget):
     def set_value(self, value):
         self.lang.setEnabled(True)
         if isinstance(value, str):
-            self.value = {'x-default': value}
-        elif value:
-            self.value = dict(value)
+            self.value = [('x-default', value)]
+        elif not value:
+            self.value = [('x-default', '')]
         else:
-            self.value = {'x-default': ''}
+            self.value = list(value)
+        # set language drop down
+        languages = [x[0] for x in self.value]
         lang = self.lang.get_value()
-        if lang not in self.value:
-            lang = 'x-default'
-        selection = []
-        for key in self.value:
-            selection.append(self.labeled_lang(key))
-        self.lang.set_values(selection, default=lang)
+        if languages[0] == 'x-default' or lang not in languages:
+            lang = languages[0]
+        self.lang.set_values(
+            [self.labeled_lang(x) for x in languages], default=lang)
         self._change_lang('', lang)
 
     def get_value(self):
-        result = {}
-        for k in self.value:
-            if self.value[k]:
-                result[k] = self.value[k]
-        return result
+        return self.value
 
     def set_multiple(self, choices=[]):
         self.choices = {}
         for choice in choices:
-            self.choices[str(choice)] = dict(choice)
+            self.choices[str(choice)] = list(choice)
         self.edit.set_multiple(choices=self.choices.keys())
         self.lang.setEnabled(False)
 
