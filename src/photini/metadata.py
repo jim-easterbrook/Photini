@@ -29,7 +29,7 @@ import os
 import re
 
 from photini import __version__
-from photini.pyqt import QtCore, QtGui
+from photini.pyqt import LangAltDict, QtCore, QtGui
 from photini.ffmpeg import FFmpeg
 from photini.filemetadata import (
     exiv2_version_info, ImageMetadata, SidecarMetadata)
@@ -186,95 +186,53 @@ class MD_Value(object):
             '%s: ignored %s "%s"', info, tag, str(value))
 
 
-class LangAlt(MD_Value, tuple):
-    # LangAlt values are a sequence of RFC3066 language tag keys and
+class MD_LangAlt(MD_Value, LangAltDict):
+    # MD_LangAlt values are a sequence of RFC3066 language tag keys and
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
     # language tag. See
     # https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
-    # We store a tuple of (lang, text) pairs, with the first one the
-    # default.
-    _default = 'x-default'
-
-    def __new__(cls, value):
-        if not value:
-            return None
-        if isinstance(value, (list, tuple)):
-            value = list(value)
-        else:
-            value = [(cls._default, value)]
-        # Exiv2 doesn't preserve the order of items, so we can't assume
-        # the first item is the default language
-        if value[0][0] == cls._default:
-            # check for a duplicate value
-            for pair in value[1:]:
-                if pair[1] == value[0][1]:
-                    value.remove(pair)
-                    value[0] = pair
-                    break
-        else:
-            # check for locale
-            lang = QtCore.QLocale.system().bcp47Name().lower()
-            for idx in range(1, len(value)):
-                if lang.startswith(value[idx][0].lower()):
-                    value[0], value[idx] = value[idx], value[0]
-                    break
-        # filter out empty values
-        value = [x for x in value if x[1] or x[0] == cls._default]
-        return super(LangAlt, cls).__new__(cls, value)
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self[0][1]
+        return self[self.keys()[0]]
 
     def to_xmp(self):
         if not self:
             return None
-        result = {}
-        if self[0][0] != self._default:
-            result[self._default] = self[0][1]
-        for k, v in self:
-            result[k] = v
+        result = {'x-default': self.to_exif()}
+        # don't save empty values
+        for k, v in self.items():
+            if v:
+                result[k] = v
         return result
 
     def merge(self, info, tag, other):
         if other == self:
             return self
-        result = list(self)
-        for key, value in other:
-            if key == self._default:
+        result = LangAltDict(self)
+        for key, value in other.items():
+            if key == 'x-default':
                 # try to find matching value
-                for idx, (k, v) in enumerate(result):
+                for k, v in result.items():
                     if value in v or v in value:
+                        key = k
                         break
-                else:
-                    idx = 0
             else:
                 # try to find matching language
-                idx = [x[0].lower() for x in result].find(key.lower())
-            if idx < 0:
-                result.append((key, value))
-            elif value in result[idx][1]:
+                key = result.find_key(key) or key
+            if key not in result:
+                result[key] = value
+            elif value in result[key]:
                 continue
-            elif result[idx][1] in value:
-                result[idx] = result[idx][0], value
+            elif result[key] in value:
+                result[key] = value
             else:
-                result[idx] = result[idx][0], result[idx][1] + ' // ' + value
-            self.log_merged(info, tag + '(' + key + ')', {key: value})
+                result[key] += ' // ' + value
+            self.log_merged(info, tag + '[' + key + ']', value)
         return self.__class__(result)
-
-    def __bool__(self):
-        return any([bool(x[1]) for x in self])
-
-    def __str__(self):
-        result = []
-        for key, value in self:
-            if key != self._default:
-                result.append('-- {} --'.format(key))
-            result.append(value)
-        return '\n'.join(result)
 
 
 class MD_String(MD_Value, str):
@@ -640,7 +598,7 @@ class Rights(MD_Collection):
     # stores IPTC rights information
     _keys = ('UsageTerms', 'WebStatement', 'LicensorURL')
     _default_type = MD_FixedString
-    _type = {'UsageTerms': LangAlt}
+    _type = {'UsageTerms': MD_LangAlt}
 
 
 class CameraModel(MD_Collection):
@@ -1261,14 +1219,14 @@ class Metadata(object):
         'aperture'       : Aperture,
         'camera_model'   : CameraModel,
         'contact_info'   : ContactInformation,
-        'copyright'      : LangAlt,
+        'copyright'      : MD_LangAlt,
         'creator'        : MultiString,
         'creator_title'  : MD_String,
         'credit_line'    : MD_String,
         'date_digitised' : DateTime,
         'date_modified'  : DateTime,
         'date_taken'     : DateTime,
-        'description'    : LangAlt,
+        'description'    : MD_LangAlt,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
         'headline'       : MD_String,
@@ -1284,7 +1242,7 @@ class Metadata(object):
         'software'       : Software,
         'thumbnail'      : Thumbnail,
         'timezone'       : Timezone,
-        'title'          : LangAlt,
+        'title'          : MD_LangAlt,
         }
 
     def __init__(self, path, notify=None, utf_safe=False):

@@ -260,7 +260,7 @@ class MetadataHandler(object):
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
-            return list(exiv2.LangAltValue(datum.value()))
+            return dict(exiv2.LangAltValue(datum.value()))
         return list(exiv2.XmpArrayValue(datum.value()))
 
     def get_raw_value(self, tag):
