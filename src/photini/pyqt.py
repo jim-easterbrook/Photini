@@ -656,6 +656,15 @@ class LangAltDict(dict):
     def __bool__(self):
         return any(self.values())
 
+    def __eq__(self, other):
+        return not self.__ne__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, LangAltDict):
+            if self._default_lang != other._default_lang:
+                return True
+        return super(LangAltDict, self).__ne__(other)
+
     def __str__(self):
         result = []
         for key in self.langs():
@@ -696,6 +705,33 @@ class LangAltDict(dict):
         super(LangAltDict, self).__setitem__(lang, new_value)
 
 
+class LangSelector(DropDownSelector):
+    new_default = QtSignal(str)
+
+    @QtSlot(QtGui.QContextMenuEvent)
+    @catch_all
+    def contextMenuEvent(self, event):
+        langs = []
+        for n in range(self.count()):
+            lang = self.itemData(n)
+            if n == 0:
+                default_lang = lang
+            if lang and lang != 'x-default':
+                langs.append(lang)
+        if not langs:
+            return
+        menu = QtWidgets.QMenu()
+        menu.addAction(self.tr('Set default language:'))
+        for lang in langs:
+            action = menu.addAction(lang)
+            action.setCheckable(True)
+            action.setChecked(lang == default_lang)
+        action = execute(menu, event.globalPos())
+        if not action:
+            return
+        self.new_default.emit(action.text())
+
+
 class LangAltWidget(QtWidgets.QWidget):
     new_value = QtSignal(str, object)
 
@@ -713,10 +749,11 @@ class LangAltWidget(QtWidgets.QWidget):
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit)
         # language drop down
-        self.lang = DropDownSelector('', with_multiple=False, extendable=True)
+        self.lang = LangSelector('', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.NoFocus)
         self.lang.new_value.connect(self._change_lang)
+        self.lang.new_default.connect(self._set_default_lang)
         layout.addWidget(self.lang)
         layout.setAlignment(self.lang, Qt.AlignTop)
         # adopt some child methods ...
@@ -763,6 +800,8 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
+    @QtSlot(str)
+    @catch_all
     def _set_default_lang(self, lang):
         self.value.set_default_lang(lang)
         self.new_value.emit(self.edit._key, self.get_value())
