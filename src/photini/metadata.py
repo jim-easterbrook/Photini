@@ -186,7 +186,7 @@ class MD_Value(object):
             '%s: ignored %s "%s"', info, tag, str(value))
 
 
-class MD_LangAlt(MD_Value, LangAltDict):
+class MD_LangAlt(LangAltDict, MD_Value):
     # MD_LangAlt values are a sequence of RFC3066 language tag keys and
     # text values. The sequence can have a single default value, but if
     # it has more than one value, the default should be repeated with a
