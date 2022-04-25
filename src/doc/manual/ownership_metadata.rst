@@ -17,6 +17,7 @@ Otherwise use the ``Edit template`` button to open the dialog shown below.
 
 Fill in any of the fields you want to use on every photograph.
 The field labels are copied from the `IPTC standard`_, as is the help text which should pop up if you hover your mouse over a field.
+Note that the ``Copyright Notice`` and ``Rights: Usage Terms`` fields can have alternative languages, as discussed in :ref:`alternative-languages`.
 
 .. image:: ../images/screenshot_202.png
 
@@ -40,7 +41,7 @@ If you want to clear any of the images' existing ownership data when the templat
 You can then add more information, or edit the existing information, in the usual way.
 
 More information about the data fields
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------
 
 Click on any field name below to see the IPTC definition and user notes for that field.
 Although these fields are defined in an `IPTC standard`_, they are all stored in XMP metadata.
@@ -49,7 +50,6 @@ Some of them are also stored in "legacy" IPTC-IIM data.
 `Creator <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creator>`_
   Usually the photographer's name.
   If there is more than one creator, separate them with a ``;`` character.
-  This shows the same information as the :doc:`descriptive_metadata` ``Creator / Artist`` field.
 `Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-jobtitle>`_
   Job title of the first creator.
   Do not fill in this field unless the creator field is filled in.
@@ -57,7 +57,6 @@ Some of them are also stored in "legacy" IPTC-IIM data.
   Usually the photographer's name, but could be their employer or client.
 `Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice>`_
   Who owns the copyright.
-  This shows the same information as the :doc:`descriptive_metadata` ``Copyright`` field.
 `Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#rights-usage-terms>`_
   Plain text summary of how the image may be reused.
   Not stored in IPTC-IIM.
