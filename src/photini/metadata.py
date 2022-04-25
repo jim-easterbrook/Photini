@@ -350,13 +350,13 @@ class MD_Collection(MD_Dict):
         return cls(value)
 
     def to_exif(self):
-        return [self[x] and self[x].to_exif() for x in self._keys]
+        return [(self[x] or None) and self[x].to_exif() for x in self._keys]
 
     def to_iptc(self):
-        return [self[x] and self[x].to_iptc() for x in self._keys]
+        return [(self[x] or None) and self[x].to_iptc() for x in self._keys]
 
     def to_xmp(self):
-        return [self[x] and self[x].to_xmp() for x in self._keys]
+        return [(self[x] or None) and self[x].to_xmp() for x in self._keys]
 
     def merge(self, info, tag, other):
         if other == self:
