@@ -442,12 +442,13 @@ class DropDownSelector(ComboBox):
             self.new_value.emit(self._key, self.itemData(idx))
             return
         # user must have clicked '<new>'
-        text, data = self.define_new_value()
         blocked = self.blockSignals(True)
+        self.setCurrentIndex(self._old_idx)
+        self.blockSignals(blocked)
+        text, data = self.define_new_value()
         if not text:
-            self.setCurrentIndex(self._old_idx)
-            self.blockSignals(blocked)
             return
+        blocked = self.blockSignals(True)
         self._old_idx = self.findText(text)
         if self._old_idx >= 0:
             # update existing item
