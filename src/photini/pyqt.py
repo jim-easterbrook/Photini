@@ -591,16 +591,22 @@ class LangAltDict(dict):
         self._default_lang = ''
         if isinstance(value, LangAltDict):
             self._default_lang = value._default_lang
-        # Make sure we're not empty
-        if not self:
-            self['x-default'] = ''
         # Check for duplicate of 'x-default' value
-        if 'x-default' in self:
-            for key, value in self.items():
-                if key != 'x-default' and value and value == self['x-default']:
-                    del self['x-default']
-                    self._default_lang = key
-                    break
+        dflt_key = self.find_key('x-default')
+        if dflt_key:
+            dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
+            if dflt_value:
+                super(LangAltDict, self).__delitem__(dflt_key)
+                for key, value in self.items():
+                    if value == dflt_value:
+                        self._default_lang = key
+                        break
+                else:
+                    super(LangAltDict, self).__setitem__(
+                        'x-default', dflt_value)
+        # Make sure we're not empty
+        if len(self) == 0:
+            super(LangAltDict, self).__setitem__('x-default', '')
         # set default_lang
         if self._default_lang:
             return
@@ -627,20 +633,32 @@ class LangAltDict(dict):
     def __contains__(self, key):
         return bool(self.find_key(key))
 
+    def __getitem__(self, key):
+        old_key = self.find_key(key)
+        if old_key:
+            return super(LangAltDict, self).__getitem__(old_key)
+        return super(LangAltDict, self).__getitem__(key)
+
     def __setitem__(self, key, value):
-        key = key or 'x-default'
         old_key = self.find_key(key)
         if old_key and old_key != key:
             # new key does not have same case as old one
-            del self[old_key]
+            if self._default_lang == old_key:
+                self._default_lang = key
+            super(LangAltDict, self).__delitem__(old_key)
         super(LangAltDict, self).__setitem__(key, value)
+
+    def __delitem__(self, key):
+        if self._default_lang == key:
+            self._default_lang = ''
+        super(LangAltDict, self).__delitem__(key)
 
     def __bool__(self):
         return any(self.values())
 
     def __str__(self):
         result = []
-        for key in self.keys():
+        for key in self.langs():
             if key != 'x-default':
                 result.append('-- {} --'.format(key))
             result.append(self[key])
@@ -654,10 +672,28 @@ class LangAltDict(dict):
             return '!'
         return key
 
-    def keys(self):
-        result = list(super(LangAltDict, self).keys())
+    def langs(self):
+        result = list(self.keys())
         result.sort(key=self._sort_key)
         return result
+
+    def set_default_lang(self, lang):
+        new_value = ''
+        key = self.find_key(lang)
+        if key:
+            new_value = super(LangAltDict, self).__getitem__(key)
+            super(LangAltDict, self).__delitem__(key)
+        old_value = ''
+        key = self.find_key('x-default')
+        if key:
+            old_value = super(LangAltDict, self).__getitem__(key)
+            super(LangAltDict, self).__delitem__(key)
+        if new_value in old_value:
+            new_value = old_value
+        elif old_value not in new_value:
+            new_value += ' // ' + old_value
+        self._default_lang = lang
+        super(LangAltDict, self).__setitem__(lang, new_value)
 
 
 class LangAltWidget(QtWidgets.QWidget):
@@ -712,20 +748,24 @@ class LangAltWidget(QtWidgets.QWidget):
                 text=QtCore.QLocale.system().bcp47Name())
             if not (OK and lang):
                 return None, None
-            label, lang = self.labeled_lang(lang)
-            self.value[lang] = self.value['x-default']
-            del self.value['x-default']
-            self.value._default_lang = lang
-            self.lang.setItemText(0, label)
-            self.lang.setItemData(0, lang)
+            self._set_default_lang(lang)
         lang, OK = QtWidgets.QInputDialog.getText(
             self, translate('LangAltWidget', 'New language'),
             translate('LangAltWidget', 'What language would you like to add?'
                       '<br>Please enter an RFC3066 language tag:'))
         if not (OK and lang):
             return None, None
-        self.value[lang] = ''
+        if lang in self.value:
+            # user might have changed case of lang descriptor
+            self.value[lang] = self.value[lang]
+        else:
+            self.value[lang] = ''
+        self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
+
+    def _set_default_lang(self, lang):
+        self.value.set_default_lang(lang)
+        self.new_value.emit(self.edit._key, self.get_value())
 
     def labeled_lang(self, lang):
         label = translate('LangAltWidget', 'Lang:')
@@ -739,9 +779,9 @@ class LangAltWidget(QtWidgets.QWidget):
         # set language drop down
         lang = self.lang.get_value()
         if lang not in self.value:
-            lang = self.value.keys()[0]
+            lang = self.value.langs()[0]
         self.lang.set_values(
-            [self.labeled_lang(x) for x in self.value.keys()],
+            [self.labeled_lang(x) for x in self.value.langs()],
             default=lang)
         self._change_lang('', lang)
 

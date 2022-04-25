@@ -197,12 +197,14 @@ class MD_LangAlt(MD_Value, LangAltDict):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self[self.keys()[0]]
+        return self[self.langs()[0]]
 
     def to_xmp(self):
         if not self:
             return None
-        result = {'x-default': self.to_exif()}
+        default_lang = self.langs()[0]
+        result = {'x-default': self[default_lang],
+                  default_lang: self[default_lang]}
         # don't save empty values
         for k, v in self.items():
             if v:
