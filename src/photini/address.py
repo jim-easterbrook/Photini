@@ -27,11 +27,11 @@ import requests
 
 from photini.configstore import key_store
 from photini.filemetadata import ImageMetadata
-from photini.metadata import Location
 from photini.photinimap import GeocoderBase, LatLongDisplay
 from photini.pyqt import (
     Busy, catch_all, CompactButton, execute, Qt, QtCore, QtGui, QtSignal,
     QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+from photini.types import MD_Location
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -114,7 +114,7 @@ class OpenCage(GeocoderBase):
             del address['state_code']
         if 'partial_postcode' in address and 'postcode' in address:
             del address['partial_postcode']
-        return Location.from_address(address, self.address_map)
+        return MD_Location.from_address(address, self.address_map)
 
     def search_terms(self):
         text = self.tr('Address lookup powered by OpenCage')
@@ -281,7 +281,7 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.image_list.get_selected_images():
             # duplicate data
-            location = Location(self._get_location(image, idx) or {})
+            location = MD_Location(self._get_location(image, idx) or {})
             # shuffle data up
             location_list = list(image.metadata.location_shown or [])
             location_list.insert(idx, location)

@@ -32,7 +32,7 @@ except ImportError as ex1:
     except (ImportError, ValueError) as ex2:
         print(str(ex2))
         raise ex1 from None
-from photini.pyqt import QtCore, QtGui
+from photini.types import MD_Thumbnail
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +74,9 @@ class ImageMetadata(MetadataHandler):
         if tag.startswith('Exif.Thumbnail'):
             result = self._get_exif_thumbnail(*result)
         elif tag.startswith('Xmp.xmp.Thumbnails'):
-            result = self._get_xmp_thumbnail(*result)
+            w, h, fmt, data = result
+            fmt, image = self._decode_thumbnail(data, 'thumbnail')
+            result = w, h, fmt, data, image
         return result
 
     def get_value(self, tag, idx=1):
@@ -97,27 +99,17 @@ class ImageMetadata(MetadataHandler):
                 return w, h, fmt, data, image
         return None, None, None, None, None
 
-    def _get_xmp_thumbnail(self, w, h, fmt, data):
-        if data:
-            data = bytes(data, 'ascii')
-            data = codecs.decode(data, 'base64_codec')
-            fmt, image = self._decode_thumbnail(data, 'thumbnail')
-            if image:
-                return w, h, fmt, data, image
-        return None, None, None, None, None
-
     def _decode_thumbnail(self, data, label):
-        buf = QtCore.QBuffer()
-        buf.setData(data)
-        reader = QtGui.QImageReader(buf)
-        reader.setAutoTransform(False)
-        fmt = reader.format().data().decode().upper()
-        image = reader.read()
-        if image.isNull():
-            logger.error('%s: %s: %s', os.path.basename(self._path), label,
-                         reader.errorString())
-            return None, None
-        return fmt, image
+        if data:
+            if isinstance(data, str):
+                data = bytes(data, 'ascii')
+                data = codecs.decode(data, 'base64_codec')
+            try:
+                return MD_Thumbnail.image_from_data(data)
+            except Exception as ex:
+                logger.error(
+                    '%s: %s: %s', os.path.basename(self._path), label, str(ex))
+        return None, None
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries

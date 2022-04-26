@@ -27,11 +27,11 @@ import requests
 import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini.metadata import Location
 from photini.pyqt import (
     catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit, QtCore,
     QtSlot, QtWidgets, SingleLineEdit, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession
+from photini.types import MD_Location
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -617,8 +617,8 @@ class TabWidget(PhotiniUploader):
             for key in photo['location']:
                 if '_content' in photo['location'][key]:
                     address[key] = photo['location'][key]['_content']
-            data['location_taken'] = Location.from_address(address,
-                                                           self._address_map)
+            data['location_taken'] = MD_Location.from_address(
+                address, self._address_map)
         self.merge_metadata_items(image, data)
 
     @QtSlot()

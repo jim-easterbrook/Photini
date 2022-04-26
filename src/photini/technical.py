@@ -22,11 +22,11 @@ from datetime import datetime, timedelta
 import logging
 import re
 
-from photini.metadata import CameraModel, LensModel
 from photini.pyqt import (
     catch_all, DropDownSelector, execute, FormLayout, multiple, multiple_values,
     Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
     set_symbol_font, Slider, using_pyside, width_for_text)
+from photini.types import MD_CameraModel, MD_LensModel
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -75,7 +75,7 @@ class CameraList(DropdownEdit):
             camera = {}
             for key in 'make', 'model', 'serial_no':
                 camera[key] = self.config_store.get(section, key)
-            camera = CameraModel(camera)
+            camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
                 self.config_store.remove_section(section)
@@ -87,7 +87,7 @@ class CameraList(DropdownEdit):
             self._image_list.get_selected_images(), parent=self)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
             return None, None
-        camera = CameraModel(dialog.get_value())
+        camera = MD_CameraModel(dialog.get_value())
         if not camera:
             return None, None
         name = camera.get_name()
@@ -123,7 +123,7 @@ class LensList(DropdownEdit):
                 if not lens_model[new_key]:
                     lens_model[new_key] = self.config_store.get(section, old_key)
                 self.config_store.delete(section, old_key)
-            lens_model = LensModel(lens_model)
+            lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
                 self.config_store.remove_section(section)
@@ -721,7 +721,7 @@ class NewLensDialog(NewItemDialog):
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
         max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
         lens_model['spec'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
-        return LensModel(lens_model) or None
+        return MD_LensModel(lens_model) or None
 
 
 class DateLink(QtWidgets.QCheckBox):
