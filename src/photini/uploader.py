@@ -36,7 +36,8 @@ from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import (
     Busy, catch_all, DisableWidget, execute, FormLayout, Qt, QtCore, QtGui,
-    QtSignal, QtSlot, QtWidgets, StartStopButton, UnBusy, width_for_text)
+    QtSignal, QtSlot, QtWidgets, UnBusy, width_for_text)
+from photini.widgets import StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

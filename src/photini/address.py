@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from collections import defaultdict
 import locale
 import logging
@@ -29,9 +27,10 @@ from photini.configstore import key_store
 from photini.filemetadata import ImageMetadata
 from photini.photinimap import GeocoderBase, LatLongDisplay
 from photini.pyqt import (
-    Busy, catch_all, CompactButton, execute, Qt, QtCore, QtGui, QtSignal,
-    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    Busy, catch_all, execute, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
+    width_for_text)
 from photini.types import MD_Location
+from photini.widgets import CompactButton, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

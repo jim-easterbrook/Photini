@@ -28,10 +28,10 @@ import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit, QtCore,
-    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession
 from photini.types import MD_Location
+from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

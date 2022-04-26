@@ -31,9 +31,10 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, FormLayout, MultiLineEdit, Qt, QtCore,
-    QtGui, QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+    catch_all, execute, FormLayout, Qt, QtCore, QtGui, QtSlot, QtWidgets,
+    width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession
+from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

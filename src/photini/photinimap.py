@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import timezone
 import logging
 import os
@@ -29,10 +27,10 @@ import pkg_resources
 
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import (
-    catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
-    QtWebCore, QtWebWidgets, QtWidgets, SingleLineEdit, using_qtwebengine,
-    width_for_text)
+    catch_all, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel, QtWebCore,
+    QtWebWidgets, QtWidgets, using_qtwebengine, width_for_text)
 from photini.technical import DoubleSpinBox
+from photini.widgets import ComboBox, SingleLineEdit
 
 
 logger = logging.getLogger(__name__)

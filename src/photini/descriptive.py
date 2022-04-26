@@ -17,16 +17,15 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import date, datetime
 import logging
 
 from photini.filemetadata import ImageMetadata
 from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, LangAltWidget, MultiLineEdit,
-    multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
-    SingleLineEdit, Slider, width_for_text)
+    catch_all, FormLayout, multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot,
+    QtWidgets, width_for_text)
+from photini.widgets import (
+    ComboBox, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

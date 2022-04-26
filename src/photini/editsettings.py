@@ -19,8 +19,8 @@
 
 import logging
 
-from photini.pyqt import (catch_all, FormLayout, Qt, QtSlot, QtWidgets,
-                          SingleLineEdit, width_for_text)
+from photini.pyqt import (
+    catch_all, FormLayout, Qt, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
 

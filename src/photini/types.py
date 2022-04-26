@@ -22,7 +22,7 @@ from fractions import Fraction
 import logging
 import math
 
-from photini.pyqt import LangAltDict, QtCore, QtGui
+from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
 
@@ -769,7 +769,7 @@ class MD_Location(MD_Collection):
     def convert(self, value):
         if value['CountryCode']:
             value['CountryCode'] = value['CountryCode'].upper()
-        return super(Location, self).convert(value)
+        return super(MD_Location, self).convert(value)
 
     @classmethod
     def from_address(cls, address, key_map):
@@ -832,6 +832,129 @@ class MD_MultiLocation(tuple):
             if location:
                 result += str(location) + '\n'
         return result
+
+
+class LangAltDict(dict):
+    # Modified dict that keeps track of a default language.
+    def __init__(self, value={}):
+        if isinstance(value, str):
+            value = {'x-default': value}
+        super(LangAltDict, self).__init__(value or {})
+        self._default_lang = ''
+        if isinstance(value, LangAltDict):
+            self._default_lang = value._default_lang
+        # Check for duplicate of 'x-default' value
+        dflt_key = self.find_key('x-default')
+        if dflt_key:
+            dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
+            if dflt_value:
+                super(LangAltDict, self).__delitem__(dflt_key)
+                for key, value in self.items():
+                    if value == dflt_value:
+                        self._default_lang = key
+                        break
+                else:
+                    super(LangAltDict, self).__setitem__(
+                        'x-default', dflt_value)
+        # Make sure we're not empty
+        if len(self) == 0:
+            super(LangAltDict, self).__setitem__('x-default', '')
+        # set default_lang
+        if self._default_lang:
+            return
+        # Exiv2 doesn't preserve the order of items, so we can't assume
+        # the first item is the default language. Use the locale
+        # instead.
+        lang = QtCore.QLocale.system().bcp47Name()
+        if not lang:
+            return
+        for lang in (lang, lang.split('-')[0]):
+            self._default_lang = self.find_key(lang)
+            if self._default_lang:
+                return
+
+    def find_key(self, key):
+        # languages are case insensitive
+        key = key or ''
+        key = key.lower()
+        for k in self:
+            if k.lower() == key:
+                return k
+        return ''
+
+    def __contains__(self, key):
+        return bool(self.find_key(key))
+
+    def __getitem__(self, key):
+        old_key = self.find_key(key)
+        if old_key:
+            return super(LangAltDict, self).__getitem__(old_key)
+        return super(LangAltDict, self).__getitem__(key)
+
+    def __setitem__(self, key, value):
+        old_key = self.find_key(key)
+        if old_key and old_key != key:
+            # new key does not have same case as old one
+            if self._default_lang == old_key:
+                self._default_lang = key
+            super(LangAltDict, self).__delitem__(old_key)
+        super(LangAltDict, self).__setitem__(key, value)
+
+    def __delitem__(self, key):
+        if self._default_lang == key:
+            self._default_lang = ''
+        super(LangAltDict, self).__delitem__(key)
+
+    def __bool__(self):
+        return any(self.values())
+
+    def __eq__(self, other):
+        return not self.__ne__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, LangAltDict):
+            if self._default_lang != other._default_lang:
+                return True
+        return super(LangAltDict, self).__ne__(other)
+
+    def __str__(self):
+        result = []
+        for key in self.langs():
+            if key != 'x-default':
+                result.append('-- {} --'.format(key))
+            result.append(self[key])
+        return '\n'.join(result)
+
+    def _sort_key(self, key):
+        key = key.lower()
+        if key == 'x-default':
+            return ' '
+        if key == self._default_lang.lower():
+            return '!'
+        return key
+
+    def langs(self):
+        result = list(self.keys())
+        result.sort(key=self._sort_key)
+        return result
+
+    def set_default_lang(self, lang):
+        new_value = ''
+        key = self.find_key(lang)
+        if key:
+            new_value = super(LangAltDict, self).__getitem__(key)
+            super(LangAltDict, self).__delitem__(key)
+        old_value = ''
+        key = self.find_key('x-default')
+        if key:
+            old_value = super(LangAltDict, self).__getitem__(key)
+            super(LangAltDict, self).__delitem__(key)
+        if new_value in old_value:
+            new_value = old_value
+        elif old_value not in new_value:
+            new_value += ' // ' + old_value
+        self._default_lang = lang
+        super(LangAltDict, self).__setitem__(lang, new_value)
 
 
 class MD_LangAlt(LangAltDict, MD_Value):

@@ -32,9 +32,10 @@ except ImportError:
 
 from photini.metadata import Metadata
 from photini.pyqt import (
-    Busy, catch_all, ComboBox, execute, FormLayout, image_types_lower, Qt,
-    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, StartStopButton,
+    Busy, catch_all, execute, FormLayout, image_types_lower, Qt,
+    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets,
     video_types_lower)
+from photini.widgets import ComboBox, StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

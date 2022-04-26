@@ -23,10 +23,11 @@ import logging
 import re
 
 from photini.pyqt import (
-    catch_all, DropDownSelector, execute, FormLayout, multiple, multiple_values,
-    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
-    set_symbol_font, Slider, using_pyside, width_for_text)
+    catch_all, execute, FormLayout, multiple, multiple_values, Qt, QtCore,
+    QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font, set_symbol_font,
+    using_pyside, width_for_text)
 from photini.types import MD_CameraModel, MD_LensModel
+from photini.widgets import DropDownSelector, Slider
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
