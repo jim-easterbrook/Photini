@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import codecs
 from datetime import datetime, timedelta
 from fractions import Fraction
@@ -29,7 +27,7 @@ import os
 import re
 
 from photini import __version__
-from photini.pyqt import LangAltDict, QtCore, QtGui
+from photini.pyqt import LangAltDict, QtCore
 from photini.ffmpeg import FFmpeg
 from photini.filemetadata import (
     exiv2_version_info, ImageMetadata, SidecarMetadata)
@@ -714,56 +712,29 @@ class Thumbnail(MD_Dict):
 
     @staticmethod
     def convert(value):
-        if value['data'] and not value['image']:
-            buf = QtCore.QBuffer()
-            buf.setData(value['data'])
-            reader = QtGui.QImageReader(buf)
-            reader.setAutoTransform(False)
-            value['fmt'] = reader.format().data().decode().upper()
-            value['image'] = reader.read()
-            if value['image'].isNull():
-                logger.error('thumbnail: %s', reader.errorString())
-                value['image'] = None
+        value['fmt'] = value['fmt'] or ''
         if value['image']:
             value['w'] = value['image'].width()
             value['h'] = value['image'].height()
-            if value['data'] and len(value['data']) >= 60000:
-                # don't keep unusably large amount of data
-                value['data'] = None
         else:
             value['w'] = 0
             value['h'] = 0
             value['data'] = None
+        if value['data'] and len(value['data']) >= 60000:
+            # don't keep unusably large amount of data
+            value['data'] = None
         return value
 
     @classmethod
-    def from_video_header(cls, properties):
-        w, h = 512, 512
-        preview = None
-        for props in properties:
-            width = props.get_width()
-            height = props.get_height()
-            if abs(max(width, height) - 160) < abs(max(w, h) - 160):
-                w, h = width, height
-                preview = props
-        if not preview:
-            return None
-        data = preview.get_data()
-        return cls({'data': data})
-
-    @classmethod
     def from_exiv2(cls, file_value, tag):
-        w, h, fmt, data = file_value
-        if not data:
+        w, h, fmt, data, image = file_value
+        if not image:
             return None
-        if tag.startswith('Xmp'):
-            data = bytes(data, 'ascii')
-            data = codecs.decode(data, 'base64_codec')
-        return cls({'data': data})
+        return cls(file_value)
 
     def to_exif(self):
         fmt, data = self['fmt'], self['data']
-        if self['image'] and not data:
+        if not data:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             fmt = 'JPEG'
@@ -781,11 +752,11 @@ class Thumbnail(MD_Dict):
         fmt, data = self['fmt'], self['data']
         if fmt != 'JPEG':
             data = None
-        if self['image'] and not data:
+        if not data:
             buf = QtCore.QBuffer()
             buf.open(buf.WriteOnly)
             fmt = 'JPEG'
-            self['image'].save(buf, self['fmt'], 95)
+            self['image'].save(buf, fmt, 95)
             data = buf.data().data()
         data = codecs.encode(data, 'base64_codec').decode('ascii')
         return (str(self['w']), str(self['h']), fmt, data)
@@ -794,7 +765,7 @@ class Thumbnail(MD_Dict):
         result = '{fmt} thumbnail, {w}x{h}'.format(**self)
         if self['data']:
             result += ', {} bytes'.format(len(self['data']))
-        return result
+        return result.strip()
 
 
 class DateTime(MD_Dict):

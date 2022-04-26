@@ -254,15 +254,6 @@ class MetadataHandler(GExiv2.Metadata):
             logger.exception(ex)
             return None
 
-    def get_exif_thumbnail(self):
-        data = super(MetadataHandler, self).get_exif_thumbnail()
-        if using_pgi and isinstance(data, tuple):
-            # get_exif_thumbnail returns (OK, data) tuple
-            data = data[data[0]]
-        if data:
-            return data
-        return None
-
     _charset_map = {
         'ascii'  : 'ascii',
         'unicode': 'utf-16-be',
@@ -360,18 +351,28 @@ class MetadataHandler(GExiv2.Metadata):
             return None
         return result
 
-    def get_preview_thumbnail(self):
+    def get_exif_thumbnails(self):
+        # try normal thumbnail
+        data = self.get_exif_thumbnail()
+        if using_pgi and isinstance(data, tuple):
+            # get_exif_thumbnail returns (OK, data) tuple
+            data = data[data[0]]
+        if data:
+            logger.info('%s: trying thumbnail', os.path.basename(self._path))
+            yield data, 'thumbnail'
+        # try preview images
         props = self.get_preview_properties()
         if not props:
-            return None
-        # get largest acceptable image
+            return
+        # get largest acceptable images
         idx = len(props)
         while idx > 0:
             idx -= 1
             if max(props[idx].get_width(), props[idx].get_height()) <= 640:
-                break
-        image = self.get_preview_image(props[idx])
-        return image.get_data()
+                logger.info('%s: trying preview %d',
+                            os.path.basename(self._path), idx)
+                image = self.get_preview_image(props[idx])
+                yield image.get_data(), 'preview ' + str(idx)
 
     def get_preview_imagedims(self):
         props = self.get_preview_properties()

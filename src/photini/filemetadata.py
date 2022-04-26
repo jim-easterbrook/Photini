@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import codecs
 import logging
 import os
 import sys
@@ -31,6 +32,7 @@ except ImportError as ex1:
     except (ImportError, ValueError) as ex2:
         print(str(ex2))
         raise ex1 from None
+from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
 
@@ -69,8 +71,10 @@ class ImageMetadata(MetadataHandler):
         result = []
         for x in self._multi_tags[tag]:
             result.append(self.get_value(x, idx=idx))
-        if tag == 'Exif.Thumbnail.*':
-            result.append(self._get_exif_thumbnail())
+        if tag.startswith('Exif.Thumbnail'):
+            result = self._get_exif_thumbnail(*result)
+        elif tag.startswith('Xmp.xmp.Thumbnails'):
+            result = self._get_xmp_thumbnail(*result)
         return result
 
     def get_value(self, tag, idx=1):
@@ -86,13 +90,34 @@ class ImageMetadata(MetadataHandler):
             return self.get_xmp_value(tag)
         assert False, 'Invalid tag ' + tag
 
-    def _get_exif_thumbnail(self):
-        # try normal thumbnail
-        data = self.get_exif_thumbnail()
+    def _get_exif_thumbnail(self, w, h, fmt):
+        for data, label in self.get_exif_thumbnails():
+            fmt, image = self._decode_thumbnail(data, label)
+            if image:
+                return w, h, fmt, data, image
+        return None, None, None, None, None
+
+    def _get_xmp_thumbnail(self, w, h, fmt, data):
         if data:
-            return data
-        # try previews
-        return self.get_preview_thumbnail()
+            data = bytes(data, 'ascii')
+            data = codecs.decode(data, 'base64_codec')
+            fmt, image = self._decode_thumbnail(data, 'thumbnail')
+            if image:
+                return w, h, fmt, data, image
+        return None, None, None, None, None
+
+    def _decode_thumbnail(self, data, label):
+        buf = QtCore.QBuffer()
+        buf.setData(data)
+        reader = QtGui.QImageReader(buf)
+        reader.setAutoTransform(False)
+        fmt = reader.format().data().decode().upper()
+        image = reader.read()
+        if image.isNull():
+            logger.error('%s: %s: %s', os.path.basename(self._path), label,
+                         reader.errorString())
+            return None, None
+        return fmt, image
 
     def set_multi_group(self, tag, value):
         # delete unwanted old entries

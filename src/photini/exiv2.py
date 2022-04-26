@@ -178,13 +178,6 @@ class MetadataHandler(object):
             logger.exception(ex)
             return None
 
-    def get_exif_thumbnail(self):
-        thumb = exiv2.ExifThumb(self._exifData)
-        data = thumb.copy()
-        if data:
-            return bytes(data)
-        return None
-
     def set_exif_thumbnail_from_buffer(self, buffer):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
@@ -269,19 +262,27 @@ class MetadataHandler(object):
         datum = self._iptcData[tag]
         return datum.toString().encode('utf-8', errors='surrogateescape')
 
-    def get_preview_thumbnail(self):
+    def get_exif_thumbnails(self):
+        # try normal thumbnail
+        thumb = exiv2.ExifThumb(self._exifData)
+        data = thumb.copy()
+        if data:
+            logger.info('%s: trying thumbnail', os.path.basename(self._path))
+            yield bytes(data), 'thumbnail'
+        # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
         if not props:
-            return None
-        # get largest acceptable image
+            return
+        # get largest acceptable images
         idx = len(props)
         while idx > 0:
             idx -= 1
             if max(props[idx].width_, props[idx].height_) <= 640:
-                break
-        image = preview_manager.getPreviewImage(props[idx])
-        return bytes(image.copy())
+                logger.info('%s: trying preview %d',
+                            os.path.basename(self._path), idx)
+                image = preview_manager.getPreviewImage(props[idx])
+                yield bytes(image.copy()), 'preview ' + str(idx)
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)

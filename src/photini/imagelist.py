@@ -112,12 +112,16 @@ class Image(QtWidgets.QFrame):
         if qt_im and PIL:
             data = self.make_thumb_PIL(qt_im)
             if data:
-                self.metadata.thumbnail = {'data': data}
+                image = QtGui.QImage.fromData(data, 'JPEG')
+                self.metadata.thumbnail = {
+                    'fmt': 'JPEG', 'data': data, 'image': image}
                 return True
         # next try using FFmpeg, good quality but slower
         data = self.make_thumb_ffmpeg()
         if data:
-            self.metadata.thumbnail = {'data': data}
+            image = QtGui.QImage.fromData(data, 'JPEG')
+            self.metadata.thumbnail = {
+                'fmt': 'JPEG', 'data': data, 'image': image}
             return True
         # lastly use Qt, quick but not high quality
         if qt_im:
