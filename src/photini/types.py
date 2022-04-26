@@ -78,10 +78,17 @@ class MD_Value(object):
             return self.__class__(result)
         return self
 
-    @staticmethod
-    def merge_item(this, other):
-        if other == this:
+    def merge_item(self, this, other):
+        if self.contains(this, other):
             return this, False, False
+        if self.contains(other, this):
+            return other, True, False
+        return self.concat(this, other)
+
+    def contains(self, this, other):
+        return other == this
+
+    def concat(self, this, other):
         return this, False, True
 
     @staticmethod
@@ -100,12 +107,12 @@ class MD_Value(object):
             '%s: ignored %s "%s"', info, tag, str(value))
 
 
-class MD_String(MD_Value, str):
+class MD_UnmergableString(MD_Value, str):
     def __new__(cls, value):
         value = isinstance(value, str) and value.strip()
         if not value:
             return None
-        return super(MD_String, cls).__new__(cls, value)
+        return super(MD_UnmergableString, cls).__new__(cls, value)
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
@@ -115,23 +122,13 @@ class MD_String(MD_Value, str):
             file_value = ' // '.join(file_value)
         return cls(file_value)
 
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        if this in other:
-            return other, True, False
+    def contains(self, this, other):
+        return other in this
+
+
+class MD_String(MD_UnmergableString):
+    def concat(self, this, other):
         return this + ' // ' + other, True, False
-
-
-class MD_UnmergableString(MD_String):
-    @staticmethod
-    def merge_item(this, other):
-        if other in this:
-            return this, False, False
-        if this in other:
-            return other, True, False
-        return this, False, True
 
 
 class MD_Software(MD_String):
@@ -331,12 +328,9 @@ class MD_LatLon(MD_Dict):
     def __str__(self):
         return '{:.6f}, {:.6f}'.format(float(self['lat']), float(self['lon']))
 
-    @staticmethod
-    def merge_item(this, other):
-        if (abs(float(other['lat']) - float(this['lat'])) < 0.000001
-                and abs(float(other['lon']) - float(this['lon'])) < 0.000001):
-            return this, False, False
-        return this, False, True
+    def contains(self, this, other):
+        return (abs(float(other['lat']) - float(this['lat'])) < 0.000001
+                and abs(float(other['lon']) - float(this['lon'])) < 0.000001)
 
 
 class MD_DateTime(MD_Dict):
@@ -1224,8 +1218,5 @@ class MD_Aperture(MD_Rational):
                 '{:d}/{:d}'.format(apex.numerator, apex.denominator))
         return file_value
 
-    @staticmethod
-    def merge_item(this, other):
-        if float(min(other, this)) > (float(max(other, this)) * 0.95):
-            return this, False, False
-        return this, False, True
+    def contains(self, this, other):
+        return float(min(other, this)) > (float(max(other, this)) * 0.95)
