@@ -30,6 +30,7 @@ translate = QtCore.QCoreApplication.translate
 
 class RightsDropDown(DropDownSelector):
     def __init__(self, key):
+        super(RightsDropDown, self).__init__(key, extendable=True)
         self.config_store = QtWidgets.QApplication.instance().config_store
         # list of known licences
         licences = [
@@ -56,8 +57,7 @@ class RightsDropDown(DropDownSelector):
         # add user defined licences
         licences += self.config_store.get('ownership', 'licences') or []
         # set up widget
-        super(RightsDropDown, self).__init__(
-            key, values=licences, extendable=True)
+        self.set_values(licences)
 
     def define_new_value(self):
         dialog = QtWidgets.QDialog(parent=self)
