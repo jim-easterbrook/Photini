@@ -141,6 +141,8 @@ if using_qtwebengine:
         from PyQt5.QtWebChannel import QWebChannel
         from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 else:
+    print('Use of QtWebKit will be withdrawn in a future release'
+          ' of Photini.\nPlease install QtWebEngine soon.')
     QWebChannel = None
     from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
     from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
