@@ -20,7 +20,7 @@
 from datetime import date, datetime
 import logging
 
-from photini.filemetadata import ImageMetadata
+from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
     ComboBox, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)

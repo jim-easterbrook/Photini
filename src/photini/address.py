@@ -24,7 +24,7 @@ import os
 import requests
 
 from photini.configstore import key_store
-from photini.filemetadata import ImageMetadata
+from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase, LatLongDisplay
 from photini.pyqt import *
 from photini.types import MD_Location

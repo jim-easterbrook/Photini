@@ -31,10 +31,10 @@ import pkg_resources
 from photini import __version__, build
 from photini.configstore import BaseConfigStore
 from photini.editsettings import EditSettings
-from photini.filemetadata import exiv2_version, ImageMetadata
 from photini.ffmpeg import ffmpeg_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
+from photini.metadata import exiv2_version, ImageMetadata
 from photini.pyqt import *
 from photini.pyqt import QtNetwork, qt_version, qt_version_info
 from photini.spelling import SpellCheck, spelling_version
