@@ -554,7 +554,7 @@ class LangAltWidget(QtWidgets.QWidget):
             action.setCheckable(True)
             action.setChecked(lang == default_lang)
         action = execute(menu, self.lang.mapToGlobal(pos))
-        if not action:
+        if not (action and action.isCheckable()):
             return
         self._set_default_lang(action.text())
 
