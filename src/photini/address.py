@@ -28,7 +28,7 @@ from photini.filemetadata import ImageMetadata
 from photini.photinimap import GeocoderBase, LatLongDisplay
 from photini.pyqt import *
 from photini.types import MD_Location
-from photini.widgets import CompactButton, SingleLineEdit
+from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

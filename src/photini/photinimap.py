@@ -30,7 +30,7 @@ from photini.pyqt import *
 from photini.pyqt import (
     QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, using_qtwebengine)
 from photini.technical import DoubleSpinBox
-from photini.widgets import ComboBox, SingleLineEdit
+from photini.widgets import ComboBox, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -204,54 +204,6 @@ class MapWebView(QWebEngineView):
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
-
-
-class LatLongDisplay(SingleLineEdit):
-    changed = QtSignal()
-
-    def __init__(self, image_list, *args, **kwds):
-        super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
-        self.image_list = image_list
-        self.label = QtWidgets.QLabel(translate('MapTabsAll', 'Lat, long'))
-        self.label.setAlignment(Qt.AlignRight)
-        self.setFixedWidth(width_for_text(self, '8' * 23))
-        self.setEnabled(False)
-        self.new_value.connect(self.editing_finished)
-
-    @QtSlot(str, object)
-    @catch_all
-    def editing_finished(self, key, value):
-        selected_images = self.image_list.get_selected_images()
-        new_value = value.strip() or None
-        if new_value:
-            try:
-                new_value = list(map(float, new_value.split(',')))
-            except Exception:
-                # user typed in an invalid value
-                self.update_display(selected_images)
-                return
-        for image in selected_images:
-            image.metadata.latlong = new_value
-        self.update_display(selected_images)
-        self.changed.emit()
-
-    def update_display(self, selected_images=None):
-        if selected_images is None:
-            selected_images = self.image_list.get_selected_images()
-        if not selected_images:
-            self.set_value(None)
-            self.setEnabled(False)
-            return
-        values = []
-        for image in selected_images:
-            value = image.metadata.latlong
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.set_multiple(choices=filter(None, values))
-        else:
-            self.set_value(values[0])
-        self.setEnabled(True)
 
 
 class PhotiniMap(QtWidgets.QWidget):
