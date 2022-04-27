@@ -1006,7 +1006,7 @@ class MD_LangAlt(LangAltDict, MD_Value):
                 result[key] = value
             else:
                 result[key] += ' // ' + value
-            self.log_merged(info, tag + '[' + key + ']', value)
+            self.log_merged(info + '[' + key + ']', tag, value)
         return self.__class__(result)
 
 
