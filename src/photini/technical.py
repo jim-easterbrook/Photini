@@ -23,7 +23,7 @@ import logging
 import re
 
 from photini.pyqt import *
-from photini.pyqt import set_symbol_font
+from photini.pyqt import set_symbol_font, using_pyside
 from photini.types import MD_CameraModel, MD_LensModel
 from photini.widgets import DropDownSelector, Slider
 
@@ -190,6 +190,29 @@ class AugmentSpinBox(object):
             self.set_value(self.default_value)
             self.selectAll()
 
+    @catch_all
+    def contextMenuEvent(self, event):
+        self.context_menu_event()
+        return super(AugmentSpinBox, self).contextMenuEvent(event)
+
+    @catch_all
+    def keyPressEvent(self, event):
+        self.clear_special_value()
+        return super(AugmentSpinBox, self).keyPressEvent(event)
+
+    @catch_all
+    def stepBy(self, steps):
+        self.clear_special_value()
+        return super(AugmentSpinBox, self).stepBy(steps)
+
+    @catch_all
+    def fixup(self, text):
+        if not self.cleanText():
+            # user has deleted the value
+            self.set_value(None)
+            return ''
+        return super(AugmentSpinBox, self).fixup(text)
+
     @QtSlot()
     @catch_all
     def editing_finished(self):
@@ -234,29 +257,6 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
 
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(IntSpinBox, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(IntSpinBox, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(IntSpinBox, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(IntSpinBox, self).fixup(text)
-
     def set_faint(self, faint):
         if faint:
             self.setStyleSheet('QAbstractSpinBox {font-weight:200}')
@@ -275,29 +275,6 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
         self.setButtonSymbols(self.NoButtons)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(DoubleSpinBox, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(DoubleSpinBox, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(DoubleSpinBox, self).fixup(text)
 
     @catch_all
     def textFromValue(self, value):
@@ -329,21 +306,6 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
         self.set_precision(7)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(DateTimeEdit, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(DateTimeEdit, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(DateTimeEdit, self).stepBy(steps)
 
     def clear_special_value(self):
         if self.specialValueText():
@@ -389,29 +351,6 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        self.context_menu_event()
-        return super(TimeZoneWidget, self).contextMenuEvent(event)
-
-    @catch_all
-    def keyPressEvent(self, event):
-        self.clear_special_value()
-        return super(TimeZoneWidget, self).keyPressEvent(event)
-
-    @catch_all
-    def stepBy(self, steps):
-        self.clear_special_value()
-        return super(TimeZoneWidget, self).stepBy(steps)
-
-    @catch_all
-    def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(TimeZoneWidget, self).fixup(text)
 
     @catch_all
     def sizeHint(self):
