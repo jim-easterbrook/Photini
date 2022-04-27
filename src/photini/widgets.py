@@ -468,8 +468,8 @@ class LangAltWidget(QtWidgets.QWidget):
             self.edit.set_value(self.value['x-default'])
             lang, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('New language'),
-                self.tr('What language is the current text'
-                          ' in?<br>Please enter an RFC3066 language tag:'),
+                self.tr('What language is the current text in?'
+                        '<br>Please enter an RFC3066 language tag:'),
                 text=QtCore.QLocale.system().bcp47Name())
             if not (OK and lang):
                 return None, None
@@ -477,7 +477,7 @@ class LangAltWidget(QtWidgets.QWidget):
         lang, OK = QtWidgets.QInputDialog.getText(
             self, self.tr('New language'),
             self.tr('What language would you like to add?'
-                      '<br>Please enter an RFC3066 language tag:'))
+                    '<br>Please enter an RFC3066 language tag:'))
         if not (OK and lang):
             return None, None
         if lang in self.value:
@@ -516,9 +516,11 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, self.get_value())
 
     def labeled_lang(self, lang):
-        label = self.tr('Lang:')
-        if lang != 'x-default':
-            label += ' ' + lang
+        if lang == 'x-default':
+            label = self.tr('Language')
+        else:
+            label = self.tr('Lang: ',
+                            'Short abbreviation of "Language: "') + lang
         return label, lang
 
     def set_value(self, value):
