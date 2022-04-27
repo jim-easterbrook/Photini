@@ -155,7 +155,8 @@ class LensList(DropdownEdit):
 class AugmentSpinBox(object):
     new_value = QtSignal(object)
 
-    def init_augment(self):
+    def __init__(self):
+        super(AugmentSpinBox, self).__init__()
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
@@ -251,7 +252,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(IntSpinBox, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
@@ -269,7 +270,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(DoubleSpinBox, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setSingleStep(0.1)
         self.setDecimals(4)
         lim = (2 ** 31) - 1
@@ -301,7 +302,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -347,7 +348,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple()
         super(TimeZoneWidget, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
