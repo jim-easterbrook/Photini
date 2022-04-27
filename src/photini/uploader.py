@@ -680,16 +680,15 @@ class PhotiniUploader(QtWidgets.QWidget):
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # title & description
             params['meta'] = {}
-            if image.metadata.title and image.metadata.title['x-default']:
-                params['meta']['title'] = image.metadata.title['x-default']
+            if image.metadata.title:
+                params['meta']['title'] = image.metadata.title.default_text()
             else:
                 params['meta']['title'] = image.name
             description = []
             if image.metadata.headline:
                 description.append(str(image.metadata.headline))
-            if (image.metadata.description
-                    and image.metadata.description['x-default']):
-                description.append(image.metadata.description['x-default'])
+            if image.metadata.description:
+                description.append(image.metadata.description.default_text())
             if description:
                 params['meta']['description'] = '\n\n'.join(description)
             # keywords
