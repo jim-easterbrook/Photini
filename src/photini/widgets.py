@@ -20,12 +20,11 @@ import logging
 import re
 
 from photini.pyqt import (
-    catch_all, multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot,
-    QtWidgets, scale_font, width_for_text)
+    catch_all, execute, multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal,
+    QtSlot, QtWidgets, scale_font, width_for_text)
 from photini.types import LangAltDict
 
 logger = logging.getLogger(__name__)
-translate = QtCore.QCoreApplication.translate
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -420,33 +419,6 @@ class StartStopButton(QtWidgets.QPushButton):
             self.click_start.emit()
 
 
-class LangSelector(DropDownSelector):
-    new_default = QtSignal(str)
-
-    @QtSlot(QtGui.QContextMenuEvent)
-    @catch_all
-    def contextMenuEvent(self, event):
-        langs = []
-        for n in range(self.count()):
-            lang = self.itemData(n)
-            if n == 0:
-                default_lang = lang
-            if lang and lang != 'x-default':
-                langs.append(lang)
-        if not langs:
-            return
-        menu = QtWidgets.QMenu()
-        menu.addAction(self.tr('Set default language:'))
-        for lang in langs:
-            action = menu.addAction(lang)
-            action.setCheckable(True)
-            action.setChecked(lang == default_lang)
-        action = execute(menu, event.globalPos())
-        if not action:
-            return
-        self.new_default.emit(action.text())
-
-
 class LangAltWidget(QtWidgets.QWidget):
     new_value = QtSignal(str, object)
 
@@ -464,11 +436,12 @@ class LangAltWidget(QtWidgets.QWidget):
         self.edit.new_value.connect(self._new_value)
         layout.addWidget(self.edit)
         # language drop down
-        self.lang = LangSelector('', with_multiple=False, extendable=True)
+        self.lang = DropDownSelector('', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
         self.lang.setFocusPolicy(Qt.NoFocus)
+        self.lang.setContextMenuPolicy(Qt.CustomContextMenu)
         self.lang.new_value.connect(self._change_lang)
-        self.lang.new_default.connect(self._set_default_lang)
+        self.lang.customContextMenuRequested.connect(self._context_menu)
         layout.addWidget(self.lang)
         layout.setAlignment(self.lang, Qt.AlignTop)
         # adopt some child methods ...
@@ -494,16 +467,16 @@ class LangAltWidget(QtWidgets.QWidget):
         if 'x-default' in self.value and self.value['x-default']:
             self.edit.set_value(self.value['x-default'])
             lang, OK = QtWidgets.QInputDialog.getText(
-                self, translate('LangAltWidget', 'New language'),
-                translate('LangAltWidget', 'What language is the current text'
+                self, self.tr('New language'),
+                self.tr('What language is the current text'
                           ' in?<br>Please enter an RFC3066 language tag:'),
                 text=QtCore.QLocale.system().bcp47Name())
             if not (OK and lang):
                 return None, None
             self._set_default_lang(lang)
         lang, OK = QtWidgets.QInputDialog.getText(
-            self, translate('LangAltWidget', 'New language'),
-            translate('LangAltWidget', 'What language would you like to add?'
+            self, self.tr('New language'),
+            self.tr('What language would you like to add?'
                       '<br>Please enter an RFC3066 language tag:'))
         if not (OK and lang):
             return None, None
@@ -515,14 +488,35 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
-    @QtSlot(str)
+    @QtSlot(QtCore.QPoint)
     @catch_all
+    def _context_menu(self, pos):
+        langs = []
+        for n in range(self.lang.count()):
+            lang = self.lang.itemData(n)
+            if n == 0:
+                default_lang = lang
+            if lang and lang != 'x-default':
+                langs.append(lang)
+        if not langs:
+            return
+        menu = QtWidgets.QMenu()
+        menu.addAction(self.tr('Set default language:'))
+        for lang in langs:
+            action = menu.addAction(lang)
+            action.setCheckable(True)
+            action.setChecked(lang == default_lang)
+        action = execute(menu, self.lang.mapToGlobal(pos))
+        if not action:
+            return
+        self._set_default_lang(action.text())
+
     def _set_default_lang(self, lang):
         self.value.set_default_lang(lang)
         self.new_value.emit(self.edit._key, self.get_value())
 
     def labeled_lang(self, lang):
-        label = translate('LangAltWidget', 'Lang:')
+        label = self.tr('Lang:')
         if lang != 'x-default':
             label += ' ' + lang
         return label, lang
