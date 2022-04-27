@@ -103,22 +103,7 @@
     </message>
 </context>
 <context>
-    <name>Common</name>
-    <message>
-        <source>&lt;multiple&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&lt;multiple values&gt;</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>DescriptiveTab</name>
-    <message>
-        <source>Auto</source>
-        <translation></translation>
-    </message>
     <message>
         <source>reject</source>
         <translation></translation>
@@ -148,30 +133,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Copyright</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Creator / Artist</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Photini: input name</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Please type in the copyright holder&apos;s name</source>
-        <translation></translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
         <translation></translation>
     </message>
@@ -185,23 +146,19 @@ this might include names of people, and/or their role in the action that is taki
 Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Headline</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Copyright holder name</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Copyright text</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Creator name</source>
         <translation></translation>
     </message>
     <message>
@@ -260,27 +217,7 @@ Separate them with &quot;;&quot; characters.</source>
 <context>
     <name>FlickrTab</name>
     <message>
-        <source>Who can see the photos?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Only you</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Your friends</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Your family</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Anyone</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Hidden from search</source>
         <translation></translation>
     </message>
     <message>
@@ -308,10 +245,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>&amp;Flickr upload</source>
         <translation></translation>
     </message>
@@ -332,19 +265,7 @@ Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Replace photo</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Change who can see it</source>
         <translation></translation>
     </message>
     <message>
@@ -353,31 +274,6 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Which image file matches
-this picture on Flickr?</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No match</source>
         <translation></translation>
     </message>
     <message>
@@ -396,15 +292,95 @@ this picture on Flickr?</source>
         <source>Album will be created when photos are uploaded</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Friends &amp; family</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>People you follow</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Any Flickr member</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Public</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Private</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Friends</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Family</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Viewing privacy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Allow commenting</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Allow tags and notes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Licence</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Safe</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Moderate</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Restricted</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Safety level</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Hide from search</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change viewing privacy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change who can comment or tag (and viewing privacy)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change safety level</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change hide from search</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change licence</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
         <translation></translation>
     </message>
     <message>
@@ -629,6 +605,196 @@ selected</numerusform>
     </message>
 </context>
 <context>
+    <name>IpernityTab</name>
+    <message>
+        <source>Only you</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Family &amp; friends</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Contacts</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Everyone</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copyright (all rights reserved)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution + non commercial</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution + no derivative</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution + share alike</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution + non commercial + no derivative</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution + non commercial + share alike</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Free use (copyright surrendered, no licence)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;Ipernity upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Ipernity</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Who can:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Everyone (public)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Only you (private)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Friends</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Family</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>see the photo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>post a comment</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>add keywords, notes</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>identify people</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Licence</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Synchronise</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>New album</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Replace metadata</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change who can see it</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change who can comment or tag</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change the licence</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Change album membership</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Create new Ipernity album</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Who can comment&lt;br&gt;on album</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>LangAltWidget</name>
+    <message>
+        <source>New language</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set default language:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Language</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Lang: </source>
+        <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>LatLongDisplay</name>
+    <message>
+        <source>Lat, long</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -678,18 +844,7 @@ provided by Bing</source>
     </message>
 </context>
 <context>
-    <name>MapTabOSM</name>
-    <message>
-        <source>Map (&amp;OSM)</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>MapTabsAll</name>
-    <message>
-        <source>Lat, long</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Altitude</source>
         <translation></translation>
@@ -806,13 +961,21 @@ provided by Bing</source>
         <source>Fix missing thumbnails</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Check for update</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: version check</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>OpenCage</name>
-    <message>
-        <source>Search powered by OpenCage</source>
-        <translation></translation>
-    </message>
     <message>
         <source>Address lookup powered by OpenCage</source>
         <translation></translation>
@@ -872,10 +1035,6 @@ template</source>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Rights Usage Terms</source>
         <translation></translation>
     </message>
     <message>
@@ -951,18 +1110,95 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>Contact Information</source>
+        <source>Use %Y to insert the year the photograph was taken.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Use %Y to insert the year the photograph was taken.</source>
+        <source>Initialise
+template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Usage Terms</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Web Statement</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Licensor URL</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Rights</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: ownership template</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>TabWidget</name>
+    <name>RightsDropDown</name>
     <message>
-        <source>Photini: ownership template</source>
+        <source>All rights reserved</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
         <translation></translation>
     </message>
 </context>
@@ -1113,10 +1349,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>&lt;new&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Remove &quot;{}&quot;</source>
         <translation></translation>
     </message>
@@ -1152,10 +1384,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>User</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Log in</source>
         <translation></translation>
     </message>
@@ -1188,10 +1416,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
         <translation></translation>
     </message>
@@ -1221,6 +1445,69 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add to albums</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Logged in as&lt;br&gt;{0} on {1}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;h3&gt;Authorisation required&lt;/h3&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Replace photo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Replace image</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Upload as new photo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>Widgets</name>
+    <message>
+        <source>&lt;multiple&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;multiple values&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;new&gt;</source>
         <translation></translation>
     </message>
 </context>
