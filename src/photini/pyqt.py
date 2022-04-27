@@ -191,10 +191,10 @@ def video_types():
     return lower + [x.upper() for x in lower] + [x.title() for x in lower]
 
 def multiple():
-    return translate('Common', '<multiple>')
+    return translate('Widgets', '<multiple>')
 
 def multiple_values():
-    return translate('Common', '<multiple values>')
+    return translate('Widgets', '<multiple values>')
 
 def set_symbol_font(widget):
     widget.setFont(QtGui.QFont('DejaVu Sans'))

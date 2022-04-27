@@ -33,33 +33,24 @@ class RightsDropDown(DropDownSelector):
         self.config_store = QtWidgets.QApplication.instance().config_store
         # list of known licences
         licences = [
-            (translate('OwnerTab', 'All rights reserved'), None),
-            (translate('OwnerTab', 'Attribution 4.0 (CC BY 4.0)'),
+            (self.tr('All rights reserved'), None),
+            (self.tr('Attribution 4.0 (CC BY 4.0)'),
              'https://creativecommons.org/licenses/by/4.0/'),
-            (translate(
-                'OwnerTab', 'Attribution-ShareAlike 4.0 (CC BY-SA 4.0)'),
+            (self.tr('Attribution-ShareAlike 4.0 (CC BY-SA 4.0)'),
              'https://creativecommons.org/licenses/by-sa/4.0/'),
-            (translate(
-                'OwnerTab', 'Attribution-NonCommercial 4.0 (CC BY-NC 4.0)'),
+            (self.tr('Attribution-NonCommercial 4.0 (CC BY-NC 4.0)'),
              'https://creativecommons.org/licenses/by-nc/4.0/'),
-            (translate(
-                'OwnerTab',
+            (self.tr(
                 'Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)'),
              'https://creativecommons.org/licenses/by-nc-sa/4.0/'),
-            (translate(
-                'OwnerTab',
-                'Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)'),
+            (self.tr('Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)'),
              'https://creativecommons.org/licenses/by-nd/4.0/'),
-            (translate(
-                'OwnerTab',
+            (self.tr(
                 'Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)'),
              'https://creativecommons.org/licenses/by-nc-nd/4.0/'),
-            (translate(
-                'OwnerTab',
-                'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
+            (self.tr('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
              'https://creativecommons.org/publicdomain/zero/1.0/'),
-            (translate(
-                'OwnerTab', 'Public Domain Mark 1.0'),
+            (self.tr('Public Domain Mark 1.0'),
              'https://creativecommons.org/publicdomain/mark/1.0/'),
             ]
         # add user defined licences
@@ -70,12 +61,12 @@ class RightsDropDown(DropDownSelector):
 
     def define_new_value(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('OwnerTab', 'Define new licence'))
+        dialog.setWindowTitle(self.tr('Define new licence'))
         dialog.setLayout(FormLayout())
         name = SingleLineEdit('name', spell_check=True)
-        dialog.layout().addRow(translate('OwnerTab', 'Name'), name)
+        dialog.layout().addRow(self.tr('Name'), name)
         url = SingleLineEdit('url')
-        dialog.layout().addRow(translate('OwnerTab', 'URL'), url)
+        dialog.layout().addRow(self.tr('URL'), url)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
@@ -98,8 +89,7 @@ class RightsDropDown(DropDownSelector):
         menu = QtWidgets.QMenu()
         for n in range(1, self._last_idx()):
             action = QtGui2.QAction(
-                translate('OwnerTab',
-                          'Open link to "{}"').format(self.itemText(n)),
+                self.tr('Open link to "{}"').format(self.itemText(n)),
                 parent=self)
             action.setData(self.itemData(n))
             menu.addAction(action)
@@ -402,7 +392,8 @@ class TabWidget(QtWidgets.QWidget):
         width = width_for_text(dialog, 'x' * 120)
         dialog.setFixedSize(min(width, self.window().width()),
                             min(width * 3 // 4, self.window().height()))
-        dialog.setWindowTitle(self.tr('Photini: ownership template'))
+        dialog.setWindowTitle(
+            translate('OwnerTab', 'Photini: ownership template'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         form, widgets = self.data_form()

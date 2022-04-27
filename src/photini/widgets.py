@@ -23,6 +23,7 @@ from photini.pyqt import *
 from photini.types import LangAltDict
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class ComboBox(QtWidgets.QComboBox):
@@ -97,7 +98,7 @@ class DropDownSelector(ComboBox):
         blocked = self.blockSignals(True)
         self.clear()
         if self._extendable:
-            self.addItem(self.tr('<new>'))
+            self.addItem(translate('Widgets', '<new>'))
         if self._with_multiple:
             self.addItem(multiple_values())
             self.setItemData(self.count() - 1, '', Qt.UserRole - 1)
