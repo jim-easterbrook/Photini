@@ -302,7 +302,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
     @catch_all
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
-        return str(round(value, self.decimals()))
+        return str(round(float(value), self.decimals()))
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
