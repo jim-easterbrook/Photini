@@ -35,9 +35,8 @@ from photini.filemetadata import exiv2_version, ImageMetadata
 from photini.ffmpeg import ffmpeg_version
 from photini.imagelist import ImageList
 from photini.loggerwindow import LoggerWindow
-from photini.pyqt import (
-    Busy, catch_all, execute, Qt, QtCore, QtGui, QtGui2, QtNetwork,
-    QtSignal, QtSlot, QtWidgets, qt_version, qt_version_info, width_for_text)
+from photini.pyqt import *
+from photini.pyqt import QtNetwork, qt_version, qt_version_info
 from photini.spelling import SpellCheck, spelling_version
 
 try:

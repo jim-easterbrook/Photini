@@ -30,9 +30,7 @@ except ImportError:
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini.pyqt import (
-    catch_all, execute, FormLayout, Qt, QtCore, QtGui, QtSlot, QtWidgets,
-    width_for_text)
+from photini.pyqt import *
 from photini.uploader import PhotiniUploader, UploaderSession
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 

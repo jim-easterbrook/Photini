@@ -21,9 +21,7 @@ from datetime import date, datetime
 import logging
 
 from photini.filemetadata import ImageMetadata
-from photini.pyqt import (
-    catch_all, FormLayout, multiple_values, Qt, QtCore, QtGui, QtSignal, QtSlot,
-    QtWidgets, width_for_text)
+from photini.pyqt import *
 from photini.widgets import (
     ComboBox, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
 

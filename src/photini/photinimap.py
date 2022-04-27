@@ -26,9 +26,9 @@ import cachetools
 import pkg_resources
 
 from photini.imagelist import DRAG_MIMETYPE
+from photini.pyqt import *
 from photini.pyqt import (
-    catch_all, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel, QtWebCore,
-    QtWebWidgets, QtWidgets, using_qtwebengine, width_for_text)
+    QtWebWidgets, QWebChannel, QWebEnginePage, using_qtwebengine)
 from photini.technical import DoubleSpinBox
 from photini.widgets import ComboBox, SingleLineEdit
 
@@ -118,9 +118,9 @@ class CallHandler(QtCore.QObject):
 
 
 if using_qtwebengine:
-    class QWebPage(QtWebCore.QWebEnginePage):
+    class QWebPage(QWebEnginePage):
         def set_call_handler(self, call_handler):
-            self.web_channel = QtWebChannel.QWebChannel(parent=self)
+            self.web_channel = QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', call_handler)
 
@@ -144,7 +144,7 @@ if using_qtwebengine:
 
 
 else:
-    class QWebPage(QtWebWidgets.QWebPage):
+    class QWebPage(QWebEnginePage):
         def __init__(self, call_handler, *args, **kwds):
             super(QWebPage, self).__init__(*args, **kwds)
             self.call_handler = call_handler

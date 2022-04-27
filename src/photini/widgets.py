@@ -19,9 +19,7 @@
 import logging
 import re
 
-from photini.pyqt import (
-    catch_all, execute, multiple_values, Qt, QtCore, QtGui, QtGui2, QtSignal,
-    QtSlot, QtWidgets, scale_font, width_for_text)
+from photini.pyqt import *
 from photini.types import LangAltDict
 
 logger = logging.getLogger(__name__)

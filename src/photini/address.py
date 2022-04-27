@@ -26,9 +26,7 @@ import requests
 from photini.configstore import key_store
 from photini.filemetadata import ImageMetadata
 from photini.photinimap import GeocoderBase, LatLongDisplay
-from photini.pyqt import (
-    Busy, catch_all, execute, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWidgets,
-    width_for_text)
+from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import CompactButton, SingleLineEdit
 

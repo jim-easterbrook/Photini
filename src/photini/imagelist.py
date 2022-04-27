@@ -29,10 +29,8 @@ except ImportError:
 
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
-from photini.pyqt import (
-    Busy, catch_all, execute, image_types, Qt, QtCore, QtGui, QtGui2, QtSignal,
-    QtSlot, QtWidgets, qt_version_info, scale_font, set_symbol_font,
-    video_types, width_for_text)
+from photini.pyqt import *
+from photini.pyqt import qt_version_info, set_symbol_font
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

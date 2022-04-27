@@ -28,6 +28,13 @@ from photini.configstore import BaseConfigStore
 
 logger = logging.getLogger(__name__)
 
+# allow a "standard" list of objects to be imported with *
+__all__ = (
+    'Busy', 'catch_all', 'DisableWidget', 'execute', 'FormLayout', 'multiple',
+    'multiple_values', 'Qt', 'QtCore', 'QtGui', 'QtGui2', 'QtSignal', 'QtSlot',
+    'QtWidgets', 'scale_font', 'UnBusy', 'width_for_text'
+    )
+
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
@@ -123,25 +130,25 @@ if not isinstance(using_qtwebengine, bool):
 # import WebEngine or WebKit stuff
 if using_qtwebengine:
     if qt_lib == 'PySide6':
-        from PySide6 import QtWebChannel
+        from PySide6.QtWebChannel import QWebChannel
         from PySide6 import QtWebEngineWidgets as QtWebWidgets
-        from PySide6 import QtWebEngineCore as QtWebCore
+        from PySide6.QtWebEngineCore import QWebEnginePage
     elif qt_lib == 'PySide2':
-        from PySide2 import QtWebChannel
+        from PySide2.QtWebChannel import QWebChannel
         from PySide2 import QtWebEngineWidgets as QtWebWidgets
-        QtWebCore = QtWebWidgets
+        from PySide2.QtWebEngineWidgets import QWebEnginePage
     else:
-        from PyQt5 import QtWebChannel
+        from PyQt5.QtWebChannel import QWebChannel
         from PyQt5 import QtWebEngineWidgets as QtWebWidgets
-        QtWebCore = QtWebWidgets
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage
 else:
-    QtWebChannel = None
+    QWebChannel = None
     if qt_lib == 'PySide2':
         from PySide2 import QtWebKitWidgets as QtWebWidgets
-        from PySide2 import QtWebKit as QtWebCore
+        from PySide2.QtWebKit import QWebEnginePage
     else:
         from PyQt5 import QtWebKitWidgets as QtWebWidgets
-        from PyQt5 import QtWebKit as QtWebCore
+        from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
 
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])

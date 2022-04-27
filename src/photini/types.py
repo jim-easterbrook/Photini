@@ -26,6 +26,14 @@ from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
 
+# photini.metadata imports these classes
+__all__ = (
+    'MD_Altitude', 'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
+    'MD_DateTime', 'MD_Int', 'MD_LangAlt', 'MD_LatLon', 'MD_LensModel',
+    'MD_Location', 'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation',
+    'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software', 'MD_String',
+    'MD_Thumbnail', 'MD_Timezone')
+
 
 def safe_fraction(value):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
