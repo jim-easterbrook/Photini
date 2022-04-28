@@ -22,6 +22,7 @@ from fractions import Fraction
 import logging
 import math
 
+from photini.metadata import exiv2_version_info
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -988,6 +989,7 @@ class MD_LangAlt(LangAltDict, MD_Value):
         return result
 
     def merge(self, info, tag, other):
+        other = LangAltDict(other)
         if other == self:
             return self
         result = LangAltDict(self)
