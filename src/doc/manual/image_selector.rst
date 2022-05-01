@@ -19,10 +19,14 @@ The overall size of the window can also be changed by dragging its edges or corn
 
 .. image:: ../images/screenshot_002.png
 
-Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``) or by "drag and drop" from a file manager window.
+Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``).
 The loaded files are displayed as thumbnail images in the image selector part of the GUI.
 Note that the thumbnail size can be changed with the slider control just beneath the thumbnail display area.
 The files can also be sorted by name or date by clicking on the appropriate button.
+
+Images can also be loaded by "drag and drop" from a file manager window or by adding them to the command line if you run Photini from a command terminal.
+If you open a directory then all the images in that directory will be opened.
+This is recursive, so beware of accidentally opening too many images in one go.
 
 .. image:: ../images/screenshot_003.png
 
