@@ -22,11 +22,10 @@ from datetime import datetime, timedelta
 import logging
 import re
 
-from photini.metadata import CameraModel, LensModel
-from photini.pyqt import (
-    catch_all, DropDownSelector, execute, FormLayout, multiple, multiple_values,
-    Qt, QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, scale_font,
-    set_symbol_font, Slider, using_pyside, width_for_text)
+from photini.pyqt import *
+from photini.pyqt import set_symbol_font, using_pyside
+from photini.types import MD_CameraModel, MD_LensModel
+from photini.widgets import DropDownSelector, Slider
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -38,6 +37,7 @@ class DropdownEdit(DropDownSelector):
             key, *arg, extendable=True, ordered=True, **kw)
         self._image_list = image_list
         self.config_store = QtWidgets.QApplication.instance().config_store
+        self.setFocusPolicy(Qt.NoFocus)
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
@@ -74,7 +74,7 @@ class CameraList(DropdownEdit):
             camera = {}
             for key in 'make', 'model', 'serial_no':
                 camera[key] = self.config_store.get(section, key)
-            camera = CameraModel(camera)
+            camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
                 self.config_store.remove_section(section)
@@ -86,18 +86,15 @@ class CameraList(DropdownEdit):
             self._image_list.get_selected_images(), parent=self)
         if execute(dialog) != QtWidgets.QDialog.Accepted:
             return None, None
-        camera = CameraModel(dialog.get_value())
+        camera = MD_CameraModel(dialog.get_value())
         if not camera:
             return None, None
-        return camera.get_name(), camera
-
-    def add_item(self, text, camera, **kwds):
-        if camera:
-            section = 'camera ' + camera.get_name()
-            for key, value in camera.items():
-                if value:
-                    self.config_store.set(section, key, value)
-        return super(CameraList, self).add_item(text, camera, **kwds)
+        name = camera.get_name()
+        section = 'camera ' + name
+        for key, value in camera.items():
+            if value:
+                self.config_store.set(section, key, value)
+        return name, camera
 
     def remove_item(self, camera, **kwds):
         self.config_store.remove_section('camera ' + camera.get_name())
@@ -125,7 +122,7 @@ class LensList(DropdownEdit):
                 if not lens_model[new_key]:
                     lens_model[new_key] = self.config_store.get(section, old_key)
                 self.config_store.delete(section, old_key)
-            lens_model = LensModel(lens_model)
+            lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
                 self.config_store.remove_section(section)
@@ -140,15 +137,12 @@ class LensList(DropdownEdit):
         lens_model = dialog.get_value()
         if not lens_model:
             return None, None
-        return lens_model.get_name(), lens_model
-
-    def add_item(self, text, lens_model, **kwds):
-        if lens_model:
-            section = 'lens ' + lens_model.get_name()
-            for key, value in lens_model.items():
-                if value:
-                    self.config_store.set(section, key, str(value))
-        return super(LensList, self).add_item(text, lens_model, **kwds)
+        name = lens_model.get_name()
+        section = 'lens ' + name
+        for key, value in lens_model.items():
+            if value:
+                self.config_store.set(section, key, str(value))
+        return name, lens_model
 
     def remove_item(self, lens_model, **kwds):
         self.config_store.remove_section('lens ' + lens_model.get_name())
@@ -161,7 +155,8 @@ class LensList(DropdownEdit):
 class AugmentSpinBox(object):
     new_value = QtSignal(object)
 
-    def init_augment(self):
+    def __init__(self):
+        super(AugmentSpinBox, self).__init__()
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
@@ -195,6 +190,13 @@ class AugmentSpinBox(object):
         if self.specialValueText():
             self.set_value(self.default_value)
             self.selectAll()
+
+    def fix_up(self):
+        if self.cleanText():
+            return False
+        # user has deleted the value
+        self.set_value(None)
+        return True
 
     @QtSlot()
     @catch_all
@@ -234,7 +236,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(IntSpinBox, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
@@ -257,11 +259,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(IntSpinBox, self).fixup(text)
+        return self.fix_up() or super(IntSpinBox, self).fixup(text)
 
     def set_faint(self, faint):
         if faint:
@@ -275,7 +273,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple_values()
         super(DoubleSpinBox, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setSingleStep(0.1)
         self.setDecimals(4)
         lim = (2 ** 31) - 1
@@ -299,16 +297,12 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
 
     @catch_all
     def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(DoubleSpinBox, self).fixup(text)
+        return self.fix_up() or super(DoubleSpinBox, self).fixup(text)
 
     @catch_all
     def textFromValue(self, value):
         # don't use QDoubleSpinBox's fixed number of decimals
-        return str(round(value, self.decimals()))
+        return str(round(float(value), self.decimals()))
 
 
 class CalendarWidget(QtWidgets.QCalendarWidget):
@@ -330,7 +324,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
         self.textFromValue = self.textFromDateTime
         self.value = self.dateTime
         super(DateTimeEdit, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setCalendarPopup(True)
         self.setCalendarWidget(CalendarWidget())
         self.precision = 1
@@ -391,7 +385,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
         self.default_value = 0
         self.multiple = multiple()
         super(TimeZoneWidget, self).__init__(*arg, **kw)
-        self.init_augment()
+        AugmentSpinBox.__init__(self)
         self.setRange(-14 * 60, 15 * 60)
         self.setSingleStep(15)
         self.setWrapping(True)
@@ -413,11 +407,7 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
 
     @catch_all
     def fixup(self, text):
-        if not self.cleanText():
-            # user has deleted the value
-            self.set_value(None)
-            return ''
-        return super(TimeZoneWidget, self).fixup(text)
+        return self.fix_up() or super(TimeZoneWidget, self).fixup(text)
 
     @catch_all
     def sizeHint(self):
@@ -726,7 +716,7 @@ class NewLensDialog(NewItemDialog):
         min_fl_fn = self.lens_spec['min_fl_fn'].get_value() or 0
         max_fl_fn = self.lens_spec['max_fl_fn'].get_value() or min_fl_fn
         lens_model['spec'] = (min_fl, max_fl, min_fl_fn, max_fl_fn)
-        return LensModel(lens_model) or None
+        return MD_LensModel(lens_model) or None
 
 
 class DateLink(QtWidgets.QCheckBox):
@@ -803,6 +793,7 @@ class TabWidget(QtWidgets.QWidget):
                 (translate('TechnicalTab', 'reflect tr-bl'), 5),
                 (translate('TechnicalTab', 'reflect tl-br'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
+        self.widgets['orientation'].setFocusPolicy(Qt.NoFocus)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model

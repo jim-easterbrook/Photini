@@ -34,9 +34,8 @@ import requests
 
 from photini.configstore import key_store
 from photini.metadata import Metadata
-from photini.pyqt import (
-    Busy, catch_all, DisableWidget, execute, FormLayout, Qt, QtCore, QtGui,
-    QtSignal, QtSlot, QtWidgets, StartStopButton, UnBusy, width_for_text)
+from photini.pyqt import *
+from photini.widgets import StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -527,8 +526,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         if 'keyword' in update:
             # store photo id in image keywords, in main thread
             image, keyword = update['keyword']
-            image.metadata.keywords = list(
-                image.metadata.keywords or []) + [keyword]
+            keywords = list(image.metadata.keywords or [])
+            if keyword not in keywords:
+                image.metadata.keywords = keywords + [keyword]
         if 'busy' in update:
             if update['busy']:
                 self.progress_bar.setMaximum(0)
@@ -679,10 +679,18 @@ class PhotiniUploader(QtWidgets.QWidget):
         # add metadata
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # title & description
-            params['meta'] = {
-                'title'      : image.metadata.title or image.name,
-                'description': image.metadata.description or '',
-                }
+            params['meta'] = {}
+            if image.metadata.title:
+                params['meta']['title'] = image.metadata.title.default_text()
+            else:
+                params['meta']['title'] = image.name
+            description = []
+            if image.metadata.headline:
+                description.append(str(image.metadata.headline))
+            if image.metadata.description:
+                description.append(image.metadata.description.default_text())
+            if description:
+                params['meta']['description'] = '\n\n'.join(description)
             # keywords
             keywords = ['uploaded:by=photini']
             for keyword in image.metadata.keywords or []:

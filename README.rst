@@ -20,7 +20,7 @@ Read my `blog post`_ on how I chose a name.
 Features
 --------
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_11.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_024.png
    :alt: Text editing screenshot
 
 *   Easy to use graphical interface.
@@ -51,7 +51,7 @@ Photini requires at least the following:
 
 *   Python3: http://python.org/
 *   PyQt5 or PySide2 or PySide6: http://www.riverbankcomputing.co.uk/software/pyqt/ or https://doc.qt.io/qtforpython/
-*   python-exiv2: https://pypi.org/project/python-exiv2/
+*   python-exiv2: https://pypi.org/project/exiv2/
 
 For a full list of dependencies, please see the `installation documentation`_.
 

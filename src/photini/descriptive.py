@@ -17,40 +17,16 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import date, datetime
 import logging
 
-from photini.filemetadata import ImageMetadata
-from photini.pyqt import (
-    catch_all, ComboBox, FormLayout, MultiLineEdit, multiple_values, Qt, QtCore,
-    QtGui, QtSignal, QtSlot, QtWidgets, SingleLineEdit, Slider, width_for_text)
+from photini.metadata import ImageMetadata
+from photini.pyqt import *
+from photini.widgets import (
+    ComboBox, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
-
-
-class LineEditWithAuto(QtWidgets.QWidget):
-    def __init__(self, key, **kw):
-        super(LineEditWithAuto, self).__init__()
-        self._is_multiple = False
-        layout = QtWidgets.QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
-        # line edit box
-        self.edit = SingleLineEdit(key, **kw)
-        layout.addWidget(self.edit)
-        # auto complete button
-        self.auto = QtWidgets.QPushButton(translate('DescriptiveTab', 'Auto'))
-        layout.addWidget(self.auto)
-        # adopt child widget methods and signals
-        self.set_value = self.edit.set_value
-        self.get_value = self.edit.get_value
-        self.set_multiple = self.edit.set_multiple
-        self.is_multiple = self.edit.is_multiple
-        self.new_value = self.edit.new_value
-        self.autoComplete = self.auto.clicked
 
 
 class RatingWidget(QtWidgets.QWidget):
@@ -139,7 +115,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         # favourites drop down
         self.favourites = ComboBox()
         self.favourites.addItem(translate('DescriptiveTab', '<favourites>'))
-        self.favourites.setFixedWidth(self.favourites.minimumSizeHint().width())
+        self.favourites.setFixedWidth(width_for_text(self.favourites, 'x' * 16))
         self.update_favourites()
         self.favourites.currentIndexChanged.connect(self.add_favourite)
         layout.addWidget(self.favourites)
@@ -205,7 +181,6 @@ class TabWidget(QtWidgets.QWidget):
 
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.form = FormLayout()
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -214,8 +189,8 @@ class TabWidget(QtWidgets.QWidget):
         # construct widgets
         self.widgets = {}
         # title
-        self.widgets['title'] = SingleLineEdit(
-            'title', spell_check=True,
+        self.widgets['title'] = LangAltWidget(
+            'title', multi_line=False, spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
         self.widgets['title'].setToolTip(translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
@@ -223,8 +198,19 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['title'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
+        # headline
+        self.widgets['headline'] = MultiLineEdit(
+            'headline', spell_check=True,
+            length_check=ImageMetadata.max_bytes('headline'))
+        self.widgets['headline'].set_height(3)
+        self.widgets['headline'].setToolTip(translate(
+            'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
+            ' of the contents of the image.'))
+        self.widgets['headline'].new_value.connect(self.new_value)
+        self.form.addRow(translate(
+            'DescriptiveTab', 'Headline'), self.widgets['headline'])
         # description
-        self.widgets['description'] = MultiLineEdit(
+        self.widgets['description'] = LangAltWidget(
             'description', spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
         self.widgets['description'].setToolTip(translate(
@@ -253,27 +239,6 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['rating'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Rating'), self.widgets['rating'])
-        # copyright
-        self.widgets['copyright'] = LineEditWithAuto(
-            'copyright', length_check=ImageMetadata.max_bytes('copyright'))
-        self.widgets['copyright'].setToolTip(translate(
-            'OwnerTab', 'Enter a notice on the current owner of the'
-            ' copyright for this image, such as "©2008 Jane Doe".'))
-        self.widgets['copyright'].new_value.connect(self.new_value)
-        self.widgets['copyright'].autoComplete.connect(self.auto_copyright)
-        self.form.addRow(translate(
-            'DescriptiveTab', 'Copyright'), self.widgets['copyright'])
-        # creator
-        self.widgets['creator'] = LineEditWithAuto(
-            'creator', multi_string=True,
-            length_check=ImageMetadata.max_bytes('creator'))
-        self.widgets['creator'].setToolTip(translate(
-            'OwnerTab',
-            'Enter the name of the person that created this image.'))
-        self.widgets['creator'].new_value.connect(self.new_value)
-        self.widgets['creator'].autoComplete.connect(self.auto_creator)
-        self.form.addRow(translate(
-            'DescriptiveTab', 'Creator / Artist'), self.widgets['creator'])
         # disable until an image is selected
         self.setEnabled(False)
 
@@ -288,53 +253,6 @@ class TabWidget(QtWidgets.QWidget):
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
             self.image_list.get_images())
-
-    @QtSlot()
-    @catch_all
-    def auto_copyright(self):
-        name = self.config_store.get('user', 'copyright_name')
-        if not name:
-            name, OK = QtWidgets.QInputDialog.getText(
-                self, translate('DescriptiveTab', 'Photini: input name'),
-                translate('DescriptiveTab',
-                          "Please type in the copyright holder's name"),
-                text=self.config_store.get('user', 'creator_name', ''))
-            if OK and name:
-                self.config_store.set('user', 'copyright_name', name)
-            else:
-                name = ''
-        copyright_text = self.config_store.get(
-            'user', 'copyright_text',
-            translate('DescriptiveTab',
-                      'Copyright ©{year} {name}. All rights reserved.'))
-        images = self.image_list.get_selected_images()
-        for image in images:
-            date_taken = image.metadata.date_taken
-            if date_taken is None:
-                date_taken = datetime.now()
-            else:
-                date_taken = date_taken['datetime']
-            value = copyright_text.format(year=date_taken.year, name=name)
-            image.metadata.copyright = value
-        self._update_widget('copyright', images)
-
-    @QtSlot()
-    @catch_all
-    def auto_creator(self):
-        name = self.config_store.get('user', 'creator_name')
-        if not name:
-            name, OK = QtWidgets.QInputDialog.getText(
-                self, translate('DescriptiveTab', 'Photini: input name'),
-                translate('DescriptiveTab', "Please type in the creator's name"),
-                text=self.config_store.get('user', 'copyright_name', ''))
-            if OK and name:
-                self.config_store.set('user', 'creator_name', name)
-            else:
-                name = ''
-        images = self.image_list.get_selected_images()
-        for image in images:
-            image.metadata.creator = name
-        self._update_widget('creator', images)
 
     @QtSlot(str, object)
     @catch_all
@@ -355,7 +273,7 @@ class TabWidget(QtWidgets.QWidget):
             if value not in values:
                 values.append(value)
         if len(values) > 1:
-            self.widgets[key].set_multiple(choices=filter(None, values))
+            self.widgets[key].set_multiple(choices=[x for x in values if x])
         else:
             self.widgets[key].set_value(values[0])
 

@@ -21,7 +21,7 @@ import logging
 import re
 import sys
 
-import photini.filemetadata # to find out if GObject is being used
+import photini.metadata # to find out if GObject is being used
 from photini.pyqt import catch_all, QtCore, QtSignal, QtSlot, QtWidgets
 
 enchant = None

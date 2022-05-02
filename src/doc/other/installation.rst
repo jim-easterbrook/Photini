@@ -567,7 +567,8 @@ If more than one of them is installed you can choose which one Photini uses by e
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
 QtWebEngine is preferred, but is not available on all operating systems.
-QtWebEngine is included in PySide6_, and some PyQt_ or PySide2_ installations also include QtWebEngine or QtWebKit.
+QtWebEngine is included in PySide6_ and some PyQt_ or PySide2_ installations.
+QtWebKit is deprecated and Photini will no longer be able to use it in a future release.
 Try running Photini before installing either as an extra package.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 

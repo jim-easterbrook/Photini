@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-21  Jim Easterbrook.
+   Copyright (C)  2012-22  Jim Easterbrook.
    See the file ../DOC_LICENSE.txt for copying conditions.
 
 Image selector
@@ -19,10 +19,14 @@ The overall size of the window can also be changed by dragging its edges or corn
 
 .. image:: ../images/screenshot_002.png
 
-Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``) or by "drag and drop" from a file manager window.
+Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``).
 The loaded files are displayed as thumbnail images in the image selector part of the GUI.
 Note that the thumbnail size can be changed with the slider control just beneath the thumbnail display area.
 The files can also be sorted by name or date by clicking on the appropriate button.
+
+Images can also be loaded by "drag and drop" from a file manager window or by adding them to the command line if you run Photini from a command terminal.
+If you open a directory then all the images in that directory will be opened.
+This is recursive, so beware of accidentally opening too many images in one go.
 
 .. image:: ../images/screenshot_003.png
 
@@ -44,7 +48,7 @@ The keyboard shortcut ``Ctrl+A`` selects all the loaded files.
 Selecting multiple files allows you to set metadata, such as the image title, on several files at once.
 This is much quicker than having to edit the metadata of each file separately.
 You will probably want to select a different group of files before editing each metadata item.
-For example, you might give the same title (and copyright and creator) to all the images, then select only the first two or three before writing a description.
+For example, you might give the same title to all the images, then select only the first two or three before writing a description.
 
 Context menu
 ------------
@@ -63,7 +67,7 @@ The context menu currently has five items.
 .. image:: ../images/screenshot_008.png
 
 The ``view changes`` context menu item displays all the metadata items that have changed.
-In this example I've set four items that were previously empty.
+In this example I've set two items that were previously empty.
 If you want to discard any of these changes then select the appropriate ``undo`` checkboxes and click on ``OK``.
 
 .. image:: ../images/screenshot_009.png

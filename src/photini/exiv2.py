@@ -60,6 +60,7 @@ class MetadataHandler(object):
         # 'Xmp.iptcExt.LocationCreated[1]/Iptc4xmpExt:City'.
         # Re-registering it under its full name means I have to use
         # 'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:City' instead.
+        registered = exiv2.XmpProperties.registeredNamespaces()
         for prefix, ns in (
                 ('exifEX',      'http://cipa.jp/exif/1.0/'),
                 ('Iptc4xmpExt', 'http://iptc.org/std/Iptc4xmpExt/2008-02-29/'),
@@ -68,7 +69,8 @@ class MetadataHandler(object):
                 ('xmpGImg',     'http://ns.adobe.com/xap/1.0/g/img/'),
                 ('xmpRights',   'http://ns.adobe.com/xap/1.0/rights/'),
                 ):
-            exiv2.XmpProperties.registerNs(ns, prefix)
+            if prefix == 'Iptc4xmpExt' or prefix not in registered:
+                exiv2.XmpProperties.registerNs(ns, prefix)
         # make list of possible character encodings
         cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
         char_set = locale.getdefaultlocale()[1]
@@ -176,13 +178,6 @@ class MetadataHandler(object):
             logger.exception(ex)
             return None
 
-    def get_exif_thumbnail(self):
-        thumb = exiv2.ExifThumb(self._exifData)
-        data = thumb.copy()
-        if data:
-            return bytes(data)
-        return None
-
     def set_exif_thumbnail_from_buffer(self, buffer):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
@@ -258,15 +253,7 @@ class MetadataHandler(object):
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
         if type_id == exiv2.TypeId.langAlt:
-            value = exiv2.LangAltValue(datum.value())
-            # concatenate all values, with language identifiers
-            result = []
-            for lang, text in value.items():
-                if lang == 'x-default':
-                    result = [text] + result
-                else:
-                    result.append('[{}] {}'.format(lang, text))
-            return '; '.join(result)
+            return dict(exiv2.LangAltValue(datum.value()))
         return list(exiv2.XmpArrayValue(datum.value()))
 
     def get_raw_value(self, tag):
@@ -275,19 +262,27 @@ class MetadataHandler(object):
         datum = self._iptcData[tag]
         return datum.toString().encode('utf-8', errors='surrogateescape')
 
-    def get_preview_thumbnail(self):
+    def get_exif_thumbnails(self):
+        # try normal thumbnail
+        thumb = exiv2.ExifThumb(self._exifData)
+        data = thumb.copy()
+        if data:
+            logger.info('%s: trying thumbnail', os.path.basename(self._path))
+            yield bytes(data), 'thumbnail'
+        # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
         if not props:
-            return None
-        # get largest acceptable image
+            return
+        # get largest acceptable images
         idx = len(props)
         while idx > 0:
             idx -= 1
             if max(props[idx].width_, props[idx].height_) <= 640:
-                break
-        image = preview_manager.getPreviewImage(props[idx])
-        return bytes(image.copy())
+                logger.info('%s: trying preview %d',
+                            os.path.basename(self._path), idx)
+                image = preview_manager.getPreviewImage(props[idx])
+                yield bytes(image.copy()), 'preview ' + str(idx)
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -350,23 +345,19 @@ class MetadataHandler(object):
             # set a single value
             datum.setValue(value)
             return
-        # set a list/tuple of values
+        # set a list/tuple/dict of values
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.invalidTypeId:
-            key = exiv2.XmpKey(datum.key())
-            type_id = exiv2.XmpProperties.propertyType(key)
-            type_name = exiv2.XmpProperties.propertyInfo(key).xmpValueType_
-        else:
-            type_name = datum.typeName()
+            type_id = exiv2.XmpProperties.propertyType(exiv2.XmpKey(tag))
         if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                        exiv2.TypeId.xmpSeq):
-            xmp_value = exiv2.XmpArrayValue(type_id)
-            for sub_value in value:
-                xmp_value.read(sub_value)
-            datum.setValue(xmp_value)
+            datum.setValue(exiv2.XmpArrayValue(value, type_id))
+        elif type_id == exiv2.TypeId.langAlt:
+            datum.setValue(exiv2.LangAltValue(value))
         else:
-            logger.error('%s: %s: setting type "%s" from list',
-                         os.path.basename(self._path), tag, type_name)
+            logger.error('%s: %s: setting type "%s" from %s',
+                         os.path.basename(self._path), tag,
+                         exiv2.TypeId(type_id).name, type(value))
             datum.setValue(';'.join(value))
 
     def clear_tag(self, tag):

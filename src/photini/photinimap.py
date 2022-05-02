@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from datetime import timezone
 import logging
 import os
@@ -28,11 +26,11 @@ import cachetools
 import pkg_resources
 
 from photini.imagelist import DRAG_MIMETYPE
+from photini.pyqt import *
 from photini.pyqt import (
-    catch_all, ComboBox, Qt, QtCore, QtGui, QtSignal, QtSlot, QtWebChannel,
-    QtWebCore, QtWebWidgets, QtWidgets, SingleLineEdit, using_qtwebengine,
-    width_for_text)
+    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, using_qtwebengine)
 from photini.technical import DoubleSpinBox
+from photini.widgets import ComboBox, LatLongDisplay
 
 
 logger = logging.getLogger(__name__)
@@ -119,90 +117,74 @@ class CallHandler(QtCore.QObject):
         self.parent().marker_drop(lat, lng)
 
 
-if using_qtwebengine:
-    class QWebPage(QtWebCore.QWebEnginePage):
-        def set_call_handler(self, call_handler):
-            self.web_channel = QtWebChannel.QWebChannel(parent=self)
+class BaseWebEnginePage(QWebEnginePage):
+    @QtSlot(QtCore.QUrl)
+    @catch_all
+    def open_in_browser(self, url):
+        if url.isLocalFile():
+            url.setScheme('http')
+        QtGui.QDesktopServices.openUrl(url)
+
+
+class TransientWebPage(BaseWebEnginePage):
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
+        self.open_in_browser(url)
+        # delete temporary child created by createWindow
+        self.deleteLater()
+        return False
+
+
+class MapWebPage(BaseWebEnginePage):
+    def __init__(self, call_handler, *args, **kwds):
+        super(MapWebPage, self).__init__(*args, **kwds)
+        self.call_handler = call_handler
+        if using_qtwebengine:
+            self.web_channel = QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
-            self.web_channel.registerObject('python', call_handler)
-
-        def acceptNavigationRequest(self, url, type_, isMainFrame):
-            if type_ == self.NavigationTypeLinkClicked:
-                if url.isLocalFile():
-                    url.setScheme('http')
-                QtGui.QDesktopServices.openUrl(url)
-                # delete temporary child created by createWindow
-                if isinstance(self.parent(), QWebPage):
-                    self.deleteLater()
-                return False
-            return super(QWebPage, self).acceptNavigationRequest(
-                url, type_, isMainFrame)
-
-        def createWindow(self, type_):
-            return QWebPage(parent=self)
-
-        def do_java_script(self, command):
-            self.runJavaScript(command)
-
-
-else:
-    class QWebPage(QtWebWidgets.QWebPage):
-        def __init__(self, call_handler, *args, **kwds):
-            super(QWebPage, self).__init__(*args, **kwds)
-            self.call_handler = call_handler
+            self.web_channel.registerObject('python', self.call_handler)
+            self.profile().setCachePath(
+                os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
+        else:
             self.setLinkDelegationPolicy(self.DelegateAllLinks)
-            self.linkClicked.connect(self.link_clicked)
+            self.linkClicked.connect(self.open_in_browser)
             self.mainFrame().javaScriptWindowObjectCleared.connect(
                 self.java_script_window_object_cleared)
+            cache = QtNetwork.QNetworkDiskCache()
+            cache.setCacheDirectory(
+                os.path.join(appdirs.user_cache_dir('photini'), 'WebKit'))
+            self.networkAccessManager().setCache(cache)
 
-        @QtSlot()
-        @catch_all
-        def java_script_window_object_cleared(self):
-            self.mainFrame().addToJavaScriptWindowObject(
-                'python', self.call_handler)
+    @QtSlot()
+    @catch_all
+    def java_script_window_object_cleared(self):
+        self.mainFrame().addToJavaScriptWindowObject(
+            'python', self.call_handler)
 
-        @QtSlot(QtCore.QUrl)
-        @catch_all
-        def link_clicked(self, url):
-            if url.isLocalFile():
-                url.setScheme('http')
-            QtGui.QDesktopServices.openUrl(url)
+    def createWindow(self, type_):
+        return TransientWebPage(parent=self)
 
-        def do_java_script(self, command):
+    def do_java_script(self, command):
+        if using_qtwebengine:
+            self.runJavaScript(command)
+        else:
             self.mainFrame().evaluateJavaScript(command)
 
-
-class MapWebPage(QWebPage):
     def javaScriptConsoleMessage(self, level, msg, line, source):
         logger.log(
             logging.INFO + (level * 10), '%s line %d: %s', source, line, msg)
 
 
-if using_qtwebengine:
-    class QWebView(QtWebWidgets.QWebEngineView):
-        def __init__(self, call_handler, *args, **kwds):
-            super(QWebView, self).__init__(*args, **kwds)
-            self.setPage(MapWebPage(parent=self))
-            self.page().set_call_handler(call_handler)
-            self.page().profile().setCachePath(appdirs.user_cache_dir('photini'))
-            settings = self.settings()
-            settings.setAttribute(settings.Accelerated2dCanvasEnabled, False)
-            settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
-            settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
-
-
-else:
-    class QWebView(QtWebWidgets.QWebView):
-        def __init__(self, call_handler, *args, **kwds):
-            super(QWebView, self).__init__(*args, **kwds)
-            self.setPage(MapWebPage(call_handler, parent=self))
-            settings = self.settings()
-            settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
-            settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
-
-
-class MapWebView(QWebView):
+class MapWebView(QWebEngineView):
     drop_text = QtSignal(int, int, str)
+
+    def __init__(self, call_handler, *args, **kwds):
+        super(MapWebView, self).__init__(*args, **kwds)
+        self.setPage(MapWebPage(call_handler, parent=self))
+        settings = self.settings()
+        if using_qtwebengine:
+            settings.setAttribute(settings.Accelerated2dCanvasEnabled, False)
+        settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
 
     @catch_all
     def dragEnterEvent(self, event):
@@ -222,54 +204,6 @@ class MapWebView(QWebView):
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
-
-
-class LatLongDisplay(SingleLineEdit):
-    changed = QtSignal()
-
-    def __init__(self, image_list, *args, **kwds):
-        super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
-        self.image_list = image_list
-        self.label = QtWidgets.QLabel(translate('MapTabsAll', 'Lat, long'))
-        self.label.setAlignment(Qt.AlignRight)
-        self.setFixedWidth(width_for_text(self, '8' * 23))
-        self.setEnabled(False)
-        self.new_value.connect(self.editing_finished)
-
-    @QtSlot(str, object)
-    @catch_all
-    def editing_finished(self, key, value):
-        selected_images = self.image_list.get_selected_images()
-        new_value = value.strip() or None
-        if new_value:
-            try:
-                new_value = list(map(float, new_value.split(',')))
-            except Exception:
-                # user typed in an invalid value
-                self.update_display(selected_images)
-                return
-        for image in selected_images:
-            image.metadata.latlong = new_value
-        self.update_display(selected_images)
-        self.changed.emit()
-
-    def update_display(self, selected_images=None):
-        if selected_images is None:
-            selected_images = self.image_list.get_selected_images()
-        if not selected_images:
-            self.set_value(None)
-            self.setEnabled(False)
-            return
-        values = []
-        for image in selected_images:
-            value = image.metadata.latlong
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.set_multiple(choices=filter(None, values))
-        else:
-            self.set_value(values[0])
-        self.setEnabled(True)
 
 
 class PhotiniMap(QtWidgets.QWidget):

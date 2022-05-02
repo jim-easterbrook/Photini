@@ -16,20 +16,24 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from collections import namedtuple
 from contextlib import contextmanager
 from functools import wraps
 import importlib
 import logging
 import os
-import re
 import sys
 
 from photini.configstore import BaseConfigStore
 
 logger = logging.getLogger(__name__)
+
+# allow a "standard" list of objects to be imported with *
+__all__ = (
+    'Busy', 'catch_all', 'DisableWidget', 'execute', 'FormLayout', 'multiple',
+    'multiple_values', 'Qt', 'QtCore', 'QtGui', 'QtGui2', 'QtSignal', 'QtSlot',
+    'QtWidgets', 'scale_font', 'UnBusy', 'width_for_text'
+    )
 
 # temporarily open config file to get any over-rides
 config = BaseConfigStore('editor')
@@ -70,6 +74,7 @@ if qt_lib == 'PySide6':
     from PySide6 import __version__ as PySide_version
     QtGui2 = QtGui
 elif qt_lib == 'PySide2':
+    using_qtwebengine = True
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtCore import Signal as QtSignal
@@ -126,25 +131,21 @@ if not isinstance(using_qtwebengine, bool):
 # import WebEngine or WebKit stuff
 if using_qtwebengine:
     if qt_lib == 'PySide6':
-        from PySide6 import QtWebChannel
-        from PySide6 import QtWebEngineWidgets as QtWebWidgets
-        from PySide6 import QtWebEngineCore as QtWebCore
+        from PySide6.QtWebChannel import QWebChannel
+        from PySide6.QtWebEngineWidgets import QWebEngineView
+        from PySide6.QtWebEngineCore import QWebEnginePage
     elif qt_lib == 'PySide2':
-        from PySide2 import QtWebChannel
-        from PySide2 import QtWebEngineWidgets as QtWebWidgets
-        QtWebCore = QtWebWidgets
+        from PySide2.QtWebChannel import QWebChannel
+        from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
     else:
-        from PyQt5 import QtWebChannel
-        from PyQt5 import QtWebEngineWidgets as QtWebWidgets
-        QtWebCore = QtWebWidgets
+        from PyQt5.QtWebChannel import QWebChannel
+        from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 else:
-    QtWebChannel = None
-    if qt_lib == 'PySide2':
-        from PySide2 import QtWebKitWidgets as QtWebWidgets
-        from PySide2 import QtWebKit as QtWebCore
-    else:
-        from PyQt5 import QtWebKitWidgets as QtWebWidgets
-        from PyQt5 import QtWebKit as QtWebCore
+    print('Use of QtWebKit will be withdrawn in a future release'
+          ' of Photini.\nPlease install QtWebEngine soon.')
+    QWebChannel = None
+    from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
+    from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
 
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
@@ -190,10 +191,10 @@ def video_types():
     return lower + [x.upper() for x in lower] + [x.title() for x in lower]
 
 def multiple():
-    return translate('Common', '<multiple>')
+    return translate('Widgets', '<multiple>')
 
 def multiple_values():
-    return translate('Common', '<multiple values>')
+    return translate('Widgets', '<multiple values>')
 
 def set_symbol_font(widget):
     widget.setFont(QtGui.QFont('DejaVu Sans'))
@@ -262,380 +263,3 @@ class FormLayout(QtWidgets.QFormLayout):
         if wrapped:
             self.setRowWrapPolicy(self.WrapAllRows)
         self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
-
-
-class CompactButton(QtWidgets.QPushButton):
-    def __init__(self, *args, **kwds):
-        super(CompactButton, self).__init__(*args, **kwds)
-        if QtWidgets.QApplication.style().objectName() in ('breeze',):
-            self.setStyleSheet('padding: 2px;')
-        scale_font(self, 80)
-
-
-class TextHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, spelling, length, multi_string, parent):
-        super(TextHighlighter, self).__init__(parent)
-        self.config_store = QtWidgets.QApplication.instance().config_store
-        if spelling:
-            self.spell_check = QtWidgets.QApplication.instance().spell_check
-            self.spell_check.new_dict.connect(self.rehighlight)
-            self.spell_formatter = QtGui.QTextCharFormat()
-            self.spell_formatter.setUnderlineColor(Qt.red)
-            self.spell_formatter.setUnderlineStyle(
-                QtGui.QTextCharFormat.SpellCheckUnderline)
-            self.find_words = self.spell_check.find_words
-            self.suggest = self.spell_check.suggest
-        else:
-            self.spell_check = None
-        if length:
-            self.length_check = length
-            self.length_formatter = QtGui.QTextCharFormat()
-            self.length_formatter.setUnderlineColor(Qt.blue)
-            self.length_formatter.setUnderlineStyle(
-                QtGui.QTextCharFormat.SingleUnderline)
-        else:
-            self.length_check = None
-        self.multi_string = multi_string
-
-    @catch_all
-    def highlightBlock(self, text):
-        if not text:
-            return
-        if self.length_check:
-            length_warning = self.config_store.get(
-                'files', 'length_warning', True)
-            if length_warning:
-                if self.multi_string:
-                    pattern = '\s*(.+?)(;|$)'
-                else:
-                    pattern = '\s*(.+)'
-                for match in re.finditer(pattern, text):
-                    start = match.start(1)
-                    end = match.end(1)
-                    truncated = text[start:end]
-                    truncated = truncated.encode('utf-8')[:self.length_check]
-                    start += len(truncated.decode('utf-8', errors='ignore'))
-                    if start < end:
-                        self.setFormat(start, end - start,
-                                       self.length_formatter)
-        if self.spell_check:
-            for word, start, end in self.find_words(text):
-                if not self.spell_check.check(word):
-                    self.setFormat(start, end - start, self.spell_formatter)
-
-
-class ComboBox(QtWidgets.QComboBox):
-    def __init__(self, *args, **kwds):
-        super(ComboBox, self).__init__(*args, **kwds)
-        self.setFocusPolicy(Qt.StrongFocus)
-
-    @catch_all
-    def wheelEvent(self, event):
-        if self.hasFocus():
-            return super(ComboBox, self).wheelEvent(event)
-        event.ignore()
-        return True
-
-    def set_dropdown_width(self):
-        width = 0
-        for idx in range(self.count()):
-            width = max(width, width_for_text(self, self.itemText(idx) + 'xx'))
-        margin = self.view().verticalScrollBar().sizeHint().width()
-        self.view().setMinimumWidth(width + margin)
-
-
-class DropDownSelector(ComboBox):
-    new_value = QtSignal(str, object)
-
-    def __init__(self, key, values=[], default=None,
-                 with_multiple=True, extendable=False, ordered=False):
-        super(DropDownSelector, self).__init__()
-        self._key = key
-        self._with_multiple = with_multiple
-        self._extendable = extendable
-        self._ordered = ordered
-        self._old_idx = 0
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
-        self.set_values(values, default=default)
-        self.currentIndexChanged.connect(self._index_changed)
-
-    def add_item(self, text, data, adjust_width=True):
-        idx = self.findData(data)
-        if idx >= 0:
-            self.setItemText(idx, text)
-            return idx
-        idx = self._last_idx()
-        if self._ordered:
-            for n in range(idx):
-                if self.itemText(n).lower() > text.lower():
-                    idx = n
-                    break
-        blocked = self.blockSignals(True)
-        self.insertItem(idx, text, data)
-        self.blockSignals(blocked)
-        if adjust_width:
-            self.set_dropdown_width()
-        return idx
-
-    def remove_item(self, data, adjust_width=True):
-        idx = self.findData(data)
-        if idx < 0:
-            return
-        blocked = self.blockSignals(True)
-        self.removeItem(idx)
-        self.blockSignals(blocked)
-
-    def set_values(self, values, default=None):
-        blocked = self.blockSignals(True)
-        self.clear()
-        if self._extendable:
-            self.addItem(self.tr('<new>'))
-        if self._with_multiple:
-            self.addItem(multiple_values())
-            self.setItemData(self.count() - 1, '', Qt.UserRole - 1)
-        for text, data in values:
-            self.add_item(text, data, adjust_width=False)
-        self.set_dropdown_width()
-        self.blockSignals(blocked)
-        if default is not None:
-            self.set_value(default)
-
-    def get_value(self):
-        return self.itemData(self.currentIndex())
-
-    def set_value(self, value):
-        self._old_idx = self.findData(value)
-        if self._old_idx < 0:
-            self._old_idx = self.add_item(self.data_to_text(value), value)
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self._old_idx)
-        self.blockSignals(blocked)
-
-    def data_to_text(self, data):
-        return str(data)
-
-    def is_multiple(self):
-        return self._with_multiple and self.currentIndex() == self.count() - 1
-
-    def set_multiple(self, choices=[]):
-        if self._with_multiple:
-            blocked = self.blockSignals(True)
-            self._old_idx = self.count() - 1
-            self.setCurrentIndex(self._old_idx)
-            self.blockSignals(blocked)
-
-    def findData(self, data):
-        # Qt's findData only works with simple types
-        for n in range(self._last_idx()):
-            if self.itemData(n) == data:
-                return n
-        return -1
-
-    @QtSlot(int)
-    @catch_all
-    def _index_changed(self, idx):
-        if idx < self._last_idx():
-            # normal item selection
-            self._old_idx = idx
-            self.new_value.emit(self._key, self.itemData(idx))
-            return
-        # user must have clicked '<new>'
-        text, data = self.define_new_value()
-        if text:
-            self._old_idx = self.add_item(text, data)
-            blocked = self.blockSignals(True)
-            self.setCurrentIndex(self._old_idx)
-            self.blockSignals(blocked)
-            self.new_value.emit(self._key, data)
-            return
-        blocked = self.blockSignals(True)
-        self.setCurrentIndex(self._old_idx)
-        self.blockSignals(blocked)
-
-    def _last_idx(self):
-        idx = self.count()
-        if self._extendable:
-            idx -= 1
-        if self._with_multiple:
-            idx -= 1
-        return idx
-
-
-class MultiLineEdit(QtWidgets.QPlainTextEdit):
-    new_value = QtSignal(str, object)
-
-    def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, **kw):
-        super(MultiLineEdit, self).__init__(*arg, **kw)
-        self._key = key
-        self.multiple_values = multiple_values()
-        self.setTabChangesFocus(True)
-        self._is_multiple = False
-        self.spell_check = spell_check
-        self.highlighter = TextHighlighter(
-            spell_check, length_check, multi_string, self.document())
-
-    def focusOutEvent(self, event):
-        if not self._is_multiple:
-            self.new_value.emit(self._key, self.get_value())
-        super(MultiLineEdit, self).focusOutEvent(event)
-
-    def keyPressEvent(self, event):
-        if self._is_multiple:
-            self._is_multiple = False
-            self.setPlaceholderText('')
-        super(MultiLineEdit, self).keyPressEvent(event)
-
-    @catch_all
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        suggestion_group = QtGui2.QActionGroup(menu)
-        if self._is_multiple:
-            if self.choices:
-                sep = menu.insertSeparator(menu.actions()[0])
-                fm = menu.fontMetrics()
-                for suggestion in self.choices:
-                    label = str(suggestion).replace('\n', ' ')
-                    label = fm.elidedText(label, Qt.ElideMiddle, self.width())
-                    action = QtGui2.QAction(label, suggestion_group)
-                    action.setData(str(suggestion))
-                    menu.insertAction(sep, action)
-        elif self.spell_check:
-            cursor = self.cursorForPosition(event.pos())
-            block_pos = cursor.block().position()
-            for word, start, end in self.highlighter.find_words(
-                                                        cursor.block().text()):
-                if start > cursor.positionInBlock():
-                    break
-                if end <= cursor.positionInBlock():
-                    continue
-                cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
-                break
-            suggestions = self.highlighter.suggest(cursor.selectedText())
-            if suggestions:
-                sep = menu.insertSeparator(menu.actions()[0])
-                for suggestion in suggestions:
-                    action = QtGui2.QAction(suggestion, suggestion_group)
-                    menu.insertAction(sep, action)
-        action = menu.exec_(event.globalPos())
-        if action and action.actionGroup() == suggestion_group:
-            if self._is_multiple:
-                self.set_value(action.data())
-            else:
-                cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
-                cursor.insertText(action.iconText())
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if not value:
-            self.clear()
-            self.setPlaceholderText('')
-        else:
-            self.setPlainText(str(value))
-
-    def get_value(self):
-        return self.toPlainText()
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        self.choices = list(choices)
-        self.setPlaceholderText(self.multiple_values)
-        self.clear()
-
-    def is_multiple(self):
-        return self._is_multiple and not bool(self.get_value())
-
-
-class SingleLineEdit(MultiLineEdit):
-    def __init__(self, *arg, **kw):
-        super(SingleLineEdit, self).__init__(*arg, **kw)
-        self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(self.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return:
-            event.ignore()
-            return
-        super(SingleLineEdit, self).keyPressEvent(event)
-
-    def insertFromMimeData(self, source):
-        self.insertPlainText(source.text().replace('\n', ' '))
-
-
-class Slider(QtWidgets.QSlider):
-    editing_finished = QtSignal()
-
-    def __init__(self, *arg, **kw):
-        super(Slider, self).__init__(*arg, **kw)
-        self._is_multiple = False
-        self.sliderPressed.connect(self.slider_pressed)
-
-    def focusOutEvent(self, event):
-        self.editing_finished.emit()
-        super(Slider, self).focusOutEvent(event)
-
-    @QtSlot()
-    @catch_all
-    def slider_pressed(self):
-        self._is_multiple = False
-
-    def get_value(self):
-        return self.value()
-
-    def set_value(self, value):
-        self._is_multiple = False
-        if value is not None:
-            self.setValue(value)
-
-    def set_multiple(self, choices=[]):
-        self._is_multiple = True
-        value = self.value()
-        for choice in choices:
-            if choice is not None:
-                value = max(value, choice)
-        self.setValue(value)
-
-    def is_multiple(self):
-        return self._is_multiple
-
-
-class StartStopButton(QtWidgets.QPushButton):
-    click_start = QtSignal()
-    click_stop = QtSignal()
-
-    def __init__(self, start_text, stop_text, *arg, **kw):
-        super(StartStopButton, self).__init__(*arg, **kw)
-        self.start_text = start_text
-        self.stop_text = stop_text
-        self.checked = False
-        self.clicked.connect(self.do_clicked)
-        # get a size big enough for either text
-        self.setText(self.stop_text)
-        stop_size = super(StartStopButton, self).sizeHint()
-        self.setText(self.start_text)
-        start_size = super(StartStopButton, self).sizeHint()
-        self.minimum_size = stop_size.expandedTo(start_size)
-
-    def sizeHint(self):
-        return self.minimum_size
-
-    def is_checked(self):
-        return self.checked
-
-    def set_checked(self, value):
-        self.checked = value
-        if self.checked:
-            self.setText(self.stop_text)
-        else:
-            self.setText(self.start_text)
-
-    @QtSlot()
-    def do_clicked(self):
-        if self.checked:
-            self.click_stop.emit()
-        else:
-            self.click_start.emit()

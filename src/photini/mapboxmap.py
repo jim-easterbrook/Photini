@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import locale
 import logging
 
@@ -25,8 +23,8 @@ import requests
 
 from photini.configstore import key_store
 from photini.photinimap import GeocoderBase, PhotiniMap
-from photini.pyqt import (
-    Busy, catch_all, CompactButton, QtCore, QtGui, QtSlot, QtWidgets)
+from photini.pyqt import Busy, catch_all, QtCore, QtGui, QtSlot, QtWidgets
+from photini.widgets import CompactButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate

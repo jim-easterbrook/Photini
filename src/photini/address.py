@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from collections import defaultdict
 import locale
 import logging
@@ -26,12 +24,11 @@ import os
 import requests
 
 from photini.configstore import key_store
-from photini.filemetadata import ImageMetadata
-from photini.metadata import Location
+from photini.metadata import ImageMetadata
 from photini.photinimap import GeocoderBase, LatLongDisplay
-from photini.pyqt import (
-    Busy, catch_all, CompactButton, execute, Qt, QtCore, QtGui, QtSignal,
-    QtSlot, QtWidgets, SingleLineEdit, width_for_text)
+from photini.pyqt import *
+from photini.types import MD_Location
+from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -114,7 +111,7 @@ class OpenCage(GeocoderBase):
             del address['state_code']
         if 'partial_postcode' in address and 'postcode' in address:
             del address['partial_postcode']
-        return Location.from_address(address, self.address_map)
+        return MD_Location.from_address(address, self.address_map)
 
     def search_terms(self):
         text = self.tr('Address lookup powered by OpenCage')
@@ -196,6 +193,7 @@ class LocationInfo(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
+        self.members[key].set_value(value)
         self.new_value.emit(self, self.get_value())
 
 
@@ -280,7 +278,7 @@ class TabWidget(QtWidgets.QWidget):
         idx = self.location_info.currentIndex()
         for image in self.image_list.get_selected_images():
             # duplicate data
-            location = Location(self._get_location(image, idx) or {})
+            location = MD_Location(self._get_location(image, idx) or {})
             # shuffle data up
             location_list = list(image.metadata.location_shown or [])
             location_list.insert(idx, location)

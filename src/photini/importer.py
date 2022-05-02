@@ -31,10 +31,9 @@ except ImportError:
     gp = None
 
 from photini.metadata import Metadata
-from photini.pyqt import (
-    Busy, catch_all, ComboBox, execute, FormLayout, image_types_lower, Qt,
-    QtCore, QtGui, QtGui2, QtSignal, QtSlot, QtWidgets, StartStopButton,
-    video_types_lower)
+from photini.pyqt import *
+from photini.pyqt import image_types_lower, video_types_lower
+from photini.widgets import ComboBox, StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
