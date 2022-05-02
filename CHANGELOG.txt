@@ -16,6 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.5.0:
+  1/ Can set alternative language texts for some fields (XMP only).
+  2/ Added a "headline" field to the descriptive metadata tab.
+  3/ Can initialise "ownership" template from file metadata.
+  4/ Drag a directory to the image list to open all its files.
+  5/ Better handling of unreadable thumbnails.
+  6/ QtWebKit is deprecated and will not be supported in a future release.
+  7/ Other minor improvements and bug fixes.
+
 Changes in v2022.3.2:
   1/ Fix urllib import error porblem on some systems.
   2/ Fix non-existing cache directory error.
