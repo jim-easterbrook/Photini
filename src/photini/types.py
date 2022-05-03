@@ -861,7 +861,7 @@ class LangAltDict(dict):
                         'x-default', dflt_value)
         elif len(self) == 1:
             # only one item, and it's not 'x-default'
-            self._default_lang = self.keys()[0]
+            self._default_lang = list(self.keys())[0]
         # Make sure we're not empty
         if len(self) == 0:
             super(LangAltDict, self).__setitem__('x-default', '')
