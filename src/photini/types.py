@@ -1140,6 +1140,8 @@ class MD_Orientation(MD_Int):
 
 
 class MD_Timezone(MD_Int):
+    _quiet = True
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if file_value in (None, ''):
