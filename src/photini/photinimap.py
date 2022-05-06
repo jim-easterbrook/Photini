@@ -414,11 +414,11 @@ class PhotiniMap(QtWidgets.QWidget):
 
     @QtSlot(object)
     @catch_all
-    def new_altitude(self, value):
-        selected_images = self.image_list.get_selected_images()
-        for image in selected_images:
+    def new_altitude(self, value, images=[]):
+        images = images or self.image_list.get_selected_images()
+        for image in images:
             image.metadata.altitude = value
-        self.update_altitude(selected_images)
+        self.update_altitude(images)
 
     def update_altitude(self, selected_images):
         if not selected_images:
@@ -598,10 +598,11 @@ class PhotiniMap(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def get_altitude(self):
+        images = self.image_list.get_selected_images()
         altitude = self.geocoder.get_altitude(
             self.widgets['latlon'].get_value())
         if altitude is not None:
-            self.new_altitude(round(altitude, 1))
+            self.new_altitude(round(altitude, 1), images)
 
     @QtSlot()
     @catch_all
