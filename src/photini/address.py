@@ -349,9 +349,10 @@ class TabWidget(QtWidgets.QWidget):
 
     @QtSlot(object, dict)
     @catch_all
-    def new_location(self, widget, new_value):
+    def new_location(self, widget, new_value, images=[]):
+        images = images or self.image_list.get_selected_images()
         idx = self.location_info.indexOf(widget)
-        for image in self.image_list.get_selected_images():
+        for image in images:
             temp = dict(self._get_location(image, idx) or {})
             temp.update(new_value)
             self._set_location(image, idx, temp)
@@ -429,6 +430,8 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def get_address(self):
+        images = self.image_list.get_selected_images()
         location = self.geocoder.get_address(self.coords.get_value())
         if location:
-            self.new_location(self.location_info.currentWidget(), location)
+            self.new_location(
+                self.location_info.currentWidget(), location, images)
