@@ -305,10 +305,11 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                             + (margins.top() + margins.bottom()))
 
     def set_value(self, value):
-        self._is_multiple = False
+        if self._is_multiple:
+            self._is_multiple = False
+            self.setPlaceholderText('')
         if not value:
             self.clear()
-            self.setPlaceholderText('')
         else:
             self.setPlainText(str(value))
 
