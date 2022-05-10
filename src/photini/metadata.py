@@ -292,13 +292,13 @@ class ImageMetadata(MetadataHandler):
         self.set_value('Iptc.Envelope.CharacterSet',
                        self._iptc_encodings[encoding][0].decode('ascii'))
 
-    def save(self, file_times=None, force_iptc=False):
+    def save(self, file_times=None, write_iptc=False):
         if self.read_only:
             return False
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
-        elif force_iptc:
+        elif write_iptc:
             self.set_iptc_encoding()
         else:
             self.clear_iptc()
@@ -776,12 +776,13 @@ class Metadata(object):
         return handler.save(*arg, **kw)
 
     def save(self, if_mode=True, sc_mode='auto',
-             force_iptc=False, file_times=None):
+             iptc_mode='preserve', file_times=None):
         if not self.dirty:
             return
         self.software = 'Photini editor v' + __version__
         OK = False
-        force_iptc = force_iptc or self.iptc_in_file
+        write_iptc = (iptc_mode == 'create'
+                      or (iptc_mode == 'preserve' and self.iptc_in_file))
         try:
             # save to image file
             if if_mode and self._if:
@@ -790,9 +791,9 @@ class Metadata(object):
                         self._if.clear_maker_note()
                     self._maker_note['delete'] = False
                 OK = self._handler_save(
-                    self._if, file_times=file_times, force_iptc=force_iptc)
+                    self._if, file_times=file_times, write_iptc=write_iptc)
                 if OK:
-                    self.iptc_in_file = force_iptc
+                    self.iptc_in_file = write_iptc
             if not OK:
                 # can't write to image file so must create side car
                 sc_mode = 'always'

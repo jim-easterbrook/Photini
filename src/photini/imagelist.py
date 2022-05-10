@@ -892,7 +892,7 @@ class ImageList(QtWidgets.QWidget):
         self._flush_editing()
         if_mode = self.app.config_store.get('files', 'image', True)
         sc_mode = self.app.config_store.get('files', 'sidecar', 'auto')
-        force_iptc = self.app.config_store.get('files', 'force_iptc', False)
+        iptc_mode = self.app.config_store.get('files', 'iptc_iim', 'preserve')
         keep_time = self.app.config_store.get(
             'files', 'preserve_timestamps', 'now')
         if isinstance(keep_time, bool):
@@ -912,7 +912,7 @@ class ImageList(QtWidgets.QWidget):
                     file_times = None
                 image.metadata.save(
                     if_mode=if_mode, sc_mode=sc_mode,
-                    force_iptc=force_iptc, file_times=file_times)
+                    iptc_mode=iptc_mode, file_times=file_times)
         unsaved = any([image.metadata.changed() for image in self.images])
         self.new_metadata.emit(unsaved)
 

@@ -44,12 +44,25 @@ class EditSettings(QtWidgets.QDialog):
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # IPTC data
-        force_iptc = self.config_store.get('files', 'force_iptc', False)
-        self.write_iptc = QtWidgets.QCheckBox(self.tr('Always write'))
-        self.write_iptc.setChecked(force_iptc)
-        self.write_iptc.setMinimumWidth(
-            width_for_text(self.write_iptc, 'x' * 35))
-        panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.write_iptc)
+        if self.config_store.get('files', 'force_iptc'):
+            self.config_store.set('files', 'iptc_iim', 'create')
+        self.config_store.delete('files', 'force_iptc')
+        iptc_mode = self.config_store.get('files', 'iptc_iim', 'preserve')
+        button_group = QtWidgets.QButtonGroup(parent=self)
+        self.iptc_always = QtWidgets.QRadioButton(self.tr('Always write'))
+        button_group.addButton(self.iptc_always)
+        self.iptc_always.setChecked(iptc_mode == 'create')
+        self.iptc_always.setMinimumWidth(
+            width_for_text(self.iptc_always, 'x' * 35))
+        panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.iptc_always)
+        self.iptc_auto = QtWidgets.QRadioButton(self.tr('Write if exists'))
+        button_group.addButton(self.iptc_auto)
+        self.iptc_auto.setChecked(iptc_mode == 'preserve')
+        panel.layout().addRow('', self.iptc_auto)
+        self.iptc_delete = QtWidgets.QRadioButton(self.tr('Always delete'))
+        button_group.addButton(self.iptc_delete)
+        self.iptc_delete.setChecked(iptc_mode == 'delete')
+        panel.layout().addRow('', self.iptc_delete)
         # show IPTC-IIM length limits
         length_warning = self.config_store.get('files', 'length_warning', True)
         self.length_warning = QtWidgets.QCheckBox(self.tr(
@@ -118,8 +131,13 @@ class EditSettings(QtWidgets.QDialog):
         if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
             return self.reject()
         # change config
-        self.config_store.set(
-            'files', 'force_iptc', self.write_iptc.isChecked())
+        if self.iptc_always.isChecked():
+            iptc_mode = 'create'
+        elif self.iptc_auto.isChecked():
+            iptc_mode = 'preserve'
+        else:
+            iptc_mode = 'delete'
+        self.config_store.set('files', 'iptc_iim', iptc_mode)
         self.config_store.set(
             'files', 'length_warning', self.length_warning.isChecked())
         if self.sc_always.isChecked():

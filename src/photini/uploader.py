@@ -406,7 +406,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         md = Metadata.clone(path, image.metadata)
         # save metedata, forcing IPTC creation
         md.dirty = True
-        md.save(if_mode=True, sc_mode='none', force_iptc=True)
+        md.save(if_mode=True, sc_mode='none', iptc_mode='create')
 
     def convert_to_jpeg(self, image):
         im = QtGui.QImage(image.path)
