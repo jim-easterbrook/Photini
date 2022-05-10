@@ -404,9 +404,9 @@ class PhotiniUploader(QtWidgets.QWidget):
     def copy_metadata(self, image, path):
         # copy metadata
         md = Metadata.clone(path, image.metadata)
-        # save metedata, forcing IPTC creation
+        # save metadata
         md.dirty = True
-        md.save(if_mode=True, sc_mode='none', iptc_mode='create')
+        md.save(if_mode=True, sc_mode='none', iptc_mode='preserve')
 
     def convert_to_jpeg(self, image):
         im = QtGui.QImage(image.path)
@@ -439,8 +439,8 @@ class PhotiniUploader(QtWidgets.QWidget):
             if image.file_type.startswith('video'):
                 # don't try to write metadata to videos
                 return None
-            if image.metadata.find_sidecar() or not image.metadata.iptc_in_file:
-                # need to create file without sidecar and with IPTC
+            if image.metadata.find_sidecar():
+                # need to create file without sidecar
                 return self.copy_file_and_metadata
             return None
         if not self.is_convertible(image):
