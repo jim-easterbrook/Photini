@@ -11,12 +11,13 @@ The ``Options`` menu also has a ``Settings`` item which opens the dialog shown b
 
 .. image:: ../images/screenshot_36.png
 
-The first item adjusts how Photini uses IPTC-IIM "legacy" metadata.
+The first three items adjust how Photini uses IPTC-IIM "legacy" metadata.
 (Since 2004 the `IPTC standard`_ uses XMP to store metadata.
 Photini always writes these XMP fields.)
-The `Metadata Working Group`_ recommended that IPTC-IIM metadata is not written to files unless already present.
-Photini has an option to always write IPTC-IIM metadata.
-You may need this if you use other software that reads IPTC-IIM but not Exif or XMP.
+The first option is to always write IPTC-IIM metadata.
+You may need this if you use other software that reads IPTC-IIM but not XMP.
+The second option only writes IPTC-IIM metadata if it is already present in the file, as recommended by the `Metadata Working Group`_.
+The third option is to delete any IPTC-IIM metadata that might be present.
 
 IPTC-IIM metadata has limited length for some fields.
 Photini truncates the IPTC-IIM data if necessary, but the full length data is still stored in Exif and / or XMP.
