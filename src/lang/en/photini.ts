@@ -213,6 +213,14 @@ Separate them with &quot;;&quot; characters.</source>
         <source>Set to when file is saved</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Write if exists</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Always delete</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
