@@ -396,7 +396,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source> secs</source>
-        <translation>Sekunden</translation>
+        <translation> Sekunden</translation>
     </message>
     <message>
         <source>Max time between points</source>
@@ -795,7 +795,7 @@ provided by Bing</translation>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Genauigkeit</translation>
+        <translation>Genauigkeit:</translation>
     </message>
     <message>
         <source>min</source>
