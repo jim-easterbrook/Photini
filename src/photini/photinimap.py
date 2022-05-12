@@ -58,7 +58,8 @@ class GeocoderBase(QtCore.QObject):
             except (AttributeError, FileNotFoundError):
                 self.query_cache = cachetools.TTLCache(
                     self.cache_size, self.cache_ttl)
-            logger.info('cache count %d', self.query_cache.currsize)
+            logger.info('cache %s has %d entries',
+                        self.cache_file, self.query_cache.currsize)
             self.app.aboutToQuit.connect(self.save_cache)
         else:
             self.query_cache = None
