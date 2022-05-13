@@ -963,7 +963,7 @@ provided by Bing</source>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation>Photini edytor metadanych zdjęcia </translation>
+        <translation>Photini edytor metadanych zdjęcia</translation>
     </message>
     <message>
         <source>File</source>
