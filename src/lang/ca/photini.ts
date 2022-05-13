@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="ca" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -584,7 +585,7 @@ en aquesta foto a Flickr?</translation>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>ordena per:</translation>
+        <translation>ordena per: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -596,7 +597,7 @@ en aquesta foto a Flickr?</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>mida miniatura:</translation>
+        <translation>mida miniatura: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -1100,7 +1101,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Spelling</source>
-        <translation>Ortografia </translation>
+        <translation>Ortografia</translation>
     </message>
     <message>
         <source>Enable spell check</source>
@@ -1586,7 +1587,7 @@ template</source>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Ja podeu tancar aquesta finestra de navegador</translation>
+        <translation>Ja podeu tancar aquesta finestra de navegador.</translation>
     </message>
     <message>
         <source>User</source>
