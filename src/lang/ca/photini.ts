@@ -1432,7 +1432,7 @@ template</source>
     </message>
     <message>
         <source>Photini: define lens</source>
-        <translation>Photini: define lens</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Model name</source>
