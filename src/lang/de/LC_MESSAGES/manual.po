@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-16 12:07+0100\n"
+"POT-Creation-Date: 2022-05-12 14:08+0100\n"
 "PO-Revision-Date: 2021-06-16 11:07+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.8.0\n"
+"Generated-By: Babel 2.9.1\n"
 
 # 1c87c667c61d42da8b64e5875ddd8258
 msgid "Location addresses"
@@ -134,25 +134,15 @@ msgid ""
 "shown below."
 msgstr ""
 
-# d9b4da8428ad451c9c5d696aca5a8d26
 msgid ""
-"The top three items can be used to adjust the auto-generated copyright "
-"and creator fields on the descriptive metadata tab. The ``copyright "
-"text`` entry has place-holders where the photograph's \"taken\" year and "
-"the copyright holder's name are inserted. You might want to change the "
-"surrounding text to suit the law in your country, or even to make your "
-"photographs rights free if you like."
-msgstr ""
-
-# 6358cfa68b2c4e709593ae11c598be70
-msgid ""
-"The next items adjust how Photini uses IPTC-IIM \"legacy\" metadata. "
-"(Since 2004 the `IPTC standard`_ uses XMP to store metadata. Photini "
-"always writes these XMP fields.) The `Metadata Working Group`_ "
-"recommended that IPTC-IIM metadata is not written to files unless already"
-" present. Photini has an option to always write IPTC-IIM metadata. You "
-"may need this if you use other software that reads IPTC-IIM but not Exif "
-"or XMP."
+"The first three items adjust how Photini uses IPTC-IIM \"legacy\" "
+"metadata. (Since 2004 the `IPTC standard`_ uses XMP to store metadata. "
+"Photini always writes these XMP fields.) The first option is to always "
+"write IPTC-IIM metadata. You may need this if you use other software that"
+" reads IPTC-IIM but not XMP. The second option only writes IPTC-IIM "
+"metadata if it is already present in the file, as recommended by the "
+"`Metadata Working Group`_. The third option is to delete any IPTC-IIM "
+"metadata that might be present."
 msgstr ""
 
 # ddcf1a3b7ef04281ac0ad12343d5497f
@@ -175,55 +165,50 @@ msgid ""
 "deleted)."
 msgstr ""
 
-# 520b77492a1e4e34a42548c9a5c1e99d
 msgid ""
-"Finally there is an option to preserve file timestamps. This allows "
-"Photini to write metadata to an image file without changing the file's "
-"\"modification time\" as displayed in a file browser. You may find this "
-"useful if you often use a browser to sort files by date."
+"Finally there are options to adjust file timestamps. \"Keep original\" "
+"leaves image files' timestamps unchanged. \"Set to when photo was taken\""
+" changes files' timestamps to the date & time taken (as shown on the "
+"technical tab). \"Set to when the file is saved\" sets files' timestamps "
+"to when you save the file with Photini, like most other computer programs"
+" do. You may find these options useful if you often use a file browser to"
+" sort files by date."
 msgstr ""
 
 # 3f1b477c80394e37bffbd0e5760757df
 msgid "Spell checking"
 msgstr "Rechtschreibprüfung"
 
-# 07a0f98eaa3543c9ac81018222ebc7ea
 msgid ""
 "The ``Spelling`` menu allows you to enable or disable spell checking on "
 "Photini's text fields, and to select the language dictionary to use. The "
 "available languages depend on what dictionaries you have installed. "
 "Adding extra languages on Linux is easy -- just use your system's package"
-" manager to install the appropriate Aspell or Hunspell dictionary."
+" manager to install the appropriate dictionary (and make sure you have "
+"the appropriate enchant \"backend\" installed)."
 msgstr ""
 
-# e3577541c77149d8b8a66d4a159818be
 msgid ""
 "Windows programs don't share spell checking dictionaries as easily as on "
-"Linux. You may be able to find a suitable dictionary to download "
-"directly. There is a list of Aspell dictionaries at "
-"ftp://ftp.gnu.org/gnu/aspell/dict/0index.html that might help. Installing"
-" these may not be easy. You'll need to run a command shell as described "
-"in :doc:`../other/installation`. The ``tar.bz2`` files can be unpacked "
-"with the ``bsdtar`` command, for example::"
-msgstr ""
-
-# f75fb1ca987545658931c699e44f474c
-msgid ""
-"Then you may need to compile the dictionary before installing it. There "
-"should be instructions provided with the dictionary. In this case I "
-"needed to install ``make`` and edit the ``Makefile`` to change the "
-"Windows paths to simpler Linux-like ones. As a last resort you can try "
-"copying the files to the dictionary folder ``/mingw64/lib/aspell-0.60``."
+"Linux. The Hunspell `LibreOffice dictionaries`_ can be used. Select the "
+"subdirectory with the language you need (e.g. ``fr_FR`` for French as "
+"spoken in France) and download the ``.aff`` and ``.dic`` files. (Ignore "
+"hyphen and thesaurus files.) Put these files in the same directory as the"
+" English dictionaries installed with pyenchant. On my computer the "
+"directory is "
+"``C:\\Users\\Jim\\AppData\\Local\\Programs\\Python\\Python38\\Lib\\`` "
+"``site-packages\\enchant\\data\\mingw64\\share\\enchant\\hunspell`` but "
+"this will depend on your Python installation."
 msgstr ""
 
 # 7fbdf052e3a543048ad50bba0703c468
 msgid "Configuration file location"
 msgstr ""
 
-# 1fb8c685637c424ba564d93cfea3f009
 msgid ""
 "Photini stores its configuration in a file called ``editor.ini``. The "
-"default location of this file is ``$HOME/.config/photini/`` (Linux) or "
+"default location of this file is ``$HOME/.config/photini/`` (Linux), "
+"``$HOME/Library/Preferences/photini`` (MacOS), or "
 "``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows). If you'd like to "
 "store it elsewhere (e.g. on a networked drive so you can share "
 "configuration between several computers) you can set an environment "
@@ -234,13 +219,12 @@ msgstr ""
 msgid "PyQt options"
 msgstr "PyQt-Optionen"
 
-# b3eaf08728eb47f4ba6f72addf718fe8
 msgid ""
-"The configuration file includes options to select use of PyQt5 or "
-"PySide2, and use of QtWebKit instead of QtWebEngine. These may be useful "
-"if one of these components on your computer is incompatible with Photini."
-" There are so many versions of PyQt that it is impossible to test Photini"
-" with every one."
+"The configuration file includes options to select use of PyQt5, PySide2, "
+"or PySide6, and use of QtWebKit instead of QtWebEngine. These may be "
+"useful if one of these components on your computer is incompatible with "
+"Photini. There are so many versions of PyQt that it is impossible to test"
+" Photini with every one."
 msgstr ""
 
 # dc670ecba0a94f8b913fb92157c1d4b9
@@ -249,12 +233,20 @@ msgid ""
 "section:"
 msgstr ""
 
-# 3a288c1a64a14cbda6daa32aa9d642a2
 msgid ""
-"To force use of PySide2 set the value of ``using_pyside2`` to ``True``. "
-"To force the use of QtWebKit set the value of ``using_qtwebengine`` to "
-"``False``. You can check which versions Photini is currently using by "
-"running it in a command window with the ``--version`` option::"
+"To force use of a particular Qt library set the value of ``qt_lib`` to "
+"``'PyQt5'``, ``'PySide2'``, or ``'PySide6'``. To force the use of "
+"QtWebKit set the value of ``using_qtwebengine`` to ``False``. You can "
+"check which versions Photini is currently using by running it in a "
+"command window with the ``--version`` option::"
+msgstr ""
+
+msgid ""
+"If your computer has a high resolution screen, or you have poor eyesight,"
+" you may find the Photini user interface's text is too small to read "
+"comfortably. Setting ``scale_factor`` to a value larger than ``1`` should"
+" enlarge Photini. Using non-integer values is possible, but might show "
+"artefacts from the scaling."
 msgstr ""
 
 # d6a741e7f86e46d5893741762f6715b3
@@ -344,6 +336,24 @@ msgid ""
 " module name to the list. See :doc:`extending` for more information."
 msgstr ""
 
+# 62530a56de3044fdbd5255115fd0d929
+#, fuzzy
+msgid "Metadata options"
+msgstr "PyQt-Optionen"
+
+msgid ""
+"Photini can optionally read metadata from \"BMFF\" based filed types CR3,"
+" HEIF, HEIC, and AVIF. This requires use of python-exiv2 with libexiv2 "
+"v0.27.4 or later. (See :ref:`essential-dependencies` for more details "
+"about Photini's dependencies.) Using BMFF files may infringe patents. "
+"Please read the `Exiv2 warning`_ before enabling this feature."
+msgstr ""
+
+msgid ""
+"To enable BMFF file reading, edit the configuration file and set the "
+"``enable_bmff`` option to ``True``:"
+msgstr ""
+
 # 8606587a097b4a668c3da0f32fcd4bd3
 msgid "Descriptive metadata"
 msgstr ""
@@ -355,49 +365,21 @@ msgid ""
 "description."
 msgstr ""
 
-# 8cfe882112a144d2b004f3c483143b3d
+msgid ""
+"The data form is disabled until you select one or more images to edit. "
+"Hovering the mouse over one of the data fields displays a popup "
+"\"tooltip\" describing the sort of information to put in that field. This"
+" help text is taken from the `IPTC standard`_."
+msgstr ""
+
 msgid ""
 "The first thing I usually do with a new set of photographs is to set the "
-"copyright and creator/artist metadata. Select all the images (keyboard "
-"shortcut ``Ctrl+A``) then click on the ``Auto`` button next to the "
-"``Copyright`` text entry box. The first time you do this Photini asks you"
-" to provide the name of the copyright holder. This should probably be "
-"your name, but could be the name of a company. Type in the name and click"
-" ``OK``."
-msgstr ""
-
-# 92b7950cb78b4c8d97fc144a08a25ded
-msgid ""
-"The ``Auto`` button generates a standard copyright notice. If you prefer "
-"a different wording you can change the template, as described in "
-":doc:`configuration <configuration>`."
-msgstr ""
-
-# f28642b7f26f49c3ab867cf04ed77030
-msgid ""
-"Next click on the ``Creator / Artist`` field's ``Auto`` button. (Some "
-"software calls this field \"author\" or \"byline\".) Now Photini will ask"
-" for the name of the creator. Edit the name if required, then click "
-"``OK``."
-msgstr ""
-
-# 89e9ec41f5684bc7ae81ac074373f272
-msgid ""
-"Note that all the image thumbnails now have a warning symbol (|hazard|) "
-"displayed next to them. This shows that they have unsaved metadata edits."
-" The ``File`` menu ``Save images with new data`` item (keyboard shortcut "
-"``Ctrl+S``) saves your edits and clears the warning symbols, as shown "
-"below. I do this frequently to avoid losing any of my work."
-msgstr ""
-
-# 040ded5f4c104ddf9f7ae2a4dbe685c6
-msgid ""
-"Next I set the title. Select all the images that should have the same "
-"title, then type the title in the ``Title / Object name`` text editing "
-"box. Note that the title (and keywords) are stored in XMP and IPTC-IIM "
-"but not in Exif, so may not be visible to software that only handles Exif"
-" metadata (see :doc:`tag reference <tags>` for more detail). You may "
-"prefer to leave the title and keywords fields blank."
+"title. Select all the images that should have the same title, then type "
+"the title in the ``Title / Object name`` text editing box. Note that the "
+"title (and headline and keywords) are stored in XMP and IPTC-IIM but not "
+"in Exif, so may not be visible to software that only handles Exif "
+"metadata (see :doc:`tag reference <tags>` for more detail). You may "
+"prefer to leave these fields blank."
 msgstr ""
 
 # c01b83ddcea24d9e8b9790b4226a3ebe
@@ -409,29 +391,37 @@ msgid ""
 "Photini's :doc:`configuration <configuration>`."
 msgstr ""
 
-# fa053c07807243db9fc606d34810fc68
 msgid ""
 "The ``Title / Object name`` field has an optional spell checker, enabled "
 "with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the "
 "British English dictionary, as indicated by the red underlining. Right-"
-"clicking on a misspelled word shows a list of suggested alternatives, one"
-" of which can be chosen by clicking on it."
+"clicking on a misspelled word shows any suggested alternatives, one of "
+"which can be chosen by clicking on it."
 msgstr ""
 
-# 833c51dc5fcb40c8966953afd3017522
+# 89e9ec41f5684bc7ae81ac074373f272
 msgid ""
-"Now you can add more detail in the ``Description / Caption`` box. There "
-"are probably only one or two photographs that share the same description,"
-" so select those images first."
+"Note that all the image thumbnails now have a warning symbol (|hazard|) "
+"displayed next to them. This shows that they have unsaved metadata edits."
+" The ``File`` menu ``Save images with new data`` item (keyboard shortcut "
+"``Ctrl+S``) saves your edits and clears the warning symbols, as shown "
+"below. I do this frequently to avoid losing any of my work."
 msgstr ""
 
-# 3f07006eff8d4288b02ef983655c1d96
+msgid ""
+"Now you can add more detail in the ``Headline`` and / or ``Description / "
+"Caption`` boxes. (My descriptions are usually so short that a separate "
+"headline summary isn't needed.) There are probably only one or two "
+"photographs that share the same description, so select those images "
+"first."
+msgstr ""
+
 msgid ""
 "If you select a group of images you may see ``<multiple values>`` "
 "displayed in some of the text boxes. You can right-click on the box to "
 "bring up a context menu from which you can choose a value to be copied to"
-" all the selected photographs. In this case there is only one choice as "
-"one photo has a description and the other does not."
+" all the selected photographs. Very long texts are elided with ``...`` "
+"replacing some of the text."
 msgstr ""
 
 # 5bda0743b1824d4f89aa1c589b759a58
@@ -452,6 +442,90 @@ msgstr ""
 msgid ""
 "Bad pictures can be given a ``reject`` rating. This is stored in the "
 "metadata as a rating value of -1."
+msgstr ""
+
+msgid "Alternative Languages"
+msgstr ""
+
+msgid ""
+"Some fields, such as title and description, are stored in XMP as ``Lang "
+"Alt`` data. This allows translations into alternative languages to be "
+"stored along with the default language text. (Only the default language "
+"is stored in Exif and IPTC-IIM.)"
+msgstr ""
+
+msgid ""
+"You can add an alternative language by clicking on the ``Lang:`` dropdown"
+" and selecting ``<new>``."
+msgstr ""
+
+msgid ""
+"If there is already some text in an unspecified default language you will"
+" be asked to say what that language is. Languages are specified with an "
+"RFC3066_ code. This usually starts with a two-letter language code, e.g. "
+"``en`` for English, and may be followed by a hyphen and a two-letter "
+"country code, e.g. ``en-GB`` for English as spoken in Great Britain."
+msgstr ""
+
+msgid ""
+"Next you can set the language to be added, e.g. ``fr-FR`` for French as "
+"spoken in France."
+msgstr ""
+
+msgid "You can then type the translation in to the text field."
+msgstr ""
+
+msgid ""
+"If you would like to change the default language, right-click on the "
+"``Lang:`` dropdown and choose a language."
+msgstr ""
+
+msgid "More information about the data fields"
+msgstr ""
+
+msgid ""
+"Click on any field name below to see the IPTC definition and user notes "
+"for that field. Although these fields are defined in an `IPTC standard`_,"
+" they are all stored in XMP metadata. Most of them are also stored in "
+"\"legacy\" IPTC-IIM data."
+msgstr ""
+
+msgid ""
+"`Title / Object Name <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#title>`_"
+msgstr ""
+
+msgid "Not stored in Exif."
+msgstr ""
+
+msgid ""
+"`Headline <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#headline>`_"
+msgstr ""
+
+msgid ""
+"`Description / Caption "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#description>`_"
+msgstr ""
+
+msgid "The who, what and why of what the image depicts."
+msgstr ""
+
+msgid ""
+"`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#keywords>`_"
+msgstr ""
+
+msgid "Separate words or phrases with ``;`` characters. Not stored in Exif."
+msgstr ""
+
+msgid ""
+"`Rating <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#image-rating>`_"
+msgstr ""
+
+msgid "Not stored in Exif or IPTC-IIM."
 msgstr ""
 
 # dbf64bb80fe54f9794ca3632a47eee86
@@ -496,12 +570,11 @@ msgstr ""
 msgid "Flickr uploader"
 msgstr ""
 
-# 68243be31e5645dc9eba272d5419adef
 msgid ""
 "The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to "
-"upload your photographs to `Flickr <http://www.flickr.com/>`_. Flickr is "
-"a popular online photograph sharing service. The Flickr upload tab uses "
-"the Flickr API but is not endorsed or certified by Flickr."
+"upload your photographs to `Flickr <http://www.flickr.com/>`_, a popular "
+"online photograph sharing service. The Flickr upload tab uses the Flickr "
+"API but is not endorsed or certified by Flickr."
 msgstr ""
 
 # beadd99100c14e8fa9afb6c4ea0a73c0
@@ -525,18 +598,17 @@ msgid ""
 " the ``Log in`` button."
 msgstr ""
 
-# 4342a6a0083b4bfa8511c224b965c1aa
 msgid ""
 "The first time you click ``Log in`` Photini connects your web browser to "
 "Flickr, from where you can log in and give Photini permission to access "
-"Flickr on your behalf."
+"Flickr on your behalf. (Note that Photini does not interact with other "
+"people's photos and videos.)"
 msgstr ""
 
-# 2015b2656a5441e3841c786f44d5e106
 msgid ""
 "In January 2020 Flickr introduced a bug in the authorisation process. "
-"They are changing the \"callback URL\" from HTTP to HTTPS, which causes "
-"an error like the one shown above. (Other browsers may show a different "
+"They change the \"callback URL\" from HTTP to HTTPS, which causes an "
+"error like the one shown above. (Other browsers may show a different "
 "error.)"
 msgstr ""
 
@@ -570,12 +642,18 @@ msgid ""
 "be created on Flickr until you upload a photo to it."
 msgstr ""
 
-# bce8c944b5c946a19bb208d5bfda5d72
 msgid ""
 "To upload one or more photographs to Flickr, select them in the image "
 "selector area, then choose which (if any) of your albums to add them to "
-"and set any of the other attributes, then click on the ``Start upload`` "
-"button."
+"and set the privacy, safety level and other settings, then click on the "
+"``Start upload`` button."
+msgstr ""
+
+msgid ""
+"The album membership and privacy & other settings apply to all the "
+"photographs in this upload. If you want some photographs to have "
+"different album membership or privacy & other settings you need to upload"
+" them as a separate batch."
 msgstr ""
 
 # eba752551d434cc5a380aa102c211ca4
@@ -591,12 +669,11 @@ msgstr ""
 msgid "After uploading a photograph it is marked as having new metadata."
 msgstr ""
 
-# 52702624c73c45b48a41e40f1468888a
 msgid ""
 "If you switch to the ``Descriptive metadata`` tab you can see there is a "
-"new keyword ``flickr:photo_id=11-digit-number``. Photini uses this "
-"`triple tag`_ to store the Flickr photo id so it can be used to "
-"synchronise metadata later on, as described below."
+"new keyword ``flickr:id=<long-number>``. Photini uses this `triple tag`_ "
+"to store the Flickr photo id so it can be used to synchronise metadata "
+"later on, as described below."
 msgstr ""
 
 # 96548205ff7b418ab74d09561cce705c
@@ -611,20 +688,17 @@ msgid ""
 "``Synchronise`` button."
 msgstr ""
 
-# c759cd0197dd477ba04b20ead82700c9
 msgid ""
-"If an image does not have a ``flickr:photo_id`` keyword then Photini will"
-" try to find the photograph on Flickr by matching the date and time it "
-"was taken. If there is new metadata on Flickr then it is merged into the "
+"If an image does not have a ``flickr:id`` keyword then Photini will try "
+"to find the photograph on Flickr by matching the date and time it was "
+"taken. If there is new metadata on Flickr then it is merged into the "
 "image's metadata."
 msgstr ""
 
-# e4953b6adb71413ea1f4230f098cef11
 msgid ""
 "You can see what changed with the image's context menu ``View changes``. "
-"In this case Flickr has set its location city to \"Chateau-Gontier\" "
-"whereas I had set it to \"Château-Gontier\". I chose to ignore this new "
-"metadata value."
+"In this case Flickr has set the location city to its new name of "
+"\"Château-Gontier-sur-Mayenne\". I chose to ignore this new metadata."
 msgstr ""
 
 # aa73e442793b42aabb336cf426d31c9d
@@ -638,10 +712,9 @@ msgid ""
 "upload`` button."
 msgstr ""
 
-# f41d5e7362924766b996d9a3bef62cac
 msgid ""
-"If you upload an image that already has a ``flickr:photo_id`` keyword "
-"then Photini allows you to change the photograph's metadata instead of "
+"If you upload an image that already has a ``flickr:id`` keyword then "
+"Photini allows you to change the photograph's metadata instead of "
 "uploading a new photograph. You can also replace the image itself, which "
 "might be useful if you've processed it in another application."
 msgstr ""
@@ -745,15 +818,21 @@ msgid ""
 "or corners with the mouse."
 msgstr ""
 
-# 4811fe70704e4002af0a6a292525cc3d
 msgid ""
 "Now load some images using the ``File`` menu ``Open files`` item (or its "
-"keyboard shortcut ``Ctrl+O``) or by \"drag and drop\" from a file manager"
-" window. The loaded files are displayed as thumbnail images in the image "
-"selector part of the GUI. Note that the thumbnail size can be changed "
-"with the slider control just beneath the thumbnail display area. The "
-"files can also be sorted by name or date by clicking on the appropriate "
-"button."
+"keyboard shortcut ``Ctrl+O``). The loaded files are displayed as "
+"thumbnail images in the image selector part of the GUI. Note that the "
+"thumbnail size can be changed with the slider control just beneath the "
+"thumbnail display area. The files can also be sorted by name or date by "
+"clicking on the appropriate button."
+msgstr ""
+
+msgid ""
+"Images can also be loaded by \"drag and drop\" from a file manager window"
+" or by adding them to the command line if you run Photini from a command "
+"terminal. If you open a directory then all the images in that directory "
+"will be opened. This is recursive, so beware of accidentally opening too "
+"many images in one go."
 msgstr ""
 
 # 392abc666e1d4d9bb314357b744f7442
@@ -775,15 +854,13 @@ msgstr ""
 msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded files."
 msgstr ""
 
-# 4ab02c693ad94a8ca43350ae81ad1417
 msgid ""
 "Selecting multiple files allows you to set metadata, such as the image "
 "title, on several files at once. This is much quicker than having to edit"
 " the metadata of each file separately. You will probably want to select a"
 " different group of files before editing each metadata item. For example,"
-" you might give the same title (and copyright and creator) to all the "
-"images, then select only the first two or three before writing a "
-"description."
+" you might give the same title to all the images, then select only the "
+"first two or three before writing a description."
 msgstr ""
 
 # b9fe382fe9f64e579eb4112edd0f3ad2
@@ -805,16 +882,37 @@ msgid ""
 " file`` closes the file(s)."
 msgstr ""
 
-# 79c214331c464c89930b6ea2c4a28688
 msgid ""
 "The ``view changes`` context menu item displays all the metadata items "
-"that have changed. In this example I've set four items that were "
+"that have changed. In this example I've set two items that were "
 "previously empty. If you want to discard any of these changes then select"
 " the appropriate ``undo`` checkboxes and click on ``OK``."
 msgstr ""
 
 # 82e6c21c36bd432aa813f761e67e8847
 msgid "The same menu items also appear in the main ``File`` menu."
+msgstr ""
+
+msgid "Using Photini with other programs"
+msgstr ""
+
+msgid ""
+"If you use other applications that can display or edit image metadata "
+"then you need to be careful when using them with Photini. Just like with "
+"a word processor or text editor it can be risky to have a file open for "
+"editing in more than one program. If you make changes in Photini you "
+"should save them before getting another program to reload or reopen the "
+"file. If you make changes in another program you should use the context "
+"menu described above to reload the file in Photini."
+msgstr ""
+
+msgid ""
+"You may also want to experiment with how other programs display the "
+"metadata you create in Photini and *vice versa*. Be aware that other "
+"programs might not store their metadata in the picture files, but use a "
+"database or separate files (other than XMP sidecars). Such programs are "
+"not compatible with Photini, unless they can be configured to use "
+"metadata standards."
 msgstr ""
 
 # f4f4e933f2884374ab6de4e14dbf5454
@@ -1026,15 +1124,125 @@ msgid ""
 "relevant features."
 msgstr ""
 
+msgid "Ipernity uploader"
+msgstr ""
+
+msgid ""
+"The ``Ipernity upload`` tab (keyboard shortcut ``Alt+I``) allows you to "
+"upload your photographs to `Ipernity <http://www.ipernity.com/>`_, a "
+"friendly online photograph sharing club. The Ipernity upload tab uses the"
+" Ipernity API but is not endorsed or certified by Ipernity."
+msgstr ""
+
+msgid ""
+"Unlike some other uploaders, Photini uses the descriptive metadata you've"
+" created to set Ipernity's title, description and keywords. This means "
+"you don't have to retype all that information!"
+msgstr ""
+
+msgid ""
+"Note that the Ipernity upload tab is only enabled if you have installed "
+"some extra software packages. See :ref:`installation <installation-"
+"optional>` for more detail."
+msgstr ""
+
+msgid ""
+"Initially most of the Ipernity uploader tab is disabled. It's only usable"
+" after you've authorised Photini to access your Ipernity account by "
+"clicking the ``Log in`` button."
+msgstr ""
+
+msgid ""
+"The first time you click ``Log in`` Photini connects your web browser to "
+"Ipernity, from where you can log in and give Photini permission to access"
+" Ipernity on your behalf."
+msgstr ""
+
+msgid ""
+"After authorising Photini close the web browser window or tab and return "
+"to the Photini window. You can now close the \"Authorisation required\" "
+"dialog."
+msgstr ""
+
+msgid ""
+"If the authorisation is successful Photini displays your Ipernity user "
+"name and profile picture. You should not need to redo this authorisation "
+"process unless you click the ``Log out`` button."
+msgstr ""
+
+msgid ""
+"Your current Ipernity albums are shown on the right hand side of the "
+"Ipernity uploader tab. You can add a new album with the ``New album`` "
+"button. This opens a pop-up dialog as shown below."
+msgstr ""
+
+msgid ""
+"Type in the album details and click ``OK``. Note that the album will not "
+"be visible on Ipernity until you upload a photo to it."
+msgstr ""
+
+msgid ""
+"To upload one or more photographs to Ipernity, select them in the image "
+"selector area, then choose which (if any) of your albums to add them to "
+"and set the permissions and licence, then click on the ``Start upload`` "
+"button."
+msgstr ""
+
+msgid ""
+"The permissions, licence, and album membership apply to all the "
+"photographs in this upload. If you want some photographs to have "
+"different permissions, licence, or album membership you need to upload "
+"them as a separate batch."
+msgstr ""
+
+msgid ""
+"If you switch to the ``Descriptive metadata`` tab you can see there is a "
+"new keyword ``ipernity:id=<long-number>``. Photini uses this `triple "
+"tag`_ to store the Ipernity photo id so it can be used to synchronise "
+"metadata later on, as described below."
+msgstr ""
+
+msgid "Synchronising local metadata to Ipernity"
+msgstr ""
+
+msgid ""
+"Sometimes you might change your photograph's metadata on Ipernity and "
+"would like to copy those changes back to the image file on your computer."
+" Select the image(s) you would like to update and click the "
+"``Synchronise`` button."
+msgstr ""
+
+msgid ""
+"If an image does not have a ``ipernity:id`` keyword then Photini will try"
+" to find the photograph on Ipernity by matching the date and time it was "
+"taken. If there is new metadata on Ipernity then it is merged into the "
+"image's metadata. You can see what changed with the image's context menu "
+"``View changes``."
+msgstr ""
+
+msgid "Synchronising Ipernity metadata to local"
+msgstr ""
+
+msgid ""
+"If you change your image file metadata and would like to make the same "
+"changes on Ipernity you can select the image and click on the ``Start "
+"upload`` button."
+msgstr ""
+
+msgid ""
+"If you upload an image that already has a ``ipernity:id`` keyword then "
+"Photini allows you to change the photograph's metadata instead of "
+"uploading a new photograph."
+msgstr ""
+
 # 6f6f976f3fbc4fdabf636cd98dd1a0b7
 msgid "Geotagging"
 msgstr ""
 
-# d8f910902f69432398c03c6c2a0db26a
 msgid ""
 "The map tabs allow you to set the location of where a photograph was "
-"taken. Photini currently uses four different map providers: Google, Bing,"
-" Mapbox, and OpenStreetMap (OSM). All four tabs have similar "
+"taken. Photini currently uses three different map providers: Google, "
+"Bing, and Mapbox/OpenStreetMap. All three tabs have similar "
 "functionality, but have different styles and levels of detail. Google, "
 "Bing, and Mapbox also offer aerial (or \"satellite\") photography."
 msgstr ""
@@ -1128,52 +1336,204 @@ msgstr ""
 msgid "GPX file import"
 msgstr ""
 
-# 7803773373c0420cae6f60c0d05f81be
 msgid ""
 "If you have a mobile phone or other device with a GPS logger you may be "
 "able to set the approximate locations of photographs from logged GPS "
-"positions. If you have installed gpxpy_ then Photini's ``File`` menu "
-"should have an ``Import GPX file`` item."
+"positions. If you have installed gpxpy_ then the map pages have a button "
+"to import GPX files."
 msgstr ""
 
-# 8330c59279da4f7eaa54a7a96d58f933
 msgid ""
 "First you need to export your GPS log as a GPX_ (GPS eXchange format) "
 "file, then transfer the .gpx file to your computer. Make sure your images"
 " have the correct time zone set so that Photini can calculate their UTC_ "
-"timestamps. Select the images you want to set the locations of, then "
-"click the ``Import GPX file`` menu item."
+"timestamps."
 msgstr ""
 
-# e4f3690d12e24995a0ca42e7fb76ed93
 msgid ""
-"After opening your GPX file you can set some options to filter out "
-"inaccurate points. ``Max time between points`` allows Photini to detect "
-"gaps in the log, e.g. when you were in a building and lost the GPS "
-"signal. ``Max dilution of precision`` allows you to ignore points where "
-"the \"`dilution of precision "
-"<https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_\" is"
-" too large. You may need to experiment to find the best value for your "
-"GPS device. The final option selects whether to plot the track on the "
-"current map tab. This is still experimental, and there isn't an option to"
-" delete the plot, but it may be useful when setting the previous two "
-"parameters."
+"When a GPX file is imported its track points are displayed on the map as "
+"blue circles. If the file has a large number of points, closely "
+"positioned in space or time, then not all of them are shown."
 msgstr ""
 
-# aac249c1657248a1967e57302cadd2ae
 msgid ""
-"Photini will use the GPS track to estimate the location of each selected "
-"image with a timestamp near enough to that of a logged position. Linear "
-"interpolation or extrapolation is used, based on the timestamps of the "
-"two nearest logged positions. The result is unlikely to be the exact "
-"location where you took the photograph, so you will almost certainly want"
-" to adjust the positions by dragging markers on the map."
+"Selecting a photograph shows up to four track points in red. These are "
+"points with time stamps around the time the photograph was taken."
 msgstr ""
 
-# 8ebf8e3da6744517b77a7f0a1fa71a38
 msgid ""
-"This is a recent addition to Photini and has not been extensively tested."
-" I'd be interested to hear if you find it useful."
+"After zooming in on the red track points the photograph can be dragged to"
+" the map as usual."
+msgstr ""
+
+msgid ""
+"Alternatively, the ``Set coords from GPX`` button can be used to set the "
+"latitude and longitude of all the selected photographs to the nearest (in"
+" time) GPX track point."
+msgstr ""
+
+msgid ""
+"Sometimes GPS receivers lose accuracy, so some GPX file points can be "
+"wrong by over 100 metres. In this case the ``Set coords from GPX`` button"
+" is not very useful."
+msgstr ""
+
+msgid ""
+"When you've finished with the GPX track points they can be removed from "
+"the map with the ``Remove GPX data`` button."
+msgstr ""
+
+# 4f440059bfa24dc6b0ea057a48da68b6
+#, fuzzy
+msgid "Ownership metadata"
+msgstr "Technische Metadaten"
+
+msgid ""
+"The ``Ownership metadata`` tab (keyboard shortcut ``Alt+O``) allows you "
+"to edit ownership and copyright information about your photographs."
+msgstr ""
+
+msgid ""
+"Most of this data will be the same for all your photographs, so Photini "
+"uses a \"template\" to apply the same text to all the selected images. If"
+" your photographs already have some of this information (some cameras set"
+" the creator and copyright notice) you can copy it to the template by "
+"selecting one or more photographs and clicking on ``Initialise "
+"template``. Otherwise use the ``Edit template`` button to open the dialog"
+" shown below."
+msgstr ""
+
+msgid ""
+"Fill in any of the fields you want to use on every photograph. The field "
+"labels are copied from the `IPTC standard`_, as is the help text which "
+"should pop up if you hover your mouse over a field. Note that the "
+"``Copyright Notice`` and ``Rights: Usage Terms`` fields can have "
+"alternative languages, as discussed in :ref:`alternative-languages`."
+msgstr ""
+
+msgid ""
+"Note that you can insert the year in which a photograph was taken with "
+"``%Y``. This is probably only useful in the ``Copyright Notice``, but is "
+"available for all fields. (You can actually use any directive recognised "
+"by the `Python strftime function`_, such as ``%m`` for month number or "
+"``%B`` for the month name.)"
+msgstr ""
+
+msgid ""
+"The ``Rights: Web Statement`` field is a drop down list of `Creative "
+"Commons`_ licences which you can extend with any other licences you use. "
+"The widget's context menu allows you to visit any of the licence URLs "
+"with your web browser."
+msgstr ""
+
+msgid ""
+"Google Image Search displays the ``Creator``, ``Credit Line``, and "
+"``Copyright Notice`` values alongside search results. It also uses the "
+"``Rights: Web Statement`` and ``Rights: Licensor URL`` to help people "
+"find images that can be licensed for reuse. See the `Quick guide to IPTC "
+"Photo Metadata and Google Images`_ for more detail."
+msgstr ""
+
+msgid ""
+"The ``Apply template`` button copies the template data to all the "
+"selected images, setting the correct year in the ``Copyright Notice``. If"
+" you want to clear any of the images' existing ownership data when the "
+"template is applied, then set the corresponding template field to a "
+"single space. You can then add more information, or edit the existing "
+"information, in the usual way."
+msgstr ""
+
+msgid ""
+"Click on any field name below to see the IPTC definition and user notes "
+"for that field. Although these fields are defined in an `IPTC standard`_,"
+" they are all stored in XMP metadata. Some of them are also stored in "
+"\"legacy\" IPTC-IIM data."
+msgstr ""
+
+msgid ""
+"`Creator <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#creator>`_"
+msgstr ""
+
+msgid ""
+"Usually the photographer's name. If there is more than one creator, "
+"separate them with a ``;`` character."
+msgstr ""
+
+msgid ""
+"`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-jobtitle>`_"
+msgstr ""
+
+msgid ""
+"Job title of the first creator. Do not fill in this field unless the "
+"creator field is filled in."
+msgstr ""
+
+msgid ""
+"`Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#credit-line>`_"
+msgstr ""
+
+msgid "Usually the photographer's name, but could be their employer or client."
+msgstr ""
+
+msgid ""
+"`Copyright Notice <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#copyright-notice>`_"
+msgstr ""
+
+msgid "Who owns the copyright."
+msgstr ""
+
+msgid ""
+"`Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#rights-usage-terms>`_"
+msgstr ""
+
+msgid "Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
+msgstr ""
+
+msgid ""
+"`Rights: Web Statement "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata"
+"#web-statement-of-rights>`_"
+msgstr ""
+
+msgid ""
+"URL of a web page describing the usage rights of an image. `All rights "
+"reserved`_ is shown for any image with no URL set. Not stored in IPTC-"
+"IIM."
+msgstr ""
+
+msgid ""
+"`Rights: Licensor URL "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#licensor>`_"
+msgstr ""
+
+msgid ""
+"URL of a person or company who can grant a right to reuse the image. Not "
+"stored in IPTC-IIM."
+msgstr ""
+
+msgid ""
+"`Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#instructions>`_"
+msgstr ""
+
+msgid "Notes to a publisher of the image."
+msgstr ""
+
+msgid ""
+"`Contact Information <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-contact-info>`_"
+msgstr ""
+
+msgid ""
+"Only the `Address <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#address>`_ is stored in IPTC-IIM. Multiple email "
+"addresses, URLs, or phone numbers should be separated by commas."
 msgstr ""
 
 # 20b24709633a4acea24463116eed6b0f
@@ -1209,11 +1569,16 @@ msgid ""
 "enabled.)"
 msgstr ""
 
-# 51e82c8f6d7e419b8342221b2f6a6005
 msgid ""
-"Note that \"Title / Object Name\" and \"Keywords\" are not stored in "
-"Exif. You may prefer not to use these fields to ensure compatibility with"
-" software that only handles Exif."
+"Note that some fields, such as \"Title / Object Name\" and \"Keywords\", "
+"are not stored in Exif. You may prefer not to use these fields to ensure "
+"compatibility with software that only handles Exif."
+msgstr ""
+
+msgid ""
+"Some of the field names in the table below lingk to their definition in "
+"the IPTC standard. You may find this useful when deciding what to write "
+"in those fields."
 msgstr ""
 
 # 7d7c63a391034ce78d8a55a76286a49f
@@ -1238,7 +1603,8 @@ msgstr ""
 
 # 9b3d8a35a7374149832584eae5f7d9f6
 # ef69e5d1e8664a8180fac1c91b3479a8
-msgid "Title / Object Name"
+#, fuzzy
+msgid "`Title / Object Name`_"
 msgstr "Titel"
 
 # 0c38124604974bae9e7b24d6ea7d1c70
@@ -1249,9 +1615,20 @@ msgstr ""
 msgid "Iptc.Application2.ObjectName"
 msgstr ""
 
+msgid "Headline_"
+msgstr ""
+
+msgid "Xmp.photoshop.Headline"
+msgstr ""
+
+# 0f3732b8680645c5ad4e1fa8c9177914
+msgid "Iptc.Application2.Headline"
+msgstr ""
+
 # e3eccbca632e43a3827b38f9e511ee07
 # f13be54e51c64d0b81144b453475bccb
-msgid "Description / Caption"
+#, fuzzy
+msgid "`Description / Caption`_"
 msgstr "Beschreibung"
 
 # c30c8b30d8e54cfba48d27eae6bb0261
@@ -1266,10 +1643,10 @@ msgstr ""
 msgid "Iptc.Application2.Caption"
 msgstr ""
 
-# 5c79f4bc40724086b3b4ce56a78fe992
-# 4fdc9ac36482474186d50521987551eb
-msgid "Keywords"
-msgstr "Schlüsselwörter"
+# 9fa83343597d4b2e9fc35461a26fbe48
+#, fuzzy
+msgid "Keywords_"
+msgstr "Schlüsselwort"
 
 # f353dfdd89a24cf5be0763bc6667e78f
 msgid "Xmp.dc.subject"
@@ -1281,31 +1658,17 @@ msgstr ""
 
 # 58bbe28e77ba4872a89372ed482d8f30
 # 6814ec1319cf4ae3a24814f6e0d7a4d5
-msgid "Rating"
+#, fuzzy
+msgid "Rating_"
 msgstr "Bewertung"
 
 # e5c921170b2949cbb599347758b957bc
 msgid "Xmp.xmp.Rating"
 msgstr ""
 
-# fdb5be51bc924e738cb74fcfce2f3846
-msgid "Copyright"
-msgstr "Copyright"
-
-# 46b7d78490384f2882853578ce447a30
-msgid "Exif.Image.Copyright"
-msgstr ""
-
-# ac315e566c794285b1673fe2e9bdd8ed
-msgid "Xmp.dc.rights"
-msgstr ""
-
-# a0a302de9738431cbfc8092aa589b5b0
-msgid "Iptc.Application2.Copyright"
-msgstr ""
-
 # 48b369330546466e8a3b7991ccec5d00
-msgid "Creator / Artist"
+#, fuzzy
+msgid "`Creator / Artist`_"
 msgstr "Urheber / Künstler"
 
 # 0982f558bf60491a9aba09030a140807
@@ -1320,8 +1683,76 @@ msgstr ""
 msgid "Iptc.Application2.Byline"
 msgstr ""
 
-# 7b13575ec1954a98a2771e36a70dc18e
-msgid "Date / time Taken"
+msgid "`Creator's Jobtitle`_"
+msgstr ""
+
+msgid "Xmp.photoshop.AuthorsPosition"
+msgstr ""
+
+msgid "Iptc.Application2.BylineTitle"
+msgstr ""
+
+msgid "`Credit Line`_"
+msgstr ""
+
+msgid "Xmp.photoshop.Credit"
+msgstr ""
+
+msgid "Iptc.Application2.Credit"
+msgstr ""
+
+msgid "`Copyright Notice`_"
+msgstr ""
+
+# 46b7d78490384f2882853578ce447a30
+msgid "Exif.Image.Copyright"
+msgstr ""
+
+# ac315e566c794285b1673fe2e9bdd8ed
+msgid "Xmp.dc.rights"
+msgstr ""
+
+# a0a302de9738431cbfc8092aa589b5b0
+msgid "Iptc.Application2.Copyright"
+msgstr ""
+
+msgid "`Rights: Usage Terms`_"
+msgstr ""
+
+msgid "Xmp.xmpRights.UsageTerms"
+msgstr ""
+
+msgid "`Rights: Web Statement`_"
+msgstr ""
+
+msgid "Xmp.xmpRights.WebStatement"
+msgstr ""
+
+msgid "`Rights: Licensor URL`_"
+msgstr ""
+
+msgid "Xmp.plus.Licensor[1]/plus:LicensorURL"
+msgstr ""
+
+msgid "Instructions_"
+msgstr ""
+
+msgid "Xmp.photoshop.Instructions"
+msgstr ""
+
+msgid "Iptc.Application2.SpecialInstructions"
+msgstr ""
+
+msgid "`Contact Information`_"
+msgstr ""
+
+msgid "Xmp.iptc.CreatorContactInfo"
+msgstr ""
+
+msgid "Iptc.Application2.Contact"
+msgstr ""
+
+msgid "`Date / time Taken`_"
 msgstr ""
 
 # fc9ccd92ecfb4b42babaa6857ccfa263
@@ -1372,61 +1803,18 @@ msgstr "Ausrichtung"
 msgid "Exif.Image.Orientation"
 msgstr ""
 
-# 44fe2e3ae894484a89fd8638f9800792
-msgid "Camera maker name"
+msgid "Camera"
 msgstr ""
 
-# e8e402c4615d4d7db969df6877b7020c
-msgid "Exif.Image.Make"
+msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 msgstr ""
 
-# 6ec735d68a8b4179a6a2517e4e4ec9d3
-msgid "Camera model name"
+msgid "Lens"
 msgstr ""
 
-# e8e402c4615d4d7db969df6877b7020c
-msgid "Exif.Image.Model"
-msgstr ""
-
-# 3ede17a144a74ccfb4109e25272e3dad
-msgid "Camera serial number"
-msgstr ""
-
-# 59fd380f68d34fafac2633a60991f560
-msgid "Exif.Photo.BodySerialNumber"
-msgstr ""
-
-# 44fe2e3ae894484a89fd8638f9800792
-msgid "Lens maker name"
-msgstr ""
-
-# a52faa96067a4418a8d9afb7a3b8c383
-msgid "Exif.Photo.LensMake"
-msgstr ""
-
-# 6ec735d68a8b4179a6a2517e4e4ec9d3
-msgid "Lens model name"
-msgstr ""
-
-# bea7f89e335b464aabc344a69ec3f22e
-msgid "Exif.Photo.LensModel"
-msgstr ""
-
-# 3ede17a144a74ccfb4109e25272e3dad
-msgid "Lens serial number"
-msgstr ""
-
-# 59fd380f68d34fafac2633a60991f560
-msgid "Exif.Photo.LensSerialNumber"
-msgstr ""
-
-# 4c940aca181f4c3e934db4eb1bde1373
-# b9daa7137d4b4cf6b3c51d47b7fad843
-msgid "Lens specification"
-msgstr ""
-
-# cafe6eab5d064b93b6bf59d6b7927b0a
-msgid "Exif.Photo.LensSpecification"
+msgid ""
+"Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
+"Exif.Photo.LensSpecification"
 msgstr ""
 
 # 73637645ab424ee4ae6e4e7bf0a043ad
@@ -1453,8 +1841,7 @@ msgstr "Blende"
 msgid "Exif.Photo.FNumber"
 msgstr ""
 
-# b31a7969c5044f2681a574c6756ff22e
-msgid "Latitude, longitude"
+msgid "Latitude_, longitude_"
 msgstr ""
 
 # 14a3c6d988ae4633951e77e034248cc3
@@ -1464,7 +1851,8 @@ msgid ""
 msgstr ""
 
 # 9741bcf7a6794addb09af39cd4204c20
-msgid "Altitude"
+#, fuzzy
+msgid "Altitude_"
 msgstr "Höhe"
 
 # d8ff290392064bc5a2674cca8de23cc4
@@ -1472,7 +1860,8 @@ msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 msgstr ""
 
 # 9bad8bb48f2d45d8aaa245501c3e0a8f
-msgid "Camera address"
+#, fuzzy
+msgid "`Camera address`_"
 msgstr "Kameraadresse"
 
 # 1c5a68a02c5c4ce2adf0c230b29b6ebb
@@ -1488,8 +1877,7 @@ msgid ""
 "Iptc.Application2.CountryCode"
 msgstr ""
 
-# 825ea40460b5441b80221ae64891ae5b
-msgid "Subject address"
+msgid "`Subject address`_"
 msgstr ""
 
 # 7a026baeee4c489ba78382cb1cd3c36c
@@ -1520,13 +1908,19 @@ msgid ""
 "corresponding primary tags are saved."
 msgstr ""
 
+# 9b3d8a35a7374149832584eae5f7d9f6
+# ef69e5d1e8664a8180fac1c91b3479a8
+msgid "Title / Object Name"
+msgstr "Titel"
+
 # e8e402c4615d4d7db969df6877b7020c
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
-# 0f3732b8680645c5ad4e1fa8c9177914
-msgid "Iptc.Application2.Headline"
-msgstr ""
+# e3eccbca632e43a3827b38f9e511ee07
+# f13be54e51c64d0b81144b453475bccb
+msgid "Description / Caption"
+msgstr "Beschreibung"
 
 # c5fa1f8ea3f54df4a0657f58c12a80a5
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
@@ -1536,9 +1930,19 @@ msgstr ""
 msgid "Xmp.tiff.ImageDescription"
 msgstr ""
 
+# 5c79f4bc40724086b3b4ce56a78fe992
+# 4fdc9ac36482474186d50521987551eb
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
 # b14936696c61495897b7e73a7666731b
 msgid "Exif.Image.XPKeywords"
 msgstr ""
+
+# 58bbe28e77ba4872a89372ed482d8f30
+# 6814ec1319cf4ae3a24814f6e0d7a4d5
+msgid "Rating"
+msgstr "Bewertung"
 
 # c5fa1f8ea3f54df4a0657f58c12a80a5
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
@@ -1548,9 +1952,9 @@ msgstr ""
 msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr ""
 
-# 587d8dc876664ae0a68a71068fb87bbf
-msgid "Xmp.tiff.Copyright"
-msgstr ""
+# 48b369330546466e8a3b7991ccec5d00
+msgid "Creator / Artist"
+msgstr "Urheber / Künstler"
 
 # ea26471f7e9d4a82819b0d70d4e0c7b6
 msgid "Exif.Image.XPAuthor"
@@ -1558,6 +1962,18 @@ msgstr ""
 
 # 4fdd38da978d44d28496856771cd4b6d
 msgid "Xmp.tiff.Artist"
+msgstr ""
+
+# fdb5be51bc924e738cb74fcfce2f3846
+msgid "Copyright"
+msgstr "Copyright"
+
+# 587d8dc876664ae0a68a71068fb87bbf
+msgid "Xmp.tiff.Copyright"
+msgstr ""
+
+# 7b13575ec1954a98a2771e36a70dc18e
+msgid "Date / time Taken"
 msgstr ""
 
 # 53adc7541cfb48b5968f271386f23564
@@ -1576,12 +1992,12 @@ msgstr ""
 msgid "Xmp.tiff.DateTime"
 msgstr ""
 
-# c29923a9b48b4c79a30f470215a8f37d
-msgid "Xmp.aux.Lens"
-msgstr ""
-
 # ddbbab2639bf459187bde6bc45da6125
 msgid "Exif.Image.LensInfo"
+msgstr ""
+
+# c29923a9b48b4c79a30f470215a8f37d
+msgid "Xmp.aux.Lens"
 msgstr ""
 
 # 76a5a774b25f4582a8593bda49c52e76
@@ -1614,20 +2030,9 @@ msgstr ""
 msgid "Xmp.tiff.Orientation"
 msgstr ""
 
-# a52faa96067a4418a8d9afb7a3b8c383
-msgid "Xmp.exifEX.LensMake"
-msgstr ""
-
-# bea7f89e335b464aabc344a69ec3f22e
-msgid "Xmp.exifEX.LensModel"
-msgstr ""
-
-# 59fd380f68d34fafac2633a60991f560
-msgid "Xmp.exifEX.LensSerialNumber"
-msgstr ""
-
-# cafe6eab5d064b93b6bf59d6b7927b0a
-msgid "Xmp.exifEX.LensSpecification"
+msgid ""
+"Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
+"Xmp.exifEX.LensSpecification"
 msgstr ""
 
 # c29923a9b48b4c79a30f470215a8f37d
@@ -1642,9 +2047,17 @@ msgstr ""
 msgid "Xmp.exif.FNumber"
 msgstr ""
 
+# b31a7969c5044f2681a574c6756ff22e
+msgid "Latitude, longitude"
+msgstr ""
+
 # b9c3839d8d0c47d0b291b976d099ac91
 msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
+
+# 9741bcf7a6794addb09af39cd4204c20
+msgid "Altitude"
+msgstr "Höhe"
 
 # 06dc2d682d8a4251b3ec202720bd966f
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
@@ -1673,35 +2086,25 @@ msgstr ""
 msgid "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 msgstr ""
 
-# 7a8efca1afca403688bfd1c8f1e87a5f
-msgid ""
-"Exif.Image.UniqueCameraModel Exif.Canon.ModelID Exif.OlympusEq.CameraType"
-" Exif.Pentax.ModelID"
+msgid "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 msgstr ""
 
-# fa3527a8be5448cf980512c525991305
 msgid ""
-"Exif.Image.CameraSerialNumber Exif.Canon.SerialNumber "
-"Exif.Fujifilm.SerialNumber Exif.Nikon3.SerialNumber "
-"Exif.OlympusEq.SerialNumber Exif.Pentax.SerialNumber"
+"Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
+"Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
+"Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
+"Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
 msgstr ""
 
 # 59fd380f68d34fafac2633a60991f560
 msgid "Xmp.aux.SerialNumber"
 msgstr ""
 
-# 168b531157fb4b4bb125f2dd0eeb369f
-msgid "Exif.Canon.LensModel Exif.CanonCs.LensType Exif.OlympusEq.LensModel"
-msgstr ""
-
-# 8d443207627b4c6e92daa66ed1795000
 msgid ""
-"Exif.OlympusEq.LensSerialNumber Exif.NikonLd1.LensIDNumber "
-"Exif.NikonLd2.LensIDNumber Exif.NikonLd3.LensIDNumber"
-msgstr ""
-
-# 85992b3eee5940f2aae02216c128b637
-msgid "Exif.CanonCs.Lens Exif.Nikon3.Lens"
+"Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
+"Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
+"Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel "
+"Exif.OlympusEq.LensSerialNumber"
 msgstr ""
 
 # 0982f558bf60491a9aba09030a140807
@@ -1958,4 +2361,562 @@ msgid ""
 "The :doc:`flickr` tab can upload video files, but expect it to be slow. "
 "Video files can be very large."
 msgstr ""
+
+# d9b4da8428ad451c9c5d696aca5a8d26
+#~ msgid ""
+#~ "The top three items can be used"
+#~ " to adjust the auto-generated "
+#~ "copyright and creator fields on the "
+#~ "descriptive metadata tab. The ``copyright "
+#~ "text`` entry has place-holders where "
+#~ "the photograph's \"taken\" year and the"
+#~ " copyright holder's name are inserted. "
+#~ "You might want to change the "
+#~ "surrounding text to suit the law "
+#~ "in your country, or even to make"
+#~ " your photographs rights free if you"
+#~ " like."
+#~ msgstr ""
+
+# 6358cfa68b2c4e709593ae11c598be70
+#~ msgid ""
+#~ "The next items adjust how Photini "
+#~ "uses IPTC-IIM \"legacy\" metadata. "
+#~ "(Since 2004 the `IPTC standard`_ uses"
+#~ " XMP to store metadata. Photini "
+#~ "always writes these XMP fields.) The "
+#~ "`Metadata Working Group`_ recommended that "
+#~ "IPTC-IIM metadata is not written "
+#~ "to files unless already present. Photini"
+#~ " has an option to always write "
+#~ "IPTC-IIM metadata. You may need this"
+#~ " if you use other software that "
+#~ "reads IPTC-IIM but not Exif or "
+#~ "XMP."
+#~ msgstr ""
+
+# 520b77492a1e4e34a42548c9a5c1e99d
+#~ msgid ""
+#~ "Finally there is an option to "
+#~ "preserve file timestamps. This allows "
+#~ "Photini to write metadata to an "
+#~ "image file without changing the file's"
+#~ " \"modification time\" as displayed in "
+#~ "a file browser. You may find this"
+#~ " useful if you often use a "
+#~ "browser to sort files by date."
+#~ msgstr ""
+
+# 07a0f98eaa3543c9ac81018222ebc7ea
+#~ msgid ""
+#~ "The ``Spelling`` menu allows you to "
+#~ "enable or disable spell checking on "
+#~ "Photini's text fields, and to select "
+#~ "the language dictionary to use. The "
+#~ "available languages depend on what "
+#~ "dictionaries you have installed. Adding "
+#~ "extra languages on Linux is easy "
+#~ "-- just use your system's package "
+#~ "manager to install the appropriate "
+#~ "Aspell or Hunspell dictionary."
+#~ msgstr ""
+
+# e3577541c77149d8b8a66d4a159818be
+#~ msgid ""
+#~ "Windows programs don't share spell "
+#~ "checking dictionaries as easily as on"
+#~ " Linux. You may be able to find"
+#~ " a suitable dictionary to download "
+#~ "directly. There is a list of "
+#~ "Aspell dictionaries at "
+#~ "ftp://ftp.gnu.org/gnu/aspell/dict/0index.html that might"
+#~ " help. Installing these may not be"
+#~ " easy. You'll need to run a "
+#~ "command shell as described in "
+#~ ":doc:`../other/installation`. The ``tar.bz2`` files"
+#~ " can be unpacked with the ``bsdtar``"
+#~ " command, for example::"
+#~ msgstr ""
+
+# f75fb1ca987545658931c699e44f474c
+#~ msgid ""
+#~ "Then you may need to compile the"
+#~ " dictionary before installing it. There "
+#~ "should be instructions provided with the"
+#~ " dictionary. In this case I needed"
+#~ " to install ``make`` and edit the "
+#~ "``Makefile`` to change the Windows paths"
+#~ " to simpler Linux-like ones. As "
+#~ "a last resort you can try copying"
+#~ " the files to the dictionary folder"
+#~ " ``/mingw64/lib/aspell-0.60``."
+#~ msgstr ""
+
+# 1fb8c685637c424ba564d93cfea3f009
+#~ msgid ""
+#~ "Photini stores its configuration in a"
+#~ " file called ``editor.ini``. The default"
+#~ " location of this file is "
+#~ "``$HOME/.config/photini/`` (Linux) or "
+#~ "``%USERPROFILE%\\AppData\\Local\\photini\\`` (Windows). If"
+#~ " you'd like to store it elsewhere "
+#~ "(e.g. on a networked drive so you"
+#~ " can share configuration between several"
+#~ " computers) you can set an "
+#~ "environment variable ``PHOTINI_CONFIG`` to the"
+#~ " directory you'd like to use."
+#~ msgstr ""
+
+# b3eaf08728eb47f4ba6f72addf718fe8
+#~ msgid ""
+#~ "The configuration file includes options "
+#~ "to select use of PyQt5 or PySide2,"
+#~ " and use of QtWebKit instead of "
+#~ "QtWebEngine. These may be useful if "
+#~ "one of these components on your "
+#~ "computer is incompatible with Photini. "
+#~ "There are so many versions of PyQt"
+#~ " that it is impossible to test "
+#~ "Photini with every one."
+#~ msgstr ""
+
+# 3a288c1a64a14cbda6daa32aa9d642a2
+#~ msgid ""
+#~ "To force use of PySide2 set the"
+#~ " value of ``using_pyside2`` to ``True``."
+#~ " To force the use of QtWebKit "
+#~ "set the value of ``using_qtwebengine`` "
+#~ "to ``False``. You can check which "
+#~ "versions Photini is currently using by"
+#~ " running it in a command window "
+#~ "with the ``--version`` option::"
+#~ msgstr ""
+
+# 8cfe882112a144d2b004f3c483143b3d
+#~ msgid ""
+#~ "The first thing I usually do with"
+#~ " a new set of photographs is to"
+#~ " set the copyright and creator/artist "
+#~ "metadata. Select all the images "
+#~ "(keyboard shortcut ``Ctrl+A``) then click "
+#~ "on the ``Auto`` button next to the"
+#~ " ``Copyright`` text entry box. The "
+#~ "first time you do this Photini "
+#~ "asks you to provide the name of"
+#~ " the copyright holder. This should "
+#~ "probably be your name, but could "
+#~ "be the name of a company. Type "
+#~ "in the name and click ``OK``."
+#~ msgstr ""
+
+# 92b7950cb78b4c8d97fc144a08a25ded
+#~ msgid ""
+#~ "The ``Auto`` button generates a standard"
+#~ " copyright notice. If you prefer a"
+#~ " different wording you can change the"
+#~ " template, as described in "
+#~ ":doc:`configuration <configuration>`."
+#~ msgstr ""
+
+# f28642b7f26f49c3ab867cf04ed77030
+#~ msgid ""
+#~ "Next click on the ``Creator / "
+#~ "Artist`` field's ``Auto`` button. (Some "
+#~ "software calls this field \"author\" or"
+#~ " \"byline\".) Now Photini will ask "
+#~ "for the name of the creator. Edit"
+#~ " the name if required, then click "
+#~ "``OK``."
+#~ msgstr ""
+
+# 040ded5f4c104ddf9f7ae2a4dbe685c6
+#~ msgid ""
+#~ "Next I set the title. Select all"
+#~ " the images that should have the "
+#~ "same title, then type the title in"
+#~ " the ``Title / Object name`` text "
+#~ "editing box. Note that the title "
+#~ "(and keywords) are stored in XMP "
+#~ "and IPTC-IIM but not in Exif, "
+#~ "so may not be visible to software"
+#~ " that only handles Exif metadata (see"
+#~ " :doc:`tag reference <tags>` for more "
+#~ "detail). You may prefer to leave "
+#~ "the title and keywords fields blank."
+#~ msgstr ""
+
+# fa053c07807243db9fc606d34810fc68
+#~ msgid ""
+#~ "The ``Title / Object name`` field "
+#~ "has an optional spell checker, enabled"
+#~ " with the ``Spelling`` menu. The word"
+#~ " \"Château-Gontier\" is not in the"
+#~ " British English dictionary, as indicated"
+#~ " by the red underlining. Right-"
+#~ "clicking on a misspelled word shows "
+#~ "a list of suggested alternatives, one"
+#~ " of which can be chosen by "
+#~ "clicking on it."
+#~ msgstr ""
+
+# 833c51dc5fcb40c8966953afd3017522
+#~ msgid ""
+#~ "Now you can add more detail in "
+#~ "the ``Description / Caption`` box. There"
+#~ " are probably only one or two "
+#~ "photographs that share the same "
+#~ "description, so select those images "
+#~ "first."
+#~ msgstr ""
+
+# 3f07006eff8d4288b02ef983655c1d96
+#~ msgid ""
+#~ "If you select a group of images"
+#~ " you may see ``<multiple values>`` "
+#~ "displayed in some of the text "
+#~ "boxes. You can right-click on the"
+#~ " box to bring up a context menu"
+#~ " from which you can choose a "
+#~ "value to be copied to all the "
+#~ "selected photographs. In this case there"
+#~ " is only one choice as one "
+#~ "photo has a description and the "
+#~ "other does not."
+#~ msgstr ""
+
+# 68243be31e5645dc9eba272d5419adef
+#~ msgid ""
+#~ "The ``Flickr upload`` tab (keyboard "
+#~ "shortcut ``Alt+F``) allows you to upload"
+#~ " your photographs to `Flickr "
+#~ "<http://www.flickr.com/>`_. Flickr is a "
+#~ "popular online photograph sharing service. "
+#~ "The Flickr upload tab uses the "
+#~ "Flickr API but is not endorsed or"
+#~ " certified by Flickr."
+#~ msgstr ""
+
+# 4342a6a0083b4bfa8511c224b965c1aa
+#~ msgid ""
+#~ "The first time you click ``Log "
+#~ "in`` Photini connects your web browser"
+#~ " to Flickr, from where you can "
+#~ "log in and give Photini permission "
+#~ "to access Flickr on your behalf."
+#~ msgstr ""
+
+# 2015b2656a5441e3841c786f44d5e106
+#~ msgid ""
+#~ "In January 2020 Flickr introduced a "
+#~ "bug in the authorisation process. They"
+#~ " are changing the \"callback URL\" "
+#~ "from HTTP to HTTPS, which causes "
+#~ "an error like the one shown above."
+#~ " (Other browsers may show a different"
+#~ " error.)"
+#~ msgstr ""
+
+# bce8c944b5c946a19bb208d5bfda5d72
+#~ msgid ""
+#~ "To upload one or more photographs "
+#~ "to Flickr, select them in the "
+#~ "image selector area, then choose which"
+#~ " (if any) of your albums to add"
+#~ " them to and set any of the "
+#~ "other attributes, then click on the "
+#~ "``Start upload`` button."
+#~ msgstr ""
+
+# 52702624c73c45b48a41e40f1468888a
+#~ msgid ""
+#~ "If you switch to the ``Descriptive "
+#~ "metadata`` tab you can see there "
+#~ "is a new keyword ``flickr:photo_id=11"
+#~ "-digit-number``. Photini uses this `triple"
+#~ " tag`_ to store the Flickr photo "
+#~ "id so it can be used to "
+#~ "synchronise metadata later on, as "
+#~ "described below."
+#~ msgstr ""
+
+# c759cd0197dd477ba04b20ead82700c9
+#~ msgid ""
+#~ "If an image does not have a "
+#~ "``flickr:photo_id`` keyword then Photini will"
+#~ " try to find the photograph on "
+#~ "Flickr by matching the date and "
+#~ "time it was taken. If there is "
+#~ "new metadata on Flickr then it is"
+#~ " merged into the image's metadata."
+#~ msgstr ""
+
+# e4953b6adb71413ea1f4230f098cef11
+#~ msgid ""
+#~ "You can see what changed with the"
+#~ " image's context menu ``View changes``. "
+#~ "In this case Flickr has set its"
+#~ " location city to \"Chateau-Gontier\" "
+#~ "whereas I had set it to "
+#~ "\"Château-Gontier\". I chose to ignore "
+#~ "this new metadata value."
+#~ msgstr ""
+
+# f41d5e7362924766b996d9a3bef62cac
+#~ msgid ""
+#~ "If you upload an image that "
+#~ "already has a ``flickr:photo_id`` keyword "
+#~ "then Photini allows you to change "
+#~ "the photograph's metadata instead of "
+#~ "uploading a new photograph. You can "
+#~ "also replace the image itself, which "
+#~ "might be useful if you've processed "
+#~ "it in another application."
+#~ msgstr ""
+
+# 4811fe70704e4002af0a6a292525cc3d
+#~ msgid ""
+#~ "Now load some images using the "
+#~ "``File`` menu ``Open files`` item (or"
+#~ " its keyboard shortcut ``Ctrl+O``) or "
+#~ "by \"drag and drop\" from a file"
+#~ " manager window. The loaded files are"
+#~ " displayed as thumbnail images in the"
+#~ " image selector part of the GUI. "
+#~ "Note that the thumbnail size can "
+#~ "be changed with the slider control "
+#~ "just beneath the thumbnail display area."
+#~ " The files can also be sorted "
+#~ "by name or date by clicking on "
+#~ "the appropriate button."
+#~ msgstr ""
+
+# 4ab02c693ad94a8ca43350ae81ad1417
+#~ msgid ""
+#~ "Selecting multiple files allows you to"
+#~ " set metadata, such as the image "
+#~ "title, on several files at once. "
+#~ "This is much quicker than having "
+#~ "to edit the metadata of each file"
+#~ " separately. You will probably want "
+#~ "to select a different group of "
+#~ "files before editing each metadata item."
+#~ " For example, you might give the "
+#~ "same title (and copyright and creator)"
+#~ " to all the images, then select "
+#~ "only the first two or three before"
+#~ " writing a description."
+#~ msgstr ""
+
+# 79c214331c464c89930b6ea2c4a28688
+#~ msgid ""
+#~ "The ``view changes`` context menu item"
+#~ " displays all the metadata items that"
+#~ " have changed. In this example I've"
+#~ " set four items that were previously"
+#~ " empty. If you want to discard "
+#~ "any of these changes then select "
+#~ "the appropriate ``undo`` checkboxes and "
+#~ "click on ``OK``."
+#~ msgstr ""
+
+# d8f910902f69432398c03c6c2a0db26a
+#~ msgid ""
+#~ "The map tabs allow you to set "
+#~ "the location of where a photograph "
+#~ "was taken. Photini currently uses four"
+#~ " different map providers: Google, Bing, "
+#~ "Mapbox, and OpenStreetMap (OSM). All "
+#~ "four tabs have similar functionality, "
+#~ "but have different styles and levels "
+#~ "of detail. Google, Bing, and Mapbox "
+#~ "also offer aerial (or \"satellite\") "
+#~ "photography."
+#~ msgstr ""
+
+# 7803773373c0420cae6f60c0d05f81be
+#~ msgid ""
+#~ "If you have a mobile phone or "
+#~ "other device with a GPS logger you"
+#~ " may be able to set the "
+#~ "approximate locations of photographs from "
+#~ "logged GPS positions. If you have "
+#~ "installed gpxpy_ then Photini's ``File`` "
+#~ "menu should have an ``Import GPX "
+#~ "file`` item."
+#~ msgstr ""
+
+# 8330c59279da4f7eaa54a7a96d58f933
+#~ msgid ""
+#~ "First you need to export your GPS"
+#~ " log as a GPX_ (GPS eXchange "
+#~ "format) file, then transfer the .gpx "
+#~ "file to your computer. Make sure "
+#~ "your images have the correct time "
+#~ "zone set so that Photini can "
+#~ "calculate their UTC_ timestamps. Select "
+#~ "the images you want to set the "
+#~ "locations of, then click the ``Import"
+#~ " GPX file`` menu item."
+#~ msgstr ""
+
+# e4f3690d12e24995a0ca42e7fb76ed93
+#~ msgid ""
+#~ "After opening your GPX file you "
+#~ "can set some options to filter out"
+#~ " inaccurate points. ``Max time between "
+#~ "points`` allows Photini to detect gaps"
+#~ " in the log, e.g. when you were"
+#~ " in a building and lost the GPS"
+#~ " signal. ``Max dilution of precision`` "
+#~ "allows you to ignore points where "
+#~ "the \"`dilution of precision "
+#~ "<https://en.wikipedia.org/wiki/Dilution_of_precision_(navigation)>`_\""
+#~ " is too large. You may need to"
+#~ " experiment to find the best value"
+#~ " for your GPS device. The final "
+#~ "option selects whether to plot the "
+#~ "track on the current map tab. This"
+#~ " is still experimental, and there "
+#~ "isn't an option to delete the "
+#~ "plot, but it may be useful when"
+#~ " setting the previous two parameters."
+#~ msgstr ""
+
+# aac249c1657248a1967e57302cadd2ae
+#~ msgid ""
+#~ "Photini will use the GPS track to"
+#~ " estimate the location of each "
+#~ "selected image with a timestamp near "
+#~ "enough to that of a logged "
+#~ "position. Linear interpolation or "
+#~ "extrapolation is used, based on the "
+#~ "timestamps of the two nearest logged "
+#~ "positions. The result is unlikely to "
+#~ "be the exact location where you "
+#~ "took the photograph, so you will "
+#~ "almost certainly want to adjust the "
+#~ "positions by dragging markers on the "
+#~ "map."
+#~ msgstr ""
+
+# 8ebf8e3da6744517b77a7f0a1fa71a38
+#~ msgid ""
+#~ "This is a recent addition to "
+#~ "Photini and has not been extensively "
+#~ "tested. I'd be interested to hear "
+#~ "if you find it useful."
+#~ msgstr ""
+
+# 51e82c8f6d7e419b8342221b2f6a6005
+#~ msgid ""
+#~ "Note that \"Title / Object Name\" "
+#~ "and \"Keywords\" are not stored in "
+#~ "Exif. You may prefer not to use"
+#~ " these fields to ensure compatibility "
+#~ "with software that only handles Exif."
+#~ msgstr ""
+
+# 44fe2e3ae894484a89fd8638f9800792
+#~ msgid "Camera maker name"
+#~ msgstr ""
+
+# e8e402c4615d4d7db969df6877b7020c
+#~ msgid "Exif.Image.Make"
+#~ msgstr ""
+
+# 6ec735d68a8b4179a6a2517e4e4ec9d3
+#~ msgid "Camera model name"
+#~ msgstr ""
+
+# e8e402c4615d4d7db969df6877b7020c
+#~ msgid "Exif.Image.Model"
+#~ msgstr ""
+
+# 3ede17a144a74ccfb4109e25272e3dad
+#~ msgid "Camera serial number"
+#~ msgstr ""
+
+# 59fd380f68d34fafac2633a60991f560
+#~ msgid "Exif.Photo.BodySerialNumber"
+#~ msgstr ""
+
+# 44fe2e3ae894484a89fd8638f9800792
+#~ msgid "Lens maker name"
+#~ msgstr ""
+
+# a52faa96067a4418a8d9afb7a3b8c383
+#~ msgid "Exif.Photo.LensMake"
+#~ msgstr ""
+
+# 6ec735d68a8b4179a6a2517e4e4ec9d3
+#~ msgid "Lens model name"
+#~ msgstr ""
+
+# bea7f89e335b464aabc344a69ec3f22e
+#~ msgid "Exif.Photo.LensModel"
+#~ msgstr ""
+
+# 3ede17a144a74ccfb4109e25272e3dad
+#~ msgid "Lens serial number"
+#~ msgstr ""
+
+# 59fd380f68d34fafac2633a60991f560
+#~ msgid "Exif.Photo.LensSerialNumber"
+#~ msgstr ""
+
+# 4c940aca181f4c3e934db4eb1bde1373
+# b9daa7137d4b4cf6b3c51d47b7fad843
+#~ msgid "Lens specification"
+#~ msgstr ""
+
+# cafe6eab5d064b93b6bf59d6b7927b0a
+#~ msgid "Exif.Photo.LensSpecification"
+#~ msgstr ""
+
+# 825ea40460b5441b80221ae64891ae5b
+#~ msgid "Subject address"
+#~ msgstr ""
+
+# a52faa96067a4418a8d9afb7a3b8c383
+#~ msgid "Xmp.exifEX.LensMake"
+#~ msgstr ""
+
+# bea7f89e335b464aabc344a69ec3f22e
+#~ msgid "Xmp.exifEX.LensModel"
+#~ msgstr ""
+
+# 59fd380f68d34fafac2633a60991f560
+#~ msgid "Xmp.exifEX.LensSerialNumber"
+#~ msgstr ""
+
+# cafe6eab5d064b93b6bf59d6b7927b0a
+#~ msgid "Xmp.exifEX.LensSpecification"
+#~ msgstr ""
+
+# 7a8efca1afca403688bfd1c8f1e87a5f
+#~ msgid ""
+#~ "Exif.Image.UniqueCameraModel Exif.Canon.ModelID "
+#~ "Exif.OlympusEq.CameraType Exif.Pentax.ModelID"
+#~ msgstr ""
+
+# fa3527a8be5448cf980512c525991305
+#~ msgid ""
+#~ "Exif.Image.CameraSerialNumber Exif.Canon.SerialNumber "
+#~ "Exif.Fujifilm.SerialNumber Exif.Nikon3.SerialNumber "
+#~ "Exif.OlympusEq.SerialNumber Exif.Pentax.SerialNumber"
+#~ msgstr ""
+
+# 168b531157fb4b4bb125f2dd0eeb369f
+#~ msgid "Exif.Canon.LensModel Exif.CanonCs.LensType Exif.OlympusEq.LensModel"
+#~ msgstr ""
+
+# 8d443207627b4c6e92daa66ed1795000
+#~ msgid ""
+#~ "Exif.OlympusEq.LensSerialNumber Exif.NikonLd1.LensIDNumber "
+#~ "Exif.NikonLd2.LensIDNumber Exif.NikonLd3.LensIDNumber"
+#~ msgstr ""
+
+# 85992b3eee5940f2aae02216c128b637
+#~ msgid "Exif.CanonCs.Lens Exif.Nikon3.Lens"
+#~ msgstr ""
 

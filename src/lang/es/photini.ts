@@ -320,10 +320,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -439,6 +435,10 @@ Separate them with &quot;;&quot; characters.</source>
         <source>Change licence</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>File too large.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
@@ -459,10 +459,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -472,6 +468,10 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Please enter a title for the album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Large file.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -518,7 +518,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Algunas imágenes tienen metadatos no guardados.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Algunas imágenes tienen metadatos no guardados.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -574,6 +574,10 @@ in file</source>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Some images have unsaved metadata.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -652,10 +656,6 @@ copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Closing now will terminate the import.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -666,6 +666,10 @@ selected</source>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Importing photos has not finished.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -779,10 +783,6 @@ selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -820,6 +820,10 @@ selected</source>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1436,11 +1440,11 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <source>Do you want to delete the Exif makernote?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do you want to delete the Exif makernote?</source>
+        <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1480,7 +1484,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;La carga a {} no ha terminado.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;La carga a {} no ha terminado.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
@@ -1508,14 +1512,10 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Tipo de imagen incompatible.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Tipo de imagen incompatible.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1528,10 +1528,6 @@ template</source>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Authorisation required&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1564,6 +1560,22 @@ template</source>
     </message>
     <message>
         <source>No match</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -345,7 +345,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
@@ -501,6 +501,10 @@ diesem Bild bei Flickr?</translation>
         <source>Change licence</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>File too large.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
@@ -526,7 +530,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Große Datei.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Große Datei.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -539,6 +543,10 @@ diesem Bild bei Flickr?</translation>
     <message>
         <source>Please enter a title for the album</source>
         <translation>Bitte einen Albumtitel eingeben</translation>
+    </message>
+    <message>
+        <source>Large file.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -604,7 +612,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Einige Bilder enthalten ungesicherte Metadaten.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Einige Bilder enthalten ungesicherte Metadaten.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -662,6 +670,10 @@ nicht vorhanden</translation>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Some images have unsaved metadata.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -744,7 +756,7 @@ Kopieren</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Importieren von Fotos ist noch nicht abgeschlossen.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Importieren von Fotos ist noch nicht abgeschlossen.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Closing now will terminate the import.</source>
@@ -759,6 +771,10 @@ ausgewählt</numerusform>
             <numerusform>%n Dateien
 ausgewählt</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Importing photos has not finished.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -873,7 +889,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="unfinished">&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
@@ -913,6 +929,10 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1550,11 +1570,11 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <source>Do you want to delete the Exif makernote?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do you want to delete the Exif makernote?</source>
+        <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1598,7 +1618,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Hochladen nach {} wurde nicht beendet.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Hochladen nach {} wurde nicht beendet.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
@@ -1630,7 +1650,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Inkompatibles Bildformat.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Inkompatibles Bildformat.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
@@ -1638,7 +1658,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Hochladen der Datei &quot;{}&quot; fehlgeschlagen.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Hochladen der Datei &quot;{}&quot; fehlgeschlagen.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Add to albums</source>
@@ -1650,10 +1670,6 @@ template</source>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Authorisation required&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1687,6 +1703,22 @@ template</source>
     <message>
         <source>No match</source>
         <translation type="unfinished">kein Treffer</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

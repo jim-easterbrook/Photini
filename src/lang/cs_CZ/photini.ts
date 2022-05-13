@@ -345,7 +345,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
@@ -501,6 +501,10 @@ tomuto obrázku na Flickru?</translation>
         <source>Change licence</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>File too large.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
@@ -526,7 +530,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Velký soubor.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Velký soubor.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -539,6 +543,10 @@ tomuto obrázku na Flickru?</translation>
     <message>
         <source>Please enter a title for the album</source>
         <translation>Zadejte, prosím, název pro album</translation>
+    </message>
+    <message>
+        <source>Large file.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -604,7 +612,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Některé obrázky mají neuložené popisné údaje.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Některé obrázky mají neuložené popisné údaje.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -665,6 +673,10 @@ v souboru</translation>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Some images have unsaved metadata.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -747,7 +759,7 @@ kopírování</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Zavádění fotografií neskončilo.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Zavádění fotografií neskončilo.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Closing now will terminate the import.</source>
@@ -764,6 +776,10 @@ vybrány</numerusform>
             <numerusform>%n souborů
 vybráno</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Importing photos has not finished.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -878,7 +894,7 @@ vybráno</numerusform>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="unfinished">&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
@@ -918,6 +934,10 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1555,11 +1575,11 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Changing maker name will invalidate Exif makernote information.&lt;/h3&gt;</source>
+        <source>Do you want to delete the Exif makernote?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do you want to delete the Exif makernote?</source>
+        <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1603,7 +1623,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Nahrávání {} neskončilo.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Nahrávání {} neskončilo.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
@@ -1635,7 +1655,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Neslučující se typ obrázku.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Neslučující se typ obrázku.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
@@ -1643,7 +1663,7 @@ template</source>
     </message>
     <message>
         <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
-        <translation>&lt;h3&gt;Nahrání souboru &quot;{}&quot; selhalo.&lt;/h3&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Nahrání souboru &quot;{}&quot; selhalo.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Add to albums</source>
@@ -1655,10 +1675,6 @@ template</source>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Authorisation required&lt;/h3&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1692,6 +1708,22 @@ template</source>
     <message>
         <source>No match</source>
         <translation type="unfinished">Žádná shoda</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
