@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="pl" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="pl" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -576,7 +577,7 @@ in file</source>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niektóre obrazy mają niezapisane metadane.</translation>
     </message>
 </context>
 <context>
@@ -1568,11 +1569,11 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Przesyłanie do {} nie jest zakończone.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Niezgodny typ obrazu.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
