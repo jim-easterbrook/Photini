@@ -5,11 +5,11 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation></translation>
+        <translation>Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation></translation>
+        <translation>Ville</translation>
     </message>
     <message>
         <source>Province</source>
@@ -17,82 +17,82 @@
     </message>
     <message>
         <source>Country</source>
-        <translation></translation>
+        <translation>Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation></translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation></translation>
+        <translation>&amp;Addresse</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation></translation>
+        <translation>Obtenir l&apos;adresse d&apos;après la latitude et longitude</translation>
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation></translation>
+        <translation>Dupliquer l’emplacement</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation></translation>
+        <translation>Supprimer l&apos;emplacement</translation>
     </message>
     <message>
         <source>camera</source>
-        <translation></translation>
+        <translation>caméra</translation>
     </message>
     <message>
         <source>subject {}</source>
-        <translation></translation>
+        <translation>sujet {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation></translation>
+        <translation>Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation></translation>
+        <translation>Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation></translation>
+        <translation>Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation></translation>
+        <translation>Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation></translation>
+        <translation>Saisissez le code pays ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation></translation>
+        <translation>Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation></translation>
+        <translation>Entrez les détails concernant l’endroit où cette image a été créée.</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation></translation>
+        <translation>Saisissez les détails d’un emplacement, comme le montre cette image.</translation>
     </message>
 </context>
 <context>
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation></translation>
+        <translation>Utilisation&#xa0;: %prog [options] [file_name, ...]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation></translation>
+        <translation>Éditeur de métadonnées photo Photini</translation>
     </message>
     <message>
         <source>test new features or API versions</source>
-        <translation></translation>
+        <translation>tester les nouvelles fonctionnalités ou les versions de l&apos;API</translation>
     </message>
     <message>
         <source>increase number of logging messages</source>
@@ -119,19 +119,19 @@
     </message>
     <message>
         <source>Title / Object Name</source>
-        <translation></translation>
+        <translation>Titre / Nom de l&apos;objet</translation>
     </message>
     <message>
         <source>Description / Caption</source>
-        <translation></translation>
+        <translation>Description / Légende</translation>
     </message>
     <message>
         <source>Keywords</source>
-        <translation></translation>
+        <translation>Mots-clés</translation>
     </message>
     <message>
         <source>Rating</source>
-        <translation></translation>
+        <translation>Évaluation</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -490,9 +490,9 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Regénérer la miniature</numerusform>
+            <numerusform>Regénérer les miniatures</numerusform>
         </translation>
     </message>
     <message>
@@ -505,16 +505,16 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Recharger le fichier</numerusform>
+            <numerusform>Recharger les fichiers</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Fermer le fichier</numerusform>
+            <numerusform>Fermer les fichiers</numerusform>
         </translation>
     </message>
     <message>
@@ -601,9 +601,11 @@ copy</source>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n fichier
+sélectionné</numerusform>
+            <numerusform>%n fichiers
+sélectionnés</numerusform>
         </translation>
     </message>
     <message>
@@ -1054,11 +1056,11 @@ template</source>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
-        <translation></translation>
+        <translation>Saisissez la ou les adresses électroniques professionnelles de la personne qui a créé cette image, par exemple nom@domaine.com.</translation>
     </message>
     <message>
         <source>Email(s)</source>
-        <translation></translation>
+        <translation>Courriel(s)</translation>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
