@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="cs_CZ" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="cs_CZ" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -584,7 +585,7 @@ tomuto obrázku na Flickru?</translation>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>Řadit dle:</translation>
+        <translation>Řadit dle: </translation>
     </message>
     <message>
         <source>file name</source>
