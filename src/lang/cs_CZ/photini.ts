@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="cs_CZ" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="cs_CZ" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -503,7 +504,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor je příliš velký.</translation>
     </message>
 </context>
 <context>
@@ -546,7 +547,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Velký soubor.</translation>
     </message>
 </context>
 <context>
@@ -676,7 +677,7 @@ v souboru</translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation type="unfinished"></translation>
+        <translation>Některé obrázky mají neuložené popisné údaje.</translation>
     </message>
 </context>
 <context>
@@ -779,7 +780,7 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavádění fotografií neskončilo.</translation>
     </message>
 </context>
 <context>
@@ -938,7 +939,7 @@ vybráno</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor je příliš velký.</translation>
     </message>
 </context>
 <context>
@@ -1711,15 +1712,15 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrávání {} neskončilo.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Neslučující se typ obrázku.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrání souboru &quot;{}&quot; selhalo.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
