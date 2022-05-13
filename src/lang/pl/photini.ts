@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="pl" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="pl" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -40,7 +41,7 @@
     </message>
     <message>
         <source>camera</source>
-        <translation>Aparat fotograficzny </translation>
+        <translation>Aparat fotograficzny</translation>
     </message>
     <message>
         <source>subject {}</source>
@@ -87,7 +88,7 @@
     </message>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation>Photini edytor metadanych zdjęcia </translation>
+        <translation>Photini edytor metadanych zdjęcia</translation>
     </message>
     <message>
         <source>test new features or API versions</source>
@@ -202,7 +203,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Always create</source>
-        <translation>Twórz zawsze </translation>
+        <translation>Twórz zawsze</translation>
     </message>
     <message>
         <source>Sidecar files</source>
@@ -293,7 +294,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Art/Illustration</source>
-        <translation> Art/Ilustaracja</translation>
+        <translation>Art/Ilustaracja</translation>
     </message>
     <message>
         <source>Synchronise</source>
@@ -486,7 +487,7 @@ Separate them with &quot;;&quot; characters.</source>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>sortuj wg.</translation>
+        <translation>sortuj wg: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -498,7 +499,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>rozmiar miniatur:</translation>
+        <translation>rozmiar miniatur: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -1373,7 +1374,7 @@ template</source>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation> Odbicie lewa-prawa</translation>
+        <translation>Odbicie lewa-prawa</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
@@ -1381,11 +1382,11 @@ template</source>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation> Odbicie tr-bl</translation>
+        <translation>Odbicie tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation> Odbicie tr-bl</translation>
+        <translation>Odbicie tr-bl</translation>
     </message>
     <message>
         <source>Orientation</source>
