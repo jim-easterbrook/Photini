@@ -382,7 +382,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -417,7 +417,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -518,7 +518,7 @@ in file</source>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -609,7 +609,7 @@ selected</numerusform>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -764,7 +764,7 @@ selected</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1378,7 +1378,7 @@ template</source>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1489,19 +1489,19 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
