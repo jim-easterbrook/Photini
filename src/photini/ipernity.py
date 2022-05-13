@@ -505,7 +505,8 @@ class TabWidget(PhotiniUploader):
             return convert
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate('IpernityTab', 'Photini: too large'))
-        dialog.setText(translate('IpernityTab', '<h3>File too large.</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('IpernityTab', 'File too large.')))
         dialog.setInformativeText(translate(
             'IpernityTab',
             'File "{0}" has {1} bytes which exceeds Ipernity\'s limit of' +

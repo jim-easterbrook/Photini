@@ -281,8 +281,8 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('GooglePhotosTab', 'Photini: large file'))
-        dialog.setText(
-            translate('GooglePhotosTab', '<h3>Large file.</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('GooglePhotosTab', 'Large file.')))
         dialog.setInformativeText(
             translate('GooglePhotosTab',
                       'File "{0}" is over 25MB. Remember that Photini '

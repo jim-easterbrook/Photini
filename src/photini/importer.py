@@ -498,8 +498,8 @@ class TabWidget(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'ImporterTab', 'Photini: import in progress'))
-        dialog.setText(translate(
-            'ImporterTab', '<h3>Importing photos has not finished.</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(translate(
+            'ImporterTab', 'Importing photos has not finished.')))
         dialog.setInformativeText(translate(
             'ImporterTab', 'Closing now will terminate the import.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)

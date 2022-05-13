@@ -369,9 +369,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: upload in progress'))
-        dialog.setText(translate(
+        dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll',
-            '<h3>Upload to {} has not finished.</h3>').format(self.service_name))
+            'Upload to {} has not finished.').format(self.service_name)))
         dialog.setInformativeText(
             translate('UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
@@ -464,8 +464,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: incompatible type'))
-        dialog.setText(
-            translate('UploaderTabsAll', '<h3>Incompatible image type.</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('UploaderTabsAll', 'Incompatible image type.')))
         dialog.setInformativeText(msg.format(os.path.basename(image.path),
                                              image.file_type, self.service_name))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
@@ -552,9 +552,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: upload error'))
-        dialog.setText(translate(
-            'UploaderTabsAll', '<h3>File "{}" upload failed.</h3>').format(
-                name))
+        dialog.setText('<h3>{}</h3>'.format(translate(
+            'UploaderTabsAll', 'File "{}" upload failed.').format(name)))
         dialog.setInformativeText(error)
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
         dialog.setStandardButtons(QtWidgets.QMessageBox.Abort |
@@ -621,8 +620,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: authorise'))
-        dialog.setText(translate(
-            'UploaderTabsAll', '<h3>Authorisation required</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(translate(
+            'UploaderTabsAll', 'Authorisation required')))
         dialog.setInformativeText(translate(
             'UploaderTabsAll', 'Please use your web browser to authorise'
             ' Photini, and then close this dialog.'))
