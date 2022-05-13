@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -584,7 +585,7 @@ diesem Bild bei Flickr?</translation>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>Sortieren nach:</translation>
+        <translation>Sortieren nach: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -596,7 +597,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>Vorschaubildgröße:</translation>
+        <translation>Vorschaubildgröße: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -1411,7 +1412,7 @@ template</source>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Genauigkeit</translation>
+        <translation>Genauigkeit:</translation>
     </message>
     <message>
         <source>min</source>
