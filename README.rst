@@ -74,12 +74,13 @@ If you encounter any problems installing or running Photini, please email jim@ji
 There is also an email list or forum for discussions about Photini at https://groups.google.com/forum/#!forum/photini.
 If you discover a bug and have a GitHub account then please file a bug report on the GitHub `"issues" page`_.
 
-Internationalisation
---------------------
+Localisation
+------------
 
 Work has begun on providing Photini in multiple languages.
 I rely on users to do the translation, as I am not fluent in any language other than English.
-If you'd like to help, please join the `Photini team on Transifex`_.
+I'm in the process of moving online translations from Transifex_ to Weblate_.
+If you'd like to help translate Photini, please join the `Photini team on Hosted Weblate`_.
 For more details, see the `localisation documentation`_.
 
 .. _readme-legalese:
@@ -163,7 +164,11 @@ A copy of the license is included in the documentation section entitled "GNU Fre
 .. _OAuth:         http://oauth.net/
 .. _OpenStreetMap licence:
                    http://www.openstreetmap.org/copyright
+.. _Photini team on Hosted Weblate:
+                   https://hosted.weblate.org/projects/photini/
 .. _Photini team on Transifex:
                    https://www.transifex.com/projects/p/photini/
 .. _Python keyring:
                    https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
+.. _Transifex:     https://www.transifex.com
+.. _Weblate:       https://hosted.weblate.org

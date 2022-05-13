@@ -10,6 +10,10 @@ There are two parts to this -- the text used within the program and the document
 I rely on users to do the translation as I can not write any other language with any fluency.
 You can use an online service called Transifex_ or a suitable text editor installed on your computer.
 
+.. note::
+    Photini's translations are being moved from Transifex to Weblate_.
+    Please do not use Transifex anymore, but do give Weblate a go.
+
 Online translation
 ------------------
 
@@ -243,3 +247,4 @@ Open ``doc/html/index.html`` with a web browser to read the translated documenta
 .. _Qt Linguist: https://doc.qt.io/qt-5/linguist-translators.html
 .. _Sphinx:      https://www.sphinx-doc.org/
 .. _Transifex:   https://www.transifex.com/projects/p/photini/
+.. _Weblate:     https://hosted.weblate.org/projects/photini/
