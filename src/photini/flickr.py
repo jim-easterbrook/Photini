@@ -491,8 +491,8 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('FlickrTab', 'Photini: too large'))
-        dialog.setText(
-            translate('FlickrTab', '<h3>File too large.</h3>'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('FlickrTab', 'File too large.')))
         dialog.setInformativeText(
             translate('FlickrTab',
                       'File "{0}" has {1} bytes and exceeds Flickr\'s limit' +

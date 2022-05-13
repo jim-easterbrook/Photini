@@ -895,9 +895,9 @@ class TabWidget(QtWidgets.QWidget):
                     msg = QtWidgets.QMessageBox(parent=self)
                     msg.setWindowTitle(translate(
                         'TechnicalTab', 'Photini: maker name change'))
-                    msg.setText(translate(
-                        'TechnicalTab', '<h3>Changing maker name will'
-                        ' invalidate Exif makernote information.</h3>'))
+                    msg.setText('<h3>{}</h3>'.format(translate(
+                        'TechnicalTab', 'Changing maker name will'
+                        ' invalidate Exif makernote information.')))
                     msg.setInformativeText(translate(
                         'TechnicalTab',
                         'Do you want to delete the Exif makernote?'))
