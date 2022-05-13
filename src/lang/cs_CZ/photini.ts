@@ -597,7 +597,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>Velikost náhledu:</translation>
+        <translation>Velikost náhledu: </translation>
     </message>
     <message>
         <source>Open files</source>

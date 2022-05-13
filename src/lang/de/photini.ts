@@ -65,19 +65,19 @@
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den aus 2 oder 3 Buchstaben bestehenden ISO-3166-Ländercode des Landes ein.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen der Weltregion ein.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Details zu dem Ort ein, an dem das Bild erstellt wurde.</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Details zu einem Ort ein, der in diesem Bild gezeigt wird.</translation>
     </message>
 </context>
 <context>

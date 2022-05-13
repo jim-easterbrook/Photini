@@ -503,7 +503,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>tamaño de la vista previa</translation>
+        <translation>tamaño de la vista previa: </translation>
     </message>
     <message>
         <source>Open files</source>
