@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="ca" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -503,7 +504,7 @@ en aquesta foto a Flickr?</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer massa gran.</translation>
     </message>
 </context>
 <context>
@@ -546,7 +547,7 @@ en aquesta foto a Flickr?</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer gran.</translation>
     </message>
 </context>
 <context>
@@ -673,7 +674,7 @@ en el fitxer</translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation type="unfinished"></translation>
+        <translation>Algunes imatges tenen metadades sense guardar.</translation>
     </message>
 </context>
 <context>
@@ -774,7 +775,7 @@ triats</numerusform>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>La importació no ha acabat.</translation>
     </message>
 </context>
 <context>
@@ -933,7 +934,7 @@ triats</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer massa gran.</translation>
     </message>
 </context>
 <context>
@@ -1706,15 +1707,15 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Càrrega a {} no ha acabat.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipus d&apos;imatge incompatible.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Authorisation required</source>

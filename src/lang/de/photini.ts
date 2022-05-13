@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -503,7 +504,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zu groß.</translation>
     </message>
 </context>
 <context>
@@ -546,7 +547,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Große Datei.</translation>
     </message>
 </context>
 <context>
@@ -673,7 +674,7 @@ nicht vorhanden</translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einige Bilder enthalten ungesicherte Metadaten.</translation>
     </message>
 </context>
 <context>
@@ -774,7 +775,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren von Fotos ist noch nicht abgeschlossen.</translation>
     </message>
 </context>
 <context>
@@ -933,7 +934,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei zu groß.</translation>
     </message>
 </context>
 <context>
@@ -1706,15 +1707,15 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen nach {} wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation>Inkompatibles Bildformat.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochladen der Datei &quot;{}&quot; fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
