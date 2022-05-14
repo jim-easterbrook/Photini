@@ -743,14 +743,15 @@ class Metadata(object):
     # Exiv2 uses the Exif.Image.Make value to decode Exif.Photo.MakerNote
     # If we change Exif.Image.Make we should delete Exif.Photo.MakerNote
     def camera_change_ok(self, camera_model):
-        if not self._maker_note['make']:
+        if not (self._if and self._maker_note['make']):
             return True
         if not camera_model:
             return False
         return self._maker_note['make'] == camera_model['make']
 
     def set_delete_makernote(self):
-        self._maker_note['delete'] = True
+        if self._if:
+            self._maker_note['delete'] = True
 
     @classmethod
     def clone(cls, path, other):
