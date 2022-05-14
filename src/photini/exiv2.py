@@ -50,7 +50,7 @@ class MetadataHandler(object):
         exiv2.LogMsg.setLevel(
             max(exiv2.LogMsg.debug, min(exiv2.LogMsg.error, 4 - verbosity)))
         exiv2.XmpParser.initialize()
-        if exiv2_version_info >= (0, 27, 4):
+        if config_store and exiv2_version_info >= (0, 27, 4):
             exiv2.enableBMFF(config_store.get('metadata', 'enable_bmff', False))
         # Recent versions of Exiv2 have these namespaces defined, but
         # older versions may not recognise them. The xapGImg URL is
