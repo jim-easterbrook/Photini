@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 14:08+0100\n"
+"POT-Creation-Date: 2022-05-13 12:38+0100\n"
 "PO-Revision-Date: 2021-06-14 10:52+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: ca\n"
@@ -841,16 +841,16 @@ msgid ""
 "`\"issues\" page`_."
 msgstr ""
 
-# a2acbf43b42a4836991f8a3d94666559
-msgid "Internationalisation"
+msgid "Localisation"
 msgstr ""
 
-# b93b5ce5a8a14180a4f3bcff8797a548
 msgid ""
 "Work has begun on providing Photini in multiple languages. I rely on "
 "users to do the translation, as I am not fluent in any language other "
-"than English. If you'd like to help, please join the `Photini team on "
-"Transifex`_. For more details, see the `localisation documentation`_."
+"than English. I'm in the process of moving online translations from "
+"Transifex_ to Weblate_. If you'd like to help translate Photini, please "
+"join the `Photini team on Hosted Weblate`_. For more details, see the "
+"`localisation documentation`_."
 msgstr ""
 
 # 9ee66ebe1b2b483bb4eb260b47e94751
@@ -982,6 +982,11 @@ msgid ""
 "documentation. I rely on users to do the translation as I can not write "
 "any other language with any fluency. You can use an online service called"
 " Transifex_ or a suitable text editor installed on your computer."
+msgstr ""
+
+msgid ""
+"Photini's translations are being moved from Transifex to Weblate_. Please"
+" do not use Transifex anymore, but do give Weblate a go."
 msgstr ""
 
 # 263609c56ead44b59e43d7affd38585a
@@ -2293,5 +2298,21 @@ msgstr ""
 #~ " should use the one that you "
 #~ "like best, but it's very easy to"
 #~ " switch to another at any time."
+#~ msgstr ""
+
+# a2acbf43b42a4836991f8a3d94666559
+#~ msgid "Internationalisation"
+#~ msgstr ""
+
+# b93b5ce5a8a14180a4f3bcff8797a548
+#~ msgid ""
+#~ "Work has begun on providing Photini "
+#~ "in multiple languages. I rely on "
+#~ "users to do the translation, as I"
+#~ " am not fluent in any language "
+#~ "other than English. If you'd like "
+#~ "to help, please join the `Photini "
+#~ "team on Transifex`_. For more details,"
+#~ " see the `localisation documentation`_."
 #~ msgstr ""
 
