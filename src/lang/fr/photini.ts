@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation>Obtenir l&apos;adresse d&apos;après la latitude et longitude</translation>
+        <translation type="unfinished">Obtenir l&apos;adresse d&apos;après la latitude et longitude</translation>
     </message>
     <message>
         <source>Duplicate location</source>
@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation></translation>
+        <translation type="unfinished">metadata is known to be ASCII or utf-8 encoded</translation>
     </message>
 </context>
 <context>

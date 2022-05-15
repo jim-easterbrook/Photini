@@ -5,11 +5,11 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation></translation>
+        <translation>Gate</translation>
     </message>
     <message>
         <source>City</source>
-        <translation></translation>
+        <translation>By</translation>
     </message>
     <message>
         <source>Province</source>
@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Country</source>
-        <translation></translation>
+        <translation>Land</translation>
     </message>
     <message>
         <source>Region</source>
@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation></translation>
+        <translation>&amp;Adresse</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
@@ -33,19 +33,19 @@
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation></translation>
+        <translation>Dupliser posisjon</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation></translation>
+        <translation>Slett posisjon</translation>
     </message>
     <message>
         <source>camera</source>
-        <translation></translation>
+        <translation>kamera</translation>
     </message>
     <message>
         <source>subject {}</source>
-        <translation></translation>
+        <translation>emne {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation></translation>
+        <translation>Skriv inn navnet på byen.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation></translation>
+        <translation>Skriv inn navet på landet.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
@@ -303,7 +303,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>People you follow</source>
-        <translation></translation>
+        <translation>Folk du følger</translation>
     </message>
     <message>
         <source>Any Flickr member</source>
@@ -490,9 +490,9 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Regenerer miniatyrbilde</numerusform>
+            <numerusform>Regenerer miniatyrbilder</numerusform>
         </translation>
     </message>
     <message>
@@ -505,16 +505,16 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Last inn filen igjen</numerusform>
+            <numerusform>Last inn filene igjen</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Velg fil</numerusform>
+            <numerusform>Velg filer</numerusform>
         </translation>
     </message>
     <message>
@@ -601,9 +601,11 @@ copy</source>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n fil
+valgt</numerusform>
+            <numerusform>%n filer
+valgt</numerusform>
         </translation>
     </message>
     <message>
