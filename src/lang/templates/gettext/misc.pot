@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2012-22, Jim Easterbrook
+# This file is distributed under the same license as the Photini package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Photini 2022.5.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-12 14:08+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../doc/misc/changelog.rst:6
+#: 71a49c4ec29547d391c90a7f8d0f59c9
+msgid "Change Log"
+msgstr ""
+
+#: ../../../../<rst_epilog>:4
+#: ../../../../<rst_epilog>:4
+#: ../../../../<rst_epilog>:4
+#: ../../../../<rst_epilog>:4
+#: 1f5901202dd54dc3a2dc9706120a72ff
+#: 0db8d535cd534adca48e7cba46f70764
+#: 15b4446d5df74651acd9ad638f3890b3
+#: 6725c7fc6d04487887e5984f5b23dc05
+msgid "Comments or questions? Please subscribe to the Photini mailing list https://groups.google.com/forum/#!forum/photini and let us know."
+msgstr ""
+
+#: ../../../doc/misc/doc_licence.rst:6
+#: 9a3978b453bb4e7fbdf741a93af0da6c
+msgid "GNU Free Documentation License"
+msgstr ""
+
+#: ../../../doc/misc/doc_licence.rst:8
+#: d1a1416f229a4a6aa99e9472bb138cb8
+msgid "The Photini documentation is licensed under the GNU Free Documentation License."
+msgstr ""
+
+#: ../../../doc/misc/index.rst:6
+#: a4ce398658d349fa9ea94c31266c8e99
+msgid "Miscellaneous"
+msgstr ""
+
+#: ../../../doc/misc/licence.rst:6
+#: 41f32bcac1d243d38121c817303b4455
+msgid "GNU General Public License"
+msgstr ""
+
+#: ../../../doc/misc/licence.rst:8
+#: b0c3e92940b5435caf994c4c523a1bb5
+msgid "The Photini software is licensed under the GNU General Public License."
+msgstr ""
