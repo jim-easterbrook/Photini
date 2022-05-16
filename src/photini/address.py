@@ -90,7 +90,7 @@ class OpenCage(GeocoderBase):
                           'street_name', 'street', 'cycleway', 'footway',
                           'place', 'square',
                           'locality', 'hamlet', 'croft'),
-        'ignore'        :('political_union', 'road_reference',
+        'ignore'        :('ISO_3166-2', 'political_union', 'road_reference',
                           'road_reference_intl', 'road_type',
                           '_category', '_type'),
         }
@@ -105,6 +105,9 @@ class OpenCage(GeocoderBase):
         if not results:
             return None
         address = dict(results[0]['components'])
+        for key in address:
+            if isinstance(address[key], list):
+                address[key] = '; '.join(address[key])
         if 'county_code' in address and 'county' in address:
             del address['county_code']
         if 'state_code' in address and 'state' in address:
