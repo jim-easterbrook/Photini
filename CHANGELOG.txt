@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.5.1:
+  1/ Fix address tab bug caused by by recent change to OpenCage geocoder.
+  2/ Adjust the order of address components.
+  3/ Add option to delete IPTC-IIM legacy metadata.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2022.5.0:
   1/ Can set alternative language texts for some fields (XMP only).
   2/ Added a "headline" field to the descriptive metadata tab.
