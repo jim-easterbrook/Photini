@@ -1,89 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="es" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="es" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>Calle</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation>Ciudad</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="unfinished"></translation>
+        <translation>Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation>País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation>Región</translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Dirección</translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation type="unfinished"></translation>
+        <translation>Obtener dirección de lat, long</translation>
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicar localización</translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrar localización</translation>
     </message>
     <message>
         <source>camera</source>
-        <translation type="unfinished"></translation>
+        <translation>cámara</translation>
     </message>
     <message>
         <source>subject {}</source>
-        <translation type="unfinished"></translation>
+        <translation>sujeto</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre de la sublocalizacion</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre de la ciudad.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre de la provincia o estado.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre del país.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce las 2 o 3 letras del código ISO 3166 del país.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce el nombre de la región del mundo.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce los detalles sobre la localización donde se creó esta imagen.</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduce los detalles sobre la localización que se muestran en esta imagen.</translation>
     </message>
 </context>
 <context>
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation type="unfinished"></translation>
+        <translation>Uso: %programa [opciones] [nombre fichero, ... ]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
@@ -91,7 +92,7 @@
     </message>
     <message>
         <source>test new features or API versions</source>
-        <translation type="unfinished"></translation>
+        <translation>probar nuevas opciones o versiones de la API</translation>
     </message>
     <message>
         <source>increase number of logging messages</source>
