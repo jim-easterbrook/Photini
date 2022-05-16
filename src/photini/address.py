@@ -90,7 +90,7 @@ class OpenCage(GeocoderBase):
                           'street_name', 'street', 'cycleway', 'footway',
                           'place', 'square',
                           'locality', 'hamlet', 'croft'),
-        'ignore'        :('political_union', 'road_reference',
+        'ignore'        :('ISO_3166-2', 'political_union', 'road_reference',
                           'road_reference_intl', 'road_type',
                           '_category', '_type'),
         }
