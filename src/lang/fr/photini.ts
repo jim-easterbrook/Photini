@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="fr" sourcelanguage="en_GB">
+<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -84,7 +83,7 @@
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation>Utilisation&#xa0;: %prog [options] [file_name, ...]</translation>
+        <translation>Utilisation : %prog [options] [file_name, ...]</translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
