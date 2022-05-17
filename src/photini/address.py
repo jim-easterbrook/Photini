@@ -105,9 +105,17 @@ class OpenCage(GeocoderBase):
         if not results:
             return None
         address = dict(results[0]['components'])
-        for key in address:
-            if isinstance(address[key], list):
-                address[key] = '; '.join(address[key])
+        for key, value in address.items():
+            if isinstance(value, list):
+                try:
+                    address[key] = '; '.join(value)
+                except Exception:
+                    pass
+            if not isinstance(value, str):
+                try:
+                    address[key] = str(value)
+                except Exception:
+                    del address[key]
         if 'county_code' in address and 'county' in address:
             del address['county_code']
         if 'state_code' in address and 'state' in address:
