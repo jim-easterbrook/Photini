@@ -167,12 +167,13 @@ class MetadataHandler(object):
             yield datum.key()
 
     @classmethod
-    def open_old(cls, *arg, **kw):
+    def open_old(cls, *arg, quiet=False, **kw):
         try:
             return cls(*arg, **kw)
         except Exiv2Error as ex:
             # expected if unrecognised file format
-            logger.warning(str(ex))
+            if not quiet:
+                logger.warning(str(ex))
             return None
         except Exception as ex:
             logger.exception(ex)

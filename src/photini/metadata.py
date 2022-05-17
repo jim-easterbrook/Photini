@@ -686,8 +686,11 @@ class Metadata(object):
         self._notify = notify
         self._utf_safe = utf_safe
         video_md = None
+        self._if = None
         self._sc = SidecarMetadata.open_old(self.find_sidecar())
-        self._if = ImageMetadata.open_old(path, utf_safe=utf_safe)
+        self._if = ImageMetadata.open_old(
+            path, utf_safe=utf_safe,
+            quiet=self.get_mime_type().split('/')[0] == 'video')
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             video_md = FFMPEGMetadata.open_old(path)
@@ -887,7 +890,7 @@ class Metadata(object):
         if self._if:
             result = self._if.mime_type
         if not result:
-            result = mimetypes.guess_type(self._path)[0]
+            result = mimetypes.guess_type(self._path, strict=False)[0]
         if not result:
             result = imghdr.what(self._path)
             if result:

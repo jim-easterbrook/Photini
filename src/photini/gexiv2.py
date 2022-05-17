@@ -244,11 +244,13 @@ class MetadataHandler(GExiv2.Metadata):
                 super(MetadataHandler, self).get_xmp_tags()]
 
     @classmethod
-    def open_old(cls, *arg, **kw):
+    def open_old(cls, *arg, quiet=False, **kw):
         try:
             return cls(*arg, **kw)
         except GLib.GError:
             # expected if unrecognised file format
+            if not quiet:
+                logger.warning(str(ex))
             return None
         except Exception as ex:
             logger.exception(ex)
