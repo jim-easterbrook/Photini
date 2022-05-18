@@ -24,6 +24,14 @@ For example, this is what it might look like if your computer is configured to u
 
 If you'd like to help by translating Photini into another language, or by improving an existing translation, this is what you need to do.
 
+.. figure:: https://hosted.weblate.org/widgets/photini/-/gui/multi-auto.svg
+    :alt: Translation status
+    :target: https://hosted.weblate.org/engage/photini/
+    :width: 70 %
+    :align: center
+
+    Translation progress so far
+
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
