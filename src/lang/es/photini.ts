@@ -45,11 +45,11 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>sujeto</translation>
+        <translation>sujeto {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Introduce el nombre de la sublocalizacion</translation>
+        <translation>Introduce el nombre de la sublocalizacion.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
