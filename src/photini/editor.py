@@ -208,33 +208,32 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.app.config_store.get('tabs', key))
                     self.app.config_store.delete('tabs', key)
         # prepare list of tabs and associated stuff
-        self.tab_list = []
+        self.tab_info = {}
         default_modules = ['photini.descriptive',  'photini.ownership',
                            'photini.technical',
                            'photini.googlemap',    'photini.bingmap',
                            'photini.mapboxmap',    'photini.address',
                            'photini.flickr',       'photini.ipernity',
                            'photini.googlephotos', 'photini.importer']
-        modules = self.app.config_store.get('tabs', 'modules', default_modules)
-        if 'photini.openstreetmap' in modules:
-            modules.remove('photini.openstreetmap')
-            self.app.config_store.set('tabs', 'modules', modules)
+        self.modules = self.app.config_store.get(
+            'tabs', 'modules', default_modules)
+        if 'photini.openstreetmap' in self.modules:
+            self.modules.remove('photini.openstreetmap')
             self.app.config_store.delete('tabs', 'photini.openstreetmap')
-        for n, module in enumerate(default_modules):
-            if module not in modules:
-                modules = list(modules)
-                modules.insert(n, module)
-                self.app.config_store.set('tabs', 'modules', modules)
-        for module in list(modules):
-            tab = {'module': module}
+        self.modules += [x for x in default_modules if x not in self.modules]
+        self.app.config_store.set('tabs', 'modules', self.modules)
+        for module in self.modules:
+            tab = {}
             try:
-                mod = importlib.import_module(tab['module'])
+                mod = importlib.import_module(module)
                 tab['class'] = mod.TabWidget
-                tab['name'] = tab['class'].tab_name()
+                tab['label'] = tab['class'].tab_name()
+                tab['name'] = tab['label'].replace('&', '')
             except ImportError as ex:
                 print(str(ex))
                 tab['class'] = None
-            self.tab_list.append(tab)
+                tab['name'] = module
+            self.tab_info[module] = tab
         # file menu
         file_menu = self.menuBar().addMenu(translate('MenuBar', 'File'))
         action = file_menu.addAction(translate('MenuBar', 'Open files'))
@@ -266,16 +265,13 @@ class MainWindow(QtWidgets.QMainWindow):
         action = options_menu.addAction(translate('MenuBar', 'Settings'))
         action.triggered.connect(self.edit_settings)
         options_menu.addSeparator()
-        for tab in self.tab_list:
-            if tab['class']:
-                name = tab['name'].replace('&', '')
-            else:
-                name = tab['module']
-            tab['action'] = options_menu.addAction(name)
+        for module in self.modules:
+            tab = self.tab_info[module]
+            tab['action'] = options_menu.addAction(tab['name'])
             tab['action'].setCheckable(True)
             if tab['class']:
-                tab['action'].setChecked(self.app.config_store.get(
-                    'tabs', tab['module'], True))
+                tab['action'].setChecked(
+                    self.app.config_store.get('tabs', module, True))
             else:
                 tab['action'].setEnabled(False)
             tab['action'].triggered.connect(self.add_tabs)
@@ -322,6 +318,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.setTabBar(QTabBar())
         self.tabs.setElideMode(Qt.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
+        self.tabs.setMovable(True)
+        self.tabs.tabBar().tabMoved.connect(self.tab_moved)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
         self.central_widget.addWidget(self.image_list)
@@ -346,20 +344,20 @@ class MainWindow(QtWidgets.QMainWindow):
         was_blocked = self.tabs.blockSignals(True)
         current = self.tabs.currentWidget()
         self.tabs.clear()
-        idx = 0
-        for tab in self.tab_list:
+        for module in self.modules:
+            tab = self.tab_info[module]
             if not tab['class']:
-                self.app.config_store.set('tabs', tab['module'], True)
+                self.app.config_store.set('tabs', module, True)
                 continue
             use_tab = tab['action'].isChecked()
-            self.app.config_store.set('tabs', tab['module'], use_tab)
+            self.app.config_store.set('tabs', module, use_tab)
             if not use_tab:
                 continue
             if 'object' not in tab:
                 tab['object'] = tab['class'](self.image_list)
-            self.tabs.addTab(tab['object'], tab['name'])
-            self.tabs.setTabToolTip(idx, tab['name'].replace('&', ''))
-            idx += 1
+            idx = self.tabs.addTab(tab['object'], tab['label'])
+            self.tabs.setTabToolTip(idx, tab['name'])
+            self.tabs.tabBar().setTabData(idx, module)
         self.tabs.blockSignals(was_blocked)
         if current:
             self.tabs.setCurrentWidget(current)
@@ -466,6 +464,17 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         if current:
             self.image_list.set_drag_to_map(None)
             current.refresh()
+
+    @QtSlot(int, int)
+    @catch_all
+    def tab_moved(self, new_pos, old_pos):
+        tab_bar = self.tabs.tabBar()
+        modules = []
+        for n in range(tab_bar.count()):
+            modules.append(tab_bar.tabData(n))
+        modules += [x for x in self.modules if x not in modules]
+        self.modules = modules
+        self.app.config_store.set('tabs', 'modules', self.modules)
 
     @QtSlot(list)
     @catch_all
