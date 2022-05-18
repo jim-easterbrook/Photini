@@ -17,6 +17,9 @@ The lower part is an image selector that is common to all the tabs.
 In between the two is a divider that can be dragged with the mouse to change the relative sizes of the two parts.
 The overall size of the window can also be changed by dragging its edges or corners with the mouse.
 
+.. versionadded:: 2022.5.2
+    The tabs can be re-ordered by dragging and dropping a tab to your preferred position.
+
 .. image:: ../images/screenshot_002.png
 
 Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``).

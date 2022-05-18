@@ -144,6 +144,10 @@ Note that after doing this you can not set a different style on the command line
 Tab order
 ^^^^^^^^^
 
+.. versionadded:: 2022.5.2
+    The tabs can be re-ordered by dragging and dropping a tab to your preferred position.
+    This is much easier to do than editing the configuration file.
+
 Photini's tabs can be enabled or disabled with the ``Options`` menu as described above, but their order is set in the configuration file.
 The ``[tabs]`` section has a ``modules`` entry which lists the modules to be imported for each tab.
 You can reorder the tabs by reordering this list.
