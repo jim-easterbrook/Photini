@@ -8,60 +8,11 @@
 Photini can be made easier to use for people who don't speak English.
 There are two parts to this -- the text used within the program and the documentation.
 I rely on users to do the translation as I can not write any other language with any fluency.
-You can use an online service called Transifex_ or a suitable text editor installed on your computer.
+You can use an online service called Weblate_ or a suitable text editor installed on your computer.
 
 .. note::
-    Photini's translations are being moved from Transifex to Weblate_.
+    Photini's translations previously used a service called Transifex_.
     Please do not use Transifex anymore, but do give Weblate a go.
-
-Online translation
-------------------
-
-Transifex_ is an online translation service that provides free support for open source projects such as Photini.
-It provides an online editor, making it easy for individuals to contribute as much or as little effort as they wish.
-Follow the link to Transifex_ and click on "help translate Photini".
-From there you can create a free account and sign in.
-
-If your language is not included in the Photini project languages list you can ask for it to be added by clicking on "request language".
-Each language is represented by a code, e.g. ``nl`` or ``en_CA``.
-The longer codes are usually regional or national variations of a common language.
-You should choose the common language if it's not already available in Photini, moving on to the variations once the common language is done.
-Once your language is added you can ask to join the language team and then start translating.
-
-The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language.
-One disadvantage is that Transifex_ doesn't display the context in which a piece of text is used, which may make it more difficult to translate.
-
-Offline translation
--------------------
-
-Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used.
-
-Start by installing the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`).
-You will also need to install the Transifex client program, Babel_ and ``pylupdate5``.
-If possible, install these with your operating system software manager.
-``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
-Otherwise, you can use pip::
-
-   $ pip3 install transifex-client Babel
-
-Start by getting the most recent translation into your chosen language from Transifex_, if there is one.
-For example, if you are going to translate Photini into Dutch::
-
-   $ tx pull -l nl -f
-
-(The ``-f`` option forces a download, even if your local file is newer than the translation on Transifex.)
-
-Now update (or initialise if they don't exist) the translation files with the current program strings::
-
-   $ python3 utils/lang_update.py -l nl
-
-Now you can open a translation file in your chosen editor, for example::
-
-   $ linguist-qt5 src/lang/nl/photini.ts
-   $ linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
-
-You can use any text editor for your translations, but a special purpose translation editor is preferable.
-The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings or the ``.po`` file format used for the documentation should be acceptable.
 
 Translating the program text
 ----------------------------
@@ -76,28 +27,50 @@ If you'd like to help by translating Photini into another language, or by improv
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
-On the Transifex site there are several "resources" for Photini.
-The one called ``photini`` contains the text strings used by the Photini program.
-(The others, beginning with ``doc``, contain the Photini documentation.)
-Click on the ``photini`` resource, then the language you want to work on, then click on the ``translate`` button.
-This displays a translation editing page where you can click on a text string to be translated and then type in your translation.
-See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
+Weblate_ is an online translation service that provides free support for open source projects such as Photini.
+It provides an online editor, making it easy for individuals to contribute as much or as little effort as they wish.
+Follow the link to Weblate_ and click on "Register".
+From there you can create a free account and sign in.
+I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password.
+
+Back at the Photini project page, click on the "GUI" component, then click on a language to work on, or "Start new translation" if your language is not listed.
+Clicking on "Browse" shows a list of strings and their translations.
+You can then click on a string to edit its translation.
+
+The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language.
+Another advantage is that most strings have a screenshot associated with them to show the context where the string is used.
+
+Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
+
+When you've finished working on a translation there's no need to do anything further.
+Weblate automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
+You might like to :ref:`test your translation <localisation-program-testing>` though.
 
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
 
+Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used.
+
+Start by downloading the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`).
+You will also need to install Babel_ and ``pylupdate5``.
+If possible, install these with your operating system software manager.
+``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
+
 The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language.
-You can open the translation file in any editor, but a translation tool is best.
-For example::
+First you should update (or initialise if they don't exist) the translation files with the current program strings::
+
+   $ python3 utils/lang_update.py -l nl
+
+Now you can open a translation file in your chosen editor, for example::
 
    $ linguist-qt5 src/lang/nl/photini.ts
 
-See the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
+You can use any text editor for your translations, but a special purpose translation editor is preferable.
+The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings should be acceptable.
 
-If you have a Transifex account then you should upload your translation as it progresses.
-This will ensure that your work isn't accidentally duplicated by other translators::
-
-   $ tx push -t -l nl
+Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
+When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk).
+You might like to :ref:`test your translation <localisation-program-testing>` first.
 
 .. _localisation-program-notes:
 
@@ -110,7 +83,7 @@ Words with special meanings
 
 Formatting strings
    In Python curly braces are used to include other data in a string.
-   For example, ``Copyright ©{year} {name}. All rights reserved.`` includes the year and copyright holder's name when the program is run.
+   For example, ``File "{0}" has {1} bytes and exceeds Flickr's limit of {2} bytes.`` includes the file name and size and Flickr's size limit.
    You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
 
 Carriage returns
@@ -119,7 +92,6 @@ Carriage returns
 
 HTML markup
    Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string.
-   The Transifex web page includes a "copy source string" button that can help with this.
    Some strings such as ``<multiple values>`` are not HTML.
    The angle brackets ``<>`` are used to indicate data with a special meaning.
    These strings should usually be translated.
@@ -131,27 +103,21 @@ Keyboard shortcuts
 Plural forms
    Translations can accommodate the many ways that languages handle plurals.
    For example in English we write "0 files, 1 file, 2 files".
-   Transifex_ has small buttons to select the quantity the translation applies to.
+   Weblate_ has a separate translation for each plural form.
    Other translation editors should also handle plural forms.
-
-Note that Transifex may attempt to render some of this markup rather than show the raw strings.
-It may help if you use the settings button (a cogwheel shape) on the translation page to "enable raw editor mode".
-
-When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
-(If you're not using Transifex then send me your translation file directly.)
-If you install the development version of Photini (see :ref:`installation-photini`) you could also :ref:`test your translation <localisation-program-testing>` first.
 
 .. _localisation-program-testing:
 
 Testing your translation
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you've been working online then the Transifex client is used to download your translated strings.
-For example, if you've been working on a Dutch translation with the language code ``nl``::
+You need a copy of the Photini source files to test your translation with.
+You can download or clone this from GitHub (see :ref:`installation-photini`).
 
-   $ tx pull -l nl -f
+If you've been working online then you can download your translation with Weblate's "Files" menu.
+It will have the wrong default name so, for example, make sure you save ``photini-gui-fr.ts`` as ``src/lang/fr/photini.ts``.
 
-The translation file (e.g. ``src/lang/nl/photini.ts``) needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
+The translation file needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
 This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
 
 You can easily update and compile all the language files::
@@ -175,12 +141,13 @@ Translating the documentation
 
 Translating Photini's documentation is a lot more work than translating the program itself.
 The `"Read the Docs" <https://readthedocs.org/>`_ web site can host multiple languages, and I would welcome the chance to add documentation of Photini in other languages.
+However, translating the program strings is a much higher priority.
 
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
-On the Transifex site Photini's documentation is in the resources that have names beginning with ``doc``.
-See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
+I haven't yet added any of the documentation strings to Weblate_.
+Please email me if you would like to translate the documentation online.
 
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
@@ -192,11 +159,6 @@ For example::
    $ linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
-
-If you have a Transifex account then you should upload your translation as it progresses.
-This will ensure that your work isn't accidentally duplicated by other translators::
-
-   $ tx push -t -l nl
 
 .. _localisation-documentation-notes:
 
@@ -223,18 +185,10 @@ Long cross references, e.g. ``:ref:`installation <installation-optional>```
 External links, e.g. ```Flickr <http://www.flickr.com/>`_``
    The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
 
-When you've finished your translation, or done a significant chunk of it, please email me (jim@jim-easterbrook.me.uk) to let me know.
-(If you're not using Transifex then send me your translation file directly.)
-
 .. _localisation-documentation-testing:
 
 Testing your translation
 ^^^^^^^^^^^^^^^^^^^^^^^^
-
-The Transifex client is used to download your translated strings.
-For example, if you've been working online on a Dutch translation with the language code ``nl``::
-
-   $ tx pull -l nl -f
 
 If you install Sphinx_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation.
 For example, to build Dutch documentation::
@@ -246,5 +200,5 @@ Open ``doc/html/index.html`` with a web browser to read the translated documenta
 .. _Babel:       http://babel.pocoo.org/
 .. _Qt Linguist: https://doc.qt.io/qt-5/linguist-translators.html
 .. _Sphinx:      https://www.sphinx-doc.org/
-.. _Transifex:   https://www.transifex.com/projects/p/photini/
+.. _Transifex:   https://www.transifex.com/
 .. _Weblate:     https://hosted.weblate.org/projects/photini/

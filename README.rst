@@ -79,7 +79,7 @@ Localisation
 
 Work has begun on providing Photini in multiple languages.
 I rely on users to do the translation, as I am not fluent in any language other than English.
-I'm in the process of moving online translations from Transifex_ to Weblate_.
+The project uses an online translation service called Weblate_.
 If you'd like to help translate Photini, please join the `Photini team on Hosted Weblate`_.
 For more details, see the `localisation documentation`_.
 
@@ -166,9 +166,6 @@ A copy of the license is included in the documentation section entitled "GNU Fre
                    http://www.openstreetmap.org/copyright
 .. _Photini team on Hosted Weblate:
                    https://hosted.weblate.org/projects/photini/
-.. _Photini team on Transifex:
-                   https://www.transifex.com/projects/p/photini/
 .. _Python keyring:
                    https://pypi.python.org/pypi/keyring#what-is-python-keyring-lib
-.. _Transifex:     https://www.transifex.com
 .. _Weblate:       https://hosted.weblate.org
