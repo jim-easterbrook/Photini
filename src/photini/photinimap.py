@@ -197,6 +197,7 @@ class MapWebView(QWebEngineView):
     def dragMoveEvent(self, event):
         if not event.mimeData().hasFormat(DRAG_MIMETYPE):
             return super(MapWebView, self).dragMoveEvent(event)
+        event.acceptProposedAction()
 
     @catch_all
     def dropEvent(self, event):
@@ -205,6 +206,7 @@ class MapWebView(QWebEngineView):
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
             self.drop_text.emit(event.pos().x(), event.pos().y(), text)
+            event.acceptProposedAction()
 
 
 class PhotiniMap(QtWidgets.QWidget):

@@ -288,7 +288,9 @@ class Image(QtWidgets.QFrame):
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
-        execute(drag, Qt.CopyAction)
+        if execute(drag, Qt.CopyAction) == Qt.IgnoreAction:
+            # image wasn't dragged to map
+            self.image_list.emit_selection()
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
