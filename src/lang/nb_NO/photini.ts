@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="nb_NO" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="nb_NO" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -110,11 +111,11 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;favoritter&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Beskrivende metadata</translation>
     </message>
     <message>
         <source>Title / Object Name</source>
@@ -130,7 +131,7 @@
     </message>
     <message>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>Vurdering</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -159,7 +160,7 @@ Separate them with &quot;;&quot; characters.</source>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: innstillinger</translation>
     </message>
     <message>
         <source>Always write</source>
@@ -175,15 +176,15 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Create if necessary</source>
-        <translation type="unfinished"></translation>
+        <translation>Opprett hvis nødvendig</translation>
     </message>
     <message>
         <source>Delete when possible</source>
-        <translation type="unfinished"></translation>
+        <translation>Slett når mulig</translation>
     </message>
     <message>
         <source>(when possible)</source>
-        <translation type="unfinished"></translation>
+        <translation>(når mulig)</translation>
     </message>
     <message>
         <source>Write to image file</source>
@@ -191,7 +192,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>IPTC-IIM metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>IPTC-IIM-metadata</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
@@ -203,7 +204,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>File timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Fil-tidsstempler</translation>
     </message>
     <message>
         <source>Set to when photo was taken</source>
@@ -219,18 +220,18 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Always delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Alltid slett</translation>
     </message>
 </context>
 <context>
     <name>FlickrTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished"></translation>
+        <translation>Kun deg</translation>
     </message>
     <message>
         <source>Content type</source>
-        <translation type="unfinished"></translation>
+        <translation>Innholdstype</translation>
     </message>
     <message>
         <source>Photo</source>
@@ -238,19 +239,19 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Screenshot</source>
-        <translation type="unfinished"></translation>
+        <translation>Skjermavbildning</translation>
     </message>
     <message>
         <source>Art/Illustration</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunst/illustrasjon</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation>Synkroniser</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt album</translation>
     </message>
     <message>
         <source>&amp;Flickr upload</source>
@@ -258,7 +259,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Flickr</source>
-        <translation type="unfinished"></translation>
+        <translation>Flickr</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -270,11 +271,11 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstatt metadata</translation>
     </message>
     <message>
         <source>Change content type</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre innholdstype</translation>
     </message>
     <message>
         <source>Change album membership</source>
@@ -290,7 +291,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <source>Album will be created when photos are uploaded</source>
@@ -298,7 +299,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Venner og familie</translation>
     </message>
     <message>
         <source>People you follow</source>
@@ -310,27 +311,27 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Offentlig</translation>
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>Privat</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Venner</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie</translation>
     </message>
     <message>
         <source>Viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningspersonvern</translation>
     </message>
     <message>
         <source>Allow commenting</source>
-        <translation type="unfinished"></translation>
+        <translation>Tillat kommentering</translation>
     </message>
     <message>
         <source>Allow tags and notes</source>
@@ -338,7 +339,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisens</translation>
     </message>
     <message>
         <source>Safe</source>
@@ -378,18 +379,18 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Change licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Endre lisens</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen er for stor.</translation>
     </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation type="unfinished"></translation>
+        <translation>Nytt album</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -401,7 +402,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: stor fil</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -409,37 +410,37 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Album title</source>
-        <translation type="unfinished"></translation>
+        <translation>Albumnavn</translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriv inn et navn på albumet</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stor fil.</translation>
     </message>
 </context>
 <context>
     <name>GpxImporter</name>
     <message>
         <source>Import GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer GPX-fil</translation>
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>GPX-filer (*.gpx *.GPX *.Gpx);;All filer (*)</translation>
     </message>
 </context>
 <context>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation type="unfinished"></translation>
+        <translation>sorter etter: </translation>
     </message>
     <message>
         <source>file name</source>
-        <translation type="unfinished"></translation>
+        <translation>filnavn</translation>
     </message>
     <message>
         <source>date taken</source>
@@ -447,39 +448,39 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation type="unfinished"></translation>
+        <translation>miniatyrbildestørrelse: </translation>
     </message>
     <message>
         <source>Open files</source>
-        <translation type="unfinished"></translation>
+        <translation>Åpne filer</translation>
     </message>
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilder ({0});;Videoer ({1});;Alle filer (*)</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: ulagret data</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lagre endringene?</translation>
     </message>
     <message>
         <source>new value</source>
-        <translation type="unfinished"></translation>
+        <translation>ny verdi</translation>
     </message>
     <message>
         <source>undo</source>
-        <translation type="unfinished"></translation>
+        <translation>angre</translation>
     </message>
     <message>
         <source>old value</source>
-        <translation type="unfinished"></translation>
+        <translation>gammel verdi</translation>
     </message>
     <message>
         <source>View changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Vis endringer</translation>
     </message>
     <message>
         <source>No
@@ -533,11 +534,11 @@ in file</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kilde</translation>
     </message>
     <message>
         <source>Target format</source>
-        <translation type="unfinished"></translation>
+        <translation>Målformat</translation>
     </message>
     <message>
         <source>Select
