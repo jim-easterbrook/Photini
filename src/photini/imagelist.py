@@ -254,7 +254,7 @@ class Image(QtWidgets.QFrame):
             return
         if not self.get_selected():
             # user has started dragging an unselected image
-            self.image_list.select_image(self)
+            self.image_list.select_image(self, emit_selection=False)
         paths = []
         for image in self.image_list.get_selected_images():
             paths.append(image.path)
@@ -1004,8 +1004,8 @@ class ImageList(QtWidgets.QWidget):
             self.app.processEvents()
             self.scroll_area.ensureWidgetVisible(self.last_selected)
 
-    def select_image(
-            self, image, extend_selection=False, multiple_selection=False):
+    def select_image(self, image, extend_selection=False,
+                     multiple_selection=False, emit_selection=True):
         self.scroll_area.ensureWidgetVisible(image)
         if extend_selection and self.selection_anchor:
             idx1 = self.images.index(self.selection_anchor)
@@ -1023,7 +1023,8 @@ class ImageList(QtWidgets.QWidget):
             image.set_selected(True)
             self.selection_anchor = image
         self.last_selected = image
-        self.emit_selection()
+        if emit_selection:
+            self.emit_selection()
 
     def select_images(self, images):
         self._clear_selection()
