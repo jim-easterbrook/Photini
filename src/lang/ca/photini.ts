@@ -1431,7 +1431,7 @@ template</source>
     </message>
     <message>
         <source>Photini: define lens</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Model name</source>
