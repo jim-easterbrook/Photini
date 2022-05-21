@@ -105,6 +105,7 @@ class OpenCage(GeocoderBase):
         if not results:
             return None
         address = dict(results[0]['components'])
+        formatted = results[0]['formatted']
         for key in address.keys():
             if isinstance(address[key], list):
                 try:
@@ -116,12 +117,32 @@ class OpenCage(GeocoderBase):
                     address[key] = str(address[key])
                 except Exception:
                     del address[key]
-        if 'county_code' in address and 'county' in address:
-            del address['county_code']
-        if 'state_code' in address and 'state' in address:
-            del address['state_code']
-        if 'partial_postcode' in address and 'postcode' in address:
-            del address['partial_postcode']
+        # remove some known equivalent data
+        for key_1, key_2 in (('county_code', 'county'),
+                             ('state_code', 'state'),
+                             ('partial_postcode', 'postcode')):
+            if key_1 in address and key_2 in address:
+                del address[key_1]
+        # remove duplicate data
+        for key_list in self.address_map.values():
+            for n, key_1 in enumerate(key_list):
+                if key_1 not in address:
+                    continue
+                for key_2 in key_list[n+1:]:
+                    if key_2 not in address:
+                        continue
+                    if address[key_1] == address[key_2]:
+                        del address[key_1]
+                        break
+        # attempt to format postcode correctly
+        for key in 'city', 'state', 'country':
+            if 'postcode' in address and key in address:
+                for fmt in '{0} {1}', '{0}, {1}', '{1} {0}', '{1}, {0}':
+                    guess = fmt.format(address['postcode'], address[key])
+                    if guess in formatted:
+                        address[key] = guess
+                        del address['postcode']
+                        break
         return MD_Location.from_address(address, self.address_map)
 
     def search_terms(self):
