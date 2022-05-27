@@ -29,19 +29,9 @@ import exiv2
 
 logger = logging.getLogger(__name__)
 
-pyexiv2_version_info = tuple(map(int, exiv2.__version__.split('.')))
-if pyexiv2_version_info < (0, 8, 3):
-    raise ImportError(
-        'python-exiv2 version {} is less than 0.8.3'.format(exiv2.__version__))
-
 exiv2_version_info = tuple(map(int, exiv2.version().split('.')))
 exiv2_version = 'python-exiv2 {}, exiv2 {}'.format(
     exiv2.__version__, exiv2.version())
-
-if pyexiv2_version_info < (0, 10):
-    Exiv2Error = exiv2.AnyError
-else:
-    Exiv2Error = exiv2.Exiv2Error
 
 
 class MetadataHandler(object):
@@ -170,7 +160,7 @@ class MetadataHandler(object):
     def open_old(cls, *arg, quiet=False, **kw):
         try:
             return cls(*arg, **kw)
-        except Exiv2Error as ex:
+        except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
             if not quiet:
                 logger.warning(str(ex))
@@ -424,7 +414,7 @@ class MetadataHandler(object):
                 image.setIccProfile(self._image.iccProfile())
         try:
             image.writeMetadata()
-        except Exiv2Error as ex:
+        except exiv2.Exiv2Error as ex:
             logger.error(str(ex))
             return False
         except Exception as ex:
