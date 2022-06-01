@@ -47,8 +47,7 @@ class Image(QtWidgets.QFrame):
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         # read metadata
-        self.metadata = Metadata(self.path, notify=self.show_status,
-                                 utf_safe=self.app.options.utf_safe)
+        self.metadata = Metadata(self.path, notify=self.show_status)
         self.file_times = (os.path.getatime(self.path),
                            os.path.getmtime(self.path))
         # set file type
@@ -81,8 +80,7 @@ class Image(QtWidgets.QFrame):
         self._set_thumb_size(thumb_size)
 
     def reload_metadata(self):
-        self.metadata = Metadata(self.path, notify=self.show_status,
-                                 utf_safe=self.app.options.utf_safe)
+        self.metadata = Metadata(self.path, notify=self.show_status)
         self.show_status(False)
         self.load_thumbnail()
         self.image_list.emit_selection()
@@ -785,7 +783,7 @@ class ImageList(QtWidgets.QWidget):
             undo = {}
             table.clearContents()
             new_md = image.metadata
-            old_md = Metadata(image.path, utf_safe=self.app.options.utf_safe)
+            old_md = Metadata(image.path)
             for key in ('title', 'description', 'keywords', 'rating',
                         'creator', 'creator_title', 'credit_line', 'copyright',
                         'rights', 'instructions', 'contact_info',

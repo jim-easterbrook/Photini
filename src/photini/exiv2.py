@@ -72,7 +72,7 @@ class MetadataHandler(object):
             except LookupError:
                 pass
         
-    def __init__(self, path, buf=None, utf_safe=False):
+    def __init__(self, path, buf=None):
         self._path = path
         # read metadata
         if buf:

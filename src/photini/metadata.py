@@ -669,18 +669,16 @@ class Metadata(object):
         'title'          : MD_LangAlt,
         }
 
-    def __init__(self, path, notify=None, utf_safe=False):
+    def __init__(self, path, notify=None):
         super(Metadata, self).__init__()
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
         self._notify = notify
-        self._utf_safe = utf_safe
         video_md = None
         self._if = None
         self._sc = SidecarMetadata.open_old(self.find_sidecar())
         self._if = ImageMetadata.open_old(
-            path, utf_safe=utf_safe,
-            quiet=self.get_mime_type().split('/')[0] == 'video')
+            path, quiet=self.get_mime_type().split('/')[0] == 'video')
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             video_md = FFMPEGMetadata.open_old(path)
