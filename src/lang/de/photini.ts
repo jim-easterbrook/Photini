@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished"></translation>
+        <translation>die Metadaten sind bekanntermaßen ASCII- oder utf-8-kodiert</translation>
     </message>
 </context>
 <context>
@@ -253,31 +253,31 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>IPTC-IIM-Längengrenzen anzeigen</translation>
     </message>
     <message>
         <source>Write if exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben, wenn vorhanden</translation>
     </message>
     <message>
         <source>Always delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer löschen</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original beibehalten</translation>
     </message>
     <message>
         <source>File timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei-Zeitstempel</translation>
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellen, wann das Foto aufgenommen wurde</translation>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Speichern der Datei einstellen</translation>
     </message>
 </context>
 <context>
@@ -430,7 +430,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>Any Flickr member</source>
-        <translation type="unfinished"></translation>
+        <translation>Jedes Flickr-Mitglied</translation>
     </message>
     <message>
         <source>Public</source>
@@ -486,23 +486,23 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>Change viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeit ändern</translation>
     </message>
     <message>
         <source>Change who can comment or tag (and viewing privacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändern, wer kommentieren oder taggen darf (und die Sichtbarkeit)</translation>
     </message>
     <message>
         <source>Change safety level</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicherheitsstufe ändern</translation>
     </message>
     <message>
         <source>Change hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausblenden aus der Suche ändern</translation>
     </message>
     <message>
         <source>Change licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz ändern</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -647,9 +647,9 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Miniaturbild neu generieren</numerusform>
+            <numerusform>Miniaturbilder neu generieren</numerusform>
         </translation>
     </message>
     <message>
@@ -658,20 +658,20 @@ nicht vorhanden</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen speichern</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Datei neu laden</numerusform>
+            <numerusform>Dateien neu laden</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Datei schließen</numerusform>
+            <numerusform>Dateien schließen</numerusform>
         </translation>
     </message>
     <message>
@@ -788,27 +788,27 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Family &amp; friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie und Freunde</translation>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakte</translation>
     </message>
     <message>
         <source>Everyone</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Copyright (all rights reserved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Urheberrecht (alle Rechte vorbehalten)</translation>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zuschreibung</translation>
     </message>
     <message>
         <source>Attribution + non commercial</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + nicht kommerziell</translation>
     </message>
     <message>
         <source>Attribution + no derivative</source>
@@ -832,63 +832,63 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ipernity-Hochladen</translation>
     </message>
     <message>
         <source>Ipernity</source>
-        <translation type="unfinished"></translation>
+        <translation>Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wer kann:</translation>
     </message>
     <message>
         <source>Everyone (public)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle (öffentlich)</translation>
     </message>
     <message>
         <source>Only you (private)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Sie (privat)</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Freunde</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie</translation>
     </message>
     <message>
         <source>see the photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Foto ansehen</translation>
     </message>
     <message>
         <source>post a comment</source>
-        <translation type="unfinished"></translation>
+        <translation>einen Kommentar veröffentlichen</translation>
     </message>
     <message>
         <source>add keywords, notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselwörter und Notizen hinzufügen</translation>
     </message>
     <message>
         <source>identify people</source>
-        <translation type="unfinished"></translation>
+        <translation>Menschen identifizieren</translation>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished">Synchronisieren</translation>
+        <translation>Synchronisieren</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Neues Album</translation>
+        <translation>Neues Album</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished">Photini: zu groß</translation>
+        <translation>Photini: zu groß</translation>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
