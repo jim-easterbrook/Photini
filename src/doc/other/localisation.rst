@@ -85,6 +85,10 @@ You might like to :ref:`test your translation <localisation-program-testing>` fi
 Things to be aware of
 ^^^^^^^^^^^^^^^^^^^^^
 
+String length
+  Many of the strings to be translated have to fit into buttons on the GUI, so your translation should not be much longer than the English original.
+  If the English text is using abbreviations then the translation probably needs to as well.
+
 Words with special meanings
   Some of Photini's GUI elements such as ``Title / Object Name`` are named after the metadata items in the Exif, XMP or IPTC specifications.
   If information about these standards is available in your language it may help with translating these words.
