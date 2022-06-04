@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished">metadata is known to be ASCII or utf-8 encoded</translation>
+        <translation>les métadonnées sont connues pour être codées en ASCII ou en utf-8</translation>
     </message>
 </context>
 <context>
@@ -135,25 +135,27 @@
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez un nom court, verbal et lisible pae un être humain pour l&apos;image&#xa0;; ceci peut être le nom du fichier.</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez une «&#xa0;légende&#xa0;» décrivant le qui, le quoi et le pourquoi de ce qui se passe dans cette image,
+ceci peut inclure des noms de personnes et/ou leur rôle dans l&apos;action qui se déroule dans l&apos;image.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez un nombre quelconque de mots-clés, de termes ou de phrases utilisés pour exprimer le sujet de l&apos;image.
+Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez un bref synopsis ou résumé publiable du contenu de l&apos;image.</translation>
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation>Gros titre</translation>
     </message>
 </context>
 <context>
@@ -172,7 +174,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Sidecar files</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers annexes</translation>
     </message>
     <message>
         <source>Create if necessary</source>
@@ -196,7 +198,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher les limites de longueur IPTC-IIM</translation>
     </message>
     <message>
         <source>Keep original</source>
@@ -263,11 +265,11 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini&#xa0;: trop volumineux</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {2} octets fixée par Flickr.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -375,7 +377,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Change hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifier le masquage de la recherche</translation>
     </message>
     <message>
         <source>Change licence</source>
@@ -402,11 +404,11 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini&#xa0;: gros fichier</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -551,7 +553,8 @@ sélectionner</translation>
     <message>
         <source>Select
 new</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionnez
+nouveau</translation>
     </message>
     <message>
         <source>Move
@@ -652,7 +655,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Attribution + aucun dérivé</translation>
     </message>
     <message>
         <source>Attribution + share alike</source>
@@ -668,7 +671,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation>Utilisation libre (abandon du droit d&apos;auteur, pas de licence)</translation>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
@@ -732,7 +735,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» fait {1} octets, ce qui dépasse la limite de {2} octets fixée par Ipernity. Voulez-vous le redimensionner&#xa0;?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -814,7 +817,7 @@ sélectionnés</numerusform>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Journalisation des erreurs par Photini</translation>
     </message>
     <message>
         <source>Save log file</source>
@@ -830,7 +833,8 @@ sélectionnés</numerusform>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation type="unfinished"></translation>
+        <translation>Recherche et altitude
+fournie par Bing</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -841,7 +845,7 @@ provided by Bing</source>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation type="unfinished"></translation>
+        <translation>Recherche et mesure d&apos;altitude</translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
@@ -884,7 +888,7 @@ provided by Bing</source>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;répéter la recherche&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -947,7 +951,7 @@ provided by Bing</source>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Une application d&apos;édition des métadonnées des photographies numériques (Exif, IPTC, XMP) facile à utiliser.</translation>
     </message>
     <message>
         <source>Open source package available from {}.</source>
@@ -1005,7 +1009,7 @@ provided by Bing</source>
     <name>OwnerTab</name>
     <message encoding="UTF-8">
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1033,31 +1037,31 @@ le modèle</translation>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez le titre du poste de la personne figurant dans le champ Créateur.</translation>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
-        <translation type="unfinished"></translation>
+        <translation>Titre professionnel du créateur</translation>
     </message>
     <message>
         <source>Enter who should be credited when this image is published.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indiquez qui doit être crédité lorsque cette image est publiée.</translation>
     </message>
     <message>
         <source>Credit Line</source>
-        <translation type="unfinished"></translation>
+        <translation>Ligne de crédit</translation>
     </message>
     <message>
         <source>Copyright Notice</source>
-        <translation type="unfinished"></translation>
+        <translation>Avis de droit d&apos;auteur</translation>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Indiquez les instructions sur la manière dont cette image peut être utilisée légalement.</translation>
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez des informations sur les embargos, ou d&apos;autres restrictions non couvertes par le champ Conditions d&apos;utilisation des droits.</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -1065,15 +1069,15 @@ le modèle</translation>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
-        <translation>Saisissez la ou les adresses e-mail professionnelles de la personne qui a créé cette image, par exemple nom@domaine.com.</translation>
+        <translation>Saisissez la ou les adresses électroniques professionnelles de la personne qui a créé cette image, par exemple nom@domaine.com.</translation>
     </message>
     <message>
         <source>Email(s)</source>
-        <translation>Adresse(s) e-mail</translation>
+        <translation>Courriel(s)</translation>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
-        <translation type="unfinished"></translation>
+        <translation>Saisissez la ou les URL du site Web professionnel de la personne qui a créé cette image, par exemple http://www.domaine.com/.</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
@@ -1081,7 +1085,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrez le(s) numéro(s) de téléphone professionnel(s) de la personne qui a créé cette image, en utilisant le format international, par exemple&#xa0;: +1 (123) 456789.</translation>
     </message>
     <message>
         <source>Phone(s)</source>
@@ -1143,15 +1147,15 @@ le modèle</translation>
     </message>
     <message>
         <source>Web Statement</source>
-        <translation type="unfinished"></translation>
+        <translation>Déclaration Web</translation>
     </message>
     <message>
         <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>URL d&apos;une page Web du concédant. Peut faciliter l&apos;octroi de licences pour l&apos;image.</translation>
     </message>
     <message>
         <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL du concédant</translation>
     </message>
     <message>
         <source>Rights</source>
@@ -1269,27 +1273,27 @@ le modèle</translation>
     </message>
     <message>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Lien «&#xa0;prise&#xa0;» et «&#xa0;numérisée&#xa0;»</translation>
     </message>
     <message>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation>Lien «&#xa0;numérisée&#xa0;» et «&#xa0;modifiée&#xa0;»</translation>
     </message>
     <message>
         <source>Taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Prise</translation>
     </message>
     <message>
         <source>Digitised</source>
-        <translation type="unfinished"></translation>
+        <translation>Numérisée</translation>
     </message>
     <message>
         <source>Modified</source>
-        <translation type="unfinished"></translation>
+        <translation>Modifiée</translation>
     </message>
     <message>
         <source>Adjust times</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster les horaires</translation>
     </message>
     <message>
         <source>Other</source>
@@ -1313,19 +1317,19 @@ le modèle</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation type="unfinished"></translation>
+        <translation>refléter gauche-droite</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation type="unfinished"></translation>
+        <translation>refléter de haut en bas</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation type="unfinished"></translation>
+        <translation>refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation type="unfinished"></translation>
+        <translation>refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1381,15 +1385,15 @@ le modèle</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini&#xa0;: changement de nom du fabricant</translation>
     </message>
     <message>
         <source>Do you want to delete the Exif makernote?</source>
-        <translation type="unfinished"></translation>
+        <translation>Voulez-vous supprimer la note Exif&#xa0;?</translation>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation>La modification du nom du fabricant invalidera les informations Exif sur les notes de fabrication.</translation>
     </message>
 </context>
 <context>
@@ -1436,15 +1440,15 @@ le modèle</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1476,7 +1480,7 @@ le modèle</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>

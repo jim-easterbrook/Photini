@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -48,19 +49,19 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen des Unterorts ein.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen der Stadt ein.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen der Provinz oder des Bundeslandes ein.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen des Landes ein.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
@@ -99,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished"></translation>
+        <translation>die Metadaten sind bekanntermaßen ASCII- oder utf-8-kodiert</translation>
     </message>
 </context>
 <context>
@@ -173,25 +174,27 @@
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie einen kurzen, verbalen und menschenlesbaren Namen für das Bild ein, der auch der Dateiname sein kann.</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine kurze veröffentlichungsfähige Zusammenfassung des Inhalts des Bildes ein.</translation>
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Überschrift</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt,
+Dies kann Namen von Personen und/oder ihre Rolle in der Handlung, die auf dem Bild stattfindet, beinhalten.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen.
+Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
 </context>
 <context>
@@ -250,31 +253,31 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
+        <translation>IPTC-IIM-Längengrenzen anzeigen</translation>
     </message>
     <message>
         <source>Write if exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben, wenn vorhanden</translation>
     </message>
     <message>
         <source>Always delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer löschen</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation>Original beibehalten</translation>
     </message>
     <message>
         <source>File timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei-Zeitstempel</translation>
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellen, wann das Foto aufgenommen wurde</translation>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Speichern der Datei einstellen</translation>
     </message>
 </context>
 <context>
@@ -349,7 +352,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Die Datei &quot;{0}&quot; hat {1} Bytes und überschreitet Flickr&apos;s Begrenzung von {2} Bytes.</translation>
+        <translation>Die Datei „{0}“ hat {1} Bytes und überschreitet Flickrs Begrenzung von {2} Bytes.</translation>
     </message>
     <message>
         <source>Replace photo</source>
@@ -419,87 +422,87 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished"></translation>
+        <translation>Freunde und Familie</translation>
     </message>
     <message>
         <source>People you follow</source>
-        <translation type="unfinished"></translation>
+        <translation>Personen, denen Sie folgen</translation>
     </message>
     <message>
         <source>Any Flickr member</source>
-        <translation type="unfinished"></translation>
+        <translation>Jedes Flickr-Mitglied</translation>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffentlich</translation>
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation>Privat</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Freunde</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie</translation>
     </message>
     <message>
         <source>Viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeitsoptionen</translation>
     </message>
     <message>
         <source>Allow commenting</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentare zulassen</translation>
     </message>
     <message>
         <source>Allow tags and notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Etikette und Notizen zulassen</translation>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sicher</translation>
     </message>
     <message>
         <source>Moderate</source>
-        <translation type="unfinished"></translation>
+        <translation>Mäßig</translation>
     </message>
     <message>
         <source>Restricted</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingeschränkt</translation>
     </message>
     <message>
         <source>Safety level</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicherheitsstufe</translation>
     </message>
     <message>
         <source>Hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation>Aus der Suche ausblenden</translation>
     </message>
     <message>
         <source>Change viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>Sichtbarkeit ändern</translation>
     </message>
     <message>
         <source>Change who can comment or tag (and viewing privacy)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändern, wer kommentieren oder taggen darf (und die Sichtbarkeit)</translation>
     </message>
     <message>
         <source>Change safety level</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicherheitsstufe ändern</translation>
     </message>
     <message>
         <source>Change hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausblenden aus der Suche ändern</translation>
     </message>
     <message>
         <source>Change licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz ändern</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -534,7 +537,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Die Datei &quot;{0}&quot; ist größer als 25MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
+        <translation>Die Datei „{0}“ ist größer als 25&#xa0;MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -644,9 +647,9 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Miniaturbild neu generieren</numerusform>
+            <numerusform>Miniaturbilder neu generieren</numerusform>
         </translation>
     </message>
     <message>
@@ -655,20 +658,20 @@ nicht vorhanden</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen speichern</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Datei neu laden</numerusform>
+            <numerusform>Dateien neu laden</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Datei schließen</numerusform>
+            <numerusform>Dateien schließen</numerusform>
         </translation>
     </message>
     <message>
@@ -785,27 +788,27 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Family &amp; friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie und Freunde</translation>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontakte</translation>
     </message>
     <message>
         <source>Everyone</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Copyright (all rights reserved)</source>
-        <translation type="unfinished"></translation>
+        <translation>Urheberrecht (alle Rechte vorbehalten)</translation>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Zuschreibung</translation>
     </message>
     <message>
         <source>Attribution + non commercial</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + nicht kommerziell</translation>
     </message>
     <message>
         <source>Attribution + no derivative</source>
@@ -829,63 +832,63 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ipernity-Hochladen</translation>
     </message>
     <message>
         <source>Ipernity</source>
-        <translation type="unfinished"></translation>
+        <translation>Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wer kann:</translation>
     </message>
     <message>
         <source>Everyone (public)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle (öffentlich)</translation>
     </message>
     <message>
         <source>Only you (private)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Sie (privat)</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Freunde</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation>Familie</translation>
     </message>
     <message>
         <source>see the photo</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Foto ansehen</translation>
     </message>
     <message>
         <source>post a comment</source>
-        <translation type="unfinished"></translation>
+        <translation>einen Kommentar veröffentlichen</translation>
     </message>
     <message>
         <source>add keywords, notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüsselwörter und Notizen hinzufügen</translation>
     </message>
     <message>
         <source>identify people</source>
-        <translation type="unfinished"></translation>
+        <translation>Menschen identifizieren</translation>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished">Synchronisieren</translation>
+        <translation>Synchronisieren</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Neues Album</translation>
+        <translation>Neues Album</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished">Photini: zu groß</translation>
+        <translation>Photini: zu groß</translation>
     </message>
     <message>
         <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
@@ -1277,11 +1280,11 @@ template</source>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die berufliche(n) E-Mail-Adresse(n) der Person an, die dieses Bild erstellt hat, z. B. name@beispiel.com.</translation>
     </message>
     <message>
         <source>Email(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>E-Mail(s)</translation>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
@@ -1634,15 +1637,15 @@ template</source>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Die Datei &quot;{0}&quot; ist vom Typ &quot;{1}&quot;, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
+        <translation>Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Datei &quot;{0}&quot; ist im Format &quot;{1}&quot;, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1666,43 +1669,43 @@ template</source>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="unfinished"></translation>
+        <translation>Angemeldet als&lt;br&gt;{0} auf {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: zulassen</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte verwenden Sie Ihren Webbrowser, um Photini zu autorisieren, und schließen Sie dann diesen Dialog.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="unfinished">Photo ersetzen</translation>
+        <translation>Photo ersetzen</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="unfinished">Bild ersetzen</translation>
+        <translation>Bild ersetzen</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="unfinished">Als neues Photo hochladen</translation>
+        <translation>Als neues Photo hochladen</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="unfinished">Kein Bild hochgeladen</translation>
+        <translation>Kein Bild hochgeladen</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished">Bild auswählen</translation>
+        <translation>Bild auswählen</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="unfinished">kein Treffer</translation>
+        <translation>Kein Treffer</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
@@ -1714,11 +1717,11 @@ template</source>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Hochladen der Datei &quot;{}&quot; fehlgeschlagen.</translation>
+        <translation>Hochladen der Datei „{}“ fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
+        <translation>Genehmigung erforderlich</translation>
     </message>
 </context>
 <context>
@@ -1733,7 +1736,7 @@ template</source>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;neu&gt;</translation>
     </message>
 </context>
 </TS>
