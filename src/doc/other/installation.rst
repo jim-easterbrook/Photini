@@ -50,6 +50,8 @@ It is already installed on many computers, but on Windows you will probably need
             Successfully installed pip-22.0.3
 
         Note that pip has installed the new version in ``/home/jim/.local`` as normal users can't write to ``/usr``.
+        (Don't be tempted to get round this by using ``sudo`` to run pip.
+        ``/usr`` should only be written by the operating system's package manager.)
         You may need to log out and then log in again to update your PATH settings.
 
         Running ``pip --version`` again shows the new version::
@@ -118,11 +120,14 @@ I use the name ``photini`` and create it in my home directory:
 
         jim@mint:~$ python3 -m venv photini
         jim@mint:~$ source photini/bin/activate
+        (photini) jim@mint:~$ python3 -m pip install -U pip
     .. code-tab:: none Windows
 
         C:\Users\Jim>python -m venv photini
         C:\Users\Jim>photini\Scripts\activate.bat
+        (photini) C:\Users\Jim>python -m pip install -U pip
 
+Note that pip may need to be updated again from within the virtual environment.
 You should stay in this virtual environment while installing and testing Photini.
 
 Minimal installation
