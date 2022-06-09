@@ -237,7 +237,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Photo</source>
-        <translation type="unfinished">Photo</translation>
+        <translation>Photo</translation>
     </message>
     <message>
         <source>Screenshot</source>
@@ -341,7 +341,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Safe</source>
@@ -719,7 +719,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Synchronise</source>
@@ -1065,7 +1065,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished">Instructions</translation>
+        <translation>Instructions</translation>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
