@@ -115,7 +115,7 @@
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation>Métadonnées descriptives</translation>
+        <translation>Métadonnées &amp;descriptives</translation>
     </message>
     <message>
         <source>Title / Object Name</source>
@@ -237,7 +237,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Photo</source>
-        <translation type="unfinished">Photo</translation>
+        <translation>Photo</translation>
     </message>
     <message>
         <source>Screenshot</source>
@@ -257,7 +257,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>&amp;Flickr upload</source>
-        <translation>&amp;Import Flickr</translation>
+        <translation>Import &amp;Flickr</translation>
     </message>
     <message>
         <source>Flickr</source>
@@ -341,7 +341,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Safe</source>
@@ -396,7 +396,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
-        <translation>Import Google Photos</translation>
+        <translation>Import &amp;Google Photos</translation>
     </message>
     <message>
         <source>Google Photos</source>
@@ -675,7 +675,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation>&amp;Import Ipernity</translation>
+        <translation>Import &amp;Ipernity</translation>
     </message>
     <message>
         <source>Ipernity</source>
@@ -719,7 +719,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Licence</translation>
+        <translation>Licence</translation>
     </message>
     <message>
         <source>Synchronise</source>
@@ -1017,7 +1017,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation>&amp;Métadonnées du propriétaire</translation>
+        <translation>Métadonnées du &amp;propriétaire</translation>
     </message>
     <message>
         <source>Edit
@@ -1065,7 +1065,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished">Instructions</translation>
+        <translation>Instructions</translation>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
@@ -1265,7 +1265,7 @@ le modèle</translation>
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation>&amp;Métadonnées techniques</translation>
+        <translation>Métadonnées &amp;techniques</translation>
     </message>
     <message>
         <source>Date and time</source>
