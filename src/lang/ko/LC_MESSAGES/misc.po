@@ -28,7 +28,7 @@ msgid ""
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
 "의견이나 질문이 있나요? Photini mailing list "
-"https://groups.google.com/forum/#!forum/photini를 ​​구독하고 알려주십시오."
+"https://groups.google.com/forum/#!forum/photini 를 ​​구독하고 알려주십시오."
 
 msgid "GNU Free Documentation License"
 msgstr "GNU Free Documentation License"
