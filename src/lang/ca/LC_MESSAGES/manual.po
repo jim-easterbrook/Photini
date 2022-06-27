@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 14:08+0100\n"
+"POT-Creation-Date: 2022-06-27 13:50+0100\n"
 "PO-Revision-Date: 2021-06-16 11:07+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: ca\n"
@@ -324,6 +324,12 @@ msgstr ""
 
 # 04ef3320bc3242679f5974446d44cfa2
 msgid "Tab order"
+msgstr ""
+
+msgid ""
+"The tabs can be re-ordered by dragging and dropping a tab to your "
+"preferred position. This is much easier to do than editing the "
+"configuration file."
 msgstr ""
 
 # c91bc37ac4ad4af88b3d0f7c929b0477
@@ -818,6 +824,11 @@ msgid ""
 "be dragged with the mouse to change the relative sizes of the two parts. "
 "The overall size of the window can also be changed by dragging its edges "
 "or corners with the mouse."
+msgstr ""
+
+msgid ""
+"The tabs can be re-ordered by dragging and dropping a tab to your "
+"preferred position."
 msgstr ""
 
 msgid ""

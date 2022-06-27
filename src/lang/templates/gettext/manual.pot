@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.5.1\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 14:08+0100\n"
+"POT-Creation-Date: 2022-06-27 13:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,26 +235,31 @@ msgid "Tab order"
 msgstr ""
 
 #: ../../../doc/manual/configuration.rst:147
+#: 2292a0480c8c421e9f2aa7b84eb8f0f0
+msgid "The tabs can be re-ordered by dragging and dropping a tab to your preferred position. This is much easier to do than editing the configuration file."
+msgstr ""
+
+#: ../../../doc/manual/configuration.rst:151
 #: 31cefeddc62b45c8861d210388eed151
 msgid "Photini's tabs can be enabled or disabled with the ``Options`` menu as described above, but their order is set in the configuration file. The ``[tabs]`` section has a ``modules`` entry which lists the modules to be imported for each tab. You can reorder the tabs by reordering this list."
 msgstr ""
 
-#: ../../../doc/manual/configuration.rst:177
+#: ../../../doc/manual/configuration.rst:181
 #: 8a84e0dfb0bb430784e44c8efae77f0c
 msgid "You could even use a tab provided by another Python package by adding its module name to the list. See :doc:`extending` for more information."
 msgstr ""
 
-#: ../../../doc/manual/configuration.rst:181
+#: ../../../doc/manual/configuration.rst:185
 #: 408133e923b44248856ec7081ecafeeb
 msgid "Metadata options"
 msgstr ""
 
-#: ../../../doc/manual/configuration.rst:183
+#: ../../../doc/manual/configuration.rst:187
 #: ea469dc5558b4d97966f337b66f67d67
 msgid "Photini can optionally read metadata from \"BMFF\" based filed types CR3, HEIF, HEIC, and AVIF. This requires use of python-exiv2 with libexiv2 v0.27.4 or later. (See :ref:`essential-dependencies` for more details about Photini's dependencies.) Using BMFF files may infringe patents. Please read the `Exiv2 warning`_ before enabling this feature."
 msgstr ""
 
-#: ../../../doc/manual/configuration.rst:189
+#: ../../../doc/manual/configuration.rst:193
 #: ee70b4d165434e538ca2ce45bc74290d
 msgid "To enable BMFF file reading, edit the configuration file and set the ``enable_bmff`` option to ``True``:"
 msgstr ""
@@ -639,72 +644,77 @@ msgstr ""
 msgid "The Photini editor GUI has two main areas. The upper part has a set of tabs to select different functions. The lower part is an image selector that is common to all the tabs. In between the two is a divider that can be dragged with the mouse to change the relative sizes of the two parts. The overall size of the window can also be changed by dragging its edges or corners with the mouse."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:22
+#: ../../../doc/manual/image_selector.rst:20
+#: 38e1dafe2b9446ec958998bf40a594f4
+msgid "The tabs can be re-ordered by dragging and dropping a tab to your preferred position."
+msgstr ""
+
+#: ../../../doc/manual/image_selector.rst:25
 #: 0d5d592ca95d442ea5767c5a035f9de0
 msgid "Now load some images using the ``File`` menu ``Open files`` item (or its keyboard shortcut ``Ctrl+O``). The loaded files are displayed as thumbnail images in the image selector part of the GUI. Note that the thumbnail size can be changed with the slider control just beneath the thumbnail display area. The files can also be sorted by name or date by clicking on the appropriate button."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:27
+#: ../../../doc/manual/image_selector.rst:30
 #: d815e043665c4b8fba907a95868f77d2
 msgid "Images can also be loaded by \"drag and drop\" from a file manager window or by adding them to the command line if you run Photini from a command terminal. If you open a directory then all the images in that directory will be opened. This is recursive, so beware of accidentally opening too many images in one go."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:33
+#: ../../../doc/manual/image_selector.rst:36
 #: da18328de634457bbe66ae76836b903d
 msgid "Clicking on any thumbnail selects that file. The selected file is highlighted by a red border. Double clicking on a thumbnail should display the full size image, using your default image viewing application."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:39
+#: ../../../doc/manual/image_selector.rst:42
 #: 48bb787a1bad43d8b8965844184551e4
 msgid "Multiple files can be selected by holding down the 'shift' key while clicking on a second image. To select multiple files that are not adjacent, hold down the 'control' key while clicking on the images."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:44
+#: ../../../doc/manual/image_selector.rst:47
 #: 3d8564fb648b47fc8bced5f788dce386
 msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded files."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:48
+#: ../../../doc/manual/image_selector.rst:51
 #: de3c22a5ee5b448883ef4c57f5603099
 msgid "Selecting multiple files allows you to set metadata, such as the image title, on several files at once. This is much quicker than having to edit the metadata of each file separately. You will probably want to select a different group of files before editing each metadata item. For example, you might give the same title to all the images, then select only the first two or three before writing a description."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:54
+#: ../../../doc/manual/image_selector.rst:57
 #: 9f7942cea15c4afaabb0e8fee2f06846
 msgid "Context menu"
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:56
+#: ../../../doc/manual/image_selector.rst:59
 #: c3d471f62ce74f3abdfe1dcabaa7099e
 msgid "Right-clicking on a thumbnail displays a context menu for all the currently selected files."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:60
+#: ../../../doc/manual/image_selector.rst:63
 #: c009a01e957a4e0c8128e87ef9c8a31f
 msgid "The context menu currently has five items. ``Reload file`` discards any metadata changes. ``Save changes`` saves any changes to the file(s). ``View changes`` displays any changes of metadata, as shown below. ``Regenerate thumbnail`` creates a new thumbnail of the image(s). ``Close file`` closes the file(s)."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:69
+#: ../../../doc/manual/image_selector.rst:72
 #: 0ea4fecbb72c4348b75d5888f8a214d9
 msgid "The ``view changes`` context menu item displays all the metadata items that have changed. In this example I've set two items that were previously empty. If you want to discard any of these changes then select the appropriate ``undo`` checkboxes and click on ``OK``."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:75
+#: ../../../doc/manual/image_selector.rst:78
 #: 4cdae0c1d85a41e5b8caf0ed9c900a7c
 msgid "The same menu items also appear in the main ``File`` menu."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:78
+#: ../../../doc/manual/image_selector.rst:81
 #: a7e14f2eb9434656892f0af580e94b2b
 msgid "Using Photini with other programs"
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:80
+#: ../../../doc/manual/image_selector.rst:83
 #: 8626e744210c482990efd968d600cf78
 msgid "If you use other applications that can display or edit image metadata then you need to be careful when using them with Photini. Just like with a word processor or text editor it can be risky to have a file open for editing in more than one program. If you make changes in Photini you should save them before getting another program to reload or reopen the file. If you make changes in another program you should use the context menu described above to reload the file in Photini."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:85
+#: ../../../doc/manual/image_selector.rst:88
 #: e01bec46ea9c4458b9a974ac3634ef8d
 msgid "You may also want to experiment with how other programs display the metadata you create in Photini and *vice versa*. Be aware that other programs might not store their metadata in the picture files, but use a database or separate files (other than XMP sidecars). Such programs are not compatible with Photini, unless they can be configured to use metadata standards."
 msgstr ""

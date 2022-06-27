@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="de" sourcelanguage="en_GB">
+<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -537,7 +536,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Die Datei „{0}“ ist größer als 25&#xa0;MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
+        <translation>Die Datei „{0}“ ist größer als 25 MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -1147,7 +1146,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Änderungen speichern</translation>
     </message>
     <message>
         <source>Close all files</source>
