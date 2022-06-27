@@ -180,10 +180,13 @@ Things to be aware of
 The Photini documentation is written in `reStructuredText <http://docutils.sourceforge.net/rst.html>`_.
 This is a markup language that looks very like plain text, but uses certain characters to give extra meaning to some parts.
 You need to take extra care when the string to be translated includes such markup.
+The markup often needs to be preceded or followed by a space or other punctuation.
+Take care to copy spaces and punctuation from the English source.
 
 Double backquotes ``````
-   These usually mark words that are used in the Photini GUI.
+   These often mark words that are used in the Photini GUI.
    You may wish to include the English equivalent in brackets after your translation to help users read the documentation as the screen grabs are all from the English version.
+   For example, the English ````Orientation```` could appear in a German translation as ````Ausrichtung (Orientation)````.
 
 Special characters, e.g. ``(|hazard|)``
    These refer to Unicode symbols and should not be translated.
@@ -194,7 +197,12 @@ Short cross references, e.g. ``:doc:`tags```
 Long cross references, e.g. ``:ref:`installation <installation-optional>```
    The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
 
-External links, e.g. ```Flickr <http://www.flickr.com/>`_``
+Short external links, e.g. ```Google Photos`_``
+   If you need to translate the text you can transform the short link into a long one.
+   For example, the English ```Google Photos`_`` could appear in a Korean translation as ```Google 포토 <Google Photos_>`_``.
+   Note the underscores ``_`` and backquotes ````` - they are vital!
+
+Long external links, e.g. ```Flickr <http://www.flickr.com/>`_``
    The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text.
 
 .. _localisation-documentation-testing:
