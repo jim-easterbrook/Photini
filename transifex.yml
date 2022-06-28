@@ -1,7 +1,7 @@
 git:
   filters:
   - filter_type: file
-    file_format: TS
+    file_format: QT
     source_language: en
     source_file: src/lang/en/photini.ts
     translation_files_expression: 'src/lang/<lang>/photini.ts'
