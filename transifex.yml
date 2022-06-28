@@ -5,3 +5,9 @@ git:
     source_language: en
     source_file: src/lang/en/photini.ts
     translation_files_expression: 'src/lang/<lang>/photini.ts'
+  - filter_type: dir
+    file_format: PO
+    source_language: en
+    source_file_dir: src/lang/en/LC_MESSAGES/
+    source_file_extension: .po
+    translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/'
