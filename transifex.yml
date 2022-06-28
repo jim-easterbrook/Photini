@@ -8,6 +8,6 @@ git:
   - filter_type: dir
     file_format: PO
     source_language: en
-    source_file_dir: src/lang/en/LC_MESSAGES/
-    source_file_extension: po
+    source_file_dir: src/lang/templates/gettext/
+    source_file_extension: pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/'
