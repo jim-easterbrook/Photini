@@ -1,28 +1,35 @@
 Notes
 =====
 
+The ``localisation`` branch is used for all translation activity.
+Weblate and Transifex both pull content from GitHub and push updated content there.
+
 Reminders for what to do when translations are updated.
-
-New content on Transifex::
-
-   tx pull -f                           # get all content from Transifex
-   python3 utils/lang_update.py -s      # update from source, strip line numbers
-   git commit ...                       # commit changes to git
-
-Edit translation locally::
-
-   tx pull -f -l xx                     # get language xx from Transifex
-   python3 utils/lang_update.py -l xx   # update from source
-   linguist-qt5 src/lang/xx/photini.ts  # edit translation
-   tx push -t -l xx                     # push translation back to Transifex
 
 When program or documentation source changes::
 
-   python3 utils/lang_update.py         # update templates from source
-   tx push -s                           # push templates to Transifex
+   git checkout localisation            # switch to localisation branch
+   git merge master                     # merge in new source content
+   python3 utils/lang_update.py -s      # update templates from source
+   git push                             # push updated source to GitHub
+
+When new content on Transifex or Weblate eventually gets pushed to GitHub, use GitHub's web page to create a pull request from localisation branch to master.
+Then download updated translations::
+
+   git checkout master                  # switch to master branch
+   git pull                             # fetch new content
+
+Edit translation locally::
+
+   git checkout localisation            # switch to localisation branch
+   git pull                             # fetch new content
+   python3 utils/lang_update.py         # update from source
+   linguist-qt5 src/lang/xx/photini.ts  # edit translation of language xx
+   git push                             # push updated translation to GitHub
 
 Before a new release of Photini::
 
-   tx pull -f                           # get all content from Transifex
+   git checkout master                  # switch to master branch
+   git pull                             # fetch new content
    python3 utils/lang_update.py         # update from source
    python3 utils/build_lang.py          # "compile" language files
