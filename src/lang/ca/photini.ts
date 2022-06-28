@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -48,35 +47,35 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -99,26 +98,11 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Common</name>
-    <message>
-        <source>&lt;multiple&gt;</source>
-        <translation type="obsolete">&lt;multiple&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;multiple values&gt;</source>
-        <translation type="obsolete">&lt;multiple values&gt;</translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Auto</translation>
-    </message>
     <message>
         <source>reject</source>
         <translation>rebutja</translation>
@@ -148,50 +132,26 @@
         <translation>Valoració</translation>
     </message>
     <message>
-        <source>Copyright</source>
-        <translation type="obsolete">Drets d&apos;autor</translation>
-    </message>
-    <message>
-        <source>Creator / Artist</source>
-        <translation type="obsolete">Creador / Artista</translation>
-    </message>
-    <message>
-        <source>Photini: input name</source>
-        <translation type="obsolete">Photini: nom d&apos;entrada</translation>
-    </message>
-    <message>
-        <source>Please type in the copyright holder&apos;s name</source>
-        <translation type="obsolete">Poseu el nom del propietari del copyright</translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation type="obsolete">Copyright ©{year} {name}. Tots els drets reservats.</translation>
-    </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation type="obsolete">Poseu el nom del creador</translation>
-    </message>
-    <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Headline</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -199,18 +159,6 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Photini: settings</source>
         <translation>Photini: configuració</translation>
-    </message>
-    <message>
-        <source>Copyright holder name</source>
-        <translation type="obsolete">Nom del propietari del copyright</translation>
-    </message>
-    <message>
-        <source>Copyright text</source>
-        <translation type="obsolete">Text del copyright</translation>
-    </message>
-    <message>
-        <source>Creator name</source>
-        <translation type="obsolete">Nom del creador</translation>
     </message>
     <message>
         <source>Always write</source>
@@ -241,67 +189,43 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Escriure a fitxer imatge</translation>
     </message>
     <message>
-        <source>Preserve file timestamps</source>
-        <translation type="obsolete">Mantenir la marca horària dels fitxers</translation>
-    </message>
-    <message>
         <source>IPTC-IIM metadata</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write if exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always delete</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>File timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Write if exists</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Always delete</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>FlickrTab</name>
     <message>
-        <source>Who can see the photos?</source>
-        <translation type="obsolete">Qui pot veure les fotos?</translation>
-    </message>
-    <message>
         <source>Only you</source>
         <translation>Només tu</translation>
-    </message>
-    <message>
-        <source>Your friends</source>
-        <translation type="obsolete">Els teus amics</translation>
-    </message>
-    <message>
-        <source>Your family</source>
-        <translation type="obsolete">La teva família</translation>
-    </message>
-    <message>
-        <source>Anyone</source>
-        <translation type="obsolete">Qualsevol</translation>
-    </message>
-    <message>
-        <source>Hidden from search</source>
-        <translation type="obsolete">Amaga de la cerca</translation>
     </message>
     <message>
         <source>Content type</source>
@@ -328,10 +252,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Nou àlbum</translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Afegir a àlbums</translation>
-    </message>
-    <message>
         <source>&amp;Flickr upload</source>
         <translation>Càrrega a &amp;Flickr</translation>
     </message>
@@ -344,28 +264,12 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Photini: massa gran</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Fitxer massa gran.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
         <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
     </message>
     <message>
-        <source>Replace photo</source>
-        <translation type="obsolete">Reemplaça foto</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
-        <translation type="obsolete">El fitxer {0} ja s&apos;ha pujat a Flickr. Com voleu actualitzar-lo?</translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation>Reemplaçar metadades</translation>
-    </message>
-    <message>
-        <source>Change who can see it</source>
-        <translation type="obsolete">Canviar qui el pot veure</translation>
     </message>
     <message>
         <source>Change content type</source>
@@ -374,32 +278,6 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Change album membership</source>
         <translation>Canviar els membres de l&apos;album</translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="obsolete">Reemplaçar imatge</translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="obsolete">Carregar com a nova foto</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="obsolete">Cap imatge a pujar</translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="obsolete">Triar una imatge</translation>
-    </message>
-    <message>
-        <source>Which image file matches
-this picture on Flickr?</source>
-        <translation type="obsolete">Quin fitxer d&apos;imatge coincideix
-en aquesta foto a Flickr?</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="obsolete">Cap coincidència</translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
@@ -419,87 +297,87 @@ en aquesta foto a Flickr?</translation>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>People you follow</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Any Flickr member</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Allow commenting</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Allow tags and notes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Moderate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Restricted</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Safety level</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change viewing privacy</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change who can comment or tag (and viewing privacy)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change safety level</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change hide from search</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>File too large.</source>
@@ -513,10 +391,6 @@ en aquesta foto a Flickr?</translation>
         <translation>Nou àlbum</translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Afegir a àlbums</translation>
-    </message>
-    <message>
         <source>Google &amp;Photos upload</source>
         <translation>Càrrega a Google &amp;Photos</translation>
     </message>
@@ -527,10 +401,6 @@ en aquesta foto a Flickr?</translation>
     <message>
         <source>Photini: large file</source>
         <translation>Photini: fitxer gran</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Fitxer gran.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -558,26 +428,6 @@ en aquesta foto a Flickr?</translation>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
         <translation>Fitxers GPX (*.gpx *.GPX *.Gpx);;Tots els fitxers (*)</translation>
-    </message>
-    <message>
-        <source>GPX options</source>
-        <translation type="obsolete">Opcions GPX</translation>
-    </message>
-    <message>
-        <source> secs</source>
-        <translation type="obsolete">segs</translation>
-    </message>
-    <message>
-        <source>Max time between points</source>
-        <translation type="obsolete">Temps màxim entre punts</translation>
-    </message>
-    <message>
-        <source>Max dilution of precision</source>
-        <translation type="obsolete">Dilució  màxima de la precisió</translation>
-    </message>
-    <message>
-        <source>Plot track on map</source>
-        <translation type="obsolete">Seguiu la traça al mapa</translation>
     </message>
 </context>
 <context>
@@ -611,10 +461,6 @@ en aquesta foto a Flickr?</translation>
         <translation>Photini: dades sense guardar</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Algunes imatges tenen metadades sense guardar.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Do you want to save your changes?</source>
         <translation>Voleu desar els vostres canvis?</translation>
     </message>
@@ -644,10 +490,7 @@ en el fitxer</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Regenera miniatura</numerusform>
-            <numerusform>Regenera miniaturas</numerusform>
-        </translation>
+        <translation><numerusform>Regenera miniatura</numerusform><numerusform>Regenera miniaturas</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -655,21 +498,15 @@ en el fitxer</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -755,22 +592,15 @@ copia</translation>
         <translation>Photini: importació en curs</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;La importació no ha acabat.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the import.</source>
         <translation>Tancar ara interromprà la importació.</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fitxer
-triat</numerusform>
-            <numerusform>%n fitxers
-triats</numerusform>
-        </translation>
+        <translation><numerusform>%n fitxer
+triat</numerusform><numerusform>%n fitxers
+triats</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -781,155 +611,151 @@ triats</numerusform>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished">Només tu</translation>
+        <translation>Només tu</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Everyone</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Copyright (all rights reserved)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Ipernity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Who can:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Everyone (public)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Only you (private)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>see the photo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>post a comment</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>add keywords, notes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>identify people</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished">Sincronitzar</translation>
+        <translation>Sincronitzar</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Nou àlbum</translation>
+        <translation>Nou àlbum</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished">Photini: massa gran</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Fitxer massa gran.&lt;/h3&gt;</translation>
+        <translation>Photini: massa gran</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished">Reemplaçar metadades</translation>
+        <translation>Reemplaçar metadades</translation>
     </message>
     <message>
         <source>Change who can see it</source>
-        <translation type="unfinished">Canviar qui el pot veure</translation>
+        <translation>Canviar qui el pot veure</translation>
     </message>
     <message>
         <source>Change who can comment or tag</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change the licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished">Canviar els membres de l&apos;album</translation>
+        <translation>Canviar els membres de l&apos;album</translation>
     </message>
     <message>
         <source>Create new Ipernity album</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Titol</translation>
+        <translation>Titol</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descripció</translation>
+        <translation>Descripció</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>File too large.</source>
@@ -940,35 +766,35 @@ triats</numerusform>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set default language:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation type="unfinished">Lat, long</translation>
+        <translation>Lat, long</translation>
     </message>
 </context>
 <context>
@@ -1022,18 +848,7 @@ funcionant amb Bing</translation>
     </message>
 </context>
 <context>
-    <name>MapTabOSM</name>
-    <message>
-        <source>Map (&amp;OSM)</source>
-        <translation type="obsolete">Mapa (&amp;OSM)</translation>
-    </message>
-</context>
-<context>
     <name>MapTabsAll</name>
-    <message>
-        <source>Lat, long</source>
-        <translation type="obsolete">Lat, long</translation>
-    </message>
     <message>
         <source>Altitude</source>
         <translation>Alçada</translation>
@@ -1061,15 +876,15 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1081,10 +896,6 @@ funcionant amb Bing</translation>
     <message>
         <source>File</source>
         <translation>Fitxer</translation>
-    </message>
-    <message>
-        <source>Import GPX file</source>
-        <translation type="obsolete">Importar fitxer GPX</translation>
     </message>
     <message>
         <source>Quit</source>
@@ -1105,14 +916,6 @@ funcionant amb Bing</translation>
     <message>
         <source>Enable spell check</source>
         <translation>Activa verificació d&apos;ortografia</translation>
-    </message>
-    <message>
-        <source>Choose language</source>
-        <translation type="obsolete">Tria llengua</translation>
-    </message>
-    <message>
-        <source>No dictionary installed</source>
-        <translation type="obsolete">No hi ha diccionari instal·lat</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1144,15 +947,15 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Close all files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -1160,27 +963,23 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Check for update</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>OpenCage</name>
-    <message>
-        <source>Search powered by OpenCage</source>
-        <translation type="obsolete">Cerca funcionant amb OpenCage</translation>
-    </message>
     <message>
         <source>Address lookup powered by OpenCage</source>
         <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
@@ -1192,219 +991,219 @@ funcionant amb Bing</translation>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message>
-        <source>&amp;Ownership metadata</source>
-        <translation type="unfinished"></translation>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation type="unfinished"/>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
+        <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>&amp;Ownership metadata</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Edit
 template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Creator</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter who should be credited when this image is published.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Credit Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Copyright Notice</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rights</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Email(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter address for the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">Ciutat</translation>
+        <translation>Ciutat</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Postal Code</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the state for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>State/Province</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">País</translation>
-    </message>
-    <message>
-        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
+        <translation>País</translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Initialise
+template</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Usage Terms</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Web Statement</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Licensor URL</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Rights</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Photini: ownership template</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Define new licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1431,7 +1230,7 @@ template</source>
     </message>
     <message>
         <source>Photini: define lens</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: define lens</translation>
     </message>
     <message>
         <source>Model name</source>
@@ -1555,27 +1354,27 @@ template</source>
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: define camera</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: maker name change</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Do you want to delete the Exif makernote?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1587,10 +1386,6 @@ template</source>
     <message>
         <source>You may now close this browser window.</source>
         <translation>Ja podeu tancar aquesta finestra de navegador.</translation>
-    </message>
-    <message>
-        <source>User</source>
-        <translation type="obsolete">Usuari</translation>
     </message>
     <message>
         <source>Log in</source>
@@ -1617,16 +1412,8 @@ template</source>
         <translation>Photini: càrrega en progrés</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Càrrega a {} no ha acabat.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Tancar ara finalitzarà la càrrega.</translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="obsolete">Autenticat com a {0} a {1}</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
@@ -1649,60 +1436,52 @@ template</source>
         <translation>Photini: tipus incompatible</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Tipus d&apos;imatge incompatible.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Photini: upload error</source>
         <translation>Photini: error de càrrega</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Fitxer &quot;{}&quot; càrrega fallada.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Add to albums</source>
-        <translation type="unfinished">Afegir a àlbums</translation>
+        <translation>Afegir a àlbums</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="unfinished">Reemplaça foto</translation>
+        <translation>Reemplaça foto</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="unfinished">Reemplaçar imatge</translation>
+        <translation>Reemplaçar imatge</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="unfinished">Carregar com a nova foto</translation>
+        <translation>Carregar com a nova foto</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="unfinished">Cap imatge a pujar</translation>
+        <translation>Cap imatge a pujar</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished">Triar una imatge</translation>
+        <translation>Triar una imatge</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="unfinished">Cap coincidència</translation>
+        <translation>Cap coincidència</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
@@ -1718,22 +1497,22 @@ template</source>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;multiple&gt;</translation>
+        <translation>&lt;multiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished">&lt;multiple values&gt;</translation>
+        <translation>&lt;multiple values&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 </TS>
