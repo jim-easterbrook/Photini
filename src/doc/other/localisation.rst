@@ -8,11 +8,12 @@
 Photini can be made easier to use for people who don't speak English.
 There are two parts to this -- the text used within the program and the documentation.
 I rely on users to do the translation as I can not write any other language with any fluency.
-You can use an online service called Weblate_ or a suitable text editor installed on your computer.
+You can use an online service (Weblate_ or Transifex_) or a suitable text editor installed on your computer.
 
 .. note::
-    Photini's translations previously used a service called Transifex_.
-    Please do not use Transifex anymore, but do give Weblate a go.
+    I'm currently experimenting with using Weblate and Transifex simultaneously.
+    They both synchronise to GitHub, so changes made on one service should appear on the other within 24 hours.
+    Please let me know which of them you prefer.
 
 Translating the program text
 ----------------------------
@@ -35,8 +36,16 @@ If you'd like to help by translating Photini into another language, or by improv
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
+The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language.
+Each person can contribute as much or as little effort as they wish.
+
+Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
+
+Weblate
+"""""""
+
 Weblate_ is an online translation service that provides free support for open source projects such as Photini.
-It provides an online editor, making it easy for individuals to contribute as much or as little effort as they wish.
+Its main advantage over Transifex is that most strings have a screenshot associated with them to show the context where the string is used.
 Follow the link to Weblate_ and click on "Register".
 From there you can create a free account and sign in.
 I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password.
@@ -45,13 +54,29 @@ Back at the Photini project page, click on the "GUI" component, then click on a 
 Clicking on "Browse" shows a list of strings and their translations.
 You can then click on a string to edit its translation.
 
-The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language.
-Another advantage is that most strings have a screenshot associated with them to show the context where the string is used.
-
-Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings.
-
 When you've finished working on a translation there's no need to do anything further.
 Weblate automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
+You might like to :ref:`test your translation <localisation-program-testing>` though.
+
+Transifex
+"""""""""
+
+Transifex_ is another online translation service with free support for open source projects.
+Follow the link to Transifex_ and click on "Help Translate "Photini"".
+From there you can create a free account and sign in.
+I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password.
+
+Back at the Transifex Photini page click on "Languages" to show all the languages currently being translated to.
+If your language is not included in the list you can ask for it to be added by clicking on "request language".
+Each language is represented by a code, e.g. nl or en_CA.
+The longer codes are usually regional or national variations of a common language.
+You should choose the common language if it’s not already available in Photini, moving on to the variations once the common language is done.
+Once your language is added you can ask to join the language team and then start translating.
+
+Click on your language, then click on "src..en/photini.ts (localisation)" to work on the Photini GUI strings.
+
+When you've finished working on a translation there's no need to do anything further.
+Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
 You might like to :ref:`test your translation <localisation-program-testing>` though.
 
 Offline translation
@@ -158,8 +183,11 @@ However, translating the program strings is a much higher priority.
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
-I haven't yet added any of the documentation strings to Weblate_.
-Please email me if you would like to translate the documentation online.
+This uses Weblate_ and Transifex_ as described above.
+On Weblate the documentation strings are in components with names like "docs - manual".
+On Transifex they are in resources with names like "src..gettext/manual.pot (localisation)".
+
+See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
 Offline translation
 ^^^^^^^^^^^^^^^^^^^
@@ -220,5 +248,5 @@ Open ``doc/html/index.html`` with a web browser to read the translated documenta
 .. _Babel:       http://babel.pocoo.org/
 .. _Qt Linguist: https://doc.qt.io/qt-5/linguist-translators.html
 .. _Sphinx:      https://www.sphinx-doc.org/
-.. _Transifex:   https://www.transifex.com/
+.. _Transifex:   https://www.transifex.com/jim-easterbrook/photini/
 .. _Weblate:     https://hosted.weblate.org/projects/photini/
