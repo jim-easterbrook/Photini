@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="nb_NO" sourcelanguage="en_GB">
+<!DOCTYPE TS><TS version="2.0" language="nb_NO" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -617,7 +616,7 @@ valgt</numerusform>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kun deg</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -685,11 +684,11 @@ valgt</numerusform>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Venner</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Familie</translation>
     </message>
     <message>
         <source>see the photo</source>
@@ -709,15 +708,15 @@ valgt</numerusform>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lisens</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Synkroniser</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nytt album</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -729,7 +728,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Erstatt metadata</translation>
     </message>
     <message>
         <source>Change who can see it</source>
@@ -757,7 +756,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Beskrivelse</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -765,7 +764,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Filen er for stor.</translation>
     </message>
 </context>
 <context>
@@ -948,7 +947,7 @@ provided by Bing</source>
     </message>
     <message>
         <source>Open files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Åpne filer</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -1092,7 +1091,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">By</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1116,7 +1115,7 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Land</translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
