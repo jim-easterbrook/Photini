@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="en_GB">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.0" language="fr" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -493,10 +492,7 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -508,17 +504,11 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -610,10 +600,7 @@ la copie</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
