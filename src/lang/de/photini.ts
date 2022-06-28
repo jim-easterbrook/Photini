@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -44,7 +43,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -154,7 +153,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -344,7 +343,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Moderate</source>
@@ -493,10 +492,7 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Miniaturbild neu generieren</numerusform>
-            <numerusform>Miniaturbilder neu generieren</numerusform>
-        </translation>
+        <translation><numerusform>Miniaturbild neu generieren</numerusform><numerusform>Miniaturbilder neu generieren</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -508,17 +504,11 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Datei neu laden</numerusform>
-            <numerusform>Dateien neu laden</numerusform>
-        </translation>
+        <translation><numerusform>Datei neu laden</numerusform><numerusform>Dateien neu laden</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Datei schließen</numerusform>
-            <numerusform>Dateien schließen</numerusform>
-        </translation>
+        <translation><numerusform>Datei schließen</numerusform><numerusform>Dateien schließen</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -610,12 +600,9 @@ Kopieren</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n Datei
-ausgewählt</numerusform>
-            <numerusform>%n Dateien
-ausgewählt</numerusform>
-        </translation>
+        <translation><numerusform>%n Datei
+ausgewählt</numerusform><numerusform>%n Dateien
+ausgewählt</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -646,7 +633,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial</source>
@@ -654,23 +641,23 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
@@ -734,7 +721,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -746,11 +733,11 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Change who can comment or tag</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change the licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Change album membership</source>
@@ -758,7 +745,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Create new Ipernity album</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Title</source>
@@ -770,7 +757,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>File too large.</source>
@@ -781,28 +768,28 @@ ausgewählt</numerusform>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set default language:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -891,15 +878,15 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -966,11 +953,11 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Close all files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -978,19 +965,19 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Check for update</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1008,25 +995,25 @@ provided by Bing</translation>
     <name>OwnerTab</name>
     <message encoding="UTF-8">
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Edit
 template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Creator</source>
@@ -1034,35 +1021,35 @@ template</source>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter who should be credited when this image is published.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Credit Line</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Copyright Notice</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
@@ -1074,31 +1061,31 @@ template</source>
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter address for the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>City</source>
@@ -1106,23 +1093,23 @@ template</source>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Postal Code</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the state for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>State/Province</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Country</source>
@@ -1130,95 +1117,95 @@ template</source>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Initialise
 template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Web Statement</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Rights</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Define new licence</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1369,27 +1356,27 @@ template</source>
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: define camera</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Photini: maker name change</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Do you want to delete the Exif makernote?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
