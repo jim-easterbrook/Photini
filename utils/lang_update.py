@@ -111,7 +111,7 @@ def extract_doc_strings(root, lang, strip):
             else:
                 cmd = ['pybabel', 'init']
             cmd += ['--input-file', in_file, '--output-file', out_file,
-                    '--locale', locale]
+                    '--locale', locale, '--width', '79']
             result = subprocess.call(cmd)
             if result:
                 return result

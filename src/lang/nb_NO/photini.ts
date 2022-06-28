@@ -298,7 +298,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished">Venner og familie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>People you follow</source>
@@ -463,7 +463,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
-        <translation type="unfinished">Lagre endringene?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>new value</source>
@@ -616,7 +616,7 @@ valgt</numerusform>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished">Kun deg</translation>
+        <translation>Kun deg</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -684,11 +684,11 @@ valgt</numerusform>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished">Venner</translation>
+        <translation>Venner</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished">Familie</translation>
+        <translation>Familie</translation>
     </message>
     <message>
         <source>see the photo</source>
@@ -708,15 +708,15 @@ valgt</numerusform>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished">Lisens</translation>
+        <translation>Lisens</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished">Synkroniser</translation>
+        <translation>Synkroniser</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Nytt album</translation>
+        <translation>Nytt album</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -728,7 +728,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished">Erstatt metadata</translation>
+        <translation>Erstatt metadata</translation>
     </message>
     <message>
         <source>Change who can see it</source>
@@ -756,7 +756,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beskrivelse</translation>
+        <translation>Beskrivelse</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -764,7 +764,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation type="unfinished">Filen er for stor.</translation>
+        <translation>Filen er for stor.</translation>
     </message>
 </context>
 <context>
@@ -947,7 +947,7 @@ provided by Bing</source>
     </message>
     <message>
         <source>Open files</source>
-        <translation type="unfinished">Åpne filer</translation>
+        <translation>Åpne filer</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -1091,7 +1091,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">By</translation>
+        <translation>By</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1115,7 +1115,7 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">Land</translation>
+        <translation>Land</translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>

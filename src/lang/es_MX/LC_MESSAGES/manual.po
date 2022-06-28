@@ -3,16 +3,23 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
+# Translators:
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
+# Cristos Ruiz <cristos.a.ruiz@gmail.com>, 2022
+# Esteban Martinena Guerrero <orensbruli@gmail.com>, 2022
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.5.1\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language: nb_NO\n"
-"Language-Team: none\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"PO-Revision-Date: 2022-06-28 09:10+0000\n"
+"Last-Translator: Esteban Martinena Guerrero <orensbruli@gmail.com>, 2022\n"
+"Language: es_MX\n"
+"Language-Team: Spanish (Mexico) (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/es_MX/)\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1"
+" : 2\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -90,17 +97,21 @@ msgid ""
 msgstr ""
 
 msgid "Configuration"
-msgstr ""
+msgstr "Configuración"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove them"
 " by deselecting their entry in the ``Options`` menu."
 msgstr ""
+"Si hay pestañas en la interfaz de Photini que no usas, puedes eliminarlas "
+"deseleccionadolas en su apartado en el menu \"Opciones\""
 
 msgid ""
 "The ``Options`` menu also has a ``Settings`` item which opens the dialog "
 "shown below."
 msgstr ""
+"El menú \"opciones\" tiene también un elemento \"Configuración\" que abre el"
+" dialogo que se muestra a continuación."
 
 msgid ""
 "The first three items adjust how Photini uses IPTC-IIM \"legacy\" metadata. "
@@ -302,7 +313,7 @@ msgid ""
 msgstr ""
 
 msgid "Descriptive metadata"
-msgstr ""
+msgstr "Metadatos descriptivos"
 
 msgid ""
 "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to"
@@ -1579,7 +1590,7 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr ""
+msgstr "Orientación"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
@@ -1668,13 +1679,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Título / Nombre del objeto"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Descripción / Leyenda"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
@@ -1683,7 +1694,7 @@ msgid "Xmp.tiff.ImageDescription"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Palabras clave"
 
 msgid "Exif.Image.XPKeywords"
 msgstr ""
@@ -1698,7 +1709,7 @@ msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr ""
 
 msgid "Creator / Artist"
-msgstr ""
+msgstr "Creador / Artista"
 
 msgid "Exif.Image.XPAuthor"
 msgstr ""
@@ -1707,7 +1718,7 @@ msgid "Xmp.tiff.Artist"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Derechos de autor"
 
 msgid "Xmp.tiff.Copyright"
 msgstr ""

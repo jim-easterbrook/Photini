@@ -118,19 +118,19 @@
     </message>
     <message>
         <source>Title / Object Name</source>
-        <translation type="unfinished"></translation>
+        <translation>제목 / 개체 이름</translation>
     </message>
     <message>
         <source>Description / Caption</source>
-        <translation type="unfinished"></translation>
+        <translation>설명 / 캡션</translation>
     </message>
     <message>
         <source>Keywords</source>
-        <translation type="unfinished"></translation>
+        <translation>키워드</translation>
     </message>
     <message>
         <source>Rating</source>
-        <translation type="unfinished"></translation>
+        <translation>평가</translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -338,7 +338,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>라이센스</translation>
     </message>
     <message>
         <source>Safe</source>
@@ -702,7 +702,7 @@ selected</source>
     </message>
     <message>
         <source>Licence</source>
-        <translation type="unfinished"></translation>
+        <translation>라이센스</translation>
     </message>
     <message>
         <source>Synchronise</source>
@@ -849,7 +849,7 @@ provided by Bing</source>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation type="unfinished"></translation>
+        <translation>고도</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
@@ -925,7 +925,7 @@ provided by Bing</source>
     </message>
     <message>
         <source>Photini documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini 문서</translation>
     </message>
     <message>
         <source>Photini: about</source>
@@ -1220,7 +1220,7 @@ template</source>
     </message>
     <message>
         <source>Focal length</source>
-        <translation type="unfinished"></translation>
+        <translation>초점 거리</translation>
     </message>
     <message>
         <source>Max aperture</source>
@@ -1312,7 +1312,7 @@ template</source>
     </message>
     <message>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientation</translation>
     </message>
     <message>
         <source>Lens model</source>
@@ -1344,11 +1344,11 @@ template</source>
     </message>
     <message>
         <source>35mm equiv</source>
-        <translation type="unfinished"></translation>
+        <translation>35mm equiv</translation>
     </message>
     <message>
         <source>Aperture</source>
-        <translation type="unfinished"></translation>
+        <translation>조리개</translation>
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
@@ -1360,7 +1360,7 @@ template</source>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>카메라</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>

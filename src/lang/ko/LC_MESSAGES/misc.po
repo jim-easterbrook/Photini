@@ -1,19 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 # Translators:
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
 # Soohyeon Park, 2022
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version:  Photini\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
-"PO-Revision-Date: 2015-07-09 13:18+0000\n"
+"PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Soohyeon Park, 2022\n"
 "Language: ko\n"
-"Language-Team: Korean (http://www.transifex.com/jim-"
-"easterbrook/photini/language/ko/)\n"
+"Language-Team: Korean (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/ko/)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"

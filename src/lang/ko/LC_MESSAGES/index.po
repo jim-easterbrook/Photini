@@ -1,19 +1,22 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 # Translators:
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
 # Soohyeon Park, 2022
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version:  Photini\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
-"PO-Revision-Date: 2015-07-09 13:17+0000\n"
+"PO-Revision-Date: 2022-06-28 09:11+0000\n"
 "Last-Translator: Soohyeon Park, 2022\n"
 "Language: ko\n"
-"Language-Team: Korean (http://www.transifex.com/jim-"
-"easterbrook/photini/language/ko/)\n"
+"Language-Team: Korean (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/ko/)\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -24,30 +27,29 @@ msgid "Photini documentation"
 msgstr "Photini 문서"
 
 msgid ""
-"Welcome to the documentation of Photini, an easy to use photograph "
-"metadata editor. For a quick introduction to Photini and its features I "
-"suggest you read :doc:`the introduction <other/introduction>`. More "
-"detail about its capabilities can be found in :doc:`the user manual "
-"<manual/index>`."
+"Welcome to the documentation of Photini, an easy to use photograph metadata "
+"editor. For a quick introduction to Photini and its features I suggest you "
+"read :doc:`the introduction <other/introduction>`. More detail about its "
+"capabilities can be found in :doc:`the user manual <manual/index>`."
 msgstr ""
 "사용하기 쉬운 사진 메타데이터 편집기인 Photini 문서에 오신 것을 환영합니다. Photini와 그 기능에 대한 간략한 소개는 "
-":doc:`the introduction <other/introduction>` 를 읽어보시기 바랍니다. 기능에 대한 자세한 내용은"
-" :doc:`the user manual <manual/index>` 에서 찾을 수 있습니다."
+":doc:`the introduction <other/introduction>` 를 읽어보시기 바랍니다. 기능에 대한 자세한 내용은 "
+":doc:`the user manual <manual/index>` 에서 찾을 수 있습니다."
 
 msgid "Copyright (C)  2012-21  Jim Easterbrook."
 msgstr "Copyright (C)  2012-21  Jim Easterbrook."
 
 msgid ""
-"Permission is granted to copy, distribute and/or modify this document "
-"under the terms of the GNU Free Documentation License, Version 1.3 or any"
-" later version published by the Free Software Foundation; with no "
-"Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy"
-" of the license is included in the section entitled \"GNU Free "
-"Documentation License\"."
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.3 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the "
+"license is included in the section entitled \"GNU Free Documentation "
+"License\"."
 msgstr ""
-"GNU Free Documentation License, 버전 1.3 또는 Free Software Foundation에서 발행한 "
-"이후 버전의 조건에 따라 이 문서를 복사, 배포 및/또는 수정할 수 있는 권한이 부여됩니다. 불변 섹션, 앞표지 텍스트 및 뒤표지 "
-"텍스트가 없습니다. 라이센스 사본은 \"GNU Free Documentation License\" 섹션에 포함되어 있습니다."
+"GNU Free Documentation License, 버전 1.3 또는 Free Software Foundation에서 발행한 이후 "
+"버전의 조건에 따라 이 문서를 복사, 배포 및/또는 수정할 수 있는 권한이 부여됩니다. 불변 섹션, 앞표지 텍스트 및 뒤표지 텍스트가 "
+"없습니다. 라이센스 사본은 \"GNU Free Documentation License\" 섹션에 포함되어 있습니다."
 
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "

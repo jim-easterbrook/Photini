@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-27 13:50+0100\n"
+"POT-Creation-Date: 2022-06-28 12:33+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1030,25 +1030,25 @@ msgstr ""
 
 #: ../../../doc/other/localisation.rst:8
 #: c391ee5c905046dd82e5d4b10a73b6ab
-msgid "Photini can be made easier to use for people who don't speak English. There are two parts to this -- the text used within the program and the documentation. I rely on users to do the translation as I can not write any other language with any fluency. You can use an online service called Weblate_ or a suitable text editor installed on your computer."
+msgid "Photini can be made easier to use for people who don't speak English. There are two parts to this -- the text used within the program and the documentation. I rely on users to do the translation as I can not write any other language with any fluency. You can use an online service (Weblate_ or Transifex_) or a suitable text editor installed on your computer."
 msgstr ""
 
 #: ../../../doc/other/localisation.rst:14
-#: c8fa8317cc7742cb8a2bb40350fc07a9
-msgid "Photini's translations previously used a service called Transifex_. Please do not use Transifex anymore, but do give Weblate a go."
+#: 31514831cffd4a58be47efeea5b8d018
+msgid "I'm currently experimenting with using Weblate and Transifex simultaneously. They both synchronise to GitHub, so changes made on one service should appear on the other within 24 hours. Please let me know which of them you prefer."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:18
+#: ../../../doc/other/localisation.rst:19
 #: 6fc73fe4edf34f179c38354c3930764b
 msgid "Translating the program text"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:20
+#: ../../../doc/other/localisation.rst:21
 #: 944183f189e5459c99a934f0f870ea01
 msgid "If your computer is configured to use a language other than English, and Photini has already been translated into that language, then Photini should use the translation automatically. For example, this is what it might look like if your computer is configured to use Spanish."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:25
+#: ../../../doc/other/localisation.rst:26
 #: 049721634afb4b3681d48a91822ff7e7
 msgid "If you'd like to help by translating Photini into another language, or by improving an existing translation, this is what you need to do."
 msgstr ""
@@ -1058,285 +1058,327 @@ msgstr ""
 msgid "Translation status"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:33
+#: ../../../doc/other/localisation.rst:34
 #: 6fc73fe4edf34f179c38354c3930764b
 msgid "Translation progress so far"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:36
-#: ../../../doc/other/localisation.rst:159
+#: ../../../doc/other/localisation.rst:37
+#: ../../../doc/other/localisation.rst:184
 #: c446f68033fb422293ef934280d350a8
 #: c446f68033fb422293ef934280d350a8
 msgid "Online translation"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:38
-#: 8a7313a7686d40ea824eb764f75e4c28
-msgid "Weblate_ is an online translation service that provides free support for open source projects such as Photini. It provides an online editor, making it easy for individuals to contribute as much or as little effort as they wish. Follow the link to Weblate_ and click on \"Register\". From there you can create a free account and sign in. I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password."
-msgstr ""
-
-#: ../../../doc/other/localisation.rst:44
-#: bab5a6dfa86e4bd8a9fa0fc8a284d646
-msgid "Back at the Photini project page, click on the \"GUI\" component, then click on a language to work on, or \"Start new translation\" if your language is not listed. Clicking on \"Browse\" shows a list of strings and their translations. You can then click on a string to edit its translation."
-msgstr ""
-
-#: ../../../doc/other/localisation.rst:48
+#: ../../../doc/other/localisation.rst:39
 #: ed1b1ba88c9f45ecba82e44870373167
-msgid "The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language. Another advantage is that most strings have a screenshot associated with them to show the context where the string is used."
+msgid "The main advantages of online translation are that you don't need to install any software on your computer (apart from a web browser) and that several people can work on the same language. Each person can contribute as much or as little effort as they wish."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:51
+#: ../../../doc/other/localisation.rst:42
 #: 3e678d80fe3c497cbf129bb7ffcceae7
 msgid "Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings."
 msgstr ""
 
+#: ../../../doc/other/localisation.rst:45
+#: 0744dfe06f2b45d0b4821471ebb5245b
+msgid "Weblate"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:47
+#: 8a7313a7686d40ea824eb764f75e4c28
+msgid "Weblate_ is an online translation service that provides free support for open source projects such as Photini. Its main advantage over Transifex is that most strings have a screenshot associated with them to show the context where the string is used. Follow the link to Weblate_ and click on \"Register\". From there you can create a free account and sign in. I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password."
+msgstr ""
+
 #: ../../../doc/other/localisation.rst:53
+#: bab5a6dfa86e4bd8a9fa0fc8a284d646
+msgid "Back at the Photini project page, click on the \"GUI\" component, then click on a language to work on, or \"Start new translation\" if your language is not listed. Clicking on \"Browse\" shows a list of strings and their translations. You can then click on a string to edit its translation."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:57
 #: dcce69a29a004e92b01d1c3c44475d84
 msgid "When you've finished working on a translation there's no need to do anything further. Weblate automatically pushes the translation to GitHub, where I can merge it into the main repository branch. You might like to :ref:`test your translation <localisation-program-testing>` though."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:58
-#: ../../../doc/other/localisation.rst:165
+#: ../../../doc/other/localisation.rst:62
+#: ef72cf1f94824783924ac46ddf3d47e5
+msgid "Transifex"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:64
+#: 8a7313a7686d40ea824eb764f75e4c28
+msgid "Transifex_ is another online translation service with free support for open source projects. Follow the link to Transifex_ and click on \"Help Translate \"Photini\"\". From there you can create a free account and sign in. I recommend using one of the authentication services (e.g. GitHub or Google) so you don't have to invent yet another user name and password."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:69
+#: fbd8b13f85ba474282517429565d931e
+msgid "Back at the Transifex Photini page click on \"Languages\" to show all the languages currently being translated to. If your language is not included in the list you can ask for it to be added by clicking on \"request language\". Each language is represented by a code, e.g. nl or en_CA. The longer codes are usually regional or national variations of a common language. You should choose the common language if it’s not already available in Photini, moving on to the variations once the common language is done. Once your language is added you can ask to join the language team and then start translating."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:76
+#: 74c7ebe92ac74318bcc265d7361b578b
+msgid "Click on your language, then click on \"src..en/photini.ts (localisation)\" to work on the Photini GUI strings."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:78
+#: dcce69a29a004e92b01d1c3c44475d84
+msgid "When you've finished working on a translation there's no need to do anything further. Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch. You might like to :ref:`test your translation <localisation-program-testing>` though."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:83
+#: ../../../doc/other/localisation.rst:193
 #: 4de9bb7a518e4cb59386034504baf6f9
 #: 4de9bb7a518e4cb59386034504baf6f9
 msgid "Offline translation"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:60
+#: ../../../doc/other/localisation.rst:85
 #: ec1ba94594d945dda3aa6abb4a5383a3
 msgid "Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:62
+#: ../../../doc/other/localisation.rst:87
 #: d68950ad5242449e929c25978943eb67
 msgid "Start by downloading the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`). You will also need to install Babel_ and ``pylupdate5``. If possible, install these with your operating system software manager. ``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:67
+#: ../../../doc/other/localisation.rst:92
 #: 09fc39fcfd204d9d9f8ef478fd6a6a14
 msgid "The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language. First you should update (or initialise if they don't exist) the translation files with the current program strings::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:72
+#: ../../../doc/other/localisation.rst:97
 #: ea2e73053e3f48339ad8d38c99e8265b
 msgid "Now you can open a translation file in your chosen editor, for example::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:76
+#: ../../../doc/other/localisation.rst:101
 #: 3194e10e08874b6988123e77dbb916e6
 msgid "You can use any text editor for your translations, but a special purpose translation editor is preferable. The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings should be acceptable."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:79
+#: ../../../doc/other/localisation.rst:104
 #: dcce69a29a004e92b01d1c3c44475d84
 msgid "Please read the :ref:`notes <localisation-program-notes>` below for things to be aware of when translating the program strings. When you've finished your translation, or done a significant chunk of it, please email it to me (jim@jim-easterbrook.me.uk). You might like to :ref:`test your translation <localisation-program-testing>` first."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:86
-#: ../../../doc/other/localisation.rst:178
+#: ../../../doc/other/localisation.rst:111
+#: ../../../doc/other/localisation.rst:206
 #: 0a342d2250114c888642d6ec2a64ad8e
 #: 0a342d2250114c888642d6ec2a64ad8e
 msgid "Things to be aware of"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:90
+#: ../../../doc/other/localisation.rst:115
 #: 8bdb13ab83c6409088ef1a5361301eff
 msgid "String length"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:89
+#: ../../../doc/other/localisation.rst:114
 #: 34ecbe6871b541fc9b51514aa4429195
 msgid "Many of the strings to be translated have to fit into buttons on the GUI, so your translation should not be much longer than the English original. If the English text is using abbreviations then the translation probably needs to as well."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:94
+#: ../../../doc/other/localisation.rst:119
 #: 8fa1b87a50ed4b4c88d2c5d8abe87c39
 msgid "Words with special meanings"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:93
+#: ../../../doc/other/localisation.rst:118
 #: 8bce68a0d4a74f1e8f2fbb7630021bc2
 msgid "Some of Photini's GUI elements such as ``Title / Object Name`` are named after the metadata items in the Exif, XMP or IPTC specifications. If information about these standards is available in your language it may help with translating these words."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:99
+#: ../../../doc/other/localisation.rst:124
 #: 57fd68ef6fc24f73ac8eec8f052ca740
 msgid "Formatting strings"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:97
+#: ../../../doc/other/localisation.rst:122
 #: ab662f033cf849859df17cfdecbd4e21
 msgid "In Python curly braces are used to include other data in a string. For example, ``File \"{0}\" has {1} bytes and exceeds Flickr's limit of {2} bytes.`` includes the file name and size and Flickr's size limit. You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:103
+#: ../../../doc/other/localisation.rst:128
 #: fd2cffb9aead496ab2fff37c3034bd04
 msgid "Carriage returns"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:102
+#: ../../../doc/other/localisation.rst:127
 #: bff3ba15fbd64cc0bad6aa8cc627f46b
 msgid "Some of Photini's buttons split their labels over two or more lines to stop the button being too wide. You should split your translation in similar size pieces so it has the same number of lines."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:109
+#: ../../../doc/other/localisation.rst:134
 #: 314111e2412d41e3832117ea60cdb749
 msgid "HTML markup"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:106
+#: ../../../doc/other/localisation.rst:131
 #: a3b6936ec27e4aabaeaf92950b8a1102
 msgid "Strings such as ``<h3>Upload to Flickr has not finished.</h3>`` include HTML markup which must be copied to your translated string. Some strings such as ``<multiple values>`` are not HTML. The angle brackets ``<>`` are used to indicate data with a special meaning. These strings should usually be translated."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:113
+#: ../../../doc/other/localisation.rst:138
 #: aab023d92eb244dbaa1cfbb4e4813ed3
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:112
+#: ../../../doc/other/localisation.rst:137
 #: 3379ffd0d21b403eada6beb12b57c542
 msgid "Some strings include a single ampersand character ``&`` immediately before a letter that is used as a keyboard shortcut. You should choose a suitable letter in your translation and place the ampersand appropriately."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:119
+#: ../../../doc/other/localisation.rst:144
 #: 21e6c328dcf549c7b0952f9a615798c5
 msgid "Plural forms"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:116
+#: ../../../doc/other/localisation.rst:141
 #: a05200ef06194ce180e8c0509d1b6f7f
 msgid "Translations can accommodate the many ways that languages handle plurals. For example in English we write \"0 files, 1 file, 2 files\". Weblate_ has a separate translation for each plural form. Other translation editors should also handle plural forms."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:124
-#: ../../../doc/other/localisation.rst:203
+#: ../../../doc/other/localisation.rst:149
+#: ../../../doc/other/localisation.rst:239
 #: 5a252ed4761e40609ddfc5f46e4a6bcb
 #: 5a252ed4761e40609ddfc5f46e4a6bcb
 msgid "Testing your translation"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:126
+#: ../../../doc/other/localisation.rst:151
 #: a5ff851c98c74babbec710f9e843b520
 msgid "You need a copy of the Photini source files to test your translation with. You can download or clone this from GitHub (see :ref:`installation-photini`)."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:129
+#: ../../../doc/other/localisation.rst:154
 #: 4c1a838bb33544f3841c78a220499415
 msgid "If you've been working online then you can download your translation with Weblate's \"Files\" menu. It will have the wrong default name so, for example, make sure you save ``photini-gui-fr.ts`` as ``src/lang/fr/photini.ts``."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:132
+#: ../../../doc/other/localisation.rst:157
 #: ddf9d209c0524a16bc271512a6ed844a
 msgid "The translation file needs to be \"compiled\" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program. This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:135
+#: ../../../doc/other/localisation.rst:160
 #: 94179b69b84a444eb646f49c48d74a67
 msgid "You can easily update and compile all the language files::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:140
+#: ../../../doc/other/localisation.rst:165
 #: e85677f824904fff8e2b9fec4fdf9c05
 msgid "Now you can install Photini with your new translation(s)::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:144
+#: ../../../doc/other/localisation.rst:169
 #: a6977f5294054aff9cf02cb562e9aa31
 msgid "Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately. You can force this when running Photini from the command line::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:149
+#: ../../../doc/other/localisation.rst:174
 #: 4225ecf3ada04850a9d0173fc7f9e182
 msgid "Photini should now be using your translations."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:152
+#: ../../../doc/other/localisation.rst:177
 #: 22254c46e05c4b999253d033f45af70e
 msgid "Translating the documentation"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:154
+#: ../../../doc/other/localisation.rst:179
 #: 5f0a523ca47d46b4a77865dbdc9652cd
 msgid "Translating Photini's documentation is a lot more work than translating the program itself. The `\"Read the Docs\" <https://readthedocs.org/>`_ web site can host multiple languages, and I would welcome the chance to add documentation of Photini in other languages. However, translating the program strings is a much higher priority."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:161
-#: a9c71154ad58468f8a4ccac47cb5af6e
-msgid "I haven't yet added any of the documentation strings to Weblate_. Please email me if you would like to translate the documentation online."
+#: ../../../doc/other/localisation.rst:186
+#: a1addf1084704031b77dc1ef588a4ead
+msgid "This uses Weblate_ and Transifex_ as described above. On Weblate the documentation strings are in components with names like \"docs - manual\". On Transifex they are in resources with names like \"src..gettext/manual.pot (localisation)\"."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:167
-#: d4041e547dfa40209881dfafc1dc2607
-msgid "The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project. You can open the translation file in any editor, but a translation tool is best. For example::"
-msgstr ""
-
-#: ../../../doc/other/localisation.rst:173
+#: ../../../doc/other/localisation.rst:190
+#: ../../../doc/other/localisation.rst:201
+#: 8939c5089f514a099fcaec7988102d9b
 #: 8939c5089f514a099fcaec7988102d9b
 msgid "See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:180
-#: 6137a307925f45c4bf076de27bab330f
-msgid "The Photini documentation is written in `reStructuredText <http://docutils.sourceforge.net/rst.html>`_. This is a markup language that looks very like plain text, but uses certain characters to give extra meaning to some parts. You need to take extra care when the string to be translated includes such markup."
+#: ../../../doc/other/localisation.rst:195
+#: d4041e547dfa40209881dfafc1dc2607
+msgid "The documentation translation uses ``.po`` files as specified by the `GNU gettext <https://www.gnu.org/software/gettext/>`_ project. You can open the translation file in any editor, but a translation tool is best. For example::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:186
+#: ../../../doc/other/localisation.rst:208
+#: 6137a307925f45c4bf076de27bab330f
+msgid "The Photini documentation is written in `reStructuredText <http://docutils.sourceforge.net/rst.html>`_. This is a markup language that looks very like plain text, but uses certain characters to give extra meaning to some parts. You need to take extra care when the string to be translated includes such markup. The markup often needs to be preceded or followed by a space or other punctuation. Take care to copy spaces and punctuation from the English source."
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:217
 #: d0c5d91c2a294c29a1fbb0ac9287e1c6
 msgid "Double backquotes ``````"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:185
+#: ../../../doc/other/localisation.rst:215
 #: e95069cd3e9a48cf9eb0e8aa33d84891
-msgid "These usually mark words that are used in the Photini GUI. You may wish to include the English equivalent in brackets after your translation to help users read the documentation as the screen grabs are all from the English version."
+msgid "These often mark words that are used in the Photini GUI. You may wish to include the English equivalent in brackets after your translation to help users read the documentation as the screen grabs are all from the English version. For example, the English ````Orientation```` could appear in a German translation as ````Ausrichtung (Orientation)````."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:189
+#: ../../../doc/other/localisation.rst:220
 #: 1aab92a7f52c497a8f44a22926cc104c
 msgid "Special characters, e.g. ``(|hazard|)``"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:189
+#: ../../../doc/other/localisation.rst:220
 #: 39fb1a5d853e45b9bc18b8f6a202e202
 msgid "These refer to Unicode symbols and should not be translated."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:192
+#: ../../../doc/other/localisation.rst:223
 #: e184465b15f247b792d42cbef2d93f2f
 msgid "Short cross references, e.g. ``:doc:`tags```"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:192
+#: ../../../doc/other/localisation.rst:223
 #: 7c2ddbbb6e7643e294c0a817718f3f8d
 msgid "These should not be translated."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:195
+#: ../../../doc/other/localisation.rst:226
 #: 248b6ce53afc42ba96554a2cc5d2ebb2
 msgid "Long cross references, e.g. ``:ref:`installation <installation-optional>```"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:195
+#: ../../../doc/other/localisation.rst:226
 #: 371dfd121a0147fbbc91f35edef83fad
 msgid "The text within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:198
+#: ../../../doc/other/localisation.rst:231
 #: d4ffa7ee091c4348842ecead08102754
-msgid "External links, e.g. ```Flickr <http://www.flickr.com/>`_``"
+msgid "Short external links, e.g. ```Google Photos`_``"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:198
+#: ../../../doc/other/localisation.rst:229
+#: 4e9d68fc54304b16ab1c4160952393ff
+msgid "If you need to translate the text you can transform the short link into a long one. For example, the English ```Google Photos`_`` could appear in a Korean translation as ```Google 포토 <Google Photos_>`_``. Note the underscores ``_`` and backquotes ````` - they are vital!"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:234
+#: d4ffa7ee091c4348842ecead08102754
+msgid "Long external links, e.g. ```Flickr <http://www.flickr.com/>`_``"
+msgstr ""
+
+#: ../../../doc/other/localisation.rst:234
 #: 4590d1d3634f490284cdf9ddf498579e
 msgid "The url within the ``<>`` characters should not be translated, but it may be appropriate to translate the preceding link text."
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:205
+#: ../../../doc/other/localisation.rst:241
 #: 06eeabc4ea5941088b56ce9021ec84cc
 msgid "If you install Sphinx_ (See :ref:`installation <installation-documentation>`) you can build a local copy of the documentation using your translation. For example, to build Dutch documentation::"
 msgstr ""
 
-#: ../../../doc/other/localisation.rst:210
+#: ../../../doc/other/localisation.rst:246
 #: 8f5833e3b51f44c2975c90df72332c1f
 msgid "Open ``doc/html/index.html`` with a web browser to read the translated documentation."
 msgstr ""

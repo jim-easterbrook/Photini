@@ -4,86 +4,86 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation>Calle</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciudad</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Región</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Dirección</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation>Obtener dirección de lat, long</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Duplicar localización</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Borrar localización</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>camera</source>
-        <translation>cámara</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>subject {}</source>
-        <translation>sujeto {}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Introduce el nombre de la sublocalizacion.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Introduce el nombre de la ciudad.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Introduce el nombre de la provincia o estado.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Introduce el nombre del país.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Introduce las 2 o 3 letras del código ISO 3166 del país.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Introduce el nombre de la región del mundo.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
-        <translation>Introduce los detalles sobre la localización donde se creó esta imagen.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
-        <translation>Introduce los detalles sobre la localización que se muestran en esta imagen.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation>Uso: %programa [opciones] [nombre fichero, ... ]</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
@@ -91,7 +91,7 @@
     </message>
     <message>
         <source>test new features or API versions</source>
-        <translation>probar nuevas opciones o versiones de la API</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>increase number of logging messages</source>
@@ -103,22 +103,7 @@
     </message>
 </context>
 <context>
-    <name>Common</name>
-    <message>
-        <source>&lt;multiple&gt;</source>
-        <translation type="obsolete">&lt;múltiple&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;multiple values&gt;</source>
-        <translation type="obsolete">&lt;Valores múltiples&gt;</translation>
-    </message>
-</context>
-<context>
     <name>DescriptiveTab</name>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Automático</translation>
-    </message>
     <message>
         <source>reject</source>
         <translation type="unfinished"></translation>
@@ -148,35 +133,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copyright</source>
-        <translation type="obsolete">Derechos de autor</translation>
-    </message>
-    <message>
-        <source>Creator / Artist</source>
-        <translation type="obsolete">Creador / Artista</translation>
-    </message>
-    <message>
-        <source>Photini: input name</source>
-        <translation type="obsolete">Photini: nombre de entrada</translation>
-    </message>
-    <message>
-        <source>Please type in the copyright holder&apos;s name</source>
-        <translation type="obsolete">Por favor escribe el nombre del dueño de los derechos de autor</translation>
-    </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation type="obsolete">Por favor escribe el nombre del autor</translation>
-    </message>
-    <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Headline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -187,6 +144,14 @@ this might include names of people, and/or their role in the action that is taki
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Headline</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -233,14 +198,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Write if exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Keep original</source>
         <translation type="unfinished"></translation>
     </message>
@@ -256,32 +213,20 @@ Separate them with &quot;;&quot; characters.</source>
         <source>Set to when file is saved</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Write if exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always delete</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
     <message>
-        <source>Who can see the photos?</source>
-        <translation type="obsolete">¿Quien puede ver las fotos?</translation>
-    </message>
-    <message>
         <source>Only you</source>
         <translation>Sólo tú</translation>
-    </message>
-    <message>
-        <source>Your friends</source>
-        <translation type="obsolete">Tus amigos</translation>
-    </message>
-    <message>
-        <source>Your family</source>
-        <translation type="obsolete">Tu familia</translation>
-    </message>
-    <message>
-        <source>Anyone</source>
-        <translation type="obsolete">Cualquiera</translation>
-    </message>
-    <message>
-        <source>Hidden from search</source>
-        <translation type="obsolete">Oculto de la búsqueda</translation>
     </message>
     <message>
         <source>Content type</source>
@@ -490,7 +435,7 @@ Separate them with &quot;;&quot; characters.</source>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>ordenar por: </translation>
+        <translation>ordenar por:</translation>
     </message>
     <message>
         <source>file name</source>
@@ -502,7 +447,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>tamaño de la vista previa: </translation>
+        <translation>tamaño de la vista previa</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -515,10 +460,6 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Photini: unsaved data</source>
         <translation>Photini: datos no guardados</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Algunas imágenes tienen metadatos no guardados.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -577,7 +518,7 @@ in file</source>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation>Algunas imágenes tienen metadatos no guardados.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -676,7 +617,7 @@ selected</source>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished">Sólo tú</translation>
+        <translation>Sólo tú</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -776,7 +717,7 @@ selected</source>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Nuevo álbum</translation>
+        <translation>Nuevo álbum</translation>
     </message>
     <message>
         <source>Photini: too large</source>
@@ -812,11 +753,11 @@ selected</source>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Título</translation>
+        <translation>Título</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Descripción</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -909,13 +850,6 @@ provided by Bing</source>
     <message>
         <source>Map (&amp;Mapbox)</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MapTabOSM</name>
-    <message>
-        <source>Map (&amp;OSM)</source>
-        <translation type="obsolete">Mapa (&amp;OSM)</translation>
     </message>
 </context>
 <context>
@@ -1062,13 +996,16 @@ provided by Bing</source>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message>
-        <source>&amp;Ownership metadata</source>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
+        <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1082,12 +1019,8 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
@@ -1105,36 +1038,12 @@ template</source>
         <source>Credit Line</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Copyright Notice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1183,7 +1092,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">Ciudad</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1207,7 +1116,36 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">País</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use %Y to insert the year the photograph was taken.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise
+template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Usage Terms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web Statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licensor URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rights</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
@@ -1215,10 +1153,6 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use %Y to insert the year the photograph was taken.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1483,10 +1417,6 @@ template</source>
         <translation>Photini: carga en proceso</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;La carga a {} no ha terminado.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Cerrar ahora interrumpirá la carga.</translation>
     </message>
@@ -1509,10 +1439,6 @@ template</source>
     <message>
         <source>Photini: incompatible type</source>
         <translation>Photini: tipo de archivo incompatible</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Tipo de imagen incompatible.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
@@ -1564,11 +1490,11 @@ template</source>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>La carga a {} no ha terminado.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Tipo de imagen incompatible.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
@@ -1583,11 +1509,11 @@ template</source>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;múltiple&gt;</translation>
+        <translation>&lt;múltiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished">&lt;Valores múltiples&gt;</translation>
+        <translation>&lt;Valores múltiples&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

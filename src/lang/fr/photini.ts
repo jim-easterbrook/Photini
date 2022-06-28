@@ -493,9 +493,9 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Régénérer la miniature</numerusform>
-            <numerusform>Régénérer les miniatures</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -508,16 +508,16 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Recharger le fichier</numerusform>
-            <numerusform>Recharger les fichiers</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Fermer le fichier</numerusform>
-            <numerusform>Fermer les fichiers</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -610,11 +610,9 @@ la copie</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fichier
-sélectionné</numerusform>
-            <numerusform>%n fichiers
-sélectionnés</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>

@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="ca" sourcelanguage="en_GB">
+<!DOCTYPE TS><TS version="2.0" language="es_AR" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation>Carrer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciutat</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Regió</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Address</source>
-        <translation>&amp;Adreça</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation>Obtenir adreça a partir de lat, long</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Duplicate location</source>
-        <translation>Ubicació duplicada</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Delete location</source>
-        <translation>Esborrar ubicació</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>camera</source>
-        <translation>camera</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>subject {}</source>
-        <translation>subject {}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -83,19 +83,19 @@
     <name>CLIHelp</name>
     <message>
         <source>Usage: %prog [options] [file_name, ...]</source>
-        <translation>Ús: %prog [opcions] [nom_fitxer, ...]</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation>Photini editor de metadades de foto</translation>
+        <translation>Photini editor de metadatos fotográficos</translation>
     </message>
     <message>
         <source>test new features or API versions</source>
-        <translation>prova noves funcionalitats o versions d&apos;API</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>increase number of logging messages</source>
-        <translation>Augmentar la quantitat de missatges de registre</translation>
+        <translation>aumentar el número de mensajes del registro</translation>
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
@@ -106,31 +106,31 @@
     <name>DescriptiveTab</name>
     <message>
         <source>reject</source>
-        <translation>rebutja</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;favourites&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
-        <translation>Metadades &amp;descriptives</translation>
+        <translation>Metadatos &amp;descriptivos</translation>
     </message>
     <message>
         <source>Title / Object Name</source>
-        <translation>Títol / Nom d&apos;objecte</translation>
+        <translation>Título / Nombre del objeto</translation>
     </message>
     <message>
         <source>Description / Caption</source>
-        <translation>Descripció / Títol</translation>
+        <translation>Descripción / Leyenda</translation>
     </message>
     <message>
         <source>Keywords</source>
-        <translation>Paraules clau</translation>
+        <translation>Palabras clave</translation>
     </message>
     <message>
         <source>Rating</source>
-        <translation>Valoració</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
@@ -159,35 +159,35 @@ Separate them with &quot;;&quot; characters.</source>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
-        <translation>Photini: configuració</translation>
+        <translation>Photini: configuración</translation>
     </message>
     <message>
         <source>Always write</source>
-        <translation>Sempre escriure</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Always create</source>
-        <translation>Sempre crear</translation>
+        <translation>Siempre crear</translation>
     </message>
     <message>
         <source>Sidecar files</source>
-        <translation>Fitxers sidecar</translation>
+        <translation>Archivos &quot;sidecar&quot;</translation>
     </message>
     <message>
         <source>Create if necessary</source>
-        <translation>Crear si fa falta</translation>
+        <translation>Crear si es necesario</translation>
     </message>
     <message>
         <source>Delete when possible</source>
-        <translation>Esborrar quan sigui possible</translation>
+        <translation>Borrar cuando sea posible</translation>
     </message>
     <message>
         <source>(when possible)</source>
-        <translation>(quan sigui possible)</translation>
+        <translation>(cuando sea posible)</translation>
     </message>
     <message>
         <source>Write to image file</source>
-        <translation>Escriure a fitxer imatge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>IPTC-IIM metadata</source>
@@ -226,11 +226,11 @@ Separate them with &quot;;&quot; characters.</source>
     <name>FlickrTab</name>
     <message>
         <source>Only you</source>
-        <translation>Només tu</translation>
+        <translation>Sólo tú</translation>
     </message>
     <message>
         <source>Content type</source>
-        <translation>Tipus de contingut</translation>
+        <translation>Tipo de contenido</translation>
     </message>
     <message>
         <source>Photo</source>
@@ -242,19 +242,19 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Art/Illustration</source>
-        <translation>Art/Il·lustració</translation>
+        <translation>Arte/Ilustración</translation>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation>Sincronitzar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New album</source>
-        <translation>Nou àlbum</translation>
+        <translation>Nuevo álbum</translation>
     </message>
     <message>
         <source>&amp;Flickr upload</source>
-        <translation>Càrrega a &amp;Flickr</translation>
+        <translation>Subir a &amp;Flickr</translation>
     </message>
     <message>
         <source>Flickr</source>
@@ -262,39 +262,39 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: massa gran</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation>Reemplaçar metadades</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change content type</source>
-        <translation>Canviar el tipus de contingut</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation>Canviar els membres de l&apos;album</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
-        <translation>Crear un nou àlbum a Flickr</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Titol</translation>
+        <translation>Título</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Descripció</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <source>Album will be created when photos are uploaded</source>
-        <translation>L&apos;àlbum es crearà quan s&apos;hagin pujat les fotos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Friends &amp; family</source>
@@ -382,123 +382,121 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fitxer massa gran.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
     <message>
         <source>New album</source>
-        <translation>Nou àlbum</translation>
+        <translation>Nuevo álbum</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
-        <translation>Càrrega a Google &amp;Photos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Google Photos</source>
-        <translation>Google Photos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: large file</source>
-        <translation>Photini: fitxer gran</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Album title</source>
-        <translation>Títol de l&apos;àlbum</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation>Entreu un títol per l&apos;àlbum</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Fitxer gran.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>GpxImporter</name>
     <message>
         <source>Import GPX file</source>
-        <translation>Importar fitxer GPX</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
-        <translation>Fitxers GPX (*.gpx *.GPX *.Gpx);;Tots els fitxers (*)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>ordena per: </translation>
+        <translation>ordenar por:</translation>
     </message>
     <message>
         <source>file name</source>
-        <translation>nom de fitxer</translation>
+        <translation>nombre de archivo</translation>
     </message>
     <message>
         <source>date taken</source>
-        <translation>data captura</translation>
+        <translation>fecha de captura</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>mida miniatura: </translation>
+        <translation>tamaño de la vista previa</translation>
     </message>
     <message>
         <source>Open files</source>
-        <translation>Obrir fitxers</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
-        <translation>Imatges ({0});;Vídeos ({1});;Tots els fitxers (*)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
-        <translation>Photini: dades sense guardar</translation>
+        <translation>Photini: datos no guardados</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
-        <translation>Voleu desar els vostres canvis?</translation>
+        <translation>¿Quieres guardar los cambios?</translation>
     </message>
     <message>
         <source>new value</source>
-        <translation>nou valor</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>undo</source>
-        <translation>desfés</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>old value</source>
-        <translation>valor antic</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>View changes</source>
-        <translation>Veure canvis</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No
 thumbnail
 in file</source>
-        <translation>Sense
-miniatura
-en el fitxer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Regenera miniatura</numerusform>
-            <numerusform>Regenera miniaturas</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Diferències en metadades: {}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -520,111 +518,106 @@ en el fitxer</translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation>Algunes imatges tenen metadades sense guardar.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImporterTab</name>
     <message>
         <source>&amp;Import photos</source>
-        <translation>&amp;Importa fotos</translation>
+        <translation>&amp;Importar fotos</translation>
     </message>
     <message>
         <source>refresh</source>
-        <translation>refresca</translation>
+        <translation>refrescar</translation>
     </message>
     <message>
         <source>Source</source>
-        <translation>Origen</translation>
+        <translation>Fuente</translation>
     </message>
     <message>
         <source>Target format</source>
-        <translation>Format destí</translation>
+        <translation>Formato de destino</translation>
     </message>
     <message>
         <source>Select
 all</source>
-        <translation>Selecciona
-tot</translation>
+        <translation>Seleccionar
+todo</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Selecciona
-nou</translation>
+        <translation>Seleccionar
+nuevo</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Mou
-fotos</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Para
-moure</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Copia
+        <translation>Copiar
 fotos</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Para
-copia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select root folder</source>
-        <translation>Trieu la carpeta destí</translation>
+        <translation>Selecciona el directorio raíz</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;select source&gt;</translation>
+        <translation>&lt;seleccionar la fuente&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>càmera: {0}</translation>
+        <translation>cámara: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>carpeta: {0}</translation>
+        <translation>directorio: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;add a folder&gt;</translation>
+        <translation>&lt;agregar directorio&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
-        <translation>Photini: importació en curs</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Closing now will terminate the import.</source>
-        <translation>Tancar ara interromprà la importació.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fitxer
-triat</numerusform>
-            <numerusform>%n fitxers
-triats</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation>La importació no ha acabat.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation>Només tu</translation>
+        <translation>Sólo tú</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -720,15 +713,15 @@ triats</numerusform>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation>Sincronitzar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New album</source>
-        <translation>Nou àlbum</translation>
+        <translation>Nuevo álbum</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: massa gran</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
@@ -736,11 +729,11 @@ triats</numerusform>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation>Reemplaçar metadades</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change who can see it</source>
-        <translation>Canviar qui el pot veure</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change who can comment or tag</source>
@@ -752,7 +745,7 @@ triats</numerusform>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation>Canviar els membres de l&apos;album</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create new Ipernity album</source>
@@ -760,11 +753,11 @@ triats</numerusform>
     </message>
     <message>
         <source>Title</source>
-        <translation>Titol</translation>
+        <translation>Título</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation>Descripció</translation>
+        <translation>Descripción</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -772,7 +765,7 @@ triats</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fitxer massa gran.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -807,31 +800,30 @@ triats</numerusform>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation>Lat, long</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
-        <translation>Registre d&apos;errors de Photini</translation>
+        <translation>Photini error de registro</translation>
     </message>
     <message>
         <source>Save log file</source>
-        <translation>Guarda el registre d&apos;errors</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MapTabBing</name>
     <message>
         <source>Server overload, please try again</source>
-        <translation>Sobrecàrrega del servidor, torneu-ho a provar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation>Cerca i consulta d&apos;alçada
-funcionant amb Bing</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
@@ -842,7 +834,7 @@ funcionant amb Bing</translation>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation>Cerca i consulta d&apos;alçada</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
@@ -853,39 +845,39 @@ funcionant amb Bing</translation>
     <name>MapTabMapbox</name>
     <message>
         <source>Search powered by Mapbox</source>
-        <translation>Cerca funcionant amb Mapbox</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map (&amp;Mapbox)</source>
-        <translation>Mapa (&amp;Mapbox)</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Alçada</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Obté alçada a partir del mapa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Cerca</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;new search&gt;</translation>
+        <translation>&lt;nueva búsqueda&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation>&lt;repetir la búsqueda&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -904,59 +896,59 @@ funcionant amb Bing</translation>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
-        <translation>Photini editor de metadades de foto</translation>
+        <translation>Photini editor de metadatos fotográficos</translation>
     </message>
     <message>
         <source>File</source>
-        <translation>Fitxer</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Sortir</translation>
+        <translation>Salir</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Opcions</translation>
+        <translation>Opciones</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation>Configuració</translation>
+        <translation>Configuración</translation>
     </message>
     <message>
         <source>Spelling</source>
-        <translation>Ortografia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enable spell check</source>
-        <translation>Activa verificació d&apos;ortografia</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Help</source>
-        <translation>Ajuda</translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
         <source>About Photini</source>
-        <translation>Sobre Photini</translation>
+        <translation>Acerca de Photini</translation>
     </message>
     <message>
         <source>Photini documentation</source>
-        <translation>Documentació Photini</translation>
+        <translation>Documentación de Photini</translation>
     </message>
     <message>
         <source>Photini: about</source>
-        <translation>Photini: quant a</translation>
+        <translation>Photini: acerca de</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
-        <translation>Un editor de metadades de foto digital fàcil d&apos;usar.</translation>
+        <translation>Un editor de metadatos fotográficos fácil de usar.</translation>
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Paquet de codi obert disponible de {}.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open files</source>
-        <translation>Obrir fitxers</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -972,7 +964,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
+        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -995,11 +987,11 @@ funcionant amb Bing</translation>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodades © OpenStreetMap contributors</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1028,7 +1020,7 @@ template</source>
     </message>
     <message>
         <source>Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
@@ -1100,7 +1092,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciutat</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1124,7 +1116,7 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
@@ -1223,35 +1215,35 @@ template</source>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Precissió:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>min</source>
-        <translation>min</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>max</source>
-        <translation>max</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Focal length</source>
-        <translation>Distància focal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Max aperture</source>
-        <translation>Obertura màx</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define lens</source>
-        <translation>Photini: define lens</translation>
+        <translation>Photini: definir lente</translation>
     </message>
     <message>
         <source>Model name</source>
-        <translation>Nom del model</translation>
+        <translation>Nombre del modelo</translation>
     </message>
     <message>
         <source>Maker&apos;s name</source>
-        <translation>Nom del fabricant</translation>
+        <translation>Nombre del fabricante</translation>
     </message>
     <message>
         <source>Serial number</source>
@@ -1259,27 +1251,27 @@ template</source>
     </message>
     <message>
         <source>&amp;Technical metadata</source>
-        <translation>Medadades &amp;tècniques</translation>
+        <translation>Metadatos &amp;técnicos</translation>
     </message>
     <message>
         <source>Date and time</source>
-        <translation>Dia i hora</translation>
+        <translation>Fecha y hora</translation>
     </message>
     <message>
         <source>Link &apos;taken&apos; and &apos;digitised&apos;</source>
-        <translation>Enllaça &apos;capturades&apos; i &apos;digitalitzades&apos;</translation>
+        <translation>Vincular &apos;tomada&apos; y &apos;digitalizada&apos;</translation>
     </message>
     <message>
         <source>Link &apos;digitised&apos; and &apos;modified&apos;</source>
-        <translation>Enllaça &apos;digitalitzades&apos; i &apos;modificades&apos;</translation>
+        <translation>Vincular &apos;digitalizada&apos; y &apos;modificada&apos;</translation>
     </message>
     <message>
         <source>Taken</source>
-        <translation>Capturada</translation>
+        <translation>Tomada</translation>
     </message>
     <message>
         <source>Digitised</source>
-        <translation>Digitalitzada</translation>
+        <translation>Digitalizada</translation>
     </message>
     <message>
         <source>Modified</source>
@@ -1287,11 +1279,11 @@ template</source>
     </message>
     <message>
         <source>Adjust times</source>
-        <translation>Ajusta hores</translation>
+        <translation>Ajustar tiempos</translation>
     </message>
     <message>
         <source>Other</source>
-        <translation>Altres</translation>
+        <translation>Otros</translation>
     </message>
     <message>
         <source>normal</source>
@@ -1299,71 +1291,71 @@ template</source>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>gira -90</translation>
+        <translation>rotar -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>gira +90</translation>
+        <translation>rotar +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>gira 180</translation>
+        <translation>rotar 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>reflexa esquerra-dreta</translation>
+        <translation>reflejar izquierda-derecha</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>reflexa dalt-baix</translation>
+        <translation>reflejar arriba-abajo</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>reflexa dd-be</translation>
+        <translation>reflejar tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>reflexa de-bd</translation>
+        <translation>reflejar tl-br</translation>
     </message>
     <message>
         <source>Orientation</source>
-        <translation>Orientació</translation>
+        <translation>Orientación</translation>
     </message>
     <message>
         <source>Lens model</source>
-        <translation>Model de lent</translation>
+        <translation>Modelo del lente</translation>
     </message>
     <message>
         <source>Update aperture &amp; focal length</source>
-        <translation>Actualitza obertura &amp; distància focal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
-        <translation>Ajustar la obertura de la imatge i la distància focal per coincidir amb les característiques de les lents?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Minimum focal length</source>
-        <translation>Distància focal mínima</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Aperture at min. focal length</source>
-        <translation>Obertura al min. distància focal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Maximum focal length</source>
-        <translation>Distància focal màxima</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Aperture at max. focal length</source>
-        <translation>Obertura al max. distància focal</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>35mm equiv</source>
-        <translation>equiv. 35 mm</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Aperture</source>
-        <translation>Obertura</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
@@ -1394,67 +1386,67 @@ template</source>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation>Tanca finestra</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Ja podeu tancar aquesta finestra de navegador.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Entra</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Surt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Comença càrrega</translation>
+        <translation>Subir ahora</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Para càrrega</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Progrés</translation>
+        <translation>Avance</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini: càrrega en progrés</translation>
+        <translation>Photini: carga en proceso</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Tancar ara finalitzarà la càrrega.</translation>
+        <translation>Cerrar ahora interrumpirá la carga.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>No autenticat a {}</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Photini: tipus incompatible</translation>
+        <translation>Photini: tipo de archivo incompatible</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini: error de càrrega</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Afegir a àlbums</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1470,7 +1462,7 @@ template</source>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Reemplaça foto</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
@@ -1478,35 +1470,35 @@ template</source>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Reemplaçar imatge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Carregar com a nova foto</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Cap imatge a pujar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Triar una imatge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Cap coincidència</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Càrrega a {} no ha acabat.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Tipus d&apos;imatge incompatible.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1517,11 +1509,11 @@ template</source>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;multiple&gt;</translation>
+        <translation>&lt;múltiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;multiple values&gt;</translation>
+        <translation>&lt;Valores múltiples&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

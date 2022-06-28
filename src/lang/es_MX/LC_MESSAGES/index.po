@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 # Translators:
-# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
+# Cristos Ruiz <cristos.a.ruiz@gmail.com>, 2022
 #, fuzzy
 msgid ""
 msgstr ""
@@ -12,10 +12,10 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
 "PO-Revision-Date: 2022-06-28 09:11+0000\n"
-"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
-"Language: es\n"
-"Language-Team: Spanish (https://www.transifex.com/jim-"
-"easterbrook/teams/32598/es/)\n"
+"Last-Translator: Cristos Ruiz <cristos.a.ruiz@gmail.com>, 2022\n"
+"Language: es_MX\n"
+"Language-Team: Spanish (Mexico) (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/es_MX/)\n"
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1"
 " : 2\n"
 "MIME-Version: 1.0\n"

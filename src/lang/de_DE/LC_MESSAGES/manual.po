@@ -3,15 +3,21 @@
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
+# Translators:
+# aasche <anton.asche@mhinac.de>, 2022
+# Ettore Atalan <atalanttore@googlemail.com>, 2022
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.5.1\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language: nb_NO\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2022-06-28 09:10+0000\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
+"Language: de_DE\n"
+"Language-Team: German (Germany) (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/de_DE/)\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -54,6 +60,13 @@ msgid ""
 "lookup service is provided by OpenCage_, using data from OpenStreetMap_. "
 "Other map providers don't allow lookup results to be permanently stored."
 msgstr ""
+"Die Schaltfläche ``Get address from lat, long`` verwendet \"umgekehrte "
+"Geokodierung\" zur Umwandlung von Längen- und Breitengrad in eine "
+"hierarchische Adresse. Dies ist ein recht ungenauer Prozess, so dass Sie die"
+" Ergebnisse möglicherweise selbst bearbeiten müssen. Der Adressensuchdienst "
+"wird von OpenCage_ zur Verfügung gestellt und verwendet Daten von "
+"OpenStreetMap_. Andere Kartenanbieter erlauben keine dauerhafte Speicherung "
+"der Suchergebnisse."
 
 msgid ""
 "Photini attempts to use all the data returned in an address lookup. This can"
@@ -90,7 +103,7 @@ msgid ""
 msgstr ""
 
 msgid "Configuration"
-msgstr ""
+msgstr "Konfiguration"
 
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove them"
@@ -141,7 +154,7 @@ msgid ""
 msgstr ""
 
 msgid "Spell checking"
-msgstr ""
+msgstr "Rechtschreibprüfung"
 
 msgid ""
 "The ``Spelling`` menu allows you to enable or disable spell checking on "
@@ -178,7 +191,7 @@ msgid ""
 msgstr ""
 
 msgid "PyQt options"
-msgstr ""
+msgstr "PyQt-Optionen"
 
 msgid ""
 "The configuration file includes options to select use of PyQt5, PySide2, or "
@@ -225,7 +238,7 @@ msgid ""
 msgstr ""
 
 msgid "Application style"
-msgstr ""
+msgstr "Anwendungsstil"
 
 msgid ""
 "Qt applications can have their appearance changed by selecting different "
@@ -845,13 +858,13 @@ msgid ""
 msgstr ""
 
 msgid "keyword"
-msgstr ""
+msgstr "Schlüsselwort"
 
 msgid "meaning"
 msgstr ""
 
 msgid "example"
-msgstr ""
+msgstr "Beispiel"
 
 msgid "{camera}"
 msgstr ""
@@ -866,10 +879,10 @@ msgid "{name}"
 msgstr ""
 
 msgid "the complete file name"
-msgstr ""
+msgstr "der vollständige Dateiname"
 
 msgid "IMG_9999.JPG"
-msgstr ""
+msgstr "IMG_9999.JPG"
 
 msgid "{number}"
 msgstr ""
@@ -878,7 +891,7 @@ msgid "the numeric part of the file name"
 msgstr ""
 
 msgid "9999"
-msgstr ""
+msgstr "9999"
 
 msgid "{root}"
 msgstr ""
@@ -887,7 +900,7 @@ msgid "the filename without its extension"
 msgstr ""
 
 msgid "IMG_9999"
-msgstr ""
+msgstr "IMG_9999"
 
 msgid "{ext}"
 msgstr ""
@@ -896,7 +909,7 @@ msgid "the filename extension"
 msgstr ""
 
 msgid ".JPG"
-msgstr ""
+msgstr ".JPG"
 
 msgid ""
 "Below the ``Target format`` field is an example generated from the current "
@@ -973,7 +986,7 @@ msgid ""
 msgstr ""
 
 msgid "User manual"
-msgstr ""
+msgstr "Benutzeranleitung"
 
 msgid ""
 "This manual attempts to cover every part of Photini in detail, but still be "
@@ -1579,7 +1592,7 @@ msgid "Xmp.xmp.ModifyDate"
 msgstr ""
 
 msgid "Orientation"
-msgstr ""
+msgstr "Ausrichtung"
 
 msgid "Exif.Image.Orientation"
 msgstr ""
@@ -1599,19 +1612,19 @@ msgid ""
 msgstr ""
 
 msgid "Focal length"
-msgstr ""
+msgstr "Brennweite"
 
 msgid "Exif.Photo.FocalLength"
 msgstr ""
 
 msgid "35mm equiv"
-msgstr ""
+msgstr "35mm equiv"
 
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr ""
 
 msgid "Aperture"
-msgstr ""
+msgstr "Blende"
 
 msgid "Exif.Photo.FNumber"
 msgstr ""
@@ -1668,13 +1681,13 @@ msgid ""
 msgstr ""
 
 msgid "Title / Object Name"
-msgstr ""
+msgstr "Titel"
 
 msgid "Exif.Image.XPTitle"
 msgstr ""
 
 msgid "Description / Caption"
-msgstr ""
+msgstr "Beschreibung"
 
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr ""
@@ -1683,13 +1696,13 @@ msgid "Xmp.tiff.ImageDescription"
 msgstr ""
 
 msgid "Keywords"
-msgstr ""
+msgstr "Schlüsselwörter"
 
 msgid "Exif.Image.XPKeywords"
 msgstr ""
 
 msgid "Rating"
-msgstr ""
+msgstr "Bewertung"
 
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
 msgstr ""
@@ -1698,7 +1711,7 @@ msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr ""
 
 msgid "Creator / Artist"
-msgstr ""
+msgstr "Urheber / Künstler"
 
 msgid "Exif.Image.XPAuthor"
 msgstr ""
@@ -1707,7 +1720,7 @@ msgid "Xmp.tiff.Artist"
 msgstr ""
 
 msgid "Copyright"
-msgstr ""
+msgstr "Copyright"
 
 msgid "Xmp.tiff.Copyright"
 msgstr ""
@@ -1777,7 +1790,7 @@ msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr ""
 
 msgid "Altitude"
-msgstr ""
+msgstr "Höhe"
 
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr ""
@@ -1830,7 +1843,7 @@ msgid ""
 msgstr ""
 
 msgid "Technical metadata"
-msgstr ""
+msgstr "Technische Metadaten"
 
 msgid ""
 "The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to "

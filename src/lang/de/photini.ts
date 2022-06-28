@@ -103,22 +103,7 @@
     </message>
 </context>
 <context>
-    <name>Common</name>
-    <message>
-        <source>&lt;multiple&gt;</source>
-        <translation type="obsolete">&lt;mehrfach&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;multiple values&gt;</source>
-        <translation type="obsolete">&lt;Mehrfachwerte&gt;</translation>
-    </message>
-</context>
-<context>
     <name>DescriptiveTab</name>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Automatisch</translation>
-    </message>
     <message>
         <source>reject</source>
         <translation>zurückweisen</translation>
@@ -148,40 +133,8 @@
         <translation>Bewertung</translation>
     </message>
     <message>
-        <source>Copyright</source>
-        <translation type="obsolete">Copyright</translation>
-    </message>
-    <message>
-        <source>Creator / Artist</source>
-        <translation type="obsolete">Fotograf</translation>
-    </message>
-    <message>
-        <source>Photini: input name</source>
-        <translation type="obsolete">Photini: Eingabename</translation>
-    </message>
-    <message>
-        <source>Please type in the copyright holder&apos;s name</source>
-        <translation type="obsolete">Bitte den Inhaber der Urheberrechte eingeben</translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation type="obsolete">Copyright ©{year} {name}. Alle Rechte vorbehalten.</translation>
-    </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation type="obsolete">Bitte den Namen des Fotografen eingeben</translation>
-    </message>
-    <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
         <translation>Geben Sie einen kurzen, verbalen und menschenlesbaren Namen für das Bild ein, der auch der Dateiname sein kann.</translation>
-    </message>
-    <message>
-        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation>Geben Sie eine kurze veröffentlichungsfähige Zusammenfassung des Inhalts des Bildes ein.</translation>
-    </message>
-    <message>
-        <source>Headline</source>
-        <translation type="unfinished">Überschrift</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
@@ -195,24 +148,20 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen.
 Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
+    <message>
+        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
+        <translation>Geben Sie eine kurze veröffentlichungsfähige Zusammenfassung des Inhalts des Bildes ein.</translation>
+    </message>
+    <message>
+        <source>Headline</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
         <translation>Photini: Einstellungen</translation>
-    </message>
-    <message>
-        <source>Copyright holder name</source>
-        <translation type="obsolete">Name des Rechteinhabers</translation>
-    </message>
-    <message>
-        <source>Copyright text</source>
-        <translation type="obsolete">Urheberrechtstext</translation>
-    </message>
-    <message>
-        <source>Creator name</source>
-        <translation type="obsolete">Name des Erstellers</translation>
     </message>
     <message>
         <source>Always write</source>
@@ -243,24 +192,12 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <translation>In Bilddatei schreiben</translation>
     </message>
     <message>
-        <source>Preserve file timestamps</source>
-        <translation type="obsolete">Dateizeitstempel erhalten</translation>
-    </message>
-    <message>
         <source>IPTC-IIM metadata</source>
         <translation>IPTC-IIM-Metadaten</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
         <translation>IPTC-IIM-Längengrenzen anzeigen</translation>
-    </message>
-    <message>
-        <source>Write if exists</source>
-        <translation>Schreiben, wenn vorhanden</translation>
-    </message>
-    <message>
-        <source>Always delete</source>
-        <translation>Immer löschen</translation>
     </message>
     <message>
         <source>Keep original</source>
@@ -278,32 +215,20 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <source>Set to when file is saved</source>
         <translation>Beim Speichern der Datei einstellen</translation>
     </message>
+    <message>
+        <source>Write if exists</source>
+        <translation>Schreiben, wenn vorhanden</translation>
+    </message>
+    <message>
+        <source>Always delete</source>
+        <translation>Immer löschen</translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
     <message>
-        <source>Who can see the photos?</source>
-        <translation type="obsolete">Wer kann die Bilder betrachten?</translation>
-    </message>
-    <message>
         <source>Only you</source>
         <translation>Nur ich selbst</translation>
-    </message>
-    <message>
-        <source>Your friends</source>
-        <translation type="obsolete">Deine Freunde</translation>
-    </message>
-    <message>
-        <source>Your family</source>
-        <translation type="obsolete">Deine Familie</translation>
-    </message>
-    <message>
-        <source>Anyone</source>
-        <translation type="obsolete">Jeder</translation>
-    </message>
-    <message>
-        <source>Hidden from search</source>
-        <translation type="obsolete">Von Suche ausgeschlossen</translation>
     </message>
     <message>
         <source>Content type</source>
@@ -330,10 +255,6 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <translation>Neues Album</translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Zu Alben hinzufügen</translation>
-    </message>
-    <message>
         <source>&amp;Flickr upload</source>
         <translation>&amp;Flickr hochladen</translation>
     </message>
@@ -346,28 +267,12 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <translation>Photini: zu groß</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
         <translation>Die Datei „{0}“ hat {1} Bytes und überschreitet Flickrs Begrenzung von {2} Bytes.</translation>
     </message>
     <message>
-        <source>Replace photo</source>
-        <translation type="obsolete">Photo ersetzen</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
-        <translation type="obsolete">Die Datei {0} wurde bereits auf Flickr hochgeladen. Soll es aktualisiert werden?</translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation>Metadaten ersetzen</translation>
-    </message>
-    <message>
-        <source>Change who can see it</source>
-        <translation type="obsolete">Ändern wer es sehen kann</translation>
     </message>
     <message>
         <source>Change content type</source>
@@ -376,32 +281,6 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     <message>
         <source>Change album membership</source>
         <translation>Albummitgliedschaft ändern</translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="obsolete">Bild ersetzen</translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="obsolete">Als neues Photo hochladen</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="obsolete">Kein Bild hochgeladen</translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="obsolete">Bild auswählen</translation>
-    </message>
-    <message>
-        <source>Which image file matches
-this picture on Flickr?</source>
-        <translation type="obsolete">Welche Bilddatei ähnelt
-diesem Bild bei Flickr?</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="obsolete">kein Treffer</translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
@@ -465,7 +344,7 @@ diesem Bild bei Flickr?</translation>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished">Sicher</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Moderate</source>
@@ -515,10 +394,6 @@ diesem Bild bei Flickr?</translation>
         <translation>Neues Album</translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Zu Alben hinzufügen</translation>
-    </message>
-    <message>
         <source>Google &amp;Photos upload</source>
         <translation>Google &amp;Photos hochladen</translation>
     </message>
@@ -529,10 +404,6 @@ diesem Bild bei Flickr?</translation>
     <message>
         <source>Photini: large file</source>
         <translation>Photini: große Datei</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Große Datei.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -560,26 +431,6 @@ diesem Bild bei Flickr?</translation>
     <message>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
         <translation>GPX Dateien (*.gpx *.GPX *.Gpx);;Alle Dateien (*)</translation>
-    </message>
-    <message>
-        <source>GPX options</source>
-        <translation type="obsolete">GPX Optionen</translation>
-    </message>
-    <message>
-        <source> secs</source>
-        <translation type="obsolete">Sekunden</translation>
-    </message>
-    <message>
-        <source>Max time between points</source>
-        <translation type="obsolete">Max. Zeit zwischen Wegpunkten</translation>
-    </message>
-    <message>
-        <source>Max dilution of precision</source>
-        <translation type="obsolete">Max. Abschwächung der Genauigkeit</translation>
-    </message>
-    <message>
-        <source>Plot track on map</source>
-        <translation type="obsolete">Track auf Karte zeichnen</translation>
     </message>
 </context>
 <context>
@@ -611,10 +462,6 @@ diesem Bild bei Flickr?</translation>
     <message>
         <source>Photini: unsaved data</source>
         <translation>Photini: ungespeicherte Daten</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Einige Bilder enthalten ungesicherte Metadaten.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -757,10 +604,6 @@ Kopieren</translation>
         <translation>Photini: Import läuft</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Importieren von Fotos ist noch nicht abgeschlossen.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the import.</source>
         <translation>Wenn Sie jetzt schließen, wird der Import abgebrochen.</translation>
     </message>
@@ -783,7 +626,7 @@ ausgewählt</numerusform>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished">Nur ich selbst</translation>
+        <translation>Nur ich selbst</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -803,7 +646,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished">Zuschreibung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Attribution + non commercial</source>
@@ -890,20 +733,16 @@ ausgewählt</numerusform>
         <translation>Photini: zu groß</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Datei zu groß.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished">Metadaten ersetzen</translation>
+        <translation>Metadaten ersetzen</translation>
     </message>
     <message>
         <source>Change who can see it</source>
-        <translation type="unfinished">Ändern wer es sehen kann</translation>
+        <translation>Ändern wer es sehen kann</translation>
     </message>
     <message>
         <source>Change who can comment or tag</source>
@@ -915,7 +754,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished">Albummitgliedschaft ändern</translation>
+        <translation>Albummitgliedschaft ändern</translation>
     </message>
     <message>
         <source>Create new Ipernity album</source>
@@ -923,11 +762,11 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Titel</translation>
+        <translation>Titel</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Beschreibung</translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -970,7 +809,7 @@ ausgewählt</numerusform>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation type="unfinished">Breite, Länge</translation>
+        <translation>Breite, Länge</translation>
     </message>
 </context>
 <context>
@@ -1024,18 +863,7 @@ provided by Bing</translation>
     </message>
 </context>
 <context>
-    <name>MapTabOSM</name>
-    <message>
-        <source>Map (&amp;OSM)</source>
-        <translation type="obsolete">Karte (&amp;OSM)</translation>
-    </message>
-</context>
-<context>
     <name>MapTabsAll</name>
-    <message>
-        <source>Lat, long</source>
-        <translation type="obsolete">Breite, Länge</translation>
-    </message>
     <message>
         <source>Altitude</source>
         <translation>Höhe</translation>
@@ -1085,10 +913,6 @@ provided by Bing</translation>
         <translation>Datei</translation>
     </message>
     <message>
-        <source>Import GPX file</source>
-        <translation type="obsolete">GPX-Datei importieren</translation>
-    </message>
-    <message>
         <source>Quit</source>
         <translation>Schließen</translation>
     </message>
@@ -1107,14 +931,6 @@ provided by Bing</translation>
     <message>
         <source>Enable spell check</source>
         <translation>Rechtschreibprüfung aktivieren</translation>
-    </message>
-    <message>
-        <source>Choose language</source>
-        <translation type="obsolete">Sprache auswählen</translation>
-    </message>
-    <message>
-        <source>No dictionary installed</source>
-        <translation type="obsolete">Kein Wörterbuch installiert</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1146,7 +962,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Save changes</source>
-        <translation type="unfinished">Änderungen speichern</translation>
+        <translation>Änderungen speichern</translation>
     </message>
     <message>
         <source>Close all files</source>
@@ -1180,10 +996,6 @@ provided by Bing</translation>
 <context>
     <name>OpenCage</name>
     <message>
-        <source>Search powered by OpenCage</source>
-        <translation type="obsolete">Suche unterstützt von OpenCage</translation>
-    </message>
-    <message>
         <source>Address lookup powered by OpenCage</source>
         <translation>Adresssuche powered by OpenCage</translation>
     </message>
@@ -1194,13 +1006,16 @@ provided by Bing</translation>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message>
-        <source>&amp;Ownership metadata</source>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
+        <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1214,12 +1029,8 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Fotograf</translation>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
@@ -1237,36 +1048,12 @@ template</source>
         <source>Credit Line</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Copyright Notice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1315,7 +1102,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">Stadt</translation>
+        <translation>Stadt</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1339,7 +1126,36 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">Land</translation>
+        <translation>Land</translation>
+    </message>
+    <message>
+        <source>Use %Y to insert the year the photograph was taken.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise
+template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Usage Terms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web Statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licensor URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rights</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
@@ -1347,10 +1163,6 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use %Y to insert the year the photograph was taken.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1591,10 +1403,6 @@ template</source>
         <translation>Das Browserfenster kann nun geschlossen werden.</translation>
     </message>
     <message>
-        <source>User</source>
-        <translation type="obsolete">Benutzer</translation>
-    </message>
-    <message>
         <source>Log in</source>
         <translation>Anmelden</translation>
     </message>
@@ -1619,16 +1427,8 @@ template</source>
         <translation>Photini: Hochladen läuft</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Hochladen nach {} wurde nicht beendet.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Beenden wird das Hochladen stoppen.</translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="obsolete">Angemeldet als {0} an {1}</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
@@ -1651,20 +1451,12 @@ template</source>
         <translation>Photini: inkompatibler Typ</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Inkompatibles Bildformat.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Photini: upload error</source>
         <translation>Photini: Fehler beim Hochladen</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Hochladen der Datei &quot;{}&quot; fehlgeschlagen.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Add to albums</source>
-        <translation type="unfinished">Zu Alben hinzufügen</translation>
+        <translation>Zu Alben hinzufügen</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1727,11 +1519,11 @@ template</source>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;mehrfach&gt;</translation>
+        <translation>&lt;mehrfach&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished">&lt;Mehrfachwerte&gt;</translation>
+        <translation>&lt;Mehrfachwerte&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
