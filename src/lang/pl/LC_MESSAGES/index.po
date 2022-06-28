@@ -1,19 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-21, Jim Easterbrook
+# Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 # Translators:
-# Dawid Głaz, 2015
+# Dawid Głaz, 2022
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version:  Photini\n"
+"Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-12 14:08+0100\n"
-"PO-Revision-Date: 2019-05-08 15:30+0000\n"
-"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
+"POT-Creation-Date: 2022-06-27 13:50+0100\n"
+"PO-Revision-Date: 2022-06-28 09:11+0000\n"
+"Last-Translator: Dawid Głaz, 2022\n"
 "Language: pl\n"
-"Language-Team: Polish (http://www.transifex.com/jim-"
-"easterbrook/photini/language/pl/)\n"
+"Language-Team: Polish (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/pl/)\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
 "(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
 "n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3)\n"
@@ -22,39 +24,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.1\n"
 
-# 47df774ad13343e887e788bf0e12dea0
 msgid "Photini documentation"
 msgstr "Photini dokumentacja"
 
-# 3491a508b7914481a3b9d7f6528afd9c
 msgid ""
-"Welcome to the documentation of Photini, an easy to use photograph "
-"metadata editor. For a quick introduction to Photini and its features I "
-"suggest you read :doc:`the introduction <other/introduction>`. More "
-"detail about its capabilities can be found in :doc:`the user manual "
-"<manual/index>`."
+"Welcome to the documentation of Photini, an easy to use photograph metadata "
+"editor. For a quick introduction to Photini and its features I suggest you "
+"read :doc:`the introduction <other/introduction>`. More detail about its "
+"capabilities can be found in :doc:`the user manual <manual/index>`."
 msgstr ""
 
 msgid "Copyright (C)  2012-21  Jim Easterbrook."
 msgstr ""
 
-# d3d7bead940547b2a49dc6f506dd579e
 msgid ""
-"Permission is granted to copy, distribute and/or modify this document "
-"under the terms of the GNU Free Documentation License, Version 1.3 or any"
-" later version published by the Free Software Foundation; with no "
-"Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy"
-" of the license is included in the section entitled \"GNU Free "
-"Documentation License\"."
+"Permission is granted to copy, distribute and/or modify this document under "
+"the terms of the GNU Free Documentation License, Version 1.3 or any later "
+"version published by the Free Software Foundation; with no Invariant "
+"Sections, no Front-Cover Texts, and no Back-Cover Texts. A copy of the "
+"license is included in the section entitled \"GNU Free Documentation "
+"License\"."
 msgstr ""
 
-# 6ca1bff480194c54b617f876e6cbd6b2
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
-
-# 8c0afb7be1f542558d02cc86d827815d
-#~ msgid "Copyright (C)  2012-19  Jim Easterbrook."
-#~ msgstr ""
 

@@ -103,22 +103,7 @@
     </message>
 </context>
 <context>
-    <name>Common</name>
-    <message>
-        <source>&lt;multiple&gt;</source>
-        <translation type="obsolete">&lt;multiple&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;multiple values&gt;</source>
-        <translation type="obsolete">&lt;multiple values&gt;</translation>
-    </message>
-</context>
-<context>
     <name>DescriptiveTab</name>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Automaticky</translation>
-    </message>
     <message>
         <source>reject</source>
         <translation>Odmítnout</translation>
@@ -148,39 +133,7 @@
         <translation>Hodnocení</translation>
     </message>
     <message>
-        <source>Copyright</source>
-        <translation type="obsolete">Kopírovací právo</translation>
-    </message>
-    <message>
-        <source>Creator / Artist</source>
-        <translation type="obsolete">Tvůrce/Umělec</translation>
-    </message>
-    <message>
-        <source>Photini: input name</source>
-        <translation type="obsolete">Zadání názvu</translation>
-    </message>
-    <message>
-        <source>Please type in the copyright holder&apos;s name</source>
-        <translation type="obsolete">Napište, prosím, jméno držitele práva ke kopírování</translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Copyright ©{year} {name}. All rights reserved.</source>
-        <translation type="obsolete">Kopírovací právo ©{year} {name}. Všechna práva vyhrazena.</translation>
-    </message>
-    <message>
-        <source>Please type in the creator&apos;s name</source>
-        <translation type="obsolete">Napište, prosím, jméno tvůrce</translation>
-    </message>
-    <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Headline</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -193,24 +146,20 @@ this might include names of people, and/or their role in the action that is taki
 Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Headline</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditSettings</name>
     <message>
         <source>Photini: settings</source>
         <translation>Nastavení</translation>
-    </message>
-    <message>
-        <source>Copyright holder name</source>
-        <translation type="obsolete">Jméno držitele práva ke kopírování</translation>
-    </message>
-    <message>
-        <source>Copyright text</source>
-        <translation type="obsolete">Text kopírovacího práva</translation>
-    </message>
-    <message>
-        <source>Creator name</source>
-        <translation type="obsolete">Jméno tvůrce</translation>
     </message>
     <message>
         <source>Always write</source>
@@ -241,23 +190,11 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Zapsat do obrázkového souboru</translation>
     </message>
     <message>
-        <source>Preserve file timestamps</source>
-        <translation type="obsolete">Zachovat časová razítka souboru</translation>
-    </message>
-    <message>
         <source>IPTC-IIM metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Write if exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -276,32 +213,20 @@ Separate them with &quot;;&quot; characters.</source>
         <source>Set to when file is saved</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Write if exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always delete</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FlickrTab</name>
     <message>
-        <source>Who can see the photos?</source>
-        <translation type="obsolete">Kdo může vidět snímky?</translation>
-    </message>
-    <message>
         <source>Only you</source>
         <translation>Jen vy</translation>
-    </message>
-    <message>
-        <source>Your friends</source>
-        <translation type="obsolete">Vyši přátelé</translation>
-    </message>
-    <message>
-        <source>Your family</source>
-        <translation type="obsolete">Vaše rodina</translation>
-    </message>
-    <message>
-        <source>Anyone</source>
-        <translation type="obsolete">Kdokoli</translation>
-    </message>
-    <message>
-        <source>Hidden from search</source>
-        <translation type="obsolete">Skryto před hledáním</translation>
     </message>
     <message>
         <source>Content type</source>
@@ -328,10 +253,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Nové album</translation>
     </message>
     <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Přidat do alb</translation>
-    </message>
-    <message>
         <source>&amp;Flickr upload</source>
         <translation>Nahrání na &amp;Flickr</translation>
     </message>
@@ -344,28 +265,12 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Příliš velký</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
         <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
-        <source>Replace photo</source>
-        <translation type="obsolete">Nahradit fotografii</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to Flickr. How would you like to update it?</source>
-        <translation type="obsolete">Soubor {0} již byl nahrán na Flickr. Jak jej chcete aktualizovat?</translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation>Nahradit popisné údaje</translation>
-    </message>
-    <message>
-        <source>Change who can see it</source>
-        <translation type="obsolete">Změnit, kdo to může vidět</translation>
     </message>
     <message>
         <source>Change content type</source>
@@ -374,32 +279,6 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Change album membership</source>
         <translation>Změnit členství pro album</translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="obsolete">Nahradit obrázek</translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="obsolete">Nahrát jako novou fotografii</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="obsolete">Nenahrán žádný obrázek</translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="obsolete">Vybrat obrázek</translation>
-    </message>
-    <message>
-        <source>Which image file matches
-this picture on Flickr?</source>
-        <translation type="obsolete">Který obrázkový soubor odpovídá
-tomuto obrázku na Flickru?</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="obsolete">Žádná shoda</translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
@@ -503,7 +382,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -511,10 +390,6 @@ tomuto obrázku na Flickru?</translation>
     <message>
         <source>New album</source>
         <translation>Nové album</translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
-        <translation type="obsolete">Přidat do alb</translation>
     </message>
     <message>
         <source>Google &amp;Photos upload</source>
@@ -527,10 +402,6 @@ tomuto obrázku na Flickru?</translation>
     <message>
         <source>Photini: large file</source>
         <translation>Velký soubor</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Large file.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Velký soubor.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
@@ -546,7 +417,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>Large file.</source>
-        <translation>Velký soubor.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -559,32 +430,12 @@ tomuto obrázku na Flickru?</translation>
         <source>GPX files (*.gpx *.GPX *.Gpx);;All files (*)</source>
         <translation>Soubory GPX (*.gpx *.GPX *.Gpx);;Všechny soubory (*)</translation>
     </message>
-    <message>
-        <source>GPX options</source>
-        <translation type="obsolete">Volby pro GPX</translation>
-    </message>
-    <message>
-        <source> secs</source>
-        <translation type="obsolete">s</translation>
-    </message>
-    <message>
-        <source>Max time between points</source>
-        <translation type="obsolete">Největší čas mezi body</translation>
-    </message>
-    <message>
-        <source>Max dilution of precision</source>
-        <translation type="obsolete">Největší rozředění přesnosti</translation>
-    </message>
-    <message>
-        <source>Plot track on map</source>
-        <translation type="obsolete">Nakreslit cestu na mapě</translation>
-    </message>
 </context>
 <context>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>Řadit dle: </translation>
+        <translation>Řadit dle:</translation>
     </message>
     <message>
         <source>file name</source>
@@ -596,7 +447,7 @@ tomuto obrázku na Flickru?</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>Velikost náhledu: </translation>
+        <translation>Velikost náhledu:</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -609,10 +460,6 @@ tomuto obrázku na Flickru?</translation>
     <message>
         <source>Photini: unsaved data</source>
         <translation>Photini: Neuložená data</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;Some images have unsaved metadata.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Některé obrázky mají neuložené popisné údaje.&lt;/h3&gt;</translation>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
@@ -676,7 +523,7 @@ v souboru</translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
-        <translation>Některé obrázky mají neuložené popisné údaje.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -758,35 +605,28 @@ kopírování</translation>
         <translation>Probíhá zavádění</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Importing photos has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Zavádění fotografií neskončilo.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the import.</source>
         <translation>Pokud bude program nyní zavřen, zavádění bude ukončeno.</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n soubor
-vybrán</numerusform>
-            <numerusform>%n soubory
-vybrány</numerusform>
-            <numerusform>%n souborů
-vybráno</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation>Zavádění fotografií neskončilo.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>IpernityTab</name>
     <message>
         <source>Only you</source>
-        <translation type="unfinished">Jen vy</translation>
+        <translation>Jen vy</translation>
     </message>
     <message>
         <source>Family &amp; friends</source>
@@ -882,19 +722,15 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Synchronise</source>
-        <translation type="unfinished">Seřídit</translation>
+        <translation>Seřídit</translation>
     </message>
     <message>
         <source>New album</source>
-        <translation type="unfinished">Nové album</translation>
+        <translation>Nové album</translation>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished">Příliš velký</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;File too large.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Soubor je příliš velký.&lt;/h3&gt;</translation>
+        <translation>Příliš velký</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
@@ -902,11 +738,11 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Replace metadata</source>
-        <translation type="unfinished">Nahradit popisné údaje</translation>
+        <translation>Nahradit popisné údaje</translation>
     </message>
     <message>
         <source>Change who can see it</source>
-        <translation type="unfinished">Změnit, kdo to může vidět</translation>
+        <translation>Změnit, kdo to může vidět</translation>
     </message>
     <message>
         <source>Change who can comment or tag</source>
@@ -918,7 +754,7 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished">Změnit členství pro album</translation>
+        <translation>Změnit členství pro album</translation>
     </message>
     <message>
         <source>Create new Ipernity album</source>
@@ -926,11 +762,11 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Title</source>
-        <translation type="unfinished">Název</translation>
+        <translation>Název</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished">Popis</translation>
+        <translation>Popis</translation>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
@@ -938,7 +774,7 @@ vybráno</numerusform>
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -973,7 +809,7 @@ vybráno</numerusform>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
-        <translation type="unfinished">Zeměpisná šířka, délka</translation>
+        <translation>Zeměpisná šířka, délka</translation>
     </message>
 </context>
 <context>
@@ -1027,18 +863,7 @@ poskytuje Bing</translation>
     </message>
 </context>
 <context>
-    <name>MapTabOSM</name>
-    <message>
-        <source>Map (&amp;OSM)</source>
-        <translation type="obsolete">Mapa (&amp;OSM)</translation>
-    </message>
-</context>
-<context>
     <name>MapTabsAll</name>
-    <message>
-        <source>Lat, long</source>
-        <translation type="obsolete">Zeměpisná šířka, délka</translation>
-    </message>
     <message>
         <source>Altitude</source>
         <translation>Výšina</translation>
@@ -1088,10 +913,6 @@ poskytuje Bing</translation>
         <translation>Soubor</translation>
     </message>
     <message>
-        <source>Import GPX file</source>
-        <translation type="obsolete">Zavést soubor GPX</translation>
-    </message>
-    <message>
         <source>Quit</source>
         <translation>Ukončit</translation>
     </message>
@@ -1110,14 +931,6 @@ poskytuje Bing</translation>
     <message>
         <source>Enable spell check</source>
         <translation>Povolit ověření pravopisu</translation>
-    </message>
-    <message>
-        <source>Choose language</source>
-        <translation type="obsolete">Vybrat jazyk</translation>
-    </message>
-    <message>
-        <source>No dictionary installed</source>
-        <translation type="obsolete">Nenainstalován žádný slovník</translation>
     </message>
     <message>
         <source>Help</source>
@@ -1183,10 +996,6 @@ poskytuje Bing</translation>
 <context>
     <name>OpenCage</name>
     <message>
-        <source>Search powered by OpenCage</source>
-        <translation type="obsolete">Hledání založené na OpenCage</translation>
-    </message>
-    <message>
         <source>Address lookup powered by OpenCage</source>
         <translation>Vyhledávání adresy napájeno OpenCage</translation>
     </message>
@@ -1197,13 +1006,16 @@ poskytuje Bing</translation>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message>
-        <source>&amp;Ownership metadata</source>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
+        <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1214,10 +1026,6 @@ template</source>
     <message>
         <source>Apply
 template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the person that created this image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1240,36 +1048,12 @@ template</source>
         <source>Credit Line</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Copyright Notice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Statement</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Rights</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1318,7 +1102,7 @@ template</source>
     </message>
     <message>
         <source>City</source>
-        <translation type="unfinished">Město</translation>
+        <translation>Město</translation>
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
@@ -1342,7 +1126,36 @@ template</source>
     </message>
     <message>
         <source>Country</source>
-        <translation type="unfinished">Země</translation>
+        <translation>Země</translation>
+    </message>
+    <message>
+        <source>Use %Y to insert the year the photograph was taken.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise
+template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Usage Terms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Web Statement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL for a licensor web page. May facilitate licensing of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licensor URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rights</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
@@ -1350,10 +1163,6 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use %Y to insert the year the photograph was taken.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1594,10 +1403,6 @@ template</source>
         <translation>nyní můžete zavřít okno prohlížeče.</translation>
     </message>
     <message>
-        <source>User</source>
-        <translation type="obsolete">Uživatel</translation>
-    </message>
-    <message>
         <source>Log in</source>
         <translation>Přihlásit se</translation>
     </message>
@@ -1622,16 +1427,8 @@ template</source>
         <translation>Probíhá nahrávání</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Upload to {} has not finished.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Nahrávání {} neskončilo.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="obsolete">Přihlášen jako {0} na {1}</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
@@ -1654,20 +1451,12 @@ template</source>
         <translation>Neslučující se typ</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;Incompatible image type.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Neslučující se typ obrázku.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Photini: upload error</source>
         <translation>Chyba při nahrávání</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;File &quot;{}&quot; upload failed.&lt;/h3&gt;</source>
-        <translation type="obsolete">&lt;h3&gt;Nahrání souboru &quot;{}&quot; selhalo.&lt;/h3&gt;</translation>
-    </message>
-    <message>
         <source>Add to albums</source>
-        <translation type="unfinished">Přidat do alb</translation>
+        <translation>Přidat do alb</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1683,7 +1472,7 @@ template</source>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="unfinished">Nahradit fotografii</translation>
+        <translation>Nahradit fotografii</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
@@ -1691,35 +1480,35 @@ template</source>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="unfinished">Nahradit obrázek</translation>
+        <translation>Nahradit obrázek</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="unfinished">Nahrát jako novou fotografii</translation>
+        <translation>Nahrát jako novou fotografii</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="unfinished">Nenahrán žádný obrázek</translation>
+        <translation>Nenahrán žádný obrázek</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished">Vybrat obrázek</translation>
+        <translation>Vybrat obrázek</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="unfinished">Žádná shoda</translation>
+        <translation>Žádná shoda</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Nahrávání {} neskončilo.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Neslučující se typ obrázku.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Nahrání souboru &quot;{}&quot; selhalo.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1730,11 +1519,11 @@ template</source>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;multiple&gt;</translation>
+        <translation>&lt;multiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation type="unfinished">&lt;multiple values&gt;</translation>
+        <translation>&lt;multiple values&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
