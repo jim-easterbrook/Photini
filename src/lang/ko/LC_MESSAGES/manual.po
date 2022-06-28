@@ -1,12 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
 # Translators:
 # Soohyeon Park, 2022
 # Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
-# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -15,18 +14,18 @@ msgstr ""
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
-"Language-Team: Korean (https://www.transifex.com/jim-easterbrook/teams/32598/ko/)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Language: ko\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language-Team: Korean (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/ko/)\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
 
-#: ../../../doc/manual/address.rst:6 070beae0d6484a0ab7a9607fae521776
 msgid "Location addresses"
 msgstr "위치 주소"
 
-#: ../../../doc/manual/address.rst:8 c8d01cf67e254058bc890489e29b798f
 msgid ""
 "The ``Address`` tab shows text address data for the location from where the "
 "photograph was taken (``camera``) and one or more locations shown in the "
@@ -36,7 +35,6 @@ msgstr ""
 "``주소``  탭에는 사진이 찍힌 위치(``카메라``)와 사진에 표시된 하나 이상의 위치(``피사체``)에 대한 텍스트 주소 데이터가 "
 "표시됩니다. 예를 들어, 에펠탑이 나온 경치는 파리의 어딘가에서 찍은 것이 확실한 것을 알 수 있습니다."
 
-#: ../../../doc/manual/address.rst:11 1f0e026c7e67490fac32de8432e76bfb
 msgid ""
 "These are stored in a 5-level hierarchy: ``street``, ``city``, ``province``,"
 " ``country`` and ``region``. The meaning of these terms is rather loose, "
@@ -55,7 +53,6 @@ msgstr ""
 "거의 사용되지 않는 것처럼 보이지만 대륙 또는 아대륙일 수 있습니다. 이에 대한 자세한 내용은 `IPTC web site`_ 에서 확인할"
 " 수 있습니다."
 
-#: ../../../doc/manual/address.rst:19 90cd122ae6e74077b6f8fb42659f415c
 msgid ""
 "The separation of camera and subject addresses was added to the IPTC "
 "specification in 2008, but you may still have software that only recognises "
@@ -65,7 +62,6 @@ msgstr ""
 "카메라와 피사체 주소의 분리는 2008년에 IPTC 사양에 추가되었지만, 여전히 \"legacy\" IPTC-IIM 주소 메타데이터만 "
 "인식하는 소프트웨어가 있을 수 있습니다. 이 경우 ``제목``탭 또는 ``지역`` 필드를 사용하면 안됩니다."
 
-#: ../../../doc/manual/address.rst:24 7e547b51a2bb445aa36f72cb42aa6eb1
 msgid ""
 "The ``Get address from lat, long`` button uses \"reverse geocoding\" to "
 "convert latitude & longitude into a hierarchical address. This is a rather "
@@ -78,7 +74,6 @@ msgstr ""
 "OpenStreetMap_ 의 데이터를 사용하여 OpenCage_ 에 의해 제공됩니다. 다른 지도 제공자는 조회 결과를 영구적으로 "
 "저장하는 것을 허용하지 않습니다."
 
-#: ../../../doc/manual/address.rst:31 ce21c318175241de8f25f6b1040d5dca
 msgid ""
 "Photini attempts to use all the data returned in an address lookup. This can"
 " lead to some duplication, e.g. Château-Gontier appears twice in ``city``. "
@@ -89,11 +84,9 @@ msgstr ""
 "Château-Gontier는 ``도시`` 에 두 번 등장합니다. 또한 텍스트가 너무 길어 IPTC-IIM 메타데이터에 저장할 수 없음을"
 " 나타내는 파란색 밑줄을 주목하십시오."
 
-#: ../../../doc/manual/address.rst:37 8da1fbdc627f4cd48e8d909159d1434d
 msgid "It is usually necessary to edit the address quite a lot."
 msgstr "이것은 일반적으로 주소를 상당히 많이 편집해야 합니다."
 
-#: ../../../doc/manual/address.rst:41 36e31d68f47c433583a584638d3f6892
 msgid ""
 "Right-clicking on a location tab displays a context menu that allows the tab"
 " to be copied to a new tab or deleted. Copying the ``camera`` location is an"
@@ -104,13 +97,11 @@ msgstr ""
 " 복사하는 것은 ``대상`` 위치를 초기화하는 쉬운 방법입니다. (사진에 둘 이상의 피사체가 있는 경우 즉시 빈 ``피사체 2`` 탭이 "
 "생성됩니다.)"
 
-#: ../../../doc/manual/address.rst:47 c221e6ced0d148c29b93ee9f27cb9fba
 msgid ""
 "In this case most of the data is the same, but I changed ``street`` to the "
 "subject of the photograph rather than the place where I was standing."
 msgstr "이 경우 대부분의 데이터는 동일하지만 내가 서 있던 장소가 아닌 사진을 대상으로 ``거리`` 를 변경했습니다."
 
-#: ../../../doc/manual/address.rst:51 68b6ad3a0b0a42a99f069a10f3262914
 msgid ""
 "To reorder the subject locations, or to convert between camera and subject, "
 "you can drag any of the tabs to another position. If this results in the "
@@ -120,21 +111,6 @@ msgstr ""
 "피사체 위치를 재정렬하거나 카메라와 피사체를 변환하려면 아무 탭이나 다른 위치로 드래그할 수 있습니다. 가장 오른쪽 탭에 데이터가 있는 "
 "경우 다른 탭이 추가됩니다. 가장 오른쪽에 있는 두 개의 탭에 데이터가 없으면 빈 탭 중 하나가 제거됩니다."
 
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ../../../../<rst_epilog>:4
-#: ../../../../<rst_epilog>:4 ae1c72a6d35b4adb82857a1cc3ce54e5
-#: c28e1ed3dfbd4c63b9e6da4507b77641 95152a537cca48269874af2651db90dc
-#: c90f3015306b4a35a12366e697320248 56cee88f27f844c6bfebecc6bb73f5cc
-#: a080a1f956a84f5c9618e59b8891ceca bda64f9843744e30ae986a6d4072096b
-#: ea74c597cd4b4b3998cdc33e169b028e 793cbfd6516c473d894884496f86f114
-#: 891e4ed60d844a139c2e3eb1cad8d108 96a7a352eea540b5bd9b2a7e6a0522f2
-#: 12a1215ae9b0400cb752c510f5b46801 2b7c613f9fa64ad68b48d7a3425d56a8
-#: be04f73e436e4c40bfc230feec6faf37 a22fd96b598343c48cf6b0e40c764d14
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
@@ -142,23 +118,19 @@ msgstr ""
 "의견이나 질문이 있나요? Photini mailing list "
 "\"https://groups.google.com/forum/#!forum/photini\"를 ​​구독하고 알려주세요."
 
-#: ../../../doc/manual/configuration.rst:6 d3008eebefa440268803b01a2eba5ef1
 msgid "Configuration"
 msgstr "환경설정"
 
-#: ../../../doc/manual/configuration.rst:8 6e987432a74f42d398feb7e02a14bfe2
 msgid ""
 "If there are tabs in the Photini GUI that you don't use, you can remove them"
 " by deselecting their entry in the ``Options`` menu."
 msgstr "Photini GUI에 사용하지 않는 탭이 있는 경우 ``옵션`` 메뉴에서 해당 항목을 선택 해제하여 제거할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:10 6a2f34ae391f4b3ab201a62f51d17799
 msgid ""
 "The ``Options`` menu also has a ``Settings`` item which opens the dialog "
 "shown below."
 msgstr "``옵션`` 메뉴에는 아래에 표시된 대화 상자를 여는 ``설정`` 항목도 있습니다."
 
-#: ../../../doc/manual/configuration.rst:14 1c08b90e418c4cdc93868fc8670e26f3
 msgid ""
 "The first three items adjust how Photini uses IPTC-IIM \"legacy\" metadata. "
 "(Since 2004 the `IPTC standard`_ uses XMP to store metadata. Photini always "
@@ -176,7 +148,6 @@ msgstr ""
 " 그룹 <Metadata Working Group_>`_ 에서 권장하는 대로 작성합니다. 세 번째 옵션은 존재할 수 있는 모든 IPTC-"
 "IIM 메타데이터를 삭제하는 것입니다."
 
-#: ../../../doc/manual/configuration.rst:22 3de62b07ddbf4bc9916d144cdf9a48bb
 msgid ""
 "IPTC-IIM metadata has limited length for some fields. Photini truncates the "
 "IPTC-IIM data if necessary, but the full length data is still stored in Exif"
@@ -188,7 +159,6 @@ msgstr ""
 "길이 데이터는 여전히 Exif 및/또는 XMP에 저장됩니다. IPTC-IIM 길이를 초과하는 텍스트는 파란색 밑줄로 표시됩니다. "
 "IPTC-IIM 호환성에 대해 고려할 필요가 없다면 이 경고를 비활성화할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:27 e9d70bc6702e4097b514caf8fac72cd3
 msgid ""
 "Sidecar files allow metadata to be stored without needing to write to the "
 "actual image file. If you deselect \"write to image file\" then sidecars "
@@ -201,7 +171,6 @@ msgstr ""
 "사이드카가 항상 생성됩니다. 그렇지 않으면 항상 생성(이미지 파일과 병렬로 데이터 저장)하거나, 필요할 때만 생성(예: 이미지 파일이 "
 "쓰기 방지됨)하거나, 가능한 경우 삭제(메타데이터를 이미지 파일에 복사할 수 있는 경우 사이드카가 삭제됨)하도록 선택할 수 있습니다. "
 
-#: ../../../doc/manual/configuration.rst:31 1ed4869e2fbc4801b0f4b54c9e6ed60e
 msgid ""
 "Finally there are options to adjust file timestamps. \"Keep original\" "
 "leaves image files' timestamps unchanged. \"Set to when photo was taken\" "
@@ -216,11 +185,9 @@ msgstr ""
 "설정\"은 대부분의 다른 컴퓨터 프로그램과 마찬가지로 Photini로 파일을 저장할 때 파일의 타임스탬프를 설정합니다. 파일 브라우저를 "
 "자주 사용하여 날짜별로 파일을 정렬하는 경우 이러한 옵션이 유용할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:40 a26f7aaacb994149a62481ed234c2d12
 msgid "Spell checking"
 msgstr "철자 검사"
 
-#: ../../../doc/manual/configuration.rst:42 58ff90b1187644fb94e91600a0d88700
 msgid ""
 "The ``Spelling`` menu allows you to enable or disable spell checking on "
 "Photini's text fields, and to select the language dictionary to use. The "
@@ -233,7 +200,6 @@ msgstr ""
 "있습니다. 사용 가능한 언어는 설치한 사전에 따라 다릅니다. Linux에 추가 언어를 추가하는 것은 쉽습니다. 시스템의 패키지 관리자를 "
 "사용하여 적절한 사전을 설치하기만 하면 됩니다(그리고 적절한 \"백엔드\"가 설치되어 있는지 확인하십시오)."
 
-#: ../../../doc/manual/configuration.rst:46 70fcf96f695d4b3283e1cdc0b8533bda
 msgid ""
 "Windows programs don't share spell checking dictionaries as easily as on "
 "Linux. The Hunspell `LibreOffice dictionaries`_ can be used. Select the "
@@ -253,11 +219,9 @@ msgstr ""
 "``site-packages\\enchant\\data\\mingw64\\share\\enchant\\hunspell`` 이지만 이것은 "
 "Python 설치에 따라 다릅니다."
 
-#: ../../../doc/manual/configuration.rst:55 c2a8c78bc24543c7aebc4eabd9545221
 msgid "Configuration file location"
 msgstr "파일 위치 설정"
 
-#: ../../../doc/manual/configuration.rst:57 0c9f43ff9df04cfea7147a28a0154d33
 msgid ""
 "Photini stores its configuration in a file called ``editor.ini``. The "
 "default location of this file is ``$HOME/.config/photini/`` (Linux), "
@@ -273,11 +237,9 @@ msgstr ""
 " 저장하려면(예: 여러 컴퓨터 간에 설정을 공유할 수 있도록 네트워크 드라이브에 저장) 환경 변수 ``PHOTINI_CONFIG`` 를 "
 "사용하려는 디렉토리로 설정할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:64 7d537c72baa64ca19fa565d3b3161887
 msgid "PyQt options"
 msgstr "PyQt 옵션"
 
-#: ../../../doc/manual/configuration.rst:66 7268dbd56d5541c78666a6646557f3d9
 msgid ""
 "The configuration file includes options to select use of PyQt5, PySide2, or "
 "PySide6, and use of QtWebKit instead of QtWebEngine. These may be useful if "
@@ -289,12 +251,9 @@ msgstr ""
 "포함되어 있습니다. 컴퓨터의 이러한 구성 요소 중 하나가 Photini와 호환되지 않는 경우 유용할 수 있습니다. PyQt 버전이 너무 "
 "많아서 모든 버전으로 Photini를 테스트하는 것은 불가능합니다."
 
-#: ../../../doc/manual/configuration.rst:70 0ee2d4404324494c9658a811069fe598
-msgid ""
-"The default options in the configuration file are in the ``[pyqt]`` section:"
+msgid "The default options in the configuration file are in the ``[pyqt]`` section:"
 msgstr "설정 파일의 기본 옵션은 ``[pyqt]`` 섹션: 에 있습니다."
 
-#: ../../../doc/manual/configuration.rst:80 85c73fdbfcd74e71b13bc0947b65d535
 msgid ""
 "To force use of a particular Qt library set the value of ``qt_lib`` to "
 "``'PyQt5'``, ``'PySide2'``, or ``'PySide6'``. To force the use of QtWebKit "
@@ -307,7 +266,6 @@ msgstr ""
 "``False`` 로 설정하십시오. 명령 창에서 ``--version`` 옵션을 사용하여 Photini가 현재 사용 중인 버전을 확인할 "
 "수 있습니다:: "
 
-#: ../../../doc/manual/configuration.rst:86 b7f571c77b9740f5b5141a943da7970a
 msgid ""
 "If your computer has a high resolution screen, or you have poor eyesight, "
 "you may find the Photini user interface's text is too small to read "
@@ -319,7 +277,6 @@ msgstr ""
 "``scale_factor`` 를 ``1`` 보다 큰 값으로 설정하면 Photini가 확대됩니다. 정수가 아닌 값을 사용할 수도 있지만 "
 "크기 조정에서 가공물이 표시될 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:90 82ef4768b8c049adaec4b952e1f0ca3d
 msgid ""
 "Setting the ``native_dialog`` option to ``False`` makes Photini use a Qt "
 "dialog to select files to open instead of the normal operating system "
@@ -328,7 +285,6 @@ msgstr ""
 "``native_dialog`` 옵션을 ``False`` 로 설정하면 Photini가 일반 운영 체제 대화 상자 대신 Qt 대화 상자를 "
 "사용하여 열 파일을 선택합니다."
 
-#: ../../../doc/manual/configuration.rst:92 563d705afef64e5495552b31f38fff8a
 msgid ""
 "Note that there is no GUI to set these options. You may need to adjust them "
 "if Photini crashes on startup, in which case the GUI would be unusable. The "
@@ -337,17 +293,14 @@ msgstr ""
 "이러한 옵션을 설정하는 GUI가 없습니다. 시작 시 Photini가 충돌하는 경우 이를 조정해야 할 수 있습니다. 이 경우 GUI를 "
 "사용할 수 없습니다. 설정 파일은 일반 텍스트 편집 프로그램으로 편집할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:97 9bfa47ec79c34e1d8dbff038ef208d87
 msgid ""
 "Make sure your editor doesn't change the file's encoding (e.g. from utf-8 to"
 " iso-8859) or insert a \"byte order mark\"."
 msgstr "편집기가 파일의 인코딩(예: utf-8에서 iso-8859로)을 변경하거나 \"바이트 순서 표시\"를 삽입하지 않는지 확인하십시오."
 
-#: ../../../doc/manual/configuration.rst:102 cd6019c40af14a26abcff912266a1b22
 msgid "Application style"
 msgstr "응용 프로그램 스타일"
 
-#: ../../../doc/manual/configuration.rst:104 80332fd3a70848149021084914ffb004
 msgid ""
 "Qt applications can have their appearance changed by selecting different "
 "\"styles\". Normally a style is automatically chosen that suits the "
@@ -360,7 +313,6 @@ msgstr ""
 "선택되지만 다른 스타일을 선호할 경우 이 스타일을 재정의할 수 있습니다. 예를 들어 내 컴퓨터 중 하나에서 기본 스타일은 업로더 탭의 "
 "그룹화된 요소 주위에 선을 그리지 않기 때문에 스타일을 변경할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:108 975f0111adad49a7a9cd33f2d63c0b71
 msgid ""
 "The choice of style affects how some \"widgets\" are drawn. If you find "
 "problems such as date or timezone values (on the \"technical metadata\" tab)"
@@ -369,7 +321,6 @@ msgstr ""
 "스타일을 선택하는 것은 일부 \"위젯\"을 그리는 방법에 영향을 미칩니다. 날짜 또는 시간대 값(\"기술 메타데이터\" 탭에서)이 "
 "부분적으로 숨겨져 있는 문제를 발견하면 다른 스타일을 시도해 볼 가치가 있습니다."
 
-#: ../../../doc/manual/configuration.rst:111 70e51f08683f48deae25e97f0521365a
 msgid ""
 "To find out what styles are available on your computer you can use Photini's"
 " ``--version`` flag. (You need to run Photini from a command window to do "
@@ -381,7 +332,6 @@ msgstr ""
 " 창에서 Photini를 실행해야 합니다. :ref:`installation troubleshooting<installation-"
 "troubleshooting>` 섹션을 참조하세요.) 그런 다음 스타일 중 하나를 시도할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:125 f0517acf7b914c7e8c5d6fc7f3d6d943
 msgid ""
 "Note that the style names are not case sensitive. If none of the available "
 "styles is to your liking you may be able to install extra ones. For example,"
@@ -391,7 +341,6 @@ msgstr ""
 "스타일 이름은 대소문자를 구분하지 않습니다. 사용 가능한 스타일이 마음에 들지 않으면 추가 스타일을 설치할 수 있습니다. 예를 들어, "
 "일부 Ubuntu Linux 시스템에서는 ``qt5-style-plugins`` 패키지를 사용할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:129 0c69453896584576a80c1558288c724d
 msgid ""
 "Once you find a style that you like, you can set Photini to use that style "
 "by editing the configuration file as described above. Add a line such as "
@@ -403,17 +352,14 @@ msgstr ""
 "``style = cleanlooks`` 와 같은 줄을 ``[pyqt]`` 섹션에 추가하여 선택한 스타일을 설정합니다. 이 작업을 수행한"
 " 후에는 구성 파일에서 ``style = ...`` 줄을 제거하지 않는 한 명령줄에서 다른 스타일을 설정할 수 없습니다."
 
-#: ../../../doc/manual/configuration.rst:145 8415d05051194c23ba57ea9526712860
 msgid "Tab order"
 msgstr "탭 순서"
 
-#: ../../../doc/manual/configuration.rst:147 2292a0480c8c421e9f2aa7b84eb8f0f0
 msgid ""
 "The tabs can be re-ordered by dragging and dropping a tab to your preferred "
 "position. This is much easier to do than editing the configuration file."
 msgstr ""
 
-#: ../../../doc/manual/configuration.rst:151 31cefeddc62b45c8861d210388eed151
 msgid ""
 "Photini's tabs can be enabled or disabled with the ``Options`` menu as "
 "described above, but their order is set in the configuration file. The "
@@ -424,7 +370,6 @@ msgstr ""
 "``[tabs]`` 섹션에는 각 탭에 대해 가져올 모듈을 나열하는 ``modules`` 항목이 있습니다. 이 목록을 재정렬하여 탭을 "
 "재정렬할 수 있습니다."
 
-#: ../../../doc/manual/configuration.rst:181 8a84e0dfb0bb430784e44c8efae77f0c
 msgid ""
 "You could even use a tab provided by another Python package by adding its "
 "module name to the list. See :doc:`extending` for more information."
@@ -432,11 +377,9 @@ msgstr ""
 "목록에 모듈 이름을 추가하여 다른 Python 패키지에서 제공하는 탭을 사용할 수도 있습니다. 자세한 내용은 "
 ":doc:`extending` 을 참조하십시오."
 
-#: ../../../doc/manual/configuration.rst:185 408133e923b44248856ec7081ecafeeb
 msgid "Metadata options"
 msgstr "메타데이터 옵션"
 
-#: ../../../doc/manual/configuration.rst:187 ea469dc5558b4d97966f337b66f67d67
 msgid ""
 "Photini can optionally read metadata from \"BMFF\" based filed types CR3, "
 "HEIF, HEIC, and AVIF. This requires use of python-exiv2 with libexiv2 "
@@ -449,28 +392,20 @@ msgstr ""
 "자세한 내용은 :ref:`essential-dependencies` 를 참조하십시오.) BMFF 파일을 사용하면 특허를 침해할 수 "
 "있습니다. 이 기능을 활성화하기 전에 `Exiv2 경고 <Exiv2 warning_>`_ 를 읽으십시오."
 
-#: ../../../doc/manual/configuration.rst:193 ee70b4d165434e538ca2ce45bc74290d
 msgid ""
 "To enable BMFF file reading, edit the configuration file and set the "
 "``enable_bmff`` option to ``True``:"
 msgstr "BMFF 파일 읽기를 활성화하려면 설정 파일을 편집하고 ``enable_bmff`` 옵션을 ``True`` 로 설정하십시오."
 
-#: ../../../doc/manual/descriptive_metadata.rst:6
-#: e977b565b1c441578087508880020f50
 msgid "Descriptive metadata"
 msgstr "설명 메타데이터"
 
-#: ../../../doc/manual/descriptive_metadata.rst:8
-#: 4e6d1de492124e60a44d8d647adf750a
 msgid ""
 "The ``Descriptive metadata`` tab (keyboard shortcut ``Alt+D``) allows you to"
 " edit basic information about your photographs, such as the title and "
 "description."
-msgstr ""
-"``설명 메타데이터`` 탭(단축키 ``Alt+D``)을 사용하면 제목 및 설명과 같은 사진에 대한 기본 정보를 편집할 수 있습니다."
+msgstr "``설명 메타데이터`` 탭(단축키 ``Alt+D``)을 사용하면 제목 및 설명과 같은 사진에 대한 기본 정보를 편집할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:10
-#: 44c418b4451c44bc9607e710599386e3
 msgid ""
 "The data form is disabled until you select one or more images to edit. "
 "Hovering the mouse over one of the data fields displays a popup \"tooltip\" "
@@ -480,8 +415,6 @@ msgstr ""
 "편집할 이미지를 하나 이상 선택할 때까지 데이터 양식을 사용할 수 없습니다. 데이터 필드 중 하나에 마우스를 가져가면 해당 필드에 입력할"
 " 정보의 종류를 설명하는 팝업 \"tooltip\"이 표시됩니다. 이 도움말 텍스트는 `IPTC standard`_ 에서 가져왔습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:16
-#: b0351e33eab94527964abed8622c771e
 msgid ""
 "The first thing I usually do with a new set of photographs is to set the "
 "title. Select all the images that should have the same title, then type the "
@@ -496,8 +429,6 @@ msgstr ""
 " 저장되지 않으므로 Exif 메타데이터만 처리하는 소프트웨어에는 표시되지 않을 수 있습니다(자세한 내용은 :doc:`tag "
 "reference<tags>` ). 이 필드를 비워 두는 것이 좋습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:21
-#: d927a3de578549c0a918ffe0cdbcfe4a
 msgid ""
 "The legacy IPTC-IIM standard has a maximum number of bytes for each data "
 "item. If your text has more bytes then the excess is shown underlined in "
@@ -509,8 +440,6 @@ msgstr ""
 "바이트는 파란색 밑줄로 표시됩니다. IPTC-IIM 데이터에 의존하는 이전 소프트웨어와의 호환성이 필요하지 않은 경우 이를 무시할 수 "
 "있습니다. 이 경고는 Photini의 :doc:`configuration <configuration>` 에서 끌 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:28
-#: c1d7c9a31f6c4c759b6fc3038450f7b5
 msgid ""
 "The ``Title / Object name`` field has an optional spell checker, enabled "
 "with the ``Spelling`` menu. The word \"Château-Gontier\" is not in the "
@@ -522,8 +451,6 @@ msgstr ""
 "단어는 빨간색 밑줄로 표시된 것처럼 영국 영어 사전에 없습니다. 철자가 틀린 단어를 마우스 오른쪽 버튼으로 클릭하면 제안된 대안이 "
 "표시되며 그 중 하나를 클릭하여 선택할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:36
-#: 6fd35d2aaba249eb8e9e78b648da93de
 msgid ""
 "Note that all the image thumbnails now have a warning symbol (|hazard|) "
 "displayed next to them. This shows that they have unsaved metadata edits. "
@@ -535,8 +462,6 @@ msgstr ""
 "``파일`` 메뉴 ``새 데이터로 이미지 저장`` 항목(단축키 ``Ctrl+S``)은 아래와 같이 편집 내용을 저장하고 경고 기호를 "
 "지웁니다. 나는 내 작업을 잃지 않기 위해 자주 이 작업을 수행합니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:43
-#: a1180a2911a047ecbff8721d3a6f452a
 msgid ""
 "Now you can add more detail in the ``Headline`` and / or ``Description / "
 "Caption`` boxes. (My descriptions are usually so short that a separate "
@@ -547,8 +472,6 @@ msgstr ""
 "일반적으로 너무 짧아서 별도의 헤드라인 요약이 필요하지 않습니다.) 동일한 설명을 공유하는 사진이 한두 장뿐이므로 먼저 해당 이미지를 "
 "선택하십시오."
 
-#: ../../../doc/manual/descriptive_metadata.rst:49
-#: 639b2d3a7e25495091c3bc4de9f6f47a
 msgid ""
 "If you select a group of images you may see ``<multiple values>`` displayed "
 "in some of the text boxes. You can right-click on the box to bring up a "
@@ -560,8 +483,6 @@ msgstr ""
 " 클릭하면 선택한 모든 사진에 복사할 값을 선택할 수 있는 상황에 맞는 메뉴가 나타납니다.  매우 긴 텍스트는 일부 텍스트를 대체하는 "
 "``...`` 로 생략됩니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:55
-#: bb5e9d1c84304de9b44348b5ef936265
 msgid ""
 "Next you can set a list of keywords for the image by typing them in the "
 "``Keywords`` box. Keywords should be separated by semi-colon (;) characters."
@@ -571,8 +492,6 @@ msgstr ""
 "다음으로 ``키워드`` 상자에 키워드를 입력하여 이미지에 대한 키워드 목록을 설정할 수 있습니다. 키워드는 세미콜론(;) 문자로 구분해야"
 " 합니다. ``<favourites>`` 드롭다운 목록을 사용하여 가장 자주 사용하는 키워드를 선택할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:61
-#: 0f2d425fcc36476ea3e3b5cd56506a82
 msgid ""
 "Finally the ``Rating`` slider allows you to note any particularly good or "
 "bad pictures. Good pictures can be given a one to five star rating."
@@ -580,20 +499,14 @@ msgstr ""
 "마지막으로 ``등급`` 슬라이더를 사용하면 특히 좋은 사진이나 나쁜 사진을 확인할 수 있습니다. 좋은 사진에는 별 1개에서 5개까지 "
 "부여할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:66
-#: ee6f097801394298928312ac51f79a67
 msgid ""
 "Bad pictures can be given a ``reject`` rating. This is stored in the "
 "metadata as a rating value of -1."
 msgstr "나쁜 사진은 ``거부`` 등급을 받을 수 있습니다. 이것은 -1의 등급 값으로 메타데이터에 저장됩니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:74
-#: 62edf9b5862047fba2b5329f432ea85a
 msgid "Alternative Languages"
 msgstr "대체 언어"
 
-#: ../../../doc/manual/descriptive_metadata.rst:76
-#: b6fb522e1be741808e2626ba1fdb2fde
 msgid ""
 "Some fields, such as title and description, are stored in XMP as ``Lang "
 "Alt`` data. This allows translations into alternative languages to be stored"
@@ -603,15 +516,11 @@ msgstr ""
 "제목 및 설명과 같은 일부 필드는 XMP에 ``Lang Alt`` 데이터로 저장됩니다. 이를 통해 대체 언어로의 번역을 기본 언어 "
 "텍스트와 함께 저장할 수 있습니다. (Exif 및 IPTC-IIM에는 기본 언어만 저장됩니다.)"
 
-#: ../../../doc/manual/descriptive_metadata.rst:80
-#: 4ba7376de2674ba0b04a8c9618794277
 msgid ""
 "You can add an alternative language by clicking on the ``Lang:`` dropdown "
 "and selecting ``<new>``."
 msgstr "``Lang:`` 드롭다운을 클릭하고 ``<new>`` 를 선택하여 대체 언어를 추가할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:84
-#: b02c80b056274061b5862a4d347b02f5
 msgid ""
 "If there is already some text in an unspecified default language you will be"
 " asked to say what that language is. Languages are specified with an "
@@ -623,33 +532,22 @@ msgstr ""
 "코드로 지정됩니다. 이것은 일반적으로 두 글자 언어 코드로 시작합니다. 영어의 경우 ``en``, 하이픈과 2자리 국가 코드가 올 수 "
 "있습니다. 예: 영국에서 사용되는 영어의 경우 ``en-GB``."
 
-#: ../../../doc/manual/descriptive_metadata.rst:90
-#: 7aca110632504534949e46d8e14e5c8d
 msgid ""
 "Next you can set the language to be added, e.g. ``fr-FR`` for French as "
 "spoken in France."
 msgstr "다음으로 추가할 언어를 설정할 수 있습니다. 프랑스에서 사용되는 프랑스어의 경우 ``fr-FR``."
 
-#: ../../../doc/manual/descriptive_metadata.rst:94
-#: 26b994f3cfde4c0591de88d476291629
 msgid "You can then type the translation in to the text field."
 msgstr "그런 다음 텍스트 필드에 번역을 입력할 수 있습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:98
-#: ae9d0514010c4c9684eeefc59b302c55
 msgid ""
 "If you would like to change the default language, right-click on the "
 "``Lang:`` dropdown and choose a language."
 msgstr "기본 언어를 변경하려면 ``Lang:`` 드롭다운을 마우스 오른쪽 버튼으로 클릭하고 언어를 선택합니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:103
-#: ../../../doc/manual/ownership_metadata.rst:44
-#: aebf8d62426f4f4dad093324913b8e1b d89d00bd3d654d6ab548024b8a2a705a
 msgid "More information about the data fields"
 msgstr "데이터 필드에 대한 추가 정보"
 
-#: ../../../doc/manual/descriptive_metadata.rst:105
-#: 087aa06e151540b5be9ce358444f4b89
 msgid ""
 "Click on any field name below to see the IPTC definition and user notes for "
 "that field. Although these fields are defined in an `IPTC standard`_, they "
@@ -660,24 +558,16 @@ msgstr ""
 "standard`_ 에 정의되어 있지만 모두 XMP 메타데이터에 저장됩니다. 대부분은 \"legacy\" IPTC-IIM 데이터에도 "
 "저장됩니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:109
-#: 56d032d219fa4d41a273c3b64beff41b
 msgid ""
-"`Title / Object Name "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#title>`_"
+"`Title / Object Name <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#title>`_"
 msgstr ""
 "`제목 / 개체 이름 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#title>`_"
 
-#: ../../../doc/manual/descriptive_metadata.rst:110
-#: ../../../doc/manual/descriptive_metadata.rst:112
-#: 89a30755040f4f99a469eff2218b4aba 89a30755040f4f99a469eff2218b4aba
 msgid "Not stored in Exif."
 msgstr "Exif에 저장되지 않습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:111
-#: bafcf3a0a073417a9d00437c246ec646
 msgid ""
 "`Headline <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#headline>`_"
@@ -685,23 +575,16 @@ msgstr ""
 "`헤드라인 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#headline>`_"
 
-#: ../../../doc/manual/descriptive_metadata.rst:113
-#: 705c49928d084854ae30385604464c0b
 msgid ""
-"`Description / Caption "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#description>`_"
+"`Description / Caption <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#description>`_"
 msgstr ""
 "`설명/캡션 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#description>`_"
 
-#: ../../../doc/manual/descriptive_metadata.rst:114
-#: d0d76c8612cd45db9da69db7c695f9f7
 msgid "The who, what and why of what the image depicts."
 msgstr "누가, 무엇을, 왜 이미지가 묘사하는지."
 
-#: ../../../doc/manual/descriptive_metadata.rst:115
-#: 734a700244b746da9572c67ab2d6206e
 msgid ""
 "`Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#keywords>`_"
@@ -709,30 +592,22 @@ msgstr ""
 "`키워드 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#keywords>`_"
 
-#: ../../../doc/manual/descriptive_metadata.rst:116
-#: 635cf282fb1f4224bd1c7f916998af56
 msgid "Separate words or phrases with ``;`` characters. Not stored in Exif."
 msgstr "``;`` 문자로 단어나 구를 구분하십시오. Exif에 저장되지 않습니다."
 
-#: ../../../doc/manual/descriptive_metadata.rst:119
-#: bafcf3a0a073417a9d00437c246ec646
 msgid ""
 "`Rating <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#image-rating>`_"
 msgstr ""
-"`등급 <http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#image-rating>`_"
+"`등급 <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata"
+"#image-rating>`_"
 
-#: ../../../doc/manual/descriptive_metadata.rst:118
-#: 89a30755040f4f99a469eff2218b4aba
 msgid "Not stored in Exif or IPTC-IIM."
 msgstr "Exif 또는 IPTC-IIM에 저장되지 않습니다."
 
-#: ../../../doc/manual/extending.rst:6 6cae55303738484ba900e93894decb2c
 msgid "Extending Photini"
 msgstr "Photini 확장"
 
-#: ../../../doc/manual/extending.rst:8 e973451c20f84b259276b6a28a4c3aeb
 msgid ""
 "It is possible to add new functionality to Photini by providing a new "
 "\"tab\". Because the tabs are loaded dynamically at run-time the new tab "
@@ -746,17 +621,14 @@ msgstr ""
 "``mypackage.photini`` 모듈에 Photini 탭을 제공하는 경우 탭 모듈 목록에 ``mypackage.photini`` "
 "를 추가하고(참조 :ref:`configuration-tabs` ) 탭을 Photini에 추가합니다."
 
-#: ../../../doc/manual/extending.rst:12 b9ac523e2780415ea0aa3f6172820818
 msgid "Every Photini tab has to have the following interface:"
 msgstr "모든 Photini 탭에는 다음 인터페이스가 있어야 합니다."
 
-#: ../../../doc/manual/extending.rst:43 7d6f842a41d8406bbdbb7b9cd6ee4ee4
 msgid ""
 "The ``tab_name`` method returns the label given to the tab. It should be as "
 "short as possible."
 msgstr "``tab_name`` 메서드는 탭에 지정된 레이블을 반환합니다. 가능한 한 짧아야 합니다."
 
-#: ../../../doc/manual/extending.rst:46 92d6b7fb852b4b3b873eb1220fb2d824
 msgid ""
 "When the user defines any new metadata you should get the current selection "
 "from the ``image_list`` and set the metadata on every image in the "
@@ -765,7 +637,6 @@ msgstr ""
 "사용자가 새로운 메타데이터를 정의할 때 ``image_list`` 에서 현재 선택 항목을 가져와 선택 항목의 모든 이미지에 메타데이터를 "
 "설정해야 합니다."
 
-#: ../../../doc/manual/extending.rst:48 4db3a5a8a1304c9ab758bbbb49322e60
 msgid ""
 "It's probably easiest to start with a copy of the Photini tab module most "
 "like what you want to do, strip out the bits you don't need and then add "
@@ -774,11 +645,9 @@ msgstr ""
 "원하는 작업과 가장 유사한 Photini 탭 모듈의 복사본으로 시작하고 필요하지 않은 부분을 제거한 다음 자신의 항목을 추가하는 것이 "
 "가장 쉬울 것입니다."
 
-#: ../../../doc/manual/flickr.rst:6 be610cb91ace4af1945e7d09bc27d69c
 msgid "Flickr uploader"
 msgstr "플리커 업로더"
 
-#: ../../../doc/manual/flickr.rst:8 466c614b4e3647e5acf7495623c8dc61
 msgid ""
 "The ``Flickr upload`` tab (keyboard shortcut ``Alt+F``) allows you to upload"
 " your photographs to `Flickr <http://www.flickr.com/>`_, a popular online "
@@ -789,7 +658,6 @@ msgstr ""
 "<http://www.flickr.com/>`_ 에 사진을 업로드할 수 있습니다. Flickr 업로드 탭은 Flickr API를 "
 "사용하지만 Flickr에서 보증하거나 인증하지 않습니다."
 
-#: ../../../doc/manual/flickr.rst:11 c336cc6c35d7421dbc59b41dd5559760
 msgid ""
 "Unlike some other Flickr uploaders, Photini uses the descriptive metadata "
 "you've created to set Flickr's title, description and tags. This means you "
@@ -798,7 +666,6 @@ msgstr ""
 "다른 Flickr 업로더와 달리 Photini는 Flickr의 제목, 설명 및 태그를 설정하기 위해 생성한 설명 메타데이터를 사용합니다."
 " 즉, 모든 정보를 다시 입력할 필요가 없습니다!"
 
-#: ../../../doc/manual/flickr.rst:14 03b17754c36e4616adb8344d3fd895bf
 msgid ""
 "Note that the Flickr upload tab is only enabled if you have installed some "
 "extra software packages. See :ref:`installation <installation-optional>` for"
@@ -807,7 +674,6 @@ msgstr ""
 "Flickr 업로드 탭은 추가 소프트웨어 패키지를 설치한 경우에만 활성화됩니다. 자세한 내용은 :ref:`installation "
 "<installation-optional>` 를 참조하세요."
 
-#: ../../../doc/manual/flickr.rst:19 e88b6fecf47d4c589a49c5d73c00f920
 msgid ""
 "Initially most of the Flickr uploader tab is disabled. It's only usable "
 "after you've authorised Photini to access your Flickr account by clicking "
@@ -816,7 +682,6 @@ msgstr ""
 "처음에는 대부분의 Flickr 업로더 탭이 비활성화되어 있습니다. ``로그인`` 버튼을 클릭하여 Photini가 Flickr 계정에 "
 "액세스하도록 승인한 후에만 사용할 수 있습니다."
 
-#: ../../../doc/manual/flickr.rst:24 81984cf95a0a46918bfe25648f6a6a90
 msgid ""
 "The first time you click ``Log in`` Photini connects your web browser to "
 "Flickr, from where you can log in and give Photini permission to access "
@@ -827,7 +692,6 @@ msgstr ""
 " 대신하여 Flickr에 액세스할 수 있는 권한을 부여할 수 있습니다. (Photini는 다른 사람의 사진 및 비디오와 상호 작용하지 "
 "않습니다.)"
 
-#: ../../../doc/manual/flickr.rst:29 a4d17abd96954518ab4ac9ac3d08999b
 msgid ""
 "In January 2020 Flickr introduced a bug in the authorisation process. They "
 "change the \"callback URL\" from HTTP to HTTPS, which causes an error like "
@@ -836,17 +700,14 @@ msgstr ""
 "2020년 1월 Flickr는 인증 프로세스에 버그를 도입했습니다. \"콜백 URL\"을 HTTP에서 HTTPS로 변경하므로 위와 같은 "
 "오류가 발생합니다. (다른 브라우저에서는 다른 오류가 표시될 수 있습니다.)"
 
-#: ../../../doc/manual/flickr.rst:35 50288c8957a3416d80d9fdd90383eba4
 msgid ""
 "The workaround is to click on the browser's URL display, change \"https\" to"
 " \"http\", then hit the return key."
 msgstr "해결 방법은 브라우저의 URL 표시를 클릭하고 \"https\"를 \"http\"로 변경한 다음 리턴 키를 누르는 것입니다."
 
-#: ../../../doc/manual/flickr.rst:39 7d78eef8bf674a4397dc8e5b5153eadf
 msgid "The web browser window can then be closed."
 msgstr "그런 다음 웹 브라우저 창을 닫을 수 있습니다."
 
-#: ../../../doc/manual/flickr.rst:43 1823204c262149aab80bf472f235abf4
 msgid ""
 "If the authorisation is successful Photini displays your Flickr user name "
 "and profile picture. You should not need to redo this authorisation process "
@@ -855,7 +716,6 @@ msgstr ""
 "인증에 성공하면 Photini가 Flickr 사용자 이름과 프로필 사진을 표시합니다. ``로그아웃`` 버튼을 클릭하지 않는 한 이 인증 "
 "프로세스를 다시 실행할 필요가 없습니다."
 
-#: ../../../doc/manual/flickr.rst:46 0919bfc733024b6e9355c7945e6b3e93
 msgid ""
 "Your current Flickr albums are shown on the right hand side of the Flickr "
 "uploader tab. You can add a new album with the ``New album`` button. This "
@@ -864,13 +724,11 @@ msgstr ""
 "현재 Flickr 앨범은 Flickr 업로더 탭의 오른쪽에 표시됩니다. ``새 앨범`` 버튼으로 새 앨범을 추가할 수 있습니다. 그러면 "
 "아래와 같이 팝업 대화 상자가 열립니다."
 
-#: ../../../doc/manual/flickr.rst:52 48a710d5c7344043bf58eda7b0ce1f6b
 msgid ""
 "Type in the album details and click ``OK``. Note that the album will not be "
 "created on Flickr until you upload a photo to it."
 msgstr "앨범 세부 정보를 입력하고 ``확인`` 을 클릭합니다. 사진을 업로드할 때까지 Flickr에서 앨범이 생성되지 않습니다."
 
-#: ../../../doc/manual/flickr.rst:57 bc3186e6d992429795a5356abbd4e9bb
 msgid ""
 "To upload one or more photographs to Flickr, select them in the image "
 "selector area, then choose which (if any) of your albums to add them to and "
@@ -880,7 +738,6 @@ msgstr ""
 "하나 이상의 사진을 Flickr에 업로드하려면 이미지 선택기 영역에서 사진을 선택한 다음 추가할 앨범(있는 경우)을 선택하고 개인 정보 "
 "보호, 안전 수준 및 기타 설정을 지정한 다음 ``업로드 시작`` 버튼을 누르십시오."
 
-#: ../../../doc/manual/flickr.rst:59 34f898b7308348fb92880cb777b1929f
 msgid ""
 "The album membership and privacy & other settings apply to all the "
 "photographs in this upload. If you want some photographs to have different "
@@ -890,9 +747,6 @@ msgstr ""
 "앨범 멤버십, 개인정보 보호 및 기타 설정은 이 업로드의 모든 사진에 적용됩니다. 일부 사진에 다른 앨범 멤버십이나 개인 정보 및 기타 "
 "설정을 적용하려면 별도의 배치로 업로드해야 합니다."
 
-#: ../../../doc/manual/flickr.rst:64 ../../../doc/manual/google_photos.rst:47
-#: ../../../doc/manual/ipernity.rst:56 44e478d4b47941cd88c45d337acc5738
-#: 695b3925b74b48fe83de4307a41b4890 39f80e31dd2a4c24b24ecc5f05036952
 msgid ""
 "During uploading Photini displays a progress bar. Uploading takes place in "
 "the background, so you can continue to use other tabs while the upload is in"
@@ -901,12 +755,9 @@ msgstr ""
 "업로드하는 동안 Photini는 진행률 표시줄을 표시합니다. 업로드는 백그라운드에서 이루어지므로 업로드가 진행되는 동안 다른 탭을 계속 "
 "사용할 수 있습니다. 업로드는 ``업로드 중지`` 버튼을 클릭하여 중지할 수 있습니다."
 
-#: ../../../doc/manual/flickr.rst:70 ../../../doc/manual/ipernity.rst:62
-#: dbf569a949d64072a8a9e37eb7aeb86b c08e3aac22144b73a11e51df3032af07
 msgid "After uploading a photograph it is marked as having new metadata."
 msgstr "사진을 업로드하면 새 메타데이터가 있는 것으로 표시됩니다."
 
-#: ../../../doc/manual/flickr.rst:74 9a6a83243d6f45a08c96db4945959911
 msgid ""
 "If you switch to the ``Descriptive metadata`` tab you can see there is a new"
 " keyword ``flickr:id=<long-number>``. Photini uses this `triple tag`_ to "
@@ -917,11 +768,9 @@ msgstr ""
 "Photini는 이 `triple tag`_ 를 사용하여 Flickr 사진 ID를 저장하므로 아래 설명된 대로 나중에 메타데이터를 "
 "동기화하는 데 사용할 수 있습니다."
 
-#: ../../../doc/manual/flickr.rst:78 8441df6b522846b1bfa762ae5e3693b3
 msgid "Synchronising local metadata to Flickr"
 msgstr "로컬 메타데이터를 Flickr에 동기화"
 
-#: ../../../doc/manual/flickr.rst:80 3506f3efbc9e49599c694f199a79a539
 msgid ""
 "Sometimes you might change your photograph's metadata on Flickr and would "
 "like to copy those changes back to the image file on your computer. Select "
@@ -930,7 +779,6 @@ msgstr ""
 "때때로 Flickr에서 사진의 메타데이터를 변경하고 이러한 변경 사항을 컴퓨터의 이미지 파일에 다시 복사하고 싶을 수 있습니다. "
 "업데이트하려는 이미지(들)를 선택하고 ``동기화`` 버튼을 클릭합니다."
 
-#: ../../../doc/manual/flickr.rst:85 d6a23d3c4f0247c88c07fb5ef515b9aa
 msgid ""
 "If an image does not have a ``flickr:id`` keyword then Photini will try to "
 "find the photograph on Flickr by matching the date and time it was taken. If"
@@ -940,7 +788,6 @@ msgstr ""
 "이미지에 ``flickr:id`` 키워드가 없으면 Photini는 촬영된 날짜와 시간을 일치시켜 Flickr에서 사진을 찾으려고 "
 "시도합니다. Flickr에 새 메타데이터가 있으면 이미지의 메타데이터에 병합됩니다."
 
-#: ../../../doc/manual/flickr.rst:90 0d2cc18acb7e4792bf8d6fcc37a65488
 msgid ""
 "You can see what changed with the image's context menu ``View changes``. In "
 "this case Flickr has set the location city to its new name of \"Château-"
@@ -949,19 +796,15 @@ msgstr ""
 "이미지의 컨텍스트 메뉴인  ``변경사항 보기`` 로 변경된 사항을 확인할 수 있습니다. 이 경우 Flickr는 위치 도시를 "
 "\"Château-Gontier-sur-Mayenne\"의 새 이름으로 설정했습니다. 저는 이 새로운 메타데이터를 무시하기로 했습니다."
 
-#: ../../../doc/manual/flickr.rst:95 96d2aec7c3d842b5921a5aa6458973fa
 msgid "Synchronising Flickr metadata to local"
 msgstr "Flickr 메타데이터를 로컬에 동기화"
 
-#: ../../../doc/manual/flickr.rst:97 b4ced6769a7242c28e5ec7df35633c2f
 msgid ""
 "If you change your image file metadata and would like to make the same "
 "changes on Flickr you can select the image and click on the ``Start upload``"
 " button."
-msgstr ""
-"이미지 파일 메타데이터를 변경하고 Flickr에서 동일한 변경을 수행하려면 이미지를 선택하고 ``업로드 시작`` 버튼을 클릭하면 됩니다."
+msgstr "이미지 파일 메타데이터를 변경하고 Flickr에서 동일한 변경을 수행하려면 이미지를 선택하고 ``업로드 시작`` 버튼을 클릭하면 됩니다."
 
-#: ../../../doc/manual/flickr.rst:101 128ff2e9f41e4c4fa50e47d915edc115
 msgid ""
 "If you upload an image that already has a ``flickr:id`` keyword then Photini"
 " allows you to change the photograph's metadata instead of uploading a new "
@@ -971,11 +814,9 @@ msgstr ""
 "이미 ``flickr:id`` 키워드가 있는 이미지를 업로드하면 Photini를 사용하여 새 사진을 업로드하는 대신 사진의 메타데이터를 "
 "변경할 수 있습니다. 다른 응용 프로그램에서 처리한 경우 유용할 수 있는 이미지 자체를 교체할 수도 있습니다."
 
-#: ../../../doc/manual/google_photos.rst:6 748e068d009244a988b6cae4931e3f8b
 msgid "Google Photos uploader"
 msgstr "Google 포토 업로더"
 
-#: ../../../doc/manual/google_photos.rst:8 e43f41c303d740b590838f07118220fe
 msgid ""
 "The ``Google Photos upload`` tab (keyboard shortcut ``Alt+P``) allows you to"
 " upload your photographs to `Google Photos`_. The Google Photos API is quite"
@@ -985,16 +826,14 @@ msgstr ""
 "``Google 포토 업로드`` 탭(단축키 ``Alt+P``)을 사용하면 사진을 `Google Photos`_ 에 업로드할 수 있습니다."
 " Google Photos API는 매우 제한적이므로 Photini와 같은 제3자 소프트웨어는 기능이 다소 제한적입니다."
 
-#: ../../../doc/manual/google_photos.rst:11 969edfea22f845afa858bb91a6ede42c
 msgid ""
 "Note that the Google Photos upload tab is only enabled if you have installed"
 " some extra software packages. See :ref:`installation <installation-"
 "optional>` for more detail."
 msgstr ""
-"Google 포토 업로드 탭은 추가 소프트웨어 패키지를 설치한 경우에만 활성화됩니다. 자세한 내용은 "
-":ref:`installation<installation-optional>` 를 참조하세요."
+"Google 포토 업로드 탭은 추가 소프트웨어 패키지를 설치한 경우에만 활성화됩니다. 자세한 내용은 :ref:`installation"
+"<installation-optional>` 를 참조하세요."
 
-#: ../../../doc/manual/google_photos.rst:16 1307205663384852b63ed2aa94501c5c
 msgid ""
 "Initially most of the Google Photos uploader tab is disabled. It's only "
 "usable after you've authorised Photini to access your Google Photos account "
@@ -1003,7 +842,6 @@ msgstr ""
 "처음에는 대부분의 Google 포토 업로더 탭이 비활성화되어 있습니다. ``로그인`` 버튼을 클릭하여 Photini가 Google 포토 "
 "계정에 액세스하도록 승인한 후에만 사용할 수 있습니다."
 
-#: ../../../doc/manual/google_photos.rst:19 e17d285925b640aa89674c4f25d3b29d
 msgid ""
 "The first time you click ``Log in`` Photini connects your web browser to "
 "Google Photos, from where you can log in and give Photini permission to "
@@ -1012,7 +850,6 @@ msgstr ""
 "처음으로 ``로그인`` 을 클릭하면 Photini가 웹 브라우저를 Google 포토에 연결하고 여기에서 로그인하고 Photini에 "
 "사용자를 대신하여 Google 포토에 액세스할 수 있는 권한을 부여할 수 있습니다."
 
-#: ../../../doc/manual/google_photos.rst:22 4c16918543c343e2a84e1ed67986833e
 msgid ""
 "Unfortunately Google won't verify Photini because it continues to be "
 "developed, so you will be presented with several warning messages during the"
@@ -1022,7 +859,6 @@ msgstr ""
 "불행히도 Google은 계속 개발하기 때문에  Photini를 인증하지 않으므로 인증 프로세스 중에 몇 가지 경고 메시지가 표시되고 경고"
 " 이메일이 Gmail 계정으로 전송될 수 있습니다."
 
-#: ../../../doc/manual/google_photos.rst:26 f6c2f19daea544949eef4eb2a615898a
 msgid ""
 "If the authorisation is successful Photini displays your Google Photos user "
 "name and profile picture. You should not need to redo this authorisation "
@@ -1031,7 +867,6 @@ msgstr ""
 "인증에 성공하면 Photini가 Google 포토 사용자 이름과 프로필 사진을 표시합니다. ``로그아웃`` 버튼을 클릭하지 않는 한 이 "
 "인증 프로세스를 다시 실행할 필요가 없습니다."
 
-#: ../../../doc/manual/google_photos.rst:29 0890df68bd7144cd9081ca24bebfe0a7
 msgid ""
 "Your current Google Photos albums are shown on the right hand side of the "
 "Google Photos uploader tab. The Google Photos API only allows Photini to add"
@@ -1041,19 +876,16 @@ msgstr ""
 "현재 Google 포토 앨범은 Google 포토 업로더 탭의 오른쪽에 표시됩니다. Google 포토 API는 Photini가 만든 앨범에"
 " 사진을 추가하는 것만 허용합니다. 다른 앨범은 표시되지만 비활성화됩니다."
 
-#: ../../../doc/manual/google_photos.rst:33 784ba876002d417c8d3484e7f89b58e8
 msgid ""
 "You can add a new album with the ``New album`` button. This opens a pop-up "
 "dialog as shown below."
 msgstr "``새 앨범`` 버튼으로 새 앨범을 추가할 수 있습니다. 그러면 아래와 같이 팝업 대화 상자가 열립니다."
 
-#: ../../../doc/manual/google_photos.rst:38 8e0712ddb48f4be2b814f17ec7f1666c
 msgid ""
 "Type in the album title and click ``OK``. The title can be up to 500 "
 "characters long, so you may want to enlarge the dialog box."
 msgstr "앨범 제목을 입력하고 ``확인`` 을 클릭합니다. 제목은 최대 500자까지 가능하므로 대화 상자를 확대할 수 있습니다."
 
-#: ../../../doc/manual/google_photos.rst:43 99e6a17f996b471bb92c4e2e054bf205
 msgid ""
 "To upload one or more photographs to Google Photos, select them in the image"
 " selector area, then choose which (if any) of your albums to add them to, "
@@ -1062,11 +894,9 @@ msgstr ""
 "Google 포토에 하나 이상의 사진을 업로드하려면 이미지 선택기 영역에서 사진을 선택한 다음 사진을 추가할 앨범(있는 경우)을 선택한 "
 "다음 ``업로드 시작`` 버튼을 클릭하십시오."
 
-#: ../../../doc/manual/image_selector.rst:6 54f8e0a29df340fdb97a074e65c99f41
 msgid "Image selector"
 msgstr "이미지 선택기"
 
-#: ../../../doc/manual/image_selector.rst:8 fdcaca3e5f04425d9d1968ea95d03116
 msgid ""
 "When you start the Photini editor it displays a GUI (graphical user "
 "interface) as shown below. The exact appearance will depend on your "
@@ -1079,7 +909,6 @@ msgstr ""
 " 설정에 따라 다르지만 동일한 기능 요소가 있어야 합니다. (다른 스타일을 설정하여 모양을 변경할 수 있습니다. 자세한 내용은 "
 ":ref:`configuration section <configuration-style>` 을 참조하세요.)"
 
-#: ../../../doc/manual/image_selector.rst:14 db84b5284a054ce5950b591d38e19b21
 msgid ""
 "The Photini editor GUI has two main areas. The upper part has a set of tabs "
 "to select different functions. The lower part is an image selector that is "
@@ -1092,13 +921,11 @@ msgstr ""
 " 탭에 공통적인 이미지 선택기입니다. 둘 사이에는 마우스로 드래그하여 두 부분의 상대적 크기를 변경할 수 있는 구분선이 있습니다. 창의 "
 "전체 크기는 마우스로 창의 가장자리나 모서리를 드래그하여 변경할 수도 있습니다."
 
-#: ../../../doc/manual/image_selector.rst:20 38e1dafe2b9446ec958998bf40a594f4
 msgid ""
 "The tabs can be re-ordered by dragging and dropping a tab to your preferred "
 "position."
 msgstr ""
 
-#: ../../../doc/manual/image_selector.rst:25 0d5d592ca95d442ea5767c5a035f9de0
 msgid ""
 "Now load some images using the ``File`` menu ``Open files`` item (or its "
 "keyboard shortcut ``Ctrl+O``). The loaded files are displayed as thumbnail "
@@ -1111,7 +938,6 @@ msgstr ""
 "파일은 GUI의 이미지 선택기 부분에 썸네일 이미지로 표시됩니다. 썸네일 표시 영역 바로 아래에 있는 슬라이더 컨트롤로 썸네일 크기를 "
 "변경할 수 있습니다. 해당 버튼을 클릭하여 파일을 이름 또는 날짜별로 정렬할 수도 있습니다."
 
-#: ../../../doc/manual/image_selector.rst:30 d815e043665c4b8fba907a95868f77d2
 msgid ""
 "Images can also be loaded by \"drag and drop\" from a file manager window or"
 " by adding them to the command line if you run Photini from a command "
@@ -1123,7 +949,6 @@ msgstr ""
 "이미지를 로드할 수도 있습니다. 디렉토리를 열면 해당 디렉토리의 모든 이미지가 열립니다. 이것은 재귀적이므로 한 번에 너무 많은 이미지를"
 " 실수로 열지 않도록 주의하십시오."
 
-#: ../../../doc/manual/image_selector.rst:36 da18328de634457bbe66ae76836b903d
 msgid ""
 "Clicking on any thumbnail selects that file. The selected file is "
 "highlighted by a red border. Double clicking on a thumbnail should display "
@@ -1132,7 +957,6 @@ msgstr ""
 "썸네일을 클릭하면 해당 파일이 선택됩니다. 선택한 파일은 빨간색 테두리로 강조 표시됩니다. 축소판을 두 번 클릭하면 기본 이미지 보기 "
 "응용 프로그램을 사용하여 전체 크기 이미지가 표시되어야 합니다."
 
-#: ../../../doc/manual/image_selector.rst:42 48bb787a1bad43d8b8965844184551e4
 msgid ""
 "Multiple files can be selected by holding down the 'shift' key while "
 "clicking on a second image. To select multiple files that are not adjacent, "
@@ -1141,11 +965,9 @@ msgstr ""
 "'Shift' 키를 누른 상태에서 두 번째 이미지를 클릭하면 여러 파일을 선택할 수 있습니다. 인접하지 않은 여러 파일을 선택하려면 "
 "'control' 키를 누른 상태에서 이미지를 클릭하십시오."
 
-#: ../../../doc/manual/image_selector.rst:47 3d8564fb648b47fc8bced5f788dce386
 msgid "The keyboard shortcut ``Ctrl+A`` selects all the loaded files."
 msgstr "키보드 단축키 ``Ctrl+A`` 는 로드된 모든 파일을 선택합니다."
 
-#: ../../../doc/manual/image_selector.rst:51 de3c22a5ee5b448883ef4c57f5603099
 msgid ""
 "Selecting multiple files allows you to set metadata, such as the image "
 "title, on several files at once. This is much quicker than having to edit "
@@ -1158,17 +980,14 @@ msgstr ""
 "편집하는 것보다 훨씬 빠릅니다. 각 메타데이터 항목을 편집하기 전에 다른 파일 그룹을 선택하고 싶을 것입니다. 예를 들어, 모든 이미지에"
 " 동일한 제목을 부여한 다음 설명을 작성하기 전에 처음 두 개 또는 세 개만 선택할 수 있습니다."
 
-#: ../../../doc/manual/image_selector.rst:57 9f7942cea15c4afaabb0e8fee2f06846
 msgid "Context menu"
 msgstr "상황에 맞는 메뉴"
 
-#: ../../../doc/manual/image_selector.rst:59 c3d471f62ce74f3abdfe1dcabaa7099e
 msgid ""
 "Right-clicking on a thumbnail displays a context menu for all the currently "
 "selected files."
 msgstr "축소판을 마우스 오른쪽 버튼으로 클릭하면 현재 선택된 모든 파일에 대한 상황에 맞는 메뉴가 표시됩니다."
 
-#: ../../../doc/manual/image_selector.rst:63 c009a01e957a4e0c8128e87ef9c8a31f
 msgid ""
 "The context menu currently has five items. ``Reload file`` discards any "
 "metadata changes. ``Save changes`` saves any changes to the file(s). ``View "
@@ -1180,7 +999,6 @@ msgstr ""
 "저장`` 은 파일(들)에 대한 모든 변경 사항을 저장합니다. ``변경사항 보기`` 는 아래와 같이 메타데이터의 변경사항을 표시합니다. "
 "``썸네일 재생성`` 은 이미지(들)의 새 썸네일을 생성합니다. ``파일 닫기`` 는 파일(들)을 닫습니다."
 
-#: ../../../doc/manual/image_selector.rst:72 0ea4fecbb72c4348b75d5888f8a214d9
 msgid ""
 "The ``view changes`` context menu item displays all the metadata items that "
 "have changed. In this example I've set two items that were previously empty."
@@ -1190,15 +1008,12 @@ msgstr ""
 "``변경사항 보기`` 상황에 맞는 메뉴 항목은 변경된 모든 메타데이터 항목을 표시합니다. 이 예에서는 이전에 비어 있던 두 개의 항목을 "
 "설정했습니다. 이러한 변경 사항을 취소하려면 적절한 ``실행 취소`` 확인란을 선택하고 ``확인`` 을 클릭하십시오."
 
-#: ../../../doc/manual/image_selector.rst:78 4cdae0c1d85a41e5b8caf0ed9c900a7c
 msgid "The same menu items also appear in the main ``File`` menu."
 msgstr "동일한 메뉴 항목이 기본 ``파일`` 메뉴에도 나타납니다."
 
-#: ../../../doc/manual/image_selector.rst:81 a7e14f2eb9434656892f0af580e94b2b
 msgid "Using Photini with other programs"
 msgstr "다른 프로그램과 함께 Photini 사용하기"
 
-#: ../../../doc/manual/image_selector.rst:83 8626e744210c482990efd968d600cf78
 msgid ""
 "If you use other applications that can display or edit image metadata then "
 "you need to be careful when using them with Photini. Just like with a word "
@@ -1213,7 +1028,6 @@ msgstr ""
 "변경한 경우 다른 프로그램에서 파일을 다시 로드하거나 다시 열도록 하기 전에 변경 사항을 저장해야 합니다. 다른 프로그램에서 변경하는 "
 "경우 위에서 설명한 상황에 맞는 메뉴를 사용하여 Photini에서 파일을 다시 로드해야 합니다."
 
-#: ../../../doc/manual/image_selector.rst:88 e01bec46ea9c4458b9a974ac3634ef8d
 msgid ""
 "You may also want to experiment with how other programs display the metadata"
 " you create in Photini and *vice versa*. Be aware that other programs might "
@@ -1225,11 +1039,9 @@ msgstr ""
 "메타데이터를 사진 파일에 저장하지 않고 데이터베이스나 별도의 파일(XMP 사이드카 제외)을 사용할 수 있다는 점에 유의하십시오. 이러한 "
 "프로그램은 메타데이터 표준을 사용하도록 구성할 수 없는 경우 Photini와 호환되지 않습니다."
 
-#: ../../../doc/manual/importer.rst:6 db333bcde81f45ce97f2ae662bfc1e34
 msgid "Image importer"
 msgstr "이미지 가져오기"
 
-#: ../../../doc/manual/importer.rst:8 07212be736824c85865020b652e15552
 msgid ""
 "The ``Import photos`` tab (keyboard shortcut ``Alt+I``) allows you to copy "
 "photographs from your digital camera or anywhere else on your computer (for "
@@ -1241,7 +1053,6 @@ msgstr ""
 "있습니다(예: 컴퓨터에 카드 리더기가 있는 경우 카메라 메모리 카드) . 이 작업을 수행하는 다른 프로그램이 많이 있지만 내가 원하는 "
 "대로 작동하는 프로그램을 찾지 못했기 때문에 Photini에 하나를 추가했습니다."
 
-#: ../../../doc/manual/importer.rst:11 dd8fcc3aa4f64b52ac801a2644454871
 msgid ""
 "Note that you can only import directly from cameras if you have installed "
 "python-gphoto2 (which is not available on Windows). See :ref:`installation "
@@ -1250,7 +1061,7 @@ msgstr ""
 "python-gphoto2(Windows에서는 사용할 수 없음)를 설치한 경우에만 카메라에서 직접 가져올 수 있습니다. 자세한 내용은 "
 ":ref:`installation<installation-optional>` 를 참조하십시오."
 
-#: ../../../doc/manual/importer.rst:14 4b580d015e0a4b03848f90618e80a2f0
+#, python-format
 msgid ""
 "The key part of the importer is the ``Target format`` field. This provides a"
 " very flexible way to specify where on your computer imported images should "
@@ -1267,91 +1078,71 @@ msgstr ""
 "`Python 문서 <https://docs.python.org/2/library/datetime.html#strftime-"
 "strptime-behavior>`_ 를 참조하십시오."
 
-#: ../../../doc/manual/importer.rst:20 64c00aafc0a343c9b52b973617768dee
 msgid ""
 "As well as the date & time format strings, bracketed keywords can be used to"
 " manipulate parts of the file name:"
 msgstr "날짜 및 시간 형식 문자열과 함께 대괄호로 묶인 키워드를 사용하여 파일 이름의 일부를 조작할 수 있습니다."
 
-#: ../../../doc/manual/importer.rst:23 a707a612f12d423ab309bd548323ecfe
 msgid "keyword"
 msgstr "키워드"
 
-#: ../../../doc/manual/importer.rst:23 15d5f79c6c754ecb8ce76b5b9439b58e
 msgid "meaning"
 msgstr "의미"
 
-#: ../../../doc/manual/importer.rst:23 98141cbeafd243f4bb6e5d53bf78455e
 msgid "example"
 msgstr "예시"
 
-#: ../../../doc/manual/importer.rst:25 e7985c1dfa0444f48143adcca0c63e5d
 msgid "{camera}"
 msgstr "{camera}"
 
-#: ../../../doc/manual/importer.rst:25 912071910d694bbfb5635f21f0ff4586
 msgid "the camera model name"
 msgstr "카메로 모델 이름"
 
-#: ../../../doc/manual/importer.rst:25 79cf0cd9301646059d359bc31c89684e
 msgid "Canon_PowerShot_A1100_IS"
 msgstr "Canon_PowerShot_A1100_IS"
 
-#: ../../../doc/manual/importer.rst:26 092ac4d9c6334ae39699baf2dca53150
 msgid "{name}"
 msgstr "{name}"
 
-#: ../../../doc/manual/importer.rst:26 80327e8512fb4dce860daaa48a016de8
 msgid "the complete file name"
 msgstr "완전한 파일 이름"
 
-#: ../../../doc/manual/importer.rst:26 19c663defdc14955b22f44bb2f0b9fb6
 msgid "IMG_9999.JPG"
 msgstr "IMG_9999.JPG"
 
-#: ../../../doc/manual/importer.rst:27 646c84803f17475ba806482dc7e4a3e9
 msgid "{number}"
 msgstr "{number}"
 
-#: ../../../doc/manual/importer.rst:27 3aac13cc6940462f8177d1a6fc01147d
 msgid "the numeric part of the file name"
 msgstr "파일 이름의 숫자 부분"
 
-#: ../../../doc/manual/importer.rst:27 4bcd2f7d50a744059a6d42147d80d9ab
 msgid "9999"
 msgstr "9999"
 
-#: ../../../doc/manual/importer.rst:28 2288e4306d0f43b5a767c954b5d3cbfa
 msgid "{root}"
 msgstr "{root}"
 
-#: ../../../doc/manual/importer.rst:28 7097336819c642e4ad2b4db8ce88bf14
 msgid "the filename without its extension"
 msgstr "확장자가 없는 파일 이름"
 
-#: ../../../doc/manual/importer.rst:28 06aa9f7a17bb4b788dbfaffcb59c287c
 msgid "IMG_9999"
 msgstr "IMG_9999"
 
-#: ../../../doc/manual/importer.rst:29 40bf9a91eaf44ced8c03afbf171533a5
 msgid "{ext}"
 msgstr "{ext}"
 
-#: ../../../doc/manual/importer.rst:29 589a86f49fae4445946276b1422727fa
 msgid "the filename extension"
 msgstr "파일 이름 확장자"
 
-#: ../../../doc/manual/importer.rst:29 524ae22fee7041b880c55b7638899536
 msgid ".JPG"
 msgstr ".JPG"
 
-#: ../../../doc/manual/importer.rst:32 652881cfb798423b876dfe4ccd443b98
 msgid ""
 "Below the ``Target format`` field is an example generated from the current "
 "format to help you edit it correctly."
 msgstr "``대상 형식`` 필드 아래에는 올바른 편집을 돕기 위해 현재 형식에서 생성된 예가 있습니다."
 
-#: ../../../doc/manual/importer.rst:34 650f63f1598148588592983c01c4d49f
+#, python-format
 msgid ""
 "Note that Photini stores a different target format for each camera or source"
 " folder that you use. This can be useful if you have two cameras that use "
@@ -1367,7 +1158,6 @@ msgstr ""
 "``IMG_9999.JPG`` 에서 ``100D_IMG_9999.JPG`` 로 변경합니다. 그래서 그들은 ``IMG_9999.JPG`` "
 "와 같은 이름을 사용하는 내 컴팩트 카메라의 파일과 충돌하지 않습니다."
 
-#: ../../../doc/manual/importer.rst:40 7293397ed57e41ee9844a4c8fbc8066f
 msgid ""
 "After connecting one or more cameras and pressing the ``refresh`` button, a "
 "camera can be chosen from the ``<select source>`` drop down list. Photini "
@@ -1377,7 +1167,6 @@ msgstr ""
 "하나 이상의 카메라를 연결하고 ``새로고침`` 버튼을 누르면 ``<select source>`` 드롭다운 목록에서 카메라를 선택할 수 "
 "있습니다. 그런 다음 Photini는 카메라에 저장된 모든 파일 목록을 가져오는데 시간이 걸릴 수 있습니다."
 
-#: ../../../doc/manual/importer.rst:43 cf150129fc884c108e200b0456809250
 msgid ""
 "The drop down list also includes the most recent source folders you have "
 "used. Click on ``<add a folder>`` to add a new source folder to the list. "
@@ -1389,16 +1178,12 @@ msgstr ""
 "클릭하십시오. Photini는 소스 폴더와 모든 하위 폴더에 있는 모든 이미지 파일을 나열하므로 다른 파일이 너무 많이 포함되지 않도록 "
 "주의해서 원하는 사진이 포함된 폴더로 이동하십시오."
 
-#: ../../../doc/manual/importer.rst:47 faa7b91044c64c1081ca61ecf62f4cc5
 msgid ""
 "The list is displayed in the central area, with the location where the file "
 "would be stored. It is sorted by name or date, as selected by the buttons "
 "below the image thumbnail area."
-msgstr ""
-"목록은 파일이 저장될 위치와 함께 중앙 영역에 표시됩니다. 이미지 축소판 영역 아래에 있는 버튼으로 선택한 이름 또는 날짜별로 "
-"정렬됩니다."
+msgstr "목록은 파일이 저장될 위치와 함께 중앙 영역에 표시됩니다. 이미지 축소판 영역 아래에 있는 버튼으로 선택한 이름 또는 날짜별로 정렬됩니다."
 
-#: ../../../doc/manual/importer.rst:52 91b1e61e7b464f8caf76e2144c832e5d
 msgid ""
 "When the ``Target format`` has been set to match where previous images were "
 "put, images that have already been copied to the computer are non selectable"
@@ -1407,7 +1192,6 @@ msgstr ""
 "``대상 형식`` 이 이전 이미지가 있던 위치와 일치하도록 설정되면 컴퓨터에 이미 복사된 이미지는 선택할 수 없습니다(밝은 회색으로 "
 "표시)."
 
-#: ../../../doc/manual/importer.rst:56 ff5bf1240b09455e9115e746a60337f3
 msgid ""
 "The remaining images can be selected by clicking on them, or by using the "
 "``Select all`` button (to select all uncopied images) or ``Select new`` "
@@ -1416,7 +1200,6 @@ msgstr ""
 "나머지 이미지는 클릭하거나 ``모두 선택`` 버튼(복사되지 않은 모든 이미지 선택) 또는 ``새로 선택`` 버튼(마지막으로 복사한 "
 "이미지보다 최신 이미지 선택)을 사용하여 선택할 수 있습니다."
 
-#: ../../../doc/manual/importer.rst:60 774ca29998504bce9f6c1d51c3409ebb
 msgid ""
 "Clicking the ``Copy photos`` button copies the selected images to the "
 "computer and loads them into Photini. To avoid overloading Photini you "
@@ -1426,7 +1209,6 @@ msgstr ""
 "``사진 복사`` 버튼을 클릭하면 선택한 이미지가 컴퓨터에 복사되고 Photini에 로드됩니다. Photini 과부하를 방지하려면 "
 "``사진 복사`` 를 클릭하기 전에 너무 많은 이미지를 선택하지 않도록 주의해야 합니다."
 
-#: ../../../doc/manual/importer.rst:63 600f5eb5b39e42c9864532fa907edb64
 msgid ""
 "The ``Move photos`` button moves image files instead of copying them. This "
 "is probably not useful with a camera source, but can be used to reorganise "
@@ -1436,13 +1218,11 @@ msgstr ""
 "``사진 이동`` 버튼은 이미지 파일을 복사하는 대신 이동합니다. 이것은 카메라 소스에는 유용하지 않을 수 있지만 사진 파일을 다른 "
 "디렉토리로 이동하고 이름을 바꾸는 방식으로 사진 파일을 재구성하는 데 사용할 수 있습니다."
 
-#: ../../../doc/manual/importer.rst:68 38c3b52749af463a88e3fd65756f764f
 msgid ""
 "As each file is copied it is shown in grey on the file list and the selected"
 " file count decreases."
 msgstr "각 파일이 복사될 때마다 파일 목록에 회색으로 표시되고 선택한 파일 수가 줄어듭니다."
 
-#: ../../../doc/manual/importer.rst:72 a7eab76f4b394f988993b7dc8ff14219
 msgid ""
 "After copying all the files the file list is refreshed, which may take some "
 "time. Now that all the files have been copied from the camera none can be "
@@ -1451,11 +1231,9 @@ msgstr ""
 "모든 파일을 복사하면 파일 목록이 새로 고쳐지며 시간이 걸릴 수 있습니다. 이제 모든 파일이 카메라에서 복사되었으므로 아무 것도 선택할 "
 "수 없습니다."
 
-#: ../../../doc/manual/index.rst:6 77daab6b29bc4dac8fae38f0fffb109b
 msgid "User manual"
 msgstr "사용자 매뉴얼"
 
-#: ../../../doc/manual/index.rst:8 fbb0e77d44764e289986409897008388
 msgid ""
 "This manual attempts to cover every part of Photini in detail, but still be "
 "usable as a tutorial. I suggest you read the :doc:`image selector "
@@ -1467,11 +1245,9 @@ msgstr ""
 "selector<image_selector>` 및 :doc:`descriptive metadata "
 "<descriptive_metadata>` 섹션을 읽은 다음 관련 기능을 사용하기 시작할 때 다른 섹션을 읽는 것이 좋습니다."
 
-#: ../../../doc/manual/ipernity.rst:6 9e99aa685b664b62bcf9975151cc97de
 msgid "Ipernity uploader"
 msgstr "Ipernity 업로더"
 
-#: ../../../doc/manual/ipernity.rst:8 1b1741149f5a47d4ab0d5565fb1ee159
 msgid ""
 "The ``Ipernity upload`` tab (keyboard shortcut ``Alt+I``) allows you to "
 "upload your photographs to `Ipernity <http://www.ipernity.com/>`_, a "
@@ -1482,7 +1258,6 @@ msgstr ""
 " club인 `Ipernity <http://www.ipernity.com/>`_ 에 사진을 업로드할 수 있습니다. Ipernity "
 "업로드 탭은 Ipernity API를 사용하지만 Ipernity에서 보증하거나 인증하지 않습니다."
 
-#: ../../../doc/manual/ipernity.rst:11 bfb142d998a542cb85565cd19ab8c9b7
 msgid ""
 "Unlike some other uploaders, Photini uses the descriptive metadata you've "
 "created to set Ipernity's title, description and keywords. This means you "
@@ -1491,16 +1266,14 @@ msgstr ""
 "다른 업로더와 달리 Photini는 귀하가 생성한 설명 메타데이터를 사용하여 Ipernity의 제목, 설명 및 키워드를 설정합니다. 즉,"
 " 모든 정보를 다시 입력할 필요가 없습니다!"
 
-#: ../../../doc/manual/ipernity.rst:14 3e87151f0f444758b27faca7874b77b9
 msgid ""
 "Note that the Ipernity upload tab is only enabled if you have installed some"
 " extra software packages. See :ref:`installation <installation-optional>` "
 "for more detail."
 msgstr ""
-"Ipernity 업로드 탭은 추가 소프트웨어 패키지를 설치한 경우에만 활성화됩니다. 자세한 내용은 "
-":ref:`installation<installation-optional>` 를 참조하세요."
+"Ipernity 업로드 탭은 추가 소프트웨어 패키지를 설치한 경우에만 활성화됩니다. 자세한 내용은 :ref:`installation"
+"<installation-optional>` 를 참조하세요."
 
-#: ../../../doc/manual/ipernity.rst:19 2db49fc7bfc944ad98e0b6f00299d9f3
 msgid ""
 "Initially most of the Ipernity uploader tab is disabled. It's only usable "
 "after you've authorised Photini to access your Ipernity account by clicking "
@@ -1509,7 +1282,6 @@ msgstr ""
 "처음에는 대부분의 Ipernity 업로더 탭이 비활성화되어 있습니다. ``로그인`` 버튼을 클릭하여 Photini가 Ipernity "
 "계정에 액세스하도록 승인한 후에만 사용할 수 있습니다."
 
-#: ../../../doc/manual/ipernity.rst:24 f0fda5b8d59f4d8b85f3d189fc184758
 msgid ""
 "The first time you click ``Log in`` Photini connects your web browser to "
 "Ipernity, from where you can log in and give Photini permission to access "
@@ -1518,7 +1290,6 @@ msgstr ""
 "처음으로 ``로그인`` 을 클릭하면 Photini가 웹 브라우저를 Ipernity에 연결합니다. 여기에서 로그인하고 Photini에 대신"
 " Ipernity에 액세스할 수 있는 권한을 부여할 수 있습니다."
 
-#: ../../../doc/manual/ipernity.rst:28 9876df3b479f44d2ac52c1b0a13c787c
 msgid ""
 "After authorising Photini close the web browser window or tab and return to "
 "the Photini window. You can now close the \"Authorisation required\" dialog."
@@ -1526,7 +1297,6 @@ msgstr ""
 "Photini를 인증한 후 웹 브라우저 창이나 탭을 닫고 Photini 창으로 돌아갑니다. 이제 \"승인 필요\" 대화 상자를 닫을 수 "
 "있습니다."
 
-#: ../../../doc/manual/ipernity.rst:33 317de1aac5a14cb4b05162c099d4415f
 msgid ""
 "If the authorisation is successful Photini displays your Ipernity user name "
 "and profile picture. You should not need to redo this authorisation process "
@@ -1535,7 +1305,6 @@ msgstr ""
 "인증에 성공하면 Photini는 Ipernity 사용자 이름과 프로필 사진을 표시합니다. ``로그아웃`` 버튼을 클릭하지 않는 한 이 "
 "인증 프로세스를 다시 실행할 필요가 없습니다."
 
-#: ../../../doc/manual/ipernity.rst:38 ee9a80a029cd49149c8647726abf52d2
 msgid ""
 "Your current Ipernity albums are shown on the right hand side of the "
 "Ipernity uploader tab. You can add a new album with the ``New album`` "
@@ -1544,13 +1313,11 @@ msgstr ""
 "현재 Ipernity 앨범은 Ipernity 업로더 탭의 오른쪽에 표시됩니다. ``새 앨범`` 버튼으로 새 앨범을 추가할 수 있습니다. "
 "그러면 아래와 같이 팝업 대화 상자가 열립니다."
 
-#: ../../../doc/manual/ipernity.rst:44 ffceab82237f4a97a6f730039f923cd6
 msgid ""
 "Type in the album details and click ``OK``. Note that the album will not be "
 "visible on Ipernity until you upload a photo to it."
 msgstr "앨범 세부 정보를 입력하고 ``확인`` 을 클릭합니다. 앨범은 사진을 업로드할 때까지 Ipernity에서 볼 수 없습니다."
 
-#: ../../../doc/manual/ipernity.rst:49 628a264f838546539cb5c12ab9159f90
 msgid ""
 "To upload one or more photographs to Ipernity, select them in the image "
 "selector area, then choose which (if any) of your albums to add them to and "
@@ -1559,7 +1326,6 @@ msgstr ""
 "하나 이상의 사진을 Ipernity에 업로드하려면 이미지 선택기 영역에서 사진을 선택한 다음 추가할 앨범(있는 경우)을 선택하고 권한과 "
 "라이선스를 설정한 다음 ``업로드 시작`` 버튼을 클릭하십시오."
 
-#: ../../../doc/manual/ipernity.rst:51 29b4232001334e778ab558730d09f0bf
 msgid ""
 "The permissions, licence, and album membership apply to all the photographs "
 "in this upload. If you want some photographs to have different permissions, "
@@ -1568,7 +1334,6 @@ msgstr ""
 "권한, 라이선스 및 앨범 멤버십은 이 업로드의 모든 사진에 적용됩니다. 일부 사진에 다른 권한, 라이선스 또는 앨범 멤버십이 포함되도록 "
 "하려면 별도의 배치로 업로드해야 합니다."
 
-#: ../../../doc/manual/ipernity.rst:66 f8619692496c4f9ab20dbf1b3126849d
 msgid ""
 "If you switch to the ``Descriptive metadata`` tab you can see there is a new"
 " keyword ``ipernity:id=<long-number>``. Photini uses this `triple tag`_ to "
@@ -1579,11 +1344,9 @@ msgstr ""
 "Photini는 이 `triple tag`_ 를 사용하여 Ipernity 사진 ID를 저장하므로 아래에 설명된 대로 나중에 메타데이터를 "
 "동기화하는 데 사용할 수 있습니다."
 
-#: ../../../doc/manual/ipernity.rst:70 756bd5e9e89a49928516886318909e2e
 msgid "Synchronising local metadata to Ipernity"
 msgstr "로컬 메타데이터를 Ipernity에 동기화"
 
-#: ../../../doc/manual/ipernity.rst:72 179c43f2e40d4825ba7ecfdd43064816
 msgid ""
 "Sometimes you might change your photograph's metadata on Ipernity and would "
 "like to copy those changes back to the image file on your computer. Select "
@@ -1592,7 +1355,6 @@ msgstr ""
 "때때로 Ipernity에서 사진의 메타데이터를 변경하고 이러한 변경 사항을 컴퓨터의 이미지 파일에 다시 복사하고 싶을 수 있습니다. "
 "업데이트하려는 이미지(들)를 선택하고 ``동기화`` 버튼을 클릭합니다."
 
-#: ../../../doc/manual/ipernity.rst:77 3a6ff387e8864713bfe6e48beb8de660
 msgid ""
 "If an image does not have a ``ipernity:id`` keyword then Photini will try to"
 " find the photograph on Ipernity by matching the date and time it was taken."
@@ -1604,19 +1366,15 @@ msgstr ""
 "찾으려고 시도합니다. Ipernity에 새 메타데이터가 있으면 이미지의 메타데이터에 병합됩니다. 이미지의 컨텍스트 메뉴 ``변경사항 "
 "보기`` 로 변경된 사항을 확인할 수 있습니다."
 
-#: ../../../doc/manual/ipernity.rst:82 db325e7f7d4c455bb198084163efd6d1
 msgid "Synchronising Ipernity metadata to local"
 msgstr "Ipernity 메타데이터를 로컬에 동기화"
 
-#: ../../../doc/manual/ipernity.rst:84 d91ae0cbf0f745b2a6d6815a3929b090
 msgid ""
 "If you change your image file metadata and would like to make the same "
 "changes on Ipernity you can select the image and click on the ``Start "
 "upload`` button."
-msgstr ""
-"이미지 파일 메타데이터를 변경하고 Ipernity에서 동일하게 변경하려면 이미지를 선택하고 ``업로드 시작`` 버튼을 클릭하면 됩니다."
+msgstr "이미지 파일 메타데이터를 변경하고 Ipernity에서 동일하게 변경하려면 이미지를 선택하고 ``업로드 시작`` 버튼을 클릭하면 됩니다."
 
-#: ../../../doc/manual/ipernity.rst:88 fc781bac1c0e40e9ab553057abf21d25
 msgid ""
 "If you upload an image that already has a ``ipernity:id`` keyword then "
 "Photini allows you to change the photograph's metadata instead of uploading "
@@ -1625,11 +1383,9 @@ msgstr ""
 "이미 ``ipernity:id`` 키워드가 있는 이미지를 업로드하면 Photini를 사용하여 새 사진을 업로드하는 대신 사진의 "
 "메타데이터를 변경할 수 있습니다."
 
-#: ../../../doc/manual/map.rst:6 e1e968dad15c43e49851a1dc732e04f5
 msgid "Geotagging"
 msgstr "위치 태깅"
 
-#: ../../../doc/manual/map.rst:8 fd1e8c6039b04a11b29b43d21db0af25
 msgid ""
 "The map tabs allow you to set the location of where a photograph was taken. "
 "Photini currently uses three different map providers: Google, Bing, and "
@@ -1641,7 +1397,6 @@ msgstr ""
 "Mapbox/OpenStreetMap의 세 가지 지도 제공업체를 사용합니다. 세 탭 모두 기능은 비슷하지만 스타일과 세부 수준이 "
 "다릅니다. Google, Bing 및 Mapbox도 항공(또는 \"위성\") 사진을 제공합니다."
 
-#: ../../../doc/manual/map.rst:15 7db3769c02d84d999816cf4c4d80210b
 msgid ""
 "The map initially displays the previously used location. You can change the "
 "view by zooming in or out, or by panning the map by dragging it with the "
@@ -1651,7 +1406,6 @@ msgstr ""
 "지도는 처음에 이전에 사용한 위치를 표시합니다. 확대 또는 축소하거나 지도를 마우스로 끌어 이동하여 보기를 변경할 수 있습니다. 그러나 "
 "일반적으로 검색 기능을 사용하여 특정 위치를 찾는 것이 더 쉽습니다."
 
-#: ../../../doc/manual/map.rst:21 e84bdf3d2ee246eda660afcef0f810ad
 msgid ""
 "Click on the ``<new search>`` edit box and type in a search term such as the"
 " name of a town, then press the 'return' key. A drop down list of place "
@@ -1663,7 +1417,6 @@ msgstr ""
 "드롭다운 목록이 나타나야 선택이 가능합니다. 서비스를 제공하는 무료 서버의 부하를 제한하기 위해 검색할 때마다 검색 상자가 몇 초 동안 "
 "비활성화될 수 있습니다."
 
-#: ../../../doc/manual/map.rst:27 37e8a7a74f5f49acb751b4b463909dae
 msgid ""
 "The search is influenced by the current location shown on the map. A search "
 "for 'newport' may return different results if the map is showing New York "
@@ -1678,22 +1431,17 @@ msgstr ""
 " 수행할 수 있습니다. 또는 지도를 원하는 위치 근처로 드래그한 다음 드롭다운 목록에서 ``<repeat search>`` 항목을 클릭할"
 " 수 있습니다."
 
-#: ../../../doc/manual/map.rst:32 026377cb80804a2ca7cc28f4dca41259
 msgid ""
 "Each map provider has its own search facility. You may get more useful "
 "results by switching to a different map tab."
 msgstr "각 지도 제공 업체에는 자체 검색 기능이 있습니다. 다른 지도 탭으로 전환하면 더 유용한 결과를 얻을 수 있습니다."
 
-#: ../../../doc/manual/map.rst:37 80f389513c494a51b8cd5fb0314691c6
 msgid ""
 "Having found the right town, you can then zoom in and pan around to find the"
 " exact location where your photograph was taken. Using aerial / satellite "
 "imagery can help with this."
-msgstr ""
-"올바른 도시를 찾은 다음 확대 및 이동하여 사진을 찍은 정확한 위치를 찾을 수 있습니다. 항공/위성 이미지를 사용하면 이에 도움이 "
-"됩니다."
+msgstr "올바른 도시를 찾은 다음 확대 및 이동하여 사진을 찍은 정확한 위치를 찾을 수 있습니다. 항공/위성 이미지를 사용하면 이에 도움이 됩니다."
 
-#: ../../../doc/manual/map.rst:42 bed854e1baf1477687e35112af922336
 msgid ""
 "Now you can drag and drop your photograph onto the map to set its location. "
 "To set the same location on multiple images, select them all and then drag "
@@ -1702,13 +1450,11 @@ msgstr ""
 "이제 사진을 지도에 끌어다 놓아 위치를 설정할 수 있습니다. 여러 이미지에 동일한 위치를 설정하려면 이미지를 모두 선택한 다음 그 중 "
 "하나를 끌어다 놓습니다."
 
-#: ../../../doc/manual/map.rst:49 3da74d9c93b04f048c4f6b22b475e169
 msgid ""
 "Note that photographs that have location data are shown with a flag symbol "
 "(|flag|) in the image selector area."
 msgstr "위치 데이터가 있는 사진은 이미지 선택기 영역에 플래그 기호(|flag|)와 함께 표시됩니다."
 
-#: ../../../doc/manual/map.rst:51 98f09d1c1203434f943d4eda7dd0cf14
 msgid ""
 "The location coordinates are shown in the ``Lat, long:`` box. These values "
 "are editable, so you can set the location of photographs directly, e.g. by "
@@ -1719,7 +1465,6 @@ msgstr ""
 "위치 좌표는 ``위도, 경도:`` 상자에 표시됩니다. 이 값은 편집 가능하므로 사진의 위치를 직접 설정할 수 있습니다. 다른 하나에서 "
 "복사하여 붙여넣습니다. 지도에서 마커를 드래그하여 위치를 조정할 수도 있습니다. 사진의 위치 데이터를 지우려면 좌표를 삭제하면 됩니다."
 
-#: ../../../doc/manual/map.rst:58 d078b29225d14293a5206e146afe90c3
 msgid ""
 "When several photographs have location metadata Photini will pan the map "
 "(and zoom out if required) to ensure all the selected images are shown on "
@@ -1729,7 +1474,6 @@ msgstr ""
 "여러 사진에 위치 메타데이터가 있으면 Photini가 지도를 이동(필요한 경우 축소)하여 선택한 모든 이미지가 지도에 표시되도록 합니다."
 " 선택한 영상이 컬러 마커로 표시됩니다. 선택하지 않은 영상은 회색 마커로 표시됩니다."
 
-#: ../../../doc/manual/map.rst:62 5dee1d623eb645b6b947ed034c67b5c5
 msgid ""
 "The ``Get altitude from map`` button sets the photograph's altitude (in "
 "metres) from its latitude and longitude, using data from the map provider. "
@@ -1739,17 +1483,14 @@ msgstr ""
 "``지도에서 고도 가져오기`` 버튼은 지도 공급자의 데이터를 사용하여 위도와 경도에서 사진의 고도(미터)를 설정합니다. 모든 지도 "
 "제공업체에 고도 데이터가 있는 것은 아니며 정확도도 상당히 다양합니다. 값을 편집하여 수정할 수 있습니다."
 
-#: ../../../doc/manual/map.rst:68 04ae5051c6384a88b2eb754d35e56f12
 msgid ""
 "Selecting another map tab will show the same location but with data and "
 "imagery from a different provider."
 msgstr "다른 지도 탭을 선택하면 동일한 위치가 표시되지만 다른 제공업체의 데이터와 이미지가 포함됩니다."
 
-#: ../../../doc/manual/map.rst:75 0e974ad9269640f490e0d18a14df61cb
 msgid "GPX file import"
 msgstr "GPX 파일 가져오기"
 
-#: ../../../doc/manual/map.rst:77 4609f666512e43f2b88d930ebe71612c
 msgid ""
 "If you have a mobile phone or other device with a GPS logger you may be able"
 " to set the approximate locations of photographs from logged GPS positions. "
@@ -1759,7 +1500,6 @@ msgstr ""
 "GPS 로거가 있는 휴대폰이나 기타 장치가 있는 경우 기록된 GPS 위치에서 사진의 대략적인 위치를 설정할 수 있습니다. gpxpy_ 를"
 " 설치했다면 지도 페이지에 GPX 파일을 가져오는 버튼이 있습니다."
 
-#: ../../../doc/manual/map.rst:82 5486ea190c05403a913fdb9dcc07364b
 msgid ""
 "First you need to export your GPS log as a GPX_ (GPS eXchange format) file, "
 "then transfer the .gpx file to your computer. Make sure your images have the"
@@ -1768,7 +1508,6 @@ msgstr ""
 "먼저 GPS 로그를 GPX_ (GPS eXchange 형식) 파일로 내보낸 다음 .gpx 파일을 컴퓨터로 전송해야 합니다. "
 "Photini가 UTC_ 타임스탬프를 계산할 수 있도록 이미지에 올바른 시간대가 설정되어 있는지 확인하십시오."
 
-#: ../../../doc/manual/map.rst:87 fb44b73cb7174fd79fe4bb36090f4e9a
 msgid ""
 "When a GPX file is imported its track points are displayed on the map as "
 "blue circles. If the file has a large number of points, closely positioned "
@@ -1777,20 +1516,16 @@ msgstr ""
 "GPX 파일을 가져오면 추적 지점이 지도에 파란색 원으로 표시됩니다. 파일에 많은 수의 점이 있고 공간 또는 시간에 밀접하게 위치하는 "
 "경우 모든 점이 표시되지는 않습니다."
 
-#: ../../../doc/manual/map.rst:92 1363df1437814e2eaee10dc8b66a134b
 msgid ""
 "Selecting a photograph shows up to four track points in red. These are "
 "points with time stamps around the time the photograph was taken."
-msgstr ""
-"사진을 선택하면 최대 4개의 트랙 포인트가 빨간색으로 표시됩니다. 사진이 찍힌 시간을 기준으로 타임스탬프가 찍힌 포인트입니다."
+msgstr "사진을 선택하면 최대 4개의 트랙 포인트가 빨간색으로 표시됩니다. 사진이 찍힌 시간을 기준으로 타임스탬프가 찍힌 포인트입니다."
 
-#: ../../../doc/manual/map.rst:97 06570059a270424091b729a619c045f7
 msgid ""
 "After zooming in on the red track points the photograph can be dragged to "
 "the map as usual."
 msgstr "빨간색 트랙 포인트를 확대한 후 평소와 같이 사진을 지도로 드래그할 수 있습니다."
 
-#: ../../../doc/manual/map.rst:101 e9d4d48dba2d4aae91c16905b46ce81f
 msgid ""
 "Alternatively, the ``Set coords from GPX`` button can be used to set the "
 "latitude and longitude of all the selected photographs to the nearest (in "
@@ -1799,7 +1534,6 @@ msgstr ""
 "또는 ``GPX에서 좌표 설정 버튼`` 을 사용하여 선택한 모든 사진의 위도와 경도를 가장 가까운(시간상) GPX 트랙 포인트로 설정할 "
 "수 있습니다."
 
-#: ../../../doc/manual/map.rst:105 6dfd07264f234f4f93e3b819e826e100
 msgid ""
 "Sometimes GPS receivers lose accuracy, so some GPX file points can be wrong "
 "by over 100 metres. In this case the ``Set coords from GPX`` button is not "
@@ -1808,26 +1542,19 @@ msgstr ""
 "때때로 GPS 수신기는 정확도를 잃기 때문에 일부 GPX 파일 포인트는 100미터 이상 틀릴 수 있습니다. 이 경우 ``GPX에서 좌표 "
 "설정`` 버튼은 그다지 유용하지 않습니다."
 
-#: ../../../doc/manual/map.rst:108 fba6016e24af4093a83ac7c3027b8698
 msgid ""
 "When you've finished with the GPX track points they can be removed from the "
 "map with the ``Remove GPX data`` button."
 msgstr "GPX 트랙 포인트로 작업을 마치면 ``GPX 데이터 제거`` 버튼을 사용하여 지도에서 제거할 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:6
-#: a4ee027dc215447398060e1a3fb6e9fa
 msgid "Ownership metadata"
 msgstr "메타데이터 소유권"
 
-#: ../../../doc/manual/ownership_metadata.rst:8
-#: 4d3b980f55324e4a8d933e65da6dae88
 msgid ""
 "The ``Ownership metadata`` tab (keyboard shortcut ``Alt+O``) allows you to "
 "edit ownership and copyright information about your photographs."
 msgstr "``메타데이터 소유권`` 탭(단축키 ``Alt+O``)을 사용하면 사진에 대한 소유권 및 저작권 정보를 편집할 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:12
-#: 3c90eebbdd3e4982908f2f1af2e6074f
 msgid ""
 "Most of this data will be the same for all your photographs, so Photini uses"
 " a \"template\" to apply the same text to all the selected images. If your "
@@ -1840,8 +1567,6 @@ msgstr ""
 "적용합니다. 사진에 이미 이 정보가 있는 경우(일부 카메라는 작성자와 저작권 표시를 설정함) 하나 이상의 사진을 선택하고 ``템플릿 "
 "초기화`` 를 클릭하여 템플릿에 복사할 수 있습니다. 그렇지 않으면 ``템플릿 편집`` 버튼을 사용하여 아래와 같은 대화 상자를 엽니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:18
-#: 08476d8680eb43a9a3e5b8edf7ba9356
 msgid ""
 "Fill in any of the fields you want to use on every photograph. The field "
 "labels are copied from the `IPTC standard`_, as is the help text which "
@@ -1853,8 +1578,6 @@ msgstr ""
 " 도움말 텍스트도 마찬가지입니다. ``저작권 고지`` 및 ``권리: 사용 조건`` 필드에는 :ref:`alternative-"
 "languages` 에 설명된 대로 대체 언어가 있을 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:24
-#: 5ac84374c1074efabff9e0833fbc9023
 msgid ""
 "Note that you can insert the year in which a photograph was taken with "
 "``%Y``. This is probably only useful in the ``Copyright Notice``, but is "
@@ -1866,8 +1589,6 @@ msgstr ""
 "있습니다. (실제로 `Python strftime function`_ 에서 인식하는 모든 지시문을 사용할 수 있습니다. 예를 들어 "
 "``%m`` 은 월 번호로, ``%B`` 는 월 이름으로 사용할 수 있습니다.)"
 
-#: ../../../doc/manual/ownership_metadata.rst:30
-#: dc2059736ec1491fa88a8b3796329471
 msgid ""
 "The ``Rights: Web Statement`` field is a drop down list of `Creative "
 "Commons`_ licences which you can extend with any other licences you use. The"
@@ -1877,8 +1598,6 @@ msgstr ""
 "``Rights: Web Statement`` 필드는 사용하는 다른 라이선스로 확장할 수 있는 `Creative Commons`_ "
 "라이선스의 드롭다운 목록입니다. 위젯의 상황에 맞는 메뉴를 사용하면 웹 브라우저에서 라이선스 URL을 방문할 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:33
-#: 05ec0b69f09041de8d2be7306910c310
 msgid ""
 "Google Image Search displays the ``Creator``, ``Credit Line``, and "
 "``Copyright Notice`` values alongside search results. It also uses the "
@@ -1891,8 +1610,6 @@ msgstr ""
 "재사용 허가를 받을 수 있는 이미지를 찾는 데 도움을 줍니다. 자세한 내용은 `IPTC 사진 메타데이터 및 Google 이미지에 대한 "
 "빠른 가이드 <Quick guide to IPTC Photo Metadata and Google Images_>`_ 를 참조하세요."
 
-#: ../../../doc/manual/ownership_metadata.rst:39
-#: 4c87c6f96f23490da4ecb90c278dbd81
 msgid ""
 "The ``Apply template`` button copies the template data to all the selected "
 "images, setting the correct year in the ``Copyright Notice``. If you want to"
@@ -1905,8 +1622,6 @@ msgstr ""
 "적용될 때 이미지의 기존 소유권 데이터를 지우려면 해당 템플릿 필드를 단일 공백으로 설정하십시오. 그런 다음 일반적인 방법으로 더 많은 "
 "정보를 추가하거나 기존 정보를 편집할 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:46
-#: 456e58b8fefe49dcaa0528a2b7af9cc7
 msgid ""
 "Click on any field name below to see the IPTC definition and user notes for "
 "that field. Although these fields are defined in an `IPTC standard`_, they "
@@ -1917,8 +1632,6 @@ msgstr ""
 "<IPTC standard_>`_ 에 정의되어 있지만 모두 XMP 메타데이터에 저장됩니다. 그 중 일부는 \"legacy\" IPTC-"
 "IIM 데이터에도 저장됩니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:51
-#: 475508f8e4dd47af91ae4e7250109699
 msgid ""
 "`Creator <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#creator>`_"
@@ -1926,33 +1639,23 @@ msgstr ""
 "`Creator <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#creator>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:51
-#: 06fd31ce676749e0850e573439a5342d
 msgid ""
 "Usually the photographer's name. If there is more than one creator, separate"
 " them with a ``;`` character."
 msgstr "일반적으로 사진 작가의 이름입니다. 작성자가 두 명 이상인 경우 ``;`` 문자로 구분합니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:54
-#: e53773449ed24a0c9af8b259dface302
 msgid ""
-"`Creator's Jobtitle "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#creators-jobtitle>`_"
+"`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-jobtitle>`_"
 msgstr ""
-"`Creator's Jobtitle "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#creators-jobtitle>`_"
+"`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-jobtitle>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:54
-#: aef15fd978424969aed46504f53e4fd3
 msgid ""
 "Job title of the first creator. Do not fill in this field unless the creator"
 " field is filled in."
 msgstr "첫 번째 제작자의 Job title. 작성자 필드가 채워져 있지 않으면 이 필드를 채우지 마십시오."
 
-#: ../../../doc/manual/ownership_metadata.rst:56
-#: f966491675f54314846ae19146629874
 msgid ""
 "`Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#credit-line>`_"
@@ -1960,14 +1663,9 @@ msgstr ""
 "`Credit Line <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#credit-line>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:57
-#: c382868d45304bb38b78a906c95c9690
-msgid ""
-"Usually the photographer's name, but could be their employer or client."
+msgid "Usually the photographer's name, but could be their employer or client."
 msgstr "일반적으로 사진 작가의 이름이지만 고용주나 클라이언트가 될 수 있습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:58
-#: c6721991b30248cfbd76357aa24f5f40
 msgid ""
 "`Copyright Notice <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#copyright-notice>`_"
@@ -1975,40 +1673,26 @@ msgstr ""
 "`저작원 고지 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#copyright-notice>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:59
-#: ec055a6852784ed9ac366b62b09d16b3
 msgid "Who owns the copyright."
 msgstr "저작권을 소유한 사람."
 
-#: ../../../doc/manual/ownership_metadata.rst:61
-#: b777908718d54d149ceaf0d0b1964929
 msgid ""
-"`Rights: Usage Terms "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#rights-usage-terms>`_"
+"`Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#rights-usage-terms>`_"
 msgstr ""
 "`권한: 이용 약관 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#rights-usage-terms>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:61
-#: 73d81adfa6d04553b0039eeaafb1cda0
-msgid ""
-"Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
+msgid "Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
 msgstr "이미지를 재사용할 수 있는 방법에 대한 일반 텍스트 요약입니다. IPTC-IIM에 저장되지 않습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:65
-#: f857ab4ac5844bfe873369c64819c541
 msgid ""
-"`Rights: Web Statement "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-"
-"statement-of-rights>`_"
+"`Rights: Web Statement <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#web-statement-of-rights>`_"
 msgstr ""
-"`권한: Web Statement "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-"
-"statement-of-rights>`_"
+"`권한: Web Statement <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#web-statement-of-rights>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:64
-#: 2d8102efdce44924ac4d7e8abae09372
 msgid ""
 "URL of a web page describing the usage rights of an image. `All rights "
 "reserved`_ is shown for any image with no URL set. Not stored in IPTC-IIM."
@@ -2016,25 +1700,18 @@ msgstr ""
 "이미지의 사용 권한을 설명하는 웹 페이지의 URL입니다. URL이 설정되지 않은 이미지에는 `All rights reserved`_ 가 "
 "표시됩니다. IPTC-IIM에 저장되지 않습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:68
-#: c11d222b30354e58ba4e25d3ff1fd664
 msgid ""
-"`Rights: Licensor URL "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#licensor>`_"
+"`Rights: Licensor URL <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#licensor>`_"
 msgstr ""
 "`권한: 라이선스 제공자 URL <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#licensor>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:68
-#: e0d6268abc5b42e7a3d236a5ae567d7f
 msgid ""
 "URL of a person or company who can grant a right to reuse the image. Not "
 "stored in IPTC-IIM."
 msgstr "이미지 재사용 권한을 부여할 수 있는 개인 또는 회사의 URL입니다. IPTC-IIM에 저장되지 않습니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:70
-#: 5e6f22a439b449669ca8a2a9fd72d21b
 msgid ""
 "`Instructions <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#instructions>`_"
@@ -2042,23 +1719,16 @@ msgstr ""
 "`지침서 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#instructions>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:71
-#: 7f7e27d9cde545ffab9b7933c14d51a7
 msgid "Notes to a publisher of the image."
 msgstr "이미지 게시자에 대한 참고 사항입니다."
 
-#: ../../../doc/manual/ownership_metadata.rst:74
-#: fa11f90719a346cba3b2aa3212aaff7f
 msgid ""
-"`Contact Information "
-"<http://www.iptc.org/std/photometadata/specification/IPTC-"
-"PhotoMetadata#creators-contact-info>`_"
+"`Contact Information <http://www.iptc.org/std/photometadata/specification"
+"/IPTC-PhotoMetadata#creators-contact-info>`_"
 msgstr ""
 "`연락처 정보 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#creators-contact-info>`_"
 
-#: ../../../doc/manual/ownership_metadata.rst:73
-#: e079998b1d9c4292aa4920177943ed68
 msgid ""
 "Only the `Address <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#address>`_ is stored in IPTC-IIM. Multiple email addresses, "
@@ -2067,11 +1737,9 @@ msgstr ""
 "IPTC-IIM에는 `주소 <http://www.iptc.org/std/photometadata/specification/IPTC-"
 "PhotoMetadata#address>`_ 만 저장됩니다. 여러 이메일 주소, URL 또는 전화번호는 쉼표로 구분해야 합니다."
 
-#: ../../../doc/manual/tags.rst:6 407c197cfdbb4dffa3f54affad6583f0
 msgid "Tag reference"
 msgstr "태그 참조"
 
-#: ../../../doc/manual/tags.rst:8 f95e23229f7846cc96be048a5dfb7457
 msgid ""
 "This section lists the \"mapping\" from Photini's field names (such as "
 "\"Title / Object Name\") to the Exif / XMP / IPTC-IIM tags the data is "
@@ -2082,7 +1750,6 @@ msgstr ""
 "Object Name\")의 \"mapping\"을 나열합니다. 태그 이름은 Exiv2 라이브러리에서 사용하는 이름입니다. 자세한 내용은"
 " http://exiv2.org/metadata.html 을 참조하십시오."
 
-#: ../../../doc/manual/tags.rst:12 d5129a7e70f4409e91e1689ef1217634
 msgid ""
 "As far as possible Photini follows the `Metadata Working Group "
 "<https://en.wikipedia.org/wiki/Metadata_Working_Group>`_ (MWG) \"Guidelines "
@@ -2095,11 +1762,9 @@ msgstr ""
 "처리 지침\"을 따릅니다. 이는 Exif, XMP 및 IPTC-IIM의 태그 간의 매핑을 지정하고 소프트웨어가 동등한 태그에 저장된 정보"
 " 간의 차이를 조정하는 방법을 알려줍니다."
 
-#: ../../../doc/manual/tags.rst:16 80782aadee394c97b2da77f72de95b62
 msgid "Primary tags"
 msgstr "기본 태그"
 
-#: ../../../doc/manual/tags.rst:18 7868ad7c26684317bf512c4155b1dc27
 msgid ""
 "These tags are where Photini stores its metadata. (Legacy IPTC-IIM data is "
 "only used if it already exists in the file, in line with the MWG guidelines,"
@@ -2108,7 +1773,6 @@ msgstr ""
 "이러한 태그는 Photini가 메타데이터를 저장하는 위치입니다. (레거시 IPTC-IIM 데이터는 \"무조건 쓰기\" 사용자 설정이 "
 "활성화되지 않는 한 MWG 지침에 따라 파일에 이미 존재하는 경우에만 사용됩니다.)"
 
-#: ../../../doc/manual/tags.rst:21 1ccb7928e4954f6497b4faa43ab5515e
 msgid ""
 "Note that some fields, such as \"Title / Object Name\" and \"Keywords\", are"
 " not stored in Exif. You may prefer not to use these fields to ensure "
@@ -2117,280 +1781,195 @@ msgstr ""
 "\"Title / Object Name\" 및 \"Keywords\"와 같은 일부 필드는 Exif에 저장되지 않습니다. Exif만 "
 "처리하는 소프트웨어와의 호환성을 보장하기 위해 이 필드를 사용하지 않는 것이 좋습니다."
 
-#: ../../../doc/manual/tags.rst:24 eb0b46c865c94589ac6198f938eae3c2
 msgid ""
 "Some of the field names in the table below lingk to their definition in the "
 "IPTC standard. You may find this useful when deciding what to write in those"
 " fields."
-msgstr ""
-"아래 표의 일부 필드 이름은 IPTC 표준의 정의와 연결되어 있습니다. 해당 필드에 무엇을 쓸지 결정할 때 이 기능이 유용할 수 "
-"있습니다."
+msgstr "아래 표의 일부 필드 이름은 IPTC 표준의 정의와 연결되어 있습니다. 해당 필드에 무엇을 쓸지 결정할 때 이 기능이 유용할 수 있습니다."
 
-#: ../../../doc/manual/tags.rst:28 ../../../doc/manual/tags.rst:86
-#: ../../../doc/manual/tags.rst:114 ../../../doc/manual/tags.rst:138
-#: bf46aa1bc535469dbdfd186c33ddf89b 664219c4ae8543f6b5e8912995c5f316
-#: 664219c4ae8543f6b5e8912995c5f316 664219c4ae8543f6b5e8912995c5f316
 msgid "Photini field"
 msgstr "Photini 필드"
 
-#: ../../../doc/manual/tags.rst:28 ../../../doc/manual/tags.rst:86
-#: ../../../doc/manual/tags.rst:114 ../../../doc/manual/tags.rst:138
-#: 9ab1f580bcd34196a7df1e4007935831 eec6e3b71b8340af8b656437c90279c2
-#: eec6e3b71b8340af8b656437c90279c2 eec6e3b71b8340af8b656437c90279c2
 msgid "Exif tag"
 msgstr "Exif 태그"
 
-#: ../../../doc/manual/tags.rst:28 ../../../doc/manual/tags.rst:86
-#: ../../../doc/manual/tags.rst:114 ../../../doc/manual/tags.rst:138
-#: bb9dd4e3f47f46d6b29b4c652c093e97 6da034658c604178a1d3748a07355d6e
-#: 6da034658c604178a1d3748a07355d6e 6da034658c604178a1d3748a07355d6e
 msgid "XMP tag"
 msgstr "XMP 태그"
 
-#: ../../../doc/manual/tags.rst:28 ../../../doc/manual/tags.rst:86
-#: ../../../doc/manual/tags.rst:114 ../../../doc/manual/tags.rst:138
-#: bbb41eec08a64a8d8a2dd9ede1771443 8728187997874d2a94d1af673b2e76ea
-#: 8728187997874d2a94d1af673b2e76ea 8728187997874d2a94d1af673b2e76ea
 msgid "IPTC-IIM tag"
 msgstr "IPTC-IIM 태그"
 
-#: ../../../doc/manual/tags.rst:30 fc61dec2274e4f3b91f100d13153affd
 msgid "`Title / Object Name`_"
 msgstr "`제목/개체 이름`_"
 
-#: ../../../doc/manual/tags.rst:30 3c6eb0418edc4283879ecc4d5203a8ae
 msgid "Xmp.dc.title"
 msgstr "Xmp.dc.title"
 
-#: ../../../doc/manual/tags.rst:30 e83d8fdcd4a445f3a0a08baedea7e77a
 msgid "Iptc.Application2.ObjectName"
 msgstr "Iptc.Application2.ObjectName"
 
-#: ../../../doc/manual/tags.rst:31 7f2e5ea227f7470eb21eb990c65d3b78
 msgid "Headline_"
 msgstr "Headline_"
 
-#: ../../../doc/manual/tags.rst:31 e97c7f8e91474f549aefe12fe04aaa2c
 msgid "Xmp.photoshop.Headline"
 msgstr "Xmp.photoshop.Headline"
 
-#: ../../../doc/manual/tags.rst:31 2982bc9367c944c3b6e48764602849ba
 msgid "Iptc.Application2.Headline"
 msgstr "Iptc.Application2.Headline"
 
-#: ../../../doc/manual/tags.rst:32 00f1de30dee641a784924bfec29e95d8
 msgid "`Description / Caption`_"
 msgstr "`설명/캡션`_"
 
-#: ../../../doc/manual/tags.rst:32 e2259cb02d304605abc310d894fe96e8
 msgid "Exif.Image.ImageDescription"
 msgstr "Exif.Image.ImageDescription"
 
-#: ../../../doc/manual/tags.rst:32 f019be5de07b49138389bb262c91271a
 msgid "Xmp.dc.description"
 msgstr "Xmp.dc.description"
 
-#: ../../../doc/manual/tags.rst:32 c69478fa19ad4295a0ddab076229ef7d
 msgid "Iptc.Application2.Caption"
 msgstr "Iptc.Application2.Caption"
 
-#: ../../../doc/manual/tags.rst:33 8f3d20e6aacf48f093b260024e0cdd8c
 msgid "Keywords_"
 msgstr "Keywords_"
 
-#: ../../../doc/manual/tags.rst:33 8b10464d61f24268ac8d8cee5cf35235
 msgid "Xmp.dc.subject"
 msgstr "Xmp.dc.subject"
 
-#: ../../../doc/manual/tags.rst:33 df0d79f85029430aaef61e5aa0bf6c77
 msgid "Iptc.Application2.Keywords"
 msgstr "Iptc.Application2.Keywords"
 
-#: ../../../doc/manual/tags.rst:34 958000bd514c4d20af875cd2f9d62a5b
 msgid "Rating_"
 msgstr "Rating_"
 
-#: ../../../doc/manual/tags.rst:34 15455dba04cf4a26a32ae59b48a51ea7
 msgid "Xmp.xmp.Rating"
 msgstr "Xmp.xmp.Rating"
 
-#: ../../../doc/manual/tags.rst:35 ../../../doc/manual/tags.rst:142
-#: c3fe510d4c2b443ab5ca6237f99d92c4 c3fe510d4c2b443ab5ca6237f99d92c4
 msgid "`Creator / Artist`_"
 msgstr "`크리에이터/아티스트`_"
 
-#: ../../../doc/manual/tags.rst:35 a70ef645a325467fbb0a357a1a204d8f
 msgid "Exif.Image.Artist"
 msgstr "Exif.Image.Artist"
 
-#: ../../../doc/manual/tags.rst:35 697607e7523c45d78967d59454504e36
 msgid "Xmp.dc.creator"
 msgstr "Xmp.dc.creator"
 
-#: ../../../doc/manual/tags.rst:35 d8a137e84eeb4a19af9c796c1192e67b
 msgid "Iptc.Application2.Byline"
 msgstr "Iptc.Application2.Byline"
 
-#: ../../../doc/manual/tags.rst:36 554fd926a3b545e6bbb24a8b46d1337e
 msgid "`Creator's Jobtitle`_"
 msgstr "`크리에이터의 Jobtitle`_"
 
-#: ../../../doc/manual/tags.rst:36 7ea3e7b5fb894e0a9ceb5a0a71a9338d
 msgid "Xmp.photoshop.AuthorsPosition"
 msgstr "Xmp.photoshop.AuthorsPosition"
 
-#: ../../../doc/manual/tags.rst:36 37bf3c011f384699a90861b8185e06c5
 msgid "Iptc.Application2.BylineTitle"
 msgstr "Iptc.Application2.BylineTitle"
 
-#: ../../../doc/manual/tags.rst:37 7f2e5ea227f7470eb21eb990c65d3b78
 msgid "`Credit Line`_"
 msgstr "`Credit Line`_"
 
-#: ../../../doc/manual/tags.rst:37 77fe9ad66d694a739164997040513832
 msgid "Xmp.photoshop.Credit"
 msgstr "Xmp.photoshop.Credit"
 
-#: ../../../doc/manual/tags.rst:37 18e2c5f7749a4c3984eec3d3bbc3fc74
 msgid "Iptc.Application2.Credit"
 msgstr "Iptc.Application2.Credit"
 
-#: ../../../doc/manual/tags.rst:38 64a5f33d132b4f4c935e6a7ea0da3870
 msgid "`Copyright Notice`_"
 msgstr "`저작권 고지`_"
 
-#: ../../../doc/manual/tags.rst:38 931ea1a343bb4eb6b720ea25d2127d74
 msgid "Exif.Image.Copyright"
 msgstr "Exif.Image.Copyright"
 
-#: ../../../doc/manual/tags.rst:38 d2aa9e9771ee4dbf8d593745ffb5ce1d
 msgid "Xmp.dc.rights"
 msgstr "Xmp.dc.rights"
 
-#: ../../../doc/manual/tags.rst:38 be43a76cecbf4042ba77f44ed6625a6c
 msgid "Iptc.Application2.Copyright"
 msgstr "Iptc.Application2.Copyright"
 
-#: ../../../doc/manual/tags.rst:39 a40faee804174a4c99c7fc1e0e7cf2a7
 msgid "`Rights: Usage Terms`_"
 msgstr "`권한: 이용약관`_"
 
-#: ../../../doc/manual/tags.rst:39 35d9527057064a6e926e4736c6cbba52
 msgid "Xmp.xmpRights.UsageTerms"
 msgstr "Xmp.xmpRights.UsageTerms"
 
-#: ../../../doc/manual/tags.rst:40 3801788126cd422296c53a9a3c8cbb2f
 msgid "`Rights: Web Statement`_"
 msgstr "`권한: Web Statement`_"
 
-#: ../../../doc/manual/tags.rst:40 91583b38895a4d0ab7db365e0d771ab5
 msgid "Xmp.xmpRights.WebStatement"
 msgstr "Xmp.xmpRights.WebStatement"
 
-#: ../../../doc/manual/tags.rst:41 761f9ade5ce344b8a3680def3b64445f
 msgid "`Rights: Licensor URL`_"
 msgstr "`권한: 라이선스 제공자 URL`_"
 
-#: ../../../doc/manual/tags.rst:41 ec39466e3acd4eed82c19625c7fd0e67
 msgid "Xmp.plus.Licensor[1]/plus:LicensorURL"
 msgstr "Xmp.plus.Licensor[1]/plus:LicensorURL"
 
-#: ../../../doc/manual/tags.rst:42 5ed6ac7c46974e009151c5d57d57f3f6
 msgid "Instructions_"
 msgstr "Instructions_"
 
-#: ../../../doc/manual/tags.rst:42 2db7f065b1624c178fecb3e3de0d3c6e
 msgid "Xmp.photoshop.Instructions"
 msgstr "Xmp.photoshop.Instructions"
 
-#: ../../../doc/manual/tags.rst:42 2c3a16e2f82c4d5baf45d7f18f789749
 msgid "Iptc.Application2.SpecialInstructions"
 msgstr "Iptc.Application2.SpecialInstructions"
 
-#: ../../../doc/manual/tags.rst:43 2de0f7e4f81c4727b81efc9151750b03
 msgid "`Contact Information`_"
 msgstr "`연락처`_"
 
-#: ../../../doc/manual/tags.rst:43 77bd3d9a3b4c40feb69197dad97b11b1
 msgid "Xmp.iptc.CreatorContactInfo"
 msgstr "Xmp.iptc.CreatorContactInfo"
 
-#: ../../../doc/manual/tags.rst:43 1f1a23012ba3408d981ad0b446c5c2c5
 msgid "Iptc.Application2.Contact"
 msgstr "Iptc.Application2.Contact"
 
-#: ../../../doc/manual/tags.rst:44 b5dc6dd44d9641d0b6be8ee943ca7ab6
 msgid "`Date / time Taken`_"
 msgstr "`날짜/시간`_"
 
-#: ../../../doc/manual/tags.rst:44 7e4eb2a5d80b44ccad9a0d7b579ad003
 msgid "Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal"
 msgstr "Exif.Photo.DateTimeOriginal Exif.Photo.SubSecTimeOriginal"
 
-#: ../../../doc/manual/tags.rst:44 08ce42ec4c5041a2a1ef92f54962efe0
 msgid "Xmp.photoshop.DateCreated"
 msgstr "Xmp.photoshop.DateCreated"
 
-#: ../../../doc/manual/tags.rst:44 eae03ebdf61741fab80a8e2d1620fd72
 msgid "Iptc.Application2.DateCreated Iptc.Application2.TimeCreated"
 msgstr "Iptc.Application2.DateCreated Iptc.Application2.TimeCreated"
 
-#: ../../../doc/manual/tags.rst:46 ../../../doc/manual/tags.rst:98
-#: 90cda8ea73784e08a6466b12cce58995 90cda8ea73784e08a6466b12cce58995
 msgid "Date / time Digitised"
 msgstr "날짜/시간 디지털화"
 
-#: ../../../doc/manual/tags.rst:46 74896f8fa56c4c22b019ae7a27e7ef14
 msgid "Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized"
 msgstr "Exif.Photo.DateTimeDigitized Exif.Photo.SubSecTimeDigitized"
 
-#: ../../../doc/manual/tags.rst:46 2e2d051bebca4c86ab2e5216719c0dcf
 msgid "Xmp.xmp.CreateDate"
 msgstr "Xmp.xmp.CreateDate"
 
-#: ../../../doc/manual/tags.rst:46 354ce12c5e4f4b16a19cf477b9c54da6
 msgid "Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime"
 msgstr "Iptc.Application2.DigitizationDate Iptc.Application2.DigitizationTime"
 
-#: ../../../doc/manual/tags.rst:48 ../../../doc/manual/tags.rst:99
-#: e22c29e0a80d4de8b8cc78ce689abe3f e22c29e0a80d4de8b8cc78ce689abe3f
 msgid "Date / time Modified"
 msgstr "날짜/시간 수정됨"
 
-#: ../../../doc/manual/tags.rst:48 416ac302d9514ee29bd9830b470417bc
 msgid "Exif.Image.DateTime Exif.Photo.SubSecTime"
 msgstr "Exif.Image.DateTime Exif.Photo.SubSecTime"
 
-#: ../../../doc/manual/tags.rst:48 e8a354167ca84b35b93304f0ee5e0d36
 msgid "Xmp.xmp.ModifyDate"
 msgstr "Xmp.xmp.ModifyDate"
 
-#: ../../../doc/manual/tags.rst:50 ../../../doc/manual/tags.rst:116
-#: 70cfb573caf049bb9ea07422189206ef 70cfb573caf049bb9ea07422189206ef
 msgid "Orientation"
 msgstr "Orientation"
 
-#: ../../../doc/manual/tags.rst:50 40a99413233343b8951f8e65fded1a6e
 msgid "Exif.Image.Orientation"
 msgstr "Exif.Image.Orientation"
 
-#: ../../../doc/manual/tags.rst:51 ../../../doc/manual/tags.rst:144
-#: d3e549e854694c5c8492ba4c87d7cb4f d3e549e854694c5c8492ba4c87d7cb4f
 msgid "Camera"
 msgstr "카메라"
 
-#: ../../../doc/manual/tags.rst:51 2cc61c87a77740f48df54d27401ae6eb
 msgid "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 msgstr "Exif.Image.Make Exif.Image.Model Exif.Photo.BodySerialNumber"
 
-#: ../../../doc/manual/tags.rst:54 ../../../doc/manual/tags.rst:100
-#: ../../../doc/manual/tags.rst:117 ../../../doc/manual/tags.rst:154
-#: e7f07d9b38ab4ce5a93926fbd5fb96bd eb9fd23cd9a148a4a04c6a32df9e74ac
-#: 88d8ae591dcd416080f1eb609a0342a7 a6379f2af7554191b14f015abfc4da00
 msgid "Lens"
 msgstr "렌즈"
 
-#: ../../../doc/manual/tags.rst:54 f91ab2ad4a1b4d578b40fa159adea1ce
 msgid ""
 "Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
 "Exif.Photo.LensSpecification"
@@ -2398,40 +1977,27 @@ msgstr ""
 "Exif.Photo.LensMake Exif.Photo.LensModel Exif.Photo.LensSerialNumber "
 "Exif.Photo.LensSpecification"
 
-#: ../../../doc/manual/tags.rst:58 ../../../doc/manual/tags.rst:101
-#: ../../../doc/manual/tags.rst:121 948ee08e7b9148859d009d92c304ed89
-#: 948ee08e7b9148859d009d92c304ed89 948ee08e7b9148859d009d92c304ed89
 msgid "Focal length"
 msgstr "초점 거리"
 
-#: ../../../doc/manual/tags.rst:58 a83682d2bf4b47ca85254041ee559eea
 msgid "Exif.Photo.FocalLength"
 msgstr "Exif.Photo.FocalLength"
 
-#: ../../../doc/manual/tags.rst:59 ../../../doc/manual/tags.rst:122
-#: 5f7245dabfbb4b1f84e0fbff738678df 5f7245dabfbb4b1f84e0fbff738678df
 msgid "35mm equiv"
 msgstr "35mm equiv"
 
-#: ../../../doc/manual/tags.rst:59 8729f7509a834b5f9ad3a803a2ed6a75
 msgid "Exif.Photo.FocalLengthIn35mmFilm"
 msgstr "Exif.Photo.FocalLengthIn35mmFilm"
 
-#: ../../../doc/manual/tags.rst:60 ../../../doc/manual/tags.rst:102
-#: ../../../doc/manual/tags.rst:123 a1d4560e591e4abd9455cc405a6f6173
-#: a1d4560e591e4abd9455cc405a6f6173 a1d4560e591e4abd9455cc405a6f6173
 msgid "Aperture"
 msgstr "조리개"
 
-#: ../../../doc/manual/tags.rst:60 5b483e05aa5e4558a8c6ac51a0f0b939
 msgid "Exif.Photo.FNumber"
 msgstr "Exif.Photo.FNumber"
 
-#: ../../../doc/manual/tags.rst:61 b0dd7da0f05e4943a33b8b38bbcda27c
 msgid "Latitude_, longitude_"
 msgstr "위도_, 경도_"
 
-#: ../../../doc/manual/tags.rst:61 4ef72660bc3d4f6c8049215b3af85309
 msgid ""
 "Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef "
 "Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef"
@@ -2439,19 +2005,15 @@ msgstr ""
 "Exif.GPSInfo.GPSLatitude Exif.GPSInfo.GPSLatitudeRef "
 "Exif.GPSInfo.GPSLongitude Exif.GPSInfo.GPSLongitudeRef"
 
-#: ../../../doc/manual/tags.rst:65 b851dabb03b043bea1b9b50e6cc22344
 msgid "Altitude_"
 msgstr "고도_"
 
-#: ../../../doc/manual/tags.rst:65 e48674c32a8245ed8f6e4726fe0e9c84
 msgid "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 msgstr "Exif.GPSInfo.GPSAltitude Exif.GPSInfo.GPSAltitudeRef"
 
-#: ../../../doc/manual/tags.rst:67 60af6f4bdcba4ffdad5a902ec8f177b4
 msgid "`Camera address`_"
 msgstr "`카메라 주소`_"
 
-#: ../../../doc/manual/tags.rst:67 58d909d7ec4e4d928c92e10e6d4f035b
 msgid ""
 "Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
 "Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode"
@@ -2459,7 +2021,6 @@ msgstr ""
 "Xmp.iptcExt.LocationCreated Xmp.iptc.Location Xmp.photoshop.City "
 "Xmp.photoshop.State Xmp.photoshop.Country Xmp.iptc.CountryCode"
 
-#: ../../../doc/manual/tags.rst:68 c468c81390a64b12beafe38e422eb221
 msgid ""
 "Iptc.Application2.SubLocation Iptc.Application2.City "
 "Iptc.Application2.ProvinceState Iptc.Application2.CountryName "
@@ -2469,22 +2030,15 @@ msgstr ""
 "Iptc.Application2.ProvinceState Iptc.Application2.CountryName "
 "Iptc.Application2.CountryCode"
 
-#: ../../../doc/manual/tags.rst:73 53f40a61b9174de78540323884e5aa48
 msgid "`Subject address`_"
 msgstr "`대상 주소`_"
 
-#: ../../../doc/manual/tags.rst:73 d4e89594b84849298eb06dbb585a3bff
 msgid "Xmp.iptcExt.LocationShown"
 msgstr "Xmp.iptcExt.LocationShown"
 
-#: ../../../doc/manual/tags.rst:74 ../../../doc/manual/tags.rst:105
-#: ../../../doc/manual/tags.rst:128 ../../../doc/manual/tags.rst:163
-#: 7efa70b424974ce29283c1d358d6aa4b 7efa70b424974ce29283c1d358d6aa4b
-#: 7efa70b424974ce29283c1d358d6aa4b 7efa70b424974ce29283c1d358d6aa4b
 msgid "Thumbnail image"
 msgstr "썸네일 이미지"
 
-#: ../../../doc/manual/tags.rst:74 389729e38d0349229265b4989b44c98a
 msgid ""
 "Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth "
 "Exif.Thumbnail.ImageLength"
@@ -2492,11 +2046,9 @@ msgstr ""
 "Exif.Thumbnail.Compression Exif.Thumbnail.ImageWidth "
 "Exif.Thumbnail.ImageLength"
 
-#: ../../../doc/manual/tags.rst:80 669383b67f2346fca8e6a81e9003fee1
 msgid "Secondary tags"
 msgstr "보조 태그"
 
-#: ../../../doc/manual/tags.rst:82 971627f2ab484b5b9d0c0e335bf67d6c
 msgid ""
 "Photini may read information from these tags and merge it with information "
 "from the primary tags. These tags are deleted when the corresponding primary"
@@ -2505,125 +2057,95 @@ msgstr ""
 "Photini는 이러한 태그에서 정보를 읽고 이를 기본 태그의 정보와 병합할 수 있습니다. 이러한 태그는 해당 기본 태그가 저장될 때 "
 "삭제됩니다."
 
-#: ../../../doc/manual/tags.rst:88 57cb508ffdca420bada778b3393d9651
 msgid "Title / Object Name"
 msgstr "제목 / 개체 이름"
 
-#: ../../../doc/manual/tags.rst:88 665c283098974e9781466557bcdc97c6
 msgid "Exif.Image.XPTitle"
 msgstr "Exif.Image.XPTitle"
 
-#: ../../../doc/manual/tags.rst:89 72fe753b8126436ba85c87f492614093
 msgid "Description / Caption"
 msgstr "설명 / 캡션"
 
-#: ../../../doc/manual/tags.rst:89 5bf0c1462b5341a2a169cd0fd9739521
 msgid "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 msgstr "Exif.Image.XPComment Exif.Image.XPSubject Exif.Photo.UserComment"
 
-#: ../../../doc/manual/tags.rst:89 beb198525bb94998b4360f22771ad1ba
 msgid "Xmp.tiff.ImageDescription"
 msgstr "Xmp.tiff.ImageDescription"
 
-#: ../../../doc/manual/tags.rst:92 76f7f33879fc4edd97152cab0141219f
 msgid "Keywords"
 msgstr "키워드"
 
-#: ../../../doc/manual/tags.rst:92 82fa022592ba412a9f0dcfe294f0e3ca
 msgid "Exif.Image.XPKeywords"
 msgstr "Exif.Image.XPKeywords"
 
-#: ../../../doc/manual/tags.rst:93 02effa8a3f414e569a54a57c3e6787e8
 msgid "Rating"
 msgstr "평가"
 
-#: ../../../doc/manual/tags.rst:93 f5e77cdaef964a8089112e8910708285
 msgid "Exif.Image.Rating Exif.Image.RatingPercent"
 msgstr "Exif.Image.Rating Exif.Image.RatingPercent"
 
-#: ../../../doc/manual/tags.rst:93 ede09d8fbe5a4cbca5c5570c1ace4dfc
 msgid "Xmp.MicrosoftPhoto.Rating"
 msgstr "Xmp.MicrosoftPhoto.Rating"
 
-#: ../../../doc/manual/tags.rst:95 fd53d0793c67469a90f10716defbe771
 msgid "Creator / Artist"
 msgstr "크리에이터/아티스트"
 
-#: ../../../doc/manual/tags.rst:95 349196227dfd412bb9ad2447c404e671
 msgid "Exif.Image.XPAuthor"
 msgstr "Exif.Image.XPAuthor"
 
-#: ../../../doc/manual/tags.rst:95 bd3347954ee0450fa900d9184e8bea32
 msgid "Xmp.tiff.Artist"
 msgstr "Xmp.tiff.Artist"
 
-#: ../../../doc/manual/tags.rst:96 00ecb8fbbbaf4f08bb824e9e64e2b1a5
 msgid "Copyright"
 msgstr "저작권"
 
-#: ../../../doc/manual/tags.rst:96 37662fbff02a43a0b2da1384ec1b04ee
 msgid "Xmp.tiff.Copyright"
 msgstr "Xmp.tiff.Copyright"
 
-#: ../../../doc/manual/tags.rst:97 bb218a737806412784a2258f9752927c
 msgid "Date / time Taken"
 msgstr "촬영 날짜/시간"
 
-#: ../../../doc/manual/tags.rst:97 ee330cd7a1f04418967f70388d0cdac6
 msgid "Exif.Image.DateTimeOriginal"
 msgstr "Exif.Image.DateTimeOriginal"
 
-#: ../../../doc/manual/tags.rst:97 a4641a059cb945b997cf559477eb9736
 msgid "Xmp.exif.DateTimeOriginal"
 msgstr "Xmp.exif.DateTimeOriginal"
 
-#: ../../../doc/manual/tags.rst:98 9139df546a8a405d89e5c62b65d31958
 msgid "Xmp.exif.DateTimeDigitized"
 msgstr "Xmp.exif.DateTimeDigitized"
 
-#: ../../../doc/manual/tags.rst:99 f2f2abb9b51b42fdb061780d0cc275c7
 msgid "Xmp.tiff.DateTime"
 msgstr "Xmp.tiff.DateTime"
 
-#: ../../../doc/manual/tags.rst:100 22a616130df04923ac4bb4f6684aaaff
 msgid "Exif.Image.LensInfo"
 msgstr "Exif.Image.LensInfo"
 
-#: ../../../doc/manual/tags.rst:100 c6f37b41ac8f478d8baf2b1c5acba19a
 msgid "Xmp.aux.Lens"
 msgstr "Xmp.aux.Lens"
 
-#: ../../../doc/manual/tags.rst:101 b89909a3c5594430b37bf19b79e94166
 msgid "Exif.Image.FocalLength"
 msgstr "Exif.Image.FocalLength"
 
-#: ../../../doc/manual/tags.rst:102 2cc61c87a77740f48df54d27401ae6eb
 msgid "Exif.Image.FNumber Exif.Image.ApertureValue Exif.Photo.ApertureValue"
 msgstr "Exif.Image.FNumber Exif.Image.ApertureValue Exif.Photo.ApertureValue"
 
-#: ../../../doc/manual/tags.rst:102 33143f700ba443af8264855f64b63a99
 msgid "Xmp.exif.ApertureValue"
 msgstr "Xmp.exif.ApertureValue"
 
-#: ../../../doc/manual/tags.rst:105 8d3e33901fe64665b40a137c173cab43
 msgid "Xmp.xmp.Thumbnails[n]/xapGImg"
 msgstr "Xmp.xmp.Thumbnails[n]/xapGImg"
 
-#: ../../../doc/manual/tags.rst:109 8ffe141210234230b870187bb1d676af
 msgid "XMP only tags"
 msgstr "XMP 전용 태그"
 
-#: ../../../doc/manual/tags.rst:111 46e5923bf8ab4616a6573c63517b4011
 msgid ""
 "These tags are read if present, but are only written if the file format "
 "doesn't support Exif, e.g. an XMP sidecar."
 msgstr "이 태그는 존재하는 경우 읽히지만 파일 형식이 Exif를 지원하지 않는 경우에만 작성됩니다. XMP 사이드카."
 
-#: ../../../doc/manual/tags.rst:116 57504517f934444ab940e2112b674edc
 msgid "Xmp.tiff.Orientation"
 msgstr "Xmp.tiff.Orientation"
 
-#: ../../../doc/manual/tags.rst:117 5dcbc7d6c3094e99a08fbd569b3dc19d
 msgid ""
 "Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
 "Xmp.exifEX.LensSpecification"
@@ -2631,43 +2153,33 @@ msgstr ""
 "Xmp.exifEX.LensMake Xmp.exifEX.LensModel Xmp.exifEX.LensSerialNumber "
 "Xmp.exifEX.LensSpecification"
 
-#: ../../../doc/manual/tags.rst:121 afbd89ff056746a5b26353d9695882d3
 msgid "Xmp.exif.FocalLength"
 msgstr "Xmp.exif.FocalLength"
 
-#: ../../../doc/manual/tags.rst:122 53af763753df416abe845b790c9b0511
 msgid "Xmp.exif.FocalLengthIn35mmFilm"
 msgstr "Xmp.exif.FocalLengthIn35mmFilm"
 
-#: ../../../doc/manual/tags.rst:123 ab663e56ae5346b28e8fe04b5b5d5c1f
 msgid "Xmp.exif.FNumber"
 msgstr "Xmp.exif.FNumber"
 
-#: ../../../doc/manual/tags.rst:124 61da70044b7840889ebfb0213afe9291
 msgid "Latitude, longitude"
 msgstr "위도, 경도"
 
-#: ../../../doc/manual/tags.rst:124 aeced50e43e9440ea7a2f5cac666630e
 msgid "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 msgstr "Xmp.exif.GPSLatitude Xmp.exif.GPSLongitude"
 
-#: ../../../doc/manual/tags.rst:126 7b715bd9b70040f2973dcf343d9aafef
 msgid "Altitude"
 msgstr "고도"
 
-#: ../../../doc/manual/tags.rst:126 7019eb4d63064a699bfcf5bf7a851d25
 msgid "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 msgstr "Xmp.exif.GPSAltitude Xmp.exif.GPSAltitudeRef"
 
-#: ../../../doc/manual/tags.rst:128 9706b55121814421ab56ee466d9fe519
 msgid "Xmp.xmp.Thumbnails[n]/xmpGImg"
 msgstr "Xmp.xmp.Thumbnails[n]/xmpGImg"
 
-#: ../../../doc/manual/tags.rst:132 1b8d2da1ede5421386bb274fa3b994e0
 msgid "Read only tags"
 msgstr "읽기 전용 태그 "
 
-#: ../../../doc/manual/tags.rst:134 22274d355f084e609bd5dd8b74096a53
 msgid ""
 "Photini may read information from these tags and merge it with information "
 "from the primary tags. These tags are not deleted when the corresponding "
@@ -2676,19 +2188,15 @@ msgstr ""
 "Photini는 이러한 태그에서 정보를 읽고 이를 기본 태그의 정보와 병합할 수 있습니다. 이러한 태그는 해당 기본 태그가 저장될 때 "
 "삭제되지 않습니다."
 
-#: ../../../doc/manual/tags.rst:140 22ee1d9ab17648d4b7401c4c43656600
 msgid "Time zone offset[1]"
 msgstr "Time zone offset[1]"
 
-#: ../../../doc/manual/tags.rst:140 8027dcf00627478c993e1e32a7de31d6
 msgid "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 msgstr "Exif.Image.TimeZoneOffset Exif.NikonWt.Timezone"
 
-#: ../../../doc/manual/tags.rst:142 7e4eb2a5d80b44ccad9a0d7b579ad003
 msgid "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 msgstr "Exif.Photo.CameraOwnerName Exif.Canon.OwnerName"
 
-#: ../../../doc/manual/tags.rst:144 f43ea24898b940d5bd94a74f40cb9836
 msgid ""
 "Exif.Image.CameraSerialNumber Exif.Image.UniqueCameraModel "
 "Exif.Canon.ModelID Exif.Canon.SerialNumber Exif.Fujifilm.SerialNumber "
@@ -2700,11 +2208,9 @@ msgstr ""
 "Exif.Nikon3.SerialNumber Exif.OlympusEq.CameraType "
 "Exif.OlympusEq.SerialNumber Exif.Pentax.ModelID Exif.Pentax.SerialNumber"
 
-#: ../../../doc/manual/tags.rst:144 a22dc44504d3446e9f947c0f6fd4824c
 msgid "Xmp.aux.SerialNumber"
 msgstr "Xmp.aux.SerialNumber"
 
-#: ../../../doc/manual/tags.rst:154 f70b5952fda1436ba82824b2e6e80cef
 msgid ""
 "Exif.Canon.LensModel Exif.CanonCs.Lens Exif.CanonCs.LensType "
 "Exif.Nikon3.Lens Exif.NikonLd1.LensIDNumber Exif.NikonLd2.LensIDNumber "
@@ -2716,11 +2222,9 @@ msgstr ""
 "Exif.NikonLd3.LensIDNumber Exif.OlympusEq.LensModel "
 "Exif.OlympusEq.LensSerialNumber"
 
-#: ../../../doc/manual/tags.rst:163 4d56e3dd52b8404fad9975166a6ba410
 msgid "Exif.SubImage*"
 msgstr "Exif.SubImage*"
 
-#: ../../../doc/manual/tags.rst:166 e8a956ccacc042c68e9b4abca1f50393
 msgid ""
 "[1] The time zone offset is not directly presented to the user. It is "
 "applied to the Date / time Taken, Date / time Digitised and Date / time "
@@ -2729,13 +2233,9 @@ msgstr ""
 "[1] 시간대 오프셋은 사용자에게 직접 표시되지 않습니다. 다른 시간대 정보를 사용할 수 없는 경우 찍은 날짜/시간, 디지털화된 "
 "날짜/시간 및 수정된 날짜/시간 필드에 적용됩니다."
 
-#: ../../../doc/manual/technical_metadata.rst:6
-#: c7c3484de0704fcb9570894875dccee3
 msgid "Technical metadata"
 msgstr "기술 메타데이터"
 
-#: ../../../doc/manual/technical_metadata.rst:8
-#: 9c2cfc6fe63d48a596d80637cb10643c
 msgid ""
 "The ``Technical metadata`` tab (keyboard shortcut ``Alt+T``) allows you to "
 "edit 'technical' information about your photographs, such as the date & time"
@@ -2751,8 +2251,6 @@ msgstr ""
 " 수도 있습니다. (이것은 거의 똑바로 위 또는 아래로 사진을 찍을 때 종종 발생합니다.) 또한 저는 특히 다른 나라에서 휴가를 보낼 때"
 " 모든 사진의 표준 시간대를 설정하는 것을 좋아합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:15
-#: 1b750bc008ca43958ba7d8c37af93aae
 msgid ""
 "The GUI shows three date/time entries - ``taken``, ``digitised`` and "
 "``modified``. These are often the same, and are linked by the ``link ...`` "
@@ -2763,8 +2261,6 @@ msgstr ""
 "동일하며 ``링크 ...`` 확인란으로 연결됩니다. 이를 통해 ``taken`` 날짜/시간을 변경할 때 세 가지 모두를 변경할 수 "
 "있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:19
-#: 184c0b75a4034b1a8576ce66444f98dc
 msgid ""
 "You may wish to unlink the three entries and adjust the dates or times "
 "separately. For example, you could use the ``modified`` entry to note when "
@@ -2776,8 +2272,6 @@ msgstr ""
 "Photini로 메타데이터를 편집할 때 기록할 수 있습니다. 오래된 사진을 스캔하는 경우 ``taken`` 항목을 사진을 찍은 시점으로 "
 "설정하고 ``digitized`` 항목을 스캔한 시점으로 설정해야 합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:23
-#: 5d3404b2e4df43a59c01aabc4e1a1818
 msgid ""
 "The date can be picked from a calendar widget that pops up when you click on"
 " the down arrow in a date/time entry. Clicking on any of the numbers allows "
@@ -2790,8 +2284,6 @@ msgstr ""
 "및 아래쪽 화살표 키로 숫자를 조정할 수 있습니다. 숫자를 두 번 클릭하여 선택하고 새 값을 직접 입력할 수도 있습니다. 모든 숫자 "
 "선택, 예: ``Ctrl+A`` 를 사용하여 사진(들)에서 날짜 및 시간 메타데이터를 제거하는 삭제를 허용합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:30
-#: 51eccd8a53d54937a03a2f3d4516642f
 msgid ""
 "To the right of each date/time is a widget to adjust the time zone. The time"
 " a photograph was taken is assumed to be \"local time\". The time zone "
@@ -2801,8 +2293,6 @@ msgstr ""
 "각 날짜/시간의 오른쪽에는 시간대를 조정하는 위젯이 있습니다. 사진이 촬영된 시간은 \"현지 시간\"으로 간주됩니다. 표준 시간대는 "
 "사진이 촬영, 디지털화 또는 수정되었을 때 현지 표준 시간대가 UTC(또는 GMT)에서 오프셋된 시간 및 분을 기록합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:36
-#: e46b96cf279f4e12a5e99a6a738f3780
 msgid ""
 "The ``Adjust times`` field allows a constant offset to be applied to the "
 "``taken`` time stamps of several pictures at once. (The other time stamps "
@@ -2817,8 +2307,6 @@ msgstr ""
 "설정하는 것을 잊은 경우 이 기능이 유용할 수 있습니다! 필요한 오프셋 시간, 분, 초를 설정한 다음 ``+`` 또는 ``-`` 버튼을 "
 "사용하여 선택한 각 사진의 타임스탬프에서 해당 금액을 더하거나 뺍니다."
 
-#: ../../../doc/manual/technical_metadata.rst:43
-#: be5eef41cdc946f984acedc01e15845c
 msgid ""
 "You can also offset the time zone. In this example my camera clock was set "
 "to British Summer Time (+01:00) but records timestamps without zone "
@@ -2832,8 +2320,6 @@ msgstr ""
 " 합니다. ``시간 조정`` 값은 Photini의 구성 파일에 저장되므로 단 한 번의 버튼 클릭으로 매일의 사진에 동일한 오프셋을 부여할"
 " 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:50
-#: 23aa28cbdcb14c47bc19a557a368dd43
 msgid ""
 "Below each date/time is a slider that allows you to set the precision. At "
 "its maximum value the time is shown to a precision of 1 millisecond. Cameras"
@@ -2848,8 +2334,6 @@ msgstr ""
 "예를 들어 사진을 찍은 연도와 월만 알 수 있는 오래된 사진을 스캔할 때 유용합니다. 정밀도를 설정하면 이러한 불확실성을 기록할 수 "
 "있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:57
-#: 1352f8330bed45f085a20e35a9206d1d
 msgid ""
 "The ``Orientation`` value sets the required rotation or reflection to "
 "display the image. Note that this does not actually transform the image "
@@ -2859,8 +2343,6 @@ msgstr ""
 "``Orientation`` 값은 이미지를 표시하는 데 필요한 회전 또는 반사를 설정합니다. 이것은 실제로 이미지 데이터를 변환하지 "
 "않습니다. 이미지 표시 프로그램은 방향 메타데이터에 따라 이미지를 회전하거나 반사해야 하지만 전부는 아닙니다."
 
-#: ../../../doc/manual/technical_metadata.rst:63
-#: 6323d9dd9d7e4793a4af007c1d7b5289
 msgid ""
 "The ``Camera`` dropdown list shows the camera model and serial number, if "
 "known. You can choose a different camera from the list, or click on "
@@ -2869,8 +2351,6 @@ msgstr ""
 "``카메라`` 드롭다운 목록에는 카메라 모델과 일련 번호를 알고 있는 경우에 표시됩니다. 목록에서 다른 카메라를 선택하거나 "
 "``<new>`` 를 클릭하여 다른 카메라를 추가할 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:68
-#: 54bae01d99e4421db5e3a3be34f75473
 msgid ""
 "It is quite common for the maker's name to appear in the model name, as "
 "shown here, but it doesn't have to. The serial number is optional, but could"
@@ -2879,8 +2359,6 @@ msgstr ""
 "여기에 표시된 것처럼 모델 이름에 제조업체 이름이 나타나는 것이 일반적이지만 반드시 그래야 하는 것은 아닙니다. 일련 번호는 선택 "
 "사항이지만 동일한 카메라 모델이 두 개 이상 있는 경우 유용할 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:73
-#: b645008fc4084f6b82d491105deee794
 msgid ""
 "After changing the camera you may see this warning message. The makernote_ "
 "is a block of proprietary data stored in a photograph's Exif metadata. If "
@@ -2895,8 +2373,6 @@ msgstr ""
 "makernote를 디코딩하지 못할 수 있습니다. makernote를 삭제하면 이러한 오류가 방지되지만 makernote를 사용하는 독점"
 " 소프트웨어가 있는 경우 더 이상 올바르게 작동하지 않을 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:80
-#: 6eaf3221507943299d8702642739a114
 msgid ""
 "The ``Lens model`` dropdown list allows you to change the lens specification"
 " stored in the image metadata. This should not usually be changed for "
@@ -2906,8 +2382,6 @@ msgstr ""
 "``렌즈 모델`` 드롭다운 목록을 사용하면 이미지 메타데이터에 저장된 렌즈 사양을 변경할 수 있습니다. 이것은 일반적으로 렌즈가 제거되지"
 " 않는 카메라의 경우 변경되지 않지만 전자 장치가 인식하지 못하는 렌즈와 함께 사용하는 SLR이 있는 경우 유용할 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:83
-#: 621eceb707544e86afe34aea1caa3bb2
 msgid ""
 "This is particularly useful if you use your camera with 3rd party lenses "
 "and/or telescopes via a T-thread adaptor. My adaptor identifies itself to "
@@ -2917,8 +2391,6 @@ msgstr ""
 "이것은 T-나사 어댑터를 통해 타사 렌즈 및/또는 망원경과 함께 카메라를 사용하는 경우에 특히 유용합니다. 내 어댑터는 카메라에 50mm"
 " f/1.8 렌즈로 식별됩니다. 여기에서 달의 사진을 찍기 위해 500mm 미러 렌즈와 함께 사용했습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:89
-#: 3fc51f62d8834f198bab0ee287eb1299
 msgid ""
 "Selecting ``<new>`` from the dropdown list allows me to enter details of my "
 "mirror lens. As it is not a zoom lens there is no need to fill in the "
@@ -2928,17 +2400,12 @@ msgstr ""
 "드롭다운 목록에서 ``<new>`` 를 선택하면 미러 렌즈의 세부 정보를 입력할 수 있습니다. 줌 렌즈가 아니므로 최대 초점 거리 정보를"
 " 입력할 필요가 없습니다. ``모델 이름`` 과 ``최소 초점 거리`` 만 필수 정보입니다."
 
-#: ../../../doc/manual/technical_metadata.rst:95
-#: a1458406354247bb98dccfc3a7afe654
 msgid ""
 "The data you enter is stored in the Photini configuration file so you can "
 "easily apply it to images in future by selecting the lens you have defined "
 "from the dropdown list."
-msgstr ""
-"입력한 데이터는 Photini 구성 파일에 저장되므로 드롭다운 목록에서 정의한 렌즈를 선택하여 나중에 이미지에 쉽게 적용할 수 있습니다."
+msgstr "입력한 데이터는 Photini 구성 파일에 저장되므로 드롭다운 목록에서 정의한 렌즈를 선택하여 나중에 이미지에 쉽게 적용할 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:99
-#: 33dde52175a74f6786968318382cb471
 msgid ""
 "When the lens model is changed Photini offers the option to adjust the focal"
 " length and aperture used for each image, if the current values are "
@@ -2948,8 +2415,6 @@ msgstr ""
 "렌즈 모델이 변경되면 Photini는 현재 값이 새 렌즈와 일치하지 않는 경우 각 이미지에 사용되는 초점 거리와 조리개를 조정할 수 있는"
 " 옵션을 제공합니다. 이 경우 이 매개변수를 업데이트하고 싶으므로 ``예`` 를 클릭합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:104
-#: 342922a2c36347358e46529506626df9
 msgid ""
 "When the mouse pointer is held over the lens model dropdown for a few "
 "seconds a \"tooltip\" shows the focal length and aperture details of the "
@@ -2958,8 +2423,6 @@ msgstr ""
 "몇 초 동안 렌즈 모델 드롭다운 위에 마우스 포인터를 놓으면 \"도구 설명\"에 렌즈의 초점 거리와 조리개 세부 정보가 표시됩니다. 렌즈"
 " 모델 이름에서 명확하지 않은 경우 유용할 수 있습니다."
 
-#: ../../../doc/manual/technical_metadata.rst:109
-#: 9b05e15d899041229af4d5c24d663462
 msgid ""
 "To remove a lens from the list right-click on the list to bring up its "
 "context menu. This includes options to delete any lens but the one currently"
@@ -2968,8 +2431,6 @@ msgstr ""
 "목록에서 렌즈를 제거하려면 목록을 마우스 오른쪽 버튼으로 클릭하여 상황에 맞는 메뉴를 불러옵니다. 여기에는 현재 사용 중인 렌즈를 제외한"
 " 모든 렌즈를 삭제할 수 있는 옵션이 포함됩니다."
 
-#: ../../../doc/manual/technical_metadata.rst:115
-#: 60156eb920bc444a95a0ca2980afd270
 msgid ""
 "The ``35mm equiv`` field shows the \"`35mm equivalent focal length "
 "<https://en.wikipedia.org/wiki/35_mm_equivalent_focal_length>`_\" of the "
@@ -2987,8 +2448,6 @@ msgstr ""
 "표시됩니다. 35mm에 해당하는 초점 거리가 없으면 Photini는 실제 초점 거리와 기타 메타데이터에서 이를 계산하려고 시도합니다. "
 "이러한 계산된 값은 희미한 텍스트로 표시됩니다."
 
-#: ../../../doc/manual/technical_metadata.rst:124
-#: 333f367d22d94059afd367d1031a0d84
 msgid ""
 "If you know your camera's crop factor you can correct Photini's calculation "
 "by typing in the correct 35mm equivalent focal length. Photini will then "
@@ -2998,8 +2457,6 @@ msgstr ""
 "카메라의 자르기 요소를 알고 있는 경우 올바른 35mm 환산 초점 거리를 입력하여 Photini의 계산을 수정할 수 있습니다. 그러면 "
 "Photini는 나중에 사용할 수 있도록 해당 카메라 모델의 자르기 요소를 구성 파일에 저장합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:129
-#: 1f009532236146bfab1af5cd253693c4
 msgid ""
 "If you don't want to store the 35mm equivalent focal length you entered in "
 "the photograph's metadata you can undo the edit by reloading the metadata. "
@@ -3009,18 +2466,14 @@ msgstr ""
 "사진의 메타데이터에 입력한 35mm에 해당하는 초점 거리를 저장하지 않으려면 메타데이터를 다시 로드하여 편집을 취소할 수 있습니다. "
 "썸네일을 마우스 오른쪽 버튼으로 클릭하고 상황에 맞는 메뉴에서 ``파일 다시 로드`` 를 선택합니다."
 
-#: ../../../doc/manual/technical_metadata.rst:134
-#: e0bff0edd8e049eda8bcdee319ae2d02
 msgid ""
 "Now the 35mm equivalent focal length is computed using the correct crop "
 "factor."
 msgstr "이제 35mm 등가 초점 거리는 올바른 크롭 팩터를 사용하여 계산됩니다."
 
-#: ../../../doc/manual/video.rst:6 64f8ca2cace24403a8354b4dd98c0c94
 msgid "Video file handling"
 msgstr "비디오 파일 처리"
 
-#: ../../../doc/manual/video.rst:8 7ffb275db7e44cb38b8b1f36502ab98f
 msgid ""
 "Although designed primarily for use with still images Photini can also be "
 "used with video files. The :doc:`image_selector` ``Open images`` dialogue "
@@ -3032,7 +2485,6 @@ msgstr ""
 ":doc:`image_selector`  ``이미지 열기`` 대화상자는 일반적으로 이미지 파일(``.jpg``, ``.gif`` 등)만 "
 "표시하지만 비디오 파일(`` .mov``, ``.mp4`` 등) 또는 모든 파일 형식을 선택할 수 있는 드롭다운 선택기가 있습니다."
 
-#: ../../../doc/manual/video.rst:11 cb35b81c179c4af69ee44b6c5f1d6950
 msgid ""
 "The Exiv2_ metadata library cannot write to video files, so Photini will "
 "always use XMP sidecars for the metadata you write. Video files can also be "
@@ -3045,7 +2497,6 @@ msgstr ""
 "설치한 경우 비디오 파일에서 일부 메타데이터를 읽을 수 있습니다. (참조 :ref:`installation - optional "
 "dependencies <installation-optional>`.)"
 
-#: ../../../doc/manual/video.rst:16 ad33f2bf90cd4c9fb733509a8bf212c2
 msgid ""
 "Most video files don't have thumbnails, but Photini may be able to create "
 "one if you have FFmpeg_ installed on your computer. Right-click on the file "
@@ -3056,9 +2507,8 @@ msgstr ""
 " 마우스 오른쪽 버튼으로 클릭하고 팝업 메뉴에서 ``썸네일 재생성`` 을 선택합니다. Photini가 썸네일을 생성할 수 있는 경우 "
 "XMP 사이드카 파일에 저장합니다."
 
-#: ../../../doc/manual/video.rst:20 884303d8ee694b77b5f6c8c5ad04b4be
 msgid ""
 "The :doc:`flickr` tab can upload video files, but expect it to be slow. "
 "Video files can be very large."
-msgstr ""
-"The :doc:`flickr` 탭은 비디오 파일을 업로드할 수 있지만 속도가 느릴 수 있습니다. 비디오 파일은 매우 클 수 있습니다."
+msgstr "The :doc:`flickr` 탭은 비디오 파일을 업로드할 수 있지만 속도가 느릴 수 있습니다. 비디오 파일은 매우 클 수 있습니다."
+
