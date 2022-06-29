@@ -120,7 +120,7 @@ def extract_doc_strings(root, lang, strip):
             outputs.append(out_file)
     if strip:
         test = re.compile('^#: ')
-        for path in outputs:
+        for path in inputs + outputs:
             with open(path, 'r') as f:
                 old_text = f.readlines()
             with open(path, 'w') as f:
