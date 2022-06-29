@@ -138,20 +138,22 @@
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="unfinished"/>
+        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje,
+může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation type="unfinished"/>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku.
+Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
-        <translation type="unfinished"/>
+        <translation>Uveďte stručný zveřejnitelný přehled nebo shrnutí obsahu obrázku.</translation>
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"/>
+        <translation>Záhlaví</translation>
     </message>
 </context>
 <context>
@@ -190,35 +192,35 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>IPTC-IIM metadata</source>
-        <translation type="unfinished"/>
+        <translation>Popis IPTC-IIM</translation>
     </message>
     <message>
         <source>Show IPTC-IIM length limits</source>
-        <translation type="unfinished"/>
+        <translation>Zobrazit omezení délky IPTC-IIM</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation type="unfinished"/>
+        <translation>Zachovat původní</translation>
     </message>
     <message>
         <source>File timestamps</source>
-        <translation type="unfinished"/>
+        <translation>Časové značky souborů</translation>
     </message>
     <message>
         <source>Set to when photo was taken</source>
-        <translation type="unfinished"/>
+        <translation>Nastavit na dobu pořízení fotografie</translation>
     </message>
     <message>
         <source>Set to when file is saved</source>
-        <translation type="unfinished"/>
+        <translation>Nastavit na dobu uložení fotografie</translation>
     </message>
     <message>
         <source>Write if exists</source>
-        <translation type="unfinished"/>
+        <translation>Zapsat, pokud existuje</translation>
     </message>
     <message>
         <source>Always delete</source>
-        <translation type="unfinished"/>
+        <translation>Vždy smazat</translation>
     </message>
 </context>
 <context>
@@ -297,35 +299,35 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Friends &amp; family</source>
-        <translation type="unfinished"/>
+        <translation>Přátelé a rodina</translation>
     </message>
     <message>
         <source>People you follow</source>
-        <translation type="unfinished"/>
+        <translation>Lidé, které sledujete</translation>
     </message>
     <message>
         <source>Any Flickr member</source>
-        <translation type="unfinished"/>
+        <translation>Jakýkoli člen Flickru</translation>
     </message>
     <message>
         <source>Public</source>
-        <translation type="unfinished"/>
+        <translation>Veřejné</translation>
     </message>
     <message>
         <source>Private</source>
-        <translation type="unfinished"/>
+        <translation>Soukromé</translation>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"/>
+        <translation>Přátelé</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"/>
+        <translation>Rodina</translation>
     </message>
     <message>
         <source>Viewing privacy</source>
-        <translation type="unfinished"/>
+        <translation>Zobrazení soukromí</translation>
     </message>
     <message>
         <source>Allow commenting</source>
@@ -677,11 +679,11 @@ selected</source>
     </message>
     <message>
         <source>Friends</source>
-        <translation type="unfinished"/>
+        <translation>Přátelé</translation>
     </message>
     <message>
         <source>Family</source>
-        <translation type="unfinished"/>
+        <translation>Rodina</translation>
     </message>
     <message>
         <source>see the photo</source>
