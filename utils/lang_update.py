@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -50,6 +50,8 @@ def extract_program_strings(root, lang, strip):
         outputs.sort()
     # restore utf-8 encoding markers removed by Qt Linguist
     for path in outputs:
+        if not os.path.exists(path):
+            continue
         with open(path, 'r') as f:
             old_text = f.readlines()
         with open(path, 'w') as f:
