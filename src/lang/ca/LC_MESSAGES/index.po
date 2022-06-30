@@ -1,31 +1,30 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
 # Translators:
 # Joan <sacoo2@hotmail.com>, 2022
-# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-27 13:50+0100\n"
+"POT-Creation-Date: 2022-06-30 10:56+0100\n"
 "PO-Revision-Date: 2022-06-28 09:11+0000\n"
 "Last-Translator: Joan <sacoo2@hotmail.com>, 2022\n"
-"Language-Team: Catalan (https://www.transifex.com/jim-easterbrook/teams/32598/ca/)\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
 "Language: ca\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: Catalan (https://www.transifex.com/jim-"
+"easterbrook/teams/32598/ca/)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
 
-#: ../../../doc/index.rst:6 2445440b6cee4efeb5a19d18f1edf5d3
 msgid "Photini documentation"
 msgstr "Documentació Photini"
 
-#: ../../../doc/index.rst:8 08d393ad4db24ed9adcf0bd4d7e7b88e
 msgid ""
 "Welcome to the documentation of Photini, an easy to use photograph metadata "
 "editor. For a quick introduction to Photini and its features I suggest you "
@@ -38,11 +37,9 @@ msgstr ""
 "sobre les funcionalitats les trobareu a :doc:`el manual d'usuari "
 "<manual/index>`."
 
-#: ../../../doc/index.rst:23 a8fc3528a65941ed8626ce8d049c92f2
 msgid "Copyright (C)  2012-21  Jim Easterbrook."
 msgstr ""
 
-#: ../../../doc/index.rst:25 32470be514ca4090bbc77178ef7cc58f
 msgid ""
 "Permission is granted to copy, distribute and/or modify this document under "
 "the terms of the GNU Free Documentation License, Version 1.3 or any later "
@@ -58,10 +55,10 @@ msgstr ""
 "license is included in the section entitled \"GNU Free Documentation "
 "License\"."
 
-#: ../../../../<rst_epilog>:4 fa931a88b9a54260b8bcdf7eb99e6362
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
 "Comentaris o preguntes? Subscriviu-vos a la llista de correu de Photini a "
 "https://groups.google.com/forum/#!forum/photini i ens ho feu saber."
+
