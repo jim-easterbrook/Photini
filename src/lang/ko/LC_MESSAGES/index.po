@@ -7,13 +7,12 @@
 # Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
 # Soohyeon Park, 2022
 # 
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-27 13:50+0100\n"
-"PO-Revision-Date: 2022-06-28 09:11+0000\n"
+"PO-Revision-Date: 2022-06-30 09:48+0000\n"
 "Last-Translator: Soohyeon Park, 2022\n"
 "Language-Team: Korean (https://www.transifex.com/jim-easterbrook/teams/32598/ko/)\n"
 "MIME-Version: 1.0\n"
@@ -60,4 +59,4 @@ msgid ""
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
 "의견이나 질문이 있나요? Photini mailing list "
-"https://groups.google.com/forum/#!forum/photini 를 ​​구독하고 알려주십시오."
+"\"https://groups.google.com/forum/#!forum/photini\"를 ​​구독하고 알려주세요."
