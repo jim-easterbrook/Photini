@@ -5,37 +5,31 @@ git:
     source_language: en
     source_file: src/lang/en/photini.ts
     translation_files_expression: 'src/lang/<lang>/photini.ts'
-    ignore_dirs:
-      - src/lang/en_devel/
 
   - filter_type: file
     file_format: PO
     source_language: en
     source_file: src/lang/templates/gettext/index.pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/index.po'
-    ignore_dirs:
-      - src/lang/en_devel/
 
   - filter_type: file
     file_format: PO
     source_language: en
     source_file: src/lang/templates/gettext/manual.pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/manual.po'
-    ignore_dirs:
-      - src/lang/en_devel/
 
   - filter_type: file
     file_format: PO
     source_language: en
     source_file: src/lang/templates/gettext/misc.pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/misc.po'
-    ignore_dirs:
-      - src/lang/en_devel/
 
   - filter_type: file
     file_format: PO
     source_language: en
     source_file: src/lang/templates/gettext/other.pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/other.po'
-    ignore_dirs:
-      - src/lang/en_devel/
+
+  settings:
+    language_mapping:
+      en_GB: en_devel
