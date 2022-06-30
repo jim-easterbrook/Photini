@@ -12,3 +12,5 @@ git:
     source_file_extension: po
     source_file_dir: src/lang/en/LC_MESSAGES/
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/'
+    ignore_dirs:
+      - src/lang/en_devel/
