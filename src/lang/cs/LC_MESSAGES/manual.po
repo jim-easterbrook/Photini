@@ -1,11 +1,11 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
 # Translators:
 # Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
-# fri, 2022
+# 
 #, fuzzy
 msgid ""
 msgstr ""
@@ -13,16 +13,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-30 11:06+0100\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
-"Last-Translator: fri, 2022\n"
-"Language: cs_CZ\n"
-"Language-Team: Czech (Czech Republic) (https://www.transifex.com/jim-"
-"easterbrook/teams/32598/cs_CZ/)\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
-"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
+"Language-Team: Czech (https://www.transifex.com/jim-easterbrook/teams/32598/cs/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 msgid "Location addresses"
 msgstr ""
@@ -196,7 +193,8 @@ msgid ""
 "every one."
 msgstr ""
 
-msgid "The default options in the configuration file are in the ``[pyqt]`` section:"
+msgid ""
+"The default options in the configuration file are in the ``[pyqt]`` section:"
 msgstr ""
 
 msgid ""
@@ -438,8 +436,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"`Title / Object Name <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#title>`_"
+"`Title / Object Name "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#title>`_"
 msgstr ""
 
 msgid "Not stored in Exif."
@@ -451,8 +450,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"`Description / Caption <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#description>`_"
+"`Description / Caption "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#description>`_"
 msgstr ""
 
 msgid "The who, what and why of what the image depicts."
@@ -835,7 +835,6 @@ msgid ""
 "<installation-optional>` for more detail."
 msgstr ""
 
-#, python-format
 msgid ""
 "The key part of the importer is the ``Target format`` field. This provides a"
 " very flexible way to specify where on your computer imported images should "
@@ -911,7 +910,6 @@ msgid ""
 "format to help you edit it correctly."
 msgstr ""
 
-#, python-format
 msgid ""
 "Note that Photini stores a different target format for each camera or source"
 " folder that you use. This can be useful if you have two cameras that use "
@@ -1307,8 +1305,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"`Creator's Jobtitle <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#creators-jobtitle>`_"
+"`Creator's Jobtitle "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#creators-jobtitle>`_"
 msgstr ""
 
 msgid ""
@@ -1321,7 +1320,8 @@ msgid ""
 "PhotoMetadata#credit-line>`_"
 msgstr ""
 
-msgid "Usually the photographer's name, but could be their employer or client."
+msgid ""
+"Usually the photographer's name, but could be their employer or client."
 msgstr ""
 
 msgid ""
@@ -1333,16 +1333,19 @@ msgid "Who owns the copyright."
 msgstr ""
 
 msgid ""
-"`Rights: Usage Terms <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#rights-usage-terms>`_"
-msgstr ""
-
-msgid "Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
+"`Rights: Usage Terms "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#rights-usage-terms>`_"
 msgstr ""
 
 msgid ""
-"`Rights: Web Statement <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#web-statement-of-rights>`_"
+"Plain text summary of how the image may be reused. Not stored in IPTC-IIM."
+msgstr ""
+
+msgid ""
+"`Rights: Web Statement "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#web-"
+"statement-of-rights>`_"
 msgstr ""
 
 msgid ""
@@ -1351,8 +1354,9 @@ msgid ""
 msgstr ""
 
 msgid ""
-"`Rights: Licensor URL <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#licensor>`_"
+"`Rights: Licensor URL "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#licensor>`_"
 msgstr ""
 
 msgid ""
@@ -1369,8 +1373,9 @@ msgid "Notes to a publisher of the image."
 msgstr ""
 
 msgid ""
-"`Contact Information <http://www.iptc.org/std/photometadata/specification"
-"/IPTC-PhotoMetadata#creators-contact-info>`_"
+"`Contact Information "
+"<http://www.iptc.org/std/photometadata/specification/IPTC-"
+"PhotoMetadata#creators-contact-info>`_"
 msgstr ""
 
 msgid ""
@@ -2046,4 +2051,3 @@ msgid ""
 "The :doc:`flickr` tab can upload video files, but expect it to be slow. "
 "Video files can be very large."
 msgstr ""
-
