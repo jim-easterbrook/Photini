@@ -29,7 +29,3 @@ git:
     source_language: en
     source_file: src/lang/templates/gettext/other.pot
     translation_files_expression: 'src/lang/<lang>/LC_MESSAGES/other.po'
-
-  settings:
-    language_mapping:
-      en_GB: en_devel
