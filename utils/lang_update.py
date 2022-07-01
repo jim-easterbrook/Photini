@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from argparse import ArgumentParser
 import os
 import re
@@ -66,7 +64,8 @@ def extract_program_strings(root, args):
     result = subprocess.call(cmd)
     if result:
         return result
-    if args.strip or args.transifex:
+    # process result
+    if args.strip or args.transifex or args.weblate:
         line_no = re.compile('^\s*<location filename="')
         for path in outputs:
             with open(path, 'r') as f:
@@ -74,6 +73,9 @@ def extract_program_strings(root, args):
             if args.transifex and '/en/' not in path:
                 old_text[0] = '<?xml version="1.0" ?>'
                 old_text[-1] = '</TS>'
+            if args.weblate:
+                old_text[1] = old_text[1].replace(
+                    'DOCTYPE TS><TS', 'DOCTYPE TS>\n<TS')
             with open(path, 'w') as f:
                 for line in old_text:
                     if line_no.match(line):
@@ -82,6 +84,8 @@ def extract_program_strings(root, args):
                         line = line.replace(
                             '<translation type="unfinished"></translation>',
                             '<translation type="unfinished"/>')
+                    if args.weblate:
+                        line = line.replace('\xa0', '&#xa0;')
                     f.write(line)
     return 0
 
@@ -126,7 +130,7 @@ def extract_doc_strings(root, args):
             if result:
                 return result
             outputs.append(out_file)
-    if args.strip or args.transifex:
+    if args.strip or args.transifex or args.weblate:
         test = re.compile('^#: ')
         for path in inputs + outputs:
             with open(path, 'r') as f:
@@ -149,6 +153,8 @@ def main(argv=None):
                         help='remove line numbers')
     parser.add_argument('-t', '--transifex', action='store_true',
                         help='attempt to match Transifex syntax')
+    parser.add_argument('-w', '--weblate', action='store_true',
+                        help='attempt to match Weblate syntax')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     result = extract_program_strings(root, args)
