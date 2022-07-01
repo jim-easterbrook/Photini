@@ -4,7 +4,7 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Joan <sacoo2@hotmail.com>, 2022
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
 # 
 #, fuzzy
 msgid ""
@@ -13,37 +13,37 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-06-30 11:06+0100\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
-"Last-Translator: Joan <sacoo2@hotmail.com>, 2022\n"
-"Language-Team: Catalan (https://www.transifex.com/jim-easterbrook/teams/32598/ca/)\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
+"Language-Team: Czech (https://www.transifex.com/jim-easterbrook/teams/32598/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ca\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 msgid "Change Log"
-msgstr ""
+msgstr "Zápis změn"
 
 msgid ""
 "Comments or questions? Please subscribe to the Photini mailing list "
 "https://groups.google.com/forum/#!forum/photini and let us know."
 msgstr ""
-"Comentaris o preguntes? Subscriviu-vos a la llista de correu de Photini a "
-"https://groups.google.com/forum/#!forum/photini i ens ho feu saber."
+"Máte poznámky nebo otázky? Začněte odebírat poštovní seznam Photini "
+"https://groups.google.com/forum/#!forum/photini a dejte nám vědět."
 
 msgid "GNU Free Documentation License"
-msgstr ""
+msgstr "GNU Free Documentation License"
 
 msgid ""
 "The Photini documentation is licensed under the GNU Free Documentation "
 "License."
-msgstr ""
+msgstr "Dokumentace k Photini je licencována GNU Free Documentation License."
 
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Různé"
 
 msgid "GNU General Public License"
-msgstr ""
+msgstr "GNU General Public License"
 
 msgid "The Photini software is licensed under the GNU General Public License."
-msgstr ""
+msgstr "Program Photini je licencován pod GNU General Public License."

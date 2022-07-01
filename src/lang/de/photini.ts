@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="de" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.0" language="de" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -44,7 +45,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation type="unfinished"></translation>
+        <translation>Betreff {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -407,7 +408,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Die Datei „{0}“ ist größer als 25 MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
+        <translation>Die Datei „{0}“ ist größer als 25&#xa0;MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
     <message>
         <source>Album title</source>
@@ -954,7 +955,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Der Open Source Quellcode ist via {} erhältlich.</translation>
+        <translation>Der quelloffene Quellcode ist via {} erhältlich.</translation>
     </message>
     <message>
         <source>Open files</source>
