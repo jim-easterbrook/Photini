@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 from argparse import ArgumentParser
 import os
 import re
@@ -27,7 +25,7 @@ import sys
 from sphinx.application import Sphinx
 
 
-def extract_program_strings(root, lang, strip):
+def extract_program_strings(root, args):
     src_dir = os.path.join(root, 'src', 'photini')
     dst_dir = os.path.join(root, 'src', 'lang')
     inputs = []
@@ -36,8 +34,8 @@ def extract_program_strings(root, lang, strip):
         if ext == '.py':
             inputs.append(os.path.join(src_dir, name))
     inputs.sort()
-    if lang:
-        path = os.path.join(dst_dir, lang)
+    if args.language:
+        path = os.path.join(dst_dir, args.language)
         if not os.path.isdir(path):
             os.makedirs(path)
         outputs = [os.path.join(path, 'photini.ts')]
@@ -50,6 +48,8 @@ def extract_program_strings(root, lang, strip):
         outputs.sort()
     # restore utf-8 encoding markers removed by Qt Linguist
     for path in outputs:
+        if not os.path.exists(path):
+            continue
         with open(path, 'r') as f:
             old_text = f.readlines()
         with open(path, 'w') as f:
@@ -64,19 +64,33 @@ def extract_program_strings(root, lang, strip):
     result = subprocess.call(cmd)
     if result:
         return result
-    if strip:
-        test = re.compile('^\s*<location filename="')
+    # process result
+    if args.strip or args.transifex or args.weblate:
+        line_no = re.compile('^\s*<location filename="')
         for path in outputs:
             with open(path, 'r') as f:
                 old_text = f.readlines()
+            if args.transifex and '/en/' not in path:
+                old_text[0] = '<?xml version="1.0" ?>'
+                old_text[-1] = '</TS>'
+            if args.weblate:
+                old_text[1] = old_text[1].replace(
+                    'DOCTYPE TS><TS', 'DOCTYPE TS>\n<TS')
             with open(path, 'w') as f:
                 for line in old_text:
-                    if not test.match(line):
-                        f.write(line)
+                    if line_no.match(line):
+                        continue
+                    if args.transifex:
+                        line = line.replace(
+                            '<translation type="unfinished"></translation>',
+                            '<translation type="unfinished"/>')
+                    if args.weblate:
+                        line = line.replace('\xa0', '&#xa0;')
+                    f.write(line)
     return 0
 
 
-def extract_doc_strings(root, lang, strip):
+def extract_doc_strings(root, args):
     # create / update .pot files with Sphinx
     src_dir = os.path.join(root, 'src', 'doc')
     dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
@@ -92,8 +106,8 @@ def extract_doc_strings(root, lang, strip):
         if ext == '.pot':
             inputs.append(os.path.join(src_dir, name))
     inputs.sort()
-    if lang:
-        locales = [lang]
+    if args.language:
+        locales = [args.language]
     else:
         locales = []
         for name in os.listdir(dst_dir):
@@ -116,9 +130,9 @@ def extract_doc_strings(root, lang, strip):
             if result:
                 return result
             outputs.append(out_file)
-    if strip:
+    if args.strip or args.transifex or args.weblate:
         test = re.compile('^#: ')
-        for path in outputs:
+        for path in inputs + outputs:
             with open(path, 'r') as f:
                 old_text = f.readlines()
             with open(path, 'w') as f:
@@ -137,12 +151,16 @@ def main(argv=None):
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
+    parser.add_argument('-t', '--transifex', action='store_true',
+                        help='attempt to match Transifex syntax')
+    parser.add_argument('-w', '--weblate', action='store_true',
+                        help='attempt to match Weblate syntax')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    result = extract_program_strings(root, args.language, args.strip)
+    result = extract_program_strings(root, args)
     if result:
         return result
-    result = extract_doc_strings(root, args.language, args.strip)
+    result = extract_doc_strings(root, args)
     return result
 
 
