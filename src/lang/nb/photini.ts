@@ -488,10 +488,7 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Regenerer miniatyrbilde</numerusform>
-            <numerusform>Regenerer miniatyrbilder</numerusform>
-        </translation>
+        <translation><numerusform>Regenerer miniatyrbilde</numerusform><numerusform>Regenerer miniatyrbilder</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -503,17 +500,11 @@ in file</source>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Last inn filen igjen</numerusform>
-            <numerusform>Last inn filene igjen</numerusform>
-        </translation>
+        <translation><numerusform>Last inn filen igjen</numerusform><numerusform>Last inn filene igjen</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Velg fil</numerusform>
-            <numerusform>Velg filer</numerusform>
-        </translation>
+        <translation><numerusform>Velg fil</numerusform><numerusform>Velg filer</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -599,12 +590,9 @@ copy</source>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fil
-valgt</numerusform>
-            <numerusform>%n filer
-valgt</numerusform>
-        </translation>
+        <translation><numerusform>%n fil
+valgt</numerusform><numerusform>%n filer
+valgt</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
