@@ -417,7 +417,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"/>
+        <translation></translation>
     </message>
 </context>
 <context>
