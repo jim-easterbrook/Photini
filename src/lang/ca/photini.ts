@@ -403,10 +403,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Photini: fitxer gran</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Títol de l&apos;àlbum</translation>
     </message>
@@ -417,6 +413,10 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Large file.</source>
         <translation>Fitxer gran.</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>

@@ -405,10 +405,6 @@ Oddělte je znaky &quot;;&quot;.</translation>
         <translation>Velký soubor</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Název alba</translation>
     </message>
@@ -419,6 +415,10 @@ Oddělte je znaky &quot;;&quot;.</translation>
     <message>
         <source>Large file.</source>
         <translation>Velký soubor.</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>

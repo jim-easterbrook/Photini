@@ -34,13 +34,13 @@ def extract_program_strings(root, args):
         if ext == '.py':
             inputs.append(os.path.join(src_dir, name))
     inputs.sort()
+    outputs = [os.path.join(dst_dir, 'templates', 'qt', 'photini.ts')]
     if args.language:
         path = os.path.join(dst_dir, args.language)
         if not os.path.isdir(path):
             os.makedirs(path)
-        outputs = [os.path.join(path, 'photini.ts')]
+        outputs.append(os.path.join(path, 'photini.ts'))
     else:
-        outputs = []
         for name in os.listdir(dst_dir):
             path = os.path.join(dst_dir, name, 'photini.ts')
             if os.path.exists(path):

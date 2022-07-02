@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr" sourcelanguage="en_GB">
+<TS version="2.1" language="fr" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -407,10 +407,6 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <translation>Photini&#xa0;: gros fichier</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Nom de l&apos;album</translation>
     </message>
@@ -421,6 +417,10 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     <message>
         <source>Large file.</source>
         <translation>Fichier volumineux.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -1000,14 +1000,14 @@ fournie par Bing</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
+    <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>

@@ -404,10 +404,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation></translation>
     </message>
@@ -417,6 +413,10 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Large file.</source>
+        <translation></translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation></translation>
     </message>
 </context>
