@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Get address from lat, long</source>
-        <translation>Obtenir l&apos;adresse d&apos;après la latitude et la longitude</translation>
+        <translation>Obtenir l&apos;adresse d&apos;après la lat, lon</translation>
     </message>
     <message>
         <source>Duplicate location</source>
