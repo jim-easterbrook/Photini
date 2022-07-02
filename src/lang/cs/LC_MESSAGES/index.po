@@ -1,28 +1,26 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) 2012-22, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
-#
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
 # Translators:
-# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
 # fri, 2022
+# Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022
+# 
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.6.0\n"
+"Project-Id-Version: Photini 2022.7.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-02 11:56+0100\n"
-"PO-Revision-Date: 2022-06-30 12:10+0000\n"
-"Last-Translator: fri, 2022\n"
-"Language: cs\n"
-"Language-Team: Czech (https://www.transifex.com/jim-"
-"easterbrook/teams/32598/cs/)\n"
-"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n "
-"<= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3\n"
+"PO-Revision-Date: 2022-07-02 10:41+0000\n"
+"Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
+"Language-Team: Czech (https://www.transifex.com/jim-easterbrook/teams/32598/cs/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 msgid "Photini documentation"
 msgstr "Dokumentace k Photini"
@@ -61,4 +59,3 @@ msgid ""
 msgstr ""
 "Máte poznámky nebo otázky? Začněte odebírat poštovní seznam Photini "
 "https://groups.google.com/forum/#!forum/photini a dejte nám vědět."
-
