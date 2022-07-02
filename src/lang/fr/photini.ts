@@ -497,6 +497,7 @@ dans le fichier</translation>
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
+            <numerusform>Régénérer les vignettes</numerusform>
         </translation>
     </message>
     <message>
@@ -512,12 +513,14 @@ dans le fichier</translation>
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
+            <numerusform>Recharger les fichiers</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
+            <numerusform>Fermer les fichiers</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
         </translation>
     </message>
@@ -614,6 +617,8 @@ selected</source>
         <translation>
             <numerusform>%n fichier
 sélectionné</numerusform>
+            <numerusform>%n fichiers
+sélectionnés</numerusform>
             <numerusform>%n fichiers
 sélectionnés</numerusform>
         </translation>
