@@ -5,6 +5,8 @@ git:
     source_language: en
     source_file: src/lang/en/photini.ts
     translation_files_expression: 'src/lang/<lang>/photini.ts'
+    ignore_files:
+      - src/lang/templates/photini.ts
 
   - filter_type: file
     file_format: PO
