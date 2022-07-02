@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><context>
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.0">
+<context>
     <name>AddressTab</name>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -405,16 +406,16 @@ Separate them with &quot;;&quot; characters.</source>
         <source>Large file.</source>
         <translation type="unfinished"/>
     </message>
+    <message encoding="UTF-8">
+        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="unfinished"/>
+    </message>
     <message>
         <source>Album title</source>
         <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation type="unfinished"/>
-    </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"/>
     </message>
 </context>

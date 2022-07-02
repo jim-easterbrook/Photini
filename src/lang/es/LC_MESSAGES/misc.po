@@ -7,11 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2022-07-02 11:29+0100\n"
-=======
-"POT-Creation-Date: 2022-07-02 11:22+0100\n"
->>>>>>> weblate
+"POT-Creation-Date: 2022-07-02 11:35+0100\n"
 "PO-Revision-Date: 2017-08-16 11:26+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: es\n"
