@@ -11,7 +11,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2022-07-02 11:29+0100\n"
+=======
+"POT-Creation-Date: 2022-07-02 11:22+0100\n"
+>>>>>>> weblate
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Soohyeon Park, 2022\n"
 "Language: ko\n"
