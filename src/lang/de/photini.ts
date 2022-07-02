@@ -405,10 +405,6 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <translation>Photini: große Datei</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="obsolete">Die Datei „{0}“ ist größer als 25 MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Albumtitel</translation>
     </message>
@@ -422,7 +418,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"/>
+        <translation>Die Datei „{0}“ ist größer als 25 MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
 </context>
 <context>
@@ -496,10 +492,7 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Miniaturbild neu generieren</numerusform>
-            <numerusform>Miniaturbilder neu generieren</numerusform>
-        </translation>
+        <translation><numerusform>Miniaturbild neu generieren</numerusform><numerusform>Miniaturbilder neu generieren</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -511,17 +504,11 @@ nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Datei neu laden</numerusform>
-            <numerusform>Dateien neu laden</numerusform>
-        </translation>
+        <translation><numerusform>Datei neu laden</numerusform><numerusform>Dateien neu laden</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Datei schließen</numerusform>
-            <numerusform>Dateien schließen</numerusform>
-        </translation>
+        <translation><numerusform>Datei schließen</numerusform><numerusform>Dateien schließen</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -613,12 +600,9 @@ Kopieren</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n Datei
-ausgewählt</numerusform>
-            <numerusform>%n Dateien
-ausgewählt</numerusform>
-        </translation>
+        <translation><numerusform>%n Datei
+ausgewählt</numerusform><numerusform>%n Dateien
+ausgewählt</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
