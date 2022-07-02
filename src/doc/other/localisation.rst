@@ -12,7 +12,7 @@ You can use an online service (Weblate_ or Transifex_) or a suitable text editor
 
 .. note::
     I'm currently experimenting with using Weblate and Transifex simultaneously.
-    They both synchronise to GitHub, so changes made on one service should appear on the other within 24 hours.
+    They both synchronise to GitHub, so changes made on one service should eventually appear on the other.
     Please let me know which of them you prefer.
 
 Translating the program text
@@ -73,7 +73,7 @@ The longer codes are usually regional or national variations of a common languag
 You should choose the common language if it’s not already available in Photini, moving on to the variations once the common language is done.
 Once your language is added you can ask to join the language team and then start translating.
 
-Click on your language, then click on "src..en/photini.ts (localisation)" to work on the Photini GUI strings.
+Click on your language, then click on "src..en/photini.ts (transifex)" to work on the Photini GUI strings.
 
 When you've finished working on a translation there's no need to do anything further.
 Transifex automatically pushes the translation to GitHub, where I can merge it into the main repository branch.
@@ -183,9 +183,8 @@ However, translating the program strings is a much higher priority.
 Online translation
 ^^^^^^^^^^^^^^^^^^
 
-This uses Weblate_ and Transifex_ as described above.
-On Weblate the documentation strings are in components with names like "docs - manual".
-On Transifex they are in resources with names like "src..gettext/manual.pot (localisation)".
+This uses Transifex_ as described above.
+The documentation strings are in resources with names like "src..gettext/manual.pot (transifex)".
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
