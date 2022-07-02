@@ -403,10 +403,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation>Photini: fitxer gran</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="obsolete">El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Títol de l&apos;àlbum</translation>
     </message>
@@ -420,7 +416,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"/>
+        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>
@@ -494,10 +490,7 @@ en el fitxer</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Regenera miniatura</numerusform>
-            <numerusform>Regenera miniaturas</numerusform>
-        </translation>
+        <translation><numerusform>Regenera miniatura</numerusform><numerusform>Regenera miniaturas</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -509,17 +502,11 @@ en el fitxer</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -611,12 +598,9 @@ copia</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fitxer
-triat</numerusform>
-            <numerusform>%n fitxers
-triats</numerusform>
-        </translation>
+        <translation><numerusform>%n fitxer
+triat</numerusform><numerusform>%n fitxers
+triats</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>

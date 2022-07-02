@@ -405,10 +405,6 @@ Oddělte je znaky &quot;;&quot;.</translation>
         <translation>Velký soubor</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="obsolete">Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Název alba</translation>
     </message>
@@ -422,7 +418,7 @@ Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"/>
+        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -496,11 +492,7 @@ v souboru</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Obnovit náhled</numerusform>
-            <numerusform>Obnovit náhledy</numerusform>
-            <numerusform>Obnovit náhledy</numerusform>
-        </translation>
+        <translation><numerusform>Obnovit náhled</numerusform><numerusform>Obnovit náhledy</numerusform><numerusform>Obnovit náhledy</numerusform><numerusform>Obnovit náhledy</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -512,19 +504,11 @@ v souboru</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Nahrát znovu soubor</numerusform>
-            <numerusform>Nahrát znovu soubory</numerusform>
-            <numerusform>Nahrát znovu soubory</numerusform>
-        </translation>
+        <translation><numerusform>Nahrát znovu soubor</numerusform><numerusform>Nahrát znovu soubory</numerusform><numerusform>Nahrát znovu soubory</numerusform><numerusform>Nahrát znovu soubory</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Zavřít soubor</numerusform>
-            <numerusform>Zavřít soubory</numerusform>
-            <numerusform>Zavřít soubory</numerusform>
-        </translation>
+        <translation><numerusform>Zavřít soubor</numerusform><numerusform>Zavřít soubory</numerusform><numerusform>Zavřít soubory</numerusform><numerusform>Zavřít soubory</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -616,11 +600,7 @@ kopírování</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
