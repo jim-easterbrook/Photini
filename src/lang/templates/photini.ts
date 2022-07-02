@@ -1,5 +1,4 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.0">
-<context>
+<?xml version="1.0" ?><context>
     <name>AddressTab</name>
     <message>
         <source>Enter the name of the sublocation.</source>
