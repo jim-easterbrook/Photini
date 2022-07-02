@@ -405,10 +405,6 @@ Séparez-les par des caractères « ; ».</translation>
         <translation>Photini : gros fichier</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is over 25MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="obsolete">Le fichier « {0} » est dépasse 25 Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même ?</translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation>Nom de l&apos;album</translation>
     </message>
@@ -422,7 +418,7 @@ Séparez-les par des caractères « ; ».</translation>
     </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"/>
+        <translation>Le fichier « {0} » est dépasse 25 Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même ?</translation>
     </message>
 </context>
 <context>
@@ -496,10 +492,7 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
-        <translation>
-            <numerusform>Régénérer la vignette</numerusform>
-            <numerusform>Régénérer les vignettes</numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -511,17 +504,11 @@ dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Reload file(s)</source>
-        <translation>
-            <numerusform>Recharger le fichier</numerusform>
-            <numerusform>Recharger les fichiers</numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
-        <translation>
-            <numerusform>Fermer le fichier</numerusform>
-            <numerusform>Fermer les fichiers</numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -613,12 +600,7 @@ la copie</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
-            <numerusform>%n fichier
-sélectionné</numerusform>
-            <numerusform>%n fichiers
-sélectionnés</numerusform>
-        </translation>
+        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
