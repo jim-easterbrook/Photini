@@ -285,7 +285,7 @@ class TabWidget(PhotiniUploader):
             translate('GooglePhotosTab', 'Large file.')))
         dialog.setInformativeText(
             translate('GooglePhotosTab',
-                      'File "{0}" is over 25 MB. Remember that Photini '
+                      'File "{0}" is over 25\xa0MB. Remember that Photini '
                       'uploads count towards storage in your Google Account. '
                       'Upload it anyway?').format(os.path.basename(image.path)))
         dialog.setIcon(QtWidgets.QMessageBox.Warning)
