@@ -33,3 +33,11 @@ Before a new release of Photini::
    git pull                             # fetch new content
    python3 utils/lang_update.py         # update from source
    python3 utils/build_lang.py          # "compile" language files
+
+Plurals
+-------
+
+Qt Linguist and Transifex have different ideas about how many plural forms some languages have.
+For example, Transifex expects French to have three plurals ``1``, ``many``, and ``other``, but Qt Linguist expects two ``singular`` and ``plural``.
+The ``lang_update.py`` adds empty plural forms to satisfy Transifex.
+These make Qt Linguist report a warning, but everything else seems to work OK.

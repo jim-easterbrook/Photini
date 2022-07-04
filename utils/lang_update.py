@@ -21,11 +21,24 @@ import os
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 from sphinx.application import Sphinx
 
 
-def extract_program_strings(root, args):
+args = None
+
+
+def html_escape(match):
+    text = match.group(0)
+    if args.weblate:
+        text = text.replace('\xa0', '&#xa0;')
+    text = text.replace('"', '&quot;')
+    text = text.replace("'", '&apos;')
+    return text
+
+
+def extract_program_strings(root):
     src_dir = os.path.join(root, 'src', 'photini')
     dst_dir = os.path.join(root, 'src', 'lang')
     inputs = []
@@ -46,16 +59,17 @@ def extract_program_strings(root, args):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # restore utf-8 encoding markers removed by Qt Linguist
+    # ensure messages are marked as UTF-8
     for path in outputs:
         if not os.path.exists(path):
             continue
-        with open(path, 'r') as f:
-            old_text = f.readlines()
-        with open(path, 'w') as f:
-            for line in old_text:
-                line = line.replace('<message>', '<message encoding="UTF-8">')
-                f.write(line)
+        tree = ET.parse(path)
+        xml = tree.getroot()
+        for context in xml.iter('context'):
+            for message in context.iter('message'):
+                message.set('encoding', 'UTF-8')
+        tree.write(path, encoding='UTF-8',
+                   xml_declaration=True, short_empty_elements=True)
     # run pylupdate
     cmd = ['pylupdate5', '-verbose']
     cmd += inputs
@@ -64,33 +78,71 @@ def extract_program_strings(root, args):
     result = subprocess.call(cmd)
     if result:
         return result
-    # process result
-    if args.strip or args.transifex or args.weblate:
-        line_no = re.compile('^\s*<location filename="')
-        for path in outputs:
-            with open(path, 'r') as f:
-                old_text = f.readlines()
-            if args.transifex and '/en/' not in path:
-                old_text[0] = '<?xml version="1.0" ?>'
-                old_text[-1] = '</TS>'
-            if args.weblate:
-                old_text[1] = old_text[1].replace(
-                    'DOCTYPE TS><TS', 'DOCTYPE TS>\n<TS')
-            with open(path, 'w') as f:
-                for line in old_text:
-                    if line_no.match(line):
-                        continue
-                    if args.transifex:
-                        line = line.replace(
-                            '<translation type="unfinished"></translation>',
-                            '<translation type="unfinished"/>')
-                    if args.weblate:
-                        line = line.replace('\xa0', '&#xa0;')
-                    f.write(line)
+    # process pylupdate output
+    numerus_count = {
+        'cs': 4,
+        'es': 3,
+        'fr': 3,
+        'it': 3,
+        'pl': 4,
+        }
+    unused = ET.Element('numerusform')
+    unused.text = 'Unused'
+    for path in outputs:
+        if not os.path.exists(path):
+            continue
+        # process as XML
+        tree = ET.parse(path)
+        xml = tree.getroot()
+        language = xml.get('language')
+        for context in xml.iter('context'):
+            for message in context.iter('message'):
+                if args.strip:
+                    location = message.find('location')
+                    if location is not None:
+                        message.remove(message.find('location'))
+                # add extra plurals expected by Transifex
+                if language in numerus_count and message.get('numerus'):
+                    translation = message.find('translation')
+                    numerusforms = translation.findall('numerusform')
+                    missing = numerus_count[language] - len(numerusforms)
+                    if missing > 0:
+                        for i in range(missing):
+                            translation.append(unused)
+        tree.write(path, encoding='utf-8',
+                   xml_declaration=True, short_empty_elements=True)
+        # process as text
+        with open(path, 'r') as f:
+            text = f.read()
+        text = re.sub('>.+?<', html_escape, text, flags=re.DOTALL)
+        if args.weblate:
+            text = text.replace(
+                "<?xml version='1.0' encoding='utf-8'?>",
+                '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>')
+            text = text.replace(
+                '<TS language="{}" sourcelanguage="en_GB" version="2.0">'.format(language),
+                '<TS version="2.1" language="{}" sourcelanguage="en_GB">'.format(language))
+            text += '\n'
+        if args.transifex:
+            text = text.replace(
+                "<?xml version='1.0' encoding='utf-8'?>\n",
+                '<?xml version="1.0" ?><!DOCTYPE TS>')
+            text = text.replace(
+                '<TS language="{}" sourcelanguage="en_GB" version="2.0">'.format(language),
+                '<TS version="2.0" language="{}" sourcelanguage="en_GB">'.format(language))
+            text = text.replace(
+                '<translation type="unfinished" />',
+                '<translation type="unfinished"/>')
+            text = re.sub(
+                '\s+<numerusform', '<numerusform', text, flags=re.DOTALL)
+            text = re.sub(
+                '\s+</translation', '</translation', text, flags=re.DOTALL)
+        with open(path, 'w') as f:
+            f.write(text)
     return 0
 
 
-def extract_doc_strings(root, args):
+def extract_doc_strings(root):
     # create / update .pot files with Sphinx
     src_dir = os.path.join(root, 'src', 'doc')
     dst_dir = os.path.join(root, 'src', 'lang', 'templates', 'gettext')
@@ -130,7 +182,7 @@ def extract_doc_strings(root, args):
             if result:
                 return result
             outputs.append(out_file)
-    if args.strip or args.transifex or args.weblate:
+    if args.strip:
         test = re.compile('^#: ')
         for path in inputs + outputs:
             with open(path, 'r') as f:
@@ -143,10 +195,14 @@ def extract_doc_strings(root, args):
 
 
 def main(argv=None):
+    global args
+
     if argv:
         sys.argv = argv
     parser = ArgumentParser(
         description='Extract strings for translation')
+    parser.add_argument('-d', '--docs', action='store_true',
+                        help='process documentation strings')
     parser.add_argument('-l', '--language',
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-s', '--strip', action='store_true',
@@ -156,12 +212,12 @@ def main(argv=None):
     parser.add_argument('-w', '--weblate', action='store_true',
                         help='attempt to match Weblate syntax')
     args = parser.parse_args()
+    if args.transifex or args.weblate:
+        args.strip = True
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    result = extract_program_strings(root, args)
-    if result:
-        return result
-    result = extract_doc_strings(root, args)
-    return result
+    if args.docs:
+        return extract_doc_strings(root)
+    return extract_program_strings(root)
 
 
 if __name__ == "__main__":

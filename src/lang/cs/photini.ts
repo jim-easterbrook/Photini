@@ -600,7 +600,11 @@ kopírování</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform><numerusform></numerusform></translation>
+        <translation><numerusform>%n soubor
+vybrán</numerusform><numerusform>%n soubory
+vybrány</numerusform><numerusform>%n souborů
+vybráno</numerusform><numerusform>%n souborů
+vybráno</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -615,19 +619,19 @@ selected</source>
     </message>
     <message>
         <source>Family &amp; friends</source>
-        <translation type="unfinished"/>
+        <translation>Rodina a přátelé</translation>
     </message>
     <message>
         <source>Contacts</source>
-        <translation type="unfinished"/>
+        <translation>Kontakty</translation>
     </message>
     <message>
         <source>Everyone</source>
-        <translation type="unfinished"/>
+        <translation>Všichni</translation>
     </message>
     <message>
         <source>Copyright (all rights reserved)</source>
-        <translation type="unfinished"/>
+        <translation>Kopírovací právo (všechna práva vyhrazena)</translation>
     </message>
     <message>
         <source>Attribution</source>

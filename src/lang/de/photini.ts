@@ -343,7 +343,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Safe</source>
-        <translation type="unfinished"/>
+        <translation>Sicher</translation>
     </message>
     <message>
         <source>Moderate</source>
@@ -768,7 +768,7 @@ ausgewählt</numerusform></translation>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="unfinished"/>
+        <translation>Neue Sprache</translation>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
@@ -784,7 +784,7 @@ ausgewählt</numerusform></translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"/>
+        <translation>Sprache</translation>
     </message>
     <message>
         <source>Lang: </source>
@@ -878,7 +878,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation type="unfinished"/>
+        <translation>GPX-Datei laden</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
@@ -886,7 +886,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation type="unfinished"/>
+        <translation>GPX-Daten entfernen</translation>
     </message>
 </context>
 <context>
@@ -953,11 +953,11 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Close all files</source>
-        <translation type="unfinished"/>
+        <translation>Alle Dateien schließen</translation>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"/>
+        <translation>Ausgewählte Bilder</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -973,7 +973,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"/>
+        <translation>Photini: Versionsprüfung</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
@@ -1008,12 +1008,14 @@ provided by Bing</translation>
     <message>
         <source>Edit
 template</source>
-        <translation type="unfinished"/>
+        <translation>Vorlage
+bearbeiten</translation>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation type="unfinished"/>
+        <translation>Vorlage
+anwenden</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1073,7 +1075,7 @@ template</source>
     </message>
     <message>
         <source>Phone(s)</source>
-        <translation type="unfinished"/>
+        <translation>Telefon(e)</translation>
     </message>
     <message>
         <source>Enter address for the person that created this image.</source>
@@ -1081,7 +1083,7 @@ template</source>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished"/>
+        <translation>Adresse</translation>
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
@@ -1097,7 +1099,7 @@ template</source>
     </message>
     <message>
         <source>Postal Code</source>
-        <translation type="unfinished"/>
+        <translation>Postleitzahl</translation>
     </message>
     <message>
         <source>Enter the state for the address of the person that created this image.</source>
@@ -1142,7 +1144,7 @@ template</source>
     </message>
     <message>
         <source>Rights</source>
-        <translation type="unfinished"/>
+        <translation>Rechte</translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
@@ -1157,7 +1159,7 @@ template</source>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
-        <translation type="unfinished"/>
+        <translation>Alle Rechte vorbehalten</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
@@ -1197,11 +1199,11 @@ template</source>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"/>
+        <translation>Name</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"/>
+        <translation>URL</translation>
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
@@ -1364,7 +1366,7 @@ template</source>
     </message>
     <message>
         <source>Camera</source>
-        <translation type="unfinished"/>
+        <translation>Kamera</translation>
     </message>
     <message>
         <source>Photini: maker name change</source>
