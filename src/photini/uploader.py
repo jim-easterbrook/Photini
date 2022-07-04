@@ -383,9 +383,10 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def show_user(self, name, picture):
         if name:
+            name = name[:10].replace(' ', '\xa0') + name[10:]
             self.user_name.setText(translate(
                 'UploaderTabsAll',
-                'Logged in as<br>{0} on {1}').format(name, self.service_name))
+                'Logged in as {0} on {1}').format(name, self.service_name))
         else:
             self.user_name.setText(translate(
                 'UploaderTabsAll',
