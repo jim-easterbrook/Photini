@@ -95,9 +95,10 @@ Licence
 | Catalan translation by Joan Juvanteny
 | Czech translation by Pavel Fric
 | French translation by Nathan, J. Lavoie
-| German translation by Jan Rimmek, J. Lavoie
+| German translation by Jan Rimmek, J. Lavoie, Ettore Atalan
+| Korean translation by Soohyeon Park
 | Norwegian Bokmål translation by Allan Nordhøy
-| Polish translation by "itdawid"
+| Polish translation by Dawid Głaz
 | Spanish translation by Esteban Martinena, Cristos Ruiz
 
 This program is free software: you can redistribute it and/or
