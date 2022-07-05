@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="nb" sourcelanguage="en_GB">
+<TS language="nb" sourcelanguage="en_GB" version="2.0">
 <context>
     <name>AddressTab</name>
     <message>
@@ -263,7 +263,7 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Photini: for stort</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>

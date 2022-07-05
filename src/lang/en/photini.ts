@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="en_GB" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS language="en" sourcelanguage="en_GB" version="2.0">
 <context>
     <name>AddressTab</name>
     <message>
@@ -416,7 +417,7 @@ Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
     <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25 MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation></translation>
     </message>
 </context>
