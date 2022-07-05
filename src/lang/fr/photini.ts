@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr" sourcelanguage="en_GB">
+<TS language="fr" sourcelanguage="en_GB" version="2.0">
 <context>
     <name>AddressTab</name>
     <message>
@@ -420,7 +420,11 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+        <translation type="obsolete">Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -497,8 +501,7 @@ dans le fichier</translation>
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-            <numerusform>Régénérer les vignettes</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -513,16 +516,14 @@ dans le fichier</translation>
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-            <numerusform>Recharger les fichiers</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-            <numerusform>Fermer les fichiers</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -619,9 +620,7 @@ selected</source>
 sélectionné</numerusform>
             <numerusform>%n fichiers
 sélectionnés</numerusform>
-            <numerusform>%n fichiers
-sélectionnés</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -1007,14 +1006,18 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
+        <translation type="obsolete">Geodata © Contributeurs de OpenStreetMap</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
+        <translation type="obsolete">Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1173,6 +1176,10 @@ le modèle</translation>
     <message>
         <source>Photini: ownership template</source>
         <translation>Photini&#xa0;: Modèle de propriété</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

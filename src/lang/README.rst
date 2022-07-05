@@ -2,27 +2,36 @@ Notes
 =====
 
 Transifex and Weblate both pull content from the ``master`` branch.
-Transifex creates pull requests when it has new content, Weblate pushes to the ``weblate`` branch.
+Transifex creates pull requests when a component is 100% translated, Weblate pushes to the ``weblate`` branch when anything is updated.
 
 Reminders for what to do when translations are updated.
 
 When program or documentation source changes::
 
    git checkout master                  # switch to master branch
-   python3 utils/lang_update.py -s      # update templates from source
-   git push                             # push updated source to GitHub
+   python3 utils/lang_update.py -s      # update translations from source
+   git push                             # push updated translations to GitHub
 
-When new content on Transifex or Weblate eventually gets pushed to GitHub, use GitHub's web page to create a pull request from the branch to master if necessary.
+When new content on Weblate gets pushed to GitHub, use GitHub's web page to create a pull request from the branch to master.
 Then download updated translations::
 
    git checkout master                  # switch to master branch
    git pull                             # fetch new content
+   python3 utils/lang_update.py -s      # reformat translations if needed
+   git push                             # push updated translations to GitHub
+
+When there is new content on Transifex in language xx::
+
+   git checkout master                  # switch to master branch
+   tx pull -l xx -f                     # fetch new content from Transifex
+   python3 utils/lang_update.py -s      # reformat translations if needed
+   git push                             # push updated translations to GitHub
 
 Edit translation locally::
 
    git checkout master                  # switch to master branch
    git pull                             # fetch new content
-   python3 utils/lang_update.py         # update from source, with line numbers
+   python3 utils/lang_update.py -l xx   # update from source, with line numbers
    linguist-qt5 src/lang/xx/photini.ts  # edit translation of language xx
    python3 utils/lang_update.py -s      # remove line numbers
    git push                             # push updated translation to GitHub
