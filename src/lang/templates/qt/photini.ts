@@ -95,10 +95,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>increase number of logging messages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1419,10 +1415,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1496,6 +1488,10 @@ template</source>
     </message>
     <message>
         <source>No match</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

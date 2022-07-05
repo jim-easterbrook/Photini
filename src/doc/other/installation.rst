@@ -221,7 +221,6 @@ Now you should be able to run photini:
         jim@mint:~$ python -m photini
         ffmpeg or ffprobe not found
         No module named 'enchant'
-        No module named 'gi'
         No module named 'gpxpy'
         No module named 'requests_oauthlib'
         No module named 'requests_toolbelt'
@@ -231,7 +230,6 @@ Now you should be able to run photini:
         C:\Users\Jim>python -m photini
         ffmpeg or ffprobe not found
         No module named 'enchant'
-        No module named 'gi'
         No module named 'gpxpy'
         No module named 'requests_oauthlib'
         No module named 'requests_toolbelt'
@@ -561,7 +559,7 @@ PyQt_ [1]                      5.9                python3-qt5 or python3-pyqt5  
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
 QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit        PyQtWebEngine
-`python-exiv2`_ [3]            0.11.0                                           exiv2
+`python-exiv2`_                0.11.0                                           exiv2
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
 =============================  =================  ============================  =================
@@ -577,32 +575,6 @@ QtWebKit is deprecated and Photini will no longer be able to use it in a future 
 Try running Photini before installing either as an extra package.
 If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
 
-[3] `python-exiv2`_ is a new interface to the Exiv2_ library, which Photini versions 2021.9.0 onwards can use.
-If you cannot install it on your computer then you need to install the packages shown below instead.
-A future release of Photini will not have this option, so please let me know if you are unable to install python-exiv2.
-
-=============================  =================  ============================  =================
-Package                        Minimum version    Typical Linux package name    PyPI package name
-=============================  =================  ============================  =================
-gexiv2_                        0.10.3             libgexiv2-2
-gexiv2 introspection data                         typelib-1_0-GExiv2-0_10 or
-                                                  gir1.2-gexiv2-0.10
-PyGObject_ [4]                                    python3-gobject or
-                                                  python3-gi
-pgi_ [4]                       0.0.8                                            pgi
-=============================  =================  ============================  =================
-
-This is a more circuitous way to access photograph metadata from Python.
-Exiv2_ is the core "C" library.
-gexiv2_ is a GObject wrapper around the Exiv2 library.
-It has extra "introspection bindings" that allow it to be used by other languages.
-PyGObject_ or pgi_ provide a Python interface to the introspection bindings of the GObject wrapper around the Exiv2 library.
-
-[4] pgi_ is a pure Python alternative to PyGObject_ that may be more reliable on some systems, despite its author's warnings about its experimental status.
-If pgi doesn't work on your system you can go back to using PyGObject by uninstalling pgi::
-
-    $ pip3 uninstall pgi
-
 .. _installation-optional:
 
 Optional dependencies
@@ -614,7 +586,7 @@ Linux package manager names will probably have ``python-`` or ``python3-`` prefi
 ============================  =================
 Feature                       Dependencies
 ============================  =================
-Spell check[1]                pyenchant_ 2.0+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)
+Spell check[1]                pyenchant_ 2.0+
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Ipernity upload               `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
@@ -623,10 +595,8 @@ Import photos from camera[3]  `python3-gphoto2`_ 1.8+
 Import GPS logger file        gpxpy_ 1.3.5+
 ============================  =================
 
-[1] If you are using python-exiv2 for metadata access then pyenchant is the preferred spelling package.
-Pyenchant requires a C library and dictionaries to be installed.
+[1] Pyenchant requires a C library and dictionaries to be installed.
 See the `pyenchant documentation`_ for detailed instructions.
-Gspell requires PyGObject or pgi to be installed as well, as described above.
 
 [2] Photini can create thumbnail images using PyQt, but better quality ones can be made by installing Pillow.
 FFmpeg is needed to generate thumbnails for video files, but it can also make them for some still image formats.

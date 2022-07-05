@@ -555,10 +555,6 @@ def main(argv=None):
         '-t', '--test', action='store_true',
         help=translate('CLIHelp', 'test new features or API versions'))
     parser.add_option(
-        '-u', '--utf_safe', action='store_true',
-        help=translate(
-            'CLIHelp', 'metadata is known to be ASCII or utf-8 encoded'))
-    parser.add_option(
         '-v', '--verbose', action='count', default=0,
         help=translate('CLIHelp', 'increase number of logging messages'))
     options, args = parser.parse_args()

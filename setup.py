@@ -21,9 +21,9 @@ from setuptools import setup
 
 
 # list dependency packages
-install_requires = ['appdirs', 'cachetools', 'requests']
+install_requires = ['appdirs', 'cachetools', 'exiv2', 'requests']
 extras_require = {
-    'basic'    : ['exiv2', 'PySide2'],
+    'basic'    : ['PySide2'],
     'flickr'   : ['requests-oauthlib', 'requests-toolbelt', 'keyring'],
     'google'   : ['requests-oauthlib', 'keyring'],
     'importer' : ['gphoto2; platform_system != "Windows"'],

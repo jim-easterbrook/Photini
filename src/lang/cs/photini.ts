@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation>Je známo, že popisná data jsou v kódování ASCII nebo UTF-8.</translation>
+        <translation type="obsolete">Je známo, že popisná data jsou v kódování ASCII nebo UTF-8.</translation>
     </message>
 </context>
 <context>
@@ -1465,10 +1465,6 @@ template</source>
         <translation>Přidat do alb</translation>
     </message>
     <message>
-        <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: authorise</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1518,6 +1514,10 @@ template</source>
     </message>
     <message>
         <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

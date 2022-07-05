@@ -26,17 +26,7 @@ import os
 import re
 
 from photini import __version__
-try:
-    from photini.exiv2 import MetadataHandler, exiv2_version, exiv2_version_info
-except ImportError as ex1:
-    print(str(ex1))
-    try:
-        from photini.gexiv2 import MetadataHandler, exiv2_version, exiv2_version_info
-        print('Use of GExiv2 library will be withdrawn in a future release'
-              ' of Photini.\nPlease install python-exiv2 soon.')
-    except (ImportError, ValueError) as ex2:
-        print(str(ex2))
-        raise ex1 from None
+from photini.exiv2 import MetadataHandler, exiv2_version, exiv2_version_info
 from photini.ffmpeg import FFmpeg
 from photini.types import *
 
@@ -679,18 +669,16 @@ class Metadata(object):
         'title'          : MD_LangAlt,
         }
 
-    def __init__(self, path, notify=None, utf_safe=False):
+    def __init__(self, path, notify=None):
         super(Metadata, self).__init__()
         # create metadata handlers for image file, video file, and sidecar
         self._path = path
         self._notify = notify
-        self._utf_safe = utf_safe
         video_md = None
         self._if = None
         self._sc = SidecarMetadata.open_old(self.find_sidecar())
         self._if = ImageMetadata.open_old(
-            path, utf_safe=utf_safe,
-            quiet=self.get_mime_type().split('/')[0] == 'video')
+            path, quiet=self.get_mime_type().split('/')[0] == 'video')
         self.mime_type = self.get_mime_type()
         if self.mime_type.split('/')[0] == 'video':
             video_md = FFMPEGMetadata.open_old(path)
