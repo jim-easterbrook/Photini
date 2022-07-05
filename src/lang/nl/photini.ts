@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Street</source>
-        <translation type="unfinished"></translation>
+        <translation>Straat</translation>
     </message>
     <message>
         <source>City</source>
