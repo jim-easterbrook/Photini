@@ -98,10 +98,6 @@
         <source>increase number of logging messages</source>
         <translation>aumentar el número de mensajes del registro</translation>
     </message>
-    <message>
-        <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
@@ -1450,10 +1446,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: authorise</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1503,6 +1495,10 @@ template</source>
     </message>
     <message>
         <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

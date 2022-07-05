@@ -100,7 +100,7 @@
     </message>
     <message>
         <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation>les métadonnées sont connues pour être codées en ASCII ou en utf-8</translation>
+        <translation type="obsolete">les métadonnées sont connues pour être codées en ASCII ou en utf-8</translation>
     </message>
 </context>
 <context>
@@ -1476,7 +1476,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation>Connecté en tant que&lt;br&gt;{0} sur {1}</translation>
+        <translation type="obsolete">Connecté en tant que&lt;br&gt;{0} sur {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1529,6 +1529,10 @@ le modèle</translation>
     <message>
         <source>Authorisation required</source>
         <translation>Autorisation requise</translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation>Connecté en tant que {0} sur {1}</translation>
     </message>
 </context>
 <context>
