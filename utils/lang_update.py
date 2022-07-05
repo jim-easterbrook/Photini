@@ -31,8 +31,7 @@ args = None
 
 def html_escape(match):
     text = match.group(0)
-    if args.weblate:
-        text = text.replace('\xa0', '&#xa0;')
+    text = text.replace('\xa0', '&#xa0;')
     text = text.replace('"', '&quot;')
     text = text.replace("'", '&apos;')
     return text
@@ -47,6 +46,7 @@ def extract_program_strings(root):
         if ext == '.py':
             inputs.append(os.path.join(src_dir, name))
     inputs.sort()
+    # choose language(s)
     outputs = [os.path.join(dst_dir, 'templates', 'qt', 'photini.ts')]
     if args.language:
         path = os.path.join(dst_dir, args.language)
@@ -59,22 +59,14 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # ensure messages are marked as UTF-8
-    for path in outputs:
-        if not os.path.exists(path):
-            continue
-        tree = ET.parse(path)
-        xml = tree.getroot()
-        for context in xml.iter('context'):
-            for message in context.iter('message'):
-                message.set('encoding', 'UTF-8')
-        tree.write(path, encoding='UTF-8',
-                   xml_declaration=True, short_empty_elements=True)
     # run pylupdate
-    cmd = ['pylupdate5', '-verbose']
-    cmd += inputs
-    cmd.append('-ts')
-    cmd += outputs
+    # using a project file is the only way to make it handle utf-8 correctly
+    project = 'photini.pro'
+    with open(project, 'w') as f:
+        f.write('CODECFORTR = UTF-8\n')
+        f.write('SOURCES = ' + ' '.join(inputs) + '\n')
+        f.write('TRANSLATIONS = ' + ' '.join(outputs) + '\n')
+    cmd = ['pylupdate5', '-verbose', project]
     result = subprocess.call(cmd)
     if result:
         return result
@@ -91,10 +83,16 @@ def extract_program_strings(root):
     for path in outputs:
         if not os.path.exists(path):
             continue
+        if 'templates' in path:
+            language = None
+        else:
+            language = os.path.basename(os.path.dirname(path))
         # process as XML
         tree = ET.parse(path)
         xml = tree.getroot()
-        language = xml.get('language')
+        xml.set('sourcelanguage', 'en_GB')
+        if language:
+            xml.set('language', language)
         for context in xml.iter('context'):
             for message in context.iter('message'):
                 if args.strip:
@@ -110,33 +108,15 @@ def extract_program_strings(root):
                         for i in range(missing):
                             translation.append(unused)
         tree.write(path, encoding='utf-8',
-                   xml_declaration=True, short_empty_elements=True)
+                   xml_declaration=True, short_empty_elements=False)
         # process as text
         with open(path, 'r') as f:
             text = f.read()
         text = re.sub('>.+?<', html_escape, text, flags=re.DOTALL)
-        if args.weblate:
-            text = text.replace(
-                "<?xml version='1.0' encoding='utf-8'?>",
-                '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>')
-            text = text.replace(
-                '<TS language="{}" sourcelanguage="en_GB" version="2.0">'.format(language),
-                '<TS version="2.1" language="{}" sourcelanguage="en_GB">'.format(language))
-            text += '\n'
-        if args.transifex:
-            text = text.replace(
-                "<?xml version='1.0' encoding='utf-8'?>\n",
-                '<?xml version="1.0" ?><!DOCTYPE TS>')
-            text = text.replace(
-                '<TS language="{}" sourcelanguage="en_GB" version="2.0">'.format(language),
-                '<TS version="2.0" language="{}" sourcelanguage="en_GB">'.format(language))
-            text = text.replace(
-                '<translation type="unfinished" />',
-                '<translation type="unfinished"/>')
-            text = re.sub(
-                '\s+<numerusform', '<numerusform', text, flags=re.DOTALL)
-            text = re.sub(
-                '\s+</translation', '</translation', text, flags=re.DOTALL)
+        text = text.replace(
+            "<?xml version='1.0' encoding='utf-8'?>",
+            '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>')
+        text += '\n'
         with open(path, 'w') as f:
             f.write(text)
     return 0
@@ -207,13 +187,7 @@ def main(argv=None):
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
-    parser.add_argument('-t', '--transifex', action='store_true',
-                        help='attempt to match Transifex syntax')
-    parser.add_argument('-w', '--weblate', action='store_true',
-                        help='attempt to match Weblate syntax')
     args = parser.parse_args()
-    if args.transifex or args.weblate:
-        args.strip = True
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     if args.docs:
         return extract_doc_strings(root)
