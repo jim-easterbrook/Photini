@@ -418,13 +418,9 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <source>Large file.</source>
         <translation>Fichier volumineux.</translation>
     </message>
-    <message>
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="obsolete">Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
-    </message>
     <message encoding="UTF-8">
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -1004,20 +1000,16 @@ fournie par Bing</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
     </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="obsolete">Geodata © Contributeurs de OpenStreetMap</translation>
-    </message>
     <message encoding="UTF-8">
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
+        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message>
+    <message encoding="UTF-8">
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="obsolete">Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
+        <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1176,10 +1168,6 @@ le modèle</translation>
     <message>
         <source>Photini: ownership template</source>
         <translation>Photini&#xa0;: Modèle de propriété</translation>
-    </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
