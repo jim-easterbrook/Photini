@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-02 11:56+0100\n"
+"POT-Creation-Date: 2022-07-05 15:38+0100\n"
 "PO-Revision-Date: 2021-06-14 10:52+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: ca\n"
@@ -366,7 +366,7 @@ msgstr ""
 msgid "PyQtWebEngine"
 msgstr ""
 
-msgid "`python-exiv2`_ [3]"
+msgid "`python-exiv2`_"
 msgstr ""
 
 msgid "0.11.0"
@@ -424,68 +424,6 @@ msgid ""
 msgstr ""
 
 msgid ""
-"[3] `python-exiv2`_ is a new interface to the Exiv2_ library, which Photini "
-"versions 2021.9.0 onwards can use. If you cannot install it on your computer"
-" then you need to install the packages shown below instead. A future release"
-" of Photini will not have this option, so please let me know if you are "
-"unable to install python-exiv2."
-msgstr ""
-
-msgid "gexiv2_"
-msgstr ""
-
-msgid "0.10.3"
-msgstr ""
-
-# e9e085329ffd484baeb93e940f76e1e9
-msgid "libgexiv2-2"
-msgstr ""
-
-# d32270e2bafc42598a6febd8ff2183fd
-msgid "gexiv2 introspection data"
-msgstr ""
-
-# cd2abcd76b82452c8c08998f65cc176a
-msgid "typelib-1_0-GExiv2-0_10 or gir1.2-gexiv2-0.10"
-msgstr ""
-
-# 6cdcbe1e9fc34e19bd8dae3810e682b4
-msgid "PyGObject_ [4]"
-msgstr ""
-
-# 4412d009e8c64383a710bdb5aa51a081
-msgid "python3-gobject or python3-gi"
-msgstr ""
-
-# ad00d70881b64d8d936af88ac59953c8
-msgid "pgi_ [4]"
-msgstr ""
-
-# 159d28865f174b4eae96087ba0dc093b
-msgid "0.0.8"
-msgstr ""
-
-# 36c45941ae70460986160c8e997558f5
-msgid "pgi"
-msgstr ""
-
-msgid ""
-"This is a more circuitous way to access photograph metadata from Python. "
-"Exiv2_ is the core \"C\" library. gexiv2_ is a GObject wrapper around the "
-"Exiv2 library. It has extra \"introspection bindings\" that allow it to be "
-"used by other languages. PyGObject_ or pgi_ provide a Python interface to "
-"the introspection bindings of the GObject wrapper around the Exiv2 library."
-msgstr ""
-
-# 8d709bb23b744bbaaa73e07ce42070b5
-msgid ""
-"[4] pgi_ is a pure Python alternative to PyGObject_ that may be more "
-"reliable on some systems, despite its author's warnings about its "
-"experimental status. If pgi doesn't work on your system you can go back to "
-"using PyGObject by uninstalling pgi::"
-msgstr ""
-
-msgid ""
 "Some of Photini's features are optional - if you don't install these "
 "packages Photini will work but the relevant feature will not be available. "
 "Linux package manager names will probably have ``python-`` or ``python3-`` "
@@ -504,9 +442,7 @@ msgstr ""
 msgid "Spell check[1]"
 msgstr ""
 
-msgid ""
-"pyenchant_ 2.0+ or Gspell_ (e.g. ``typelib-1_0-Gspell-1_0``, "
-"``gir1.2-gspell-1``)"
+msgid "pyenchant_ 2.0+"
 msgstr ""
 
 # f6164063ac26491f8cf3371fecce8bcb
@@ -553,11 +489,8 @@ msgid "gpxpy_ 1.3.5+"
 msgstr ""
 
 msgid ""
-"[1] If you are using python-exiv2 for metadata access then pyenchant is the "
-"preferred spelling package. Pyenchant requires a C library and dictionaries "
-"to be installed. See the `pyenchant documentation`_ for detailed "
-"instructions. Gspell requires PyGObject or pgi to be installed as well, as "
-"described above."
+"[1] Pyenchant requires a C library and dictionaries to be installed. See the"
+" `pyenchant documentation`_ for detailed instructions."
 msgstr ""
 
 msgid ""
@@ -2733,5 +2666,99 @@ msgstr ""
 #~ " The documentation strings are in "
 #~ "resources with names like "
 #~ "\"src..gettext/manual.pot (transifex)\"."
+#~ msgstr ""
+
+#~ msgid "`python-exiv2`_ [3]"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[3] `python-exiv2`_ is a new "
+#~ "interface to the Exiv2_ library, which "
+#~ "Photini versions 2021.9.0 onwards can use."
+#~ " If you cannot install it on your"
+#~ " computer then you need to install "
+#~ "the packages shown below instead. A "
+#~ "future release of Photini will not "
+#~ "have this option, so please let me"
+#~ " know if you are unable to install"
+#~ " python-exiv2."
+#~ msgstr ""
+
+#~ msgid "gexiv2_"
+#~ msgstr ""
+
+#~ msgid "0.10.3"
+#~ msgstr ""
+
+# e9e085329ffd484baeb93e940f76e1e9
+#~ msgid "libgexiv2-2"
+#~ msgstr ""
+
+# d32270e2bafc42598a6febd8ff2183fd
+#~ msgid "gexiv2 introspection data"
+#~ msgstr ""
+
+# cd2abcd76b82452c8c08998f65cc176a
+#~ msgid "typelib-1_0-GExiv2-0_10 or gir1.2-gexiv2-0.10"
+#~ msgstr ""
+
+# 6cdcbe1e9fc34e19bd8dae3810e682b4
+#~ msgid "PyGObject_ [4]"
+#~ msgstr ""
+
+# 4412d009e8c64383a710bdb5aa51a081
+#~ msgid "python3-gobject or python3-gi"
+#~ msgstr ""
+
+# ad00d70881b64d8d936af88ac59953c8
+#~ msgid "pgi_ [4]"
+#~ msgstr ""
+
+# 159d28865f174b4eae96087ba0dc093b
+#~ msgid "0.0.8"
+#~ msgstr ""
+
+# 36c45941ae70460986160c8e997558f5
+#~ msgid "pgi"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This is a more circuitous way to "
+#~ "access photograph metadata from Python. "
+#~ "Exiv2_ is the core \"C\" library. "
+#~ "gexiv2_ is a GObject wrapper around "
+#~ "the Exiv2 library. It has extra "
+#~ "\"introspection bindings\" that allow it to"
+#~ " be used by other languages. PyGObject_"
+#~ " or pgi_ provide a Python interface "
+#~ "to the introspection bindings of the "
+#~ "GObject wrapper around the Exiv2 library."
+#~ msgstr ""
+
+# 8d709bb23b744bbaaa73e07ce42070b5
+#~ msgid ""
+#~ "[4] pgi_ is a pure Python alternative"
+#~ " to PyGObject_ that may be more "
+#~ "reliable on some systems, despite its "
+#~ "author's warnings about its experimental "
+#~ "status. If pgi doesn't work on your"
+#~ " system you can go back to using"
+#~ " PyGObject by uninstalling pgi::"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "pyenchant_ 2.0+ or Gspell_ (e.g. "
+#~ "``typelib-1_0-Gspell-1_0``, ``gir1.2-gspell-1``)"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "[1] If you are using python-exiv2 "
+#~ "for metadata access then pyenchant is "
+#~ "the preferred spelling package. Pyenchant "
+#~ "requires a C library and dictionaries "
+#~ "to be installed. See the `pyenchant "
+#~ "documentation`_ for detailed instructions. Gspell"
+#~ " requires PyGObject or pgi to be "
+#~ "installed as well, as described above."
 #~ msgstr ""
 
