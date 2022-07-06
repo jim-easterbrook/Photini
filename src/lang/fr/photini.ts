@@ -1305,35 +1305,35 @@ le modèle</translation>
     </message>
     <message>
         <source>normal</source>
-        <translation>Normal</translation>
+        <translation type="obsolete">Normal</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>Rotation -90</translation>
+        <translation type="obsolete">Rotation -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>Rotation +90</translation>
+        <translation type="obsolete">Rotation +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>Rotation 180</translation>
+        <translation type="obsolete">Rotation 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>refléter gauche-droite</translation>
+        <translation type="obsolete">refléter gauche-droite</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>refléter de haut en bas</translation>
+        <translation type="obsolete">refléter de haut en bas</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>refléter haut droite-bas gauche</translation>
+        <translation type="obsolete">refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>refléter haut droite-bas gauche</translation>
+        <translation type="obsolete">refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1398,6 +1398,46 @@ le modèle</translation>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation>La modification du nom du fabricant invalidera les informations Exif sur les notes de fabrication.</translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>Normal</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation -90</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation +90</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation 180</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>refléter gauche-droite</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>refléter de haut en bas</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>refléter haut droite-bas gauche</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>refléter haut gauche-bas droite</translation>
     </message>
 </context>
 <context>

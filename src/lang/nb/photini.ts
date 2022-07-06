@@ -1297,35 +1297,19 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>normal</translation>
+        <translation type="obsolete">normal</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation type="unfinished">roter -90</translation>
+        <translation type="obsolete">roter -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation type="unfinished">roter +90</translation>
+        <translation type="obsolete">roter +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation type="unfinished">roter 180</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">roter 180</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1389,6 +1373,46 @@ template</source>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>normal</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter -90</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter +90</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter 180</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>

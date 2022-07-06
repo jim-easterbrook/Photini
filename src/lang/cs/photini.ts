@@ -1307,35 +1307,35 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>Normální</translation>
+        <translation type="obsolete">Normální</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>Otočit o -90°</translation>
+        <translation type="obsolete">Otočit o -90°</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>Otočit o +90°</translation>
+        <translation type="obsolete">Otočit o +90°</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>Otočit o 180°</translation>
+        <translation type="obsolete">Otočit o 180°</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>Odrážet vlevo-vpravo</translation>
+        <translation type="obsolete">Odrážet vlevo-vpravo</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>Odrážet nahoře-dole</translation>
+        <translation type="obsolete">Odrážet nahoře-dole</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>Odrážet tr-bl</translation>
+        <translation type="obsolete">Odrážet tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>Odrážet tl-br</translation>
+        <translation type="obsolete">Odrážet tl-br</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1400,6 +1400,46 @@ template</source>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>Normální</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Otočit o -90°</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Otočit o +90°</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>Otočit o 180°</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>Odrážet vlevo-vpravo</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>Odrážet nahoře-dole</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>Odrážet tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>Odrážet tl-br</translation>
     </message>
 </context>
 <context>

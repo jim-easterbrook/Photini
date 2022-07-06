@@ -1292,35 +1292,35 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>Normalny</translation>
+        <translation type="obsolete">Normalny</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>Obrót -90</translation>
+        <translation type="obsolete">Obrót -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>Obrót +90</translation>
+        <translation type="obsolete">Obrót +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>Obrót 180</translation>
+        <translation type="obsolete">Obrót 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>Odbicie lewa-prawa</translation>
+        <translation type="obsolete">Odbicie lewa-prawa</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>Odbicie góra-dół</translation>
+        <translation type="obsolete">Odbicie góra-dół</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>Odbicie tr-bl</translation>
+        <translation type="obsolete">Odbicie tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>Odbicie tr-bl</translation>
+        <translation type="obsolete">Odbicie tr-bl</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1385,6 +1385,46 @@ template</source>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>Normalny</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Obrót -90</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>Obrót +90</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>Obrót 180</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>Odbicie lewa-prawa</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>Odbicie góra-dół</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>Odbicie tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>Odbicie tr-bl</translation>
     </message>
 </context>
 <context>

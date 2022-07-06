@@ -1288,35 +1288,35 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>normal</translation>
+        <translation type="obsolete">normal</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>rotar -90</translation>
+        <translation type="obsolete">rotar -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>rotar +90</translation>
+        <translation type="obsolete">rotar +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>rotar 180</translation>
+        <translation type="obsolete">rotar 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>reflejar izquierda-derecha</translation>
+        <translation type="obsolete">reflejar izquierda-derecha</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>reflejar arriba-abajo</translation>
+        <translation type="obsolete">reflejar arriba-abajo</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>reflejar tr-bl</translation>
+        <translation type="obsolete">reflejar tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>reflejar tl-br</translation>
+        <translation type="obsolete">reflejar tl-br</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1381,6 +1381,46 @@ template</source>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>normal</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>rotar -90</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>rotar +90</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>rotar 180</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>reflejar izquierda-derecha</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>reflejar arriba-abajo</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>reflejar tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>reflejar tl-br</translation>
     </message>
 </context>
 <context>

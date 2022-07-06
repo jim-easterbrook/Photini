@@ -1296,35 +1296,35 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>normal</translation>
+        <translation type="obsolete">normal</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>gira -90</translation>
+        <translation type="obsolete">gira -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>gira +90</translation>
+        <translation type="obsolete">gira +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>gira 180</translation>
+        <translation type="obsolete">gira 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>reflexa esquerra-dreta</translation>
+        <translation type="obsolete">reflexa esquerra-dreta</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>reflexa dalt-baix</translation>
+        <translation type="obsolete">reflexa dalt-baix</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>reflexa dd-be</translation>
+        <translation type="obsolete">reflexa dd-be</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>reflexa de-bd</translation>
+        <translation type="obsolete">reflexa de-bd</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1389,6 +1389,46 @@ template</source>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>normal</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira -90</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira +90</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira 180</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>reflexa esquerra-dreta</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>reflexa dalt-baix</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>reflexa dd-be</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>reflexa de-bd</translation>
     </message>
 </context>
 <context>

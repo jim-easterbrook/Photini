@@ -1281,38 +1281,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>normal</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Orientation</source>
         <translation></translation>
     </message>
@@ -1374,6 +1342,46 @@ template</source>
     </message>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
         <translation></translation>
     </message>
 </context>

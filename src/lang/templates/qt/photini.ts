@@ -1283,38 +1283,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>normal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Orientation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1368,6 +1336,46 @@ template</source>
     </message>
     <message>
         <source>Adjust image aperture and focal length to agree with lens specification?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>

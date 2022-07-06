@@ -1304,35 +1304,35 @@ template</source>
     </message>
     <message>
         <source>normal</source>
-        <translation>normal</translation>
+        <translation type="obsolete">normal</translation>
     </message>
     <message>
         <source>rotate -90</source>
-        <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">90 Grad gegen Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>rotate +90</source>
-        <translation>90 Grad im Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">90 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>rotate 180</source>
-        <translation>180 Grad im Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">180 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>reflect left-right</source>
-        <translation>links-rechts spiegeln</translation>
+        <translation type="obsolete">links-rechts spiegeln</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
-        <translation>oben-unten spiegeln</translation>
+        <translation type="obsolete">oben-unten spiegeln</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
-        <translation>rechts oben-links unten spiegeln</translation>
+        <translation type="obsolete">rechts oben-links unten spiegeln</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
-        <translation>links oben-rechts unten spiegeln</translation>
+        <translation type="obsolete">links oben-rechts unten spiegeln</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1397,6 +1397,46 @@ template</source>
     <message>
         <source>Changing maker name will invalidate Exif makernote information.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>normal</source>
+        <comment>orientation dropdown, no transformation</comment>
+        <translation>normal</translation>
+    </message>
+    <message>
+        <source>rotate -90</source>
+        <comment>orientation dropdown</comment>
+        <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
+    </message>
+    <message>
+        <source>rotate +90</source>
+        <comment>orientation dropdown</comment>
+        <translation>90 Grad im Uhrzeigersinn drehen</translation>
+    </message>
+    <message>
+        <source>rotate 180</source>
+        <comment>orientation dropdown</comment>
+        <translation>180 Grad im Uhrzeigersinn drehen</translation>
+    </message>
+    <message>
+        <source>reflect left-right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>links-rechts spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect top-bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>oben-unten spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect tr-bl</source>
+        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <translation>rechts oben-links unten spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect tl-br</source>
+        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation>links oben-rechts unten spiegeln</translation>
     </message>
 </context>
 <context>

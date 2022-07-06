@@ -784,14 +784,24 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['orientation'] = DropDownSelector(
             'orientation', values=(
                 ('', None),
-                (translate('TechnicalTab', 'normal'), 1),
-                (translate('TechnicalTab', 'rotate -90'), 6),
-                (translate('TechnicalTab', 'rotate +90'), 8),
-                (translate('TechnicalTab', 'rotate 180'), 3),
-                (translate('TechnicalTab', 'reflect left-right'), 2),
-                (translate('TechnicalTab', 'reflect top-bottom'), 4),
-                (translate('TechnicalTab', 'reflect tr-bl'), 5),
-                (translate('TechnicalTab', 'reflect tl-br'), 7)))
+                (translate('TechnicalTab', 'normal',
+                           'orientation dropdown, no transformation'), 1),
+                (translate('TechnicalTab', 'rotate -90',
+                           'orientation dropdown'), 6),
+                (translate('TechnicalTab', 'rotate +90',
+                           'orientation dropdown'), 8),
+                (translate('TechnicalTab', 'rotate 180',
+                           'orientation dropdown'), 3),
+                (translate('TechnicalTab', 'reflect left-right',
+                           'orientation dropdown, horizontal reflection'), 2),
+                (translate('TechnicalTab', 'reflect top-bottom',
+                           'orientation dropdown, vertical reflection'), 4),
+                (translate('TechnicalTab', 'reflect tr-bl',
+                           'orientation dropdown, diagonal reflection'
+                           ' top right to bottom left'), 5),
+                (translate('TechnicalTab', 'reflect tl-br',
+                           'orientation dropdown, diagonal reflection'
+                           ' top left to bottom right'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         self.widgets['orientation'].setFocusPolicy(Qt.NoFocus)
         other_group.layout().addRow(translate(
