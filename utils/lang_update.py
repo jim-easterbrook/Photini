@@ -63,6 +63,7 @@ def extract_program_strings(root):
     # using a project file is the only way to make it handle utf-8 correctly
     project = 'photini.pro'
     with open(project, 'w') as f:
+        f.write('DEFAULTCODEC = UTF-8\n')
         f.write('CODECFORTR = UTF-8\n')
         f.write('SOURCES = ' + ' '.join(inputs) + '\n')
         f.write('TRANSLATIONS = ' + ' '.join(outputs) + '\n')
@@ -70,6 +71,7 @@ def extract_program_strings(root):
     result = subprocess.call(cmd)
     if result:
         return result
+    os.unlink(project)
     # process pylupdate output
     numerus_count = {
         'cs': 4,
