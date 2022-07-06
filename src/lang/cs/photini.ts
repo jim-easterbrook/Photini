@@ -1424,22 +1424,42 @@ template</source>
     <message>
         <source>reflect left-right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
-        <translation>Odrážet vlevo-vpravo</translation>
+        <translation type="obsolete">Odrážet vlevo-vpravo</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
-        <translation>Odrážet nahoře-dole</translation>
+        <translation type="obsolete">Odrážet nahoře-dole</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
         <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation>Odrážet tr-bl</translation>
+        <translation type="obsolete">Odrážet tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
         <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation>Odrážet tl-br</translation>
+        <translation type="obsolete">Odrážet tl-br</translation>
+    </message>
+    <message>
+        <source>reflect left to right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>Odrážet vlevo-vpravo</translation>
+    </message>
+    <message>
+        <source>reflect top to bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>Odrážet nahoře-dole</translation>
+    </message>
+    <message>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">Odrážet tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">Odrážet tl-br</translation>
     </message>
 </context>
 <context>

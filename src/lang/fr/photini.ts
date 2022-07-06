@@ -1422,21 +1422,41 @@ le modèle</translation>
     <message>
         <source>reflect left-right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
-        <translation>refléter gauche-droite</translation>
+        <translation type="obsolete">refléter gauche-droite</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
-        <translation>refléter de haut en bas</translation>
+        <translation type="obsolete">refléter de haut en bas</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
         <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation>refléter haut droite-bas gauche</translation>
+        <translation type="obsolete">refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
         <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation type="obsolete">refléter haut gauche-bas droite</translation>
+    </message>
+    <message>
+        <source>reflect left to right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>refléter gauche-droite</translation>
+    </message>
+    <message>
+        <source>reflect top to bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>refléter de haut en bas</translation>
+    </message>
+    <message>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation>refléter haut droite-bas gauche</translation>
+    </message>
+    <message>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
         <translation>refléter haut gauche-bas droite</translation>
     </message>
 </context>

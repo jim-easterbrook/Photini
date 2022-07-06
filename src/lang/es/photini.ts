@@ -1405,22 +1405,42 @@ template</source>
     <message>
         <source>reflect left-right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
-        <translation>reflejar izquierda-derecha</translation>
+        <translation type="obsolete">reflejar izquierda-derecha</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
-        <translation>reflejar arriba-abajo</translation>
+        <translation type="obsolete">reflejar arriba-abajo</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
         <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation>reflejar tr-bl</translation>
+        <translation type="obsolete">reflejar tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
         <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation>reflejar tl-br</translation>
+        <translation type="obsolete">reflejar tl-br</translation>
+    </message>
+    <message>
+        <source>reflect left to right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>reflejar izquierda-derecha</translation>
+    </message>
+    <message>
+        <source>reflect top to bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>reflejar arriba-abajo</translation>
+    </message>
+    <message>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">reflejar tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">reflejar tl-br</translation>
     </message>
 </context>
 <context>

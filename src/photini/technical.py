@@ -792,16 +792,14 @@ class TabWidget(QtWidgets.QWidget):
                            'orientation dropdown'), 8),
                 (translate('TechnicalTab', 'rotate 180',
                            'orientation dropdown'), 3),
-                (translate('TechnicalTab', 'reflect left-right',
+                (translate('TechnicalTab', 'reflect left to right',
                            'orientation dropdown, horizontal reflection'), 2),
-                (translate('TechnicalTab', 'reflect top-bottom',
+                (translate('TechnicalTab', 'reflect top to bottom',
                            'orientation dropdown, vertical reflection'), 4),
-                (translate('TechnicalTab', 'reflect tr-bl',
-                           'orientation dropdown, diagonal reflection'
-                           ' top right to bottom left'), 5),
-                (translate('TechnicalTab', 'reflect tl-br',
-                           'orientation dropdown, diagonal reflection'
-                           ' top left to bottom right'), 7)))
+                (translate('TechnicalTab', 'reflect top right to bottom left',
+                           'orientation dropdown, diagonal reflection'), 5),
+                (translate('TechnicalTab', 'reflect top left to bottom right',
+                           'orientation dropdown, diagonal reflection'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         self.widgets['orientation'].setFocusPolicy(Qt.NoFocus)
         other_group.layout().addRow(translate(

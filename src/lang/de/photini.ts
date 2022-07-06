@@ -1421,21 +1421,41 @@ template</source>
     <message>
         <source>reflect left-right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
-        <translation>links-rechts spiegeln</translation>
+        <translation type="obsolete">links-rechts spiegeln</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
-        <translation>oben-unten spiegeln</translation>
+        <translation type="obsolete">oben-unten spiegeln</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
         <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation>rechts oben-links unten spiegeln</translation>
+        <translation type="obsolete">rechts oben-links unten spiegeln</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
         <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <translation type="obsolete">links oben-rechts unten spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect left to right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>links-rechts spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect top to bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>oben-unten spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation>rechts oben-links unten spiegeln</translation>
+    </message>
+    <message>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
         <translation>links oben-rechts unten spiegeln</translation>
     </message>
 </context>

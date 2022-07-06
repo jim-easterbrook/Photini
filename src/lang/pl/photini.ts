@@ -1409,22 +1409,42 @@ template</source>
     <message>
         <source>reflect left-right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
-        <translation>Odbicie lewa-prawa</translation>
+        <translation type="obsolete">Odbicie lewa-prawa</translation>
     </message>
     <message>
         <source>reflect top-bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
-        <translation>Odbicie góra-dół</translation>
+        <translation type="obsolete">Odbicie góra-dół</translation>
     </message>
     <message>
         <source>reflect tr-bl</source>
         <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation>Odbicie tr-bl</translation>
+        <translation type="obsolete">Odbicie tr-bl</translation>
     </message>
     <message>
         <source>reflect tl-br</source>
         <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation>Odbicie tr-bl</translation>
+        <translation type="obsolete">Odbicie tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect left to right</source>
+        <comment>orientation dropdown, horizontal reflection</comment>
+        <translation>Odbicie lewa-prawa</translation>
+    </message>
+    <message>
+        <source>reflect top to bottom</source>
+        <comment>orientation dropdown, vertical reflection</comment>
+        <translation>Odbicie góra-dół</translation>
+    </message>
+    <message>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">Odbicie tr-bl</translation>
+    </message>
+    <message>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
+        <translation type="unfinished">Odbicie tr-bl</translation>
     </message>
 </context>
 <context>

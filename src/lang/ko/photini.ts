@@ -1359,23 +1359,23 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>reflect left-right</source>
+        <source>reflect left to right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>reflect top-bottom</source>
+        <source>reflect top to bottom</source>
         <comment>orientation dropdown, vertical reflection</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>reflect tr-bl</source>
-        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
+        <source>reflect top right to bottom left</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>reflect tl-br</source>
-        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
+        <source>reflect top left to bottom right</source>
+        <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
