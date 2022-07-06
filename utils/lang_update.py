@@ -59,6 +59,15 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
+    # restore utf-8 markers removed by Qt Linguist
+    for path in outputs:
+        if not os.path.exists(path):
+            continue
+        with open(path, 'r') as f:
+            text = f.read()
+        text = text.replace('<message>', '<message encoding="UTF-8">')
+        with open(path, 'w') as f:
+            f.write(text)
     # run pylupdate
     # using a project file is the only way to make it handle utf-8 correctly
     project = 'photini.pro'
