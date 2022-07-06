@@ -1383,17 +1383,17 @@ template</source>
     <message>
         <source>rotate -90</source>
         <comment>orientation dropdown</comment>
-        <translation>roter -90</translation>
+        <translation type="obsolete">roter -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
         <comment>orientation dropdown</comment>
-        <translation>roter +90</translation>
+        <translation type="obsolete">roter +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
         <comment>orientation dropdown</comment>
-        <translation>roter 180</translation>
+        <translation type="obsolete">roter 180</translation>
     </message>
     <message>
         <source>reflect left to right</source>
@@ -1414,6 +1414,21 @@ template</source>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate -90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter -90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate +90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter +90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate 180°</source>
+        <comment>orientation dropdown</comment>
+        <translation>roter 180</translation>
     </message>
 </context>
 <context>

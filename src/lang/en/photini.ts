@@ -1350,21 +1350,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation></translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation></translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation></translation>
-    </message>
-    <message>
         <source>reflect left to right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
         <translation></translation>
@@ -1382,6 +1367,21 @@ template</source>
     <message>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
+        <translation></translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate -90°</source>
+        <comment>orientation dropdown</comment>
+        <translation></translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate +90°</source>
+        <comment>orientation dropdown</comment>
+        <translation></translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate 180°</source>
+        <comment>orientation dropdown</comment>
         <translation></translation>
     </message>
 </context>

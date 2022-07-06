@@ -1407,17 +1407,17 @@ le modèle</translation>
     <message>
         <source>rotate -90</source>
         <comment>orientation dropdown</comment>
-        <translation>Rotation -90</translation>
+        <translation type="obsolete">Rotation -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
         <comment>orientation dropdown</comment>
-        <translation>Rotation +90</translation>
+        <translation type="obsolete">Rotation +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
         <comment>orientation dropdown</comment>
-        <translation>Rotation 180</translation>
+        <translation type="obsolete">Rotation 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
@@ -1458,6 +1458,21 @@ le modèle</translation>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>refléter haut gauche-bas droite</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate -90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation -90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate +90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation +90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate 180°</source>
+        <comment>orientation dropdown</comment>
+        <translation>Rotation 180</translation>
     </message>
 </context>
 <context>

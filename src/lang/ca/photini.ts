@@ -1398,17 +1398,17 @@ template</source>
     <message>
         <source>rotate -90</source>
         <comment>orientation dropdown</comment>
-        <translation>gira -90</translation>
+        <translation type="obsolete">gira -90</translation>
     </message>
     <message>
         <source>rotate +90</source>
         <comment>orientation dropdown</comment>
-        <translation>gira +90</translation>
+        <translation type="obsolete">gira +90</translation>
     </message>
     <message>
         <source>rotate 180</source>
         <comment>orientation dropdown</comment>
-        <translation>gira 180</translation>
+        <translation type="obsolete">gira 180</translation>
     </message>
     <message>
         <source>reflect left-right</source>
@@ -1449,6 +1449,21 @@ template</source>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>reflexa de-bd</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate -90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira -90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate +90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira +90</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate 180°</source>
+        <comment>orientation dropdown</comment>
+        <translation>gira 180</translation>
     </message>
 </context>
 <context>

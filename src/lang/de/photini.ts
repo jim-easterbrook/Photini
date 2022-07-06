@@ -1406,17 +1406,17 @@ template</source>
     <message>
         <source>rotate -90</source>
         <comment>orientation dropdown</comment>
-        <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">90 Grad gegen Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>rotate +90</source>
         <comment>orientation dropdown</comment>
-        <translation>90 Grad im Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">90 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>rotate 180</source>
         <comment>orientation dropdown</comment>
-        <translation>180 Grad im Uhrzeigersinn drehen</translation>
+        <translation type="obsolete">180 Grad im Uhrzeigersinn drehen</translation>
     </message>
     <message>
         <source>reflect left-right</source>
@@ -1457,6 +1457,21 @@ template</source>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>links oben-rechts unten spiegeln</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate -90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate +90°</source>
+        <comment>orientation dropdown</comment>
+        <translation>90 Grad im Uhrzeigersinn drehen</translation>
+    </message>
+    <message encoding="UTF-8">
+        <source>rotate 180°</source>
+        <comment>orientation dropdown</comment>
+        <translation>180 Grad im Uhrzeigersinn drehen</translation>
     </message>
 </context>
 <context>
