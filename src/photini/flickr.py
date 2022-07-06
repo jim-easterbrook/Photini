@@ -511,6 +511,7 @@ class TabWidget(PhotiniUploader):
             return
         values = []
         for licence in rsp['licenses']['license']:
+            licence['id'] = str(licence['id'])
             if licence['id'] == '7':
                 continue
             values.append((licence['name'], licence['id']))
