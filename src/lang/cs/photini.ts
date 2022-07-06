@@ -893,7 +893,7 @@ poskytuje Bing</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation type="obsolete">&lt;repeat search&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -906,6 +906,10 @@ poskytuje Bing</translation>
     <message>
         <source>Remove GPX data</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>

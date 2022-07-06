@@ -634,7 +634,7 @@ class PhotiniMap(QtWidgets.QWidget):
             self.widgets['search'].addItem(
                 translate('MapTabsAll', '<widen search>'), 'widen')
             self.widgets['search'].addItem(
-                translate('MapTabsAll', '<repeat search>', 'repeat'))
+                translate('MapTabsAll', '<repeat search>'), 'repeat')
 
     @QtSlot(int)
     @catch_all

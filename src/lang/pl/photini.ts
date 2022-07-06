@@ -878,7 +878,7 @@ provided by Bing</source>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
+        <translation type="obsolete">&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -891,6 +891,10 @@ provided by Bing</source>
     <message>
         <source>Remove GPX data</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
 </context>
 <context>

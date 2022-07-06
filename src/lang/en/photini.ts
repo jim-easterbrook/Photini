@@ -871,11 +871,6 @@ provided by Bing</source>
         <translation></translation>
     </message>
     <message>
-        <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
-        <translation></translation>
-    </message>
-    <message>
         <source>Load GPX file</source>
         <translation></translation>
     </message>
@@ -885,6 +880,10 @@ provided by Bing</source>
     </message>
     <message>
         <source>Remove GPX data</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
         <translation></translation>
     </message>
 </context>
@@ -1498,7 +1497,7 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>

@@ -878,7 +878,6 @@ provided by Bing</source>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -979,8 +978,8 @@ provided by Bing</source>
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Geodata Â© OpenStreetMap contributors</source>
+    <message encoding="UTF-8">
+        <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
