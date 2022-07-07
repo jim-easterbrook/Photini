@@ -755,11 +755,11 @@ selected</numerusform>
         <translation></translation>
     </message>
     <message>
-        <source>Who can comment&lt;br&gt;on album</source>
+        <source>File too large.</source>
         <translation></translation>
     </message>
     <message>
-        <source>File too large.</source>
+        <source>Who can comment on album</source>
         <translation></translation>
     </message>
 </context>
@@ -767,14 +767,6 @@ selected</numerusform>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
         <translation></translation>
     </message>
     <message>
@@ -788,6 +780,14 @@ selected</numerusform>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <translation></translation>
+    </message>
+    <message>
+        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
         <translation></translation>
     </message>
 </context>
@@ -1127,10 +1127,6 @@ selected</numerusform>
         <translation></translation>
     </message>
     <message>
-        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Photini: ownership template</source>
         <translation></translation>
     </message>
@@ -1144,6 +1140,10 @@ selected</numerusform>
     </message>
     <message>
         <source>Apply template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Creator Contact Information</source>
         <translation></translation>
     </message>
 </context>

@@ -799,26 +799,18 @@ triats</numerusform>
         <translation>Descripció</translation>
     </message>
     <message>
-        <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File too large.</source>
         <translation>Fitxer massa gran.</translation>
+    </message>
+    <message>
+        <source>Who can comment on album</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -832,6 +824,14 @@ triats</numerusform>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1186,10 +1186,6 @@ funcionant amb Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: ownership template</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1203,6 +1199,10 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Apply template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -806,11 +806,15 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation>Qui peut commenter&lt;br&gt;sur l&apos;album</translation>
+        <translation type="obsolete">Qui peut commenter&lt;br&gt;sur l&apos;album</translation>
     </message>
     <message>
         <source>File too large.</source>
         <translation>Fichier trop volumineux.</translation>
+    </message>
+    <message>
+        <source>Who can comment on album</source>
+        <translation>Qui peut commenter sur l&apos;album</translation>
     </message>
 </context>
 <context>
@@ -821,11 +825,11 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation>En quelle langue est le texte suivant&#xa0;?&lt;b&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&lt;b&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation>Quel langue souhaitez-vous ajouter&#xa0;?&lt;br&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&lt;br&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>Set default language:</source>
@@ -839,6 +843,14 @@ sélectionnés</numerusform>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
         <translation>Langue&#xa0;: </translation>
+    </message>
+    <message>
+        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <translation>En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <translation>Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
 </context>
 <context>
@@ -1211,7 +1223,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation>Informations&lt;br&gt;de contact&lt;br&gt;du créateur</translation>
+        <translation type="obsolete">Informations&lt;br&gt;de contact&lt;br&gt;du créateur</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
@@ -1228,6 +1240,10 @@ le modèle</translation>
     <message>
         <source>Apply template</source>
         <translation>Appliquer le modèle</translation>
+    </message>
+    <message>
+        <source>Creator Contact Information</source>
+        <translation>Informations de contact du créateur</translation>
     </message>
 </context>
 <context>

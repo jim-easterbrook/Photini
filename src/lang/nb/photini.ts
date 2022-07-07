@@ -800,11 +800,15 @@ valgt</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation>Hvem kan kommentere&lt;br&gt;albumet</translation>
+        <translation type="obsolete">Hvem kan kommentere&lt;br&gt;albumet</translation>
     </message>
     <message>
         <source>File too large.</source>
         <translation>Filen er for stor.</translation>
+    </message>
+    <message>
+        <source>Who can comment on album</source>
+        <translation>Hvem kan kommentere albumet</translation>
     </message>
 </context>
 <context>
@@ -812,14 +816,6 @@ valgt</numerusform>
     <message>
         <source>New language</source>
         <translation>Nytt språk</translation>
-    </message>
-    <message>
-        <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Set default language:</source>
@@ -833,6 +829,14 @@ valgt</numerusform>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
         <translation>Språk: </translation>
+    </message>
+    <message>
+        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1188,10 +1192,6 @@ mal</translation>
         <translation>Rettigheter</translation>
     </message>
     <message>
-        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: ownership template</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1206,6 +1206,10 @@ mal</translation>
     <message>
         <source>Apply template</source>
         <translation>Bruk mal</translation>
+    </message>
+    <message>
+        <source>Creator Contact Information</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
