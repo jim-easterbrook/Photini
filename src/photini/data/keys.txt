@@ -29,13 +29,13 @@ client_id = OTkxMTQ2MzkyMzc1LWdyOXRjcTc1NWZvbXRqNGUxazQ5NzNmM2FjbWlvN29tLmFwcHMu
 client_secret = dnkwV3UtYWVmMmlYeTJXZ2lVaUZDOFlB
 
 [googlemap]
-api_key = QUl6YVN5RFI4RVNrVlI5eUVWZlJ2SEJVZFkwLW0yMk9aYVlOWnpB
+api_key = QUl6YVN5QjhkVHN5ZkFyRWtWcndaX3hDRDVxMVpSZXVCcHVSQzFV
 
 [bingmap]
-api_key = QW1wZzRlX0FKNGdWQkp3anU5MDl4RVRSR3VFYmt1d2M1a2pWTEJMQ2s0bzU3V2RaaW5HeGVpY053eTI1ajlvYg==
+api_key = QWdnNUxvUlVfY00wajBKTDRvamNRdm5zYjgxaGlxcDEwNEQwMGhjRTV3VzFjRmY2ZHVWeGhhT0t4ZnhFZGdnaA==
 
 [opencage]
 api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
-api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc01HZHFObk5zT0RBd01UUXpZMngxYlRGbk1YWXpjSFVpZlEuRFd5S3RFV0lzbzEzVG9fSDRTYXN5dw==
+api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc05XRnVkWGc0YURKdmRtd3phM0J3WVdOMmNUbHpNWGdpZlEuLUk3eVQwV2tHT19fSm9tWDh5M0tqQQ==
