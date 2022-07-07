@@ -482,7 +482,7 @@ Separate them with &quot;;&quot; characters.</source>
         <source>No
 thumbnail
 in file</source>
-        <translation>Ingen
+        <translation type="obsolete">Ingen
 miniatyrbilder
 i fil</translation>
     </message>
@@ -518,6 +518,10 @@ i fil</translation>
     <message>
         <source>Some images have unsaved metadata.</source>
         <translation>Noen bilder har ulagret metadata.</translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
+        <translation>Ingen miniatyrbilder i fil</translation>
     </message>
 </context>
 <context>

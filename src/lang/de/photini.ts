@@ -488,7 +488,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <source>No
 thumbnail
 in file</source>
-        <translation>Vorschau
+        <translation type="obsolete">Vorschau
 in Datei
 nicht vorhanden</translation>
     </message>
@@ -524,6 +524,10 @@ nicht vorhanden</translation>
     <message>
         <source>Some images have unsaved metadata.</source>
         <translation>Einige Bilder enthalten ungesicherte Metadaten.</translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
+        <translation>Vorschau in Datei nicht vorhanden</translation>
     </message>
 </context>
 <context>

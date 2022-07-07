@@ -488,7 +488,7 @@ Oddělte je znaky &quot;;&quot;.</translation>
         <source>No
 thumbnail
 in file</source>
-        <translation>Žádný
+        <translation type="obsolete">Žádný
 náhled
 v souboru</translation>
     </message>
@@ -527,6 +527,10 @@ v souboru</translation>
     <message>
         <source>Some images have unsaved metadata.</source>
         <translation>Některé obrázky mají neuložené popisy.</translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
+        <translation>Žádný náhled v souboru</translation>
     </message>
 </context>
 <context>

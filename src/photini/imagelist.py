@@ -60,6 +60,7 @@ class Image(QtWidgets.QFrame):
         self.setToolTip(self.path)
         # label to display image
         self.image = QtWidgets.QLabel()
+        self.image.setWordWrap(True)
         self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
@@ -325,7 +326,7 @@ class Image(QtWidgets.QFrame):
     def load_thumbnail(self):
         image = self.metadata.thumbnail and self.metadata.thumbnail['image']
         if not image:
-            self.image.setText(translate('ImageList', 'No\nthumbnail\nin file'))
+            self.image.setText(translate('ImageList', 'No thumbnail in file'))
             return
         pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = self.transform(pixmap, self.metadata.orientation)

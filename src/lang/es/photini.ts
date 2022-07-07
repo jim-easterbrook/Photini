@@ -478,12 +478,6 @@ Separate them with &quot;;&quot; characters.</source>
         <source>View changes</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
         <translation type="unfinished">
@@ -515,6 +509,10 @@ in file</source>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -482,7 +482,7 @@ Separate them with &quot;;&quot; characters.</source>
         <source>No
 thumbnail
 in file</source>
-        <translation>Sense
+        <translation type="obsolete">Sense
 miniatura
 en el fitxer</translation>
     </message>
@@ -518,6 +518,10 @@ en el fitxer</translation>
     <message>
         <source>Some images have unsaved metadata.</source>
         <translation>Algunes imatges tenen metadades sense guardar.</translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
+        <translation>Sense miniatura en el fitxer</translation>
     </message>
 </context>
 <context>

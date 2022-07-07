@@ -488,7 +488,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <source>No
 thumbnail
 in file</source>
-        <translation>Pas de
+        <translation type="obsolete">Pas de
 miniature
 dans le fichier</translation>
     </message>
@@ -524,6 +524,10 @@ dans le fichier</translation>
     <message>
         <source>Some images have unsaved metadata.</source>
         <translation>Certaines images comportent des métadonnées non sauvegardées.</translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
+        <translation>Pas de miniature dans le fichier</translation>
     </message>
 </context>
 <context>

@@ -431,12 +431,6 @@ Separate them with &quot;;&quot; characters.</source>
 <context>
     <name>ImageList</name>
     <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>sort by: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -512,6 +506,10 @@ in file</source>
     </message>
     <message>
         <source>Do you want to save your changes?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No thumbnail in file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
