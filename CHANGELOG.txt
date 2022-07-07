@@ -16,6 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.7.0:
+  1/ Can reorder GUI tabs by dragging to new position.
+  2/ Drop use of GExiv2, python-exiv2 is now a required dependency.
+  3/ Drop use of GSpell, pyenchant is now the only spellchecker.
+  4/ Improved lat, long to address conversion.
+  5/ More translations of GUI strings in more languages.
+  6/ Other minor improvements and bug fixes.
+
 Changes in v2022.5.1:
   1/ Fix address tab bug caused by by recent change to OpenCage geocoder.
   2/ Adjust the order of address components.
