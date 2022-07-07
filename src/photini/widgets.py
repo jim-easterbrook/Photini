@@ -532,17 +532,17 @@ class LangAltWidget(QtWidgets.QWidget):
         if 'x-default' in self.value and self.value['x-default']:
             self.edit.set_value(self.value['x-default'])
             lang, OK = QtWidgets.QInputDialog.getText(
-                self, self.tr('New language'),
-                self.tr('What language is the current text in?'
-                        '<br>Please enter an RFC3066 language tag:'),
+                self, self.tr('New language'), wrap_text(self, self.tr(
+                    'What language is the current text in?'
+                    ' Please enter an RFC3066 language tag:'), 2),
                 text=QtCore.QLocale.system().bcp47Name())
             if not (OK and lang):
                 return None, None
             self._set_default_lang(lang)
         lang, OK = QtWidgets.QInputDialog.getText(
-            self, self.tr('New language'),
-            self.tr('What language would you like to add?'
-                    '<br>Please enter an RFC3066 language tag:'))
+            self, self.tr('New language'), wrap_text(self, self.tr(
+                'What language would you like to add?'
+                ' Please enter an RFC3066 language tag:'), 2))
         if not (OK and lang):
             return None, None
         if lang in self.value:

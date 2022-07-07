@@ -21,8 +21,8 @@ import logging
 
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
-from photini.widgets import (
-    DropDownSelector, LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit)
+from photini.widgets import (DropDownSelector, Label, LangAltWidget,
+                             MultiLineEdit, PushButton, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -312,8 +312,8 @@ class TabWidget(QtWidgets.QWidget):
             ' that created this image.'))
         contact_group.layout().addRow(translate(
             'OwnerTab', 'Country'), widgets['contact_info/CiAdrCtry'])
-        form.layout().addRow(translate(
-            'OwnerTab', 'Creator<br>Contact<br>Information'), contact_group)
+        form.layout().addRow(Label(translate(
+            'OwnerTab', 'Creator Contact Information'), lines=3), contact_group)
         scrollarea.setWidget(form)
         return scrollarea, widgets
 

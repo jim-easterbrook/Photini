@@ -32,7 +32,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
 from photini.uploader import PhotiniUploader, UploaderSession
-from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
+from photini.widgets import (
+    DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -593,8 +594,8 @@ class TabWidget(PhotiniUploader):
         dialog.layout().addRow(translate(
             'IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')
-        dialog.layout().addRow(translate(
-            'IpernityTab', 'Who can comment<br>on album'), perm_comment)
+        dialog.layout().addRow(Label(translate(
+            'IpernityTab', 'Who can comment on album'), lines=2), perm_comment)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
