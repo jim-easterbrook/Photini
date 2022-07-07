@@ -540,35 +540,20 @@ Separate them with &quot;;&quot; characters.</source>
     <message>
         <source>Select
 all</source>
-        <translation>Wybierz
+        <translation type="obsolete">Wybierz
 wszystko</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Wybierz
+        <translation type="obsolete">Wybierz
 nowy</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Kopia
+        <translation type="obsolete">Kopia
 zdjęcie</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select root folder</source>
@@ -598,18 +583,41 @@ copy</source>
         <source>Closing now will terminate the import.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Importing photos has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Wybierz wszystko</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Wybierz nowy</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Kopia zdjęcie</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
-        <source>%n file(s)
-selected</source>
+        <source>%n file(s) selected</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
         <numerusform>Unused</numerusform></translation>
-    </message>
-    <message>
-        <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -820,24 +828,24 @@ selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Mapq (&amp;Bing)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
-        <source>Search and altitude lookup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1012,16 +1020,6 @@ provided by Bing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creator</source>
         <translation>Twórca</translation>
     </message>
@@ -1126,11 +1124,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1156,6 +1149,18 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1580,6 +1585,10 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

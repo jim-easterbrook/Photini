@@ -545,37 +545,37 @@ i fil</translation>
     <message>
         <source>Select
 all</source>
-        <translation>Velg
+        <translation type="obsolete">Velg
 alle</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Velg
+        <translation type="obsolete">Velg
 nye</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Flytt
+        <translation type="obsolete">Flytt
 bilder</translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Stopp
+        <translation type="obsolete">Stopp
 flytting</translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Kopier
+        <translation type="obsolete">Kopier
 bilder</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Stopp
+        <translation type="obsolete">Stopp
 kopiering</translation>
     </message>
     <message>
@@ -609,7 +609,7 @@ kopiering</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n fil
 valgt</numerusform>
             <numerusform>%n filer
@@ -619,6 +619,37 @@ valgt</numerusform>
     <message>
         <source>Importing photos has not finished.</source>
         <translation>Importering av bilder er ikke ferdig enda.</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Velg alle</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Velg nye</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation>Flytt bilder</translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation>Stopp flytting</translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Kopier bilder</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation>Stopp kopiering</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n fil valgt</numerusform>
+            <numerusform>%n filer valgt</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -829,24 +860,24 @@ valgt</numerusform>
         <translation>Tjeneren er overbelastet. Prøv igjen senere.</translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Kart (&amp;Bing)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
-        <source>Search and altitude lookup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Map (&amp;Google)</source>
         <translation>Kart (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1023,13 +1054,13 @@ provided by Bing</source>
     <message>
         <source>Edit
 template</source>
-        <translation>Rediger
+        <translation type="obsolete">Rediger
 mal</translation>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation>Bruk
+        <translation type="obsolete">Bruk
 mal</translation>
     </message>
     <message>
@@ -1137,11 +1168,6 @@ mal</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation>Bruksvilkår</translation>
     </message>
@@ -1168,6 +1194,18 @@ template</source>
     <message>
         <source>Photini: ownership template</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>Rediger mal</translation>
+    </message>
+    <message>
+        <source>Apply template</source>
+        <translation>Bruk mal</translation>
     </message>
 </context>
 <context>
@@ -1555,6 +1593,10 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

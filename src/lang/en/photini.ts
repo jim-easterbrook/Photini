@@ -535,36 +535,6 @@ Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation></translation>
     </message>
@@ -595,7 +565,7 @@ copy</source>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n file
 selected</numerusform>
             <numerusform>%n files
@@ -605,6 +575,37 @@ selected</numerusform>
     <message>
         <source>Importing photos has not finished.</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation></translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n file selected</numerusform>
+            <numerusform>%n files selected</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -815,23 +816,23 @@ selected</numerusform>
         <translation></translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
+        <source>Map (&amp;Bing)</source>
         <translation></translation>
     </message>
     <message>
-        <source>Map (&amp;Bing)</source>
+        <source>Search and altitude lookup provided by Bing</source>
         <translation></translation>
     </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
-        <source>Search and altitude lookup</source>
+        <source>Map (&amp;Google)</source>
         <translation></translation>
     </message>
     <message>
-        <source>Map (&amp;Google)</source>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
         <translation></translation>
     </message>
 </context>
@@ -1002,16 +1003,6 @@ provided by Bing</source>
         <translation></translation>
     </message>
     <message>
-        <source>Edit
-template</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Creator</source>
         <translation></translation>
     </message>
@@ -1116,11 +1107,6 @@ template</source>
         <translation></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation></translation>
     </message>
@@ -1146,6 +1132,18 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Apply template</source>
         <translation></translation>
     </message>
 </context>
@@ -1503,6 +1501,10 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
         <translation></translation>
     </message>
 </context>

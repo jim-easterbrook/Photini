@@ -545,37 +545,37 @@ en el fitxer</translation>
     <message>
         <source>Select
 all</source>
-        <translation>Selecciona
+        <translation type="obsolete">Selecciona
 tot</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Selecciona
+        <translation type="obsolete">Selecciona
 nou</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Mou
+        <translation type="obsolete">Mou
 fotos</translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Para
+        <translation type="obsolete">Para
 moure</translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Copia
+        <translation type="obsolete">Copia
 fotos</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Para
+        <translation type="obsolete">Para
 copia</translation>
     </message>
     <message>
@@ -609,7 +609,7 @@ copia</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n fitxer
 triat</numerusform>
             <numerusform>%n fitxers
@@ -619,6 +619,37 @@ triats</numerusform>
     <message>
         <source>Importing photos has not finished.</source>
         <translation>La importació no ha acabat.</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Selecciona tot</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Selecciona nou</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation>Mou fotos</translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation>Para moure</translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Copia fotos</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation>Para copia</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n fitxer triat</numerusform>
+            <numerusform>%n fitxers triats</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -831,23 +862,32 @@ triats</numerusform>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation>Cerca i consulta d&apos;alçada
+        <translation type="obsolete">Cerca i consulta d&apos;alçada
 funcionant amb Bing</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
         <translation>Mapa (&amp;Bing)</translation>
     </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation>Cerca i consulta d&apos;alçada funcionant amb Bing</translation>
+    </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation>Cerca i consulta d&apos;alçada</translation>
+        <translation type="obsolete">Cerca i consulta d&apos;alçada</translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation type="unfinished">Cerca i consulta d&apos;alçada powered by Google</translation>
     </message>
 </context>
 <context>
@@ -1022,16 +1062,6 @@ funcionant amb Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creator</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1136,11 +1166,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1166,6 +1191,18 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1590,6 +1627,10 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

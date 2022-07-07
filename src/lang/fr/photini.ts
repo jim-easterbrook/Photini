@@ -551,37 +551,37 @@ dans le fichier</translation>
     <message>
         <source>Select
 all</source>
-        <translation>Tout
+        <translation type="obsolete">Tout
 sélectionner</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Sélectionnez
+        <translation type="obsolete">Sélectionnez
 nouveau</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Déplacer
+        <translation type="obsolete">Déplacer
 les photos</translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Arrêter
+        <translation type="obsolete">Arrêter
 le déplacement</translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Copier
+        <translation type="obsolete">Copier
 les photos</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Arrêter
+        <translation type="obsolete">Arrêter
 la copie</translation>
     </message>
     <message>
@@ -615,7 +615,7 @@ la copie</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n fichier
 sélectionné</numerusform>
             <numerusform>%n fichiers
@@ -625,6 +625,37 @@ sélectionnés</numerusform>
     <message>
         <source>Importing photos has not finished.</source>
         <translation>L&apos;import des photos n&apos;est pas terminée.</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Sélectionnez nouveau</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation>Déplacer les photos</translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation>Arrêter le déplacement</translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Copier les photos</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation>Arrêter la copie</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n fichier sélectionné</numerusform>
+            <numerusform>%n fichiers sélectionnés</numerusform>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -837,23 +868,32 @@ sélectionnés</numerusform>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation>Recherche et altitude
+        <translation type="obsolete">Recherche et altitude
 fournie par Bing</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
         <translation>Carte (&amp;Bing)</translation>
     </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation>Recherche et altitude fournie par Bing</translation>
+    </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation>Recherche et mesure d&apos;altitude</translation>
+        <translation type="obsolete">Recherche et mesure d&apos;altitude</translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Carte (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation>Recherche et mesure d&apos;altitude powered by Google</translation>
     </message>
 </context>
 <context>
@@ -1030,13 +1070,13 @@ fournie par Bing</translation>
     <message>
         <source>Edit
 template</source>
-        <translation>Modifier
+        <translation type="obsolete">Modifier
 le modèle</translation>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation>Appliquer
+        <translation type="obsolete">Appliquer
 le modèle</translation>
     </message>
     <message>
@@ -1146,7 +1186,7 @@ le modèle</translation>
     <message>
         <source>Initialise
 template</source>
-        <translation>Initialiser
+        <translation type="obsolete">Initialiser
 le modèle</translation>
     </message>
     <message>
@@ -1176,6 +1216,18 @@ le modèle</translation>
     <message>
         <source>Photini: ownership template</source>
         <translation>Photini&#xa0;: Modèle de propriété</translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation>Initialiser le modèle</translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation>Modifier le modèle</translation>
+    </message>
+    <message>
+        <source>Apply template</source>
+        <translation>Appliquer le modèle</translation>
     </message>
 </context>
 <context>
@@ -1604,6 +1656,10 @@ le modèle</translation>
     <message>
         <source>Logged in as {0} on {1}</source>
         <translation>Connecté en tant que {0} sur {1}</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

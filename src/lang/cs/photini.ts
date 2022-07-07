@@ -554,37 +554,37 @@ v souboru</translation>
     <message>
         <source>Select
 all</source>
-        <translation>Vybrat
+        <translation type="obsolete">Vybrat
 vše</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Vybrat
+        <translation type="obsolete">Vybrat
 nový</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Přesunout
+        <translation type="obsolete">Přesunout
 fotografie</translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Zastavit
+        <translation type="obsolete">Zastavit
 přesun</translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Kopírovat
+        <translation type="obsolete">Kopírovat
 fotografie</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Zastavit
+        <translation type="obsolete">Zastavit
 kopírování</translation>
     </message>
     <message>
@@ -618,7 +618,7 @@ kopírování</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n soubor
 vybrán</numerusform>
             <numerusform>%n soubory
@@ -629,7 +629,39 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Vybrat vše</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Vybrat nový</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation>Přesunout fotografie</translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation>Zastavit přesun</translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Kopírovat fotografie</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation>Zastavit kopírování</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n soubor vybrán</numerusform>
+            <numerusform>%n soubory vybrány</numerusform>
+            <numerusform>%n souborů vybráno</numerusform>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -842,23 +874,32 @@ vybráno</numerusform>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation>Hledání a výškové vyhledávání
+        <translation type="obsolete">Hledání a výškové vyhledávání
 poskytuje Bing</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
         <translation>Mapa (&amp;Bing)</translation>
     </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation>Hledání a výškové vyhledávání poskytuje Bing</translation>
+    </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation>Hledání a výškové vyhledávání</translation>
+        <translation type="obsolete">Hledání a výškové vyhledávání</translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation>Hledání a výškové vyhledávání powered by Google</translation>
     </message>
 </context>
 <context>
@@ -1033,16 +1074,6 @@ poskytuje Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Creator</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1147,11 +1178,6 @@ template</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1177,6 +1203,18 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1601,6 +1639,10 @@ template</source>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

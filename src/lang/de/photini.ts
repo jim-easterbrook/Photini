@@ -551,37 +551,37 @@ nicht vorhanden</translation>
     <message>
         <source>Select
 all</source>
-        <translation>Alle
+        <translation type="obsolete">Alle
 auswählen</translation>
     </message>
     <message>
         <source>Select
 new</source>
-        <translation>Neu
+        <translation type="obsolete">Neu
 auswählen</translation>
     </message>
     <message>
         <source>Move
 photos</source>
-        <translation>Photos
+        <translation type="obsolete">Photos
 verschieben</translation>
     </message>
     <message>
         <source>Stop
 move</source>
-        <translation>Stop
+        <translation type="obsolete">Stop
 Verschieben</translation>
     </message>
     <message>
         <source>Copy
 photos</source>
-        <translation>Fotos
+        <translation type="obsolete">Fotos
 kopieren</translation>
     </message>
     <message>
         <source>Stop
 copy</source>
-        <translation>Stop
+        <translation type="obsolete">Stop
 Kopieren</translation>
     </message>
     <message>
@@ -615,7 +615,7 @@ Kopieren</translation>
     <message numerus="yes">
         <source>%n file(s)
 selected</source>
-        <translation>
+        <translation type="obsolete">
             <numerusform>%n Datei
 ausgewählt</numerusform>
             <numerusform>%n Dateien
@@ -625,6 +625,37 @@ ausgewählt</numerusform>
     <message>
         <source>Importing photos has not finished.</source>
         <translation>Importieren von Fotos ist noch nicht abgeschlossen.</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Alle auswählen</translation>
+    </message>
+    <message>
+        <source>Select new</source>
+        <translation>Neu auswählen</translation>
+    </message>
+    <message>
+        <source>Move photos</source>
+        <translation>Photos verschieben</translation>
+    </message>
+    <message>
+        <source>Stop move</source>
+        <translation>Stop Verschieben</translation>
+    </message>
+    <message>
+        <source>Copy photos</source>
+        <translation>Fotos kopieren</translation>
+    </message>
+    <message>
+        <source>Stop copy</source>
+        <translation>Stop Kopieren</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n file(s) selected</source>
+        <translation>
+            <numerusform>%n Datei ausgewählt</numerusform>
+            <numerusform>%n Dateien ausgewählt</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -837,23 +868,32 @@ ausgewählt</numerusform>
     <message>
         <source>Search and altitude lookup
 provided by Bing</source>
-        <translation>Suche und Nachschlagen der Höhe
+        <translation type="obsolete">Suche und Nachschlagen der Höhe
 provided by Bing</translation>
     </message>
     <message>
         <source>Map (&amp;Bing)</source>
         <translation>Karte (&amp;Bing)</translation>
     </message>
+    <message>
+        <source>Search and altitude lookup provided by Bing</source>
+        <translation>Suche und Nachschlagen der Höhe provided by Bing</translation>
+    </message>
 </context>
 <context>
     <name>MapTabGoogle</name>
     <message>
         <source>Search and altitude lookup</source>
-        <translation>Suche und Höhenermittlung</translation>
+        <translation type="obsolete">Suche und Höhenermittlung</translation>
     </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Karte (&amp;Google)</translation>
+    </message>
+    <message>
+        <source>Search and altitude lookup powered by Google</source>
+        <comment>Do not translate &quot;powered by Google&quot;</comment>
+        <translation>Suche und Höhenermittlung powered by Google</translation>
     </message>
 </context>
 <context>
@@ -1030,13 +1070,13 @@ provided by Bing</translation>
     <message>
         <source>Edit
 template</source>
-        <translation>Vorlage
+        <translation type="obsolete">Vorlage
 bearbeiten</translation>
     </message>
     <message>
         <source>Apply
 template</source>
-        <translation>Vorlage
+        <translation type="obsolete">Vorlage
 anwenden</translation>
     </message>
     <message>
@@ -1144,11 +1184,6 @@ anwenden</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1174,6 +1209,18 @@ template</source>
     </message>
     <message>
         <source>Photini: ownership template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Initialise template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit template</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply template</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1603,6 +1650,10 @@ template</source>
     <message>
         <source>Logged in as {0} on {1}</source>
         <translation>Angemeldet als {0} auf {1}</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
