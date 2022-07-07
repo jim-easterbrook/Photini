@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 __all__ = (
     'Busy', 'catch_all', 'DisableWidget', 'execute', 'FormLayout', 'multiple',
     'multiple_values', 'Qt', 'QtCore', 'QtGui', 'QtGui2', 'QtSignal', 'QtSlot',
-    'QtWidgets', 'scale_font', 'UnBusy', 'width_for_text'
+    'QtWidgets', 'scale_font', 'UnBusy', 'width_for_text', 'wrap_text'
     )
 
 # temporarily open config file to get any over-rides
@@ -215,6 +215,24 @@ def scale_font(widget, scale):
 def width_for_text(widget, text):
     rect = widget.fontMetrics().boundingRect(text)
     return rect.width()
+
+def wrap_text(widget, text, lines):
+    def sub_wrap(fm, text, lines, idx):
+        width = fm.boundingRect(0, 0, 1, 1, 0, text).width()
+        result = text
+        while True:
+            idx = text.find(' ', idx + 1)
+            if idx < 0:
+                break
+            new_text = '\n'.join((text[:idx], text[idx+1:]))
+            if lines > 2:
+                new_text = sub_wrap(fm, new_text, lines-1, idx+1)
+            new_width = fm.boundingRect(0, 0, 1, 1, 0, new_text).width()
+            if width > new_width:
+                width = new_width
+                result = new_text
+        return result
+    return sub_wrap(widget.fontMetrics(), text, lines, 0)
 
 def execute(widget, *arg, **kwds):
     if qt_lib == 'PySide2':

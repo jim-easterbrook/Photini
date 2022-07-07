@@ -33,7 +33,7 @@ except ImportError:
 from photini.metadata import Metadata
 from photini.pyqt import *
 from photini.pyqt import image_types_lower, video_types_lower
-from photini.widgets import ComboBox, StartStopButton
+from photini.widgets import ComboBox, PushButton, StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -337,24 +337,22 @@ class TabWidget(QtWidgets.QWidget):
         buttons.addStretch(1)
         self.selected_count = QtWidgets.QLabel()
         buttons.addWidget(self.selected_count)
-        select_all = QtWidgets.QPushButton(
-            translate('ImporterTab', 'Select\nall'))
+        select_all = PushButton(translate('ImporterTab', 'Select all'), lines=2)
         select_all.clicked.connect(self.select_all)
         buttons.addWidget(select_all)
-        select_new = QtWidgets.QPushButton(
-            translate('ImporterTab', 'Select\nnew'))
+        select_new = PushButton(translate('ImporterTab', 'Select new'), lines=2)
         select_new.clicked.connect(self.select_new)
         buttons.addWidget(select_new)
         # copy buttons
         self.move_button = StartStopButton(
-            translate('ImporterTab', 'Move\nphotos'),
-            translate('ImporterTab', 'Stop\nmove'))
+            translate('ImporterTab', 'Move photos'),
+            translate('ImporterTab', 'Stop move'), lines=2)
         self.move_button.click_start.connect(self.move_selected)
         self.move_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.move_button)
         self.copy_button = StartStopButton(
-            translate('ImporterTab', 'Copy\nphotos'),
-            translate('ImporterTab', 'Stop\ncopy'))
+            translate('ImporterTab', 'Copy photos'),
+            translate('ImporterTab', 'Stop copy'), lines=2)
         self.copy_button.click_start.connect(self.copy_selected)
         self.copy_button.click_stop.connect(self.stop_copy)
         buttons.addWidget(self.copy_button)
@@ -579,8 +577,8 @@ class TabWidget(QtWidgets.QWidget):
     @catch_all
     def selection_changed(self):
         count = len(self.file_list_widget.selectedItems())
-        self.selected_count.setText(
-            translate('ImporterTab', '%n file(s)\nselected', '', count))
+        self.selected_count.setText(wrap_text(self.selected_count, translate(
+            'ImporterTab', '%n file(s) selected', '', count), 2))
         if not self.file_copier:
             self.move_button.setEnabled(count > 0)
             self.copy_button.setEnabled(count > 0)

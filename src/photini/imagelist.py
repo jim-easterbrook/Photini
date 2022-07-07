@@ -326,7 +326,9 @@ class Image(QtWidgets.QFrame):
     def load_thumbnail(self):
         image = self.metadata.thumbnail and self.metadata.thumbnail['image']
         if not image:
-            self.image.setText(translate('ImageList', 'No thumbnail in file'))
+            self.image.setText(wrap_text(
+                self.image, translate('ImageList', 'No thumbnail in file'),
+                lines=4))
             return
         pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = self.transform(pixmap, self.metadata.orientation)

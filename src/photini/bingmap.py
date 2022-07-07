@@ -26,6 +26,7 @@ import requests
 from photini.configstore import key_store
 from photini.photinimap import GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, catch_all, Qt, QtCore, QtWidgets, scale_font
+from photini.widgets import Label
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -92,8 +93,10 @@ class BingGeocoder(GeocoderBase):
                 yield north, east, south, west, resource['name']
 
     def search_terms(self):
-        widget = QtWidgets.QLabel(translate(
-            'MapTabBing', 'Search and altitude lookup\nprovided by Bing'))
+        widget = Label(
+            translate(
+                'MapTabBing', 'Search and altitude lookup provided by Bing'),
+            lines=2)
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
         return [widget]

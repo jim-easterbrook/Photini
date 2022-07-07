@@ -22,7 +22,7 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    DropDownSelector, LangAltWidget, MultiLineEdit, SingleLineEdit)
+    DropDownSelector, LangAltWidget, MultiLineEdit, PushButton, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -121,17 +121,17 @@ class TabWidget(QtWidgets.QWidget):
         ## buttons
         buttons = QtWidgets.QVBoxLayout()
         buttons.addStretch(1)
-        init_template = QtWidgets.QPushButton(
-            translate('OwnerTab', 'Initialise\ntemplate'))
+        init_template = PushButton(
+            translate('OwnerTab', 'Initialise template'), lines=2)
         init_template.clicked.connect(self.init_template)
         self.enableable.append(init_template)
         buttons.addWidget(init_template)
-        edit_template = QtWidgets.QPushButton(
-            translate('OwnerTab', 'Edit\ntemplate'))
+        edit_template = PushButton(
+            translate('OwnerTab', 'Edit template'), lines=2)
         edit_template.clicked.connect(self.edit_template)
         buttons.addWidget(edit_template)
-        apply_template = QtWidgets.QPushButton(
-            translate('OwnerTab', 'Apply\ntemplate'))
+        apply_template = PushButton(
+            translate('OwnerTab', 'Apply template'), lines=2)
         apply_template.clicked.connect(self.apply_template)
         self.enableable.append(apply_template)
         buttons.addWidget(apply_template)

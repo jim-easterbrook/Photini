@@ -46,6 +46,20 @@ class ComboBox(QtWidgets.QComboBox):
         self.view().setMinimumWidth(width + margin)
 
 
+class Label(QtWidgets.QLabel):
+    def __init__(self, *args, lines=1, **kwds):
+        super(Label, self).__init__(*args, **kwds)
+        if lines != 1:
+            self.setText(wrap_text(self, self.text(), lines))
+
+
+class PushButton(QtWidgets.QPushButton):
+    def __init__(self, *args, lines=1, **kwds):
+        super(PushButton, self).__init__(*args, **kwds)
+        if lines != 1:
+            self.setText(wrap_text(self, self.text(), lines))
+
+
 class CompactButton(QtWidgets.QPushButton):
     def __init__(self, *args, **kwds):
         super(CompactButton, self).__init__(*args, **kwds)
@@ -433,8 +447,11 @@ class StartStopButton(QtWidgets.QPushButton):
     click_start = QtSignal()
     click_stop = QtSignal()
 
-    def __init__(self, start_text, stop_text, *arg, **kw):
-        super(StartStopButton, self).__init__(*arg, **kw)
+    def __init__(self, start_text, stop_text, lines=1):
+        super(StartStopButton, self).__init__()
+        if lines != 1:
+            start_text = wrap_text(self, start_text, lines)
+            stop_text = wrap_text(self, stop_text, lines)
         self.start_text = start_text
         self.stop_text = stop_text
         self.checked = False

@@ -35,7 +35,7 @@ import requests
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import *
-from photini.widgets import StartStopButton
+from photini.widgets import Label, StartStopButton
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -818,10 +818,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         pixmap.loadFromData(remote_icon)
         label = QtWidgets.QLabel()
         label.setPixmap(pixmap)
-        dialog.layout().addRow(label, QtWidgets.QLabel(translate(
+        dialog.layout().addRow(label, Label(translate(
             'UploaderTabsAll',
-            'Which image file matches\nthis picture on {}?'.format(
-                self.service_name))))
+            'Which image file matches this picture on {}?').format(
+                self.service_name), lines=2))
         buttons = {}
         frame = QtWidgets.QFrame()
         frame.setLayout(FormLayout())

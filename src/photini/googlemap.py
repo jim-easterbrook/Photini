@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import locale
 import logging
 
@@ -26,6 +24,7 @@ import requests
 from photini.configstore import key_store
 from photini.photinimap import GeocoderBase, PhotiniMap
 from photini.pyqt import Busy, Qt, QtCore, QtWidgets, scale_font
+from photini.widgets import Label
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -84,9 +83,9 @@ class GoogleGeocoder(GeocoderBase):
                    result['formatted_address'])
 
     def search_terms(self):
-        widget = QtWidgets.QLabel(
-            translate('MapTabGoogle', 'Search and altitude lookup')
-            + '\npowered by Google')
+        widget = Label(translate(
+            'MapTabGoogle', 'Search and altitude lookup powered by Google',
+            'Do not translate "powered by Google"'), lines=2)
         widget.setAlignment(Qt.AlignRight)
         scale_font(widget, 80)
         return [widget]
