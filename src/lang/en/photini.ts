@@ -134,21 +134,19 @@
         <translation></translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
-this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
-Separate them with &quot;;&quot; characters.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
         <translation></translation>
     </message>
     <message>
         <source>Headline</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation></translation>
     </message>
 </context>

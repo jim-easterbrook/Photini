@@ -140,13 +140,13 @@
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje,
+        <translation type="obsolete">Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje,
 může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku.
+        <translation type="obsolete">Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku.
 Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
@@ -156,6 +156,14 @@ Oddělte je znaky &quot;;&quot;.</translation>
     <message>
         <source>Headline</source>
         <translation>Záhlaví</translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
+    </message>
+    <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
     </message>
 </context>
 <context>

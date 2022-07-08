@@ -130,17 +130,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
-this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Description / Caption</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
-Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -149,6 +139,14 @@ Separate them with &quot;;&quot; characters.</source>
     </message>
     <message>
         <source>Rating</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

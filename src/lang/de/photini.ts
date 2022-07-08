@@ -140,13 +140,13 @@
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
 this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt,
+        <translation type="obsolete">Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt,
 Dies kann Namen von Personen und/oder ihre Rolle in der Handlung, die auf dem Bild stattfindet, beinhalten.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
 Separate them with &quot;;&quot; characters.</source>
-        <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen.
+        <translation type="obsolete">Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen.
 Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
@@ -156,6 +156,14 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     <message>
         <source>Headline</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
+        <translation>Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt, Dies kann Namen von Personen und/oder ihre Rolle in der Handlung, die auf dem Bild stattfindet, beinhalten.</translation>
+    </message>
+    <message>
+        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen. Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
 </context>
 <context>
