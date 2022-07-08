@@ -192,9 +192,9 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['title'] = LangAltWidget(
             'title', multi_line=False, spell_check=True,
             length_check=ImageMetadata.max_bytes('title'))
-        self.widgets['title'].setToolTip(translate(
+        self.widgets['title'].setToolTip('<p>' + translate(
             'DescriptiveTab', 'Enter a short verbal and human readable name'
-            ' for the image, this may be the file name.'))
+            ' for the image, this may be the file name.') + '</p>')
         self.widgets['title'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
@@ -203,9 +203,9 @@ class TabWidget(QtWidgets.QWidget):
             'headline', spell_check=True,
             length_check=ImageMetadata.max_bytes('headline'))
         self.widgets['headline'].set_height(3)
-        self.widgets['headline'].setToolTip(translate(
+        self.widgets['headline'].setToolTip('<p>' + translate(
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
-            ' of the contents of the image.'))
+            ' of the contents of the image.') + '</p>')
         self.widgets['headline'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Headline'), self.widgets['headline'])
@@ -213,11 +213,11 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['description'] = LangAltWidget(
             'description', spell_check=True,
             length_check=ImageMetadata.max_bytes('description'))
-        self.widgets['description'].setToolTip(translate(
+        self.widgets['description'].setToolTip('<p>' + translate(
             'DescriptiveTab', 'Enter a "caption" describing the who, what,'
-            ' and why of what is happening in this image,\nthis might include'
+            ' and why of what is happening in this image, this might include'
             ' names of people, and/or their role in the action that is taking'
-            ' place within the image.'))
+            ' place within the image.') + '</p>')
         self.widgets['description'].new_value.connect(self.new_value)
         self.form.addRow(
             translate('DescriptiveTab', 'Description / Caption'),
@@ -226,10 +226,10 @@ class TabWidget(QtWidgets.QWidget):
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, multi_string=True,
             length_check=ImageMetadata.max_bytes('keywords'))
-        self.widgets['keywords'].setToolTip(translate(
+        self.widgets['keywords'].setToolTip('<p>' + translate(
             'DescriptiveTab', 'Enter any number of keywords, terms or phrases'
             ' used to express the subject matter in the image.'
-            '\nSeparate them with ";" characters.'))
+            ' Separate them with ";" characters.') + '</p>')
         self.widgets['keywords'].new_value.connect(self.new_value)
         self.form.addRow(translate(
             'DescriptiveTab', 'Keywords'), self.widgets['keywords'])

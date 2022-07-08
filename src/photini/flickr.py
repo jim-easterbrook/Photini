@@ -302,8 +302,8 @@ class FlickrSession(UploaderSession):
                 rsp = self.api_call(
                     'flickr.photosets.create', post=True,
                     primary_photo_id=photo_id,
-                    title=widget.text().replace('&&', '&'),
-                    description=widget.toolTip())
+                    title=widget.property('title'),
+                    description=widget.property('description'))
                 if rsp:
                     widget.setProperty('photoset_id', rsp['photoset']['id'])
             elif photoset_id in current_albums:
@@ -469,8 +469,10 @@ class TabWidget(PhotiniUploader):
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
-            widget.setToolTip(html.unescape(album['description']))
+            widget.setToolTip('<p>' + album['description'] + '</p>')
         widget.setProperty('photoset_id', album['photoset_id'])
+        widget.setProperty('title', album['title'])
+        widget.setProperty('description', album['description'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)
         else:

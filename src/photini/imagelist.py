@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
 ##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
@@ -57,7 +56,7 @@ class Image(QtWidgets.QFrame):
         layout.setSpacing(0)
         layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(layout)
-        self.setToolTip(self.path)
+        self.setToolTip('<p>' + self.path + '</p>')
         # label to display image
         self.image = QtWidgets.QLabel()
         self.image.setWordWrap(True)

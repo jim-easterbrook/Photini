@@ -183,19 +183,19 @@ class LocationInfo(QtWidgets.QWidget):
             self.members[key].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['SubLocation'].setToolTip(translate(
-            'AddressTab', 'Enter the name of the sublocation.'))
-        self.members['City'].setToolTip(translate(
-            'AddressTab', 'Enter the name of the city.'))
-        self.members['ProvinceState'].setToolTip(translate(
-            'AddressTab', 'Enter the name of the province or state.'))
-        self.members['CountryName'].setToolTip(translate(
-            'AddressTab', 'Enter the name of the country.'))
-        self.members['CountryCode'].setToolTip(translate(
-            'AddressTab',
-            'Enter the 2 or 3 letter ISO 3166 country code of the country.'))
-        self.members['WorldRegion'].setToolTip(translate(
-            'AddressTab', 'Enter the name of the world region.'))
+        self.members['SubLocation'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the name of the sublocation.') + '</p>')
+        self.members['City'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the name of the city.') + '</p>')
+        self.members['ProvinceState'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the name of the province or state.') + '</p>')
+        self.members['CountryName'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the name of the country.') + '<p>')
+        self.members['CountryCode'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the 2 or 3 letter ISO 3166 country code'
+            ' of the country.') + '</p>')
+        self.members['WorldRegion'].setToolTip('<p>' + translate(
+            'AddressTab', 'Enter the name of the world region.') + '</p>')
         for j, text in enumerate((
                 translate('AddressTab', 'Street'),
                 translate('AddressTab', 'City'),
@@ -402,7 +402,7 @@ class TabWidget(QtWidgets.QWidget):
             tip = translate('AddressTab', 'Enter the details about a location'
                             ' which is shown in this image.')
         self.location_info.setTabText(idx, text)
-        self.location_info.setTabToolTip(idx, tip)
+        self.location_info.setTabToolTip(idx, '<p>' + tip + '</p>')
 
     @QtSlot()
     @catch_all

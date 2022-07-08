@@ -439,7 +439,7 @@ class TabWidget(PhotiniUploader):
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
-            widget.setToolTip(html.unescape(album['description']))
+            widget.setToolTip('<p>' + album['description'] + '</p>')
         widget.setProperty('album_id', album['album_id'])
         if index >= 0:
             self.widget['albums'].layout().insertWidget(index, widget)

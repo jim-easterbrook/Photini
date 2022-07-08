@@ -834,7 +834,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 label.setText(candidate.image.text())
             button = QtWidgets.QPushButton(
                 os.path.basename(candidate.path))
-            button.setToolTip(candidate.path)
+            button.setToolTip('<p>' + candidate.path + '</p>')
             button.setCheckable(True)
             button.clicked.connect(dialog.accept)
             frame.layout().addRow(label, button)
