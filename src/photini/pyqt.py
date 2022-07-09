@@ -50,45 +50,95 @@ qt_scale_factor = config.get('pyqt', 'scale_factor', 1)
 if qt_scale_factor != 1:
     os.environ['QT_SCALE_FACTOR'] = str(qt_scale_factor)
 
-# choose Qt package
-if qt_lib == 'auto':
-    _libs = ('PyQt5', 'PySide2', 'PySide6')
-    for package in _libs:
-        try:
-            importlib.import_module('.QtCore', package)
-        except ImportError:
-            continue
-        qt_lib = package
-        break
-    else:
-        raise RuntimeError('Please install ' + ' or '.join(_libs))
-using_pyside = qt_lib != 'PyQt5'
-
-# import normal Qt stuff
-if qt_lib == 'PySide6':
-    using_qtwebengine = True
+def import_PySide6():
+    global QtCore, QtGui, QtNetwork, QtWidgets
+    global Qt, QtSignal, QtSlot, PySide_version
+    global QtGui2, using_qtwebengine
+    global QWebChannel, QWebEngineView, QWebEnginePage
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
     from PySide6.QtCore import Signal as QtSignal
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
     QtGui2 = QtGui
-elif qt_lib == 'PySide2':
     using_qtwebengine = True
+    from PySide6.QtWebChannel import QWebChannel
+    from PySide6.QtWebEngineWidgets import QWebEngineView
+    from PySide6.QtWebEngineCore import QWebEnginePage
+
+def import_PySide2():
+    global QtCore, QtGui, QtNetwork, QtWidgets
+    global Qt, QtSignal, QtSlot, PySide_version
+    global QtGui2, using_qtwebengine
+    global QWebChannel, QWebEngineView, QWebEnginePage
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
     from PySide2.QtCore import Signal as QtSignal
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
     QtGui2 = QtWidgets
-elif qt_lib == 'PyQt5':
+    using_qtwebengine = True
+    from PySide2.QtWebChannel import QWebChannel
+    from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+
+def import_PyQt5():
+    global QtCore, QtGui, QtNetwork, QtWidgets
+    global Qt, QtSignal, QtSlot
+    global QtGui2, using_qtwebengine
+    global QWebChannel, QWebEngineView, QWebEnginePage
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
+    # choose WebEngine or WebKit
+    error = None
+    if using_qtwebengine != False:
+        try:
+            from PyQt5.QtWebChannel import QWebChannel
+            from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
+            using_qtwebengine = True
+            return
+        except ImportError as ex:
+            if using_qtwebengine == True:
+                raise ex
+            error = ex
+    try:
+        from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
+        from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
+        using_qtwebengine = False
+        QWebChannel = None
+        print('Use of QtWebKit will be withdrawn in a future release'
+              ' of Photini.\nPlease install QtWebEngine soon.')
+        return
+    except ImportError:
+        if error:
+            raise ex from None
+        raise
+
+# choose Qt package
+if qt_lib == 'auto':
+    _libs = ('PyQt5', 'PySide2', 'PySide6')
 else:
-    raise RuntimeError('Unrecognised Qt library ' + qt_lib)
+    _libs = (qt_lib,)
+_error = []
+for key in _libs:
+    try:
+        {'PyQt5': import_PyQt5,
+         'PySide2': import_PySide2,
+         'PySide6': import_PySide6,
+         }[key]()
+        qt_lib = key
+        break
+    except KeyError:
+        raise ImportError('Unknown Qt library ' + key) from None
+    except ImportError as ex:
+        if qt_lib != 'auto':
+            raise ex
+        _error.append('{} import failed: {}'.format(key, str(ex)))
+else:
+    raise ImportError('\n'.join(_error))
+using_pyside = qt_lib != 'PyQt5'
 
 style = config.get('pyqt', 'style')
 if style:
@@ -119,33 +169,6 @@ if sys.platform.startswith('linux') and qt_version_info < (5, 11, 0):
     import ctypes
     import ctypes.util
     ctypes.CDLL(ctypes.util.find_library('GL'), ctypes.RTLD_GLOBAL)
-
-# choose WebEngine or WebKit
-if not isinstance(using_qtwebengine, bool):
-    using_qtwebengine = True
-    try:
-        importlib.import_module('.QtWebEngineWidgets', qt_lib)
-    except ImportError:
-        using_qtwebengine = False
-
-# import WebEngine or WebKit stuff
-if using_qtwebengine:
-    if qt_lib == 'PySide6':
-        from PySide6.QtWebChannel import QWebChannel
-        from PySide6.QtWebEngineWidgets import QWebEngineView
-        from PySide6.QtWebEngineCore import QWebEnginePage
-    elif qt_lib == 'PySide2':
-        from PySide2.QtWebChannel import QWebChannel
-        from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
-    else:
-        from PyQt5.QtWebChannel import QWebChannel
-        from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
-else:
-    print('Use of QtWebKit will be withdrawn in a future release'
-          ' of Photini.\nPlease install QtWebEngine soon.')
-    QWebChannel = None
-    from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
-    from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
 
 qt_version += ', using {}'.format(
     ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
