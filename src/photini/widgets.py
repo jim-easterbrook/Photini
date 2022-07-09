@@ -314,7 +314,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def set_height(self, rows):
         margins = self.contentsMargins()
         self.setFixedHeight((self.fontMetrics().lineSpacing() * rows)
-                            + (self.document().documentMargin() * 2)
+                            + int(self.document().documentMargin() * 2)
                             + (self.frameWidth() * 2)
                             + (margins.top() + margins.bottom()))
 
