@@ -92,7 +92,7 @@ def import_PyQt5():
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
     # choose WebEngine or WebKit
-    error = None
+    error = ['']
     if using_qtwebengine != False:
         try:
             from PyQt5.QtWebChannel import QWebChannel
@@ -100,28 +100,26 @@ def import_PyQt5():
             using_qtwebengine = True
             return
         except ImportError as ex:
-            if using_qtwebengine == True:
-                raise ex
-            error = ex
-    try:
-        from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
-        from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
-        using_qtwebengine = False
-        QWebChannel = None
-        print('Use of QtWebKit will be withdrawn in a future release'
-              ' of Photini.\nPlease install QtWebEngine soon.')
-        return
-    except ImportError:
-        if error:
-            raise ex from None
-        raise
+            error.append(str(ex))
+    if using_qtwebengine != True:
+        try:
+            from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
+            from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
+            using_qtwebengine = False
+            QWebChannel = None
+            print('Use of QtWebKit will be withdrawn in a future release'
+                  ' of Photini.\nPlease install QtWebEngine soon.')
+            return
+        except ImportError as ex:
+            error.append(str(ex))
+    raise ImportError('\n'.join(error))
 
 # choose Qt package
 if qt_lib == 'auto':
     _libs = ('PyQt5', 'PySide2', 'PySide6')
 else:
     _libs = (qt_lib,)
-_error = []
+_error = ['']
 for key in _libs:
     try:
         {'PyQt5': import_PyQt5,
