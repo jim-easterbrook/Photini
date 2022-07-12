@@ -1005,7 +1005,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Selected images</source>
-        <translation>Valgte bilder</translation>
+        <translation type="obsolete">Valgte bilder</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -1026,6 +1026,10 @@ valgt</numerusform>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images:</source>
+        <translation>Valgte bilder:</translation>
     </message>
 </context>
 <context>

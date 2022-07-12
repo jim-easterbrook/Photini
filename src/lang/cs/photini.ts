@@ -1032,10 +1032,6 @@ poskytuje Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1053,6 +1049,10 @@ poskytuje Bing</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

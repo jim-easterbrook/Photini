@@ -964,10 +964,6 @@ fotos</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
         <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
     </message>
@@ -985,6 +981,10 @@ fotos</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -1039,7 +1039,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>Selected images</source>
-        <translation>Images sélectionnées</translation>
+        <translation type="obsolete">Images sélectionnées</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -1060,6 +1060,10 @@ fournie par Bing</translation>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation>Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
+    </message>
+    <message>
+        <source>Selected images:</source>
+        <translation>Images sélectionnées&#xa0;:</translation>
     </message>
 </context>
 <context>

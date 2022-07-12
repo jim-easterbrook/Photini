@@ -897,10 +897,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Quit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -958,6 +954,10 @@
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected images:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
