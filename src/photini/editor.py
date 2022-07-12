@@ -251,8 +251,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.image_list.fix_missing_thumbs)
         action = file_menu.addAction(translate('MenuBar', 'Close all files'))
         action.triggered.connect(self.image_list.close_all_files)
-        sep = file_menu.addAction(translate('MenuBar', 'Selected images'))
-        sep.setSeparator(True)
+        file_menu.addSeparator()
+        sep = QtWidgets.QWidgetAction(self)
+        sep.setDefaultWidget(
+            QtWidgets.QLabel(translate('MenuBar', 'Selected images:')))
+        file_menu.addAction(sep)
         self.selected_actions = self.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
         action = file_menu.addAction(translate('MenuBar', 'Quit'))
