@@ -123,8 +123,9 @@ class InstanceServer(QtNetwork.QTcpServer):
     @catch_all
     def new_connection(self):
         window = self.parent().window()
+        window.setWindowState(
+            (window.windowState() & ~Qt.WindowMinimized) | Qt.WindowActive)
         window.raise_()
-        window.activateWindow()
         while self.hasPendingConnections():
             socket = self.nextPendingConnection()
             socket = ServerSocket(socket, parent=self)
