@@ -682,7 +682,7 @@ class MD_Thumbnail(MD_Dict):
             fmt = 'JPEG'
             data = self.data_from_image(self['image'])
         if not data:
-            return None
+            return None, None, None, None
         return str(self['w']), str(self['h']), fmt, data
 
     def to_xmp(self):
