@@ -1234,35 +1234,35 @@ poskytuje Bing</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ-Zachovejte licenci 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ-Neužívejte komerčně 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ-Neužívejte dílo komerčně-Zachovejte licenci 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ-Nezpracovávejte 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uveďte původ-Neužívejte komerčně-Nezpracovávejte 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
+        <translation>CC0 1.0 Univerzální (CC0 1.0) Potvrzení o statusu volného díla</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Označení volného díla 1.0</translation>
     </message>
     <message>
         <source>Define new licence</source>

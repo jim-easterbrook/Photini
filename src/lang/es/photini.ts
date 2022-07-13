@@ -1166,35 +1166,35 @@ fotos</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-NoComercial 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-SinDerivadas 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>Atribución-NoComercial-SinDerivadas 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
+        <translation>CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta de Dominio Público 1.0</translation>
     </message>
     <message>
         <source>Define new licence</source>

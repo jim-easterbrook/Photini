@@ -1266,27 +1266,27 @@ le modèle</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Attribution 4.0 International (CC BY 4.0)</translation>
+        <translation>Attribution 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 International (CC BY-SA 4.0)</translation>
+        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 International (CC BY-NC 4.0)</translation>
+        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 International (CC BY-NC-SA 4.0)</translation>
+        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Attribution - Pas de Modification 4.0 International (CC BY-ND 4.0)</translation>
+        <translation>Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 International (CC BY-NC-ND 4.0)</translation>
+        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>

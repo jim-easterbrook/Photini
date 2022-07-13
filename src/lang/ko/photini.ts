@@ -1139,35 +1139,35 @@
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시-동일조건변경허락 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시-비영리 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시-비영리-동일조건변경허락 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시-변경금지 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
+        <translation>저작자표시-비영리-변경금지 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
+        <translation>CC0 1.0 보편적 (CC0 1.0) 퍼블릭 도메인 기증</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
+        <translation>퍼블릭 도메인 마크 1.0</translation>
     </message>
     <message>
         <source>Define new licence</source>
