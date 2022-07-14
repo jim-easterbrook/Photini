@@ -297,13 +297,13 @@ class MetadataHandler(object):
         if isinstance(value, str):
             # set a single value
             datum = self._iptcData[tag]
-            datum.setValue(value)
+            datum.setValue(self.truncate_iptc(tag, value))
             return
         # set a list/tuple of values
         key = exiv2.IptcKey(tag)
         for sub_value in value:
             datum = exiv2.Iptcdatum(key)
-            datum.setValue(sub_value)
+            datum.setValue(self.truncate_iptc(tag, sub_value))
             if self._iptcData.add(datum) != 0:
                 logger.error('%s: duplicated tag %s',
                              os.path.basename(self._path), tag)

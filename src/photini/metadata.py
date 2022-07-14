@@ -250,16 +250,11 @@ class ImageMetadata(MetadataHandler):
                         result = cls._max_bytes[tag]
         return result
 
-    def set_multiple(self, tag, value):
-        if not tag:
-            return
-        if not value:
-            self.clear_value(tag)
-            return
+    def truncate_iptc(self, tag, value):
         if tag in self._max_bytes:
-            value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
-            value = [x.decode('utf-8') for x in value]
-        self.set_tag_multiple(tag, value)
+            value = value.encode('utf-8')[:self._max_bytes[tag]]
+            value = value.decode('utf-8')
+        return value
 
     _iptc_encodings = {
         'ascii'    : (b'\x1b\x28\x42',),
