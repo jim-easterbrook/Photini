@@ -211,51 +211,6 @@ class ImageMetadata(MetadataHandler):
         else:
             self.set_xmp_value(tag, value)
 
-    # maximum length of Iptc data
-    _max_bytes = {
-        'Iptc.Application2.Byline'             :   32,
-        'Iptc.Application2.BylineTitle'        :   32,
-        'Iptc.Application2.Caption'            : 2000,
-        'Iptc.Application2.City'               :   32,
-        'Iptc.Application2.Contact'            :  128,
-        'Iptc.Application2.Copyright'          :  128,
-        'Iptc.Application2.CountryCode'        :    3,
-        'Iptc.Application2.CountryName'        :   64,
-        'Iptc.Application2.Credit'             :   32,
-        'Iptc.Application2.Headline'           :  256,
-        'Iptc.Application2.Keywords'           :   64,
-        'Iptc.Application2.ObjectName'         :   64,
-        'Iptc.Application2.Program'            :   32,
-        'Iptc.Application2.ProgramVersion'     :   10,
-        'Iptc.Application2.ProvinceState'      :   32,
-        'Iptc.Application2.SpecialInstructions':  256,
-        'Iptc.Application2.SubLocation'        :   32,
-        'Iptc.Envelope.CharacterSet'           :   32,
-        }
-
-    @classmethod
-    def max_bytes(cls, name):
-        # try IPTC-IIM key
-        tag = 'Iptc.Application2.' + name
-        if tag in cls._max_bytes:
-            return cls._max_bytes[tag]
-        # try Photini metadata item
-        result = None
-        if name in cls._tag_list:
-            for mode, tag in cls._tag_list[name]:
-                if mode == 'WA' and tag in cls._max_bytes:
-                    if result:
-                        result = min(result, cls._max_bytes[tag])
-                    else:
-                        result = cls._max_bytes[tag]
-        return result
-
-    def truncate_iptc(self, tag, value):
-        if tag in self._max_bytes:
-            value = value.encode('utf-8')[:self._max_bytes[tag]]
-            value = value.decode('utf-8')
-        return value
-
     _iptc_encodings = {
         'ascii'    : (b'\x1b\x28\x42',),
         'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),

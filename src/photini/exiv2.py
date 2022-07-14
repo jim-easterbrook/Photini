@@ -289,6 +289,52 @@ class MetadataHandler(object):
             datum = self._exifData[tag]
             datum.setValue(value)
 
+    # maximum length of Iptc data
+    _max_bytes = {
+        'Iptc.Application2.Byline'             :   32,
+        'Iptc.Application2.BylineTitle'        :   32,
+        'Iptc.Application2.Caption'            : 2000,
+        'Iptc.Application2.City'               :   32,
+        'Iptc.Application2.Contact'            :  128,
+        'Iptc.Application2.Copyright'          :  128,
+        'Iptc.Application2.CountryCode'        :    3,
+        'Iptc.Application2.CountryName'        :   64,
+        'Iptc.Application2.Credit'             :   32,
+        'Iptc.Application2.Headline'           :  256,
+        'Iptc.Application2.Keywords'           :   64,
+        'Iptc.Application2.ObjectName'         :   64,
+        'Iptc.Application2.Program'            :   32,
+        'Iptc.Application2.ProgramVersion'     :   10,
+        'Iptc.Application2.ProvinceState'      :   32,
+        'Iptc.Application2.SpecialInstructions':  256,
+        'Iptc.Application2.SubLocation'        :   32,
+        'Iptc.Envelope.CharacterSet'           :   32,
+        }
+
+    @classmethod
+    def max_bytes(cls, name):
+        # try IPTC-IIM key
+        tag = 'Iptc.Application2.' + name
+        if tag in cls._max_bytes:
+            return cls._max_bytes[tag]
+        # try Photini metadata item
+        result = None
+        if name in cls._tag_list:
+            for mode, tag in cls._tag_list[name]:
+                if mode == 'WA' and tag in cls._max_bytes:
+                    if result:
+                        result = min(result, cls._max_bytes[tag])
+                    else:
+                        result = cls._max_bytes[tag]
+        return result
+
+    @classmethod
+    def truncate_iptc(cls, tag, value):
+        if tag in cls._max_bytes:
+            value = value.encode('utf-8')[:cls._max_bytes[tag]]
+            value = value.decode('utf-8')
+        return value
+
     def set_iptc_value(self, tag, value):
         # clear any existing values (which might be repeated)
         self.clear_tag(tag)

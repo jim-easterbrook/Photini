@@ -22,7 +22,7 @@ from fractions import Fraction
 import logging
 import math
 
-from photini.metadata import exiv2_version_info
+from photini.exiv2 import exiv2_version_info, MetadataHandler
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -1117,7 +1117,13 @@ class MD_MultiString(MD_Value, tuple):
         merged = False
         result = list(self)
         for item in other:
-            if item not in result:
+            if tag.split('.')[0] == 'Iptc':
+                # IPTC-IIM data can be truncated version of existing value
+                if item not in [MetadataHandler.truncate_iptc(tag, x)
+                                for x in result]:
+                    result.append(item)
+                    merged = True
+            elif item not in result:
                 result.append(item)
                 merged = True
         if merged:
