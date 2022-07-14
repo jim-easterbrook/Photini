@@ -375,27 +375,13 @@ class MetadataHandler(object):
         data = self._data_set(tag)
         return tag in data
 
-    @staticmethod
-    def is_exif_tag(tag):
-        return tag.split('.')[0] == 'Exif'
-
-    @staticmethod
-    def is_iptc_tag(tag):
-        return tag.split('.')[0] == 'Iptc'
-
-    @staticmethod
-    def is_xmp_tag(tag):
-        return tag.split('.')[0] == 'Xmp'
-
     def _data_set(self, tag):
         family = tag.split('.')[0]
         if family == 'Exif':
             return self._exifData
         if family == 'Iptc':
             return self._iptcData
-        if family == 'Xmp':
-            return self._xmpData
-        assert False, 'Invalid tag ' + tag
+        return self._xmpData
 
     def save(self):
         return self.save_file(self._path)

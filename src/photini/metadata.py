@@ -156,13 +156,12 @@ class ImageMetadata(MetadataHandler):
             return None
         if 'idx' in tag:
             tag = tag.format(idx=idx)
-        if self.is_exif_tag(tag):
+        family = tag.split('.')[0]
+        if family == 'Exif':
             return self.get_exif_value(tag)
-        if self.is_iptc_tag(tag):
+        if family == 'Iptc':
             return self.get_iptc_value(tag)
-        if self.is_xmp_tag(tag):
-            return self.get_xmp_value(tag)
-        assert False, 'Invalid tag ' + tag
+        return self.get_xmp_value(tag)
 
     def _get_exif_thumbnail(self, w, h, fmt):
         for data, label in self.get_exif_thumbnails():
@@ -204,14 +203,13 @@ class ImageMetadata(MetadataHandler):
             return
         if 'idx' in tag:
             tag = tag.format(idx=idx)
-        if self.is_exif_tag(tag):
+        family = tag.split('.')[0]
+        if family == 'Exif':
             self.set_exif_value(tag, value)
-        elif self.is_iptc_tag(tag):
+        elif family == 'Iptc':
             self.set_iptc_value(tag, value)
-        elif self.is_xmp_tag(tag):
-            self.set_xmp_value(tag, value)
         else:
-            assert False, 'Invalid tag ' + tag
+            self.set_xmp_value(tag, value)
 
     # maximum length of Iptc data
     _max_bytes = {
@@ -258,7 +256,7 @@ class ImageMetadata(MetadataHandler):
         if not value:
             self.clear_value(tag)
             return
-        if self.is_iptc_tag(tag) and tag in self._max_bytes:
+        if tag in self._max_bytes:
             value = [x.encode('utf-8')[:self._max_bytes[tag]] for x in value]
             value = [x.decode('utf-8') for x in value]
         self.set_tag_multiple(tag, value)
@@ -587,14 +585,13 @@ class ImageMetadata(MetadataHandler):
                 else:
                     self.clear_group(tag)
                 continue
-            if self.is_exif_tag(tag):
+            family = tag.split('.')[0]
+            if family == 'Exif':
                 file_value = value.to_exif()
-            elif self.is_iptc_tag(tag):
+            elif family == 'Iptc':
                 file_value = value.to_iptc()
-            elif self.is_xmp_tag(tag):
-                file_value = value.to_xmp()
             else:
-                assert False, 'Invalid tag ' + tag
+                file_value = value.to_xmp()
             if tag not in self._multi_tags:
                 self.set_value(tag, file_value)
             elif 'idx' in self._multi_tags[tag][0]:
