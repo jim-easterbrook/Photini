@@ -125,16 +125,71 @@ class MetadataHandler(object):
                 datum.setValue(new_value)
             iptc_charset = self.get_iptc_encoding()
             if iptc_charset in ('utf-8', 'ascii'):
-                # no need to translate anything
+                # no need to transcode anything
                 return
             if iptc_charset:
                 encodings = [iptc_charset]
 
     def get_iptc_encoding(self):
-        charset = self._iptcData.detectCharset()
-        if charset:
-            return charset.lower()
-        return super(MetadataHandler, self).get_iptc_encoding()
+        # IPTC-IIM uses ISO/IEC 2022 escape sequences to set the
+        # character set. These are very flexible, and it's not obvious
+        # which sequences, if any, are ever used in practice. The
+        # sequence is escape, one or more intermediate bytes, then a
+        # final byte.
+        iptc_charset_code = self.get_raw_value('Iptc.Envelope.CharacterSet')
+        if not iptc_charset_code or len(iptc_charset_code) < 3:
+            return None
+        if iptc_charset_code[0] != 0x1b:
+            # first byte isn't escape
+            return None
+        intermediate = iptc_charset_code[1:-1]
+        final = iptc_charset_code[-1]
+        if len(intermediate) == 1:
+            if intermediate[0] == 0x25:
+                # "other coding systems"
+                if final == 0x47:
+                    return 'utf-8'
+            if intermediate[0] in (0x28, 0x29, 0x2a, 0x2b):
+                # "94-character set"
+                if final == 0x4e:
+                    return 'koi8_r'
+                return 'ascii'
+            if intermediate[0] in (0x2c, 0x2d, 0x2e, 0x2f):
+                # "96-character set"
+                if final == 0x40:
+                    return 'iso_8859_5'
+                if final == 0x41:
+                    return 'iso_8859_1'
+                if final == 0x42:
+                    return 'iso_8859_2'
+                if final == 0x43:
+                    return 'iso_8859_3'
+                if final == 0x44:
+                    return 'iso_8859_4'
+                if final == 0x46:
+                    return 'iso_8859_7'
+                if final == 0x47:
+                    return 'iso_8859_6'
+                if final == 0x48:
+                    return 'iso_8859_8'
+        elif len(intermediate) == 2:
+            # "multi-byte character set"
+            if (intermediate[0] == 0x24
+                    and intermediate[1] in (0x28, 0x29, 0x2a, 0x2b)):
+                if final == 0x42:
+                    return 'euc_jp'
+            if intermediate == b'\x25\x2f':
+                if final == 0x46:
+                    return 'utf-32-be'
+                if final == 0x4c:
+                    return 'utf-16-be'
+        logger.error('Unrecognised IPTC character set %s',
+                     repr(iptc_charset_code))
+        return None
+
+    def set_iptc_encoding(self):
+        # escape % G, or \x1b \x25 \x47, selects UTF-8
+        self.set_value('Iptc.Envelope.CharacterSet', '\x1b%G')
 
     def clear_exif(self):
         self._exifData.clear()

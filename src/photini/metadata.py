@@ -211,25 +211,6 @@ class ImageMetadata(MetadataHandler):
         else:
             self.set_xmp_value(tag, value)
 
-    _iptc_encodings = {
-        'ascii'    : (b'\x1b\x28\x42',),
-        'iso8859-1': (b'\x1b\x2f\x41', b'\x1b\x2e\x41'),
-        'utf-8'    : (b'\x1b\x25\x47', b'\x1b\x25\x2f\x49'),
-        'utf-16-be': (b'\x1b\x25\x2f\x4c',),
-        'utf-32-be': (b'\x1b\x25\x2f\x46',),
-        }
-
-    def get_iptc_encoding(self):
-        iptc_charset_code = self.get_raw_value('Iptc.Envelope.CharacterSet')
-        for charset, codes in self._iptc_encodings.items():
-            if iptc_charset_code in codes:
-                return charset
-        return None
-
-    def set_iptc_encoding(self, encoding='utf-8'):
-        self.set_value('Iptc.Envelope.CharacterSet',
-                       self._iptc_encodings[encoding][0].decode('ascii'))
-
     def save(self, file_times=None, write_iptc=False):
         if self.read_only:
             return False
