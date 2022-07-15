@@ -147,8 +147,11 @@ class ImageMetadata(MetadataHandler):
             result = self._get_exif_thumbnail(*result)
         elif tag.startswith('Xmp.xmp.Thumbnails'):
             w, h, fmt, data = result
-            fmt, image = self._decode_thumbnail(data, 'thumbnail')
-            result = w, h, fmt, data, image
+            if data:
+                data = bytes(data, 'ascii')
+                data = codecs.decode(data, 'base64_codec')
+                fmt, image = self._decode_thumbnail(data, 'thumbnail')
+                result = w, h, fmt, data, image
         return result
 
     def get_value(self, tag, idx=1):
@@ -165,21 +168,18 @@ class ImageMetadata(MetadataHandler):
 
     def _get_exif_thumbnail(self, w, h, fmt):
         for data, label in self.get_exif_thumbnails():
-            fmt, image = self._decode_thumbnail(data, label)
-            if image:
-                return w, h, fmt, data, image
+            if data:
+                fmt, image = self._decode_thumbnail(data, label)
+                if image:
+                    return w, h, fmt, data, image
         return None, None, None, None, None
 
     def _decode_thumbnail(self, data, label):
-        if data:
-            if isinstance(data, str):
-                data = bytes(data, 'ascii')
-                data = codecs.decode(data, 'base64_codec')
-            try:
-                return MD_Thumbnail.image_from_data(data)
-            except Exception as ex:
-                logger.error(
-                    '%s: %s: %s', os.path.basename(self._path), label, str(ex))
+        try:
+            return MD_Thumbnail.image_from_data(data)
+        except Exception as ex:
+            logger.error(
+                '%s: %s: %s', os.path.basename(self._path), label, str(ex))
         return None, None
 
     def set_multi_group(self, tag, value):
