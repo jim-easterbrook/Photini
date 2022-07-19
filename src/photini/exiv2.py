@@ -484,13 +484,8 @@ class MetadataHandler(object):
             return self._iptcData
         return self._xmpData
 
-    def save(self):
-        return self.save_file(self._path)
-
-    def save_file(self, path):
-        if path == self._path:
-            image = self._image
-        else:
+    def save_file(self, path=None):
+        if path:
             image = exiv2.ImageFactory.open(path)
             image.readMetadata()
             image.setExifData(self._exifData)
@@ -499,6 +494,8 @@ class MetadataHandler(object):
             if self._image.iccProfileDefined():
                 # copy ICC profile
                 image.setIccProfile(self._image.iccProfile())
+        else:
+            image = self._image
         try:
             image.writeMetadata()
         except exiv2.Exiv2Error as ex:

@@ -221,7 +221,7 @@ class ImageMetadata(MetadataHandler):
             self.set_iptc_encoding()
         else:
             self.clear_iptc()
-        if not super(ImageMetadata, self).save():
+        if not self.save_file():
             return False
         if file_times:
             os.utime(self._path, file_times)
