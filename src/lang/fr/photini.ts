@@ -1692,7 +1692,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation>Quel fichier correspond à cette image sur {} ?</translation>
+        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
 </context>
 <context>
