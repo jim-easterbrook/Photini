@@ -524,7 +524,11 @@ class LangAltWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
-        if QtCore.QLocale(lang).textDirection() == Qt.RightToLeft:
+        if lang == 'x-default':
+            direction = self.layoutDirection()
+        else:
+            direction = QtCore.QLocale(lang).textDirection()
+        if direction == Qt.RightToLeft:
             self.edit.set_text_alignment(Qt.AlignRight)
         else:
             self.edit.set_text_alignment(Qt.AlignLeft)

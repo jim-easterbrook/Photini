@@ -157,6 +157,8 @@ class AugmentSpinBox(object):
 
     def __init__(self):
         super(AugmentSpinBox, self).__init__()
+        if self.isRightToLeft():
+            self.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
