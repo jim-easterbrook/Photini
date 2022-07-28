@@ -424,7 +424,7 @@ class ThumbsLayout(QtWidgets.QLayout):
         self.scroll_area = scroll_area
         self.item_list = []
         self.viewport_size = QtCore.QSize()
-        self._do_layout(QtCore.QPoint(0, 0))
+        self._do_layout()
 
     def addItem(self, item):
         self.item_list.append(item)
@@ -456,7 +456,7 @@ class ThumbsLayout(QtWidgets.QLayout):
 
     def setGeometry(self, rect):
         super(ThumbsLayout, self).setGeometry(rect)
-        self._do_layout(rect.topLeft())
+        self._do_layout(rect)
 
     def sizeHint(self):
         return self.size_hint
@@ -466,9 +466,9 @@ class ThumbsLayout(QtWidgets.QLayout):
 
     def set_viewport_size(self, size):
         self.viewport_size = size
-        self._do_layout(QtCore.QPoint(0, 0))
+        self._do_layout()
 
-    def _do_layout(self, origin):
+    def _do_layout(self, rect=None):
         left, top, right, bottom = self.getContentsMargins()
         width_hint = left + right
         height_hint = top + bottom
@@ -489,8 +489,12 @@ class ThumbsLayout(QtWidgets.QLayout):
         self.size_hint = QtCore.QSize(width_hint, height_hint)
         if not self.item_list:
             return
-        x = origin.x() + left
-        y = origin.y() + top
+        if QtWidgets.QApplication.isRightToLeft():
+            x = rect.right() - right - item_w
+            item_w = -item_w
+        else:
+            x = rect.left() + left
+        y = rect.top() + top
         for n, item in enumerate(self.item_list):
             i, j = n % columns, n // columns
             item.setGeometry(QtCore.QRect(
