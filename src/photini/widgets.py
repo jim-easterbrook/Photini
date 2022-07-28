@@ -251,6 +251,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     def __init__(self, key, *arg, spell_check=False, length_check=None,
                  multi_string=False, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
+        if self.isRightToLeft():
+            self.set_text_alignment(Qt.AlignRight)
         self._key = key
         self.multiple_values = multiple_values()
         self.setTabChangesFocus(True)
@@ -338,6 +340,11 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
 
     def is_multiple(self):
         return self._is_multiple and not bool(self.get_value())
+
+    def set_text_alignment(self, alignment):
+        options = self.document().defaultTextOption()
+        options.setAlignment(alignment)
+        self.document().setDefaultTextOption(options)
 
 
 class SingleLineEdit(MultiLineEdit):
@@ -517,6 +524,10 @@ class LangAltWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
+        if QtCore.QLocale(lang).textDirection() == Qt.RightToLeft:
+            self.edit.set_text_alignment(Qt.AlignRight)
+        else:
+            self.edit.set_text_alignment(Qt.AlignLeft)
         self.edit.set_value(self.value[lang])
 
     @QtSlot(str, object)

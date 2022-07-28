@@ -48,6 +48,8 @@ class RatingWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.slider)
         # display
         self.display = QtWidgets.QLineEdit()
+        if self.display.isRightToLeft():
+            self.display.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.display.setStyleSheet("* {background-color:rgba(0,0,0,0);}")
         self.display.setFrame(False)
         self.display.setReadOnly(True)

@@ -487,7 +487,7 @@ class ThumbsLayout(QtWidgets.QLayout):
             width_hint += columns * item_w
             height_hint += rows * item_h
         self.size_hint = QtCore.QSize(width_hint, height_hint)
-        if not self.item_list:
+        if not (rect and self.item_list):
             return
         if QtWidgets.QApplication.isRightToLeft():
             x = rect.right() - right - item_w
