@@ -429,19 +429,11 @@
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>date taken</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -508,6 +500,14 @@
     </message>
     <message>
         <source>No thumbnail in file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -754,10 +754,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set default language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
@@ -767,11 +763,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -957,7 +957,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images:</source>
+        <source>Selected images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1189,10 +1189,6 @@
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>min</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1362,6 +1358,10 @@
     <message encoding="UTF-8">
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Precision</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

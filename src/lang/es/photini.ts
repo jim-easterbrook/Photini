@@ -430,7 +430,7 @@
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>ordenar por:</translation>
+        <translation type="obsolete">ordenar por:</translation>
     </message>
     <message>
         <source>file name</source>
@@ -442,7 +442,7 @@
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>tamaño de la vista previa</translation>
+        <translation type="obsolete">tamaño de la vista previa</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -511,6 +511,14 @@
     </message>
     <message>
         <source>No thumbnail in file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -776,10 +784,6 @@ fotos</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set default language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
@@ -789,11 +793,15 @@ fotos</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -984,7 +992,7 @@ fotos</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images:</source>
+        <source>Selected images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1215,10 +1223,6 @@ fotos</translation>
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>Precision:</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>min</source>
         <translation type="unfinished"></translation>
@@ -1457,6 +1461,10 @@ fotos</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>rotar 180</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -430,7 +430,7 @@
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>sorter etter: </translation>
+        <translation type="obsolete">sorter etter: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -442,7 +442,7 @@
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>miniatyrbildestørrelse: </translation>
+        <translation type="obsolete">miniatyrbildestørrelse: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -520,6 +520,14 @@ i fil</translation>
     <message>
         <source>No thumbnail in file</source>
         <translation>Ingen miniatyrbilder i fil</translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation>Sorter etter</translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Miniatyrbildestørrelse</translation>
     </message>
 </context>
 <context>
@@ -817,7 +825,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Set default language:</source>
-        <translation>Sett forvalgt språk</translation>
+        <translation type="obsolete">Sett forvalgt språk</translation>
     </message>
     <message>
         <source>Language</source>
@@ -829,12 +837,16 @@ valgt</numerusform>
         <translation>Språk: </translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
+        <translation>Sett forvalgt språk</translation>
     </message>
 </context>
 <context>
@@ -1005,7 +1017,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="obsolete">Valgte bilder</translation>
+        <translation>Valgte bilder</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -1029,7 +1041,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Selected images:</source>
-        <translation>Valgte bilder:</translation>
+        <translation type="obsolete">Valgte bilder:</translation>
     </message>
 </context>
 <context>
@@ -1272,10 +1284,6 @@ mal</translation>
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>min</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1477,6 +1485,10 @@ mal</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>roter 180</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -430,7 +430,7 @@
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>ordena per: </translation>
+        <translation type="obsolete">ordena per: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -442,7 +442,7 @@
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>mida miniatura: </translation>
+        <translation type="obsolete">mida miniatura: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -520,6 +520,14 @@ en el fitxer</translation>
     <message>
         <source>No thumbnail in file</source>
         <translation>Sense miniatura en el fitxer</translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation>Ordena per</translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Mida miniatura</translation>
     </message>
 </context>
 <context>
@@ -812,10 +820,6 @@ triats</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set default language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
@@ -825,11 +829,15 @@ triats</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1030,7 +1038,7 @@ funcionant amb Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images:</source>
+        <source>Selected images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1263,7 +1271,7 @@ funcionant amb Bing</translation>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Precissió:</translation>
+        <translation type="obsolete">Precissió:</translation>
     </message>
     <message>
         <source>min</source>
@@ -1503,6 +1511,10 @@ funcionant amb Bing</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>gira 180</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation>Precissió</translation>
     </message>
 </context>
 <context>

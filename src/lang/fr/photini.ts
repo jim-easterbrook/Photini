@@ -446,7 +446,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>Trier par&#xa0;: </translation>
+        <translation type="obsolete">Trier par&#xa0;: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -458,7 +458,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>Taille des miniatures&#xa0;: </translation>
+        <translation type="obsolete">Taille des miniatures&#xa0;: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -505,8 +505,7 @@ dans le fichier</translation>
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -521,16 +520,14 @@ dans le fichier</translation>
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -539,6 +536,14 @@ dans le fichier</translation>
     <message>
         <source>No thumbnail in file</source>
         <translation>Pas de miniature dans le fichier</translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation>Trier par</translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Taille des miniatures</translation>
     </message>
 </context>
 <context>
@@ -631,8 +636,7 @@ selected</source>
 sélectionné</numerusform>
             <numerusform>%n fichiers
 sélectionnés</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -667,8 +671,7 @@ sélectionnés</numerusform>
         <translation>
             <numerusform>%n fichier sélectionné</numerusform>
             <numerusform>%n fichiers sélectionnés</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -846,7 +849,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Set default language:</source>
-        <translation>Définir la langue par défaut&#xa0;:</translation>
+        <translation type="obsolete">Définir la langue par défaut&#xa0;:</translation>
     </message>
     <message>
         <source>Language</source>
@@ -859,11 +862,23 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
-        <translation>En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
-        <translation>Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+    </message>
+    <message>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
+        <translation>En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
+    </message>
+    <message>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation>Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066.</translation>
+    </message>
+    <message>
+        <source>Set default language</source>
+        <translation>Définir la langue par défaut</translation>
     </message>
 </context>
 <context>
@@ -1044,7 +1059,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="obsolete">Images sélectionnées</translation>
+        <translation>Images sélectionnées</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
@@ -1068,7 +1083,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>Selected images:</source>
-        <translation>Images sélectionnées&#xa0;:</translation>
+        <translation type="obsolete">Images sélectionnées&#xa0;:</translation>
     </message>
 </context>
 <context>
@@ -1322,7 +1337,7 @@ le modèle</translation>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Précision&#xa0;:</translation>
+        <translation type="obsolete">Précision&#xa0;:</translation>
     </message>
     <message>
         <source>min</source>
@@ -1562,6 +1577,10 @@ le modèle</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Rotation 180</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation>Précision</translation>
     </message>
 </context>
 <context>

@@ -493,7 +493,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         self.addWidget(self.members['tz_offset'], 0, 2)
         # precision
         self.addWidget(
-            QtWidgets.QLabel(translate('TechnicalTab', 'Precision:')), 1, 0)
+            QtWidgets.QLabel(translate('TechnicalTab', 'Precision')), 1, 0)
         self.members['precision'] = PrecisionSlider(Qt.Horizontal)
         self.members['precision'].setRange(1, 6)
         self.members['precision'].setValue(6)

@@ -519,18 +519,14 @@ class ImageList(QtWidgets.QWidget):
         if self.thumb_size > 20:
             # old config, in pixels
             self.thumb_size = self.thumb_size // 20
-        layout = QtWidgets.QGridLayout()
-        layout.setSpacing(0)
-        layout.setRowStretch(0, 1)
-        layout.setColumnStretch(3, 1)
-        self.setLayout(layout)
-        layout.setContentsMargins(0, 0, 0, 0)
         # thumbnail display
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
         self.scroll_area = ScrollArea()
         self.scroll_area.dropped_images.connect(self.open_file_list)
         self.scroll_area.multi_row_changed.connect(
             self._ensure_selected_visible)
-        layout.addWidget(self.scroll_area, 0, 0, 1, 6)
+        self.layout().addWidget(self.scroll_area)
         QtGui2.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
                          self.scroll_area, self.move_to_prev_thumb)
         QtGui2.QShortcut(QtGui.QKeySequence.MoveToNextChar,
@@ -546,19 +542,22 @@ class ImageList(QtWidgets.QWidget):
         QtGui2.QShortcut(QtGui.QKeySequence.SelectAll,
                          self.scroll_area, self.select_all)
         # sort key selector
-        layout.addWidget(QtWidgets.QLabel(self.tr('sort by: ')), 1, 0)
+        bottom_bar = QtWidgets.QHBoxLayout()
+        self.layout().addLayout(bottom_bar)
+        bottom_bar.addWidget(QtWidgets.QLabel(self.tr('Sort by')))
         self.sort_name = QtWidgets.QRadioButton(self.tr('file name'))
         self.sort_name.clicked.connect(self._new_sort_order)
-        layout.addWidget(self.sort_name, 1, 1)
+        bottom_bar.addWidget(self.sort_name)
         self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
-        layout.addWidget(self.sort_date, 1, 2)
         self.sort_date.clicked.connect(self._new_sort_order)
+        bottom_bar.addWidget(self.sort_date)
         if self.app.config_store.get('controls', 'sort_date', False):
             self.sort_date.setChecked(True)
         else:
             self.sort_name.setChecked(True)
         # size selector
-        layout.addWidget(QtWidgets.QLabel(self.tr('thumbnail size: ')), 1, 4)
+        bottom_bar.addStretch(1)
+        bottom_bar.addWidget(QtWidgets.QLabel(self.tr('Thumbnail size')))
         self.size_slider = QtWidgets.QSlider(Qt.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
@@ -568,7 +567,7 @@ class ImageList(QtWidgets.QWidget):
         self.size_slider.setMinimumWidth(
             width_for_text(self.size_slider, 'x' * 20))
         self.size_slider.valueChanged.connect(self._new_thumb_size)
-        layout.addWidget(self.size_slider, 1, 5)
+        bottom_bar.addWidget(self.size_slider)
 
     def set_drag_to_map(self, icon, hotspot=None):
         self.drag_icon = icon

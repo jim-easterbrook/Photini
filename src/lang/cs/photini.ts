@@ -446,7 +446,7 @@ Oddělte je znaky &quot;;&quot;.</translation>
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>Řadit dle:</translation>
+        <translation type="obsolete">Řadit dle:</translation>
     </message>
     <message>
         <source>file name</source>
@@ -458,7 +458,7 @@ Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>Velikost náhledu:</translation>
+        <translation type="obsolete">Velikost náhledu:</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -539,6 +539,14 @@ v souboru</translation>
     <message>
         <source>No thumbnail in file</source>
         <translation>Žádný náhled v souboru</translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation>Řadit dle</translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Velikost náhledu</translation>
     </message>
 </context>
 <context>
@@ -834,10 +842,6 @@ vybráno</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set default language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
@@ -847,11 +851,15 @@ vybráno</numerusform>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1052,7 +1060,7 @@ poskytuje Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images:</source>
+        <source>Selected images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1285,7 +1293,7 @@ poskytuje Bing</translation>
     <name>TechnicalTab</name>
     <message>
         <source>Precision:</source>
-        <translation>Přesnost:</translation>
+        <translation type="obsolete">Přesnost:</translation>
     </message>
     <message>
         <source>min</source>
@@ -1525,6 +1533,10 @@ poskytuje Bing</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Otočit o 180°</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation>Přesnost</translation>
     </message>
 </context>
 <context>

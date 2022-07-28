@@ -430,7 +430,7 @@
     <name>ImageList</name>
     <message>
         <source>sort by: </source>
-        <translation>sortuj wg: </translation>
+        <translation type="obsolete">sortuj wg: </translation>
     </message>
     <message>
         <source>file name</source>
@@ -442,7 +442,7 @@
     </message>
     <message>
         <source>thumbnail size: </source>
-        <translation>rozmiar miniatur: </translation>
+        <translation type="obsolete">rozmiar miniatur: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -515,6 +515,14 @@
     <message>
         <source>No thumbnail in file</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sort by</source>
+        <translation>Sortuj wg</translation>
+    </message>
+    <message>
+        <source>Thumbnail size</source>
+        <translation>Rozmiar miniatur</translation>
     </message>
 </context>
 <context>
@@ -780,10 +788,6 @@ zdjęcie</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set default language:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
@@ -793,11 +797,15 @@ zdjęcie</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
+        <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
+        <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default language</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -988,7 +996,7 @@ zdjęcie</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Selected images:</source>
+        <source>Selected images</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1219,10 +1227,6 @@ zdjęcie</translation>
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>Precision:</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>min</source>
         <translation>Min</translation>
@@ -1461,6 +1465,10 @@ zdjęcie</translation>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Obrót 180</translation>
+    </message>
+    <message>
+        <source>Precision</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

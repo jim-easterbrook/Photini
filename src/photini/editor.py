@@ -255,7 +255,7 @@ class MainWindow(QtWidgets.QMainWindow):
         file_menu.addSeparator()
         sep = QtWidgets.QWidgetAction(self)
         sep.setDefaultWidget(
-            QtWidgets.QLabel(translate('MenuBar', 'Selected images:')))
+            QtWidgets.QLabel(translate('MenuBar', 'Selected images')))
         file_menu.addAction(sep)
         self.selected_actions = self.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
