@@ -9,10 +9,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.6.0\n"
+"Project-Id-Version: Photini 2022.7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-05 15:38+0100\n"
-"PO-Revision-Date: 2022-06-30 12:10+0000\n"
+"POT-Creation-Date: 2022-08-01 14:47+0100\n"
+"PO-Revision-Date: 2022-07-02 10:41+0000\n"
 "Last-Translator: fri, 2022\n"
 "Language: cs\n"
 "Language-Team: Czech (https://www.transifex.com/jim-"
@@ -39,7 +39,7 @@ msgstr ""
 "možnostech naleznete v :doc:`uživatelská příručka <manual/index>`."
 
 msgid "Copyright (C)  2012-21  Jim Easterbrook."
-msgstr "Kopírovací právo (C)  2012-21  Jim Easterbrook."
+msgstr "Kopírovací právo (C)  2012-2021  Jim Easterbrook."
 
 msgid ""
 "Permission is granted to copy, distribute and/or modify this document under "
