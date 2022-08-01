@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.7.0\n"
+"Project-Id-Version: Photini 2022.7.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-05 15:38+0100\n"
+"POT-Creation-Date: 2022-08-01 14:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -517,13 +517,16 @@ msgstr ""
 msgid "French translation by Nathan, J. Lavoie"
 msgstr ""
 
-msgid "German translation by Jan Rimmek, J. Lavoie"
+msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
+msgstr ""
+
+msgid "Korean translation by Soohyeon Park"
 msgstr ""
 
 msgid "Norwegian Bokmål translation by Allan Nordhøy"
 msgstr ""
 
-msgid "Polish translation by \"itdawid\""
+msgid "Polish translation by Dawid Głaz"
 msgstr ""
 
 msgid "Spanish translation by Esteban Martinena, Cristos Ruiz"
