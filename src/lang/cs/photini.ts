@@ -98,10 +98,6 @@
         <source>increase number of logging messages</source>
         <translation>Zvýšit počet zpráv se zápisem</translation>
     </message>
-    <message>
-        <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="obsolete">Je známo, že popisná data jsou v kódování ASCII nebo UTF-8.</translation>
-    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
@@ -136,18 +132,6 @@
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
         <translation>Zadejte krátký slovní a lidsky čitelný název obrázku, může to být název souboru.</translation>
-    </message>
-    <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
-this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="obsolete">Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje,
-může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
-    </message>
-    <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
-Separate them with &quot;;&quot; characters.</source>
-        <translation type="obsolete">Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku.
-Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
@@ -445,20 +429,12 @@ Oddělte je znaky &quot;;&quot;.</translation>
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="obsolete">Řadit dle:</translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation>Souborový název</translation>
     </message>
     <message>
         <source>date taken</source>
         <translation>Datum zachycení</translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
-        <translation type="obsolete">Velikost náhledu:</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -491,14 +467,6 @@ Oddělte je znaky &quot;;&quot;.</translation>
     <message>
         <source>View changes</source>
         <translation>Zobrazit změny</translation>
-    </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="obsolete">Žádný
-náhled
-v souboru</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
@@ -568,42 +536,6 @@ v souboru</translation>
         <translation>Formát cíle</translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation type="obsolete">Vybrat
-vše</translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation type="obsolete">Vybrat
-nový</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="obsolete">Přesunout
-fotografie</translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="obsolete">Zastavit
-přesun</translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation type="obsolete">Kopírovat
-fotografie</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="obsolete">Zastavit
-kopírování</translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation>Vybrat kořenovou složku</translation>
     </message>
@@ -635,17 +567,16 @@ kopírování</translation>
         <source>%n file(s)
 selected</source>
         <translation type="obsolete">
-            <numerusform>%n soubor
-vybrán</numerusform>
-            <numerusform>%n soubory
-vybrány</numerusform>
-            <numerusform>%n souborů
-vybráno</numerusform>
+            <numerusform>%n file
+selected</numerusform>
+            <numerusform>%n files
+selected</numerusform>
+            <numerusform></numerusform>
         <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
-        <translation></translation>
+        <translation>Zavedení fotografií nebylo dokončen.o</translation>
     </message>
     <message>
         <source>Select all</source>
@@ -704,43 +635,43 @@ vybráno</numerusform>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství</translation>
     </message>
     <message>
         <source>Attribution + non commercial</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství + neobchodní</translation>
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství + žádné odvozené</translation>
     </message>
     <message>
         <source>Attribution + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství + sdílet stejně</translation>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství + neobchodní + žádné odvozené</translation>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Přiznávání autorství + neobchodní + sdílet stejně</translation>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation>Volné použití (vzdání se kopírovacích práv, žádná licence)</translation>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrání na &amp;Ipernity</translation>
     </message>
     <message>
         <source>Ipernity</source>
-        <translation type="unfinished"></translation>
+        <translation>Ipernity</translation>
     </message>
     <message>
         <source>Who can:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kdo může:</translation>
     </message>
     <message>
         <source>Everyone (public)</source>
@@ -888,12 +819,6 @@ vybráno</numerusform>
         <translation>Přetížení serveru, zkuste to znovu</translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="obsolete">Hledání a výškové vyhledávání
-poskytuje Bing</translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Mapa (&amp;Bing)</translation>
     </message>
@@ -904,10 +829,6 @@ poskytuje Bing</translation>
 </context>
 <context>
     <name>MapTabGoogle</name>
-    <message>
-        <source>Search and altitude lookup</source>
-        <translation type="obsolete">Hledání a výškové vyhledávání</translation>
-    </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
@@ -950,11 +871,6 @@ poskytuje Bing</translation>
     <message>
         <source>&lt;widen search&gt;</source>
         <translation>&lt;widen search&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
-        <translation type="obsolete">&lt;repeat search&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -1292,10 +1208,6 @@ poskytuje Bing</translation>
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="obsolete">Přesnost:</translation>
-    </message>
-    <message>
         <source>min</source>
         <translation>min</translation>
     </message>
@@ -1362,38 +1274,6 @@ poskytuje Bing</translation>
     <message>
         <source>Other</source>
         <translation>Jiné</translation>
-    </message>
-    <message>
-        <source>normal</source>
-        <translation type="obsolete">Normální</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="obsolete">Otočit o -90°</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="obsolete">Otočit o +90°</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="obsolete">Otočit o 180°</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="obsolete">Odrážet vlevo-vpravo</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="obsolete">Odrážet nahoře-dole</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="obsolete">Odrážet tr-bl</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="obsolete">Odrážet tl-br</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1465,41 +1345,6 @@ poskytuje Bing</translation>
         <translation>Normální</translation>
     </message>
     <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Otočit o -90°</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Otočit o +90°</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Otočit o 180°</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <comment>orientation dropdown, horizontal reflection</comment>
-        <translation type="obsolete">Odrážet vlevo-vpravo</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <comment>orientation dropdown, vertical reflection</comment>
-        <translation type="obsolete">Odrážet nahoře-dole</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation type="obsolete">Odrážet tr-bl</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation type="obsolete">Odrážet tl-br</translation>
-    </message>
-    <message>
         <source>reflect left to right</source>
         <comment>orientation dropdown, horizontal reflection</comment>
         <translation>Odrážet vlevo-vpravo</translation>
@@ -1512,12 +1357,12 @@ poskytuje Bing</translation>
     <message>
         <source>reflect top right to bottom left</source>
         <comment>orientation dropdown, diagonal reflection</comment>
-        <translation type="unfinished">Odrážet tr-bl</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>reflect top left to bottom right</source>
         <comment>orientation dropdown, diagonal reflection</comment>
-        <translation type="unfinished">Odrážet tl-br</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
         <source>rotate -90°</source>
