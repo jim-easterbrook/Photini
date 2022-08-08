@@ -675,11 +675,11 @@ selected</numerusform>
     </message>
     <message>
         <source>Everyone (public)</source>
-        <translation type="unfinished"></translation>
+        <translation>Všichni (veřejné)</translation>
     </message>
     <message>
         <source>Only you (private)</source>
-        <translation type="unfinished"></translation>
+        <translation>Pouze vy (soukromé)</translation>
     </message>
     <message>
         <source>Friends</source>
@@ -691,19 +691,19 @@ selected</numerusform>
     </message>
     <message>
         <source>see the photo</source>
-        <translation type="unfinished"></translation>
+        <translation>podívat se na fotografii</translation>
     </message>
     <message>
         <source>post a comment</source>
-        <translation type="unfinished"></translation>
+        <translation>přidat poznámku</translation>
     </message>
     <message>
         <source>add keywords, notes</source>
-        <translation type="unfinished"></translation>
+        <translation>přidat klíčová slova, poznámky</translation>
     </message>
     <message>
         <source>identify people</source>
-        <translation type="unfinished"></translation>
+        <translation>ztotožnit lidi</translation>
     </message>
     <message>
         <source>Licence</source>
@@ -723,7 +723,7 @@ selected</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -735,11 +735,11 @@ selected</numerusform>
     </message>
     <message>
         <source>Change who can comment or tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Změnit, kdo může přidat poznámku nebo značku</translation>
     </message>
     <message>
         <source>Change the licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Změnit povolení</translation>
     </message>
     <message>
         <source>Change album membership</source>
@@ -747,7 +747,7 @@ selected</numerusform>
     </message>
     <message>
         <source>Create new Ipernity album</source>
-        <translation type="unfinished"></translation>
+        <translation>Vytvořit nové album na Ipernity</translation>
     </message>
     <message>
         <source>Title</source>
@@ -763,35 +763,35 @@ selected</numerusform>
     </message>
     <message>
         <source>Who can comment on album</source>
-        <translation type="unfinished"></translation>
+        <translation>Kdo se může k albu vyjádřit</translation>
     </message>
 </context>
 <context>
     <name>LangAltWidget</name>
     <message>
         <source>New language</source>
-        <translation type="unfinished"></translation>
+        <translation>Nový jazyk</translation>
     </message>
     <message>
         <source>Language</source>
-        <translation type="unfinished"></translation>
+        <translation>Jazyk</translation>
     </message>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Jazyk:</translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>V jakém jazyce je nynější text? Zadejte, prosím, jazykovou značku RFC3066.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>Jaký jazyk byste chtěli přidat? Zadejte, prosím, jazykovou značku RFC3066.</translation>
     </message>
     <message>
         <source>Set default language</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit výchozí jazyk</translation>
     </message>
 </context>
 <context>
@@ -874,15 +874,15 @@ selected</numerusform>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
+        <translation>Nahrát soubor GPX</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
+        <translation>Nastavit souřadnice z GPX</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
+        <translation>Odstranit data GPX</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -953,31 +953,31 @@ selected</numerusform>
     </message>
     <message>
         <source>Close all files</source>
-        <translation type="unfinished"></translation>
+        <translation>Zavřít všechny soubory</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
-        <translation type="unfinished"></translation>
+        <translation>Opravit chybějící náhledy</translation>
     </message>
     <message>
         <source>Check for update</source>
-        <translation type="unfinished"></translation>
+        <translation>Podívat se po nejnovější verzi</translation>
     </message>
     <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: ověření verze</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation type="unfinished"></translation>
+        <translation>V současné době používáte Photini verze {0}. Nejnovější vydání je {1}.</translation>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"></translation>
+        <translation>Vybrané obrázky</translation>
     </message>
 </context>
 <context>
@@ -995,23 +995,23 @@ selected</numerusform>
     <name>OwnerTab</name>
     <message encoding="UTF-8">
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &quot;©2008 Jane Doe&quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte jméno osoby, která tento obrázek vytvořila.</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Popis &amp;vlastnictví</translation>
     </message>
     <message>
         <source>Creator</source>
-        <translation type="unfinished"></translation>
+        <translation>Tvůrce</translation>
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zadejte pracovní místo osoby uvedené v poli Tvůrce.</translation>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
