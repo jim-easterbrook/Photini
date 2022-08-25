@@ -841,7 +841,7 @@ class LangAltDict(dict):
     # Modified dict that keeps track of a default language.
     def __init__(self, value={}):
         if isinstance(value, str):
-            value = {'x-default': value}
+            value = {'x-default': value.strip()}
         super(LangAltDict, self).__init__(value or {})
         self._default_lang = ''
         if isinstance(value, LangAltDict):
