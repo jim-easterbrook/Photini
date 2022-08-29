@@ -982,6 +982,8 @@ class MD_LangAlt(LangAltDict, MD_Value):
     def to_xmp(self):
         if not self:
             return None
+        if len(self) == 1:
+            return dict(self)
         default_lang = self.langs()[0]
         result = {'x-default': self[default_lang],
                   default_lang: self[default_lang]}
