@@ -609,10 +609,20 @@ class LangAltWidget(QtWidgets.QWidget):
     def set_value(self, value):
         self.lang.setEnabled(True)
         self.value = LangAltDict(value)
-        # set language drop down
+        # use current language, if available
         lang = self.lang.get_value()
         if lang not in self.value:
+            # choose language from locale
+            lang = QtCore.QLocale.system().bcp47Name()
+            if lang not in self.value:
+                base_lang = lang.split('-')[0]
+                for lang in self.value:
+                    if lang.split('-')[0] == base_lang:
+                        break
+        if lang not in self.value:
+            # use the default for this value
             lang = self.value.langs()[0]
+        # set language drop down
         self.lang.set_values(
             [self.labeled_lang(x) for x in self.value.langs()],
             default=lang)
