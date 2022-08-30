@@ -521,6 +521,9 @@ class LangAltWidget(QtWidgets.QWidget):
         # ... and vice versa
         self.lang.define_new_value = self._define_new_lang
 
+    def setToolTip(self, text):
+        self.edit.setToolTip(text)
+
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
