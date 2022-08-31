@@ -107,7 +107,7 @@ Using a virtual environment has other advantages, such as easy uninstallation, s
 
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
-All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 or PySide2 or PyQt5 (whichever is available) with the package manager so that you get the same GUI style as other Qt based applications.
+All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 or PySide2 or PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins and so that you get the same GUI style as other Qt based applications.
 
 Virtual environment
 ^^^^^^^^^^^^^^^^^^^
@@ -237,6 +237,13 @@ Now you should be able to run photini:
 
 Photini should run successfully, but it lists some optional dependencies that are not installed.
 These provide additional features, for example the Flickr uploader, that not all users will need to install.
+
+Missing system packages
+"""""""""""""""""""""""
+
+On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run if you've installed PySide2 or PySide6 with pip_ instead of the system's package manager.
+In this case it may be worth doing a web search for the error messages you get.
+For example, failing to load a Qt plugin (on Debian) can be cured by installing just one system package (``libxcb-xinerama0``) but the error message doesn't tell you that!
 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
@@ -558,7 +565,8 @@ Python_                        3.6                python3
 PyQt_ [1]                      5.9                python3-qt5 or python3-pyqt5  PyQt5
 PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
 PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
-QtWebEngine_ or QtWebKit_ [2]                     python3-pyqt5.qtwebkit        PyQtWebEngine
+QtWebEngine_ or QtWebKit_ [2]                     python3-pyside2.qtwebengine   PyQtWebEngine
+                                                  or python3-pyqt5.qtwebkit
 `python-exiv2`_                0.11.0                                           exiv2
 appdirs                        1.3                python3-appdirs               appdirs
 requests_                      2.4                python3-requests              requests
