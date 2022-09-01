@@ -16,18 +16,80 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
+import importlib
 import logging
 from optparse import OptionParser
 import os
+import site
 import subprocess
 import sys
 
 import pkg_resources
 
+from photini.configstore import BaseConfigStore
+
 
 logger = logging.getLogger(__name__)
+
+
+def configure(argv=None):
+    install_extras = []
+    ## Qt library choice is complicated
+    print('Which Qt package would you like to use?')
+    packages = ['PyQt5', 'PySide2', 'PySide6']
+    # get installed Qt packages
+    installed = []
+    for package in packages:
+        try:
+            importlib.import_module(package + '.QtCore')
+            installed.append(package)
+        except ImportError:
+            pass
+    # can't install PyQt5 with pip
+    if packages[0] not in installed:
+        packages = packages[1:]
+    # get user choice
+    choices = []
+    for n, package in enumerate(packages):
+        print('  {} {} [{}installed]'.format(
+            n, package, ('not ', '')[package in installed]))
+        choices.append(str(n))
+    while True:
+        choice = input('Choose {}: '.format('/'.join(choices)))
+        if choice in choices:
+            break
+    choice = packages[int(choice)]
+    # set config
+    config = BaseConfigStore('editor')
+    config.set('pyqt', 'qt_lib', choice)
+    config.save()
+    # add to installation list
+    if choice not in installed:
+        install_extras.append(choice)
+    ## Other options are simpler
+    options = [('flickr', 'upload pictures to Flickr'),
+               ('google', 'upload pictures to Google Photos'),
+               ('ipernity', 'upload pictures to Ipernity'),
+               ('spelling', 'check spelling of metadata'),
+               ('gpxpy', 'import GPS track data'),
+               ('Pillow', 'make higher quality thumbnails')]
+    if sys.platform != 'win32':
+        options.append(('importer', 'import pictures from a camera'))
+    for name, description in options:
+        choice = input('Would you like to {}? (y/n): '.format(description))
+        if choice not in ('y', 'Y'):
+            continue
+        install_extras.append(name)
+    # install packages
+    if not install_extras:
+        return 0
+    cmd = [sys.executable, '-m', 'pip', 'install']
+    if not os.access(site.getsitepackages()[0], os.W_OK):
+        cmd.append('--user')
+    cmd.append('photini[{}]'.format(','.join(install_extras)))
+    print(' '.join(cmd))
+    subprocess.check_call(cmd)
+    return 0
 
 
 def post_install(argv=None):

@@ -29,6 +29,11 @@ extras_require = {
     'importer' : ['gphoto2; platform_system != "Windows"'],
     'ipernity' : ['requests-toolbelt', 'keyring'],
     'spelling' : ['pyenchant'],
+    # the following are intended for use by the photini-configure script
+    'PySide2'  : ['PySide2'],
+    'PySide6'  : ['PySide6'],
+    'gpxpy'    : ['gpxpy'],
+    'Pillow'   : ['Pillow'],
     }
 extras_require['extras'] = list(
     set(extras_require['flickr']) | set(extras_require['google']) |
@@ -91,6 +96,7 @@ setup(name = 'Photini',
       package_data = {'photini' : package_data},
       entry_points = {
           'console_scripts' : [
+              'photini-configure = photini.scripts:configure',
               'photini-post-install = photini.scripts:post_install',
               ],
           'gui_scripts' : [
