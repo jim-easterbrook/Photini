@@ -197,8 +197,10 @@ To enable BMFF file reading, edit the configuration file and set the ``enable_bm
    [metadata]
    enable_bmff = True
 
-.. _Exiv2 warning:          https://github.com/exiv2/exiv2#2-19
-.. _IPTC standard:          http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+.. _Exiv2 warning:
+    https://github.com/exiv2/exiv2#support-for-bmff-files-cr3-heif-heic-and-avif
+.. _IPTC standard:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
 .. _LibreOffice dictionaries:
-        https://cgit.freedesktop.org/libreoffice/dictionaries/tree/
+    https://cgit.freedesktop.org/libreoffice/dictionaries/tree/
 .. _Metadata Working Group: https://en.wikipedia.org/wiki/Metadata_Working_Group
