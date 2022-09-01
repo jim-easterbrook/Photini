@@ -118,7 +118,7 @@ I use the name ``photini`` and create it in my home directory:
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ python3 -m venv photini
+        jim@mint:~$ python3 -m venv photini --system-site-packages
         jim@mint:~$ source photini/bin/activate
         (photini) jim@mint:~$ python3 -m pip install -U pip
     .. code-tab:: none Windows
@@ -128,6 +128,7 @@ I use the name ``photini`` and create it in my home directory:
         (photini) C:\Users\Jim>python -m pip install -U pip
 
 Note that pip may need to be updated again from within the virtual environment.
+The ``--system-site-packages`` option makes packages installed with the Linux or MacOS package manager (e.g. PySide2) available within the virtual environment.
 You should stay in this virtual environment while installing and testing Photini.
 
 Minimal installation
