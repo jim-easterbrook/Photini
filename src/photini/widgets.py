@@ -568,7 +568,11 @@ class LangAltWidget(QtWidgets.QWidget):
             self.value[lang] = self.value[lang]
         else:
             self.value[lang] = ''
-        self.new_value.emit(self.edit._key, self.get_value())
+        if 'x-default' in self.value and not self.value['x-default']:
+            del self.value['x-default']
+            self.value.set_default_lang(lang)
+        else:
+            self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
