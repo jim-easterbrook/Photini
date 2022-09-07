@@ -527,7 +527,7 @@ class LangAltWidget(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def _change_lang(self, key, lang):
-        if lang == 'x-default':
+        if lang == LangAltDict.DEFAULT:
             direction = self.layoutDirection()
         else:
             direction = QtCore.QLocale(lang).textDirection()
@@ -547,32 +547,27 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(key, self.get_value())
 
     def _define_new_lang(self):
-        if 'x-default' in self.value and self.value['x-default']:
-            self.edit.set_value(self.value['x-default'])
+        prompt = QtCore.QLocale.system().bcp47Name()
+        if prompt in self.value:
+            prompt = None
+        if LangAltDict.DEFAULT in self.value and self.value[LangAltDict.DEFAULT]:
+            self.edit.set_value(self.value[LangAltDict.DEFAULT])
             lang, OK = QtWidgets.QInputDialog.getText(
                 self, self.tr('New language'), wrap_text(self, self.tr(
                     'What language is the current text in?'
-                    ' Please enter an RFC3066 language tag.'), 2),
-                text=QtCore.QLocale.system().bcp47Name())
+                    ' Please enter an RFC3066 language tag.'), 2), text=prompt)
             if not (OK and lang):
                 return None, None
             self._set_default_lang(lang)
+            prompt = None
         lang, OK = QtWidgets.QInputDialog.getText(
             self, self.tr('New language'), wrap_text(self, self.tr(
                 'What language would you like to add?'
-                ' Please enter an RFC3066 language tag.'), 2))
+                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
-        if lang in self.value:
-            # user might have changed case of lang descriptor
-            self.value[lang] = self.value[lang]
-        else:
-            self.value[lang] = ''
-        if 'x-default' in self.value and not self.value['x-default']:
-            del self.value['x-default']
-            self.value.set_default_lang(lang)
-        else:
-            self.new_value.emit(self.edit._key, self.get_value())
+        self.value[lang] = ''
+        self.new_value.emit(self.edit._key, self.get_value())
         return self.labeled_lang(lang)
 
     @QtSlot(QtCore.QPoint)
@@ -581,12 +576,11 @@ class LangAltWidget(QtWidgets.QWidget):
         langs = []
         for n in range(self.lang.count()):
             lang = self.lang.itemData(n)
-            if n == 0:
-                default_lang = lang
-            if lang and lang != 'x-default':
+            if lang and lang != LangAltDict.DEFAULT:
                 langs.append(lang)
         if not langs:
             return
+        default_lang = self.value.get_default_lang()
         menu = QtWidgets.QMenu()
         menu.addAction(self.tr('Set default language'))
         for lang in langs:
@@ -603,7 +597,7 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, self.get_value())
 
     def labeled_lang(self, lang):
-        if lang == 'x-default':
+        if lang == LangAltDict.DEFAULT:
             label = self.tr('Language')
         else:
             label = self.tr('Lang: ',
@@ -625,11 +619,10 @@ class LangAltWidget(QtWidgets.QWidget):
                         break
         if lang not in self.value:
             # use the default for this value
-            lang = self.value.langs()[0]
+            lang = self.value.get_default_lang()
         # set language drop down
         self.lang.set_values(
-            [self.labeled_lang(x) for x in self.value.langs()],
-            default=lang)
+            [self.labeled_lang(x) for x in self.value], default=lang)
         self._change_lang('', lang)
 
     def get_value(self):

@@ -839,32 +839,20 @@ class MD_MultiLocation(tuple):
 
 class LangAltDict(dict):
     # Modified dict that keeps track of a default language.
+    DEFAULT = 'x-default'
+
     def __init__(self, value={}):
-        if isinstance(value, str):
-            value = {'x-default': value.strip()}
-        super(LangAltDict, self).__init__(value or {})
+        super(LangAltDict, self).__init__()
         self._default_lang = ''
+        if isinstance(value, str):
+            value = {self.DEFAULT: value.strip()}
+        else:
+            value = value or {self.DEFAULT: ''}
+        for k, v in value.items():
+            if v or k == self.DEFAULT:
+                self[k] = v
         if isinstance(value, LangAltDict):
             self._default_lang = value._default_lang
-        # Check for duplicate of 'x-default' value
-        dflt_key = self.find_key('x-default')
-        if dflt_key:
-            dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
-            if dflt_value:
-                super(LangAltDict, self).__delitem__(dflt_key)
-                for key, value in self.items():
-                    if value == dflt_value:
-                        self._default_lang = key
-                        break
-                else:
-                    super(LangAltDict, self).__setitem__(
-                        'x-default', dflt_value)
-        elif len(self) == 1:
-            # only one item, and it's not 'x-default'
-            self._default_lang = list(self.keys())[0]
-        # Make sure we're not empty
-        if len(self) == 0:
-            super(LangAltDict, self).__setitem__('x-default', '')
         # set default_lang
         if self._default_lang:
             return
@@ -894,7 +882,9 @@ class LangAltDict(dict):
     def __getitem__(self, key):
         old_key = self.find_key(key)
         if old_key:
-            return super(LangAltDict, self).__getitem__(old_key)
+            key = old_key
+        else:
+            self[key] = ''
         return super(LangAltDict, self).__getitem__(key)
 
     def __setitem__(self, key, value):
@@ -903,13 +893,17 @@ class LangAltDict(dict):
             # new key does not have same case as old one
             if self._default_lang == old_key:
                 self._default_lang = key
-            super(LangAltDict, self).__delitem__(old_key)
+            del self[old_key]
         super(LangAltDict, self).__setitem__(key, value)
-
-    def __delitem__(self, key):
-        if self._default_lang == key:
-            self._default_lang = ''
-        super(LangAltDict, self).__delitem__(key)
+        # Check for empty or duplicate 'x-default' value
+        dflt_key = self.find_key(self.DEFAULT)
+        if dflt_key == key or not dflt_key:
+            return
+        dflt_value = super(LangAltDict, self).__getitem__(dflt_key)
+        if (not dflt_value) or (dflt_value == value):
+            if self._default_lang == dflt_key:
+                self._default_lang = key
+            del self[dflt_key]
 
     def __bool__(self):
         return any(self.values())
@@ -925,47 +919,44 @@ class LangAltDict(dict):
 
     def __str__(self):
         result = []
-        for key in self.langs():
-            if key != 'x-default':
+        for key in self:
+            if key != self.DEFAULT:
                 result.append('-- {} --'.format(key))
             result.append(self[key])
         return '\n'.join(result)
 
     def _sort_key(self, key):
         key = key.lower()
-        if key == 'x-default':
+        if key == self.DEFAULT:
             return ' '
         if key == self._default_lang.lower():
             return '!'
         return key
 
-    def langs(self):
-        result = list(self.keys())
+    def keys(self):
+        result = list(super(LangAltDict, self).keys())
         result.sort(key=self._sort_key)
         return result
 
-    def default_text(self):
-        if not self:
-            return ''
-        return self[self.langs()[0]]
+    def __iter__(self):
+        return iter(self.keys())
+
+    def get_default_lang(self):
+        return self._default_lang or self.DEFAULT
 
     def set_default_lang(self, lang):
-        new_value = ''
-        key = self.find_key(lang)
-        if key:
-            new_value = super(LangAltDict, self).__getitem__(key)
-            super(LangAltDict, self).__delitem__(key)
-        old_value = ''
-        key = self.find_key('x-default')
-        if key:
-            old_value = super(LangAltDict, self).__getitem__(key)
-            super(LangAltDict, self).__delitem__(key)
+        self._default_lang = lang
+        new_value = self[lang]
+        key = self.find_key(self.DEFAULT)
+        if not key:
+            return
+        old_value = super(LangAltDict, self).__getitem__(key)
+        del self[key]
         if new_value in old_value:
             new_value = old_value
         elif old_value not in new_value:
             new_value += ' // ' + old_value
-        self._default_lang = lang
-        super(LangAltDict, self).__setitem__(lang, new_value)
+        self[lang] = new_value
 
 
 class MD_LangAlt(LangAltDict, MD_Value):
@@ -977,15 +968,17 @@ class MD_LangAlt(LangAltDict, MD_Value):
 
     def to_exif(self):
         # Xmp spec says to store only the default language in Exif
-        return self.default_text()
+        if not self:
+            return None
+        return self[self.get_default_lang()]
 
     def to_xmp(self):
         if not self:
             return None
         if len(self) == 1:
             return dict(self)
-        default_lang = self.langs()[0]
-        result = {'x-default': self[default_lang],
+        default_lang = self.get_default_lang()
+        result = {self.DEFAULT: self[default_lang],
                   default_lang: self[default_lang]}
         # don't save empty values
         for k, v in self.items():
@@ -999,7 +992,7 @@ class MD_LangAlt(LangAltDict, MD_Value):
             return self
         result = LangAltDict(self)
         for key, value in other.items():
-            if key == 'x-default':
+            if key == self.DEFAULT:
                 # try to find matching value
                 for k, v in result.items():
                     if value in v or v in value:
