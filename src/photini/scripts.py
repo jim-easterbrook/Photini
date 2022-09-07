@@ -62,24 +62,28 @@ def configure(argv=None):
     # set config
     config = BaseConfigStore('editor')
     config.set('pyqt', 'qt_lib', choice)
-    config.save()
     # add to installation list
     if choice not in installed:
         install_extras.append(choice)
     ## Other options are simpler
-    options = [('flickr', 'upload pictures to Flickr'),
-               ('google', 'upload pictures to Google Photos'),
-               ('ipernity', 'upload pictures to Ipernity'),
-               ('spelling', 'check spelling of metadata'),
-               ('gpxpy', 'import GPS track data'),
-               ('Pillow', 'make higher quality thumbnails')]
+    options = [('flickr', 'photini.flickr', 'upload pictures to Flickr'),
+               ('google', 'photini.googlephotos',
+                'upload pictures to Google Photos'),
+               ('ipernity', 'photini.ipernity', 'upload pictures to Ipernity'),
+               ('spelling', None, 'check spelling of metadata'),
+               ('gpxpy', None, 'import GPS track data'),
+               ('Pillow', None, 'make higher quality thumbnails')]
     if sys.platform != 'win32':
-        options.append(('importer', 'import pictures from a camera'))
-    for name, description in options:
+        options.append(
+            ('importer', 'photini.importer', 'import pictures from a camera'))
+    for name, module, description in options:
         choice = input('Would you like to {}? (y/n): '.format(description))
         if choice not in ('y', 'Y'):
             continue
         install_extras.append(name)
+        if module:
+            config.set('tabs', module, True)
+    config.save()
     # install packages
     if not install_extras:
         return 0
