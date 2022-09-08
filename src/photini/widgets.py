@@ -552,6 +552,7 @@ class LangAltWidget(QtWidgets.QWidget):
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:
             prompt = None
+        self.lang.set_value(LangAltDict.DEFAULT)
         self.edit.set_value(self.value[LangAltDict.DEFAULT])
         lang, OK = QtWidgets.QInputDialog.getText(
             self, self.tr('New language'), wrap_text(self, self.tr(
@@ -607,10 +608,13 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def labeled_lang(self, lang):
         if lang == LangAltDict.DEFAULT:
-            label = self.tr('Language')
+            if len(self.value) == 1:
+                return self.tr('Language'), lang
+            label = '-'
         else:
-            label = self.tr('Lang: ',
-                            'Short abbreviation of "Language: "') + lang
+            label = lang
+        label = self.tr('Lang: ',
+                        'Short abbreviation of "Language: "') + label
         return label, lang
 
     def set_value(self, value):
