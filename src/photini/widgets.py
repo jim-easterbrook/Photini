@@ -546,19 +546,26 @@ class LangAltWidget(QtWidgets.QWidget):
             self.value[self.lang.get_value()] = value
         self.new_value.emit(key, self.get_value())
 
-    def _define_new_lang(self):
+    def _regularise_default(self):
+        if LangAltDict.DEFAULT not in self.value or not self.value[LangAltDict.DEFAULT]:
+            return True
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:
             prompt = None
-        if LangAltDict.DEFAULT in self.value and self.value[LangAltDict.DEFAULT]:
-            self.edit.set_value(self.value[LangAltDict.DEFAULT])
-            lang, OK = QtWidgets.QInputDialog.getText(
-                self, self.tr('New language'), wrap_text(self, self.tr(
-                    'What language is the current text in?'
-                    ' Please enter an RFC3066 language tag.'), 2), text=prompt)
-            if not (OK and lang):
-                return None, None
+        self.edit.set_value(self.value[LangAltDict.DEFAULT])
+        lang, OK = QtWidgets.QInputDialog.getText(
+            self, self.tr('New language'), wrap_text(self, self.tr(
+                'What language is the current text in?'
+                ' Please enter an RFC3066 language tag.'), 2), text=prompt)
+        if OK and lang:
             self._set_default_lang(lang)
+        return OK
+
+    def _define_new_lang(self):
+        if not self._regularise_default():
+            return None, None
+        prompt = QtCore.QLocale.system().bcp47Name()
+        if prompt in self.value:
             prompt = None
         lang, OK = QtWidgets.QInputDialog.getText(
             self, self.tr('New language'), wrap_text(self, self.tr(
@@ -589,6 +596,8 @@ class LangAltWidget(QtWidgets.QWidget):
             action.setChecked(lang == default_lang)
         action = execute(menu, self.lang.mapToGlobal(pos))
         if not (action and action.isCheckable()):
+            return
+        if not self._regularise_default():
             return
         self._set_default_lang(action.text())
 
