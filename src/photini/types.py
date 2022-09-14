@@ -941,6 +941,9 @@ class LangAltDict(dict):
     def __iter__(self):
         return iter(self.keys())
 
+    def default_text(self):
+        return self[self.keys()[0]]
+
     def get_default_lang(self):
         return self._default_lang or self.DEFAULT
 
@@ -970,7 +973,7 @@ class MD_LangAlt(LangAltDict, MD_Value):
         # Xmp spec says to store only the default language in Exif
         if not self:
             return None
-        return self[self.get_default_lang()]
+        return self.default_text()
 
     def to_xmp(self):
         if not self:
