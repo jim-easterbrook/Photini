@@ -379,6 +379,10 @@
         <source>File too large.</source>
         <translation>Fitxer massa gran.</translation>
     </message>
+    <message>
+        <source>Virtual Photography</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>

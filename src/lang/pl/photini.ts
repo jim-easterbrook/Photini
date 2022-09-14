@@ -379,6 +379,10 @@
         <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Virtual Photography</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>

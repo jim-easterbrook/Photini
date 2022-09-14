@@ -395,6 +395,10 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <source>File too large.</source>
         <translation>Fichier trop volumineux.</translation>
     </message>
+    <message>
+        <source>Virtual Photography</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>

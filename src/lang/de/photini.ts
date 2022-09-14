@@ -395,6 +395,10 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <source>File too large.</source>
         <translation>Datei zu groß.</translation>
     </message>
+    <message>
+        <source>Virtual Photography</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>GooglePhotosTab</name>
