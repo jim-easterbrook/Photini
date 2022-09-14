@@ -406,7 +406,8 @@ class TabWidget(PhotiniUploader):
             'content_type', values=(
                 (translate('FlickrTab', 'Photo'), '1'),
                 (translate('FlickrTab', 'Screenshot'), '2'),
-                (translate('FlickrTab', 'Art/Illustration'), '3')),
+                (translate('FlickrTab', 'Art/Illustration'), '3'),
+                (translate('FlickrTab', 'Virtual Photography'), '4')),
             default='1', with_multiple=False)
         group.layout().addRow(translate('FlickrTab', 'Content type'),
                               self.widget['content_type'])
