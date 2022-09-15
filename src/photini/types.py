@@ -845,12 +845,13 @@ class LangAltDict(dict):
         super(LangAltDict, self).__init__()
         self._default_lang = ''
         if isinstance(value, str):
-            value = {self.DEFAULT: value.strip()}
-        else:
-            value = value or {self.DEFAULT: ''}
+            value = value.strip()
+        if not value:
+            value = {QtCore.QLocale.system().bcp47Name() or self.DEFAULT: ''}
+        elif isinstance(value, str):
+            value = {self.DEFAULT: value}
         for k, v in value.items():
-            if v or k == self.DEFAULT:
-                self[k] = v
+            self[k] = v
         if isinstance(value, LangAltDict):
             self._default_lang = value._default_lang
         # set default_lang
