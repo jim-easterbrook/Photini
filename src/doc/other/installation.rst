@@ -128,88 +128,115 @@ I use the name ``photini`` and create it in my home directory:
         (photini) C:\Users\Jim>python -m pip install -U pip
 
 Note that pip may need to be updated again from within the virtual environment.
-The ``--system-site-packages`` option makes packages installed with the Linux or MacOS package manager (e.g. PySide2) available within the virtual environment.
+The Linux/MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide2) available within the virtual environment.
 You should stay in this virtual environment while installing and testing Photini.
 
-Minimal installation
+Initial installation
 ^^^^^^^^^^^^^^^^^^^^
 
-Photini and a set of essential dependencies can all be installed with pip_:
+.. versionadded:: 2022.9.0
+    The ``photini-configure`` post installation script can be used to install most dependencies and configure Photini to use them.
+
+Firstly install Photini with pip_:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ pip3 install photini exiv2 pyside2
+        (photini) jim@mint:~$ pip3 install photini
         Collecting photini
-          Downloading Photini-2022.3.2-py3-none-any.whl (303 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 303.3/303.3 KB 453.8 kB/s eta 0:00:00
-        Collecting exiv2
-          Downloading exiv2-0.11.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (8.0 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.0/8.0 MB 646.1 kB/s eta 0:00:00
-        Collecting pyside2
-          Downloading PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-manylinux1_x86_64.whl (164.3 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 164.3/164.3 MB 559.6 kB/s eta 0:00:00
-        Collecting requests>=2.4.0
-          Downloading requests-2.27.1-py2.py3-none-any.whl (63 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 63.1/63.1 KB 255.3 kB/s eta 0:00:00
+          Downloading Photini-2022.9.0-py3-none-any.whl (324 kB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 324.9/324.9 kB 443.5 kB/s eta 0:00:00
+        Collecting exiv2>=0.11.0
+          Downloading exiv2-0.11.3-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (8.0 MB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.0/8.0 MB 903.7 kB/s eta 0:00:00
         Collecting cachetools>=3.0
-          Downloading cachetools-5.0.0-py3-none-any.whl (9.1 kB)
+          Downloading cachetools-5.2.0-py3-none-any.whl (9.3 kB)
+        Requirement already satisfied: requests>=2.4.0 in /usr/lib/python3/dist-packages (from photini) (2.22.0)
         Collecting appdirs>=1.3
           Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
-        Collecting shiboken2==5.15.2.1
-          Downloading shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-abi3-manylinux1_x86_64.whl (975 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 975.4/975.4 KB 603.7 kB/s eta 0:00:00
-        Collecting charset-normalizer~=2.0.0
-          Downloading charset_normalizer-2.0.12-py3-none-any.whl (39 kB)
-        Collecting idna<4,>=2.5
-          Downloading idna-3.3-py3-none-any.whl (61 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.2/61.2 KB 290.0 kB/s eta 0:00:00
-        Collecting urllib3<1.27,>=1.21.1
-          Downloading urllib3-1.26.9-py2.py3-none-any.whl (138 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.0/139.0 KB 419.8 kB/s eta 0:00:00
-        Collecting certifi>=2017.4.17
-          Downloading certifi-2021.10.8-py2.py3-none-any.whl (149 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 149.2/149.2 KB 432.8 kB/s eta 0:00:00
-        Installing collected packages: exiv2, certifi, appdirs, urllib3, shiboken2, idna, charset-normalizer, cachetools, requests, pyside2, photini
-        Successfully installed appdirs-1.4.4 cachetools-5.0.0 certifi-2021.10.8 charset-normalizer-2.0.12 exiv2-0.11.0 idna-3.3 photini-2022.3.2 pyside2-5.15.2.1 requests-2.27.1 shiboken2-5.15.2.1 urllib3-1.26.9
+        Installing collected packages: exiv2, appdirs, cachetools, photini
+        Successfully installed appdirs-1.4.4 cachetools-5.2.0 exiv2-0.11.3 photini-2022.9.0
     .. code-tab:: none Windows
 
-        C:\Users\Jim>pip install photini exiv2 pyside2
+        C:\Users\Jim>pip install photini
         Collecting photini
-          Downloading Photini-2022.3.2-py3-none-any.whl (303 kB)
-             ------------------------------------ 303.3/303.3 KB 469.0 kB/s eta 0:00:00
-        Collecting exiv2
-          Downloading exiv2-0.11.0-cp38-cp38-win_amd64.whl (1.7 MB)
-             ---------------------------------------- 1.7/1.7 MB 615.1 kB/s eta 0:00:00
-        Collecting pyside2
-          Downloading PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win_amd64.whl (137.4 MB)
-             ------------------------------------ 137.4/137.4 MB 539.3 kB/s eta 0:00:00
+          Downloading Photini-2022.9.0-py3-none-any.whl (324 kB)
+             ------------------------------------ 324.9/324.9 kB 718.5 kB/s eta 0:00:00
+        Collecting cachetools>=3.0
+          Downloading cachetools-5.2.0-py3-none-any.whl (9.3 kB)
+        Collecting exiv2>=0.11.0
+          Downloading exiv2-0.11.3-cp38-cp38-win_amd64.whl (1.7 MB)
+             ---------------------------------------- 1.7/1.7 MB 826.9 kB/s eta 0:00:00
         Collecting appdirs>=1.3
           Downloading appdirs-1.4.4-py2.py3-none-any.whl (9.6 kB)
-        Collecting cachetools>=3.0
-          Downloading cachetools-5.0.0-py3-none-any.whl (9.1 kB)
         Collecting requests>=2.4.0
-          Downloading requests-2.27.1-py2.py3-none-any.whl (63 kB)
-             -------------------------------------- 63.1/63.1 KB 211.6 kB/s eta 0:00:00
+          Downloading requests-2.28.1-py3-none-any.whl (62 kB)
+             -------------------------------------- 62.8/62.8 kB 420.8 kB/s eta 0:00:00
+        Collecting idna<4,>=2.5
+          Downloading idna-3.4-py3-none-any.whl (61 kB)
+             -------------------------------------- 61.5/61.5 kB 205.2 kB/s eta 0:00:00
+        Collecting charset-normalizer<3,>=2
+          Downloading charset_normalizer-2.1.1-py3-none-any.whl (39 kB)
+        Collecting certifi>=2017.4.17
+          Downloading certifi-2022.9.24-py3-none-any.whl (161 kB)
+             ------------------------------------ 161.1/161.1 kB 482.0 kB/s eta 0:00:00
+        Collecting urllib3<1.27,>=1.21.1
+          Downloading urllib3-1.26.12-py2.py3-none-any.whl (140 kB)
+             ------------------------------------ 140.4/140.4 kB 461.5 kB/s eta 0:00:00
+        Installing collected packages: exiv2, appdirs, urllib3, idna, charset-normalizer, certifi, cachetools, requests, photini
+        Successfully installed appdirs-1.4.4 cachetools-5.2.0 certifi-2022.9.24 charset-normalizer-2.1.1 exiv2-0.11.3 idna-3.4 photini-2022.9.0 requests-2.28.1 urllib3-1.26.12
+
+Now run the ``photini-configure`` command to choose which Qt package to use:
+
+.. tabs::
+    .. code-tab:: none Linux/MacOS
+
+        (photini) jim@mint:~$ photini-configure 
+        Which Qt package would you like to use?
+          0 PyQt5 [installed]
+          1 PySide2 [installed]
+          2 PySide6 [not installed]
+        Choose 0/1/2: 1
+        Would you like to upload pictures to Flickr? (y/n): 
+        Would you like to upload pictures to Google Photos? (y/n): 
+        Would you like to upload pictures to Ipernity? (y/n): 
+        Would you like to check spelling of metadata? (y/n): 
+        Would you like to import GPS track data? (y/n): 
+        Would you like to make higher quality thumbnails? (y/n): 
+        Would you like to import pictures from a camera? (y/n): 
+    .. code-tab:: none Windows
+
+        C:\Users\Jim>photini-configure
+        Which Qt package would you like to use?
+          0 PySide2 [not installed]
+          1 PySide6 [not installed]
+        Choose 0/1: 0
+        Would you like to upload pictures to Flickr? (y/n):
+        Would you like to upload pictures to Google Photos? (y/n):
+        Would you like to upload pictures to Ipernity? (y/n):
+        Would you like to check spelling of metadata? (y/n):
+        Would you like to import GPS track data? (y/n):
+        Would you like to make higher quality thumbnails? (y/n):
+        c:\users\jim\appdata\local\programs\python\python38\python.exe -m pip install photini[PySide2]
+        Requirement already satisfied: photini[PySide2] in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (2022.9.0)
+        Requirement already satisfied: exiv2>=0.11.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[PySide2]) (0.11.3)
+        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[PySide2]) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[PySide2]) (5.2.0)
+        Requirement already satisfied: requests>=2.4.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[PySide2]) (2.28.1)
+        Collecting PySide2>=5.11.0
+          Downloading PySide2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win_amd64.whl (137.4 MB)
+             ------------------------------------ 137.4/137.4 MB 763.3 kB/s eta 0:00:00
         Collecting shiboken2==5.15.2.1
           Downloading shiboken2-5.15.2.1-5.15.2-cp35.cp36.cp37.cp38.cp39.cp310-none-win_amd64.whl (2.3 MB)
-             ---------------------------------------- 2.3/2.3 MB 601.3 kB/s eta 0:00:00
-        Collecting charset-normalizer~=2.0.0
-          Downloading charset_normalizer-2.0.12-py3-none-any.whl (39 kB)
-        Collecting certifi>=2017.4.17
-          Downloading certifi-2021.10.8-py2.py3-none-any.whl (149 kB)
-             ------------------------------------ 149.2/149.2 KB 423.6 kB/s eta 0:00:00
-        Collecting urllib3<1.27,>=1.21.1
-          Downloading urllib3-1.26.9-py2.py3-none-any.whl (138 kB)
-             ------------------------------------ 139.0/139.0 KB 411.3 kB/s eta 0:00:00
-        Collecting idna<4,>=2.5
-          Downloading idna-3.3-py3-none-any.whl (61 kB)
-             -------------------------------------- 61.2/61.2 KB 272.3 kB/s eta 0:00:00
-        Installing collected packages: exiv2, certifi, appdirs, urllib3, shiboken2, idna, charset-normalizer, cachetools, requests, pyside2, photini
-        Successfully installed appdirs-1.4.4 cachetools-5.0.0 certifi-2021.10.8 charset-normalizer-2.0.12 exiv2-0.11.0 idna-3.3 photini-2022.3.2 pyside2-5.15.2.1 requests-2.27.1 shiboken2-5.15.2.1 urllib3-1.26.9
+             ---------------------------------------- 2.3/2.3 MB 826.2 kB/s eta 0:00:00
+        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[PySide2]) (3.4)
+        Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[PySide2]) (1.26.12)
+        Requirement already satisfied: charset-normalizer<3,>=2 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[PySide2]) (2.1.1)
+        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[PySide2]) (2022.9.24)
+        Installing collected packages: shiboken2, PySide2
+        Successfully installed PySide2-5.15.2.1 shiboken2-5.15.2.1
 
-.. versionadded:: 2022.3.0
-    Instead of listing the dependencies individually you can install them as a set with ``pip3 install photini[basic]``.
+The command asks a series of questions, then runs pip_ to install any extra dependencies that are needed, then updates your Photini configuration file.
 
 Test the installation
 ^^^^^^^^^^^^^^^^^^^^^
@@ -219,8 +246,7 @@ Now you should be able to run photini:
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ python -m photini
-        ffmpeg or ffprobe not found
+        (photini) jim@mint:~$ python3 -m photini
         No module named 'enchant'
         No module named 'gpxpy'
         No module named 'requests_oauthlib'
@@ -249,128 +275,119 @@ For example, failing to load a Qt plugin (on Debian) can be cured by installing 
 Optional dependencies
 ^^^^^^^^^^^^^^^^^^^^^
 
-Most of the dependencies required for Photini's optional features can also be installed with pip_.
-Many are specified as one or more "extras" in square brackets:
+Most of the dependencies required for Photini's optional features can also be installed with ``photini-configure``:
 
 .. tabs::
     .. code-tab:: none Linux/MacOS
 
-        jim@mint:~$ pip3 install photini[flickr,google,ipernity,spelling,importer]
-        Requirement already satisfied: photini[flickr,google,importer,ipernity,spelling] in ./photini/lib/python3.8/site-packages (2022.2.0)
-        Requirement already satisfied: requests>=2.4.0 in ./photini/lib/python3.8/site-packages (from photini[flickr,google,importer,ipernity,spelling]) (2.27.1)
-        Requirement already satisfied: appdirs>=1.3 in ./photini/lib/python3.8/site-packages (from photini[flickr,google,importer,ipernity,spelling]) (1.4.4)
-        Collecting requests-oauthlib>=1.0
-          Downloading requests_oauthlib-1.3.1-py2.py3-none-any.whl (23 kB)
-        Collecting keyring>=7.0
-          Downloading keyring-23.5.0-py3-none-any.whl (33 kB)
+        (photini) jim@mint:~$ photini-configure 
+        Which Qt package would you like to use?
+          0 PyQt5 [installed]
+          1 PySide2 [installed]
+          2 PySide6 [not installed]
+        Choose 0/1/2: 1
+        Would you like to upload pictures to Flickr? (y/n): y
+        Would you like to upload pictures to Google Photos? (y/n): y
+        Would you like to upload pictures to Ipernity? (y/n): y
+        Would you like to check spelling of metadata? (y/n): y
+        Would you like to import GPS track data? (y/n): y
+        Would you like to make higher quality thumbnails? (y/n): y
+        Would you like to import pictures from a camera? (y/n): y
+        /home/jim/photini/bin/python3 -m pip install photini[flickr,google,ipernity,spelling,gpxpy,Pillow,importer]
+        Requirement already satisfied: photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling] in ./photini/lib/python3.8/site-packages (2022.9.0)
+        Requirement already satisfied: appdirs>=1.3 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (1.4.4)
+        Requirement already satisfied: cachetools>=3.0 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (5.2.0)
+        Requirement already satisfied: requests>=2.4.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (2.22.0)
+        Requirement already satisfied: exiv2>=0.11.0 in ./photini/lib/python3.8/site-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (0.11.3)
         Collecting requests-toolbelt>=0.9
           Downloading requests_toolbelt-0.9.1-py2.py3-none-any.whl (54 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.3/54.3 KB 234.8 kB/s eta 0:00:00
-        Collecting gphoto2>=0.10
-          Downloading gphoto2-2.3.2-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (4.9 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.9/4.9 MB 642.6 kB/s eta 0:00:00
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.3/54.3 kB 241.5 kB/s eta 0:00:00
+        Requirement already satisfied: keyring>=7.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (18.0.1)
+        Collecting requests-oauthlib>=1.0
+          Downloading requests_oauthlib-1.3.1-py2.py3-none-any.whl (23 kB)
+        Requirement already satisfied: Pillow>=2.0.0 in /usr/lib/python3/dist-packages (from photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (7.0.0)
         Collecting pyenchant>=2.0
           Downloading pyenchant-3.2.2-py3-none-any.whl (55 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.7/55.7 KB 78.3 kB/s eta 0:00:00
-        Collecting jeepney>=0.4.2
-          Downloading jeepney-0.7.1-py3-none-any.whl (54 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.1/54.1 KB 169.7 kB/s eta 0:00:00
-        Collecting SecretStorage>=3.2
-          Downloading SecretStorage-3.3.1-py3-none-any.whl (15 kB)
-        Collecting importlib-metadata>=3.6
-          Downloading importlib_metadata-4.11.1-py3-none-any.whl (17 kB)
-        Requirement already satisfied: charset-normalizer~=2.0.0 in ./photini/lib/python3.8/site-packages (from requests>=2.4.0->photini[flickr,google,importer,ipernity,spelling]) (2.0.12)
-        Requirement already satisfied: urllib3<1.27,>=1.21.1 in ./photini/lib/python3.8/site-packages (from requests>=2.4.0->photini[flickr,google,importer,ipernity,spelling]) (1.26.8)
-        Requirement already satisfied: idna<4,>=2.5 in ./photini/lib/python3.8/site-packages (from requests>=2.4.0->photini[flickr,google,importer,ipernity,spelling]) (3.3)
-        Requirement already satisfied: certifi>=2017.4.17 in ./photini/lib/python3.8/site-packages (from requests>=2.4.0->photini[flickr,google,importer,ipernity,spelling]) (2021.10.8)
-        Collecting oauthlib>=3.0.0
-          Downloading oauthlib-3.2.0-py3-none-any.whl (151 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 151.5/151.5 KB 429.3 kB/s eta 0:00:00
-        Collecting zipp>=0.5
-          Downloading zipp-3.7.0-py3-none-any.whl (5.3 kB)
-        Collecting cryptography>=2.0
-          Downloading cryptography-36.0.1-cp36-abi3-manylinux_2_24_x86_64.whl (3.6 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.6/3.6 MB 633.7 kB/s eta 0:00:00
-        Collecting cffi>=1.12
-          Downloading cffi-1.15.0-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (446 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 446.7/446.7 KB 514.3 kB/s eta 0:00:00
-        Collecting pycparser
-          Downloading pycparser-2.21-py2.py3-none-any.whl (118 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 118.7/118.7 KB 382.6 kB/s eta 0:00:00
-        Installing collected packages: gphoto2, zipp, pyenchant, pycparser, oauthlib, jeepney, requests-toolbelt, requests-oauthlib, importlib-metadata, cffi, cryptography, SecretStorage, keyring
-        Successfully installed SecretStorage-3.3.1 cffi-1.15.0 cryptography-36.0.1 gphoto2-2.3.2 importlib-metadata-4.11.1 jeepney-0.7.1 keyring-23.5.0 oauthlib-3.2.0 pycparser-2.21 pyenchant-3.2.2 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1 zipp-3.7.0
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.7/55.7 kB 269.7 kB/s eta 0:00:00
+        Collecting gphoto2>=1.8.0
+          Downloading gphoto2-2.3.4-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (5.9 MB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.9/5.9 MB 900.6 kB/s eta 0:00:00
+        Collecting gpxpy>=1.3.5
+          Downloading gpxpy-1.5.0.tar.gz (111 kB)
+             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.6/111.6 kB 313.3 kB/s eta 0:00:00
+          Preparing metadata (setup.py) ... done
+        Requirement already satisfied: secretstorage in /usr/lib/python3/dist-packages (from keyring>=7.0->photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (2.3.1)
+        Requirement already satisfied: oauthlib>=3.0.0 in /usr/lib/python3/dist-packages (from requests-oauthlib>=1.0->photini[Pillow,flickr,google,gpxpy,importer,ipernity,spelling]) (3.1.0)
+        Building wheels for collected packages: gpxpy
+          Building wheel for gpxpy (setup.py) ... done
+          Created wheel for gpxpy: filename=gpxpy-1.5.0-py3-none-any.whl size=42878 sha256=fe9e48d88437fb635227a114ddd4c021e99979514e83cbba7cb3cd620bc7f8f8
+          Stored in directory: /home/jim/.cache/pip/wheels/93/15/ce/1cd2782b440b8a517b89c3fa112f79f7015bd6e51b552e1b1a
+        Successfully built gpxpy
+        Installing collected packages: gphoto2, requests-toolbelt, requests-oauthlib, pyenchant, gpxpy
+        Successfully installed gphoto2-2.3.4 gpxpy-1.5.0 pyenchant-3.2.2 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1
     .. code-tab:: none Windows
 
-        C:\Users\Jim>pip install photini[flickr,google,ipernity,spelling]
-        Requirement already satisfied: photini[flickr,google,ipernity,spelling] in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (2022.3.2)
-        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[flickr,google,ipernity,spelling]) (5.0.0)
-        Requirement already satisfied: requests>=2.4.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[flickr,google,ipernity,spelling]) (2.27.1)
-        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[flickr,google,ipernity,spelling]) (1.4.4)
+        C:\Users\Jim>photini-configure
+        Which Qt package would you like to use?
+          0 PySide2 [installed]
+          1 PySide6 [not installed]
+        Choose 0/1: 0
+        Would you like to upload pictures to Flickr? (y/n): y
+        Would you like to upload pictures to Google Photos? (y/n): y
+        Would you like to upload pictures to Ipernity? (y/n): y
+        Would you like to check spelling of metadata? (y/n): y
+        Would you like to import GPS track data? (y/n): y
+        Would you like to make higher quality thumbnails? (y/n): y
+        c:\users\jim\appdata\local\programs\python\python38\python.exe -m pip install photini[flickr,google,ipernity,spelling,gpxpy,Pillow]
+        Requirement already satisfied: photini[Pillow,flickr,google,gpxpy,ipernity,spelling] in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (2022.9.0)
+        Requirement already satisfied: appdirs>=1.3 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (1.4.4)
+        Requirement already satisfied: exiv2>=0.11.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (0.11.3)
+        Requirement already satisfied: cachetools>=3.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (5.2.0)
+        Requirement already satisfied: requests>=2.4.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (2.28.1)
         Collecting requests-oauthlib>=1.0
           Downloading requests_oauthlib-1.3.1-py2.py3-none-any.whl (23 kB)
-        Collecting keyring>=7.0
-          Downloading keyring-23.5.0-py3-none-any.whl (33 kB)
         Collecting requests-toolbelt>=0.9
           Downloading requests_toolbelt-0.9.1-py2.py3-none-any.whl (54 kB)
-             -------------------------------------- 54.3/54.3 KB 312.6 kB/s eta 0:00:00
+             -------------------------------------- 54.3/54.3 kB 352.6 kB/s eta 0:00:00
+        Collecting keyring>=7.0
+          Downloading keyring-23.9.3-py3-none-any.whl (35 kB)
+        Collecting gpxpy>=1.3.5
+          Downloading gpxpy-1.5.0.tar.gz (111 kB)
+             ------------------------------------ 111.6/111.6 kB 542.0 kB/s eta 0:00:00
+          Preparing metadata (setup.py) ... done
         Collecting pyenchant>=2.0
           Downloading pyenchant-3.2.2-py3-none-win_amd64.whl (11.9 MB)
-             -------------------------------------- 11.9/11.9 MB 642.6 kB/s eta 0:00:00
-        Collecting importlib-metadata>=3.6
-          Downloading importlib_metadata-4.11.3-py3-none-any.whl (18 kB)
+             -------------------------------------- 11.9/11.9 MB 893.7 kB/s eta 0:00:00
+        Collecting Pillow>=2.0.0
+          Downloading Pillow-9.2.0-cp38-cp38-win_amd64.whl (3.3 MB)
+             ---------------------------------------- 3.3/3.3 MB 889.4 kB/s eta 0:00:00
         Collecting pywin32-ctypes!=0.1.0,!=0.1.1
           Downloading pywin32_ctypes-0.2.0-py2.py3-none-any.whl (28 kB)
-        Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[flickr,google,ipernity,spelling]) (1.26.9)
-        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[flickr,google,ipernity,spelling]) (2021.10.8)
-        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[flickr,google,ipernity,spelling]) (3.3)
-        Requirement already satisfied: charset-normalizer~=2.0.0 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[flickr,google,ipernity,spelling]) (2.0.12)
+        Collecting jaraco.classes
+          Downloading jaraco.classes-3.2.3-py3-none-any.whl (6.0 kB)
+        Collecting importlib-metadata>=3.6
+          Downloading importlib_metadata-4.12.0-py3-none-any.whl (21 kB)
+        Requirement already satisfied: charset-normalizer<3,>=2 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (2.1.1)
+        Requirement already satisfied: certifi>=2017.4.17 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (2022.9.24)
+        Requirement already satisfied: idna<4,>=2.5 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (3.4)
+        Requirement already satisfied: urllib3<1.27,>=1.21.1 in c:\users\jim\appdata\local\programs\python\python38\lib\site-packages (from requests>=2.4.0->photini[Pillow,flickr,google,gpxpy,ipernity,spelling]) (1.26.12)
         Collecting oauthlib>=3.0.0
-          Downloading oauthlib-3.2.0-py3-none-any.whl (151 kB)
-             ------------------------------------ 151.5/151.5 KB 475.7 kB/s eta 0:00:00
+          Downloading oauthlib-3.2.1-py3-none-any.whl (151 kB)
+             ------------------------------------ 151.7/151.7 kB 604.4 kB/s eta 0:00:00
         Collecting zipp>=0.5
-          Downloading zipp-3.8.0-py3-none-any.whl (5.4 kB)
-        Installing collected packages: pywin32-ctypes, zipp, pyenchant, oauthlib, requests-toolbelt, requests-oauthlib, importlib-metadata, keyring
-        Successfully installed importlib-metadata-4.11.3 keyring-23.5.0 oauthlib-3.2.0 pyenchant-3.2.2 pywin32-ctypes-0.2.0 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1 zipp-3.8.0
-
-.. versionadded:: 2022.3.0
-    You can install all the extra dependencies in one go with ``pip3 install photini[extras]``.
-
-Other optional dependencies (Pillow_, gpxpy_) can also be installed with pip_, but may not be available for all Python and operating system combinations:
-
-.. tabs::
-    .. code-tab:: none Linux/MacOS
-
-        jim@mint:~$ pip install pillow gpxpy
-        Collecting pillow
-          Downloading Pillow-9.0.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.3 MB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 637.1 kB/s eta 0:00:00
-        Collecting gpxpy
-          Downloading gpxpy-1.5.0.tar.gz (111 kB)
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 111.6/111.6 KB 384.5 kB/s eta 0:00:00
-          Preparing metadata (setup.py) ... done
+          Downloading zipp-3.8.1-py3-none-any.whl (5.6 kB)
+        Collecting more-itertools
+          Downloading more_itertools-8.14.0-py3-none-any.whl (52 kB)
+             -------------------------------------- 52.2/52.2 kB 116.5 kB/s eta 0:00:00
         Using legacy 'setup.py install' for gpxpy, since package 'wheel' is not installed.
-        Installing collected packages: pillow, gpxpy
+        Installing collected packages: pywin32-ctypes, zipp, pyenchant, Pillow, oauthlib, more-itertools, gpxpy, requests-toolbelt, requests-oauthlib, jaraco.classes, importlib-metadata, keyring
           Running setup.py install for gpxpy ... done
-        Successfully installed gpxpy-1.5.0 pillow-9.0.1
-    .. code-tab:: none Windows
-
-        C:\Users\Jim>pip install pillow gpxpy
-        Collecting pillow
-          Downloading Pillow-9.1.0-cp38-cp38-win_amd64.whl (3.3 MB)
-             ---------------------------------------- 3.3/3.3 MB 618.0 kB/s eta 0:00:00
-        Collecting gpxpy
-          Downloading gpxpy-1.5.0.tar.gz (111 kB)
-             ------------------------------------ 111.6/111.6 KB 405.4 kB/s eta 0:00:00
-          Preparing metadata (setup.py) ... done
-        Using legacy 'setup.py install' for gpxpy, since package 'wheel' is not installed.
-        Installing collected packages: pillow, gpxpy
-          Running setup.py install for gpxpy ... done
-        Successfully installed gpxpy-1.5.0 pillow-9.1.0
+        Successfully installed Pillow-9.2.0 gpxpy-1.5.0 importlib-metadata-4.12.0 jaraco.classes-3.2.3 keyring-23.9.3 more-itertools-8.14.0 oauthlib-3.2.1 pyenchant-3.2.2 pywin32-ctypes-0.2.0 requests-oauthlib-1.3.1 requests-toolbelt-0.9.1 zipp-3.8.1
 
 Photini's spelling checker may require some other files to be installed.
 See the `pyenchant documentation`_ for platform specific instructions.
 
-One optional dependency that cannot be installed with pip_ is FFmpeg_.
+One optional dependency that cannot be installed with pip_ or ``photini-configure`` is FFmpeg_.
 This is used to read metadata from video files.
 Linux & MacOS users can install it with the system package manager, but installing it on Windows is non-trivial.
 
