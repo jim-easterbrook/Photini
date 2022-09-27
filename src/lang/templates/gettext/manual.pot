@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.7.0\n"
+"Project-Id-Version: Photini 2022.9.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-05 15:38+0100\n"
+"POT-Creation-Date: 2022-09-27 11:58+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,10 +187,10 @@ msgstr ""
 msgid "Alternative Languages"
 msgstr ""
 
-msgid "Some fields, such as title and description, are stored in XMP as ``Lang Alt`` data. This allows translations into alternative languages to be stored along with the default language text. (Only the default language is stored in Exif and IPTC-IIM.)"
+msgid "Some fields, such as title and description, are stored in XMP as `Lang Alt`_ data. This allows translations into alternative languages to be stored along with the default language text. (Only the default language is stored in Exif and IPTC-IIM.)"
 msgstr ""
 
-msgid "You can add an alternative language by clicking on the ``Lang:`` dropdown and selecting ``<new>``."
+msgid "Photini has a language drop down selector next to each ``Lang Alt`` data field. If the current text is in an unspecified default language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language. If the field is empty the current language is set to your computer's default locale. You can add an alternative language by clicking on the drop down and selecting ``<new>``."
 msgstr ""
 
 msgid "If there is already some text in an unspecified default language you will be asked to say what that language is. Languages are specified with an RFC3066_ code. This usually starts with a two-letter language code, e.g. ``en`` for English, and may be followed by a hyphen and a two-letter country code, e.g. ``en-GB`` for English as spoken in Great Britain."

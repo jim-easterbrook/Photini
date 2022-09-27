@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  Photini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-05 15:38+0100\n"
+"POT-Creation-Date: 2022-09-27 11:58+0100\n"
 "PO-Revision-Date: 2021-06-14 10:52+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>\n"
 "Language: pl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.8.0\n"
 
 # 28c9824f50ae45349a3602a543a9badb
 msgid "Installation"
@@ -126,7 +126,8 @@ msgid ""
 " I suggest reading `Managing Python packages the right way`_. All of "
 "Photini's dependencies can be installed with pip_, but I recommend "
 "installing PySide6 or PySide2 or PyQt5 (whichever is available) with the "
-"package manager so that you get the same GUI style as other Qt based "
+"package manager to ensure you install all of its system libraries and "
+"plugins and so that you get the same GUI style as other Qt based "
 "applications."
 msgstr ""
 
@@ -140,8 +141,10 @@ msgstr ""
 
 msgid ""
 "Note that pip may need to be updated again from within the virtual "
-"environment. You should stay in this virtual environment while installing "
-"and testing Photini."
+"environment. The ``--system-site-packages`` option makes packages installed "
+"with the Linux or MacOS package manager (e.g. PySide2) available within the "
+"virtual environment. You should stay in this virtual environment while "
+"installing and testing Photini."
 msgstr ""
 
 # 28c9824f50ae45349a3602a543a9badb
@@ -169,6 +172,18 @@ msgid ""
 "Photini should run successfully, but it lists some optional dependencies "
 "that are not installed. These provide additional features, for example the "
 "Flickr uploader, that not all users will need to install."
+msgstr ""
+
+msgid "Missing system packages"
+msgstr ""
+
+msgid ""
+"On some Linux systems (e.g. Ubuntu, Debian, Mint) Photini may still not run "
+"if you've installed PySide2 or PySide6 with pip_ instead of the system's "
+"package manager. In this case it may be worth doing a web search for the "
+"error messages you get. For example, failing to load a Qt plugin (on Debian)"
+" can be cured by installing just one system package (``libxcb-xinerama0``) "
+"but the error message doesn't tell you that!"
 msgstr ""
 
 # 14f0b75d219f4dc8bba2c817d988022b
@@ -368,8 +383,7 @@ msgstr ""
 msgid "QtWebEngine_ or QtWebKit_ [2]"
 msgstr ""
 
-# fe34db3c67254705b714b10b3f7da587
-msgid "python3-pyqt5.qtwebkit"
+msgid "python3-pyside2.qtwebengine or python3-pyqt5.qtwebkit"
 msgstr ""
 
 msgid "PyQtWebEngine"
@@ -817,14 +831,16 @@ msgstr ""
 msgid "French translation by Nathan, J. Lavoie"
 msgstr ""
 
-msgid "German translation by Jan Rimmek, J. Lavoie"
+msgid "German translation by Jan Rimmek, J. Lavoie, Ettore Atalan"
+msgstr ""
+
+msgid "Korean translation by Soohyeon Park"
 msgstr ""
 
 msgid "Norwegian Bokmål translation by Allan Nordhøy"
 msgstr ""
 
-# 07a83cb395c64686ab332db7bfb2bf20
-msgid "Polish translation by \"itdawid\""
+msgid "Polish translation by Dawid Głaz"
 msgstr ""
 
 msgid "Spanish translation by Esteban Martinena, Cristos Ruiz"
@@ -2771,5 +2787,41 @@ msgstr ""
 #~ "documentation`_ for detailed instructions. Gspell"
 #~ " requires PyGObject or pgi to be "
 #~ "installed as well, as described above."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Linux & MacOS users have another "
+#~ "decision to make - whether to install"
+#~ " Photini's dependencies with pip_ or "
+#~ "with the operating system's package "
+#~ "manager. For a good introduction to "
+#~ "the advantages and disadvantages of each"
+#~ " I suggest reading `Managing Python "
+#~ "packages the right way`_. All of "
+#~ "Photini's dependencies can be installed "
+#~ "with pip_, but I recommend installing "
+#~ "PySide6 or PySide2 or PyQt5 (whichever "
+#~ "is available) with the package manager "
+#~ "so that you get the same GUI "
+#~ "style as other Qt based applications."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Note that pip may need to be "
+#~ "updated again from within the virtual "
+#~ "environment. You should stay in this "
+#~ "virtual environment while installing and "
+#~ "testing Photini."
+#~ msgstr ""
+
+# fe34db3c67254705b714b10b3f7da587
+#~ msgid "python3-pyqt5.qtwebkit"
+#~ msgstr ""
+
+#~ msgid "German translation by Jan Rimmek, J. Lavoie"
+#~ msgstr ""
+
+# 07a83cb395c64686ab332db7bfb2bf20
+#~ msgid "Polish translation by \"itdawid\""
 #~ msgstr ""
 
