@@ -73,11 +73,14 @@ This is stored in the metadata as a rating value of -1.
 Alternative Languages
 ---------------------
 
-Some fields, such as title and description, are stored in XMP as ``Lang Alt`` data.
+Some fields, such as title and description, are stored in XMP as `Lang Alt`_ data.
 This allows translations into alternative languages to be stored along with the default language text.
 (Only the default language is stored in Exif and IPTC-IIM.)
 
-You can add an alternative language by clicking on the ``Lang:`` dropdown and selecting ``<new>``.
+Photini has a language drop down selector next to each ``Lang Alt`` data field.
+If the current text is in an unspecified default language the selector shows ``Language``, otherwise it shows ``Lang:`` and the current language.
+If the field is empty the current language is set to your computer's default locale.
+You can add an alternative language by clicking on the drop down and selecting ``<new>``.
 
 .. image:: ../images/screenshot_029.png
 
@@ -120,4 +123,6 @@ Most of them are also stored in "legacy" IPTC-IIM data.
 
 .. _IPTC standard:
     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
+.. _Lang Alt:
+    https://developer.adobe.com/xmp/docs/XMPNamespaces/XMPDataTypes/#language-alternative
 .. _RFC3066: https://www.ietf.org/rfc/rfc3066.txt
