@@ -16,6 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.9.0:
+  1/ Added photini-configure command to simplify installation.
+  2/ Added Flickr "virtual photography" content type.
+  3/ Improved LangAlt widgets.
+  4/ Other minor improvements and bug fixes.
+
 Changes in v2022.7.0:
   1/ Can reorder GUI tabs by dragging to new position.
   2/ Drop use of GExiv2, python-exiv2 is now a required dependency.
