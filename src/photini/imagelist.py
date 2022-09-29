@@ -348,39 +348,19 @@ class Image(QtWidgets.QFrame):
 
 class ScrollArea(QtWidgets.QScrollArea):
     dropped_images = QtSignal(list)
-    multi_row_changed = QtSignal()
 
     def __init__(self, parent=None):
         super(ScrollArea, self).__init__(parent)
-        self.multi_row = None
-        self.set_multi_row(True)
         self.setWidgetResizable(True)
         self.setAcceptDrops(True)
         widget = QtWidgets.QWidget()
         self.thumbs = ThumbsLayout(scroll_area=self)
         widget.setLayout(self.thumbs)
         self.setWidget(widget)
-        # adopt some layout methods
+        # adopt some layout methods & signals
         self.add_widget = self.thumbs.addWidget
         self.remove_widget = self.thumbs.removeWidget
-
-    def set_multi_row(self, multi_row):
-        if multi_row:
-            self.setMinimumHeight(0)
-        else:
-            scrollbar = self.horizontalScrollBar()
-            self.setMinimumHeight(
-                self.thumbs.sizeHint().height() + scrollbar.height())
-        if multi_row == self.multi_row:
-            return
-        self.multi_row = multi_row
-        if multi_row:
-            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        else:
-            self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.multi_row_changed.emit()
+        self.multi_row_changed = self.thumbs.multi_row_changed
 
     def ensureWidgetVisible(self, widget):
         left, top, right, bottom = self.thumbs.getContentsMargins()
@@ -405,13 +385,17 @@ class ScrollArea(QtWidgets.QScrollArea):
         super(ScrollArea, self).resizeEvent(event)
         width = event.size().width()
         height = event.size().height()
-        if not self.multi_row:
-            scrollbar = self.verticalScrollBar()
-            width -= scrollbar.width()
-        scrollbar = self.horizontalScrollBar()
-        if not scrollbar.isVisible():
-            height -= scrollbar.height()
-        self.thumbs.set_viewport_size(QtCore.QSize(width, height))
+        min_height = self.thumbs.minimum_height()
+        bar = self.horizontalScrollBar()
+        if not bar.isVisible():
+            height -= bar.height()
+        elif min_height:
+            min_height += bar.height()
+        if min_height:
+            left, top, right, bottom = self.getContentsMargins()
+            min_height += top + bottom
+            self.setMinimumHeight(min_height)
+        self.thumbs.set_viewport(width, height)
 
 
 class ThumbsLayout(QtWidgets.QLayout):
@@ -419,11 +403,15 @@ class ThumbsLayout(QtWidgets.QLayout):
     thumbnail widgets, according to height.
 
     """
+    multi_row_changed = QtSignal()
+
     def __init__(self, scroll_area=None, **kw):
         super(ThumbsLayout, self).__init__(**kw)
         self.scroll_area = scroll_area
         self.item_list = []
-        self.viewport_size = QtCore.QSize()
+        self.view_width = 0
+        self.view_height = 0
+        self.multi_row = None
         self._do_layout()
 
     def addItem(self, item):
@@ -464,8 +452,15 @@ class ThumbsLayout(QtWidgets.QLayout):
     def minimumSize(self):
         return self.size_hint
 
-    def set_viewport_size(self, size):
-        self.viewport_size = size
+    def minimum_height(self):
+        if not self.item_list:
+            return None
+        left, top, right, bottom = self.getContentsMargins()
+        return self.item_list[0].sizeHint().height() + top + bottom
+
+    def set_viewport(self, view_width, view_height):
+        self.view_width = view_width
+        self.view_height = view_height
         self._do_layout()
 
     def _do_layout(self, rect=None):
@@ -476,10 +471,13 @@ class ThumbsLayout(QtWidgets.QLayout):
             item_size = self.item_list[0].sizeHint()
             item_h = item_size.height()
             item_w = item_size.width()
-            multi_row = self.viewport_size.height() - height_hint > item_h
+            multi_row = self.view_height - height_hint > item_h
+            if multi_row != self.multi_row:
+                self.multi_row = multi_row
+                # make selected item visible after redrawing has finished
+                QtCore.QTimer.singleShot(100, self.multi_row_changed.emit)
             if multi_row:
-                columns = max(
-                    (self.viewport_size.width() - width_hint) // item_w, 1)
+                columns = max((self.view_width - width_hint) // item_w, 1)
                 rows = (len(self.item_list) + columns - 1) // columns
             else:
                 columns = len(self.item_list)
@@ -499,7 +497,6 @@ class ThumbsLayout(QtWidgets.QLayout):
             i, j = n % columns, n // columns
             item.setGeometry(QtCore.QRect(
                 QtCore.QPoint(x + (i * item_w), y + (j * item_h)), item_size))
-        self.scroll_area.set_multi_row(multi_row)
 
 
 class ImageList(QtWidgets.QWidget):
