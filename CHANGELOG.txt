@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.9.1:
+  1/ Fix recursion bug when image list is single row.
+
 Changes in v2022.9.0:
   1/ Added photini-configure command to simplify installation.
   2/ Added Flickr "virtual photography" content type.
