@@ -383,19 +383,22 @@ class ScrollArea(QtWidgets.QScrollArea):
     @catch_all
     def resizeEvent(self, event):
         super(ScrollArea, self).resizeEvent(event)
-        width = event.size().width()
-        height = event.size().height()
-        min_height = self.thumbs.minimum_height()
+        self.thumbs.do_layout()
+
+    def usable_size(self):
+        left, top, right, bottom = self.getContentsMargins()
+        width = self.width() - left - right
+        height = self.height() - top - bottom
+        width -= self.verticalScrollBar().sizeHint().width()
+        height -= self.horizontalScrollBar().sizeHint().height()
+        return width, height
+
+    def set_minimum_height(self, min_height):
         bar = self.horizontalScrollBar()
-        if not bar.isVisible():
-            height -= bar.height()
-        elif min_height:
+        if bar.isVisible():
             min_height += bar.height()
-        if min_height:
-            left, top, right, bottom = self.getContentsMargins()
-            min_height += top + bottom
-            self.setMinimumHeight(min_height)
-        self.thumbs.set_viewport(width, height)
+        left, top, right, bottom = self.getContentsMargins()
+        self.setMinimumHeight(min_height + top + bottom)
 
 
 class ThumbsLayout(QtWidgets.QLayout):
@@ -409,10 +412,8 @@ class ThumbsLayout(QtWidgets.QLayout):
         super(ThumbsLayout, self).__init__(**kw)
         self.scroll_area = scroll_area
         self.item_list = []
-        self.view_width = 0
-        self.view_height = 0
         self.multi_row = None
-        self._do_layout()
+        self.do_layout()
 
     def addItem(self, item):
         self.item_list.append(item)
@@ -444,7 +445,7 @@ class ThumbsLayout(QtWidgets.QLayout):
 
     def setGeometry(self, rect):
         super(ThumbsLayout, self).setGeometry(rect)
-        self._do_layout(rect)
+        self.do_layout(rect)
 
     def sizeHint(self):
         return self.size_hint
@@ -452,32 +453,24 @@ class ThumbsLayout(QtWidgets.QLayout):
     def minimumSize(self):
         return self.size_hint
 
-    def minimum_height(self):
-        if not self.item_list:
-            return None
-        left, top, right, bottom = self.getContentsMargins()
-        return self.item_list[0].sizeHint().height() + top + bottom
-
-    def set_viewport(self, view_width, view_height):
-        self.view_width = view_width
-        self.view_height = view_height
-        self._do_layout()
-
-    def _do_layout(self, rect=None):
+    def do_layout(self, rect=None):
         left, top, right, bottom = self.getContentsMargins()
         width_hint = left + right
         height_hint = top + bottom
-        if self.item_list:
+        if self.item_list and self.scroll_area:
             item_size = self.item_list[0].sizeHint()
             item_h = item_size.height()
             item_w = item_size.width()
-            multi_row = self.view_height - height_hint > item_h
+            row_height = item_h + height_hint
+            self.scroll_area.set_minimum_height(row_height)
+            view_width, view_height = self.scroll_area.usable_size()
+            multi_row = view_height > row_height
             if multi_row != self.multi_row:
                 self.multi_row = multi_row
                 # make selected item visible after redrawing has finished
-                QtCore.QTimer.singleShot(100, self.multi_row_changed.emit)
+                QtCore.QTimer.singleShot(0, self.multi_row_changed.emit)
             if multi_row:
-                columns = max((self.view_width - width_hint) // item_w, 1)
+                columns = max((view_width - width_hint) // item_w, 1)
                 rows = (len(self.item_list) + columns - 1) // columns
             else:
                 columns = len(self.item_list)
@@ -485,6 +478,9 @@ class ThumbsLayout(QtWidgets.QLayout):
             width_hint += columns * item_w
             height_hint += rows * item_h
         self.size_hint = QtCore.QSize(width_hint, height_hint)
+        widget = self.parentWidget()
+        if widget:
+            widget.setMinimumSize(self.size_hint)
         if not (rect and self.item_list):
             return
         if QtWidgets.QApplication.isRightToLeft():
