@@ -397,7 +397,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
-        <translation type="unfinished"></translation>
+        <translation>Photographie virtuelle</translation>
     </message>
 </context>
 <context>
@@ -509,7 +509,8 @@ dans le fichier</translation>
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -524,14 +525,16 @@ dans le fichier</translation>
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -640,7 +643,8 @@ selected</source>
 sélectionné</numerusform>
             <numerusform>%n fichiers
 sélectionnés</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -675,7 +679,8 @@ sélectionnés</numerusform>
         <translation>
             <numerusform>%n fichier sélectionné</numerusform>
             <numerusform>%n fichiers sélectionnés</numerusform>
-        <numerusform>Unused</numerusform></translation>
+            <numerusform>Unused</numerusform>
+        </translation>
     </message>
 </context>
 <context>
