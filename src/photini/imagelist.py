@@ -385,8 +385,14 @@ class ScrollArea(QtWidgets.QScrollArea):
         super(ScrollArea, self).resizeEvent(event)
         self.thumbs.do_layout()
 
+    def get_contents_margins(self):
+        if qt_version_info < (6, 0):
+            return self.getContentsMargins()
+        margins = self.contentsMargins()
+        return margins.left(), margins.top(), margins.right(), margins.bottom()
+
     def usable_size(self):
-        left, top, right, bottom = self.getContentsMargins()
+        left, top, right, bottom = self.get_contents_margins()
         width = self.width() - left - right
         height = self.height() - top - bottom
         width -= self.verticalScrollBar().sizeHint().width()
@@ -397,7 +403,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         bar = self.horizontalScrollBar()
         if bar.isVisible():
             min_height += bar.height()
-        left, top, right, bottom = self.getContentsMargins()
+        left, top, right, bottom = self.get_contents_margins()
         self.setMinimumHeight(min_height + top + bottom)
 
 
