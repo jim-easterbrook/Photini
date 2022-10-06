@@ -385,26 +385,18 @@ class ScrollArea(QtWidgets.QScrollArea):
         super(ScrollArea, self).resizeEvent(event)
         self.thumbs.do_layout()
 
-    def get_contents_margins(self):
-        if qt_version_info < (6, 0):
-            return self.getContentsMargins()
-        margins = self.contentsMargins()
-        return margins.left(), margins.top(), margins.right(), margins.bottom()
-
     def usable_size(self):
-        left, top, right, bottom = self.get_contents_margins()
-        width = self.width() - left - right
-        height = self.height() - top - bottom
-        width -= self.verticalScrollBar().sizeHint().width()
-        height -= self.horizontalScrollBar().sizeHint().height()
+        rect = self.contentsRect()
+        width = rect.width() - self.verticalScrollBar().sizeHint().width()
+        height = rect.height() - self.horizontalScrollBar().sizeHint().height()
         return width, height
 
     def set_minimum_height(self, min_height):
         bar = self.horizontalScrollBar()
         if bar.isVisible():
             min_height += bar.height()
-        left, top, right, bottom = self.get_contents_margins()
-        self.setMinimumHeight(min_height + top + bottom)
+        margins = self.contentsMargins()
+        self.setMinimumHeight(min_height + margins.top() + margins.bottom())
 
 
 class ThumbsLayout(QtWidgets.QLayout):
