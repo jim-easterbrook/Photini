@@ -397,7 +397,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelle Fotografie</translation>
     </message>
 </context>
 <context>
@@ -702,7 +702,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung</translation>
     </message>
     <message>
         <source>Attribution + non commercial</source>
@@ -710,7 +710,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + keine Ableitung</translation>
     </message>
     <message>
         <source>Attribution + share alike</source>
@@ -718,7 +718,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + nicht kommerziell + keine Ableitung</translation>
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
@@ -846,7 +846,7 @@ ausgewählt</numerusform>
     <message>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Spr: </translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -858,7 +858,7 @@ ausgewählt</numerusform>
     </message>
     <message>
         <source>Set default language</source>
-        <translation type="unfinished"></translation>
+        <translation>Standardsprache festlegen</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
+        <translation>Koordinaten aus GPX festlegen</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
@@ -1047,11 +1047,11 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Miniaturansichten korrigieren</translation>
     </message>
     <message>
         <source>Check for update</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Aktualisierung prüfen</translation>
     </message>
     <message>
         <source>Photini: version check</source>
@@ -1059,7 +1059,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie verwenden derzeit Photini Version {0}. Die neueste Version ist {1}.</translation>
     </message>
     <message>
         <source>Selected images:</source>
@@ -1085,11 +1085,11 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Namen der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Eigentümerschaft-Metadaten</translation>
     </message>
     <message>
         <source>Edit
@@ -1137,7 +1137,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Instructions</source>
-        <translation type="unfinished"></translation>
+        <translation>Anweisungen</translation>
     </message>
     <message>
         <source>Enter the work email address(es) for the person that created this image, such as name@domain.com.</source>
@@ -1165,7 +1165,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Enter address for the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Adresse der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>Address</source>
@@ -1193,7 +1193,7 @@ anwenden</translation>
     </message>
     <message>
         <source>State/Province</source>
-        <translation type="unfinished"></translation>
+        <translation>Staat/Provinz</translation>
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
@@ -1205,11 +1205,11 @@ anwenden</translation>
     </message>
     <message>
         <source>Use %Y to insert the year the photograph was taken.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwenden Sie %Y, um das Jahr einzufügen, in dem das Foto aufgenommen wurde.</translation>
     </message>
     <message>
         <source>Usage Terms</source>
-        <translation type="unfinished"></translation>
+        <translation>Nutzungsbedingungen</translation>
     </message>
     <message>
         <source>Web Statement</source>
@@ -1233,15 +1233,15 @@ anwenden</translation>
     </message>
     <message>
         <source>Initialise template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage initialisieren</translation>
     </message>
     <message>
         <source>Edit template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage bearbeiten</translation>
     </message>
     <message>
         <source>Apply template</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage anwenden</translation>
     </message>
     <message>
         <source>Creator Contact Information</source>
@@ -1288,7 +1288,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Define new licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Lizenz definieren</translation>
     </message>
     <message>
         <source>Name</source>
@@ -1455,7 +1455,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: Kamera definieren</translation>
     </message>
     <message>
         <source>Camera</source>
