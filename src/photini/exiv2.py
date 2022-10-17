@@ -20,10 +20,6 @@ import codecs
 import locale
 import logging
 import os
-import random
-import shutil
-import string
-import sys
 
 import exiv2
 
