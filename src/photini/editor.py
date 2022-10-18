@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import importlib
 import logging
 from optparse import OptionParser
@@ -176,9 +174,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # restore size and state
         size = self.width(), self.height()
         self.resize(*self.app.config_store.get('main_window', 'size', size))
-        window_state = self.app.config_store.get('main_window', 'state', 0)
-        full_screen = window_state & int(
-            Qt.WindowMaximized | Qt.WindowFullScreen)
+        window_state = Qt.WindowState(
+            self.app.config_store.get('main_window', 'state', 0))
+        full_screen = window_state & (Qt.WindowMaximized | Qt.WindowFullScreen)
         if full_screen:
             self.setWindowState(self.windowState() | full_screen)
         # image selector
@@ -504,9 +502,10 @@ jim@jim-easterbrook.me.uk</a><br /><br />
 
     @catch_all
     def resizeEvent(self, event):
-        window_state = int(self.windowState())
-        self.app.config_store.set('main_window', 'state', window_state)
-        if window_state & int(
+        window_state = self.windowState()
+        self.app.config_store.set(
+            'main_window', 'state', flag_to_int(window_state))
+        if window_state & (
                 Qt.WindowMinimized | Qt.WindowMaximized | Qt.WindowFullScreen):
             return
         size = self.width(), self.height()

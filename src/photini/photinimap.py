@@ -183,9 +183,12 @@ class MapWebView(QWebEngineView):
         self.setPage(MapWebPage(call_handler, parent=self))
         settings = self.settings()
         if using_qtwebengine:
-            settings.setAttribute(settings.Accelerated2dCanvasEnabled, False)
-        settings.setAttribute(settings.LocalContentCanAccessRemoteUrls, True)
-        settings.setAttribute(settings.LocalContentCanAccessFileUrls, True)
+            settings.setAttribute(
+                settings.__class__.Accelerated2dCanvasEnabled, False)
+        settings.setAttribute(
+            settings.__class__.LocalContentCanAccessRemoteUrls, True)
+        settings.setAttribute(
+            settings.__class__.LocalContentCanAccessFileUrls, True)
 
     @catch_all
     def dragEnterEvent(self, event):

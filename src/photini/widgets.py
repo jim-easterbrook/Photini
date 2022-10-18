@@ -79,7 +79,8 @@ class DropDownSelector(ComboBox):
         self._extendable = extendable
         self._ordered = ordered
         self._old_idx = 0
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setSizeAdjustPolicy(
+            QtWidgets.QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.set_values(values, default=default)
         self.currentIndexChanged.connect(self._index_changed)
 
@@ -351,7 +352,7 @@ class SingleLineEdit(MultiLineEdit):
     def __init__(self, *arg, **kw):
         super(SingleLineEdit, self).__init__(*arg, **kw)
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(self.NoWrap)
+        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 

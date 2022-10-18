@@ -242,7 +242,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
-        self.setButtonSymbols(self.NoButtons)
+        self.setButtonSymbols(QtWidgets.QSpinBox.NoButtons)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -280,7 +280,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.setDecimals(4)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
-        self.setButtonSymbols(self.NoButtons)
+        self.setButtonSymbols(QtWidgets.QDoubleSpinBox.NoButtons)
 
     @catch_all
     def contextMenuEvent(self, event):

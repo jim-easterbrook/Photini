@@ -18,6 +18,7 @@
 
 from collections import namedtuple
 from contextlib import contextmanager
+import enum
 from functools import wraps
 import importlib
 import logging
@@ -30,9 +31,10 @@ logger = logging.getLogger(__name__)
 
 # allow a "standard" list of objects to be imported with *
 __all__ = (
-    'Busy', 'catch_all', 'DisableWidget', 'execute', 'FormLayout', 'multiple',
-    'multiple_values', 'Qt', 'QtCore', 'QtGui', 'QtGui2', 'QtSignal', 'QtSlot',
-    'QtWidgets', 'scale_font', 'UnBusy', 'width_for_text', 'wrap_text'
+    'Busy', 'catch_all', 'DisableWidget', 'execute', 'flag_to_int',
+    'FormLayout', 'multiple', 'multiple_values', 'Qt', 'QtCore', 'QtGui',
+    'QtGui2', 'QtSignal', 'QtSlot', 'QtWidgets', 'scale_font', 'UnBusy',
+    'width_for_text', 'wrap_text'
     )
 
 # temporarily open config file to get any over-rides
@@ -260,6 +262,12 @@ def execute(widget, *arg, **kwds):
         return widget.exec_(*arg, **kwds)
     return widget.exec(*arg, **kwds)
 
+def flag_to_int(flags):
+    if isinstance(flags, enum.Enum):
+        # PySide6 started using Python enum for QFlags in v6.4
+        return flags.value
+    return int(flags)
+
 
 @contextmanager
 def Busy():
@@ -300,5 +308,5 @@ class FormLayout(QtWidgets.QFormLayout):
     def __init__(self, wrapped=False, **kwds):
         super(FormLayout, self).__init__(**kwds)
         if wrapped:
-            self.setRowWrapPolicy(self.WrapAllRows)
-        self.setFieldGrowthPolicy(self.AllNonFixedFieldsGrow)
+            self.setRowWrapPolicy(QtWidgets.QFormLayout.WrapAllRows)
+        self.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
