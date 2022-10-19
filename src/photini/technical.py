@@ -37,7 +37,7 @@ class DropdownEdit(DropDownSelector):
             key, *arg, extendable=True, ordered=True, **kw)
         self._image_list = image_list
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     @QtSlot(QtGui.QContextMenuEvent)
     @catch_all
@@ -84,7 +84,7 @@ class CameraList(DropdownEdit):
     def define_new_value(self):
         dialog = NewCameraDialog(
             self._image_list.get_selected_images(), parent=self)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return None, None
         camera = MD_CameraModel(dialog.get_value())
         if not camera:
@@ -132,7 +132,7 @@ class LensList(DropdownEdit):
     def define_new_value(self):
         dialog = NewLensDialog(
             self._image_list.get_selected_images(), parent=self)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return None, None
         lens_model = dialog.get_value()
         if not lens_model:
@@ -158,7 +158,8 @@ class AugmentSpinBox(object):
     def __init__(self):
         super(AugmentSpinBox, self).__init__()
         if self.isRightToLeft():
-            self.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.setAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.set_value(None)
         self.editingFinished.connect(self.editing_finished)
 
@@ -242,7 +243,7 @@ class IntSpinBox(QtWidgets.QSpinBox, AugmentSpinBox):
         self.setSingleStep(1)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
-        self.setButtonSymbols(QtWidgets.QSpinBox.NoButtons)
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -280,7 +281,7 @@ class DoubleSpinBox(QtWidgets.QDoubleSpinBox, AugmentSpinBox):
         self.setDecimals(4)
         lim = (2 ** 31) - 1
         self.setRange(-lim, lim)
-        self.setButtonSymbols(QtWidgets.QDoubleSpinBox.NoButtons)
+        self.setButtonSymbols(self.ButtonSymbols.NoButtons)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -421,10 +422,10 @@ class TimeZoneWidget(QtWidgets.QSpinBox, AugmentSpinBox):
     @catch_all
     def validate(self, text, pos):
         if re.match(r'[+-]?\d{1,2}(:\d{0,2})?$', text):
-            return QtGui.QValidator.Acceptable, text, pos
+            return QtGui.QValidator.State.Acceptable, text, pos
         if re.match(r'[+-]?$', text):
-            return QtGui.QValidator.Intermediate, text, pos
-        return QtGui.QValidator.Invalid, text, pos
+            return QtGui.QValidator.State.Intermediate, text, pos
+        return QtGui.QValidator.State.Invalid, text, pos
 
     @catch_all
     def valueFromText(self, text):
@@ -494,7 +495,7 @@ class DateAndTimeWidget(QtWidgets.QGridLayout):
         # precision
         self.addWidget(
             QtWidgets.QLabel(translate('TechnicalTab', 'Precision')), 1, 0)
-        self.members['precision'] = PrecisionSlider(Qt.Horizontal)
+        self.members['precision'] = PrecisionSlider(Qt.Orientation.Horizontal)
         self.members['precision'].setRange(1, 6)
         self.members['precision'].setValue(6)
         self.members['precision'].setPageStep(1)
@@ -630,7 +631,8 @@ class NewItemDialog(QtWidgets.QDialog):
         self.panel.setLayout(FormLayout())
         # ok & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.layout().addWidget(button_box)
@@ -803,7 +805,7 @@ class TabWidget(QtWidgets.QWidget):
                 (translate('TechnicalTab', 'reflect top left to bottom right',
                            'orientation dropdown, diagonal reflection'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
-        self.widgets['orientation'].setFocusPolicy(Qt.NoFocus)
+        self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
         other_group.layout().addRow(translate(
             'TechnicalTab', 'Orientation'), self.widgets['orientation'])
         # camera model
@@ -911,10 +913,12 @@ class TabWidget(QtWidgets.QWidget):
                     msg.setInformativeText(translate(
                         'TechnicalTab',
                         'Do you want to delete the Exif makernote?'))
-                    msg.setIcon(msg.Warning)
-                    msg.setStandardButtons(msg.YesToAll | msg.NoToAll)
-                    msg.setDefaultButton(msg.NoToAll)
-                    delete_makernote = execute(msg) == msg.YesToAll
+                    msg.setIcon(msg.Icon.Warning)
+                    msg.setStandardButtons(msg.StandardButton.YesToAll |
+                                           msg.StandardButton.NoToAll)
+                    msg.setDefaultButton(msg.StandardButton.NoToAll)
+                    delete_makernote = (
+                        execute(msg) == msg.StandardButton.YesToAll)
                 if delete_makernote:
                     image.metadata.set_delete_makernote()
             image.metadata.camera_model = value
@@ -1089,9 +1093,10 @@ class TabWidget(QtWidgets.QWidget):
                     translate('TechnicalTab', 'Update aperture & focal length'),
                     translate('TechnicalTab', 'Adjust image aperture and focal'
                               ' length to agree with lens specification?'),
-                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                    QtWidgets.QMessageBox.No
-                    ) == QtWidgets.QMessageBox.No:
+                    QtWidgets.QMessageBox.StandardButton.Yes |
+                    QtWidgets.QMessageBox.StandardButton.No,
+                    QtWidgets.QMessageBox.StandardButton.No
+                    ) == QtWidgets.QMessageBox.StandardButton.No:
                 return
             make_changes = True
             if new_aperture:

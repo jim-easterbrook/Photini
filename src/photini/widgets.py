@@ -29,7 +29,7 @@ translate = QtCore.QCoreApplication.translate
 class ComboBox(QtWidgets.QComboBox):
     def __init__(self, *args, **kwds):
         super(ComboBox, self).__init__(*args, **kwds)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
     @catch_all
     def wheelEvent(self, event):
@@ -80,7 +80,7 @@ class DropDownSelector(ComboBox):
         self._ordered = ordered
         self._old_idx = 0
         self.setSizeAdjustPolicy(
-            QtWidgets.QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            self.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.set_values(values, default=default)
         self.currentIndexChanged.connect(self._index_changed)
 
@@ -116,7 +116,7 @@ class DropDownSelector(ComboBox):
             self.addItem(translate('Widgets', '<new>'))
         if self._with_multiple:
             self.addItem(multiple_values())
-            self.setItemData(self.count() - 1, '', Qt.UserRole - 1)
+            self.setItemData(self.count() - 1, '', Qt.ItemDataRole.UserRole - 1)
         for text, data in values:
             self.add_item(text, data, adjust_width=False)
         self.set_dropdown_width()
@@ -199,9 +199,9 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
             self.spell_check = QtWidgets.QApplication.instance().spell_check
             self.spell_check.new_dict.connect(self.rehighlight)
             self.spell_formatter = QtGui.QTextCharFormat()
-            self.spell_formatter.setUnderlineColor(Qt.red)
+            self.spell_formatter.setUnderlineColor(Qt.GlobalColor.red)
             self.spell_formatter.setUnderlineStyle(
-                QtGui.QTextCharFormat.SpellCheckUnderline)
+                QtGui.QTextCharFormat.UnderlineStyle.SpellCheckUnderline)
             self.find_words = self.spell_check.find_words
             self.suggest = self.spell_check.suggest
         else:
@@ -209,9 +209,9 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
         if length:
             self.length_check = length
             self.length_formatter = QtGui.QTextCharFormat()
-            self.length_formatter.setUnderlineColor(Qt.blue)
+            self.length_formatter.setUnderlineColor(Qt.GlobalColor.blue)
             self.length_formatter.setUnderlineStyle(
-                QtGui.QTextCharFormat.SingleUnderline)
+                QtGui.QTextCharFormat.UnderlineStyle.SingleUnderline)
             if multi_string:
                 self.pattern = re.compile(r'\s*(.+?)(;|$)')
             else:
@@ -253,7 +253,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                  multi_string=False, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         if self.isRightToLeft():
-            self.set_text_alignment(Qt.AlignRight)
+            self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         self._key = key
         self.multiple_values = multiple_values()
         self.setTabChangesFocus(True)
@@ -283,7 +283,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 fm = menu.fontMetrics()
                 for suggestion in self.choices:
                     label = str(suggestion).replace('\n', ' ')
-                    label = fm.elidedText(label, Qt.ElideMiddle, self.width())
+                    label = fm.elidedText(
+                        label, Qt.TextElideMode.ElideMiddle, self.width())
                     action = QtGui2.QAction(label, suggestion_group)
                     action.setData(str(suggestion))
                     menu.insertAction(sep, action)
@@ -297,7 +298,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 if end <= cursor.positionInBlock():
                     continue
                 cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + end,
+                                   QtGui.QTextCursor.KeepAnchor)
                 break
             suggestions = self.highlighter.suggest(cursor.selectedText())
             if suggestions:
@@ -305,13 +307,14 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 for suggestion in suggestions:
                     action = QtGui2.QAction(suggestion, suggestion_group)
                     menu.insertAction(sep, action)
-        action = menu.exec_(event.globalPos())
+        action = execute(menu, event.globalPos())
         if action and action.actionGroup() == suggestion_group:
             if self._is_multiple:
                 self.new_value.emit(self._key, action.data())
             else:
                 cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end, QtGui.QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + end,
+                                   QtGui.QTextCursor.KeepAnchor)
                 cursor.insertText(action.iconText())
 
     def set_height(self, rows):
@@ -352,9 +355,9 @@ class SingleLineEdit(MultiLineEdit):
     def __init__(self, *arg, **kw):
         super(SingleLineEdit, self).__init__(*arg, **kw)
         self.setFixedHeight(QtWidgets.QLineEdit().sizeHint().height())
-        self.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setLineWrapMode(QtWidgets.QPlainTextEdit.LineWrapMode.NoWrap)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Return:
@@ -373,7 +376,7 @@ class LatLongDisplay(SingleLineEdit):
         super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
         self.image_list = image_list
         self.label = QtWidgets.QLabel(self.tr('Lat, long'))
-        self.label.setAlignment(Qt.AlignRight)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
         self.setEnabled(False)
         self.new_value.connect(self.editing_finished)
@@ -511,12 +514,12 @@ class LangAltWidget(QtWidgets.QWidget):
         # language drop down
         self.lang = DropDownSelector('', with_multiple=False, extendable=True)
         self.lang.setFixedWidth(width_for_text(self.lang, 'x' * 16))
-        self.lang.setFocusPolicy(Qt.NoFocus)
-        self.lang.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.lang.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.lang.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.lang.new_value.connect(self._change_lang)
         self.lang.customContextMenuRequested.connect(self._context_menu)
         layout.addWidget(self.lang)
-        layout.setAlignment(self.lang, Qt.AlignTop)
+        layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
         # ... and vice versa
@@ -532,10 +535,10 @@ class LangAltWidget(QtWidgets.QWidget):
             direction = self.layoutDirection()
         else:
             direction = QtCore.QLocale(lang).textDirection()
-        if direction == Qt.RightToLeft:
-            self.edit.set_text_alignment(Qt.AlignRight)
+        if direction == Qt.LayoutDirection.RightToLeft:
+            self.edit.set_text_alignment(Qt.AlignmentFlag.AlignRight)
         else:
-            self.edit.set_text_alignment(Qt.AlignLeft)
+            self.edit.set_text_alignment(Qt.AlignmentFlag.AlignLeft)
         self.edit.set_value(self.value[lang])
 
     @QtSlot(str, object)
@@ -548,7 +551,8 @@ class LangAltWidget(QtWidgets.QWidget):
         self.new_value.emit(key, self.get_value())
 
     def _regularise_default(self):
-        if LangAltDict.DEFAULT not in self.value or not self.value[LangAltDict.DEFAULT]:
+        if (LangAltDict.DEFAULT not in self.value
+                or not self.value[LangAltDict.DEFAULT]):
             return True
         prompt = QtCore.QLocale.system().bcp47Name()
         if prompt in self.value:

@@ -111,7 +111,7 @@ class InstanceServer(QtNetwork.QTcpServer):
         super(InstanceServer, self).__init__(*arg, **kw)
         config = BaseConfigStore('instance')
         self.newConnection.connect(self.new_connection)
-        if not self.listen(QtNetwork.QHostAddress.LocalHost):
+        if not self.listen(QtNetwork.QHostAddress.SpecialAddress.LocalHost):
             logger.error('Failed to start instance server:', self.errorString())
             return
         config.set('server', 'port', self.serverPort())
@@ -122,7 +122,8 @@ class InstanceServer(QtNetwork.QTcpServer):
     def new_connection(self):
         window = self.parent().window()
         window.setWindowState(
-            (window.windowState() & ~Qt.WindowMinimized) | Qt.WindowActive)
+            (window.windowState() & ~Qt.WindowState.WindowMinimized) |
+            Qt.WindowState.WindowActive)
         window.raise_()
         while self.hasPendingConnections():
             socket = self.nextPendingConnection()
@@ -176,7 +177,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(*self.app.config_store.get('main_window', 'size', size))
         window_state = Qt.WindowState(
             self.app.config_store.get('main_window', 'state', 0))
-        full_screen = window_state & (Qt.WindowMaximized | Qt.WindowFullScreen)
+        full_screen = window_state & (
+            Qt.WindowState.WindowMaximized | Qt.WindowState.WindowFullScreen)
         if full_screen:
             self.setWindowState(self.windowState() | full_screen)
         # image selector
@@ -187,7 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # start instance server
         instance_server = InstanceServer(parent=self)
         instance_server.new_files.connect(
-            self.image_list.open_file_list, Qt.QueuedConnection)
+            self.image_list.open_file_list, Qt.ConnectionType.QueuedConnection)
         # update config file
         if self.app.config_store.config.has_section('tabs'):
             conv = {
@@ -236,11 +238,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # file menu
         file_menu = self.menuBar().addMenu(translate('MenuBar', 'File'))
         action = file_menu.addAction(translate('MenuBar', 'Open files'))
-        action.setShortcuts(QtGui.QKeySequence.Open)
+        action.setShortcuts(QtGui.QKeySequence.StandardKey.Open)
         action.triggered.connect(self.image_list.open_files)
         self.save_action = file_menu.addAction(
             translate('MenuBar', 'Save changes'))
-        self.save_action.setShortcuts(QtGui.QKeySequence.Save)
+        self.save_action.setShortcuts(QtGui.QKeySequence.StandardKey.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.image_list.save_files)
         self.fix_thumbs_action = file_menu.addAction(
@@ -258,8 +260,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.selected_actions = self.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
         action = file_menu.addAction(translate('MenuBar', 'Quit'))
-        action.setShortcuts(
-            [QtGui.QKeySequence.Quit, QtGui.QKeySequence.Close])
+        action.setShortcuts([QtGui.QKeySequence.StandardKey.Quit,
+                             QtGui.QKeySequence.StandardKey.Close])
         action.triggered.connect(
             QtWidgets.QApplication.instance().closeAllWindows)
         # options menu
@@ -314,11 +316,11 @@ class MainWindow(QtWidgets.QMainWindow):
         action.triggered.connect(self.open_docs)
         # main application area
         self.central_widget = QtWidgets.QSplitter()
-        self.central_widget.setOrientation(Qt.Vertical)
+        self.central_widget.setOrientation(Qt.Orientation.Vertical)
         self.central_widget.setChildrenCollapsible(False)
         self.tabs = QtWidgets.QTabWidget()
         self.tabs.setTabBar(QTabBar())
-        self.tabs.setElideMode(Qt.ElideRight)
+        self.tabs.setElideMode(Qt.TextElideMode.ElideRight)
         self.tabs.currentChanged.connect(self.new_tab)
         self.tabs.setMovable(True)
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
@@ -505,8 +507,9 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         window_state = self.windowState()
         self.app.config_store.set(
             'main_window', 'state', flag_to_int(window_state))
-        if window_state & (
-                Qt.WindowMinimized | Qt.WindowMaximized | Qt.WindowFullScreen):
+        if window_state & (Qt.WindowState.WindowMinimized |
+                           Qt.WindowState.WindowMaximized |
+                           Qt.WindowState.WindowFullScreen):
             return
         size = self.width(), self.height()
         self.app.config_store.set('main_window', 'size', size)
@@ -520,7 +523,7 @@ def main(argv=None):
         sys.argv = argv
     if qt_version_info < (6, 0):
         QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+        QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     # let Qt handle its options
     app = QtWidgets.QApplication(sys.argv)
     # get remaining argument list after Qt has swallowed its options

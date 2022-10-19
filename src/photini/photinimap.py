@@ -184,11 +184,11 @@ class MapWebView(QWebEngineView):
         settings = self.settings()
         if using_qtwebengine:
             settings.setAttribute(
-                settings.__class__.Accelerated2dCanvasEnabled, False)
+                settings.WebAttribute.Accelerated2dCanvasEnabled, False)
         settings.setAttribute(
-            settings.__class__.LocalContentCanAccessRemoteUrls, True)
+            settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         settings.setAttribute(
-            settings.__class__.LocalContentCanAccessFileUrls, True)
+            settings.WebAttribute.LocalContentCanAccessFileUrls, True)
 
     @catch_all
     def dragEnterEvent(self, event):
@@ -241,7 +241,7 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
         label = QtWidgets.QLabel(translate('MapTabsAll', 'Altitude'))
-        label.setAlignment(Qt.AlignRight)
+        label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
         self.widgets['altitude'] = DoubleSpinBox()
         self.widgets['altitude'].setSuffix(' m')
@@ -256,11 +256,11 @@ class PhotiniMap(QtWidgets.QWidget):
             self.widgets['get_altitude'] = None
         # search
         label = QtWidgets.QLabel(translate('MapTabsAll', 'Search'))
-        label.setAlignment(Qt.AlignRight)
+        label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 3, 0)
         self.widgets['search'] = ComboBox()
         self.widgets['search'].setEditable(True)
-        self.widgets['search'].setInsertPolicy(ComboBox.NoInsert)
+        self.widgets['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
         self.widgets['search'].lineEdit().setPlaceholderText(
             translate('MapTabsAll', '<new search>'))
         self.widgets['search'].lineEdit().returnPressed.connect(self.search)
@@ -356,7 +356,7 @@ class PhotiniMap(QtWidgets.QWidget):
     </script>'''
         initialize = initialize.format(lat=lat, lng=lng, zoom=zoom)
         page = page.format(initialize=initialize, head=self.get_head())
-        QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+        QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         self.widgets['map'].setHtml(
             page, QtCore.QUrl.fromLocalFile(self.script_dir))
 

@@ -35,12 +35,14 @@ class EditSettings(QtWidgets.QDialog):
         scroll_area = QtWidgets.QScrollArea()
         self.layout().addWidget(scroll_area)
         panel = QtWidgets.QWidget()
-        panel.setLayout(FormLayout())
-        panel.layout().setRowWrapPolicy(max(QtWidgets.QFormLayout.WrapLongRows,
-                                            panel.layout().rowWrapPolicy()))
+        layout = FormLayout()
+        panel.setLayout(layout)
+        if layout.rowWrapPolicy() == layout.RowWrapPolicy.DontWrapRows:
+            layout.setRowWrapPolicy(layout.RowWrapPolicy.WrapLongRows)
         # apply & cancel buttons
         self.button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Apply | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Apply |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         self.button_box.clicked.connect(self.button_clicked)
         self.layout().addWidget(self.button_box)
         # IPTC data
@@ -128,7 +130,8 @@ class EditSettings(QtWidgets.QDialog):
     @QtSlot(QtWidgets.QAbstractButton)
     @catch_all
     def button_clicked(self, button):
-        if button != self.button_box.button(QtWidgets.QDialogButtonBox.Apply):
+        if button != self.button_box.button(
+                QtWidgets.QDialogButtonBox.StandardButton.Apply):
             return self.reject()
         # change config
         if self.iptc_always.isChecked():

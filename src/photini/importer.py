@@ -262,8 +262,8 @@ class NameMangler(QtCore.QObject):
 class PathFormatValidator(QtGui.QValidator):
     def validate(self, inp, pos):
         if os.path.abspath(inp) == inp:
-            return QtGui.QValidator.Acceptable, inp, pos
-        return QtGui.QValidator.Intermediate, inp, pos
+            return self.State.Acceptable, inp, pos
+        return self.State.Intermediate, inp, pos
 
     def fixup(self, inp):
         return os.path.abspath(inp)
@@ -295,7 +295,8 @@ class TabWidget(QtWidgets.QWidget):
         box.setContentsMargins(0, 0, 0, 0)
         self.source_selector = ComboBox()
         self.source_selector.currentIndexChanged.connect(self.new_source)
-        self.source_selector.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.source_selector.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu)
         self.source_selector.customContextMenuRequested.connect(
             self.remove_folder)
         box.addWidget(self.source_selector)
@@ -329,7 +330,7 @@ class TabWidget(QtWidgets.QWidget):
         # file list
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection)
+            self.file_list_widget.SelectionMode.ExtendedSelection)
         self.file_list_widget.itemSelectionChanged.connect(self.selection_changed)
         self.layout().addWidget(self.file_list_widget, 1, 0)
         # selection buttons
@@ -361,7 +362,7 @@ class TabWidget(QtWidgets.QWidget):
         # final initialisation
         self.image_list.sort_order_changed.connect(self.sort_file_list)
         path = QtCore.QStandardPaths.writableLocation(
-            QtCore.QStandardPaths.PicturesLocation)
+            QtCore.QStandardPaths.StandardLocation.PicturesLocation)
         self.path_format.setText(
             os.path.join(path, '%Y', '%Y_%m_%d', '{name}'))
 
@@ -500,14 +501,14 @@ class TabWidget(QtWidgets.QWidget):
             'ImporterTab', 'Importing photos has not finished.')))
         dialog.setInformativeText(translate(
             'ImporterTab', 'Closing now will terminate the import.'))
-        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(
-            QtWidgets.QMessageBox.Close | QtWidgets.QMessageBox.Cancel)
-        dialog.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+            dialog.StandardButton.Close | dialog.StandardButton.Cancel)
+        dialog.setDefaultButton(dialog.StandardButton.Cancel)
         result = execute(dialog)
-        if result == QtWidgets.QMessageBox.Close:
+        if result == dialog.StandardButton.Close:
             self.stop_copy()
-        return result == QtWidgets.QMessageBox.Cancel
+        return result == dialog.StandardButton.Cancel
 
     def new_selection(self, selection):
         pass
@@ -560,18 +561,19 @@ class TabWidget(QtWidgets.QWidget):
             dest_path = self.nm.transform(file_data)
             file_data['dest_path'] = dest_path
             item = QtWidgets.QListWidgetItem(name + ' -> ' + dest_path)
-            item.setData(Qt.UserRole, name)
+            item.setData(Qt.ItemDataRole.UserRole, name)
             if os.path.exists(dest_path):
-                item.setFlags(Qt.NoItemFlags)
+                item.setFlags(Qt.ItemFlag.NoItemFlags)
             else:
                 if not first_active:
                     first_active = item
-                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
+                item.setFlags(
+                    Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled)
             self.file_list_widget.addItem(item)
         if not first_active:
             first_active = item
         self.file_list_widget.scrollToItem(
-            first_active, QtWidgets.QAbstractItemView.PositionAtTop)
+            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
 
     @QtSlot()
     @catch_all
@@ -609,9 +611,9 @@ class TabWidget(QtWidgets.QWidget):
         first_active = None
         for row in range(count):
             item = self.file_list_widget.item(row)
-            if not (item.flags() & Qt.ItemIsSelectable):
+            if not (item.flags() & Qt.ItemFlag.ItemIsSelectable):
                 continue
-            name = item.data(Qt.UserRole)
+            name = item.data(Qt.ItemDataRole.UserRole)
             timestamp = self.file_data[name]['timestamp']
             if timestamp > since:
                 if not first_active:
@@ -632,7 +634,7 @@ class TabWidget(QtWidgets.QWidget):
     def copy_selected(self, move=False):
         copy_list = []
         for item in self.file_list_widget.selectedItems():
-            name = item.data(Qt.UserRole)
+            name = item.data(Qt.ItemDataRole.UserRole)
             info = self.file_data[name]
             if (move and 'path' in info and
                     self.image_list.get_image(info['path'])):
@@ -672,8 +674,8 @@ class TabWidget(QtWidgets.QWidget):
                     last_file_copied = info['dest_path'], info['timestamp']
                 for n in range(self.file_list_widget.count()):
                     item = self.file_list_widget.item(n)
-                    if item.data(Qt.UserRole) == info['name']:
-                        item.setFlags(Qt.NoItemFlags)
+                    if item.data(Qt.ItemDataRole.UserRole) == info['name']:
+                        item.setFlags(Qt.ItemFlag.NoItemFlags)
                         self.file_list_widget.scrollToItem(
                             item, QtWidgets.QAbstractItemView.PositionAtTop)
                         self.selection_changed()

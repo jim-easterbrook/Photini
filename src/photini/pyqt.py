@@ -83,6 +83,21 @@ def import_PySide2():
     from PySide2.QtWebChannel import QWebChannel
     from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 
+def import_PyQt6():
+    global QtCore, QtGui, QtNetwork, QtWidgets
+    global Qt, QtSignal, QtSlot
+    global QtGui2, using_qtwebengine
+    global QWebChannel, QWebEngineView, QWebEnginePage
+    from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
+    from PyQt6.QtCore import Qt
+    from PyQt6.QtCore import pyqtSignal as QtSignal
+    from PyQt6.QtCore import pyqtSlot as QtSlot
+    QtGui2 = QtGui
+    using_qtwebengine = True
+    from PyQt6.QtWebChannel import QWebChannel
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWebEngineCore import QWebEnginePage
+
 def import_PyQt5():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot
@@ -118,13 +133,14 @@ def import_PyQt5():
 
 # choose Qt package
 if qt_lib == 'auto':
-    _libs = ('PyQt5', 'PySide2', 'PySide6')
+    _libs = ('PyQt5', 'PyQt6', 'PySide2', 'PySide6')
 else:
     _libs = (qt_lib,)
 _error = ['']
 for key in _libs:
     try:
         {'PyQt5': import_PyQt5,
+         'PyQt6': import_PyQt6,
          'PySide2': import_PySide2,
          'PySide6': import_PySide6,
          }[key]()
@@ -138,7 +154,7 @@ for key in _libs:
         _error.append('{} import failed: {}'.format(key, str(ex)))
 else:
     raise ImportError('\n'.join(_error))
-using_pyside = qt_lib != 'PyQt5'
+using_pyside = 'PySide' in qt_lib
 
 style = config.get('pyqt', 'style')
 if style:
@@ -146,16 +162,17 @@ if style:
 config.save()
 del config, style
 
-if qt_lib == 'PyQt5':
+if using_pyside:
+    qt_version_info = QtCore.__version_info__
+    qt_version = '{} {}, Qt {}'.format(
+        qt_lib, PySide_version, QtCore.__version__)
+else:
     qt_version_info = namedtuple(
         'qt_version_info', ('major', 'minor', 'micro'))._make(
             map(int, QtCore.QT_VERSION_STR.split('.')))
     qt_version = 'PyQt {}, Qt {}'.format(
         QtCore.PYQT_VERSION_STR, QtCore.QT_VERSION_STR)
-else:
-    qt_version_info = QtCore.__version_info__
-    qt_version = '{} {}, Qt {}'.format(
-        qt_lib, PySide_version, QtCore.__version__)
+
 if qt_version_info < (5, 8):
     raise ImportError(
         'Qt version {}.{}.{} is less than 5.8'.format(*qt_version_info))
@@ -271,7 +288,7 @@ def flag_to_int(flags):
 
 @contextmanager
 def Busy():
-    QtWidgets.QApplication.setOverrideCursor(Qt.WaitCursor)
+    QtWidgets.QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
     try:
         yield
     finally:
@@ -308,5 +325,5 @@ class FormLayout(QtWidgets.QFormLayout):
     def __init__(self, wrapped=False, **kwds):
         super(FormLayout, self).__init__(**kwds)
         if wrapped:
-            self.setRowWrapPolicy(QtWidgets.QFormLayout.WrapAllRows)
-        self.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow)
+            self.setRowWrapPolicy(self.RowWrapPolicy.WrapAllRows)
+        self.setFieldGrowthPolicy(self.FieldGrowthPolicy.AllNonFixedFieldsGrow)

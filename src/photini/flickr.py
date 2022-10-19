@@ -501,8 +501,8 @@ class TabWidget(PhotiniUploader):
                       'File "{0}" has {1} bytes and exceeds Flickr\'s limit' +
                       ' of {2} bytes.').format(
                           os.path.basename(image.path), size, max_size))
-        dialog.setIcon(QtWidgets.QMessageBox.Warning)
-        dialog.setStandardButtons(QtWidgets.QMessageBox.Ignore)
+        dialog.setIcon(dialog.Icon.Warning)
+        dialog.setStandardButtons(dialog.StandardButton.Ignore)
         execute(dialog)
         return 'omit'
 
@@ -639,11 +639,12 @@ class TabWidget(PhotiniUploader):
         dialog.layout().addRow(QtWidgets.QLabel(translate(
             'FlickrTab', 'Album will be created when photos are uploaded')))
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return
         title = title.toPlainText()
         if not title:

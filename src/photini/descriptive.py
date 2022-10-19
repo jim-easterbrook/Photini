@@ -39,7 +39,7 @@ class RatingWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # slider
-        self.slider = Slider(Qt.Horizontal)
+        self.slider = Slider(Qt.Orientation.Horizontal)
         self.slider.setFixedWidth(width_for_text(self.slider, 'x' * 25))
         self.slider.setRange(-2, 5)
         self.slider.setPageStep(1)
@@ -49,12 +49,13 @@ class RatingWidget(QtWidgets.QWidget):
         # display
         self.display = QtWidgets.QLineEdit()
         if self.display.isRightToLeft():
-            self.display.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.display.setAlignment(
+                Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.display.setStyleSheet("* {background-color:rgba(0,0,0,0);}")
         self.display.setFrame(False)
         self.display.setReadOnly(True)
-        self.display.setContextMenuPolicy(Qt.NoContextMenu)
-        self.display.setFocusPolicy(Qt.NoFocus)
+        self.display.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        self.display.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.layout().addWidget(self.display)
         # adopt child methods/signals
         self.is_multiple = self.slider.is_multiple

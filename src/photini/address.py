@@ -204,7 +204,7 @@ class LocationInfo(QtWidgets.QWidget):
                 translate('AddressTab', 'Region'),
                 )):
             label = QtWidgets.QLabel(text)
-            label.setAlignment(Qt.AlignRight)
+            label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
         layout.addWidget(self.members['SubLocation'], 0, 1, 1, 2)
         layout.addWidget(self.members['City'], 1, 1, 1, 2)
@@ -276,7 +276,7 @@ class TabWidget(QtWidgets.QWidget):
         self.location_info.setTabBar(tab_bar)
         tab_bar.context_menu.connect(self.location_tab_context_menu)
         tab_bar.tabMoved.connect(self.location_tab_moved)
-        self.location_info.setElideMode(Qt.ElideLeft)
+        self.location_info.setElideMode(Qt.TextElideMode.ElideLeft)
         self.location_info.setMovable(True)
         self.location_info.setEnabled(False)
         self.layout().addWidget(self.location_info, stretch=1)

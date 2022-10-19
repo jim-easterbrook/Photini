@@ -68,11 +68,12 @@ class RightsDropDown(DropDownSelector):
         url = SingleLineEdit('url')
         dialog.layout().addRow(self.tr('URL'), url)
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return None, None
         name = name.toPlainText()
         url = url.toPlainText()
@@ -169,7 +170,7 @@ class TabWidget(QtWidgets.QWidget):
     def data_form(self):
         widgets = {}
         scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(QtWidgets.QFrame.NoFrame)
+        scrollarea.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         scrollarea.setWidgetResizable(True)
         form = QtWidgets.QWidget()
         form.setLayout(FormLayout())
@@ -411,11 +412,12 @@ class TabWidget(QtWidgets.QWidget):
         dialog.layout().addWidget(form)
         # apply & cancel buttons
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return
         self.config_store.remove_section('ownership')
         for key in widgets:
