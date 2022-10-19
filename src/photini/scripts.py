@@ -42,7 +42,8 @@ def configure(argv=None):
     for package in packages:
         # run separate python interpreter for each to avoid interactions
         cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
-        if subprocess.run(' '.join(cmd), shell=True).returncode == 0:
+        if subprocess.run(' '.join(cmd), shell=True,
+                          stderr=subprocess.DEVNULL).returncode == 0:
             installed.append(package)
     # can't install PyQt5 or PyQt6 with pip
     for package in list(packages):
