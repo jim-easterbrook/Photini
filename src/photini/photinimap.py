@@ -28,7 +28,8 @@ import pkg_resources
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
-    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, using_qtwebengine)
+    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView,
+    qt_version_info, using_qtwebengine)
 from photini.technical import DoubleSpinBox
 from photini.widgets import ComboBox, LatLongDisplay
 
@@ -208,7 +209,11 @@ class MapWebView(QWebEngineView):
             return super(MapWebView, self).dropEvent(event)
         text = event.mimeData().data(DRAG_MIMETYPE).data().decode('utf-8')
         if text:
-            self.drop_text.emit(event.pos().x(), event.pos().y(), text)
+            if qt_version_info < (6, 0):
+                pos = event.pos()
+            else:
+                pos = event.position().toPoint()
+            self.drop_text.emit(pos.x(), pos.y(), text)
             event.acceptProposedAction()
 
 
