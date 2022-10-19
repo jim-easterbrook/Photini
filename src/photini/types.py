@@ -910,7 +910,9 @@ class LangAltDict(dict):
         return any(self.values())
 
     def __eq__(self, other):
-        return not self.__ne__(other)
+        if isinstance(other, LangAltDict):
+            return not self.__ne__(other)
+        return super(LangAltDict, self).__eq__(other)
 
     def __ne__(self, other):
         if isinstance(other, LangAltDict):
