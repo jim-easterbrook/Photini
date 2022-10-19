@@ -107,7 +107,7 @@ Using a virtual environment has other advantages, such as easy uninstallation, s
 
 Linux & MacOS users have another decision to make - whether to install Photini's dependencies with pip_ or with the operating system's package manager.
 For a good introduction to the advantages and disadvantages of each I suggest reading `Managing Python packages the right way`_.
-All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 or PySide2 or PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins and so that you get the same GUI style as other Qt based applications.
+All of Photini's dependencies can be installed with pip_, but I recommend installing PySide6 / PySide2 / PyQt6 / PyQt5 (whichever is available) with the package manager to ensure you install all of its system libraries and plugins, and so that you get the same GUI style as other Qt based applications.
 
 Virtual environment
 ^^^^^^^^^^^^^^^^^^^
@@ -128,7 +128,7 @@ I use the name ``photini`` and create it in my home directory:
         (photini) C:\Users\Jim>python -m pip install -U pip
 
 Note that pip may need to be updated again from within the virtual environment.
-The Linux/MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide2) available within the virtual environment.
+The Linux/MacOS option ``--system-site-packages`` makes packages installed with the system package manager (e.g. PySide6 / PySide2 / PyQt6 / PyQt5) available within the virtual environment.
 You should stay in this virtual environment while installing and testing Photini.
 
 Initial installation
@@ -576,23 +576,26 @@ Essential dependencies
 
 These are all required for Photini to be usable.
 
-=============================  =================  ============================  =================
-Package                        Minimum version    Typical Linux package name    PyPI package name
-=============================  =================  ============================  =================
-Python_                        3.6                python3
-PyQt_ [1]                      5.9                python3-qt5 or python3-pyqt5  PyQt5
-PySide2_ [1]                   5.11.0             python3-pyside2               PySide2
-PySide6_ [1]                   6.2.0              python3-pyside6               PySide6
-QtWebEngine_ or QtWebKit_ [2]                     python3-pyside2.qtwebengine   PyQtWebEngine
-                                                  or python3-pyqt5.qtwebkit
-`python-exiv2`_                0.11.0                                           exiv2
-appdirs                        1.3                python3-appdirs               appdirs
-requests_                      2.4                python3-requests              requests
-=============================  =================  ============================  =================
+=============================  =================  ================================  =================
+Package                        Minimum version    Typical Linux package name        PyPI package name
+=============================  =================  ================================  =================
+Python_                        3.6                ``python3``
+PyQt_ [1]                      5.9                ``python3-qt5``
+                                                  or ``python3-pyqt5``
+                                                  or ``python310-PyQt6``
+PySide2_ [1]                   5.11.0             ``python3-pyside2``               PySide2
+PySide6_ [1]                   6.2.0              ``python3-pyside6``               PySide6
+QtWebEngine_ or QtWebKit_ [2]                     ``python3-pyside2.qtwebengine``   PyQtWebEngine
+                                                  or ``python3-pyqt5.qtwebkit``
+                                                  or ``python310-PyQt6-WebEngine``
+`python-exiv2`_                0.11.0                                               exiv2
+appdirs                        1.3                ``python3-appdirs``               appdirs
+requests_                      2.4                ``python3-requests``              requests
+=============================  =================  ================================  =================
 
 [1] PyQt_, PySide2_, and PySide6_ are Python interfaces to the Qt GUI framework.
 Photini can use any of them (although PySide2 is preferred), so you can install whichever one you prefer that is available for your operating system.
-If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
+If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>` or by running ``photini-configure``.
 
 [2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
 QtWebEngine is preferred, but is not available on all operating systems.
