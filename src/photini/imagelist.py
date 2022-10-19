@@ -601,7 +601,7 @@ class ImageList(QtWidgets.QWidget):
                 ' '.join(['*.' + x for x in video_types()]))
             ]
         if not self.app.config_store.get('pyqt', 'native_dialog', True):
-            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
+            args += [None, QtWidgets.QFileDialog.Option.DontUseNativeDialog]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(*args)
         path_list = path_list[0]
         if not path_list:

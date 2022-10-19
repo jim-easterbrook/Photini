@@ -298,8 +298,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 if end <= cursor.positionInBlock():
                     continue
                 cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end,
-                                   QtGui.QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
                 break
             suggestions = self.highlighter.suggest(cursor.selectedText())
             if suggestions:
@@ -313,8 +312,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
                 self.new_value.emit(self._key, action.data())
             else:
                 cursor.setPosition(block_pos + start)
-                cursor.setPosition(block_pos + end,
-                                   QtGui.QTextCursor.KeepAnchor)
+                cursor.setPosition(block_pos + end, cursor.MoveMode.KeepAnchor)
                 cursor.insertText(action.iconText())
 
     def set_height(self, rows):

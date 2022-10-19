@@ -370,7 +370,7 @@ class DateTimeEdit(QtWidgets.QDateTimeEdit, AugmentSpinBox):
     @catch_all
     def validate(self, text, pos):
         if not text:
-            return QtGui.QValidator.Acceptable, text, pos
+            return QtGui.QValidator.State.Acceptable, text, pos
         return super(DateTimeEdit, self).validate(text, pos)
 
     @QtSlot(int)

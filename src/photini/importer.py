@@ -622,7 +622,7 @@ class TabWidget(QtWidgets.QWidget):
         if not first_active:
             first_active = item
         self.file_list_widget.scrollToItem(
-            first_active, QtWidgets.QAbstractItemView.PositionAtTop)
+            first_active, self.file_list_widget.ScrollHint.PositionAtTop)
 
     @QtSlot()
     @catch_all
@@ -677,7 +677,8 @@ class TabWidget(QtWidgets.QWidget):
                     if item.data(Qt.ItemDataRole.UserRole) == info['name']:
                         item.setFlags(Qt.ItemFlag.NoItemFlags)
                         self.file_list_widget.scrollToItem(
-                            item, QtWidgets.QAbstractItemView.PositionAtTop)
+                            item,
+                            self.file_list_widget.ScrollHint.PositionAtTop)
                         self.selection_changed()
                         break
                 self.image_list.open_file(info['dest_path'])
