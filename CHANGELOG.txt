@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see
 <http://www.gnu.org/licenses/>.
 
+Changes in v2022.10.0:
+  1/ Add PyQt6 to Qt library choices.
+  2/ Other minor improvements and bug fixes.
+
 Changes in v2022.9.1:
   1/ Fix recursion bug when image list is single row.
 
