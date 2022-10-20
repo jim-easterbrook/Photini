@@ -615,7 +615,9 @@ class LangAltWidget(QtWidgets.QWidget):
 
     def _set_default_lang(self, lang):
         self.value.set_default_lang(lang)
-        self.new_value.emit(self.edit._key, self.get_value())
+        value = self.get_value()
+        self.set_value(value)
+        self.new_value.emit(self.edit._key, value)
 
     def labeled_lang(self, lang):
         if lang == LangAltDict.DEFAULT:
