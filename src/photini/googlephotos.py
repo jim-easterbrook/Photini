@@ -295,13 +295,19 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def get_upload_params(self, image):
-        title = image.metadata.title
-        description = image.metadata.description
-        if title and description:
-            description = title + '\n\n' + description
-        elif title:
-            description = title
-        elif not description:
+        title = image.metadata.title.default_text()
+        headline = str(image.metadata.headline)
+        description = image.metadata.description.default_text()
+        paragraphs = []
+        if title:
+            paragraphs.append(title)
+        if headline:
+            paragraphs.append(headline)
+        if description:
+            paragraphs.append(description)
+        if paragraphs:
+            description = '\n\n'.join(paragraphs)
+        else:
             description = image.path
         params = {
             'description': description,
