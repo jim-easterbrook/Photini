@@ -260,11 +260,13 @@ class NameMangler(QtCore.QObject):
 
 
 class PathFormatValidator(QtGui.QValidator):
+    @catch_all
     def validate(self, inp, pos):
         if os.path.abspath(inp) == inp:
             return self.State.Acceptable, inp, pos
         return self.State.Intermediate, inp, pos
 
+    @catch_all
     def fixup(self, inp):
         return os.path.abspath(inp)
 

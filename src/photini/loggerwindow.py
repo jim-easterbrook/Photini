@@ -115,6 +115,7 @@ class LoggerWindow(QtWidgets.QWidget):
             sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
     @QtSlot()
+    @catch_all
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()
@@ -133,10 +134,12 @@ class LoggerWindow(QtWidgets.QWidget):
                 of.write(self.text.toPlainText())
 
     @QtSlot(str)
+    @catch_all
     def write(self, msg):
         self.text.append(msg)
 
     @QtSlot()
+    @catch_all
     def flush(self):
         if self.isHidden():
             self.show()

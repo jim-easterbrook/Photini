@@ -148,6 +148,7 @@ class DropDownSelector(ComboBox):
             self.setCurrentIndex(self._old_idx)
             self.blockSignals(blocked)
 
+    @catch_all
     def findData(self, data):
         # Qt's findData only works with simple types
         for n in range(self._last_idx()):
@@ -262,11 +263,13 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         self.highlighter = TextHighlighter(
             spell_check, length_check, multi_string, self.document())
 
+    @catch_all
     def focusOutEvent(self, event):
         if not self._is_multiple:
             self.new_value.emit(self._key, self.get_value())
         super(MultiLineEdit, self).focusOutEvent(event)
 
+    @catch_all
     def keyPressEvent(self, event):
         if self._is_multiple:
             self._is_multiple = False
@@ -357,12 +360,14 @@ class SingleLineEdit(MultiLineEdit):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+    @catch_all
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Return:
             event.ignore()
             return
         super(SingleLineEdit, self).keyPressEvent(event)
 
+    @catch_all
     def insertFromMimeData(self, source):
         self.insertPlainText(source.text().replace('\n', ' '))
 
@@ -423,6 +428,7 @@ class Slider(QtWidgets.QSlider):
         self._is_multiple = False
         self.sliderPressed.connect(self.slider_pressed)
 
+    @catch_all
     def focusOutEvent(self, event):
         self.editing_finished.emit()
         super(Slider, self).focusOutEvent(event)
@@ -472,6 +478,7 @@ class StartStopButton(QtWidgets.QPushButton):
         start_size = super(StartStopButton, self).sizeHint()
         self.minimum_size = stop_size.expandedTo(start_size)
 
+    @catch_all
     def sizeHint(self):
         return self.minimum_size
 
@@ -523,6 +530,7 @@ class LangAltWidget(QtWidgets.QWidget):
         # ... and vice versa
         self.lang.define_new_value = self._define_new_lang
 
+    @catch_all
     def setToolTip(self, text):
         self.edit.setToolTip(text)
 

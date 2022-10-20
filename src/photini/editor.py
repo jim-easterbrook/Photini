@@ -49,6 +49,7 @@ translate = QtCore.QCoreApplication.translate
 
 
 class QTabBar(QtWidgets.QTabBar):
+    @catch_all
     def tabSizeHint(self, index):
         size = super(QTabBar, self).tabSizeHint(index)
         size.setWidth(max(size.width(), width_for_text(self, 'x' * 10)))

@@ -369,6 +369,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.remove_widget = self.thumbs.removeWidget
         self.multi_row_changed = self.thumbs.multi_row_changed
 
+    @catch_all
     def ensureWidgetVisible(self, widget):
         left, top, right, bottom = self.thumbs.getContentsMargins()
         super(ScrollArea, self).ensureWidgetVisible(
@@ -448,6 +449,7 @@ class ThumbsLayout(QtWidgets.QLayout):
     def hasHeightForWidth(self):
         return False
 
+    @catch_all
     def setGeometry(self, rect):
         super(ThumbsLayout, self).setGeometry(rect)
         self.do_layout(rect)

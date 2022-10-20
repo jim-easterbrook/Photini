@@ -129,6 +129,7 @@ class BaseWebEnginePage(QWebEnginePage):
 
 
 class TransientWebPage(BaseWebEnginePage):
+    @catch_all
     def acceptNavigationRequest(self, url, type_, isMainFrame):
         self.open_in_browser(url)
         # delete temporary child created by createWindow
@@ -162,6 +163,7 @@ class MapWebPage(BaseWebEnginePage):
         self.mainFrame().addToJavaScriptWindowObject(
             'python', self.call_handler)
 
+    @catch_all
     def createWindow(self, type_):
         return TransientWebPage(parent=self)
 
@@ -171,6 +173,7 @@ class MapWebPage(BaseWebEnginePage):
         else:
             self.mainFrame().evaluateJavaScript(command)
 
+    @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
         logger.log(
             logging.INFO + (level * 10), '%s line %d: %s', source, line, msg)
