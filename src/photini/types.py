@@ -652,7 +652,7 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def data_from_image(image, max_size=60000):
         buf = QtCore.QBuffer()
-        buf.open(buf.WriteOnly)
+        buf.open(buf.OpenModeFlag.WriteOnly)
         quality = 95
         while quality > 10:
             image.save(buf, 'JPEG', quality)

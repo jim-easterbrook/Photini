@@ -197,7 +197,7 @@ class Image(QtWidgets.QFrame):
             w, h = h, w
         # convert Qt image to PIL image
         buf = QtCore.QBuffer()
-        buf.open(buf.WriteOnly)
+        buf.open(buf.OpenModeFlag.WriteOnly)
         qt_im.save(buf, 'PPM')
         data = io.BytesIO(buf.data().data())
         try:
