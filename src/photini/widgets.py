@@ -358,7 +358,7 @@ class SingleLineEdit(MultiLineEdit):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return:
+        if event.key() == Qt.Key.Key_Return:
             event.ignore()
             return
         super(SingleLineEdit, self).keyPressEvent(event)
