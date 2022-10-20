@@ -36,18 +36,19 @@ def configure(argv=None):
     install_extras = []
     ## Qt library choice is complicated
     print('Which Qt package would you like to use?')
-    packages = ['PyQt5', 'PySide2', 'PySide6']
+    packages = ['PyQt5', 'PyQt6', 'PySide2', 'PySide6']
     # get installed Qt packages
     installed = []
     for package in packages:
-        try:
-            importlib.import_module(package + '.QtCore')
+        # run separate python interpreter for each to avoid interactions
+        cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
+        if subprocess.run(' '.join(cmd), shell=True,
+                          stderr=subprocess.DEVNULL).returncode == 0:
             installed.append(package)
-        except ImportError:
-            pass
-    # can't install PyQt5 with pip
-    if packages[0] not in installed:
-        packages = packages[1:]
+    # can't install PyQt5 or PyQt6 with pip
+    for package in list(packages):
+        if 'PyQt' in package and package not in installed:
+            packages.remove(package)
     # get user choice
     choices = []
     for n, package in enumerate(packages):

@@ -288,9 +288,9 @@ class TabWidget(PhotiniUploader):
                       'File "{0}" is over 25 MB. Remember that Photini '
                       'uploads count towards storage in your Google Account. '
                       'Upload it anyway?').format(os.path.basename(image.path)))
-        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore)
+            dialog.StandardButton.Yes | dialog.StandardButton.Ignore)
         execute(dialog)
         return 'omit'
 

@@ -86,7 +86,7 @@ class GoogleGeocoder(GeocoderBase):
         widget = Label(translate(
             'MapTabGoogle', 'Search and altitude lookup powered by Google',
             'Do not translate "powered by Google"'), lines=2)
-        widget.setAlignment(Qt.AlignRight)
+        widget.setAlignment(Qt.AlignmentFlag.AlignRight)
         scale_font(widget, 80)
         return [widget]
 

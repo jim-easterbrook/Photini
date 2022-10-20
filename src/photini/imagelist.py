@@ -60,20 +60,22 @@ class Image(QtWidgets.QFrame):
         # label to display image
         self.image = QtWidgets.QLabel()
         self.image.setWordWrap(True)
-        self.image.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+        self.image.setAlignment(
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         layout.addWidget(self.image, 0, 0, 1, 2)
         # label to display file name
         self.label = QtWidgets.QLabel()
-        self.label.setAlignment(Qt.AlignRight)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         scale_font(self.label, 80)
         layout.addWidget(self.label, 1, 1)
         # label to display status
         self.status = QtWidgets.QLabel()
-        self.status.setAlignment(Qt.AlignLeft)
+        self.status.setAlignment(Qt.AlignmentFlag.AlignLeft)
         set_symbol_font(self.status)
         scale_font(self.status, 80)
         layout.addWidget(self.status, 1, 0)
-        self.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Plain)
+        self.setFrameStyle(
+            QtWidgets.QFrame.Shape.Panel | QtWidgets.QFrame.Shadow.Plain)
         self.setObjectName("thumbnail")
         self.set_selected(False)
         self.show_status(False)
@@ -170,7 +172,8 @@ class Image(QtWidgets.QFrame):
             # use Qt's scaling (not high quality) to pre-shrink large
             # images
             qt_im = qt_im.scaled(
-                1000, 1000, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                1000, 1000, Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation)
             w = qt_im.width()
             h = qt_im.height()
         # pad image to 4:3 (or 3:4) aspect ratio
@@ -214,7 +217,8 @@ class Image(QtWidgets.QFrame):
         if qt_im.width() < qt_im.height():
             w, h = h, w
         # scale Qt image - not as good quality as PIL
-        return qt_im.scaled(w, h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        return qt_im.scaled(w, h, Qt.AspectRatioMode.IgnoreAspectRatio,
+                            Qt.TransformationMode.SmoothTransformation)
 
     @catch_all
     def contextMenuEvent(self, event):
@@ -224,7 +228,7 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if qt_version_info >= (6, 0):
                 self.drag_start_pos = event.position()
             else:
@@ -232,9 +236,9 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mouseReleaseEvent(self, event):
-        if event.modifiers() == Qt.ControlModifier:
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
             self.image_list.select_image(self, multiple_selection=True)
-        elif event.modifiers() == Qt.ShiftModifier:
+        elif event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             self.image_list.select_image(self, extend_selection=True)
         else:
             self.image_list.select_image(self)
@@ -269,7 +273,7 @@ class Image(QtWidgets.QFrame):
             icon = src_icon
         else:
             icon = QtGui.QPixmap(src_w + margin, src_h + margin)
-            icon.fill(Qt.transparent)
+            icon.fill(Qt.GlobalColor.transparent)
             try:
                 paint = QtGui.QPainter(icon)
                 for i in range(count):
@@ -286,7 +290,8 @@ class Image(QtWidgets.QFrame):
         mimeData = QtCore.QMimeData()
         mimeData.setData(DRAG_MIMETYPE, repr(paths).encode('utf-8'))
         drag.setMimeData(mimeData)
-        if execute(drag, Qt.CopyAction) == Qt.IgnoreAction:
+        if execute(drag,
+                   Qt.DropAction.CopyAction) == Qt.DropAction.IgnoreAction:
             # image wasn't dragged to map
             self.image_list.emit_selection()
 
@@ -310,7 +315,8 @@ class Image(QtWidgets.QFrame):
     def _elide_name(self):
         self.status.adjustSize()
         elided_name = self.label.fontMetrics().elidedText(
-            self.name, Qt.ElideLeft, self.image.width() - self.status.width())
+            self.name, Qt.TextElideMode.ElideLeft,
+            self.image.width() - self.status.width())
         self.label.setText(elided_name)
 
     def _set_thumb_size(self, thumb_size):
@@ -333,7 +339,8 @@ class Image(QtWidgets.QFrame):
         pixmap = self.transform(pixmap, self.metadata.orientation)
         self.image.setPixmap(
             pixmap.scaled(self.image.width(), self.image.height(),
-                          Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                          Qt.AspectRatioMode.KeepAspectRatio,
+                          Qt.TransformationMode.SmoothTransformation))
 
     def set_selected(self, value):
         self.selected = value
@@ -362,6 +369,7 @@ class ScrollArea(QtWidgets.QScrollArea):
         self.remove_widget = self.thumbs.removeWidget
         self.multi_row_changed = self.thumbs.multi_row_changed
 
+    @catch_all
     def ensureWidgetVisible(self, widget):
         left, top, right, bottom = self.thumbs.getContentsMargins()
         super(ScrollArea, self).ensureWidgetVisible(
@@ -441,6 +449,7 @@ class ThumbsLayout(QtWidgets.QLayout):
     def hasHeightForWidth(self):
         return False
 
+    @catch_all
     def setGeometry(self, rect):
         super(ThumbsLayout, self).setGeometry(rect)
         self.do_layout(rect)
@@ -518,19 +527,19 @@ class ImageList(QtWidgets.QWidget):
         self.scroll_area.multi_row_changed.connect(
             self._ensure_selected_visible)
         self.layout().addWidget(self.scroll_area)
-        QtGui2.QShortcut(QtGui.QKeySequence.MoveToPreviousChar,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.MoveToPreviousChar,
                          self.scroll_area, self.move_to_prev_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.MoveToNextChar,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.MoveToNextChar,
                          self.scroll_area, self.move_to_next_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.MoveToStartOfLine,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.MoveToStartOfLine,
                          self.scroll_area, self.move_to_first_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.MoveToEndOfLine,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.MoveToEndOfLine,
                          self.scroll_area, self.move_to_last_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.SelectPreviousChar,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.SelectPreviousChar,
                          self.scroll_area, self.select_prev_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.SelectNextChar,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.SelectNextChar,
                          self.scroll_area, self.select_next_thumb)
-        QtGui2.QShortcut(QtGui.QKeySequence.SelectAll,
+        QtGui2.QShortcut(QtGui.QKeySequence.StandardKey.SelectAll,
                          self.scroll_area, self.select_all)
         # sort key selector
         bottom_bar = QtWidgets.QHBoxLayout()
@@ -549,12 +558,13 @@ class ImageList(QtWidgets.QWidget):
         # size selector
         bottom_bar.addStretch(1)
         bottom_bar.addWidget(QtWidgets.QLabel(self.tr('Thumbnail size')))
-        self.size_slider = QtWidgets.QSlider(Qt.Horizontal)
+        self.size_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
         self.size_slider.setPageStep(1)
         self.size_slider.setValue(self.thumb_size)
-        self.size_slider.setTickPosition(QtWidgets.QSlider.TicksBelow)
+        self.size_slider.setTickPosition(
+            QtWidgets.QSlider.TickPosition.TicksBelow)
         self.size_slider.setMinimumWidth(
             width_for_text(self.size_slider, 'x' * 20))
         self.size_slider.valueChanged.connect(self._new_thumb_size)
@@ -593,7 +603,7 @@ class ImageList(QtWidgets.QWidget):
                 ' '.join(['*.' + x for x in video_types()]))
             ]
         if not self.app.config_store.get('pyqt', 'native_dialog', True):
-            args += [None, QtWidgets.QFileDialog.DontUseNativeDialog]
+            args += [None, QtWidgets.QFileDialog.Option.DontUseNativeDialog]
         path_list = QtWidgets.QFileDialog.getOpenFileNames(*args)
         path_list = path_list[0]
         if not path_list:
@@ -758,12 +768,13 @@ class ImageList(QtWidgets.QWidget):
                                          translate('ImageList', 'undo'),
                                          translate('ImageList', 'old value')])
         table.horizontalHeader().setSectionResizeMode(
-            0, QtWidgets.QHeaderView.Stretch)
+            0, QtWidgets.QHeaderView.ResizeMode.Stretch)
         table.horizontalHeader().setSectionResizeMode(
-            2, QtWidgets.QHeaderView.Stretch)
+            2, QtWidgets.QHeaderView.ResizeMode.Stretch)
         dialog.layout().addWidget(table)
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addWidget(button_box)
@@ -798,8 +809,9 @@ class ImageList(QtWidgets.QWidget):
                     item = QtWidgets.QTableWidgetItem(value)
                     table.setItem(row, n * 2, item)
                 undo[key] = QtWidgets.QTableWidgetItem()
-                undo[key].setFlags(undo[key].flags() | Qt.ItemIsUserCheckable)
-                undo[key].setCheckState(Qt.Unchecked)
+                undo[key].setFlags(
+                    undo[key].flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                undo[key].setCheckState(Qt.CheckState.Unchecked)
                 table.setItem(row, 1, undo[key])
                 labels.append(key)
                 row += 1
@@ -811,12 +823,12 @@ class ImageList(QtWidgets.QWidget):
             if position:
                 dialog.move(position)
             result = execute(dialog)
-            if result != QtWidgets.QDialog.Accepted:
+            if result != QtWidgets.QDialog.DialogCode.Accepted:
                 return
             position = dialog.pos()
             undo_all = True
             for key, widget in undo.items():
-                if widget.checkState() == Qt.Checked:
+                if widget.checkState() == Qt.CheckState.Checked:
                     setattr(new_md, key, getattr(old_md, key))
                     changed = True
                 else:
@@ -926,19 +938,19 @@ class ImageList(QtWidgets.QWidget):
         dialog.setText('<h3>{}</h3>'.format(
             self.tr('Some images have unsaved metadata.')))
         dialog.setInformativeText(self.tr('Do you want to save your changes?'))
-        dialog.setIcon(QtWidgets.QMessageBox.Warning)
-        buttons = QtWidgets.QMessageBox.Save
+        dialog.setIcon(dialog.Icon.Warning)
+        buttons = dialog.StandardButton.Save
         if with_cancel:
-            buttons |= QtWidgets.QMessageBox.Cancel
+            buttons |= dialog.StandardButton.Cancel
         if with_discard:
-            buttons |= QtWidgets.QMessageBox.Discard
+            buttons |= dialog.StandardButton.Discard
         dialog.setStandardButtons(buttons)
-        dialog.setDefaultButton(QtWidgets.QMessageBox.Save)
+        dialog.setDefaultButton(dialog.StandardButton.Save)
         result = execute(dialog)
-        if result == QtWidgets.QMessageBox.Save:
+        if result == dialog.StandardButton.Save:
             self._save_files()
             return True
-        return result == QtWidgets.QMessageBox.Discard
+        return result == dialog.StandardButton.Discard
 
     def _flush_editing(self):
         # finish any editing in progress

@@ -513,10 +513,10 @@ class TabWidget(PhotiniUploader):
             'File "{0}" has {1} bytes which exceeds Ipernity\'s limit of' +
             ' {2} bytes. Would you like to resize it?').format(
                 os.path.basename(image.path), size, self.max_size))
-        dialog.setIcon(QtWidgets.QMessageBox.Question)
+        dialog.setIcon(dialog.Icon.Question)
         dialog.setStandardButtons(
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.Ignore)
-        if execute(dialog) == QtWidgets.QMessageBox.Ignore:
+            dialog.StandardButton.Yes | dialog.StandardButton.Ignore)
+        if execute(dialog) == dialog.StandardButton.Ignore:
             return 'omit'
         return self.resize_file
 
@@ -597,11 +597,12 @@ class TabWidget(PhotiniUploader):
         dialog.layout().addRow(Label(translate(
             'IpernityTab', 'Who can comment on album'), lines=2), perm_comment)
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
         dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.Accepted:
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return
         params = {
             'title': title.toPlainText(),

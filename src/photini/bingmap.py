@@ -97,7 +97,7 @@ class BingGeocoder(GeocoderBase):
             translate(
                 'MapTabBing', 'Search and altitude lookup provided by Bing'),
             lines=2)
-        widget.setAlignment(Qt.AlignRight)
+        widget.setAlignment(Qt.AlignmentFlag.AlignRight)
         scale_font(widget, 80)
         return [widget]
 

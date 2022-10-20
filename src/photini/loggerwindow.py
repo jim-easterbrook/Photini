@@ -16,8 +16,6 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import logging
 import logging.handlers
 import os
@@ -88,11 +86,12 @@ class LoggerWindow(QtWidgets.QWidget):
         self.layout().addWidget(self.text)
         # buttons
         button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Close)
+            QtWidgets.QDialogButtonBox.StandardButton.Save |
+            QtWidgets.QDialogButtonBox.StandardButton.Close)
         button_box.button(
-            QtWidgets.QDialogButtonBox.Save).clicked.connect(self.save)
+            button_box.StandardButton.Save).clicked.connect(self.save)
         button_box.button(
-            QtWidgets.QDialogButtonBox.Close).clicked.connect(self.hide)
+            button_box.StandardButton.Close).clicked.connect(self.hide)
         self.layout().addWidget(button_box)
         # Python logger
         self.logger = logging.getLogger('')
@@ -116,6 +115,7 @@ class LoggerWindow(QtWidgets.QWidget):
             sys.stdout = OutputInterceptor('stdout', sys.stdout)
 
     @QtSlot()
+    @catch_all
     def shutdown(self):
         self.stream_proxy.write_text.disconnect()
         self.stream_proxy.flush_text.disconnect()
@@ -134,10 +134,12 @@ class LoggerWindow(QtWidgets.QWidget):
                 of.write(self.text.toPlainText())
 
     @QtSlot(str)
+    @catch_all
     def write(self, msg):
         self.text.append(msg)
 
     @QtSlot()
+    @catch_all
     def flush(self):
         if self.isHidden():
             self.show()
