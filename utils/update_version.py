@@ -52,18 +52,30 @@ def main(argv=None):
                 latest = tag.commit.committed_date
                 last_release = tag_name
     # set current version number (calendar based)
-    major, minor, micro = map(int, last_release.split('.'))
-    today = date.today()
-    if today.year == major and today.month == minor:
-        micro += 1
+    last_release = [int(x) for x in last_release.split('.')]
+    major, minor, micro = last_release[:3]
+    version = [int(x) for x in __version__.split('.')]
+    if len(version) == 3:
+        # update normal version number based on date
+        today = date.today()
+        if today.year == major and today.month == minor:
+            micro += 1
+        else:
+            micro = 0
+        version = '{:4d}.{:d}.{:d}'.format(today.year, today.month, micro)
     else:
-        micro = 0
+        # update bug fix version number
+        if len(last_release) == 3:
+            bug_fix = 1
+        else:
+            bug_fix = last_release[3] + 1
+        version = '{:4d}.{:d}.{:d}.{:d}'.format(major, minor, micro, bug_fix)
     # update __init__.py if anything's changed
     new_text = """\"\"\"Full documentation is at https://photini.readthedocs.io/\"\"\"
 
-__version__ = '{:4d}.{:d}.{:d}'
+__version__ = '{:s}'
 build = '{:d} ({:s})'
-""".format(today.year, today.month, micro, dev_no, commit)
+""".format(version, dev_no, commit)
     if new_text != init_text:
         with open(INIT_FILE, 'w') as vf:
             vf.write(new_text)
