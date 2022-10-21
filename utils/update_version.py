@@ -48,10 +48,10 @@ def main(argv=None):
     for tag in repo.tags:
         if tag.commit.committed_date > latest:
             tag_name = str(tag)
-            if re.match(r'\d{4}\.\d{1,2}\.\d$', tag_name):
+            if re.match(r'\d{4}\.\d{1,2}\.\d', tag_name):
                 latest = tag.commit.committed_date
                 last_release = tag_name
-    # set current version number (calendar based)
+    # set current version number
     last_release = [int(x) for x in last_release.split('.')]
     major, minor, micro = last_release[:3]
     version = [int(x) for x in __version__.split('.')]

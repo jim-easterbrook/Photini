@@ -18,7 +18,6 @@
 
 from collections import namedtuple
 from contextlib import contextmanager
-import enum
 from functools import wraps
 import importlib
 import logging
@@ -280,8 +279,8 @@ def execute(widget, *arg, **kwds):
     return widget.exec(*arg, **kwds)
 
 def flag_to_int(flags):
-    if isinstance(flags, enum.Enum):
-        # PySide6 started using Python enum for QFlags in v6.4
+    if hasattr(flags, 'value'):
+        # recent versions of PyQt6 and PySide6 convert QEnum to Python enum
         return flags.value
     return int(flags)
 
