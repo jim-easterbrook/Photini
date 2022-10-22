@@ -39,27 +39,35 @@ def configure(argv=None):
     packages = ['PyQt5', 'PyQt6', 'PySide2', 'PySide6']
     # get installed Qt packages
     installed = []
+    choices = {}
+    n = 0
     for package in packages:
         # run separate python interpreter for each to avoid interactions
         cmd = [sys.executable, '-c', '"import {}.QtCore"'.format(package)]
         if subprocess.run(' '.join(cmd), shell=True,
                           stderr=subprocess.DEVNULL).returncode == 0:
             installed.append(package)
-    # can't install PyQt5 or PyQt6 with pip
-    for package in list(packages):
-        if 'PyQt' in package and package not in installed:
-            packages.remove(package)
+            status = 'installed'
+            # check for QtWebEngine
+            cmd = [sys.executable,
+                   '-c', '"import {}.QtWebEngineWidgets"'.format(package)]
+            if subprocess.run(' '.join(cmd), shell=True,
+                              stderr=subprocess.DEVNULL).returncode != 0:
+                status += ', WebEngine not installed'
+        else:
+            if 'PyQt' in package:
+                # can't install PyQt5 or PyQt6 with pip
+                continue
+            status = 'not installed'
+        choices[str(n)] = package
+        print('  {} {} [{}]'.format(n, package, status))
+        n += 1
     # get user choice
-    choices = []
-    for n, package in enumerate(packages):
-        print('  {} {} [{}installed]'.format(
-            n, package, ('not ', '')[package in installed]))
-        choices.append(str(n))
     while True:
         choice = input('Choose {}: '.format('/'.join(choices)))
         if choice in choices:
             break
-    choice = packages[int(choice)]
+    choice = choices[choice]
     # set config
     config = BaseConfigStore('editor')
     config.set('pyqt', 'qt_lib', choice)
