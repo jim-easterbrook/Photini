@@ -381,6 +381,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.image_list.set_drag_to_map(self.drag_icon, self.drag_hotspot)
         selection = self.image_list.get_selected_images()
         self.widgets['latlon'].update_display(selection)
+        self.update_altitude(selection)
         if self.map_loaded < 1:
             self.map_loaded = 1     # started loading
             self.initialise()
@@ -417,6 +418,7 @@ class PhotiniMap(QtWidgets.QWidget):
         selected_images = self.image_list.get_selected_images()
         self.redraw_markers()
         self.widgets['latlon'].update_display(selected_images)
+        self.update_altitude(selected_images)
         self.see_selection(selected_images)
 
     @QtSlot()
@@ -599,6 +601,7 @@ class PhotiniMap(QtWidgets.QWidget):
         if changed:
             self.redraw_markers()
             self.widgets['latlon'].update_display(selected_images)
+            self.update_altitude(selected_images)
             self.see_selection(selected_images)
 
     @QtSlot()
@@ -685,6 +688,7 @@ class PhotiniMap(QtWidgets.QWidget):
         info['location'] = [float(image.metadata.latlong['lat']),
                             float(image.metadata.latlong['lon'])]
         self.widgets['latlon'].update_display()
+        self.update_altitude()
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:
