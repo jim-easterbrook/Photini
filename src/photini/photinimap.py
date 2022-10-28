@@ -688,7 +688,6 @@ class PhotiniMap(QtWidgets.QWidget):
         info['location'] = [float(image.metadata.latlong['lat']),
                             float(image.metadata.latlong['lon'])]
         self.widgets['latlon'].update_display()
-        self.update_altitude()
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:
