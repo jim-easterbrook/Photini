@@ -684,7 +684,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 params['meta']['title'] = image.name
             description = []
             if image.metadata.headline:
-                description.append(str(image.metadata.headline))
+                description.append(image.metadata.headline)
             if image.metadata.description:
                 description.append(image.metadata.description.default_text())
             if description:
