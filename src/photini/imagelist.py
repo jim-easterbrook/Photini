@@ -612,7 +612,7 @@ class ImageList(QtWidgets.QWidget):
 
     @QtSlot(list)
     @catch_all
-    def open_file_list(self, path_list, top_level=True):
+    def open_file_list(self, path_list, top_level=True, dir_list=[]):
         last_path = None
         with Busy():
             for path in path_list:
@@ -620,9 +620,14 @@ class ImageList(QtWidgets.QWidget):
                     # don't open .directory or .thumbs
                     continue
                 if os.path.isdir(path):
+                    path = os.path.realpath(path)
+                    if path in dir_list:
+                        # don't open directories we've already opened
+                        continue
+                    dir_list.append(path)
                     last_path = self.open_file_list(
                         [os.path.join(path, x) for x in os.listdir(path)],
-                        top_level=False) or last_path
+                        top_level=False, dir_list=dir_list) or last_path
                 elif self.open_file(path):
                     last_path = path
         if top_level and last_path:
@@ -630,7 +635,7 @@ class ImageList(QtWidgets.QWidget):
         return last_path
 
     def open_file(self, path):
-        path = os.path.abspath(path)
+        path = os.path.realpath(path)
         base, ext = os.path.splitext(path)
         if ext.lower() == '.xmp':
             if os.path.isfile(base):
