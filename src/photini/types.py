@@ -831,7 +831,7 @@ class MD_MultiLocation(tuple):
     def __str__(self):
         result = ''
         for n, location in enumerate(self):
-            result += 'subject {}\n'.format(n + 1)
+            result += '-- subject {} --\n'.format(n + 1)
             if location:
                 result += str(location) + '\n'
         return result

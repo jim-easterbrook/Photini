@@ -68,13 +68,17 @@ class MetadataHandler(object):
             except LookupError:
                 pass
         
-    def __init__(self, path, buf=None):
+    def __init__(self, path=None, buf=None):
         self._path = path
         # read metadata
         if buf:
             self._image = exiv2.ImageFactory.open(buf)
         else:
             self._image = exiv2.ImageFactory.open(self._path)
+        if self._path:
+            self._name = os.path.basename(self._path)
+        else:
+            self._name = 'data'
         self._image.readMetadata()
         self._exifData = self._image.exifData()
         self._iptcData = self._image.iptcData()
@@ -110,13 +114,11 @@ class MetadataHandler(object):
                         continue
                     if encoding != 'utf-8':
                         logger.info('%s: transcoded %s from %s',
-                                    os.path.basename(self._path),
-                                    str(datum.key()), encoding)
+                                    self._name, str(datum.key()), encoding)
                     break
                 else:
                     logger.warning('%s: failed to transcode %s',
-                                   os.path.basename(self._path),
-                                   str(datum.key()))
+                                   self._name, str(datum.key()))
                     new_value = raw_value.decode('utf-8', errors='replace')
                 datum.setValue(new_value)
             iptc_charset = self.get_iptc_encoding()
@@ -232,8 +234,7 @@ class MetadataHandler(object):
         except UnicodeDecodeError:
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
-                ' is saved',
-                os.path.basename(self._path), datum.key(), datum.size())
+                ' is saved', self._name, datum.key(), datum.size())
         return None
 
     def get_exif_value(self, tag):
@@ -309,7 +310,7 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         data = thumb.copy()
         if data:
-            logger.info('%s: trying thumbnail', os.path.basename(self._path))
+            logger.info('%s: trying thumbnail', self._name)
             yield bytes(data), 'thumbnail'
         # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
@@ -321,8 +322,7 @@ class MetadataHandler(object):
         while idx > 0:
             idx -= 1
             if max(props[idx].width_, props[idx].height_) <= 640:
-                logger.info('%s: trying preview %d',
-                            os.path.basename(self._path), idx)
+                logger.info('%s: trying preview %d', self._name, idx)
                 image = preview_manager.getPreviewImage(props[idx])
                 yield bytes(image.copy()), 'preview ' + str(idx)
 
@@ -402,8 +402,7 @@ class MetadataHandler(object):
             datum = exiv2.Iptcdatum(key)
             datum.setValue(self.truncate_iptc(tag, sub_value))
             if self._iptcData.add(datum) != 0:
-                logger.error('%s: duplicated tag %s',
-                             os.path.basename(self._path), tag)
+                logger.error('%s: duplicated tag %s', self._name, tag)
                 return
 
     def set_xmp_value(self, tag, value):
@@ -443,9 +442,9 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.langAlt:
             datum.setValue(exiv2.LangAltValue(value))
         else:
-            logger.error('%s: %s: setting type "%s" from %s',
-                         os.path.basename(self._path), tag,
-                         exiv2.TypeId(type_id).name, type(value))
+            logger.error(
+                '%s: %s: setting type "%s" from %s', self._name, tag,
+                exiv2.TypeId(type_id).name, type(value))
             datum.setValue(';'.join(value))
 
     def clear_tag(self, tag):
@@ -480,20 +479,9 @@ class MetadataHandler(object):
             return self._iptcData
         return self._xmpData
 
-    def save_file(self, path=None):
-        if path:
-            image = exiv2.ImageFactory.open(path)
-            image.readMetadata()
-            image.setExifData(self._exifData)
-            image.setIptcData(self._iptcData)
-            image.setXmpData(self._xmpData)
-            if self._image.iccProfileDefined():
-                # copy ICC profile
-                image.setIccProfile(self._image.iccProfile())
-        else:
-            image = self._image
+    def save_file(self):
         try:
-            image.writeMetadata()
+            self._image.writeMetadata()
         except exiv2.Exiv2Error as ex:
             logger.error(str(ex))
             return False

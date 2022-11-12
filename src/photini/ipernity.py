@@ -19,6 +19,7 @@
 from datetime import datetime
 import html
 import hashlib
+import io
 import logging
 import os
 import time
@@ -455,38 +456,51 @@ class TabWidget(PhotiniUploader):
         return file_type.split('/')[0] in ('image', 'video')
 
     def resize_file(self, image):
-        src_path = image.path
-        dest_path = self.get_temp_filename(image, ext='_small.jpg')
-        # convert to JPEG
-        if image.file_type != 'image/jpeg':
-            src_path = self.convert_to_jpeg(image)
+        # convert to JPEG data
+        file_type = image.file_type
+        if file_type == 'image/jpeg':
+            with open(image.path, 'rb') as f:
+                src_data = f.read()
+        else:
+            src_data, file_type = self.convert_to_jpeg(image)
+            if len(src_data) < self.max_size:
+                return src_data, file_type
+        if PIL:
+            # use Pillow for good quality
+            src_im = PIL.open(io.BytesIO(src_data))
+            w, h = src_im.size
+        else:
+            # use Qt, lower quality but available
+            src_im = QtGui.QImage.fromData(src_data)
+            w, h = src_im.width(), src_im.height()
         # scale image
         for scale in (1000, 680, 470, 330, 220, 150,
-                      100, 68, 47, 33, 22, 15, 10):
-            if PIL:
-                # use Pillow for good quality
-                im = PIL.open(src_path)
-                if scale != 1000:
-                    w, h = im.size
-                    im = im.resize((w * scale // 1000, h * scale // 1000),
-                                   resample=PIL.BICUBIC)
+                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
+            if scale == 1000:
+                im = src_im
+            elif PIL:
+                im = src_im.resize((w * scale // 1000, h * scale // 1000),
+                               resample=PIL.BICUBIC)
             else:
-                # use Qt, lower quality but available
-                im = QtGui.QImage(image.path)
-                if scale != 1000:
-                    w, h = im.width(), im.height()
-                    im = im.scaled(
-                        w * scale // 1000, h * scale // 1000,
-                        Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                im = src_im.scaled(
+                    w * scale // 1000, h * scale // 1000,
+                    Qt.AspectRatioMode.IgnoreAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation)
             # try different JPEG quality levels
             for quality in (95, 85, 75):
-                im.save(dest_path, format='JPEG', quality=quality)
-                self.copy_metadata(image, dest_path)
-                size = os.stat(dest_path).st_size
-                if size < self.max_size:
-                    if src_path != image.path:
-                        os.unlink(src_path)
-                    return dest_path
+                if PIL:
+                    dest_buf = io.BytesIO()
+                else:
+                    dest_buf = QtCore.QBuffer()
+                    dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
+                im.save(dest_buf, format='JPEG', quality=quality)
+                if PIL:
+                    dest_data = dest_buf.getbuffer()
+                else:
+                    dest_data = dest_buf.data().data()
+                dest_data = image.metadata.clone(dest_data)
+                if len(dest_data) < self.max_size:
+                    return dest_data, file_type
         return None
 
     def get_conversion_function(self, image, params):

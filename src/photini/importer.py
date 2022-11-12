@@ -634,64 +634,65 @@ class TabWidget(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def copy_selected(self, move=False):
-        copy_list = []
-        for item in self.file_list_widget.selectedItems():
-            name = item.data(Qt.ItemDataRole.UserRole)
-            info = self.file_data[name]
-            if (move and 'path' in info and
-                    self.image_list.get_image(info['path'])):
-                # don't rename an open file
-                logger.warning(
-                    'Please close image %s before moving it', info['name'])
+        with Busy():
+            copy_list = []
+            for item in self.file_list_widget.selectedItems():
+                name = item.data(Qt.ItemDataRole.UserRole)
+                info = self.file_data[name]
+                if (move and 'path' in info and
+                        self.image_list.get_image(info['path'])):
+                    # don't rename an open file
+                    logger.warning(
+                        'Please close image %s before moving it', info['name'])
+                else:
+                    copy_list.append(info)
+            if not copy_list:
+                return
+            if move:
+                self.move_button.set_checked(True)
+                self.copy_button.setEnabled(False)
             else:
-                copy_list.append(info)
-        if not copy_list:
-            return
-        if move:
-            self.move_button.set_checked(True)
-            self.copy_button.setEnabled(False)
-        else:
-            self.copy_button.set_checked(True)
-            self.move_button.setEnabled(False)
-        last_file_copied = None, datetime.min
-        copier_result = deque()
-        # start file copier in a separate thread
-        self.file_copier = FileCopier(
-            self.source, copy_list, move, copier_result)
-        copier_thread = QtCore.QThread(self)
-        self.file_copier.moveToThread(copier_thread)
-        copier_thread.started.connect(self.file_copier.start)
-        copier_thread.start()
-        # show files as they're copied
-        while self.file_copier.running:
-            if copier_result:
-                info, status = copier_result.popleft()
-                if not info:
-                    # copier thread has finished
-                    break
-                if status != 'ok':
-                    self._fail()
-                    break
-                if last_file_copied[1] < info['timestamp']:
-                    last_file_copied = info['dest_path'], info['timestamp']
-                for n in range(self.file_list_widget.count()):
-                    item = self.file_list_widget.item(n)
-                    if item.data(Qt.ItemDataRole.UserRole) == info['name']:
-                        item.setFlags(Qt.ItemFlag.NoItemFlags)
-                        self.file_list_widget.scrollToItem(
-                            item,
-                            self.file_list_widget.ScrollHint.PositionAtTop)
-                        self.selection_changed()
+                self.copy_button.set_checked(True)
+                self.move_button.setEnabled(False)
+            last_file_copied = None, datetime.min
+            copier_result = deque()
+            # start file copier in a separate thread
+            self.file_copier = FileCopier(
+                self.source, copy_list, move, copier_result)
+            copier_thread = QtCore.QThread(self)
+            self.file_copier.moveToThread(copier_thread)
+            copier_thread.started.connect(self.file_copier.start)
+            copier_thread.start()
+            # show files as they're copied
+            while self.file_copier.running:
+                if copier_result:
+                    info, status = copier_result.popleft()
+                    if not info:
+                        # copier thread has finished
                         break
-                self.image_list.open_file(info['dest_path'])
-            else:
-                # wait for copier result
-                self.app.processEvents()
-        self.move_button.set_checked(False)
-        self.copy_button.set_checked(False)
-        self.file_copier = None
-        copier_thread.quit()
-        copier_thread.wait()
+                    if status != 'ok':
+                        self._fail()
+                        break
+                    if last_file_copied[1] < info['timestamp']:
+                        last_file_copied = info['dest_path'], info['timestamp']
+                    for n in range(self.file_list_widget.count()):
+                        item = self.file_list_widget.item(n)
+                        if item.data(Qt.ItemDataRole.UserRole) == info['name']:
+                            item.setFlags(Qt.ItemFlag.NoItemFlags)
+                            self.file_list_widget.scrollToItem(
+                                item,
+                                self.file_list_widget.ScrollHint.PositionAtTop)
+                            self.selection_changed()
+                            break
+                    self.image_list.open_file(info['dest_path'])
+                else:
+                    # wait for copier result
+                    self.app.processEvents()
+            self.move_button.set_checked(False)
+            self.copy_button.set_checked(False)
+            self.file_copier = None
+            copier_thread.quit()
+            copier_thread.wait()
         if last_file_copied[0]:
             self.config_store.set(self.config_section, 'last_transfer',
                                   last_file_copied[1].isoformat(' '))
@@ -703,3 +704,6 @@ class TabWidget(QtWidgets.QWidget):
     def stop_copy(self):
         if self.file_copier:
             self.file_copier.running = False
+            self.move_button.setEnabled(False)
+            self.copy_button.setEnabled(False)
+            self.app.processEvents()

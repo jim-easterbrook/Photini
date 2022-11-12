@@ -178,8 +178,7 @@ class ImageMetadata(MetadataHandler):
         try:
             return MD_Thumbnail.image_from_data(data)
         except Exception as ex:
-            logger.error(
-                '%s: %s: %s', os.path.basename(self._path), label, str(ex))
+            logger.error('%s: %s: %s', self._name, label, str(ex))
         return None, None
 
     def set_multi_group(self, tag, value):
@@ -223,6 +222,8 @@ class ImageMetadata(MetadataHandler):
             self.clear_iptc()
         if not self.save_file():
             return False
+        if not self._path:
+            return True
         if file_times:
             os.utime(self._path, file_times)
         # check that data really was saved
@@ -241,11 +242,9 @@ class ImageMetadata(MetadataHandler):
                     'Canon', 'Casio', 'Fujif', 'Minol', 'Nikon', 'Olymp',
                     'Panas', 'Penta', 'Samsu', 'Sigma', 'Sony1'):
                 # maker note tags are often not saved
-                logger.warning(
-                    '%s: tag not saved: %s', os.path.basename(self._path), tag)
+                logger.warning('%s: tag not saved: %s', self._name, tag)
                 continue
-            logger.error(
-                '%s: tag not saved: %s', os.path.basename(self._path), tag)
+            logger.error('%s: tag not saved: %s', self._name, tag)
             OK = False
         return OK
 
@@ -494,7 +493,7 @@ class ImageMetadata(MetadataHandler):
                 value = type_.from_exiv2(file_value, tag)
             except ValueError as ex:
                 logger.error('{}({}), {}: {}'.format(
-                    os.path.basename(self._path), name, tag, str(ex)))
+                    self._name, name, tag, str(ex)))
                 continue
             except Exception as ex:
                 logger.exception(ex)
@@ -537,7 +536,7 @@ class SidecarMetadata(ImageMetadata):
         if not path:
             return None
         try:
-            return cls(path)
+            return cls(path=path)
         except Exception as ex:
             logger.exception(ex)
             return None
@@ -547,7 +546,7 @@ class SidecarMetadata(ImageMetadata):
         sc_path = path + '.xmp'
         try:
             cls.create_sc(sc_path, image_md)
-            return cls(sc_path)
+            return cls(path=sc_path)
         except Exception as ex:
             logger.exception(ex)
             return None
@@ -673,20 +672,15 @@ class Metadata(object):
         if self._if:
             self._maker_note['delete'] = True
 
-    @classmethod
-    def clone(cls, path, other):
-        if other._if:
-            # use exiv2 to clone image file metadata
-            other._if.save_file(path)
-        self = cls(path)
-        if other._sc and self._if:
-            # merge in sidecar data
-            self._if.merge_sc(other._sc)
-        # copy Photini metadata items
-        for name in cls._data_type:
-            value = getattr(other, name)
-            setattr(self, name, value)
-        return self
+    def clone(self, data):
+        image = ImageMetadata(buf=data)
+        if self._if:
+            image._image.setMetadata(self._if._image)
+        if self._sc:
+            image.merge_sc(self._sc)
+        if image.save_file():
+            data = bytes(image._image.io())
+        return data
 
     def _handler_save(self, handler, *arg, **kw):
         # store Photini metadata items

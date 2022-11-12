@@ -19,16 +19,14 @@
 
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import imghdr
+import io
 import logging
 import os
 import re
-import shutil
 import threading
 import time
 import urllib
 
-import appdirs
 import keyring
 import requests
 
@@ -78,14 +76,17 @@ class UploadAborted(Exception):
 
 
 class AbortableFileReader(object):
-    def __init__(self, fileobj):
-        self._f = fileobj
+    def __init__(self, path=None, data=None):
+        if data:
+            self._f = io.BytesIO(data)
+            # requests library uses 'len' attribute instead of seeking to
+            # end of file and back
+            self.len = len(data)
+        else:
+            self._f = open(path, 'rb')
         # thread safe way to abort reading large file
         self._closing = threading.Event()
         self.abort = self._closing.set
-        # requests library uses 'len' attribute instead of seeking to
-        # end of file and back
-        self.len = os.fstat(self._f.fileno()).st_size
 
     # substitute read method
     def read(self, size):
@@ -95,6 +96,9 @@ class AbortableFileReader(object):
 
     # delegate all other attributes to file object
     def __getattr__(self, name):
+        if name == 'getvalue':
+            # don't allow requests library to suck in all data at once
+            raise AttributeError(name)
         return getattr(self._f, name)
 
 
@@ -123,24 +127,26 @@ class UploadWorker(QtCore.QObject):
                 'label': '{} ({}/{})'.format(
                      name, 1 + upload_count, len(self.upload_list)),
                 })
-            if convert:
-                path = convert(image)
-            else:
-                path = image.path
-            with open(path, 'rb') as f:
-                self.fileobj = AbortableFileReader(f)
-                try:
-                    error = session.do_upload(
-                        self.fileobj, imghdr.what(path), image, params)
-                except UploadAborted:
-                    error = 'UploadAborted'
-                    session.close_connection()
-                except Exception as ex:
-                    error = str(ex)
+            try:
+                if convert:
+                    data, image_type = convert(image)
+                    self.fileobj = AbortableFileReader(data=data)
+                else:
+                    image_type = image.file_type
+                    self.fileobj = AbortableFileReader(path=image.path)
+                error = session.do_upload(
+                    self.fileobj, image_type, image, params)
+            except UploadAborted:
+                error = 'UploadAborted'
+                session.close_connection()
+            except Exception as ex:
+                logger.exception(ex)
+                error = '{}: {}'.format(type(ex), str(ex))
+            finally:
+                if self.fileobj:
+                    self.fileobj.close()
             self.upload_progress.emit({'busy': False})
             self.fileobj = None
-            if convert:
-                os.unlink(path)
             if error:
                 if not session.api:
                     break
@@ -397,31 +403,22 @@ class PhotiniUploader(QtWidgets.QWidget):
             pixmap.loadFromData(picture)
         self.user_photo.setPixmap(pixmap)
 
-    def get_temp_filename(self, image, ext='.jpg'):
-        temp_dir = os.path.join(appdirs.user_cache_dir('photini'), 'uploader')
-        if not os.path.isdir(temp_dir):
-            os.makedirs(temp_dir)
-        return os.path.join(temp_dir, os.path.basename(image.path) + ext)
-
-    def copy_metadata(self, image, path):
-        # copy metadata
-        md = Metadata.clone(path, image.metadata)
-        # save metadata
-        md.dirty = True
-        md.save(if_mode=True, sc_mode='none', iptc_mode='preserve')
-
     def convert_to_jpeg(self, image):
         im = QtGui.QImage(image.path)
-        path = self.get_temp_filename(image)
-        im.save(path, format='jpeg', quality=95)
-        self.copy_metadata(image, path)
-        return path
+        buf = QtCore.QBuffer()
+        buf.open(buf.OpenModeFlag.WriteOnly)
+        im.save(buf, format='jpeg', quality=95)
+        data = buf.data().data()
+        # copy metadata
+        data = image.metadata.clone(data)
+        return data, 'image/jpeg'
 
     def copy_file_and_metadata(self, image):
-        path = self.get_temp_filename(image, ext='')
-        shutil.copyfile(image.path, path)
-        self.copy_metadata(image, path)
-        return path
+        with open(image.path, 'rb') as f:
+            data = f.read()
+        # copy metadata
+        data = image.metadata.clone(data)
+        return data, image.file_type
 
     def is_convertible(self, image):
         if not image.file_type.startswith('image'):
@@ -687,7 +684,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 params['meta']['title'] = image.name
             description = []
             if image.metadata.headline:
-                description.append(str(image.metadata.headline))
+                description.append(image.metadata.headline)
             if image.metadata.description:
                 description.append(image.metadata.description.default_text())
             if description:
