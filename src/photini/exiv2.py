@@ -228,14 +228,14 @@ class MetadataHandler(object):
 
     def get_exif_comment(self, datum):
         value = exiv2.CommentValue(datum.value()).comment()
-        raw_value = value.encode('utf-8', errors='surrogateescape').strip(b'\0')
         try:
-            return raw_value.decode('utf-8')
-        except UnicodeDecodeError:
+            value.encode('utf-8')
+        except UnicodeEncodeError:
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved', self._name, datum.key(), datum.size())
-        return None
+            return None
+        return value
 
     def get_exif_value(self, tag):
         if tag not in self._exifData:
