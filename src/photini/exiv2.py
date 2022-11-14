@@ -105,11 +105,10 @@ class MetadataHandler(object):
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
                                           exiv2.TypeId.string):
                     continue
-                value = datum.toString()
-                raw_value = value.encode('utf-8', errors='surrogateescape')
+                raw_value = self.get_raw_value(datum)
                 for encoding in self.encodings:
                     try:
-                        new_value = raw_value.decode(encoding)
+                        value = raw_value.decode(encoding)
                     except UnicodeDecodeError:
                         continue
                     if encoding != 'utf-8':
@@ -119,8 +118,8 @@ class MetadataHandler(object):
                 else:
                     logger.warning('%s: failed to transcode %s',
                                    self._name, str(datum.key()))
-                    new_value = raw_value.decode('utf-8', errors='replace')
-                datum.setValue(new_value)
+                    value = raw_value.decode('utf-8', errors='replace')
+                datum.setValue(value)
             iptc_charset = self.get_iptc_encoding()
             if iptc_charset in ('utf-8', 'ascii'):
                 # no need to transcode anything
@@ -134,8 +133,11 @@ class MetadataHandler(object):
         # which sequences, if any, are ever used in practice. The
         # sequence is escape, one or more intermediate bytes, then a
         # final byte.
-        iptc_charset_code = self.get_raw_value('Iptc.Envelope.CharacterSet')
-        if not iptc_charset_code or len(iptc_charset_code) < 3:
+        if 'Iptc.Envelope.CharacterSet' not in self._iptcData:
+            return None
+        iptc_charset_code = self.get_raw_value(
+            self._iptcData['Iptc.Envelope.CharacterSet'])
+        if len(iptc_charset_code) < 3:
             return None
         if iptc_charset_code[0] != 0x1b:
             # first byte isn't escape
@@ -299,11 +301,10 @@ class MetadataHandler(object):
             return dict(exiv2.LangAltValue(datum.value()))
         return list(exiv2.XmpArrayValue(datum.value()))
 
-    def get_raw_value(self, tag):
-        if tag not in self._iptcData:
-            return None
-        datum = self._iptcData[tag]
-        return datum.toString().encode('utf-8', errors='surrogateescape')
+    def get_raw_value(self, datum):
+        result = bytearray(datum.size())
+        datum.copy(result, exiv2.ByteOrder.invalidByteOrder)
+        return result
 
     def get_exif_thumbnails(self):
         # try normal thumbnail
