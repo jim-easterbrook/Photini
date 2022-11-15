@@ -99,14 +99,17 @@ class MetadataHandler(object):
             self.clear_exif()
             self.clear_iptc()
         # transcode any non utf-8 strings (Xmp is always utf-8)
-        encodings = self.encodings
+        encodings = list(self.encodings)
+        iptc_charset = self.get_iptc_encoding()
+        if iptc_charset and iptc_charset not in encodings:
+            encodings.insert(0, iptc_charset)
         for data in self._exifData, self._iptcData:
             for datum in data:
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
                                           exiv2.TypeId.string):
                     continue
                 raw_value = self.get_raw_value(datum)
-                for encoding in self.encodings:
+                for encoding in encodings:
                     try:
                         value = raw_value.decode(encoding)
                     except UnicodeDecodeError:
@@ -120,7 +123,6 @@ class MetadataHandler(object):
                                    self._name, str(datum.key()))
                     value = raw_value.decode('utf-8', errors='replace')
                 datum.setValue(value)
-            iptc_charset = self.get_iptc_encoding()
             if iptc_charset in ('utf-8', 'ascii'):
                 # no need to transcode anything
                 return
