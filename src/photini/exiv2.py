@@ -17,11 +17,11 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
-import locale
 import logging
 import os
 
 import exiv2
+import chardet
 
 logger = logging.getLogger(__name__)
 
@@ -57,16 +57,6 @@ class MetadataHandler(object):
                 ):
             if prefix == 'Iptc4xmpExt' or prefix not in registered:
                 exiv2.XmpProperties.registerNs(ns, prefix)
-        # make list of possible character encodings
-        cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
-        char_set = locale.getdefaultlocale()[1]
-        if char_set:
-            try:
-                name = codecs.lookup(char_set).name
-                if name not in cls.encodings:
-                    cls.encodings.append(name)
-            except LookupError:
-                pass
         
     def __init__(self, path=None, buf=None):
         self._path = path
@@ -99,37 +89,53 @@ class MetadataHandler(object):
             self.clear_exif()
             self.clear_iptc()
         # transcode any non utf-8 strings (Xmp is always utf-8)
-        encodings = list(self.encodings)
+        encodings = []
         iptc_charset = self.get_iptc_encoding()
-        if iptc_charset:
+        if iptc_charset not in ('utf-8', 'ascii', None):
+            iptc_charset = codecs.lookup(iptc_charset).name
             logger.info('%s: IPTC character set %s', self._name, iptc_charset)
-            if iptc_charset not in encodings:
-                encodings.insert(0, iptc_charset)
+            encodings.append(iptc_charset)
         for data in self._exifData, self._iptcData:
             for datum in data:
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
                                           exiv2.TypeId.string):
                     continue
+                key = str(datum.key())
+                if '.0x' in key:
+                    # unknown key type
+                    continue
                 raw_value = self.get_raw_value(datum)
+                if self.decode_string(key, raw_value, 'utf-8'):
+                    # no need to do anything
+                    continue
                 for encoding in encodings:
-                    try:
-                        value = raw_value.decode(encoding)
-                    except UnicodeDecodeError:
-                        continue
-                    if encoding != 'utf-8':
-                        logger.info('%s: transcoded %s from %s',
-                                    self._name, str(datum.key()), encoding)
-                    break
+                    value = self.decode_string(key, raw_value, encoding)
+                    if value:
+                        break
                 else:
-                    logger.warning('%s: failed to transcode %s',
-                                   self._name, str(datum.key()))
-                    value = raw_value.decode('utf-8', errors='replace')
+                    encoding = chardet.detect(raw_value)['encoding']
+                    if encoding:
+                        logger.info('%s: detected character set %s',
+                                    self._name, encoding)
+                        value = self.decode_string(key, raw_value, encoding)
+                    else:
+                        value = None
+                    if value:
+                        encodings.append(encoding)
+                    else:
+                        logger.warning('%s: failed to transcode %s',
+                                       self._name, key)
+                        value = raw_value.decode('utf-8', errors='replace')
                 datum.setValue(value)
-            if iptc_charset in ('utf-8', 'ascii'):
-                # no need to transcode anything
-                return
-            if iptc_charset:
-                encodings = [iptc_charset]
+
+    def decode_string(self, tag, raw_value, encoding):
+        try:
+            result = raw_value.decode(encoding)
+        except UnicodeDecodeError:
+            return None
+        if encoding != 'utf-8':
+            logger.info('%s: transcoded %s from %s', self._name, tag, encoding)
+        return result
 
     def get_iptc_encoding(self):
         # IPTC-IIM uses ISO/IEC 2022 escape sequences to set the
