@@ -101,8 +101,10 @@ class MetadataHandler(object):
         # transcode any non utf-8 strings (Xmp is always utf-8)
         encodings = list(self.encodings)
         iptc_charset = self.get_iptc_encoding()
-        if iptc_charset and iptc_charset not in encodings:
-            encodings.insert(0, iptc_charset)
+        if iptc_charset:
+            logger.info('%s: IPTC character set %s', self._name, iptc_charset)
+            if iptc_charset not in encodings:
+                encodings.insert(0, iptc_charset)
         for data in self._exifData, self._iptcData:
             for datum in data:
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
@@ -139,24 +141,19 @@ class MetadataHandler(object):
             return None
         iptc_charset_code = self.get_raw_value(
             self._iptcData['Iptc.Envelope.CharacterSet'])
-        if len(iptc_charset_code) < 3:
-            return None
-        if iptc_charset_code[0] != 0x1b:
-            # first byte isn't escape
-            return None
-        intermediate = iptc_charset_code[1:-1]
-        final = iptc_charset_code[-1]
-        if len(intermediate) == 1:
-            if intermediate[0] == 0x25:
+        if len(iptc_charset_code) >= 3 and iptc_charset_code[0] == 0x1b:
+            intermediate = iptc_charset_code[1:-1]
+            final = iptc_charset_code[-1]
+            if intermediate == b'\x25':
                 # "other coding systems"
                 if final == 0x47:
                     return 'utf-8'
-            if intermediate[0] in (0x28, 0x29, 0x2a, 0x2b):
+            if intermediate in (b'\x28', b'\x29', b'\x2a', b'\x2b'):
                 # "94-character set"
                 if final == 0x4e:
                     return 'koi8_r'
                 return 'ascii'
-            if intermediate[0] in (0x2c, 0x2d, 0x2e, 0x2f):
+            if intermediate in (b'\x2c', b'\x2d', b'\x2e', b'\x2f'):
                 # "96-character set"
                 if final == 0x40:
                     return 'iso_8859_5'
@@ -174,10 +171,9 @@ class MetadataHandler(object):
                     return 'iso_8859_6'
                 if final == 0x48:
                     return 'iso_8859_8'
-        elif len(intermediate) == 2:
             # "multi-byte character set"
-            if (intermediate[0] == 0x24
-                    and intermediate[1] in (0x28, 0x29, 0x2a, 0x2b)):
+            if intermediate in (b'\x24\x28', b'\x24\x29',
+                                b'\x24\x2a', b'\x24\x2b'):
                 if final == 0x42:
                     return 'euc_jp'
             if intermediate == b'\x25\x2f':
