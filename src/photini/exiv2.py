@@ -105,7 +105,7 @@ class MetadataHandler(object):
                     # unknown key type
                     continue
                 raw_value = self.get_raw_value(datum)
-                if self.decode_string(key, raw_value, 'utf-8'):
+                if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
                     continue
                 for encoding in encodings:
@@ -115,7 +115,12 @@ class MetadataHandler(object):
                 else:
                     encoding = chardet.detect(raw_value)['encoding']
                     if encoding:
-                        logger.info('%s: detected character set %s',
+                        try:
+                            encoding = codecs.lookup(encoding).name
+                        except LookupError:
+                            encoding = None
+                    if encoding:
+                        logger.info("%s: detected character set '%s'",
                                     self._name, encoding)
                         value = self.decode_string(key, raw_value, encoding)
                     else:
@@ -134,7 +139,8 @@ class MetadataHandler(object):
         except UnicodeDecodeError:
             return None
         if encoding != 'utf-8':
-            logger.info('%s: transcoded %s from %s', self._name, tag, encoding)
+            logger.info(
+                "%s: transcoded %s from '%s'", self._name, tag, encoding)
         return result
 
     def get_iptc_encoding(self):
