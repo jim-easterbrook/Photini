@@ -17,11 +17,11 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
-import locale
 import logging
 import os
 
 import exiv2
+import chardet
 
 logger = logging.getLogger(__name__)
 
@@ -57,16 +57,6 @@ class MetadataHandler(object):
                 ):
             if prefix == 'Iptc4xmpExt' or prefix not in registered:
                 exiv2.XmpProperties.registerNs(ns, prefix)
-        # make list of possible character encodings
-        cls.encodings = ['utf-8', 'iso8859-1', 'ascii']
-        char_set = locale.getdefaultlocale()[1]
-        if char_set:
-            try:
-                name = codecs.lookup(char_set).name
-                if name not in cls.encodings:
-                    cls.encodings.append(name)
-            except LookupError:
-                pass
         
     def __init__(self, path=None, buf=None):
         self._path = path
@@ -99,34 +89,59 @@ class MetadataHandler(object):
             self.clear_exif()
             self.clear_iptc()
         # transcode any non utf-8 strings (Xmp is always utf-8)
-        encodings = self.encodings
+        encodings = []
+        iptc_charset = self.get_iptc_encoding()
+        if iptc_charset not in ('utf-8', 'ascii', None):
+            iptc_charset = codecs.lookup(iptc_charset).name
+            logger.info('%s: IPTC character set %s', self._name, iptc_charset)
+            encodings.append(iptc_charset)
         for data in self._exifData, self._iptcData:
             for datum in data:
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
                                           exiv2.TypeId.string):
                     continue
-                value = datum.toString()
-                raw_value = value.encode('utf-8', errors='surrogateescape')
-                for encoding in self.encodings:
-                    try:
-                        new_value = raw_value.decode(encoding)
-                    except UnicodeDecodeError:
-                        continue
-                    if encoding != 'utf-8':
-                        logger.info('%s: transcoded %s from %s',
-                                    self._name, str(datum.key()), encoding)
-                    break
+                key = str(datum.key())
+                if '.0x' in key:
+                    # unknown key type
+                    continue
+                raw_value = self.get_raw_value(datum)
+                if self.decode_string(key, raw_value, 'utf-8') is not None:
+                    # no need to do anything
+                    continue
+                for encoding in encodings:
+                    value = self.decode_string(key, raw_value, encoding)
+                    if value:
+                        break
                 else:
-                    logger.warning('%s: failed to transcode %s',
-                                   self._name, str(datum.key()))
-                    new_value = raw_value.decode('utf-8', errors='replace')
-                datum.setValue(new_value)
-            iptc_charset = self.get_iptc_encoding()
-            if iptc_charset in ('utf-8', 'ascii'):
-                # no need to transcode anything
-                return
-            if iptc_charset:
-                encodings = [iptc_charset]
+                    encoding = chardet.detect(raw_value)['encoding']
+                    if encoding:
+                        try:
+                            encoding = codecs.lookup(encoding).name
+                        except LookupError:
+                            encoding = None
+                    if encoding:
+                        logger.info("%s: detected character set '%s'",
+                                    self._name, encoding)
+                        value = self.decode_string(key, raw_value, encoding)
+                    else:
+                        value = None
+                    if value:
+                        encodings.append(encoding)
+                    else:
+                        logger.warning('%s: failed to transcode %s',
+                                       self._name, key)
+                        value = raw_value.decode('utf-8', errors='replace')
+                datum.setValue(value)
+
+    def decode_string(self, tag, raw_value, encoding):
+        try:
+            result = raw_value.decode(encoding)
+        except UnicodeDecodeError:
+            return None
+        if encoding != 'utf-8':
+            logger.info(
+                "%s: transcoded %s from '%s'", self._name, tag, encoding)
+        return result
 
     def get_iptc_encoding(self):
         # IPTC-IIM uses ISO/IEC 2022 escape sequences to set the
@@ -134,25 +149,23 @@ class MetadataHandler(object):
         # which sequences, if any, are ever used in practice. The
         # sequence is escape, one or more intermediate bytes, then a
         # final byte.
-        iptc_charset_code = self.get_raw_value('Iptc.Envelope.CharacterSet')
-        if not iptc_charset_code or len(iptc_charset_code) < 3:
+        if 'Iptc.Envelope.CharacterSet' not in self._iptcData:
             return None
-        if iptc_charset_code[0] != 0x1b:
-            # first byte isn't escape
-            return None
-        intermediate = iptc_charset_code[1:-1]
-        final = iptc_charset_code[-1]
-        if len(intermediate) == 1:
-            if intermediate[0] == 0x25:
+        iptc_charset_code = self.get_raw_value(
+            self._iptcData['Iptc.Envelope.CharacterSet'])
+        if len(iptc_charset_code) >= 3 and iptc_charset_code[0] == 0x1b:
+            intermediate = iptc_charset_code[1:-1]
+            final = iptc_charset_code[-1]
+            if intermediate == b'\x25':
                 # "other coding systems"
                 if final == 0x47:
                     return 'utf-8'
-            if intermediate[0] in (0x28, 0x29, 0x2a, 0x2b):
+            if intermediate in (b'\x28', b'\x29', b'\x2a', b'\x2b'):
                 # "94-character set"
                 if final == 0x4e:
                     return 'koi8_r'
                 return 'ascii'
-            if intermediate[0] in (0x2c, 0x2d, 0x2e, 0x2f):
+            if intermediate in (b'\x2c', b'\x2d', b'\x2e', b'\x2f'):
                 # "96-character set"
                 if final == 0x40:
                     return 'iso_8859_5'
@@ -170,10 +183,9 @@ class MetadataHandler(object):
                     return 'iso_8859_6'
                 if final == 0x48:
                     return 'iso_8859_8'
-        elif len(intermediate) == 2:
             # "multi-byte character set"
-            if (intermediate[0] == 0x24
-                    and intermediate[1] in (0x28, 0x29, 0x2a, 0x2b)):
+            if intermediate in (b'\x24\x28', b'\x24\x29',
+                                b'\x24\x2a', b'\x24\x2b'):
                 if final == 0x42:
                     return 'euc_jp'
             if intermediate == b'\x25\x2f':
@@ -228,14 +240,14 @@ class MetadataHandler(object):
 
     def get_exif_comment(self, datum):
         value = exiv2.CommentValue(datum.value()).comment()
-        raw_value = value.encode('utf-8', errors='surrogateescape').strip(b'\0')
         try:
-            return raw_value.decode('utf-8')
-        except UnicodeDecodeError:
+            value.encode('utf-8')
+        except UnicodeEncodeError:
             logger.error(
                 '%s: %s: %d bytes binary data will be deleted when metadata'
                 ' is saved', self._name, datum.key(), datum.size())
-        return None
+            return None
+        return value
 
     def get_exif_value(self, tag):
         if tag not in self._exifData:
@@ -299,11 +311,10 @@ class MetadataHandler(object):
             return dict(exiv2.LangAltValue(datum.value()))
         return list(exiv2.XmpArrayValue(datum.value()))
 
-    def get_raw_value(self, tag):
-        if tag not in self._iptcData:
-            return None
-        datum = self._iptcData[tag]
-        return datum.toString().encode('utf-8', errors='surrogateescape')
+    def get_raw_value(self, datum):
+        result = bytearray(datum.size())
+        datum.copy(result, exiv2.ByteOrder.invalidByteOrder)
+        return result
 
     def get_exif_thumbnails(self):
         # try normal thumbnail
