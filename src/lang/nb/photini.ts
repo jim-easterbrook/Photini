@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="nb" sourcelanguage="en_GB" version="2.0">
+<TS language="nb" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;favoritter&gt;</translation>
+        <translation>&amp;lt;favoritter&amp;gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -147,6 +147,22 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -414,8 +430,8 @@
         <source>Large file.</source>
         <translation>Stor fil.</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -594,7 +610,7 @@ kopiering</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;velg kilde&gt;</translation>
+        <translation>&amp;lt;velg kilde&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -606,7 +622,7 @@ kopiering</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;legg til en mappe&gt;</translation>
+        <translation>&amp;lt;legg til en mappe&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -810,7 +826,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Hvem kan kommentere&lt;br&gt;albumet</translation>
+        <translation type="obsolete">Hvem kan kommentere&amp;lt;br&amp;gt;albumet</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -925,16 +941,16 @@ valgt</numerusform>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;nytt søk&gt;</translation>
+        <translation>&amp;lt;nytt søk&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;øk søket&gt;</translation>
+        <translation>&amp;lt;øk søket&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;gjenta søk&gt;</translation>
+        <translation type="obsolete">&amp;lt;gjenta søk&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -950,7 +966,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;gjenta søk&gt;</translation>
+        <translation>&amp;lt;gjenta søk&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -1054,15 +1070,15 @@ valgt</numerusform>
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1475,17 +1491,17 @@ mal</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>roter -90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>roter +90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>roter 180</translation>
@@ -1626,15 +1642,15 @@ mal</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;flere&gt;</translation>
+        <translation type="unfinished">&amp;lt;flere&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;flere verdier&gt;</translation>
+        <translation>&amp;lt;flere verdier&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;ny&gt;</translation>
+        <translation>&amp;lt;ny&amp;gt;</translation>
     </message>
 </context>
 </TS>

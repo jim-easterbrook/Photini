@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="pl" sourcelanguage="en_GB" version="2.0">
+<TS language="pl" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -147,6 +147,22 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -414,8 +430,8 @@
         <source>Large file.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -571,7 +587,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;wybierz źródło&gt;</translation>
+        <translation>&amp;lt;wybierz źródło&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -583,7 +599,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;dodać folder&gt;</translation>
+        <translation>&amp;lt;dodać folder&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -885,7 +901,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;nowe wyszukiwanie&gt;</translation>
+        <translation>&amp;lt;nowe wyszukiwanie&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
@@ -894,7 +910,7 @@ zdjęcie</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;powtórz wyszukiwanie&gt;</translation>
+        <translation type="obsolete">&amp;lt;powtórz wyszukiwanie&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -910,7 +926,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
+        <translation>&amp;lt;powtórz wyszukiwanie&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -1010,15 +1026,15 @@ zdjęcie</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1455,17 +1471,17 @@ zdjęcie</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished">Odbicie tr-bl</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>Obrót -90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>Obrót +90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Obrót 180</translation>
@@ -1606,11 +1622,11 @@ zdjęcie</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;wiele&gt;</translation>
+        <translation>&amp;lt;wiele&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;wiele wartości&gt;</translation>
+        <translation>&amp;lt;wiele wartości&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS sourcelanguage="en_GB" version="2.0">
+<TS sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -147,6 +147,22 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -406,8 +422,8 @@
         <source>Large file.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -971,7 +987,7 @@
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1006,8 +1022,8 @@
         <source>Credit Line</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1349,17 +1365,17 @@
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation type="unfinished"></translation>

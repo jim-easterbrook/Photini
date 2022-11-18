@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="cs" sourcelanguage="en_GB" version="2.0">
+<TS language="cs" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;favourites&gt;</translation>
+        <translation>&amp;lt;favourites&amp;gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -143,11 +143,27 @@
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
+        <translation>Zadejte &amp;quot;text&amp;quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &amp;quot;;&amp;quot;.</translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -261,7 +277,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
+        <translation>Soubor &amp;quot;{0}&amp;quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -414,9 +430,9 @@
         <source>Large file.</source>
         <translation>Velký soubor.</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &amp;quot;{0}&amp;quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -545,7 +561,7 @@
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;select source&gt;</translation>
+        <translation>&amp;lt;select source&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -557,7 +573,7 @@
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;add a folder&gt;</translation>
+        <translation>&amp;lt;add a folder&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -727,7 +743,7 @@ selected</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
+        <translation>Soubor &amp;quot;{0}&amp;quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -870,11 +886,11 @@ selected</numerusform>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;new search&gt;</translation>
+        <translation>&amp;lt;new search&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation>&amp;lt;widen search&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -890,7 +906,7 @@ selected</numerusform>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation>&amp;lt;repeat search&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -961,7 +977,7 @@ selected</numerusform>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &amp;quot;{}&amp;quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -990,16 +1006,16 @@ selected</numerusform>
         <source>Address lookup powered by OpenCage</source>
         <translation>Vyhledávání adresy napájeno OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Zeměpisné údaje © OpenStreetMap přispěvatelé</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &quot;©2008 Jane Doe&quot;.</translation>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &amp;quot;©2008 Jane Doe&amp;quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1368,17 +1384,17 @@ selected</numerusform>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>Otočit o -90°</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>Otočit o +90°</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Otočit o 180°</translation>
@@ -1432,15 +1448,15 @@ selected</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1519,11 +1535,11 @@ selected</numerusform>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;multiple&gt;</translation>
+        <translation>&amp;lt;multiple&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;multiple values&gt;</translation>
+        <translation>&amp;lt;multiple values&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="ca" sourcelanguage="en_GB" version="2.0">
+<TS language="ca" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;favourites&gt;</translation>
+        <translation>&amp;lt;favourites&amp;gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -147,6 +147,22 @@
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -261,7 +277,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
+        <translation>El fitxer &amp;quot;{0}&amp;quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -414,9 +430,9 @@
         <source>Large file.</source>
         <translation>Fitxer gran.</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El fitxer &amp;quot;{0}&amp;quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>
@@ -594,7 +610,7 @@ copia</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;select source&gt;</translation>
+        <translation>&amp;lt;select source&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -606,7 +622,7 @@ copia</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;add a folder&gt;</translation>
+        <translation>&amp;lt;add a folder&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -927,16 +943,16 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;new search&gt;</translation>
+        <translation>&amp;lt;new search&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation>&amp;lt;widen search&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;repeat search&gt;</translation>
+        <translation type="obsolete">&amp;lt;repeat search&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -952,7 +968,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation>&amp;lt;repeat search&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -1023,7 +1039,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
+        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &amp;quot;{}&amp;quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1052,15 +1068,15 @@ funcionant amb Bing</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodades © OpenStreetMap contributors</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1501,17 +1517,17 @@ funcionant amb Bing</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>reflexa de-bd</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>gira -90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>gira +90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>gira 180</translation>
@@ -1565,15 +1581,15 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} no acceptem in Photini no pot convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1633,7 +1649,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
+        <translation>Fitxer &amp;quot;{}&amp;quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1652,11 +1668,11 @@ funcionant amb Bing</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;multiple&gt;</translation>
+        <translation>&amp;lt;multiple&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;multiple values&gt;</translation>
+        <translation>&amp;lt;multiple values&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

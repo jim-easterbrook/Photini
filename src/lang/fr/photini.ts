@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="fr" sourcelanguage="en_GB" version="2.0">
+<TS language="fr" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;Favoris&gt;</translation>
+        <translation>&amp;lt;Favoris&amp;gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -164,6 +164,22 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation>Saisissez un nombre quelconque de mots-clés, de termes ou de phrases utilisés pour exprimer le sujet de l&apos;image. Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -430,8 +446,8 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <source>Large file.</source>
         <translation>Fichier volumineux.</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
@@ -509,8 +525,7 @@ dans le fichier</translation>
         <translation>
             <numerusform>Régénérer la vignette</numerusform>
             <numerusform>Régénérer les vignettes</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Metadata differences: {}</source>
@@ -525,16 +540,14 @@ dans le fichier</translation>
         <translation>
             <numerusform>Recharger le fichier</numerusform>
             <numerusform>Recharger les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message numerus="yes">
         <source>Close file(s)</source>
         <translation>
             <numerusform>Fermer le fichier</numerusform>
             <numerusform>Fermer les fichiers</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Some images have unsaved metadata.</source>
@@ -613,7 +626,7 @@ la copie</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;Sélectionner la source&gt;</translation>
+        <translation>&amp;lt;Sélectionner la source&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -625,7 +638,7 @@ la copie</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;Ajouter un dossier&gt;</translation>
+        <translation>&amp;lt;Ajouter un dossier&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -643,8 +656,7 @@ selected</source>
 sélectionné</numerusform>
             <numerusform>%n fichiers
 sélectionnés</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -679,8 +691,7 @@ sélectionnés</numerusform>
         <translation>
             <numerusform>%n fichier sélectionné</numerusform>
             <numerusform>%n fichiers sélectionnés</numerusform>
-            <numerusform>Unused</numerusform>
-        </translation>
+        <numerusform>Unused</numerusform></translation>
     </message>
 </context>
 <context>
@@ -831,7 +842,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Qui peut commenter&lt;br&gt;sur l&apos;album</translation>
+        <translation type="obsolete">Qui peut commenter&amp;lt;br&amp;gt;sur l&apos;album</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -850,11 +861,11 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&lt;b&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&amp;lt;b&amp;gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&lt;br&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&amp;lt;br&amp;gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>Set default language:</source>
@@ -972,16 +983,16 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;Nouvelle recherche&gt;</translation>
+        <translation>&amp;lt;Nouvelle recherche&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;Recherche avancée&gt;</translation>
+        <translation>&amp;lt;Recherche avancée&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;répéter la recherche&gt;</translation>
+        <translation type="obsolete">&amp;lt;répéter la recherche&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -997,7 +1008,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;répéter la recherche&gt;</translation>
+        <translation>&amp;lt;répéter la recherche&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -1101,15 +1112,15 @@ fournie par Bing</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>
     <message>
@@ -1264,7 +1275,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="obsolete">Informations&lt;br&gt;de contact&lt;br&gt;du créateur</translation>
+        <translation type="obsolete">Informations&amp;lt;br&amp;gt;de contact&amp;lt;br&amp;gt;du créateur</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
@@ -1572,17 +1583,17 @@ le modèle</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>refléter haut gauche-bas droite</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>Rotation -90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>Rotation +90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>Rotation 180</translation>
@@ -1660,7 +1671,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Connecté en tant que&lt;br&gt;{0} sur {1}</translation>
+        <translation type="obsolete">Connecté en tant que&amp;lt;br&amp;gt;{0} sur {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1727,15 +1738,15 @@ le modèle</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;Multiple&gt;</translation>
+        <translation>&amp;lt;Multiple&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;Valeurs multiples&gt;</translation>
+        <translation>&amp;lt;Valeurs multiples&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;Nouveau&gt;</translation>
+        <translation>&amp;lt;Nouveau&amp;gt;</translation>
     </message>
 </context>
 </TS>

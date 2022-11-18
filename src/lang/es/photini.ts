@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="es" sourcelanguage="en_GB" version="2.0">
+<TS language="es" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -149,6 +149,22 @@
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditSettings</name>
@@ -166,7 +182,7 @@
     </message>
     <message>
         <source>Sidecar files</source>
-        <translation>Archivos &quot;sidecar&quot;</translation>
+        <translation>Archivos &amp;quot;sidecar&amp;quot;</translation>
     </message>
     <message>
         <source>Create if necessary</source>
@@ -414,8 +430,8 @@
         <source>Large file.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -568,7 +584,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;seleccionar la fuente&gt;</translation>
+        <translation>&amp;lt;seleccionar la fuente&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -580,7 +596,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;agregar directorio&gt;</translation>
+        <translation>&amp;lt;agregar directorio&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -881,7 +897,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;nueva búsqueda&gt;</translation>
+        <translation>&amp;lt;nueva búsqueda&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
@@ -890,7 +906,7 @@ fotos</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;repetir la búsqueda&gt;</translation>
+        <translation type="obsolete">&amp;lt;repetir la búsqueda&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -906,7 +922,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repetir la búsqueda&gt;</translation>
+        <translation>&amp;lt;repetir la búsqueda&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -977,7 +993,7 @@ fotos</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
+        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &amp;quot;{}&amp;quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1006,15 +1022,15 @@ fotos</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation type="unfinished"></translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1451,17 +1467,17 @@ fotos</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation type="unfinished">reflejar tl-br</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>rotar -90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>rotar +90</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>rotar 180</translation>
@@ -1602,11 +1618,11 @@ fotos</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;múltiple&gt;</translation>
+        <translation>&amp;lt;múltiple&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;Valores múltiples&gt;</translation>
+        <translation>&amp;lt;Valores múltiples&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

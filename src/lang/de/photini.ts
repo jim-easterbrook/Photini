@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="de" sourcelanguage="en_GB" version="2.0">
+<TS language="de" sourcelanguage="en_GB" version="2.1">
 <context>
     <name>AddressTab</name>
     <message>
@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&lt;Favoriten&gt;</translation>
+        <translation>&amp;lt;Favoriten&amp;gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -164,6 +164,22 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
         <translation>Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen. Trennen Sie sie mit ;-Zeichen.</translation>
+    </message>
+    <message>
+        <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alt Text&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -430,8 +446,8 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <source>Large file.</source>
         <translation>Große Datei.</translation>
     </message>
-    <message encoding="UTF-8">
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+    <message>
+        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation>Die Datei „{0}“ ist größer als 25&#xa0;MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
 </context>
@@ -610,7 +626,7 @@ Kopieren</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&lt;Quelle auswählen&gt;</translation>
+        <translation>&amp;lt;Quelle auswählen&amp;gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -622,7 +638,7 @@ Kopieren</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&lt;Ordner hinzufügen&gt;</translation>
+        <translation>&amp;lt;Ordner hinzufügen&amp;gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -943,16 +959,16 @@ provided by Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;Neue Suche&gt;</translation>
+        <translation>&amp;lt;Neue Suche&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation>&amp;lt;widen search&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&lt;Suche wiederholen&gt;</translation>
+        <translation type="obsolete">&amp;lt;Suche wiederholen&amp;gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -968,7 +984,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;Suche wiederholen&gt;</translation>
+        <translation>&amp;lt;Suche wiederholen&amp;gt;</translation>
     </message>
 </context>
 <context>
@@ -1072,15 +1088,15 @@ provided by Bing</translation>
         <source>Address lookup powered by OpenCage</source>
         <translation>Adresssuche powered by OpenCage</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>Geodata © OpenStreetMap contributors</source>
         <translation>Geodata © OpenStreetMap contributors</translation>
     </message>
 </context>
 <context>
     <name>OwnerTab</name>
-    <message encoding="UTF-8">
-        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1533,17 +1549,17 @@ anwenden</translation>
         <comment>orientation dropdown, diagonal reflection</comment>
         <translation>links oben-rechts unten spiegeln</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate -90°</source>
         <comment>orientation dropdown</comment>
         <translation>90 Grad gegen Uhrzeigersinn drehen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate +90°</source>
         <comment>orientation dropdown</comment>
         <translation>90 Grad im Uhrzeigersinn drehen</translation>
     </message>
-    <message encoding="UTF-8">
+    <message>
         <source>rotate 180°</source>
         <comment>orientation dropdown</comment>
         <translation>180 Grad im Uhrzeigersinn drehen</translation>
@@ -1621,7 +1637,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Angemeldet als&lt;br&gt;{0} auf {1}</translation>
+        <translation type="obsolete">Angemeldet als&amp;lt;br&amp;gt;{0} auf {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1688,15 +1704,15 @@ anwenden</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&lt;mehrfach&gt;</translation>
+        <translation>&amp;lt;mehrfach&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&lt;Mehrfachwerte&gt;</translation>
+        <translation>&amp;lt;Mehrfachwerte&amp;gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&lt;neu&gt;</translation>
+        <translation>&amp;lt;neu&amp;gt;</translation>
     </message>
 </context>
 </TS>
