@@ -30,6 +30,8 @@ Photini field             Exif tag                          XMP tag             
 `Title / Object Name`_                                      Xmp.dc.title                           Iptc.Application2.ObjectName
 Headline_                                                   Xmp.photoshop.Headline                 Iptc.Application2.Headline
 `Description / Caption`_  Exif.Image.ImageDescription       Xmp.dc.description                     Iptc.Application2.Caption
+`Alt Text`_                                                 Xmp.iptc.AltTextAccessibility
+`Extended Description`_                                     Xmp.iptc.ExtDescrAccessibility
 Keywords_                                                   Xmp.dc.subject                         Iptc.Application2.Keywords
 Rating_                                                     Xmp.xmp.Rating
 `Creator / Artist`_       Exif.Image.Artist                 Xmp.dc.creator                         Iptc.Application2.Byline
@@ -167,6 +169,8 @@ Thumbnail image        Exif.SubImage*
 It is applied to the Date / time Taken, Date / time Digitised and Date / time Modified fields if no other time zone information is available.
 
 .. _Altitude:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#gps-altitude
+.. _Alt Text:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#alt-text-accessibility
 .. _Camera address:        http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#location-created
 .. _Contact Information:   http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#creators-contact-info
 .. _Copyright Notice:      http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#copyright-notice
@@ -175,6 +179,8 @@ It is applied to the Date / time Taken, Date / time Digitised and Date / time Mo
 .. _Credit Line:           http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#credit-line
 .. _Date / time Taken:     http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
 .. _Description / Caption: http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#description
+.. _Extended Description:
+    http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#extended-description-accessibility
 .. _Headline:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#headline
 .. _Instructions:          http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#instructions
 .. _Keywords:              http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords
