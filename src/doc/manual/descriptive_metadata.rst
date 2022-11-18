@@ -52,17 +52,19 @@ Very long texts are elided with ``...`` replacing some of the text.
 
 .. image:: ../images/screenshot_025.png
 
-The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes (not shown in these older screenshots) are where you describe the photograph for visually impaired users.
+The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes are where you describe the photograph for visually impaired users.
 These are a recent addition to the `IPTC standard`_ - in future image display programs and web sites should use this metadata to create their "ALT text" image description.
 
-Finally the ``Rating`` slider allows you to note any particularly good or bad pictures.
-Good pictures can be given a one to five star rating.
+.. image:: ../images/screenshot_034.png
 
 Next you can set a list of keywords for the image by typing them in the ``Keywords`` box.
 Keywords should be separated by semi-colon (;) characters.
 The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
 
 .. image:: ../images/screenshot_026.png
+
+Finally the ``Rating`` slider allows you to note any particularly good or bad pictures.
+Good pictures can be given a one to five star rating.
 
 .. image:: ../images/screenshot_027.png
 
