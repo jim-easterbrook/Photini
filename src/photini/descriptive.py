@@ -177,7 +177,7 @@ class KeywordsEditor(QtWidgets.QWidget):
         self.new_value.emit(self.edit._key, new_value)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QScrollArea):
     @staticmethod
     def tab_name():
         return translate('DescriptiveTab', '&Descriptive metadata')
@@ -185,10 +185,11 @@ class TabWidget(QtWidgets.QWidget):
     def __init__(self, image_list, *arg, **kw):
         super(TabWidget, self).__init__(*arg, **kw)
         self.image_list = image_list
-        self.form = FormLayout()
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().addLayout(self.form)
-        self.layout().addStretch(1)
+        self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
+        self.setWidget(QtWidgets.QWidget())
+        self.setWidgetResizable(True)
+        layout = FormLayout()
+        self.widget().setLayout(layout)
         # construct widgets
         self.widgets = {}
         # title
@@ -199,7 +200,7 @@ class TabWidget(QtWidgets.QWidget):
             'DescriptiveTab', 'Enter a short verbal and human readable name'
             ' for the image, this may be the file name.') + '</p>')
         self.widgets['title'].new_value.connect(self.new_value)
-        self.form.addRow(translate(
+        layout.addRow(translate(
             'DescriptiveTab', 'Title / Object Name'), self.widgets['title'])
         # headline
         self.widgets['headline'] = MultiLineEdit(
@@ -210,7 +211,7 @@ class TabWidget(QtWidgets.QWidget):
             'DescriptiveTab', 'Enter a brief publishable synopsis or summary'
             ' of the contents of the image.') + '</p>')
         self.widgets['headline'].new_value.connect(self.new_value)
-        self.form.addRow(translate(
+        layout.addRow(translate(
             'DescriptiveTab', 'Headline'), self.widgets['headline'])
         # description
         self.widgets['description'] = LangAltWidget(
@@ -222,9 +223,35 @@ class TabWidget(QtWidgets.QWidget):
             ' names of people, and/or their role in the action that is taking'
             ' place within the image.') + '</p>')
         self.widgets['description'].new_value.connect(self.new_value)
-        self.form.addRow(
+        layout.addRow(
             translate('DescriptiveTab', 'Description / Caption'),
             self.widgets['description'])
+        # alt text
+        self.widgets['alt_text'] = LangAltWidget(
+            'alt_text', spell_check=True, length_check=250)
+        self.widgets['alt_text'].setToolTip('<p>' + translate(
+            'DescriptiveTab', 'Enter text describing the appearance of the'
+            ' image from a visual perspective, focusing on details that are'
+            ' relevant to the purpose and meaning of the image.') + '</p>')
+        self.widgets['alt_text'].new_value.connect(self.new_value)
+        layout.addRow(
+            translate('DescriptiveTab', 'Alt Text<br>(Accessibility)'),
+            self.widgets['alt_text'])
+        # extended alt text
+        self.widgets['alt_text_ext'] = LangAltWidget(
+            'alt_text_ext', spell_check=True)
+        self.widgets['alt_text_ext'].setToolTip('<p>' + translate(
+            'DescriptiveTab', 'A more detailed textual description of the'
+            ' purpose and meaning of an image that elaborates on the'
+            ' information provided by the Alt Text (Accessibility) property.'
+            ' This property does not have a character limitation and is not'
+            ' required if the Alt Text (Accessibility) field sufficiently'
+            ' describes the image..') + '</p>')
+        self.widgets['alt_text_ext'].new_value.connect(self.new_value)
+        layout.addRow(
+            translate('DescriptiveTab',
+                      'Extended Description<br>(Accessibility)'),
+            self.widgets['alt_text_ext'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, multi_string=True,
@@ -234,13 +261,13 @@ class TabWidget(QtWidgets.QWidget):
             ' used to express the subject matter in the image.'
             ' Separate them with ";" characters.') + '</p>')
         self.widgets['keywords'].new_value.connect(self.new_value)
-        self.form.addRow(translate(
+        layout.addRow(translate(
             'DescriptiveTab', 'Keywords'), self.widgets['keywords'])
         self.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
         self.widgets['rating'] = RatingWidget('rating')
         self.widgets['rating'].new_value.connect(self.new_value)
-        self.form.addRow(translate(
+        layout.addRow(translate(
             'DescriptiveTab', 'Rating'), self.widgets['rating'])
         # disable until an image is selected
         self.setEnabled(False)
