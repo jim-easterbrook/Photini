@@ -52,6 +52,11 @@ Very long texts are elided with ``...`` replacing some of the text.
 
 .. image:: ../images/screenshot_025.png
 
+The ``Alt Text (Accessibility)`` and ``Extended Description (Accessibility)`` boxes are where you describe the photograph for visually impaired users.
+These are a recent addition to the `IPTC standard`_ - in future image display programs and web sites should use this metadata to create their "ALT text" image description.
+
+.. image:: ../images/screenshot_034.png
+
 Next you can set a list of keywords for the image by typing them in the ``Keywords`` box.
 Keywords should be separated by semi-colon (;) characters.
 The ``<favourites>`` drop-down list can be used to select keywords from the ones you use most often.
@@ -107,18 +112,22 @@ More information about the data fields
 
 Click on any field name below to see the IPTC definition and user notes for that field.
 Although these fields are defined in an `IPTC standard`_, they are all stored in XMP metadata.
-Most of them are also stored in "legacy" IPTC-IIM data.
+Some of them are also stored in Exif and/or "legacy" IPTC-IIM data.
 
 `Title / Object Name <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#title>`_
-  Not stored in Exif.
+  A short title.
 `Headline <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#headline>`_
-  Not stored in Exif.
+  A brief description.
 `Description / Caption <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#description>`_
   The who, what and why of what the image depicts.
+`Alt Text (Accessibility) <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#alt-text-accessibility>`_
+  Text description for visually impaired accessibility.
+`Extended Description (Accessibility) <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#extended-description-accessibility>`_
+  Extended description for visually impaired accessibility.
 `Keywords <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#keywords>`_
   Separate words or phrases with ``;`` characters. Not stored in Exif.
 `Rating <http://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#image-rating>`_
-  Not stored in Exif or IPTC-IIM.
+  How good is the photo.
 
 
 .. _IPTC standard:
