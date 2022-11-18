@@ -431,7 +431,7 @@
         <translation></translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation></translation>
     </message>
 </context>
@@ -1009,7 +1009,7 @@ selected</numerusform>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation></translation>
     </message>
     <message>

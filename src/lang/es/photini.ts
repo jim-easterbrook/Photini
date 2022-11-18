@@ -182,7 +182,7 @@
     </message>
     <message>
         <source>Sidecar files</source>
-        <translation>Archivos &amp;quot;sidecar&amp;quot;</translation>
+        <translation>Archivos &quot;sidecar&quot;</translation>
     </message>
     <message>
         <source>Create if necessary</source>
@@ -431,7 +431,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -584,7 +584,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;seleccionar la fuente&amp;gt;</translation>
+        <translation>&lt;seleccionar la fuente&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -596,7 +596,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;agregar directorio&amp;gt;</translation>
+        <translation>&lt;agregar directorio&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -897,7 +897,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;nueva búsqueda&amp;gt;</translation>
+        <translation>&lt;nueva búsqueda&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
@@ -906,7 +906,7 @@ fotos</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;repetir la búsqueda&amp;gt;</translation>
+        <translation type="obsolete">&lt;repetir la búsqueda&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -922,7 +922,7 @@ fotos</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;repetir la búsqueda&amp;gt;</translation>
+        <translation>&lt;repetir la búsqueda&gt;</translation>
     </message>
 </context>
 <context>
@@ -993,7 +993,7 @@ fotos</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &amp;quot;{}&amp;quot;.</translation>
+        <translation>Este programa es liberado bajo una Licencia Pública General de GNU. Detalles favor de hacer clic en el botón &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1030,7 +1030,7 @@ fotos</translation>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1618,11 +1618,11 @@ fotos</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;múltiple&amp;gt;</translation>
+        <translation>&lt;múltiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;Valores múltiples&amp;gt;</translation>
+        <translation>&lt;Valores múltiples&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

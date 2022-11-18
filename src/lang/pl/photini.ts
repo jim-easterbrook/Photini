@@ -431,7 +431,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -587,7 +587,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;wybierz źródło&amp;gt;</translation>
+        <translation>&lt;wybierz źródło&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -599,7 +599,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;dodać folder&amp;gt;</translation>
+        <translation>&lt;dodać folder&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -901,7 +901,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;nowe wyszukiwanie&amp;gt;</translation>
+        <translation>&lt;nowe wyszukiwanie&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
@@ -910,7 +910,7 @@ zdjęcie</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;powtórz wyszukiwanie&amp;gt;</translation>
+        <translation type="obsolete">&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -926,7 +926,7 @@ zdjęcie</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;powtórz wyszukiwanie&amp;gt;</translation>
+        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
 </context>
 <context>
@@ -1034,7 +1034,7 @@ zdjęcie</translation>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1622,11 +1622,11 @@ zdjęcie</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;wiele&amp;gt;</translation>
+        <translation>&lt;wiele&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;wiele wartości&amp;gt;</translation>
+        <translation>&lt;wiele wartości&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

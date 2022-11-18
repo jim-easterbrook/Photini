@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&amp;lt;favoritter&amp;gt;</translation>
+        <translation>&lt;favoritter&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -431,7 +431,7 @@
         <translation>Stor fil.</translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -610,7 +610,7 @@ kopiering</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;velg kilde&amp;gt;</translation>
+        <translation>&lt;velg kilde&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -622,7 +622,7 @@ kopiering</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;legg til en mappe&amp;gt;</translation>
+        <translation>&lt;legg til en mappe&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -826,7 +826,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Hvem kan kommentere&amp;lt;br&amp;gt;albumet</translation>
+        <translation type="obsolete">Hvem kan kommentere&lt;br&gt;albumet</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -941,16 +941,16 @@ valgt</numerusform>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;nytt søk&amp;gt;</translation>
+        <translation>&lt;nytt søk&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&amp;lt;øk søket&amp;gt;</translation>
+        <translation>&lt;øk søket&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;gjenta søk&amp;gt;</translation>
+        <translation type="obsolete">&lt;gjenta søk&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -966,7 +966,7 @@ valgt</numerusform>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;gjenta søk&amp;gt;</translation>
+        <translation>&lt;gjenta søk&gt;</translation>
     </message>
 </context>
 <context>
@@ -1078,7 +1078,7 @@ valgt</numerusform>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1642,15 +1642,15 @@ mal</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&amp;lt;flere&amp;gt;</translation>
+        <translation type="unfinished">&lt;flere&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;flere verdier&amp;gt;</translation>
+        <translation>&lt;flere verdier&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&amp;lt;ny&amp;gt;</translation>
+        <translation>&lt;ny&gt;</translation>
     </message>
 </context>
 </TS>
