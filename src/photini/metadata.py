@@ -376,6 +376,8 @@ class ImageMetadata(MetadataHandler):
     # WN (never). The order of the tags sets the precedence when values
     # conflict.
     _tag_list = {
+        'alt_text'       : (('WA', 'Xmp.iptc.AltTextAccessibility'),),
+        'alt_text_ext'   : (('WA', 'Xmp.iptc.ExtDescrAccessibility'),),
         'altitude'       : (('WA', 'Exif.GPSInfo.GPSAltitude*'),
                             ('WX', 'Xmp.exif.GPSAltitude*')),
         'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
@@ -567,6 +569,8 @@ class SidecarMetadata(ImageMetadata):
 class Metadata(object):
     # type of each Photini data field's data
     _data_type = {
+        'alt_text'       : MD_LangAlt,
+        'alt_text_ext'   : MD_LangAlt,
         'altitude'       : MD_Altitude,
         'aperture'       : MD_Aperture,
         'camera_model'   : MD_CameraModel,
