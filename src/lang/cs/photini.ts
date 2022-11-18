@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&amp;lt;favourites&amp;gt;</translation>
+        <translation>&lt;favourites&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -143,11 +143,11 @@
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation>Zadejte &amp;quot;text&amp;quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
+        <translation>Zadejte &quot;text&quot; popisující, kdo, co a proč se na tomto obrázku děje, může zahrnovat jména osob a/nebo jejich úlohu v ději, který se na snímku odehrává.</translation>
     </message>
     <message>
         <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image. Separate them with &quot;;&quot; characters.</source>
-        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &amp;quot;;&amp;quot;.</translation>
+        <translation>Zadejte libovolný počet klíčových slov, pojmů nebo slovních spojení, které se používají k vyjádření předmětu na obrázku. Oddělte je znaky &quot;;&quot;.</translation>
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
+        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -431,8 +431,8 @@
         <translation>Velký soubor.</translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -561,7 +561,7 @@
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;select source&amp;gt;</translation>
+        <translation>&lt;select source&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -573,7 +573,7 @@
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;add a folder&amp;gt;</translation>
+        <translation>&lt;add a folder&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -743,7 +743,7 @@ selected</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
+        <translation>Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -886,11 +886,11 @@ selected</numerusform>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;new search&amp;gt;</translation>
+        <translation>&lt;new search&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&amp;lt;widen search&amp;gt;</translation>
+        <translation>&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -906,7 +906,7 @@ selected</numerusform>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;repeat search&amp;gt;</translation>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -977,7 +977,7 @@ selected</numerusform>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &amp;quot;{}&amp;quot;.</translation>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1014,8 +1014,8 @@ selected</numerusform>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
-        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &amp;quot;©2008 Jane Doe&amp;quot;.</translation>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation>Zadejte upozornění na současného vlastníka kopírovacích práv k tomuto obrázku, například &quot;©2008 Jane Doe&quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -1448,15 +1448,15 @@ selected</numerusform>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &amp;quot;{0}&amp;quot; je typu &amp;quot;{1}&amp;quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1535,11 +1535,11 @@ selected</numerusform>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;multiple&amp;gt;</translation>
+        <translation>&lt;multiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;multiple values&amp;gt;</translation>
+        <translation>&lt;multiple values&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

@@ -107,7 +107,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&amp;lt;favourites&amp;gt;</translation>
+        <translation>&lt;favourites&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -277,7 +277,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>El fitxer &amp;quot;{0}&amp;quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
+        <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -431,8 +431,8 @@
         <translation>Fitxer gran.</translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &amp;quot;{0}&amp;quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>
@@ -610,7 +610,7 @@ copia</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;select source&amp;gt;</translation>
+        <translation>&lt;select source&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -622,7 +622,7 @@ copia</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;add a folder&amp;gt;</translation>
+        <translation>&lt;add a folder&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -943,16 +943,16 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;new search&amp;gt;</translation>
+        <translation>&lt;new search&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&amp;lt;widen search&amp;gt;</translation>
+        <translation>&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;repeat search&amp;gt;</translation>
+        <translation type="obsolete">&lt;repeat search&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -968,7 +968,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;repeat search&amp;gt;</translation>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -1039,7 +1039,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &amp;quot;{}&amp;quot;.</translation>
+        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -1076,7 +1076,7 @@ funcionant amb Bing</translation>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1581,15 +1581,15 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &amp;quot;{0}&amp;quot; és de tipus &amp;quot;{1}&amp;quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1649,7 +1649,7 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &amp;quot;{}&amp;quot; càrrega fallada.</translation>
+        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1668,11 +1668,11 @@ funcionant amb Bing</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;multiple&amp;gt;</translation>
+        <translation>&lt;multiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;multiple values&amp;gt;</translation>
+        <translation>&lt;multiple values&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>

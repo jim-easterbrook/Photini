@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&amp;lt;Favoris&amp;gt;</translation>
+        <translation>&lt;Favoris&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -447,7 +447,7 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <translation>Fichier volumineux.</translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
@@ -626,7 +626,7 @@ la copie</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;Sélectionner la source&amp;gt;</translation>
+        <translation>&lt;Sélectionner la source&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -638,7 +638,7 @@ la copie</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;Ajouter un dossier&amp;gt;</translation>
+        <translation>&lt;Ajouter un dossier&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -842,7 +842,7 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Qui peut commenter&amp;lt;br&amp;gt;sur l&apos;album</translation>
+        <translation type="obsolete">Qui peut commenter&lt;br&gt;sur l&apos;album</translation>
     </message>
     <message>
         <source>File too large.</source>
@@ -861,11 +861,11 @@ sélectionnés</numerusform>
     </message>
     <message>
         <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&amp;lt;b&amp;gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&lt;b&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&amp;lt;br&amp;gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
+        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&lt;br&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>Set default language:</source>
@@ -983,16 +983,16 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;Nouvelle recherche&amp;gt;</translation>
+        <translation>&lt;Nouvelle recherche&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&amp;lt;Recherche avancée&amp;gt;</translation>
+        <translation>&lt;Recherche avancée&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;répéter la recherche&amp;gt;</translation>
+        <translation type="obsolete">&lt;répéter la recherche&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -1008,7 +1008,7 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;répéter la recherche&amp;gt;</translation>
+        <translation>&lt;répéter la recherche&gt;</translation>
     </message>
 </context>
 <context>
@@ -1120,7 +1120,7 @@ fournie par Bing</translation>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation>Entrez un avertissement sur le propriétaire actuel du droit d&apos;auteur pour cette image, par exemple&#xa0;: © 2008 Jean Dupont.</translation>
     </message>
     <message>
@@ -1275,7 +1275,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="obsolete">Informations&amp;lt;br&amp;gt;de contact&amp;lt;br&amp;gt;du créateur</translation>
+        <translation type="obsolete">Informations&lt;br&gt;de contact&lt;br&gt;du créateur</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
@@ -1671,7 +1671,7 @@ le modèle</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Connecté en tant que&amp;lt;br&amp;gt;{0} sur {1}</translation>
+        <translation type="obsolete">Connecté en tant que&lt;br&gt;{0} sur {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1738,15 +1738,15 @@ le modèle</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;Multiple&amp;gt;</translation>
+        <translation>&lt;Multiple&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;Valeurs multiples&amp;gt;</translation>
+        <translation>&lt;Valeurs multiples&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&amp;lt;Nouveau&amp;gt;</translation>
+        <translation>&lt;Nouveau&gt;</translation>
     </message>
 </context>
 </TS>

@@ -111,7 +111,7 @@
     </message>
     <message>
         <source>&lt;favourites&gt;</source>
-        <translation>&amp;lt;Favoriten&amp;gt;</translation>
+        <translation>&lt;Favoriten&gt;</translation>
     </message>
     <message>
         <source>&amp;Descriptive metadata</source>
@@ -447,7 +447,7 @@ Trennen Sie sie mit ;-Zeichen.</translation>
         <translation>Große Datei.</translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation>Die Datei „{0}“ ist größer als 25&#xa0;MB. Hochladen mit Photini wird in ihrem Google-Konto als belegter Speicher gezählt. Trotzdem hochladen?</translation>
     </message>
 </context>
@@ -626,7 +626,7 @@ Kopieren</translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation>&amp;lt;Quelle auswählen&amp;gt;</translation>
+        <translation>&lt;Quelle auswählen&gt;</translation>
     </message>
     <message>
         <source>camera: {0}</source>
@@ -638,7 +638,7 @@ Kopieren</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
-        <translation>&amp;lt;Ordner hinzufügen&amp;gt;</translation>
+        <translation>&lt;Ordner hinzufügen&gt;</translation>
     </message>
     <message>
         <source>Photini: import in progress</source>
@@ -959,16 +959,16 @@ provided by Bing</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&amp;lt;Neue Suche&amp;gt;</translation>
+        <translation>&lt;Neue Suche&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&amp;lt;widen search&amp;gt;</translation>
+        <translation>&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
         <comment>repeat</comment>
-        <translation type="obsolete">&amp;lt;Suche wiederholen&amp;gt;</translation>
+        <translation type="obsolete">&lt;Suche wiederholen&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
@@ -984,7 +984,7 @@ provided by Bing</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&amp;lt;Suche wiederholen&amp;gt;</translation>
+        <translation>&lt;Suche wiederholen&gt;</translation>
     </message>
 </context>
 <context>
@@ -1096,7 +1096,7 @@ provided by Bing</translation>
 <context>
     <name>OwnerTab</name>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1637,7 +1637,7 @@ anwenden</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Angemeldet als&amp;lt;br&amp;gt;{0} auf {1}</translation>
+        <translation type="obsolete">Angemeldet als&lt;br&gt;{0} auf {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1704,15 +1704,15 @@ anwenden</translation>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation>&amp;lt;mehrfach&amp;gt;</translation>
+        <translation>&lt;mehrfach&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>
-        <translation>&amp;lt;Mehrfachwerte&amp;gt;</translation>
+        <translation>&lt;Mehrfachwerte&gt;</translation>
     </message>
     <message>
         <source>&lt;new&gt;</source>
-        <translation>&amp;lt;neu&amp;gt;</translation>
+        <translation>&lt;neu&gt;</translation>
     </message>
 </context>
 </TS>
