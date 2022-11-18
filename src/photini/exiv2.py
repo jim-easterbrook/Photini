@@ -450,7 +450,7 @@ class MetadataHandler(object):
         if type_id in (exiv2.TypeId.xmpAlt, exiv2.TypeId.xmpBag,
                        exiv2.TypeId.xmpSeq):
             datum.setValue(exiv2.XmpArrayValue(value, type_id))
-        elif type_id == exiv2.TypeId.langAlt:
+        elif type_id == exiv2.TypeId.langAlt or isinstance(value, dict):
             datum.setValue(exiv2.LangAltValue(value))
         else:
             logger.error(
