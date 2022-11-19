@@ -68,6 +68,33 @@ def extract_program_strings(root):
         text = text.replace('<message>', '<message encoding="UTF-8">')
         with open(path, 'w') as f:
             f.write(text)
+    # remove extra plurals expected by Transifex
+    numerus_count = {
+        'cs': {'qt': 3, 'tx': 4},
+        'es': {'qt': 2, 'tx': 3},
+        'fr': {'qt': 2, 'tx': 3},
+        'it': {'qt': 2, 'tx': 3},
+        'pl': {'qt': 3, 'tx': 4},
+        }
+    for path in outputs:
+        if 'templates' in path or not os.path.exists(path):
+            continue
+        language = os.path.basename(os.path.dirname(path))
+        if language not in numerus_count:
+            continue
+        tree = ET.parse(path)
+        xml = tree.getroot()
+        for context in xml.iter('context'):
+            for message in context.iter('message'):
+                if message.get('numerus'):
+                    translation = message.find('translation')
+                    numerusforms = translation.findall('numerusform')
+                    extra = len(numerusforms) - numerus_count[language]['qt']
+                    if extra > 0:
+                        for i in range(extra):
+                            translation.remove(numerusforms.pop())
+        tree.write(path, encoding='utf-8',
+                   xml_declaration=True, short_empty_elements=False)
     # run pylupdate
     # using a project file is the only way to make it handle utf-8 correctly
     project = 'photini.pro'
@@ -82,13 +109,6 @@ def extract_program_strings(root):
         return result
     os.unlink(project)
     # process pylupdate output
-    numerus_count = {
-        'cs': 4,
-        'es': 3,
-        'fr': 3,
-        'it': 3,
-        'pl': 4,
-        }
     unused = ET.Element('numerusform')
     unused.text = 'Unused'
     for path in outputs:
@@ -111,10 +131,11 @@ def extract_program_strings(root):
                     if location is not None:
                         message.remove(message.find('location'))
                 # add extra plurals expected by Transifex
-                if language in numerus_count and message.get('numerus'):
+                if (args.transifex and language in numerus_count
+                        and message.get('numerus')):
                     translation = message.find('translation')
                     numerusforms = translation.findall('numerusform')
-                    missing = numerus_count[language] - len(numerusforms)
+                    missing = numerus_count[language]['tx'] - len(numerusforms)
                     if missing > 0:
                         for i in range(missing):
                             translation.append(unused)
@@ -198,6 +219,8 @@ def main(argv=None):
                         help='language code, e.g. nl or cs_CZ')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
+    parser.add_argument('-t', '--transifex', action='store_true',
+                        help='make output Transifex compatible')
     args = parser.parse_args()
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     if args.docs:
