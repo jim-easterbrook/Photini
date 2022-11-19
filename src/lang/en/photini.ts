@@ -151,19 +151,19 @@
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Alt Text&lt;br&gt;(Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Extended Description&lt;br&gt;(Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -397,7 +397,7 @@
     </message>
     <message>
         <source>Virtual Photography</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -1166,6 +1166,133 @@ selected</numerusform>
     </message>
 </context>
 <context>
+    <name>PhotiniUploader</name>
+    <message>
+        <source>Close window</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>You may now close this browser window.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Log in</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Log out</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add to albums</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Start upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Stop upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: upload in progress</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Closing now will terminate the upload.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Not logged in to {}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: incompatible type</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: upload error</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Replace photo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Replace image</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Upload as new photo</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
@@ -1396,133 +1523,6 @@ selected</numerusform>
     </message>
     <message>
         <source>Precision</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>UploaderTabsAll</name>
-    <message>
-        <source>Close window</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>You may now close this browser window.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Log out</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Start upload</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Stop upload</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Photini: upload error</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Replace photo</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Incompatible image type.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
         <translation></translation>
     </message>
 </context>

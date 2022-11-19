@@ -1299,6 +1299,133 @@ le modèle</translation>
     </message>
 </context>
 <context>
+    <name>PhotiniUploader</name>
+    <message>
+        <source>Close window</source>
+        <translation>Fermer la fenêtre</translation>
+    </message>
+    <message>
+        <source>You may now close this browser window.</source>
+        <translation>Vous pouvez désormais fermer cette fenêtre.</translation>
+    </message>
+    <message>
+        <source>Log in</source>
+        <translation>Se connecter</translation>
+    </message>
+    <message>
+        <source>Log out</source>
+        <translation>Se déconnecter</translation>
+    </message>
+    <message>
+        <source>Add to albums</source>
+        <translation>Ajouter aux albums</translation>
+    </message>
+    <message>
+        <source>Start upload</source>
+        <translation>Démarrer l&apos;import</translation>
+    </message>
+    <message>
+        <source>Stop upload</source>
+        <translation>Arrêter l&apos;import</translation>
+    </message>
+    <message>
+        <source>Photini: upload in progress</source>
+        <translation>Photini&#xa0;: Import en cours</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
+    </message>
+    <message>
+        <source>Closing now will terminate the upload.</source>
+        <translation>Fermer maintenant arrêtera l&apos;import.</translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation>Connecté en tant que {0} sur {1}</translation>
+    </message>
+    <message>
+        <source>Not logged in to {}</source>
+        <translation>Non connecté à {}</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+    </message>
+    <message>
+        <source>Photini: incompatible type</source>
+        <translation>Photini&#xa0;: Type incompatible</translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation>Type d&apos;image incompatible.</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation>Progression</translation>
+    </message>
+    <message>
+        <source>Photini: upload error</source>
+        <translation>Photini&#xa0;: Erreur d&apos;import</translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation>Photini&#xa0;: Autoriser</translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation>Autorisation requise</translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation>Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
+    </message>
+    <message>
+        <source>Replace photo</source>
+        <translation>Remplacer la photo</translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+    </message>
+    <message>
+        <source>Replace image</source>
+        <translation>Remplacer l&apos;image</translation>
+    </message>
+    <message>
+        <source>Upload as new photo</source>
+        <translation>Importer comme nouvelle photo</translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation>Aucune image importée</translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Sélectionner une image</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation>Aucune correspondance</translation>
+    </message>
+</context>
+<context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
@@ -1607,67 +1734,67 @@ le modèle</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation>Fermer la fenêtre</translation>
+        <translation type="vanished">Fermer la fenêtre</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Vous pouvez désormais fermer cette fenêtre.</translation>
+        <translation type="vanished">Vous pouvez désormais fermer cette fenêtre.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Se connecter</translation>
+        <translation type="vanished">Se connecter</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Se déconnecter</translation>
+        <translation type="vanished">Se déconnecter</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Démarrer l&apos;import</translation>
+        <translation type="vanished">Démarrer l&apos;import</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Arrêter l&apos;import</translation>
+        <translation type="vanished">Arrêter l&apos;import</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Progression</translation>
+        <translation type="vanished">Progression</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini&#xa0;: Import en cours</translation>
+        <translation type="vanished">Photini&#xa0;: Import en cours</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Fermer maintenant arrêtera l&apos;import.</translation>
+        <translation type="vanished">Fermer maintenant arrêtera l&apos;import.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Non connecté à {}</translation>
+        <translation type="vanished">Non connecté à {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Photini&#xa0;: Type incompatible</translation>
+        <translation type="vanished">Photini&#xa0;: Type incompatible</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini&#xa0;: Erreur d&apos;import</translation>
+        <translation type="vanished">Photini&#xa0;: Erreur d&apos;import</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Ajouter aux albums</translation>
+        <translation type="vanished">Ajouter aux albums</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1675,63 +1802,63 @@ le modèle</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation>Photini&#xa0;: Autoriser</translation>
+        <translation type="vanished">Photini&#xa0;: Autoriser</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation>Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
+        <translation type="vanished">Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Remplacer la photo</translation>
+        <translation type="vanished">Remplacer la photo</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+        <translation type="vanished">Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Remplacer l&apos;image</translation>
+        <translation type="vanished">Remplacer l&apos;image</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Importer comme nouvelle photo</translation>
+        <translation type="vanished">Importer comme nouvelle photo</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Aucune image importée</translation>
+        <translation type="vanished">Aucune image importée</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Sélectionner une image</translation>
+        <translation type="vanished">Sélectionner une image</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Aucune correspondance</translation>
+        <translation type="vanished">Aucune correspondance</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
+        <translation type="vanished">L&apos;import vers {} n&apos;est pas terminé.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Type d&apos;image incompatible.</translation>
+        <translation type="vanished">Type d&apos;image incompatible.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation>Autorisation requise</translation>
+        <translation type="vanished">Autorisation requise</translation>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Connecté en tant que {0} sur {1}</translation>
+        <translation type="vanished">Connecté en tant que {0} sur {1}</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+        <translation type="vanished">Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
 </context>
 <context>
