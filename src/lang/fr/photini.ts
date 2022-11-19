@@ -16,23 +16,23 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation>Rue</translation>
+        <translation type="vanished">Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ville</translation>
+        <translation type="vanished">Ville</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Département</translation>
+        <translation type="vanished">Département</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Pays</translation>
+        <translation type="vanished">Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Région</translation>
+        <translation type="vanished">Région</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -60,27 +60,27 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Saisissez le nom du sous-emplacement.</translation>
+        <translation type="vanished">Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Saisissez le nom de la ville.</translation>
+        <translation type="vanished">Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Saisissez le nom de la province, région ou État.</translation>
+        <translation type="vanished">Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Saisissez le nom du pays.</translation>
+        <translation type="vanished">Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+        <translation type="vanished">Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Saisissez le nom de la région du monde.</translation>
+        <translation type="vanished">Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -917,6 +917,53 @@ sélectionnés</numerusform>
     <message>
         <source>Lat, long</source>
         <translation>Lat, lon</translation>
+    </message>
+</context>
+<context>
+    <name>LocationInfo</name>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation>Saisissez le nom du sous-emplacement.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation>Saisissez le nom de la ville.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation>Saisissez le nom de la province, région ou État.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation>Saisissez le nom du pays.</translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation>Saisissez le nom de la région du monde.</translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation>Rue</translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation>Ville</translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation>Département</translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation>Pays</translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation>Région</translation>
     </message>
 </context>
 <context>
