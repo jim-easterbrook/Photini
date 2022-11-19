@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS language="ca" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="obsolete">&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="obsolete">&lt;repeat search&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -931,23 +942,23 @@ funcionant amb Bing</translation>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Alçada</translation>
+        <translation type="vanished">Alçada</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Obté alçada a partir del mapa</translation>
+        <translation type="vanished">Obté alçada a partir del mapa</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Cerca</translation>
+        <translation type="vanished">Cerca</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;new search&gt;</translation>
+        <translation type="vanished">&lt;new search&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation type="vanished">&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -955,20 +966,8 @@ funcionant amb Bing</translation>
         <translation type="obsolete">&lt;repeat search&gt;</translation>
     </message>
     <message>
-        <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation type="vanished">&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -1230,6 +1229,45 @@ funcionant amb Bing</translation>
     <message>
         <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>Alçada</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation>Obté alçada a partir del mapa</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Cerca</translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;new search&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>

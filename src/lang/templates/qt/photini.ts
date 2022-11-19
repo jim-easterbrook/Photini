@@ -852,45 +852,6 @@
     </message>
 </context>
 <context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>Altitude</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
@@ -1148,6 +1109,45 @@
     </message>
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

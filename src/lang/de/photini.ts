@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS language="de" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="obsolete">&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="obsolete">&lt;Suche wiederholen&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -947,23 +958,23 @@ provided by Bing</translation>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Höhe</translation>
+        <translation type="vanished">Höhe</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Höhe aus Karte ermitteln</translation>
+        <translation type="vanished">Höhe aus Karte ermitteln</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Suche</translation>
+        <translation type="vanished">Suche</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;Neue Suche&gt;</translation>
+        <translation type="vanished">&lt;Neue Suche&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation type="vanished">&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -972,19 +983,19 @@ provided by Bing</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation>GPX-Datei laden</translation>
+        <translation type="vanished">GPX-Datei laden</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation>Koordinaten aus GPX festlegen</translation>
+        <translation type="vanished">Koordinaten aus GPX festlegen</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation>GPX-Daten entfernen</translation>
+        <translation type="vanished">GPX-Daten entfernen</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;Suche wiederholen&gt;</translation>
+        <translation type="vanished">&lt;Suche wiederholen&gt;</translation>
     </message>
 </context>
 <context>
@@ -1262,6 +1273,45 @@ anwenden</translation>
     <message>
         <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>Höhe</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation>Höhe aus Karte ermitteln</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Suche</translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;Neue Suche&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation>GPX-Datei laden</translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation>Koordinaten aus GPX festlegen</translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation>GPX-Daten entfernen</translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;Suche wiederholen&gt;</translation>
     </message>
 </context>
 <context>

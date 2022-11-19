@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS language="nb" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="vanished">&lt;øk søket&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="vanished">&lt;gjenta søk&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -929,23 +940,23 @@ valgt</numerusform>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Høyde</translation>
+        <translation type="vanished">Høyde</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Hent høyde fra kartet</translation>
+        <translation type="vanished">Hent høyde fra kartet</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Søk</translation>
+        <translation type="vanished">Søk</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;nytt søk&gt;</translation>
+        <translation type="vanished">&lt;nytt søk&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;øk søket&gt;</translation>
+        <translation type="vanished">&lt;øk søket&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -954,19 +965,19 @@ valgt</numerusform>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation>Last inn GPX-fil</translation>
+        <translation type="vanished">Last inn GPX-fil</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation type="unfinished">Sett koordinater fra GPX</translation>
+        <translation type="obsolete">Sett koordinater fra GPX</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation>Fjern GPX-data</translation>
+        <translation type="vanished">Fjern GPX-data</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;gjenta søk&gt;</translation>
+        <translation type="vanished">&lt;gjenta søk&gt;</translation>
     </message>
 </context>
 <context>
@@ -1244,6 +1255,45 @@ mal</translation>
     <message>
         <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>Høyde</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation>Hent høyde fra kartet</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Søk</translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;nytt søk&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation>Last inn GPX-fil</translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation>Sett koordinater fra GPX</translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation>Fjern GPX-data</translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;øk søket&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;gjenta søk&gt;</translation>
     </message>
 </context>
 <context>
