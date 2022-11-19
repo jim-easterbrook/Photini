@@ -721,11 +721,9 @@ class ImageList(QtWidgets.QWidget):
         actions = {}
         actions['reload'] = menu.addAction('', self.reload_selected_metadata)
         actions['save'] = menu.addAction(
-            translate('ImageList', 'Save changes'),
-            self.save_selected_metadata)
+            self.tr('Save changes'), self.save_selected_metadata)
         actions['diff'] = menu.addAction(
-            translate('ImageList', 'View changes'),
-            self.diff_selected_metadata)
+            self.tr('View changes'), self.diff_selected_metadata)
         actions['thumbs'] = menu.addAction(
             '', self.regenerate_selected_thumbnails)
         actions['close'] = menu.addAction('', self.close_selected_files)
@@ -740,12 +738,10 @@ class ImageList(QtWidgets.QWidget):
         actions['diff'].setEnabled(changed_images)
         actions['thumbs'].setEnabled(bool(images))
         actions['close'].setEnabled(bool(images))
-        actions['reload'].setText(
-            translate('ImageList', 'Reload file(s)', '', len(images)))
+        actions['reload'].setText(self.tr('Reload file(s)', '', len(images)))
         actions['thumbs'].setText(
-            translate('ImageList', 'Regenerate thumbnail(s)', '', len(images)))
-        actions['close'].setText(
-            translate('ImageList', 'Close file(s)', '', len(images)))
+            self.tr('Regenerate thumbnail(s)', '', len(images)))
+        actions['close'].setText(self.tr('Close file(s)', '', len(images)))
 
     @QtSlot()
     @catch_all
@@ -769,9 +765,8 @@ class ImageList(QtWidgets.QWidget):
                             min(width // 2, self.window().height()))
         table = QtWidgets.QTableWidget()
         table.setColumnCount(3)
-        table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
-                                         translate('ImageList', 'undo'),
-                                         translate('ImageList', 'old value')])
+        table.setHorizontalHeaderLabels([
+            self.tr('new value'), self.tr('undo'), self.tr('old value')])
         table.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeMode.Stretch)
         table.horizontalHeader().setSectionResizeMode(
@@ -788,8 +783,8 @@ class ImageList(QtWidgets.QWidget):
         for image in self.get_selected_images():
             if not image.metadata.changed():
                 continue
-            dialog.setWindowTitle(translate(
-                'ImageList', 'Metadata differences: {}').format(image.name))
+            dialog.setWindowTitle(self.tr(
+                'Metadata differences: {}').format(image.name))
             labels = []
             row = 0
             undo = {}
