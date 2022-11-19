@@ -289,7 +289,7 @@
     </message>
     <message>
         <source>Change album membership</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Endre albumsmedlemsskap</translation>
     </message>
     <message>
         <source>Create new Flickr album</source>
