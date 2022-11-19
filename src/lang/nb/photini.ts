@@ -1247,6 +1247,133 @@ mal</translation>
     </message>
 </context>
 <context>
+    <name>PhotiniUploader</name>
+    <message>
+        <source>Close window</source>
+        <translation>Lukk vindu</translation>
+    </message>
+    <message>
+        <source>You may now close this browser window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log in</source>
+        <translation>Logg inn</translation>
+    </message>
+    <message>
+        <source>Log out</source>
+        <translation>Logg ut</translation>
+    </message>
+    <message>
+        <source>Add to albums</source>
+        <translation>Legg til i album</translation>
+    </message>
+    <message>
+        <source>Start upload</source>
+        <translation>Start opplasting</translation>
+    </message>
+    <message>
+        <source>Stop upload</source>
+        <translation>Stopp opplasting</translation>
+    </message>
+    <message>
+        <source>Photini: upload in progress</source>
+        <translation>Photini: laster opp …</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing now will terminate the upload.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: incompatible type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation>Inkompatibel bildetype.</translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation>Framdrift</translation>
+    </message>
+    <message>
+        <source>Photini: upload error</source>
+        <translation>Photini: opplastingsfeil</translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation>Kunne ikke laste opp filen «{}».</translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace photo</source>
+        <translation>Erstatt bilde</translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace image</source>
+        <translation>Erstatt bilde</translation>
+    </message>
+    <message>
+        <source>Upload as new photo</source>
+        <translation>Last opp som nytt bilde</translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation>Velg et bilde</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
@@ -1515,127 +1642,63 @@ mal</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation>Lukk vindu</translation>
-    </message>
-    <message>
-        <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Lukk vindu</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Logg inn</translation>
+        <translation type="vanished">Logg inn</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Logg ut</translation>
+        <translation type="vanished">Logg ut</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Start opplasting</translation>
+        <translation type="vanished">Start opplasting</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Stopp opplasting</translation>
+        <translation type="vanished">Stopp opplasting</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Framdrift</translation>
+        <translation type="vanished">Framdrift</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini: laster opp …</translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Photini: laster opp …</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini: opplastingsfeil</translation>
+        <translation type="vanished">Photini: opplastingsfeil</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Legg til i album</translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Legg til i album</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Erstatt bilde</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Erstatt bilde</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Erstatt bilde</translation>
+        <translation type="vanished">Erstatt bilde</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Last opp som nytt bilde</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Last opp som nytt bilde</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Velg et bilde</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Velg et bilde</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Inkompatibel bildetype.</translation>
+        <translation type="vanished">Inkompatibel bildetype.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished">Kunne ikke laste opp filen «{}».</translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Kunne ikke laste opp filen «{}».</translation>
     </message>
 </context>
 <context>
