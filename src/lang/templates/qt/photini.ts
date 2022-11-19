@@ -423,15 +423,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &amp;quot;{0}&amp;quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Album title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1023,10 +1023,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter a notice on the current owner of the copyright for this image, such as &amp;quot;©2008 Jane Doe&amp;quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copyright Notice</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1148,6 +1144,10 @@
     </message>
     <message>
         <source>Creator Contact Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
