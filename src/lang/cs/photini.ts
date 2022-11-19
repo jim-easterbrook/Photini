@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS language="cs" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="obsolete">&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="obsolete">&lt;repeat search&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -874,39 +885,39 @@ selected</numerusform>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Výšina</translation>
+        <translation type="vanished">Výšina</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Získejte nadmořskou výšku z mapy</translation>
+        <translation type="vanished">Získejte nadmořskou výšku z mapy</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Hledat</translation>
+        <translation type="vanished">Hledat</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;new search&gt;</translation>
+        <translation type="vanished">&lt;new search&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;widen search&gt;</translation>
+        <translation type="vanished">&lt;widen search&gt;</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation>Nahrát soubor GPX</translation>
+        <translation type="vanished">Nahrát soubor GPX</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation>Nastavit souřadnice z GPX</translation>
+        <translation type="vanished">Nastavit souřadnice z GPX</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation>Odstranit data GPX</translation>
+        <translation type="vanished">Odstranit data GPX</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;repeat search&gt;</translation>
+        <translation type="vanished">&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -1168,6 +1179,45 @@ selected</numerusform>
     <message>
         <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>Výšina</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation>Získejte nadmořskou výšku z mapy</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Hledat</translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;new search&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation>Nahrát soubor GPX</translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation>Nastavit souřadnice z GPX</translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation>Odstranit data GPX</translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;widen search&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>

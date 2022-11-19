@@ -866,45 +866,6 @@ selected</numerusform>
     </message>
 </context>
 <context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>Altitude</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Load GPX file</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
@@ -1162,6 +1123,45 @@ selected</numerusform>
     </message>
     <message>
         <source>Creator Contact Information</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
         <translation></translation>
     </message>
 </context>

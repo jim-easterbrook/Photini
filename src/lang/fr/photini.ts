@@ -2,6 +2,17 @@
 <!DOCTYPE TS>
 <TS language="fr" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="vanished">&lt;Recherche avancée&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="vanished">&lt;répéter la recherche&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -971,23 +982,23 @@ fournie par Bing</translation>
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>Altitude</translation>
+        <translation type="vanished">Altitude</translation>
     </message>
     <message>
         <source>Get altitude from map</source>
-        <translation>Obtenir l&apos;altitude depuis la carte</translation>
+        <translation type="vanished">Obtenir l&apos;altitude depuis la carte</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Recherche</translation>
+        <translation type="vanished">Recherche</translation>
     </message>
     <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;Nouvelle recherche&gt;</translation>
+        <translation type="vanished">&lt;Nouvelle recherche&gt;</translation>
     </message>
     <message>
         <source>&lt;widen search&gt;</source>
-        <translation>&lt;Recherche avancée&gt;</translation>
+        <translation type="vanished">&lt;Recherche avancée&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -996,19 +1007,19 @@ fournie par Bing</translation>
     </message>
     <message>
         <source>Load GPX file</source>
-        <translation>Charger un fichier GPX</translation>
+        <translation type="vanished">Charger un fichier GPX</translation>
     </message>
     <message>
         <source>Set coords from GPX</source>
-        <translation>Coordonnées depuis le fichier GPX</translation>
+        <translation type="vanished">Coordonnées depuis le fichier GPX</translation>
     </message>
     <message>
         <source>Remove GPX data</source>
-        <translation>Supprimer les données GPX</translation>
+        <translation type="vanished">Supprimer les données GPX</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;répéter la recherche&gt;</translation>
+        <translation type="vanished">&lt;répéter la recherche&gt;</translation>
     </message>
 </context>
 <context>
@@ -1296,6 +1307,45 @@ le modèle</translation>
     <message>
         <source>Creator Contact Information</source>
         <translation>Informations de contact du créateur</translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>Altitude</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation>Obtenir l&apos;altitude depuis la carte</translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation>Recherche</translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;Nouvelle recherche&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation>Charger un fichier GPX</translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation>Coordonnées depuis le fichier GPX</translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation>Supprimer les données GPX</translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation>&lt;Recherche avancée&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;répéter la recherche&gt;</translation>
     </message>
 </context>
 <context>

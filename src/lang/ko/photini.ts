@@ -855,39 +855,7 @@
     <name>MapTabsAll</name>
     <message>
         <source>Altitude</source>
-        <translation>고도</translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">고도</translation>
     </message>
 </context>
 <context>
@@ -1148,6 +1116,45 @@
     </message>
     <message>
         <source>Creator Contact Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation>고도</translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

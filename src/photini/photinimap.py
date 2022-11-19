@@ -248,7 +248,7 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['latlon'].changed.connect(self.new_coords)
         left_side.addWidget(self.widgets['latlon'], 0, 1)
         # altitude
-        label = QtWidgets.QLabel(translate('MapTabsAll', 'Altitude'))
+        label = QtWidgets.QLabel(self.tr('Altitude'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 1, 0)
         self.widgets['altitude'] = DoubleSpinBox()
@@ -257,20 +257,20 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.addWidget(self.widgets['altitude'], 1, 1)
         if hasattr(self.geocoder, 'get_altitude'):
             self.widgets['get_altitude'] = QtWidgets.QPushButton(
-                translate('MapTabsAll', 'Get altitude from map'))
+                self.tr('Get altitude from map'))
             self.widgets['get_altitude'].clicked.connect(self.get_altitude)
             left_side.addWidget(self.widgets['get_altitude'], 2, 1)
         else:
             self.widgets['get_altitude'] = None
         # search
-        label = QtWidgets.QLabel(translate('MapTabsAll', 'Search'))
+        label = QtWidgets.QLabel(self.tr('Search'))
         label.setAlignment(Qt.AlignmentFlag.AlignRight)
         left_side.addWidget(label, 3, 0)
         self.widgets['search'] = ComboBox()
         self.widgets['search'].setEditable(True)
         self.widgets['search'].setInsertPolicy(ComboBox.InsertPolicy.NoInsert)
         self.widgets['search'].lineEdit().setPlaceholderText(
-            translate('MapTabsAll', '<new search>'))
+            self.tr('<new search>'))
         self.widgets['search'].lineEdit().returnPressed.connect(self.search)
         self.widgets['search'].activated.connect(self.goto_search_result)
         self.clear_search()
@@ -283,17 +283,16 @@ class PhotiniMap(QtWidgets.QWidget):
         left_side.setRowStretch(7, 1)
         # GPX importer
         if self.app.gpx_importer:
-            button = QtWidgets.QPushButton(
-                translate('MapTabsAll', 'Load GPX file'))
+            button = QtWidgets.QPushButton(self.tr('Load GPX file'))
             button.clicked.connect(self.load_gpx)
             left_side.addWidget(button, 8, 1)
             self.widgets['set_from_gpx'] = QtWidgets.QPushButton(
-                translate('MapTabsAll', 'Set coords from GPX'))
+                self.tr('Set coords from GPX'))
             self.widgets['set_from_gpx'].setEnabled(False)
             self.widgets['set_from_gpx'].clicked.connect(self.set_from_gpx)
             left_side.addWidget(self.widgets['set_from_gpx'], 9, 1)
             self.widgets['clear_gpx'] = QtWidgets.QPushButton(
-                translate('MapTabsAll', 'Remove GPX data'))
+                self.tr('Remove GPX data'))
             self.widgets['clear_gpx'].setEnabled(False)
             self.widgets['clear_gpx'].clicked.connect(self.clear_gpx)
             left_side.addWidget(self.widgets['clear_gpx'], 10, 1)
@@ -646,9 +645,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['search'].addItem('')
         if self.search_string:
             self.widgets['search'].addItem(
-                translate('MapTabsAll', '<widen search>'), 'widen')
+                translate('PhotiniMap', '<widen search>'), 'widen')
             self.widgets['search'].addItem(
-                translate('MapTabsAll', '<repeat search>'), 'repeat')
+                translate('PhotiniMap', '<repeat search>'), 'repeat')
 
     @QtSlot(int)
     @catch_all

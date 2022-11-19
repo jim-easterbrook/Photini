@@ -2,6 +2,13 @@
 <!DOCTYPE TS>
 <TS language="pl" sourcelanguage="en_GB" version="2.1">
 <context>
+    <name></name>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation type="vanished">&lt;powtórz wyszukiwanie&gt;</translation>
+    </message>
+</context>
+<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
@@ -888,24 +895,8 @@ zdjęcie</translation>
 <context>
     <name>MapTabsAll</name>
     <message>
-        <source>Altitude</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;new search&gt;</source>
-        <translation>&lt;nowe wyszukiwanie&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&lt;nowe wyszukiwanie&gt;</translation>
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
@@ -913,20 +904,8 @@ zdjęcie</translation>
         <translation type="obsolete">&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
     <message>
-        <source>Load GPX file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;repeat search&gt;</source>
-        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
+        <translation type="vanished">&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
 </context>
 <context>
@@ -1188,6 +1167,45 @@ zdjęcie</translation>
     <message>
         <source>Creator Contact Information</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PhotiniMap</name>
+    <message>
+        <source>Altitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Get altitude from map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;new search&gt;</source>
+        <translation>&lt;nowe wyszukiwanie&gt;</translation>
+    </message>
+    <message>
+        <source>Load GPX file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set coords from GPX</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove GPX data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;widen search&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;repeat search&gt;</source>
+        <translation>&lt;powtórz wyszukiwanie&gt;</translation>
     </message>
 </context>
 <context>
