@@ -59,15 +59,6 @@ def extract_program_strings(root):
             if os.path.exists(path):
                 outputs.append(path)
         outputs.sort()
-    # restore utf-8 markers removed by Qt Linguist
-    for path in outputs:
-        if not os.path.exists(path):
-            continue
-        with open(path, 'r') as f:
-            text = f.read()
-        text = text.replace('<message>', '<message encoding="UTF-8">')
-        with open(path, 'w') as f:
-            f.write(text)
     # remove extra plurals expected by Transifex
     numerus_count = {
         'cs': {'qt': 3, 'tx': 4},
@@ -96,21 +87,19 @@ def extract_program_strings(root):
         tree.write(path, encoding='utf-8',
                    xml_declaration=True, short_empty_elements=False)
     # run pylupdate
-    # using a project file is the only way to make it handle utf-8 correctly
-    project = 'photini.pro'
-    with open(project, 'w') as f:
-        f.write('DEFAULTCODEC = UTF-8\n')
-        f.write('CODECFORTR = UTF-8\n')
-        f.write('SOURCES = ' + ' '.join(inputs) + '\n')
-        f.write('TRANSLATIONS = ' + ' '.join(outputs) + '\n')
-    cmd = ['pylupdate5', '-verbose', project]
+    cmd = ['pyside6-lupdate']
+    if args.strip:
+        cmd += ['-locations', 'none']
+    cmd += inputs
+    cmd.append('-ts')
+    cmd += outputs
     result = subprocess.call(cmd)
     if result:
         return result
-    os.unlink(project)
     # process pylupdate output
-    unused = ET.Element('numerusform')
-    unused.text = 'Unused'
+    if args.transifex:
+        unused = ET.Element('numerusform')
+        unused.text = 'Unused'
     for path in outputs:
         if not os.path.exists(path):
             continue
@@ -124,21 +113,17 @@ def extract_program_strings(root):
         xml.set('sourcelanguage', 'en_GB')
         if language:
             xml.set('language', language)
-        for context in xml.iter('context'):
-            for message in context.iter('message'):
-                if args.strip:
-                    location = message.find('location')
-                    if location is not None:
-                        message.remove(message.find('location'))
-                # add extra plurals expected by Transifex
-                if (args.transifex and language in numerus_count
-                        and message.get('numerus')):
-                    translation = message.find('translation')
-                    numerusforms = translation.findall('numerusform')
-                    missing = numerus_count[language]['tx'] - len(numerusforms)
-                    if missing > 0:
-                        for i in range(missing):
-                            translation.append(unused)
+        # add extra plurals expected by Transifex
+        if args.transifex and  language in numerus_count:
+            for context in xml.iter('context'):
+                for message in context.iter('message'):
+                    if message.get('numerus'):
+                        translation = message.find('translation')
+                        numerusforms = len(translation.findall('numerusform'))
+                        missing = numerus_count[language]['tx'] - numerusforms
+                        if missing > 0:
+                            for i in range(missing):
+                                translation.append(unused)
         tree.write(path, encoding='utf-8',
                    xml_declaration=True, short_empty_elements=False)
         # process as text
