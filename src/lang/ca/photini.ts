@@ -16,23 +16,23 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation>Carrer</translation>
+        <translation type="vanished">Carrer</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciutat</translation>
+        <translation type="vanished">Ciutat</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincia</translation>
+        <translation type="vanished">Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="vanished">País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Regió</translation>
+        <translation type="vanished">Regió</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -57,30 +57,6 @@
     <message>
         <source>subject {}</source>
         <translation>subject {}</translation>
-    </message>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -880,6 +856,53 @@ triats</numerusform>
     </message>
 </context>
 <context>
+    <name>LocationInfo</name>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation>Carrer</translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation>Ciutat</translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation>Provincia</translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation>País</translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation>Regió</translation>
+    </message>
+</context>
+<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -924,7 +947,7 @@ funcionant amb Bing</translation>
     <message>
         <source>Search and altitude lookup powered by Google</source>
         <comment>Do not translate &quot;powered by Google&quot;</comment>
-        <translation type="unfinished">Cerca i consulta d&apos;alçada powered by Google</translation>
+        <translation>Cerca i consulta d&apos;alçada powered by Google</translation>
     </message>
 </context>
 <context>

@@ -4,26 +4,6 @@
 <context>
     <name>AddressTab</name>
     <message>
-        <source>Street</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>&amp;Address</source>
         <translation></translation>
     </message>
@@ -45,30 +25,6 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
         <translation></translation>
     </message>
     <message>
@@ -813,6 +769,53 @@ selected</numerusform>
     <name>LatLongDisplay</name>
     <message>
         <source>Lat, long</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>LocationInfo</name>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Region</source>
         <translation></translation>
     </message>
 </context>

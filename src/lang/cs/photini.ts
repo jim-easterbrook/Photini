@@ -16,23 +16,23 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation>Ulice</translation>
+        <translation type="vanished">Ulice</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Město</translation>
+        <translation type="vanished">Město</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincie</translation>
+        <translation type="vanished">Provincie</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Země</translation>
+        <translation type="vanished">Země</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Kraj</translation>
+        <translation type="vanished">Kraj</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -60,27 +60,27 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Zadejte název dílčího umístění.</translation>
+        <translation type="vanished">Zadejte název dílčího umístění.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Zadejte název města.</translation>
+        <translation type="vanished">Zadejte název města.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Zadejte název provincie nebo státu.</translation>
+        <translation type="vanished">Zadejte název provincie nebo státu.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Zadejte název země.</translation>
+        <translation type="vanished">Zadejte název země.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
+        <translation type="vanished">Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Zadejte název světové oblasti.</translation>
+        <translation type="vanished">Zadejte název světové oblasti.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -830,6 +830,53 @@ selected</numerusform>
     <message>
         <source>Lat, long</source>
         <translation>Zeměpisná šířka, délka</translation>
+    </message>
+</context>
+<context>
+    <name>LocationInfo</name>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation>Zadejte název dílčího umístění.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation>Zadejte název města.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation>Zadejte název provincie nebo státu.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation>Zadejte název země.</translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation>Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation>Zadejte název světové oblasti.</translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation>Ulice</translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation>Město</translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation>Provincie</translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation>Země</translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation>Kraj</translation>
     </message>
 </context>
 <context>
