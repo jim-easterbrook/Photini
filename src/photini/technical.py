@@ -737,13 +737,13 @@ class DateLink(QtWidgets.QCheckBox):
         self.new_link.emit(self.name)
 
 
-class TabWidget(QtWidgets.QWidget):
+class TechnicalTab(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
         return translate('TechnicalTab', '&Technical metadata')
 
     def __init__(self, image_list, *arg, **kw):
-        super(TabWidget, self).__init__(*arg, **kw)
+        super(TechnicalTab, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
         self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -751,8 +751,7 @@ class TabWidget(QtWidgets.QWidget):
         self.date_widget = {}
         self.link_widget = {}
         # date and time
-        date_group = QtWidgets.QGroupBox(
-            translate('TechnicalTab', 'Date and time'))
+        date_group = QtWidgets.QGroupBox(self.tr('Date and time'))
         date_group.setLayout(FormLayout())
         # create date and link widgets
         for master in self._master_slave:
@@ -763,87 +762,82 @@ class TabWidget(QtWidgets.QWidget):
                 self.link_widget[master, slave] = DateLink(master)
                 self.link_widget[master, slave].new_link.connect(self.new_link)
         self.link_widget['taken', 'digitised'].setText(
-            translate('TechnicalTab', "Link 'taken' and 'digitised'"))
+            self.tr("Link 'taken' and 'digitised'"))
         self.link_widget['digitised', 'modified'].setText(
-            translate('TechnicalTab', "Link 'digitised' and 'modified'"))
+            self.tr("Link 'digitised' and 'modified'"))
         # add to layout
-        date_group.layout().addRow(translate('TechnicalTab', 'Taken'),
-                                   self.date_widget['taken'])
+        date_group.layout().addRow(self.tr('Taken'), self.date_widget['taken'])
         date_group.layout().addRow('', self.link_widget['taken', 'digitised'])
-        date_group.layout().addRow(translate('TechnicalTab', 'Digitised'),
-                                   self.date_widget['digitised'])
+        date_group.layout().addRow(
+            self.tr('Digitised'), self.date_widget['digitised'])
         date_group.layout().addRow('', self.link_widget['digitised', 'modified'])
-        date_group.layout().addRow(translate('TechnicalTab', 'Modified'),
-                                   self.date_widget['modified'])
+        date_group.layout().addRow(
+            self.tr('Modified'), self.date_widget['modified'])
         # offset
         self.offset_widget = OffsetWidget()
         self.offset_widget.apply_offset.connect(self.apply_offset)
-        date_group.layout().addRow(
-            translate('TechnicalTab', 'Adjust times'), self.offset_widget)
+        date_group.layout().addRow(self.tr('Adjust times'), self.offset_widget)
         self.layout().addWidget(date_group)
         # other
-        other_group = QtWidgets.QGroupBox(translate('TechnicalTab', 'Other'))
+        other_group = QtWidgets.QGroupBox(self.tr('Other'))
         other_group.setLayout(FormLayout())
         # orientation
         self.widgets['orientation'] = DropDownSelector(
             'orientation', values=(
                 ('', None),
-                (translate('TechnicalTab', 'normal',
-                           'orientation dropdown, no transformation'), 1),
-                (translate('TechnicalTab', 'rotate -90°',
-                           'orientation dropdown'), 6),
-                (translate('TechnicalTab', 'rotate +90°',
-                           'orientation dropdown'), 8),
-                (translate('TechnicalTab', 'rotate 180°',
-                           'orientation dropdown'), 3),
-                (translate('TechnicalTab', 'reflect left to right',
-                           'orientation dropdown, horizontal reflection'), 2),
-                (translate('TechnicalTab', 'reflect top to bottom',
-                           'orientation dropdown, vertical reflection'), 4),
-                (translate('TechnicalTab', 'reflect top right to bottom left',
-                           'orientation dropdown, diagonal reflection'), 5),
-                (translate('TechnicalTab', 'reflect top left to bottom right',
-                           'orientation dropdown, diagonal reflection'), 7)))
+                (self.tr('normal',
+                         'orientation dropdown, no transformation'), 1),
+                (self.tr('rotate -90°', 'orientation dropdown'), 6),
+                (self.tr('rotate +90°', 'orientation dropdown'), 8),
+                (self.tr('rotate 180°', 'orientation dropdown'), 3),
+                (self.tr('reflect left to right',
+                         'orientation dropdown, horizontal reflection'), 2),
+                (self.tr('reflect top to bottom',
+                         'orientation dropdown, vertical reflection'), 4),
+                (self.tr('reflect top right to bottom left',
+                         'orientation dropdown, diagonal reflection'), 5),
+                (self.tr('reflect top left to bottom right',
+                         'orientation dropdown, diagonal reflection'), 7)))
         self.widgets['orientation'].new_value.connect(self.new_orientation)
         self.widgets['orientation'].setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Orientation'), self.widgets['orientation'])
+        other_group.layout().addRow(
+            self.tr('Orientation'), self.widgets['orientation'])
         # camera model
         self.widgets['camera_model'] = CameraList(
             'camera_model', self.image_list)
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].new_value.connect(self.new_camera_model)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Camera'), self.widgets['camera_model'])
+        other_group.layout().addRow(
+            self.tr('Camera'), self.widgets['camera_model'])
         # lens model
         self.widgets['lens_model'] = LensList('lens_model', self.image_list)
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Lens model'), self.widgets['lens_model'])
+        other_group.layout().addRow(
+            self.tr('Lens model'), self.widgets['lens_model'])
         # focal length
         self.widgets['focal_length'] = DoubleSpinBox()
         self.widgets['focal_length'].setMinimum(0.0)
         self.widgets['focal_length'].setSuffix(' mm')
         self.widgets['focal_length'].new_value.connect(self.new_focal_length)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Focal length'), self.widgets['focal_length'])
+        other_group.layout().addRow(
+            self.tr('Focal length'), self.widgets['focal_length'])
         # 35mm equivalent focal length
         self.widgets['focal_length_35'] = IntSpinBox()
         self.widgets['focal_length_35'].setMinimum(0)
         self.widgets['focal_length_35'].setSuffix(' mm')
         self.widgets['focal_length_35'].new_value.connect(self.new_focal_length_35)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', '35mm equiv'), self.widgets['focal_length_35'])
+        other_group.layout().addRow(
+            self.tr('35mm equiv'), self.widgets['focal_length_35'])
         # aperture
         self.widgets['aperture'] = DoubleSpinBox()
         self.widgets['aperture'].setMinimum(0.0)
         self.widgets['aperture'].setPrefix('ƒ/')
         self.widgets['aperture'].new_value.connect(self.new_aperture)
-        other_group.layout().addRow(translate(
-            'TechnicalTab', 'Aperture'), self.widgets['aperture'])
+        other_group.layout().addRow(
+            self.tr('Aperture'), self.widgets['aperture'])
         self.layout().addWidget(other_group, stretch=1)
         # disable until an image is selected
         self.setEnabled(False)
@@ -905,13 +899,11 @@ class TabWidget(QtWidgets.QWidget):
             if not image.metadata.camera_change_ok(value):
                 if delete_makernote == 'ask':
                     msg = QtWidgets.QMessageBox(parent=self)
-                    msg.setWindowTitle(translate(
-                        'TechnicalTab', 'Photini: maker name change'))
-                    msg.setText('<h3>{}</h3>'.format(translate(
-                        'TechnicalTab', 'Changing maker name will'
+                    msg.setWindowTitle(self.tr('Photini: maker name change'))
+                    msg.setText('<h3>{}</h3>'.format(self.tr(
+                        'Changing maker name will'
                         ' invalidate Exif makernote information.')))
-                    msg.setInformativeText(translate(
-                        'TechnicalTab',
+                    msg.setInformativeText(self.tr(
                         'Do you want to delete the Exif makernote?'))
                     msg.setIcon(msg.Icon.Warning)
                     msg.setStandardButtons(msg.StandardButton.YesToAll |
@@ -1062,10 +1054,8 @@ class TabWidget(QtWidgets.QWidget):
                     '<td align="center">{min_fl_fn}</td>'
                     '<td align="center">{max_fl_fn}</td></tr></table>')
         tool_tip = tool_tip.format(
-            th_min=translate('TechnicalTab', 'min'),
-            th_max=translate('TechnicalTab', 'max'),
-            th_fl=translate('TechnicalTab', 'Focal length'),
-            th_ap=translate('TechnicalTab', 'Max aperture'),
+            th_min=self.tr('min'), th_max=self.tr('max'),
+            th_fl=self.tr('Focal length'), th_ap=self.tr('Max aperture'),
             **dict([(x, float(y) or '') for (x, y) in spec.items()]))
         self.widgets['lens_model'].setToolTip(tool_tip)
         make_changes = False
@@ -1090,9 +1080,9 @@ class TabWidget(QtWidgets.QWidget):
                 pass
             elif QtWidgets.QMessageBox.question(
                     self,
-                    translate('TechnicalTab', 'Update aperture & focal length'),
-                    translate('TechnicalTab', 'Adjust image aperture and focal'
-                              ' length to agree with lens specification?'),
+                    self.tr('Update aperture & focal length'),
+                    self.tr('Adjust image aperture and focal'
+                            ' length to agree with lens specification?'),
                     QtWidgets.QMessageBox.StandardButton.Yes |
                     QtWidgets.QMessageBox.StandardButton.No,
                     QtWidgets.QMessageBox.StandardButton.No
@@ -1219,3 +1209,7 @@ class TabWidget(QtWidgets.QWidget):
         self._update_focal_length()
         self._update_focal_length_35()
         self.setEnabled(True)
+
+
+class TabWidget(TechnicalTab):
+    pass
