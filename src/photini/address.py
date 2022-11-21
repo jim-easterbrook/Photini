@@ -146,11 +146,11 @@ class OpenCage(GeocoderBase):
         return MD_Location.from_address(address, self.address_map)
 
     def search_terms(self):
-        text = self.tr('Address lookup powered by OpenCage')
+        text = translate('AddressTab', 'Address lookup powered by OpenCage')
         tou_opencage = CompactButton(text)
         tou_opencage.clicked.connect(self.load_tou_opencage)
         tou_osm = CompactButton(
-            self.tr('Geodata © OpenStreetMap contributors'))
+            translate('AddressTab', 'Geodata © OpenStreetMap contributors'))
         tou_osm.clicked.connect(self.load_tou_osm)
         return [tou_opencage, tou_osm]
 
@@ -183,22 +183,24 @@ class LocationInfo(QtWidgets.QWidget):
             self.members[key].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['SubLocation'].setToolTip('<p>' + self.tr(
-            'Enter the name of the sublocation.') + '</p>')
-        self.members['City'].setToolTip('<p>' + self.tr(
-            'Enter the name of the city.') + '</p>')
-        self.members['ProvinceState'].setToolTip('<p>' + self.tr(
-            'Enter the name of the province or state.') + '</p>')
-        self.members['CountryName'].setToolTip('<p>' + self.tr(
-            'Enter the name of the country.') + '<p>')
-        self.members['CountryCode'].setToolTip('<p>' + self.tr(
-            'Enter the 2 or 3 letter ISO 3166 country code of the country.'
-            ) + '</p>')
-        self.members['WorldRegion'].setToolTip('<p>' + self.tr(
-            'Enter the name of the world region.') + '</p>')
-        for j, text in enumerate((
-                self.tr('Street'), self.tr('City'), self.tr('Province'),
-                self.tr('Country'), self.tr('Region'))):
+        self.members['SubLocation'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the sublocation.')))
+        self.members['City'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the city.')))
+        self.members['ProvinceState'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the province or state.')))
+        self.members['CountryName'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the country.')))
+        self.members['CountryCode'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab',
+            'Enter the 2 or 3 letter ISO 3166 country code of the country.')))
+        self.members['WorldRegion'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the world region.')))
+        for j, text in enumerate((translate('AddressTab', 'Street'),
+                                  translate('AddressTab', 'City'),
+                                  translate('AddressTab', 'Province'),
+                                  translate('AddressTab', 'Country'),
+                                  translate('AddressTab', 'Region'))):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
@@ -233,13 +235,13 @@ class QTabBar(QtWidgets.QTabBar):
         self.context_menu.emit(event)
 
 
-class AddressTab(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
         return translate('AddressTab', '&Address')
 
     def __init__(self, parent=None):
-        super(AddressTab, self).__init__(parent)
+        super(TabWidget, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -252,7 +254,7 @@ class AddressTab(QtWidgets.QWidget):
         left_side.addWidget(self.coords, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
-            self.tr('Get address from lat, long'))
+            translate('AddressTab', 'Get address from lat, long'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
         left_side.addWidget(self.auto_location, 1, 0, 1, 2)
@@ -293,8 +295,10 @@ class AddressTab(QtWidgets.QWidget):
         idx = self.location_info.tabBar().tabAt(event.pos())
         self.location_info.setCurrentIndex(idx)
         menu = QtWidgets.QMenu(self)
-        menu.addAction(self.tr('Duplicate location'), self.duplicate_location)
-        menu.addAction(self.tr('Delete location'), self.delete_location)
+        menu.addAction(translate(
+            'AddressTab', 'Duplicate location'), self.duplicate_location)
+        menu.addAction(translate(
+            'AddressTab', 'Delete location'), self.delete_location)
         action = execute(menu, event.globalPos())
 
     @QtSlot()
@@ -387,13 +391,13 @@ class AddressTab(QtWidgets.QWidget):
 
     def set_tab_text(self, idx):
         if idx == 0:
-            text = self.tr('camera')
-            tip = self.tr('Enter the details about a location'
-                          ' where this image was created.')
+            text = translate('AddressTab', 'camera')
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' where this image was created.')
         else:
-            text = self.tr('subject {}').format(idx)
-            tip = self.tr('Enter the details about a location'
-                          ' which is shown in this image.')
+            text = translate('AddressTab', 'subject {}').format(idx)
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' which is shown in this image.')
         self.location_info.setTabText(idx, text)
         self.location_info.setTabToolTip(idx, '<p>' + tip + '</p>')
 
@@ -460,7 +464,3 @@ class AddressTab(QtWidgets.QWidget):
         if location:
             self.new_location(
                 self.location_info.currentWidget(), location, images)
-
-
-class TabWidget(AddressTab):
-    pass

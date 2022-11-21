@@ -5,15 +5,15 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Gate</translation>
+        <translation>Gate</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">By</translation>
+        <translation>By</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">Land</translation>
+        <translation>Land</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -41,11 +41,11 @@
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="vanished">Skriv inn navnet på byen.</translation>
+        <translation>Skriv inn navnet på byen.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="vanished">Skriv inn navet på landet.</translation>
+        <translation>Skriv inn navet på landet.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -53,6 +53,38 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Region</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -855,48 +887,24 @@ valgt</numerusform>
 <context>
     <name>LocationInfo</name>
     <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the name of the city.</source>
-        <translation>Skriv inn navnet på byen.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Skriv inn navnet på byen.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Skriv inn navet på landet.</translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Skriv inn navet på landet.</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation>Gate</translation>
+        <translation type="vanished">Gate</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>By</translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">By</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Land</translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Land</translation>
     </message>
 </context>
 <context>
@@ -1085,17 +1093,6 @@ valgt</numerusform>
     <message>
         <source>Selected images:</source>
         <translation type="obsolete">Valgte bilder:</translation>
-    </message>
-</context>
-<context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

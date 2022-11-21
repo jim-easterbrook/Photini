@@ -5,23 +5,23 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Carrer</translation>
+        <translation>Carrer</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">Ciutat</translation>
+        <translation>Ciutat</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="vanished">Provincia</translation>
+        <translation>Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">País</translation>
+        <translation>País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="vanished">Regió</translation>
+        <translation>Regió</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -53,6 +53,38 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation>Geodades © OpenStreetMap contributors</translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -847,48 +879,24 @@ triats</numerusform>
 <context>
     <name>LocationInfo</name>
     <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Street</source>
-        <translation>Carrer</translation>
+        <translation type="vanished">Carrer</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciutat</translation>
+        <translation type="vanished">Ciutat</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincia</translation>
+        <translation type="vanished">Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="vanished">País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Regió</translation>
+        <translation type="vanished">Regió</translation>
     </message>
 </context>
 <context>
@@ -1077,11 +1085,11 @@ funcionant amb Bing</translation>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
+        <translation type="vanished">Cerca d&apos;adreça funciona amb OpenCage</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodades © OpenStreetMap contributors</translation>
+        <translation type="vanished">Geodades © OpenStreetMap contributors</translation>
     </message>
 </context>
 <context>

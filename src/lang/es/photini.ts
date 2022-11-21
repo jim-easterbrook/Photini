@@ -35,6 +35,58 @@
         <source>Enter the details about a location which is shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -789,53 +841,6 @@ fotos</translation>
     </message>
 </context>
 <context>
-    <name>LocationInfo</name>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Street</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -988,17 +993,6 @@ fotos</translation>
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

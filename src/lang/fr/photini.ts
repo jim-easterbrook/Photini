@@ -5,23 +5,23 @@
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Rue</translation>
+        <translation>Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">Ville</translation>
+        <translation>Ville</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="vanished">Département</translation>
+        <translation>Département</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">Pays</translation>
+        <translation>Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="vanished">Région</translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -49,27 +49,27 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="vanished">Saisissez le nom du sous-emplacement.</translation>
+        <translation>Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="vanished">Saisissez le nom de la ville.</translation>
+        <translation>Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="vanished">Saisissez le nom de la province, région ou État.</translation>
+        <translation>Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="vanished">Saisissez le nom du pays.</translation>
+        <translation>Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="vanished">Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="vanished">Saisissez le nom de la région du monde.</translation>
+        <translation>Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -78,6 +78,14 @@
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
         <translation>Saisissez les informations d’un emplacement, comme le montre cette image.</translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
@@ -912,47 +920,47 @@ sélectionnés</numerusform>
     <name>LocationInfo</name>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Saisissez le nom du sous-emplacement.</translation>
+        <translation type="vanished">Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Saisissez le nom de la ville.</translation>
+        <translation type="vanished">Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Saisissez le nom de la province, région ou État.</translation>
+        <translation type="vanished">Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Saisissez le nom du pays.</translation>
+        <translation type="vanished">Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+        <translation type="vanished">Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Saisissez le nom de la région du monde.</translation>
+        <translation type="vanished">Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation>Rue</translation>
+        <translation type="vanished">Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ville</translation>
+        <translation type="vanished">Ville</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Département</translation>
+        <translation type="vanished">Département</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Pays</translation>
+        <translation type="vanished">Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Région</translation>
+        <translation type="vanished">Région</translation>
     </message>
 </context>
 <context>
@@ -1157,11 +1165,11 @@ fournie par Bing</translation>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
+        <translation type="vanished">Recherche d&apos;adresse propulsée par OpenCage</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
+        <translation type="vanished">Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>

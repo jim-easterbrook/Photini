@@ -35,6 +35,58 @@
         <source>Enter the details about a location which is shown in this image.</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -773,53 +825,6 @@ selected</numerusform>
     </message>
 </context>
 <context>
-    <name>LocationInfo</name>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Street</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -956,17 +961,6 @@ selected</numerusform>
     </message>
     <message>
         <source>Selected images</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
         <translation></translation>
     </message>
 </context>

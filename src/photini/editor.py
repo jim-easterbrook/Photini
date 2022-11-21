@@ -153,34 +153,36 @@ class MenuBar(QtWidgets.QMenuBar):
         super(MenuBar, self).__init__(*args, **kwds)
         self.app = QtWidgets.QApplication.instance()
         # file menu
-        file_menu = self.addMenu(self.tr('File'))
-        action = file_menu.addAction(self.tr('Open files'))
+        file_menu = self.addMenu(translate('MenuBar', 'File'))
+        action = file_menu.addAction(translate('MenuBar', 'Open files'))
         action.setShortcuts(QtGui.QKeySequence.StandardKey.Open)
         action.triggered.connect(self.app.image_list.open_files)
-        self.save_action = file_menu.addAction(self.tr('Save changes'))
+        self.save_action = file_menu.addAction(
+            translate('MenuBar', 'Save changes'))
         self.save_action.setShortcuts(QtGui.QKeySequence.StandardKey.Save)
         self.save_action.setEnabled(False)
         self.save_action.triggered.connect(self.app.image_list.save_files)
         self.fix_thumbs_action = file_menu.addAction(
-            self.tr('Fix missing thumbnails'))
+            translate('MenuBar', 'Fix missing thumbnails'))
         self.fix_thumbs_action.setEnabled(False)
         self.fix_thumbs_action.triggered.connect(
             self.app.image_list.fix_missing_thumbs)
-        action = file_menu.addAction(self.tr('Close all files'))
+        action = file_menu.addAction(translate('MenuBar', 'Close all files'))
         action.triggered.connect(self.app.image_list.close_all_files)
         file_menu.addSeparator()
         sep = QtWidgets.QWidgetAction(self)
-        sep.setDefaultWidget(QtWidgets.QLabel(self.tr('Selected images')))
+        sep.setDefaultWidget(QtWidgets.QLabel(
+            translate('MenuBar', 'Selected images')))
         file_menu.addAction(sep)
         self.selected_actions = self.app.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
-        action = file_menu.addAction(self.tr('Quit'))
+        action = file_menu.addAction(translate('MenuBar', 'Quit'))
         action.setShortcuts([QtGui.QKeySequence.StandardKey.Quit,
                              QtGui.QKeySequence.StandardKey.Close])
         action.triggered.connect(self.app.closeAllWindows)
         # options menu
-        options_menu = self.addMenu(self.tr('Options'))
-        action = options_menu.addAction(self.tr('Settings'))
+        options_menu = self.addMenu(translate('MenuBar', 'Options'))
+        action = options_menu.addAction(translate('MenuBar', 'Settings'))
         action.triggered.connect(self.edit_settings)
         options_menu.addSeparator()
         for module in self.parent().modules:
@@ -195,8 +197,9 @@ class MenuBar(QtWidgets.QMenuBar):
             tab['action'].triggered.connect(self.parent().add_tabs)
         # spelling menu
         languages = self.app.spell_check.available_languages()
-        spelling_menu = self.addMenu(self.tr('Spelling'))
-        action = spelling_menu.addAction(self.tr('Enable spell check'))
+        spelling_menu = self.addMenu(translate('MenuBar', 'Spelling'))
+        action = spelling_menu.addAction(
+            translate('MenuBar', 'Enable spell check'))
         action.setEnabled(languages is not None)
         action.setCheckable(True)
         action.setChecked(self.app.spell_check.enabled)
@@ -218,13 +221,14 @@ class MenuBar(QtWidgets.QMenuBar):
                     action.setActionGroup(language_group)
             language_group.triggered.connect(self.set_language)
         # help menu
-        help_menu = self.addMenu(self.tr('Help'))
-        action = help_menu.addAction(self.tr('About Photini'))
+        help_menu = self.addMenu(translate('MenuBar', 'Help'))
+        action = help_menu.addAction(translate('MenuBar', 'About Photini'))
         action.triggered.connect(self.about)
-        action = help_menu.addAction(self.tr('Check for update'))
+        action = help_menu.addAction(translate('MenuBar', 'Check for update'))
         action.triggered.connect(self.check_update)
         help_menu.addSeparator()
-        action = help_menu.addAction(self.tr('Photini documentation'))
+        action = help_menu.addAction(
+            translate('MenuBar', 'Photini documentation'))
         action.triggered.connect(self.open_docs)
         # connect signals
         self.app.image_list.selection_changed.connect(self.new_selection)
