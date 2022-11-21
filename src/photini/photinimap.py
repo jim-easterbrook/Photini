@@ -644,9 +644,9 @@ class PhotiniMap(QtWidgets.QWidget):
         self.widgets['search'].addItem('')
         if self.search_string:
             self.widgets['search'].addItem(
-                translate('PhotiniMap', '<widen search>'), 'widen')
+                PhotiniMap.tr('<widen search>'), 'widen')
             self.widgets['search'].addItem(
-                translate('PhotiniMap', '<repeat search>'), 'repeat')
+                PhotiniMap.tr('<repeat search>'), 'repeat')
 
     @QtSlot(int)
     @catch_all

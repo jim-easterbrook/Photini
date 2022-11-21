@@ -2,13 +2,6 @@
 <!DOCTYPE TS>
 <TS language="es" sourcelanguage="en_GB" version="2.1">
 <context>
-    <name></name>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="obsolete">&lt;repetir la búsqueda&gt;</translation>
-    </message>
-</context>
-<context>
     <name>AddressTab</name>
     <message>
         <source>&amp;Address</source>
