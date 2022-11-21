@@ -276,14 +276,13 @@ class ImporterTab(QtWidgets.QWidget):
     def tab_name():
         return translate('ImporterTab', '&Import photos')
 
-    def __init__(self, image_list, parent=None):
+    def __init__(self, parent=None):
         super(ImporterTab, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.stop_copy)
         if gp and self.app.options.test:
             self.gp_log = gp.check_result(gp.use_python_logging())
         self.config_store = self.app.config_store
-        self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         form = FormLayout()
         self.nm = NameMangler()
@@ -359,7 +358,7 @@ class ImporterTab(QtWidgets.QWidget):
         self.layout().addLayout(buttons, 0, 1, 2, 1)
         self.selection_changed()
         # final initialisation
-        self.image_list.sort_order_changed.connect(self.sort_file_list)
+        self.app.image_list.sort_order_changed.connect(self.sort_file_list)
         path = QtCore.QStandardPaths.writableLocation(
             QtCore.QStandardPaths.StandardLocation.PicturesLocation)
         self.path_format.setText(
@@ -634,7 +633,7 @@ class ImporterTab(QtWidgets.QWidget):
                 name = item.data(Qt.ItemDataRole.UserRole)
                 info = self.file_data[name]
                 if (move and 'path' in info and
-                        self.image_list.get_image(info['path'])):
+                        self.app.image_list.get_image(info['path'])):
                     # don't rename an open file
                     logger.warning(
                         'Please close image %s before moving it', info['name'])
@@ -678,7 +677,7 @@ class ImporterTab(QtWidgets.QWidget):
                                 self.file_list_widget.ScrollHint.PositionAtTop)
                             self.selection_changed()
                             break
-                    self.image_list.open_file(info['dest_path'])
+                    self.app.image_list.open_file(info['dest_path'])
                 else:
                     # wait for copier result
                     self.app.processEvents()
@@ -690,7 +689,7 @@ class ImporterTab(QtWidgets.QWidget):
         if last_file_copied[0]:
             self.config_store.set(self.config_section, 'last_transfer',
                                   last_file_copied[1].isoformat(' '))
-            self.image_list.done_opening(last_file_copied[0])
+            self.app.image_list.done_opening(last_file_copied[0])
         self.list_files()
 
     @QtSlot()

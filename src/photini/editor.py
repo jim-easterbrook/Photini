@@ -152,28 +152,27 @@ class MenuBar(QtWidgets.QMenuBar):
     def __init__(self, *args, **kwds):
         super(MenuBar, self).__init__(*args, **kwds)
         self.app = QtWidgets.QApplication.instance()
-        self.image_list = self.parent().image_list
         # file menu
         file_menu = self.addMenu(self.tr('File'))
         action = file_menu.addAction(self.tr('Open files'))
         action.setShortcuts(QtGui.QKeySequence.StandardKey.Open)
-        action.triggered.connect(self.image_list.open_files)
+        action.triggered.connect(self.app.image_list.open_files)
         self.save_action = file_menu.addAction(self.tr('Save changes'))
         self.save_action.setShortcuts(QtGui.QKeySequence.StandardKey.Save)
         self.save_action.setEnabled(False)
-        self.save_action.triggered.connect(self.image_list.save_files)
+        self.save_action.triggered.connect(self.app.image_list.save_files)
         self.fix_thumbs_action = file_menu.addAction(
             self.tr('Fix missing thumbnails'))
         self.fix_thumbs_action.setEnabled(False)
         self.fix_thumbs_action.triggered.connect(
-            self.image_list.fix_missing_thumbs)
+            self.app.image_list.fix_missing_thumbs)
         action = file_menu.addAction(self.tr('Close all files'))
-        action.triggered.connect(self.image_list.close_all_files)
+        action.triggered.connect(self.app.image_list.close_all_files)
         file_menu.addSeparator()
         sep = QtWidgets.QWidgetAction(self)
         sep.setDefaultWidget(QtWidgets.QLabel(self.tr('Selected images')))
         file_menu.addAction(sep)
-        self.selected_actions = self.image_list.add_selected_actions(file_menu)
+        self.selected_actions = self.app.image_list.add_selected_actions(file_menu)
         file_menu.addSeparator()
         action = file_menu.addAction(self.tr('Quit'))
         action.setShortcuts([QtGui.QKeySequence.StandardKey.Quit,
@@ -228,9 +227,9 @@ class MenuBar(QtWidgets.QMenuBar):
         action = help_menu.addAction(self.tr('Photini documentation'))
         action.triggered.connect(self.open_docs)
         # connect signals
-        self.image_list.selection_changed.connect(self.new_selection)
-        self.image_list.image_list_changed.connect(self.new_image_list)
-        self.image_list.new_metadata.connect(self.new_metadata)
+        self.app.image_list.selection_changed.connect(self.new_selection)
+        self.app.image_list.image_list_changed.connect(self.new_image_list)
+        self.app.image_list.new_metadata.connect(self.new_metadata)
 
     @QtSlot()
     @catch_all
@@ -311,12 +310,12 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        self.image_list.configure_selected_actions(self.selected_actions)
+        self.app.image_list.configure_selected_actions(self.selected_actions)
 
     @QtSlot()
     @catch_all
     def new_image_list(self):
-        for image in self.image_list.images:
+        for image in self.app.image_list.images:
             thumb = image.metadata.thumbnail
             if not thumb or not thumb['image']:
                 self.fix_thumbs_action.setEnabled(True)
@@ -326,7 +325,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @QtSlot(bool)
     @catch_all
     def new_metadata(self, unsaved_data):
-        self.image_list.configure_selected_actions(self.selected_actions)
+        self.app.image_list.configure_selected_actions(self.selected_actions)
         self.save_action.setEnabled(unsaved_data)
 
 
@@ -353,6 +352,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.app.gpx_importer = None
         self.app.options = options
+        self.app.image_list = ImageList()
+        self.app.image_list.selection_changed.connect(self.new_selection)
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # restore size and state
@@ -364,13 +365,10 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.WindowState.WindowMaximized | Qt.WindowState.WindowFullScreen)
         if full_screen:
             self.setWindowState(self.windowState() | full_screen)
-        # image selector
-        self.image_list = ImageList()
-        self.image_list.selection_changed.connect(self.new_selection)
         # start instance server
         instance_server = InstanceServer(parent=self)
-        instance_server.new_files.connect(
-            self.image_list.open_file_list, Qt.ConnectionType.QueuedConnection)
+        instance_server.new_files.connect(self.app.image_list.open_file_list,
+                                          Qt.ConnectionType.QueuedConnection)
         # update config file
         if self.app.config_store.config.has_section('tabs'):
             conv = {
@@ -430,7 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
-        self.central_widget.addWidget(self.image_list)
+        self.central_widget.addWidget(self.app.image_list)
         size = self.central_widget.sizes()
         self.central_widget.setSizes(
             self.app.config_store.get('main_window', 'split', size))
@@ -444,7 +442,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtSlot()
     @catch_all
     def open_initial_files(self):
-        self.image_list.open_file_list(self.initial_files)
+        self.app.image_list.open_file_list(self.initial_files)
 
     @QtSlot()
     @catch_all
@@ -462,7 +460,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not use_tab:
                 continue
             if 'object' not in tab:
-                tab['object'] = tab['class'](self.image_list)
+                tab['object'] = tab['class'](self.app.image_list)
             idx = self.tabs.addTab(tab['object'], tab['label'])
             self.tabs.setTabToolTip(idx, tab['name'])
             self.tabs.tabBar().setTabData(idx, module)
@@ -477,7 +475,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if self.tabs.widget(n).do_not_close():
                 event.ignore()
                 return
-        self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
+        self.app.image_list.unsaved_files_dialog(
+            all_files=True, with_cancel=False)
         super(MainWindow, self).closeEvent(event)
 
     @QtSlot(int, int)
@@ -491,7 +490,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
-            self.image_list.set_drag_to_map(None)
+            self.app.image_list.set_drag_to_map(None)
             current.refresh()
 
     @QtSlot(int, int)

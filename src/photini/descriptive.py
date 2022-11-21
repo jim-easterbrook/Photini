@@ -182,9 +182,9 @@ class DescriptiveTab(QtWidgets.QScrollArea):
     def tab_name():
         return translate('DescriptiveTab', '&Descriptive metadata')
 
-    def __init__(self, image_list, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(DescriptiveTab, self).__init__(*arg, **kw)
-        self.image_list = image_list
+        self.app = QtWidgets.QApplication.instance()
         self.setFrameStyle(QtWidgets.QFrame.Shape.NoFrame)
         self.setWidget(QtWidgets.QWidget())
         self.setWidgetResizable(True)
@@ -256,7 +256,7 @@ class DescriptiveTab(QtWidgets.QScrollArea):
             ' Separate them with ";" characters.') + '</p>')
         self.widgets['keywords'].new_value.connect(self.new_value)
         layout.addRow(self.tr('Keywords'), self.widgets['keywords'])
-        self.image_list.image_list_changed.connect(self.image_list_changed)
+        self.app.image_list.image_list_changed.connect(self.image_list_changed)
         # rating
         self.widgets['rating'] = RatingWidget('rating')
         self.widgets['rating'].new_value.connect(self.new_value)
@@ -265,7 +265,7 @@ class DescriptiveTab(QtWidgets.QScrollArea):
         self.setEnabled(False)
 
     def refresh(self):
-        self.new_selection(self.image_list.get_selected_images())
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -274,12 +274,12 @@ class DescriptiveTab(QtWidgets.QScrollArea):
     @catch_all
     def image_list_changed(self):
         self.widgets['keywords'].update_league_table(
-            self.image_list.get_images())
+            self.app.image_list.get_images())
 
     @QtSlot(str, object)
     @catch_all
     def new_value(self, key, value):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         for image in images:
             setattr(image.metadata, key, value)
         self._update_widget(key, images)

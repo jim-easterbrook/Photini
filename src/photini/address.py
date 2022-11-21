@@ -25,7 +25,7 @@ import requests
 
 from photini.configstore import key_store
 from photini.metadata import ImageMetadata
-from photini.photinimap import GeocoderBase, LatLongDisplay
+from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
@@ -238,16 +238,15 @@ class AddressTab(QtWidgets.QWidget):
     def tab_name():
         return translate('AddressTab', '&Address')
 
-    def __init__(self, image_list, parent=None):
+    def __init__(self, parent=None):
         super(AddressTab, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
-        self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords = LatLongDisplay(self.image_list)
+        self.coords = LatLongDisplay()
         left_side.addWidget(self.coords.label, 0, 0)
         self.coords.changed.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
@@ -278,7 +277,7 @@ class AddressTab(QtWidgets.QWidget):
         self.layout().addWidget(self.location_info, stretch=1)
 
     def refresh(self):
-        self.new_selection(self.image_list.get_selected_images())
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -302,7 +301,7 @@ class AddressTab(QtWidgets.QWidget):
     @catch_all
     def duplicate_location(self):
         idx = self.location_info.currentIndex()
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             # duplicate data
             location = MD_Location(self._get_location(image, idx) or {})
             # shuffle data up
@@ -316,7 +315,7 @@ class AddressTab(QtWidgets.QWidget):
     @catch_all
     def delete_location(self):
         idx = self.location_info.currentIndex()
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             # shuffle data down
             location_list = list(image.metadata.location_shown or [])
             if idx == 0:
@@ -343,7 +342,7 @@ class AddressTab(QtWidgets.QWidget):
     def _location_tab_moved(self):
         idx_a, idx_b = self.pending_move
         # swap data
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             temp_a = self._get_location(image, idx_a)
             temp_b = self._get_location(image, idx_b)
             self._set_location(image, idx_a, temp_b)
@@ -376,7 +375,7 @@ class AddressTab(QtWidgets.QWidget):
     @QtSlot(object, dict)
     @catch_all
     def new_location(self, widget, new_value, images=[]):
-        images = images or self.image_list.get_selected_images()
+        images = images or self.app.image_list.get_selected_images()
         idx = self.location_info.indexOf(widget)
         for image in images:
             temp = dict(self._get_location(image, idx) or {})
@@ -401,7 +400,7 @@ class AddressTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def display_location(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         # get required number of tabs
         count = 0
         for image in images:
@@ -456,7 +455,7 @@ class AddressTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def get_address(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         location = self.geocoder.get_address(self.coords.get_value())
         if location:
             self.new_location(

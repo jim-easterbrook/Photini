@@ -32,11 +32,10 @@ translate = QtCore.QCoreApplication.translate
 
 
 class DropdownEdit(DropDownSelector):
-    def __init__(self, key, image_list, *arg, **kw):
+    def __init__(self, key, *arg, **kw):
         super(DropdownEdit, self).__init__(
             key, *arg, extendable=True, ordered=True, **kw)
-        self._image_list = image_list
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.app = QtWidgets.QApplication.instance()
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     @QtSlot(QtGui.QContextMenuEvent)
@@ -68,22 +67,22 @@ class CameraList(DropdownEdit):
         values = [('', None)]
         # read cameras from config, updating if neccessary
         sections = []
-        for section in self.config_store.config.sections():
+        for section in self.app.config_store.config.sections():
             if not section.startswith('camera '):
                 continue
             camera = {}
             for key in 'make', 'model', 'serial_no':
-                camera[key] = self.config_store.get(section, key)
+                camera[key] = self.app.config_store.get(section, key)
             camera = MD_CameraModel(camera)
             name = camera.get_name()
             if name != section[7:]:
-                self.config_store.remove_section(section)
+                self.app.config_store.remove_section(section)
             values.append((name, camera))
         self.set_values(values)
 
     def define_new_value(self):
         dialog = NewCameraDialog(
-            self._image_list.get_selected_images(), parent=self)
+            self.app.image_list.get_selected_images(), parent=self)
         if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return None, None
         camera = MD_CameraModel(dialog.get_value())
@@ -93,11 +92,11 @@ class CameraList(DropdownEdit):
         section = 'camera ' + name
         for key, value in camera.items():
             if value:
-                self.config_store.set(section, key, value)
+                self.app.config_store.set(section, key, value)
         return name, camera
 
     def remove_item(self, camera, **kwds):
-        self.config_store.remove_section('camera ' + camera.get_name())
+        self.app.config_store.remove_section('camera ' + camera.get_name())
         return super(CameraList, self).remove_item(camera, **kwds)
 
     def data_to_text(self, camera):
@@ -109,8 +108,8 @@ class LensList(DropdownEdit):
         super(LensList, self).__init__(*args, **kwds)
         values = [('', None)]
         # read lenses from config, updating if neccessary
-        self.config_store.delete('technical', 'lenses')
-        for section in self.config_store.config.sections():
+        self.app.config_store.delete('technical', 'lenses')
+        for section in self.app.config_store.config.sections():
             if not section.startswith('lens '):
                 continue
             lens_model = {}
@@ -118,20 +117,20 @@ class LensList(DropdownEdit):
                                      ('lens_model', 'model'),
                                      ('lens_serial', 'serial_no'),
                                      ('lens_spec', 'spec')):
-                lens_model[new_key] = self.config_store.get(section, new_key)
+                lens_model[new_key] = self.app.config_store.get(section, new_key)
                 if not lens_model[new_key]:
-                    lens_model[new_key] = self.config_store.get(section, old_key)
-                self.config_store.delete(section, old_key)
+                    lens_model[new_key] = self.app.config_store.get(section, old_key)
+                self.app.config_store.delete(section, old_key)
             lens_model = MD_LensModel(lens_model)
             name = lens_model.get_name()
             if name != section[5:]:
-                self.config_store.remove_section(section)
+                self.app.config_store.remove_section(section)
             values.append((name, lens_model))
         self.set_values(values)
 
     def define_new_value(self):
         dialog = NewLensDialog(
-            self._image_list.get_selected_images(), parent=self)
+            self.app.image_list.get_selected_images(), parent=self)
         if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
             return None, None
         lens_model = dialog.get_value()
@@ -141,11 +140,11 @@ class LensList(DropdownEdit):
         section = 'lens ' + name
         for key, value in lens_model.items():
             if value:
-                self.config_store.set(section, key, str(value))
+                self.app.config_store.set(section, key, str(value))
         return name, lens_model
 
     def remove_item(self, lens_model, **kwds):
-        self.config_store.remove_section('lens ' + lens_model.get_name())
+        self.app.config_store.remove_section('lens ' + lens_model.get_name())
         return super(LensList, self).remove_item(lens_model, **kwds)
 
     def data_to_text(self, lens_model):
@@ -535,7 +534,7 @@ class OffsetWidget(QtWidgets.QWidget):
 
     def __init__(self, *arg, **kw):
         super(OffsetWidget, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
+        self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         spacing = self.layout().spacing()
@@ -570,7 +569,7 @@ class OffsetWidget(QtWidgets.QWidget):
         self.layout().addWidget(sub_button)
         self.layout().addStretch(1)
         # restore stored values
-        value = self.config_store.get('technical', 'offset')
+        value = self.app.config_store.get('technical', 'offset')
         if value:
             self.offset.setTime(QtCore.QTime(*value[0:3]))
             self.time_zone.set_value(value[3])
@@ -595,7 +594,7 @@ class OffsetWidget(QtWidgets.QWidget):
         value = self.offset.time()
         value = (value.hour(), value.minute(), value.second(),
                  self.time_zone.get_value())
-        self.config_store.set('technical', 'offset', value)
+        self.app.config_store.set('technical', 'offset', value)
 
     @QtSlot()
     @catch_all
@@ -742,10 +741,9 @@ class TechnicalTab(QtWidgets.QWidget):
     def tab_name():
         return translate('TechnicalTab', '&Technical metadata')
 
-    def __init__(self, image_list, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(TechnicalTab, self).__init__(*arg, **kw)
-        self.config_store = QtWidgets.QApplication.instance().config_store
-        self.image_list = image_list
+        self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.widgets = {}
         self.date_widget = {}
@@ -803,15 +801,14 @@ class TechnicalTab(QtWidgets.QWidget):
         other_group.layout().addRow(
             self.tr('Orientation'), self.widgets['orientation'])
         # camera model
-        self.widgets['camera_model'] = CameraList(
-            'camera_model', self.image_list)
+        self.widgets['camera_model'] = CameraList('camera_model')
         self.widgets['camera_model'].setMinimumWidth(
             width_for_text(self.widgets['camera_model'], 'x' * 30))
         self.widgets['camera_model'].new_value.connect(self.new_camera_model)
         other_group.layout().addRow(
             self.tr('Camera'), self.widgets['camera_model'])
         # lens model
-        self.widgets['lens_model'] = LensList('lens_model', self.image_list)
+        self.widgets['lens_model'] = LensList('lens_model')
         self.widgets['lens_model'].setMinimumWidth(
             width_for_text(self.widgets['lens_model'], 'x' * 30))
         self.widgets['lens_model'].new_value.connect(self.new_lens_model)
@@ -849,7 +846,7 @@ class TechnicalTab(QtWidgets.QWidget):
         }
 
     def refresh(self):
-        self.new_selection(self.image_list.get_selected_images())
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -857,7 +854,7 @@ class TechnicalTab(QtWidgets.QWidget):
     @QtSlot(timedelta, object)
     @catch_all
     def apply_offset(self, offset, tz_offset):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             date_taken = dict(image.metadata.date_taken or {})
             if not date_taken:
                 continue
@@ -875,7 +872,7 @@ class TechnicalTab(QtWidgets.QWidget):
     def new_link(self, master):
         slave = self._master_slave[master]
         if self.link_widget[master, slave].isChecked():
-            for image in self.image_list.get_selected_images():
+            for image in self.app.image_list.get_selected_images():
                 temp = dict(getattr(image.metadata, 'date_' + master) or {})
                 self._set_date_value(image, slave, temp)
             self._update_datetime()
@@ -886,7 +883,7 @@ class TechnicalTab(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def new_orientation(self, key, value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             image.metadata.orientation = value
             image.load_thumbnail()
         self._update_orientation()
@@ -895,7 +892,7 @@ class TechnicalTab(QtWidgets.QWidget):
     @catch_all
     def new_camera_model(self, key, value):
         delete_makernote = 'ask'
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             if not image.metadata.camera_change_ok(value):
                 if delete_makernote == 'ask':
                     msg = QtWidgets.QMessageBox(parent=self)
@@ -919,21 +916,21 @@ class TechnicalTab(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def new_lens_model(self, key, value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             image.metadata.lens_model = value
         self._update_lens_model()
 
     @QtSlot(object)
     @catch_all
     def new_aperture(self, value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             image.metadata.aperture = value
         self._update_aperture()
 
     @QtSlot(object)
     @catch_all
     def new_focal_length(self, value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             # only update 35mm equiv if already set
             if image.metadata.focal_length_35:
                 image.metadata.focal_length_35 = self.calc_35(
@@ -945,7 +942,7 @@ class TechnicalTab(QtWidgets.QWidget):
     @QtSlot(object)
     @catch_all
     def new_focal_length_35(self, value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             image.metadata.focal_length_35 = value
             self.set_crop_factor(image.metadata)
         self._update_focal_length()
@@ -954,7 +951,7 @@ class TechnicalTab(QtWidgets.QWidget):
     @QtSlot(str, dict)
     @catch_all
     def new_date_value(self, key, new_value):
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             temp = dict(getattr(image.metadata, 'date_' + key) or {})
             temp.update(new_value)
             if 'datetime' not in temp:
@@ -973,7 +970,7 @@ class TechnicalTab(QtWidgets.QWidget):
             master = slave
 
     def _update_datetime(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         for name in self.date_widget:
             attribute = 'date_' + name
             widget = self.date_widget[name]
@@ -993,7 +990,7 @@ class TechnicalTab(QtWidgets.QWidget):
                     widget.members[key].set_value(values[key][0])
 
     def _update_links(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         for master, slave in self.link_widget:
             for image in images:
                 if (getattr(image.metadata, 'date_' + master) !=
@@ -1006,7 +1003,7 @@ class TechnicalTab(QtWidgets.QWidget):
                 self.date_widget[slave].set_enabled(False)
 
     def _update_orientation(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         value = images[0].metadata.orientation
@@ -1018,7 +1015,7 @@ class TechnicalTab(QtWidgets.QWidget):
         self.widgets['orientation'].set_value(value and int(value))
 
     def _update_camera_model(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         value = images[0].metadata.camera_model
@@ -1029,7 +1026,7 @@ class TechnicalTab(QtWidgets.QWidget):
         self.widgets['camera_model'].set_value(value)
 
     def _update_lens_model(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         self.widgets['lens_model'].setToolTip('')
@@ -1103,7 +1100,7 @@ class TechnicalTab(QtWidgets.QWidget):
             self._update_focal_length_35()
 
     def _update_aperture(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         values = []
@@ -1117,7 +1114,7 @@ class TechnicalTab(QtWidgets.QWidget):
             self.widgets['aperture'].set_value(values[0])
 
     def _update_focal_length(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         values = []
@@ -1131,7 +1128,7 @@ class TechnicalTab(QtWidgets.QWidget):
             self.widgets['focal_length'].set_value(values[0])
 
     def _update_focal_length_35(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         if not images:
             return
         self.widgets['focal_length_35'].set_faint(False)
@@ -1163,23 +1160,23 @@ class TechnicalTab(QtWidgets.QWidget):
         if not md.camera_model:
             return
         if not md.focal_length_35:
-            self.config_store.delete(
+            self.app.config_store.delete(
                 'crop factor', md.camera_model.get_name(inc_serial=False))
         elif md.focal_length:
             crop_factor = float(md.focal_length_35) / md.focal_length
-            self.config_store.set(
+            self.app.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
                 crop_factor)
 
     def get_crop_factor(self, md):
         if md.camera_model:
-            crop_factor = self.config_store.get(
+            crop_factor = self.app.config_store.get(
                 'crop factor', md.camera_model.get_name(inc_serial=False))
             if crop_factor:
                 return crop_factor
         crop_factor = md.get_crop_factor()
         if crop_factor and md.camera_model:
-            self.config_store.set(
+            self.app.config_store.set(
                 'crop factor', md.camera_model.get_name(inc_serial=False),
                 crop_factor)
         return crop_factor

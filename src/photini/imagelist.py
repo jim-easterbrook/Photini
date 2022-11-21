@@ -38,11 +38,10 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 
 class Image(QtWidgets.QFrame):
-    def __init__(self, path, image_list, thumb_size=4, *arg, **kw):
+    def __init__(self, path, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.path = path
-        self.image_list = image_list
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         # read metadata
@@ -85,7 +84,7 @@ class Image(QtWidgets.QFrame):
         self.metadata = Metadata(self.path, notify=self.show_status)
         self.show_status(False)
         self.load_thumbnail()
-        self.image_list.emit_selection()
+        self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
         orientation = (orientation or 1) - 1
@@ -223,7 +222,7 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
-        self.image_list.add_selected_actions(menu)
+        self.app.image_list.add_selected_actions(menu)
         execute(menu, event.globalPos())
 
     @catch_all
@@ -237,15 +236,15 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def mouseReleaseEvent(self, event):
         if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            self.image_list.select_image(self, multiple_selection=True)
+            self.app.image_list.select_image(self, multiple_selection=True)
         elif event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-            self.image_list.select_image(self, extend_selection=True)
+            self.app.image_list.select_image(self, extend_selection=True)
         else:
-            self.image_list.select_image(self)
+            self.app.image_list.select_image(self)
 
     @catch_all
     def mouseMoveEvent(self, event):
-        if not self.image_list.drag_icon:
+        if not self.app.image_list.drag_icon:
             return
         if qt_version_info >= (6, 0):
             pos = event.position()
@@ -256,16 +255,16 @@ class Image(QtWidgets.QFrame):
             return
         if not self.get_selected():
             # user has started dragging an unselected image
-            self.image_list.select_image(self, emit_selection=False)
+            self.app.image_list.select_image(self, emit_selection=False)
         paths = []
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             paths.append(image.path)
         if not paths:
             return
         drag = QtGui.QDrag(self)
         # construct icon
         count = min(len(paths), 8)
-        src_icon = self.image_list.drag_icon
+        src_icon = self.app.image_list.drag_icon
         src_w = src_icon.width()
         src_h = src_icon.height()
         margin = (count - 1) * 4
@@ -282,8 +281,8 @@ class Image(QtWidgets.QFrame):
             finally:
                 del paint
         drag.setPixmap(icon)
-        if self.image_list.drag_hotspot:
-            x, y = self.image_list.drag_hotspot
+        if self.app.image_list.drag_hotspot:
+            x, y = self.app.image_list.drag_hotspot
         else:
             x, y = src_w // 2, src_h
         drag.setHotSpot(QtCore.QPoint(x, y + margin))
@@ -293,7 +292,7 @@ class Image(QtWidgets.QFrame):
         if execute(drag,
                    Qt.DropAction.CopyAction) == Qt.DropAction.IgnoreAction:
             # image wasn't dragged to map
-            self.image_list.emit_selection()
+            self.app.image_list.emit_selection()
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
@@ -310,7 +309,7 @@ class Image(QtWidgets.QFrame):
         self.status.setText(status)
         self._elide_name()
         if changed:
-            self.image_list.new_metadata.emit(True)
+            self.app.image_list.new_metadata.emit(True)
 
     def _elide_name(self):
         self.status.adjustSize()
@@ -654,7 +653,7 @@ class ImageList(QtWidgets.QWidget):
         if self.get_image(path):
             # already opened this path
             return True
-        image = Image(path, self, thumb_size=self.thumb_size)
+        image = Image(path, thumb_size=self.thumb_size)
         self.images.append(image)
         self.show_thumbnail(image)
         return True

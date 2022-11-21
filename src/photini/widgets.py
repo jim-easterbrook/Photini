@@ -375,9 +375,9 @@ class SingleLineEdit(MultiLineEdit):
 class LatLongDisplay(SingleLineEdit):
     changed = QtSignal()
 
-    def __init__(self, image_list, *args, **kwds):
+    def __init__(self, *args, **kwds):
         super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
-        self.image_list = image_list
+        self.app = QtWidgets.QApplication.instance()
         self.label = QtWidgets.QLabel(self.tr('Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
@@ -387,7 +387,7 @@ class LatLongDisplay(SingleLineEdit):
     @QtSlot(str, object)
     @catch_all
     def editing_finished(self, key, value):
-        selected_images = self.image_list.get_selected_images()
+        selected_images = self.app.image_list.get_selected_images()
         new_value = value.strip() or None
         if new_value:
             try:
@@ -403,7 +403,7 @@ class LatLongDisplay(SingleLineEdit):
 
     def update_display(self, selected_images=None):
         if selected_images is None:
-            selected_images = self.image_list.get_selected_images()
+            selected_images = self.app.image_list.get_selected_images()
         if not selected_images:
             self.set_value(None)
             self.setEnabled(False)

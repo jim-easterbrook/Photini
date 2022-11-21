@@ -105,10 +105,10 @@ class OwnerTab(QtWidgets.QWidget):
     def tab_name():
         return translate('OwnerTab', '&Ownership metadata')
 
-    def __init__(self, image_list, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(OwnerTab, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         # construct widgets
@@ -314,7 +314,7 @@ class OwnerTab(QtWidgets.QWidget):
             widget.setEnabled(enabled)
 
     def refresh(self):
-        self.new_selection(self.image_list.get_selected_images())
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -322,7 +322,7 @@ class OwnerTab(QtWidgets.QWidget):
     @QtSlot(str, object)
     @catch_all
     def new_value(self, key, value):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         for image in images:
             self._set_value(image, key, value)
         self._update_widget(key, images)
@@ -344,7 +344,7 @@ class OwnerTab(QtWidgets.QWidget):
     @catch_all
     def init_template(self):
         template = {}
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             date_taken = image.metadata.date_taken
             if date_taken is None:
                 date_taken = datetime.now()
@@ -421,7 +421,7 @@ class OwnerTab(QtWidgets.QWidget):
             value = self.config_store.get('ownership', key)
             if value:
                 template[key] = value
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         for image in images:
             date_taken = image.metadata.date_taken
             if date_taken is None:

@@ -229,12 +229,11 @@ class AuthServer(QtCore.QObject):
 class PhotiniUploader(QtWidgets.QWidget):
     abort_upload = QtSignal(bool)
 
-    def __init__(self, image_list, *arg, **kw):
+    def __init__(self, *arg, **kw):
         super(PhotiniUploader, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.app.aboutToQuit.connect(self.shutdown)
         self.logger.debug('using %s', keyring.get_keyring().__module__)
-        self.image_list = image_list
         self.setLayout(QtWidgets.QGridLayout())
         self.session = self.session_factory()
         self.session.connection_changed.connect(self.connection_changed)
@@ -471,11 +470,11 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def start_upload(self):
-        if not self.image_list.unsaved_files_dialog(with_discard=False):
+        if not self.app.app.image_list.unsaved_files_dialog(with_discard=False):
             return
         # make list of items to upload
         upload_list = []
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             params = self.get_upload_params(image)
             if not params:
                 continue
@@ -631,7 +630,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.buttons['upload'].setEnabled(False)
             return
         if selection is None:
-            selection = self.image_list.get_selected_images()
+            selection = self.app.image_list.get_selected_images()
         self.buttons['upload'].setEnabled(len(selection) > 0)
         if 'sync' in self.buttons:
             self.buttons['sync'].setEnabled(
@@ -856,7 +855,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # make list of known photo ids
             photo_ids = {}
             unknowns = []
-            for image in self.image_list.get_selected_images():
+            for image in self.app.image_list.get_selected_images():
                 for keyword in image.metadata.keywords or []:
                     photo_id = self.uploaded_id(keyword)
                     if photo_id:
