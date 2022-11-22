@@ -1414,127 +1414,123 @@ anwenden</translation>
     <name>PhotiniUploader</name>
     <message>
         <source>Close window</source>
-        <translation>Fenster schließen</translation>
+        <translation type="vanished">Fenster schließen</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Das Browserfenster kann nun geschlossen werden.</translation>
+        <translation type="vanished">Das Browserfenster kann nun geschlossen werden.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Anmelden</translation>
+        <translation type="vanished">Anmelden</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Abmelden</translation>
+        <translation type="vanished">Abmelden</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Zu Alben hinzufügen</translation>
+        <translation type="vanished">Zu Alben hinzufügen</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Hochladen starten</translation>
+        <translation type="vanished">Hochladen starten</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Hochladen stoppen</translation>
+        <translation type="vanished">Hochladen stoppen</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini: Hochladen läuft</translation>
+        <translation type="vanished">Photini: Hochladen läuft</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Hochladen nach {} wurde nicht beendet.</translation>
+        <translation type="vanished">Hochladen nach {} wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Beenden wird das Hochladen stoppen.</translation>
+        <translation type="vanished">Beenden wird das Hochladen stoppen.</translation>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Angemeldet als {0} auf {1}</translation>
+        <translation type="vanished">Angemeldet als {0} auf {1}</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Nicht angemeldet bei {}</translation>
+        <translation type="vanished">Nicht angemeldet bei {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
+        <translation type="vanished">Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Photini: inkompatibler Typ</translation>
+        <translation type="vanished">Photini: inkompatibler Typ</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Inkompatibles Bildformat.</translation>
+        <translation type="vanished">Inkompatibles Bildformat.</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Fortschritt</translation>
+        <translation type="vanished">Fortschritt</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini: Fehler beim Hochladen</translation>
+        <translation type="vanished">Photini: Fehler beim Hochladen</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Hochladen der Datei „{}“ fehlgeschlagen.</translation>
+        <translation type="vanished">Hochladen der Datei „{}“ fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation>Photini: zulassen</translation>
+        <translation type="vanished">Photini: zulassen</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation>Genehmigung erforderlich</translation>
+        <translation type="vanished">Genehmigung erforderlich</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation>Bitte verwenden Sie Ihren Webbrowser, um Photini zu autorisieren, und schließen Sie dann diesen Dialog.</translation>
+        <translation type="vanished">Bitte verwenden Sie Ihren Webbrowser, um Photini zu autorisieren, und schließen Sie dann diesen Dialog.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Photo ersetzen</translation>
+        <translation type="vanished">Photo ersetzen</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
+        <translation type="vanished">Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Bild ersetzen</translation>
+        <translation type="vanished">Bild ersetzen</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Als neues Photo hochladen</translation>
+        <translation type="vanished">Als neues Photo hochladen</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Kein Bild hochgeladen</translation>
+        <translation type="vanished">Kein Bild hochgeladen</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Bild auswählen</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Bild auswählen</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Kein Treffer</translation>
+        <translation type="vanished">Kein Treffer</translation>
     </message>
 </context>
 <context>
@@ -1842,67 +1838,67 @@ anwenden</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="vanished">Fenster schließen</translation>
+        <translation>Fenster schließen</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="vanished">Das Browserfenster kann nun geschlossen werden.</translation>
+        <translation>Das Browserfenster kann nun geschlossen werden.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">Anmelden</translation>
+        <translation>Anmelden</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">Abmelden</translation>
+        <translation>Abmelden</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="vanished">Hochladen starten</translation>
+        <translation>Hochladen starten</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="vanished">Hochladen stoppen</translation>
+        <translation>Hochladen stoppen</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="vanished">Fortschritt</translation>
+        <translation>Fortschritt</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: Hochladen läuft</translation>
+        <translation>Photini: Hochladen läuft</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Beenden wird das Hochladen stoppen.</translation>
+        <translation>Beenden wird das Hochladen stoppen.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation type="vanished">Nicht angemeldet bei {}</translation>
+        <translation>Nicht angemeldet bei {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
+        <translation>Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation type="vanished">Photini: inkompatibler Typ</translation>
+        <translation>Photini: inkompatibler Typ</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="vanished">Photini: Fehler beim Hochladen</translation>
+        <translation>Photini: Fehler beim Hochladen</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="vanished">Zu Alben hinzufügen</translation>
+        <translation>Zu Alben hinzufügen</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1910,59 +1906,63 @@ anwenden</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="vanished">Photini: zulassen</translation>
+        <translation>Photini: zulassen</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="vanished">Bitte verwenden Sie Ihren Webbrowser, um Photini zu autorisieren, und schließen Sie dann diesen Dialog.</translation>
+        <translation>Bitte verwenden Sie Ihren Webbrowser, um Photini zu autorisieren, und schließen Sie dann diesen Dialog.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="vanished">Photo ersetzen</translation>
+        <translation>Photo ersetzen</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="vanished">Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
+        <translation>Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="vanished">Bild ersetzen</translation>
+        <translation>Bild ersetzen</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="vanished">Als neues Photo hochladen</translation>
+        <translation>Als neues Photo hochladen</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="vanished">Kein Bild hochgeladen</translation>
+        <translation>Kein Bild hochgeladen</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="vanished">Bild auswählen</translation>
+        <translation>Bild auswählen</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="vanished">Kein Treffer</translation>
+        <translation>Kein Treffer</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="vanished">Hochladen nach {} wurde nicht beendet.</translation>
+        <translation>Hochladen nach {} wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="vanished">Inkompatibles Bildformat.</translation>
+        <translation>Inkompatibles Bildformat.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="vanished">Hochladen der Datei „{}“ fehlgeschlagen.</translation>
+        <translation>Hochladen der Datei „{}“ fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="vanished">Genehmigung erforderlich</translation>
+        <translation>Genehmigung erforderlich</translation>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation type="vanished">Angemeldet als {0} auf {1}</translation>
+        <translation>Angemeldet als {0} auf {1}</translation>
     </message>
 </context>
 <context>
