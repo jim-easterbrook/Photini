@@ -162,15 +162,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Alt Text&lt;br&gt;(Accessibility)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <source>Alt Text (Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description (Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -890,22 +890,6 @@ fotos</translation>
     </message>
 </context>
 <context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="vanished">&lt;nueva búsqueda&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
-        <translation type="obsolete">&lt;repetir la búsqueda&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;repetir la búsqueda&gt;</translation>
-    </message>
-</context>
-<context>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
@@ -1244,64 +1228,6 @@ fotos</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;repetir la búsqueda&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>PhotiniUploader</name>
-    <message>
-        <source>Start upload</source>
-        <translation type="vanished">Subir ahora</translation>
-    </message>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: carga en proceso</translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Cerrar ahora interrumpirá la carga.</translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="vanished">Photini: tipo de archivo incompatible</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">Avance</translation>
-    </message>
-</context>
-<context>
-    <name>RightsDropDown</name>
-    <message>
-        <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="vanished">Atribución 4.0 (CC BY 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="vanished">Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="vanished">Atribución-NoComercial 4.0 (CC BY-NC 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="vanished">Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="vanished">Atribución-SinDerivadas 4.0 (CC BY-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="vanished">Atribución-NoComercial-SinDerivadas 4.0 (CC BY-NC-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público</translation>
-    </message>
-    <message>
-        <source>Public Domain Mark 1.0</source>
-        <translation type="vanished">Etiqueta de Dominio Público 1.0</translation>
     </message>
 </context>
 <context>
