@@ -178,15 +178,15 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Alt Text&lt;br&gt;(Accessibility)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Extended Description&lt;br&gt;(Accessibility)</source>
+        <source>Alt Text (Accessibility)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extended Description (Accessibility)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

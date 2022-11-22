@@ -23,7 +23,7 @@ import logging
 from photini.metadata import ImageMetadata
 from photini.pyqt import *
 from photini.widgets import (
-    ComboBox, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
+    ComboBox, Label, LangAltWidget, MultiLineEdit, SingleLineEdit, Slider)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -233,8 +233,10 @@ class TabWidget(QtWidgets.QScrollArea):
             ' image from a visual perspective, focusing on details that are'
             ' relevant to the purpose and meaning of the image.')))
         self.widgets['alt_text'].new_value.connect(self.new_value)
-        layout.addRow(translate('DescriptiveTab', 'Alt Text<br>(Accessibility)'),
-                      self.widgets['alt_text'])
+        layout.addRow(
+            Label(translate('DescriptiveTab',
+                            'Alt Text (Accessibility)'), lines=2),
+            self.widgets['alt_text'])
         # extended alt text
         self.widgets['alt_text_ext'] = LangAltWidget(
             'alt_text_ext', spell_check=True)
@@ -246,9 +248,10 @@ class TabWidget(QtWidgets.QScrollArea):
             ' required if the Alt Text (Accessibility) field sufficiently'
             ' describes the image..')))
         self.widgets['alt_text_ext'].new_value.connect(self.new_value)
-        layout.addRow(translate('DescriptiveTab',
-                                'Extended Description<br>(Accessibility)'),
-                      self.widgets['alt_text_ext'])
+        layout.addRow(
+            Label(translate('DescriptiveTab',
+                            'Extended Description (Accessibility)'), lines=2),
+            self.widgets['alt_text_ext'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, multi_string=True,
