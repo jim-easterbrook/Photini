@@ -885,29 +885,6 @@ valgt</numerusform>
     </message>
 </context>
 <context>
-    <name>LocationInfo</name>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="vanished">Skriv inn navnet på byen.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="vanished">Skriv inn navet på landet.</translation>
-    </message>
-    <message>
-        <source>Street</source>
-        <translation type="vanished">Gate</translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation type="vanished">By</translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation type="vanished">Land</translation>
-    </message>
-</context>
-<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -954,50 +931,6 @@ valgt</numerusform>
     <message>
         <source>Map (&amp;Mapbox)</source>
         <translation>Kart (&amp;Mapbox)</translation>
-    </message>
-</context>
-<context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>Altitude</source>
-        <translation type="vanished">Høyde</translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation type="vanished">Hent høyde fra kartet</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="vanished">Søk</translation>
-    </message>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="vanished">&lt;nytt søk&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="vanished">&lt;øk søket&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
-        <translation type="obsolete">&lt;gjenta søk&gt;</translation>
-    </message>
-    <message>
-        <source>Load GPX file</source>
-        <translation type="vanished">Last inn GPX-fil</translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="obsolete">Sett koordinater fra GPX</translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="vanished">Fjern GPX-data</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;gjenta søk&gt;</translation>
     </message>
 </context>
 <context>
@@ -1355,104 +1288,6 @@ mal</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;gjenta søk&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>PhotiniUploader</name>
-    <message>
-        <source>Close window</source>
-        <translation type="vanished">Lukk vindu</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="vanished">Logg inn</translation>
-    </message>
-    <message>
-        <source>Log out</source>
-        <translation type="vanished">Logg ut</translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
-        <translation type="vanished">Legg til i album</translation>
-    </message>
-    <message>
-        <source>Start upload</source>
-        <translation type="vanished">Start opplasting</translation>
-    </message>
-    <message>
-        <source>Stop upload</source>
-        <translation type="vanished">Stopp opplasting</translation>
-    </message>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: laster opp …</translation>
-    </message>
-    <message>
-        <source>Incompatible image type.</source>
-        <translation type="vanished">Inkompatibel bildetype.</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">Framdrift</translation>
-    </message>
-    <message>
-        <source>Photini: upload error</source>
-        <translation type="vanished">Photini: opplastingsfeil</translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="vanished">Kunne ikke laste opp filen «{}».</translation>
-    </message>
-    <message>
-        <source>Replace photo</source>
-        <translation type="vanished">Erstatt bilde</translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="vanished">Erstatt bilde</translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="vanished">Last opp som nytt bilde</translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="vanished">Velg et bilde</translation>
-    </message>
-</context>
-<context>
-    <name>RightsDropDown</name>
-    <message>
-        <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="vanished">Navngivelse 4.0 (CC BY 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="vanished">Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="vanished">Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="vanished">Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="vanished">Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="vanished">Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
-    </message>
-    <message>
-        <source>Public Domain Mark 1.0</source>
-        <translation type="vanished">Public Domain-Merket 1.0</translation>
     </message>
 </context>
 <context>

@@ -830,53 +830,6 @@ selected</numerusform>
     </message>
 </context>
 <context>
-    <name>LocationInfo</name>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="vanished">Zadejte název dílčího umístění.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="vanished">Zadejte název města.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="vanished">Zadejte název provincie nebo státu.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="vanished">Zadejte název země.</translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="vanished">Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="vanished">Zadejte název světové oblasti.</translation>
-    </message>
-    <message>
-        <source>Street</source>
-        <translation type="vanished">Ulice</translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation type="vanished">Město</translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation type="vanished">Provincie</translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation type="vanished">Země</translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="vanished">Kraj</translation>
-    </message>
-</context>
-<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -923,45 +876,6 @@ selected</numerusform>
     <message>
         <source>Map (&amp;Mapbox)</source>
         <translation>Mapa (&amp;Mapbox)</translation>
-    </message>
-</context>
-<context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>Altitude</source>
-        <translation type="vanished">Výšina</translation>
-    </message>
-    <message>
-        <source>Get altitude from map</source>
-        <translation type="vanished">Získejte nadmořskou výšku z mapy</translation>
-    </message>
-    <message>
-        <source>Search</source>
-        <translation type="vanished">Hledat</translation>
-    </message>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="vanished">&lt;new search&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="vanished">&lt;widen search&gt;</translation>
-    </message>
-    <message>
-        <source>Load GPX file</source>
-        <translation type="vanished">Nahrát soubor GPX</translation>
-    </message>
-    <message>
-        <source>Set coords from GPX</source>
-        <translation type="vanished">Nastavit souřadnice z GPX</translation>
-    </message>
-    <message>
-        <source>Remove GPX data</source>
-        <translation type="vanished">Odstranit data GPX</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;repeat search&gt;</translation>
     </message>
 </context>
 <context>
@@ -1053,17 +967,6 @@ selected</numerusform>
     <message>
         <source>Selected images</source>
         <translation>Vybrané obrázky</translation>
-    </message>
-</context>
-<context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation type="vanished">Vyhledávání adresy napájeno OpenCage</translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="vanished">Zeměpisné údaje © OpenStreetMap přispěvatelé</translation>
     </message>
 </context>
 <context>
@@ -1314,132 +1217,6 @@ selected</numerusform>
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;repeat search&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>PhotiniUploader</name>
-    <message>
-        <source>Close window</source>
-        <translation type="vanished">Zavřít okno</translation>
-    </message>
-    <message>
-        <source>You may now close this browser window.</source>
-        <translation type="vanished">nyní můžete zavřít okno prohlížeče.</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="vanished">Přihlásit se</translation>
-    </message>
-    <message>
-        <source>Log out</source>
-        <translation type="vanished">Odhlásit se</translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
-        <translation type="vanished">Přidat do alb</translation>
-    </message>
-    <message>
-        <source>Start upload</source>
-        <translation type="vanished">Spustit nahrávání</translation>
-    </message>
-    <message>
-        <source>Stop upload</source>
-        <translation type="vanished">Zastavit nahrávání</translation>
-    </message>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation type="vanished">Probíhá nahrávání</translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="vanished">Nepřihlášen do {}</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="vanished">Neslučující se typ</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">Postup</translation>
-    </message>
-    <message>
-        <source>Photini: upload error</source>
-        <translation type="vanished">Chyba při nahrávání</translation>
-    </message>
-    <message>
-        <source>Replace photo</source>
-        <translation type="vanished">Nahradit fotografii</translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="vanished">Nahradit obrázek</translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="vanished">Nahrát jako novou fotografii</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="vanished">Nenahrán žádný obrázek</translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="vanished">Vybrat obrázek</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="vanished">Žádná shoda</translation>
-    </message>
-</context>
-<context>
-    <name>RightsDropDown</name>
-    <message>
-        <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="vanished">Uveďte původ 4.0 (CC BY 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="vanished">Uveďte původ-Zachovejte licenci 4.0 (CC BY-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="vanished">Uveďte původ-Neužívejte komerčně 4.0 (CC BY-NC 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="vanished">Uveďte původ-Neužívejte dílo komerčně-Zachovejte licenci 4.0 (CC BY-NC-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="vanished">Uveďte původ-Nezpracovávejte 4.0 (CC BY-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="vanished">Uveďte původ-Neužívejte komerčně-Nezpracovávejte 4.0 (CC BY-NC-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="vanished">CC0 1.0 Univerzální (CC0 1.0) Potvrzení o statusu volného díla</translation>
-    </message>
-    <message>
-        <source>Public Domain Mark 1.0</source>
-        <translation type="vanished">Označení volného díla 1.0</translation>
     </message>
 </context>
 <context>

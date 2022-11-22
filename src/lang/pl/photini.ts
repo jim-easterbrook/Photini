@@ -894,22 +894,6 @@ zdjęcie</translation>
     </message>
 </context>
 <context>
-    <name>MapTabsAll</name>
-    <message>
-        <source>&lt;new search&gt;</source>
-        <translation type="vanished">&lt;nowe wyszukiwanie&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <comment>repeat</comment>
-        <translation type="obsolete">&lt;powtórz wyszukiwanie&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;powtórz wyszukiwanie&gt;</translation>
-    </message>
-</context>
-<context>
     <name>MenuBar</name>
     <message>
         <source>Photini photo metadata editor</source>
@@ -1248,68 +1232,6 @@ zdjęcie</translation>
     <message>
         <source>&lt;repeat search&gt;</source>
         <translation>&lt;powtórz wyszukiwanie&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>PhotiniUploader</name>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: postęp przesyłania</translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="vanished">Przesyłanie do {} nie jest zakończone.</translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Zamknięcie w tej chwili zakończy wysyłanie.</translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="vanished">Photini: niezgodny typ</translation>
-    </message>
-    <message>
-        <source>Incompatible image type.</source>
-        <translation type="vanished">Niezgodny typ obrazu.</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="vanished">Postęp</translation>
-    </message>
-</context>
-<context>
-    <name>RightsDropDown</name>
-    <message>
-        <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa 4.0 (CC BY 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa-Na tych samych warunkach 4.0 (CC BY-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa-Użycie niekomercyjne 4.0 (CC BY-NC 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa-Użycie niekomercyjne-Na tych samych warunkach 4.0 (CC BY-NC-SA 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa - Bez utworów zależnych 4.0 (CC BY-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="vanished">Uznanie autorstwa - Użycie niekomercyjne - Bez utworów zależnych 4.0 (CC BY-NC-ND 4.0)</translation>
-    </message>
-    <message>
-        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Przekazanie do Domeny Publicznej</translation>
-    </message>
-    <message>
-        <source>Public Domain Mark 1.0</source>
-        <translation type="vanished">Znak domeny publicznej 1.0</translation>
     </message>
 </context>
 <context>
