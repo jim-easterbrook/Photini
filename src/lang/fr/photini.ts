@@ -2,37 +2,26 @@
 <!DOCTYPE TS>
 <TS language="fr" sourcelanguage="en_GB" version="2.1">
 <context>
-    <name></name>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="vanished">&lt;Recherche avancée&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;répéter la recherche&gt;</translation>
-    </message>
-</context>
-<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Rue</translation>
+        <translation>Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">Ville</translation>
+        <translation>Ville</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="vanished">Département</translation>
+        <translation>Département</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">Pays</translation>
+        <translation>Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="vanished">Région</translation>
+        <translation>Région</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -60,27 +49,27 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="vanished">Saisissez le nom du sous-emplacement.</translation>
+        <translation>Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="vanished">Saisissez le nom de la ville.</translation>
+        <translation>Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="vanished">Saisissez le nom de la province, région ou État.</translation>
+        <translation>Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="vanished">Saisissez le nom du pays.</translation>
+        <translation>Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="vanished">Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="vanished">Saisissez le nom de la région du monde.</translation>
+        <translation>Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -89,6 +78,14 @@
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
         <translation>Saisissez les informations d’un emplacement, comme le montre cette image.</translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
@@ -923,47 +920,47 @@ sélectionnés</numerusform>
     <name>LocationInfo</name>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Saisissez le nom du sous-emplacement.</translation>
+        <translation type="vanished">Saisissez le nom du sous-emplacement.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Saisissez le nom de la ville.</translation>
+        <translation type="vanished">Saisissez le nom de la ville.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Saisissez le nom de la province, région ou État.</translation>
+        <translation type="vanished">Saisissez le nom de la province, région ou État.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Saisissez le nom du pays.</translation>
+        <translation type="vanished">Saisissez le nom du pays.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
+        <translation type="vanished">Saisissez le code ISO 3166 à 2 ou 3 lettres du pays.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Saisissez le nom de la région du monde.</translation>
+        <translation type="vanished">Saisissez le nom de la région du monde.</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation>Rue</translation>
+        <translation type="vanished">Rue</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ville</translation>
+        <translation type="vanished">Ville</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Département</translation>
+        <translation type="vanished">Département</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Pays</translation>
+        <translation type="vanished">Pays</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Région</translation>
+        <translation type="vanished">Région</translation>
     </message>
 </context>
 <context>
@@ -1168,11 +1165,11 @@ fournie par Bing</translation>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Recherche d&apos;adresse propulsée par OpenCage</translation>
+        <translation type="vanished">Recherche d&apos;adresse propulsée par OpenCage</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodata © Contributeurs de OpenStreetMap</translation>
+        <translation type="vanished">Geodata © Contributeurs de OpenStreetMap</translation>
     </message>
 </context>
 <context>
@@ -1344,6 +1341,58 @@ le modèle</translation>
         <translation>Initialiser le modèle</translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation>Tous droits réservés</translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Attribution 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Marque du Domaine Public 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation>Définir une nouvelle licence</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+    </message>
+    <message>
         <source>Edit template</source>
         <translation>Modifier le modèle</translation>
     </message>
@@ -1399,182 +1448,182 @@ le modèle</translation>
     <name>PhotiniUploader</name>
     <message>
         <source>Close window</source>
-        <translation>Fermer la fenêtre</translation>
+        <translation type="vanished">Fermer la fenêtre</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Vous pouvez désormais fermer cette fenêtre.</translation>
+        <translation type="vanished">Vous pouvez désormais fermer cette fenêtre.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Se connecter</translation>
+        <translation type="vanished">Se connecter</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Se déconnecter</translation>
+        <translation type="vanished">Se déconnecter</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Ajouter aux albums</translation>
+        <translation type="vanished">Ajouter aux albums</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Démarrer l&apos;import</translation>
+        <translation type="vanished">Démarrer l&apos;import</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Arrêter l&apos;import</translation>
+        <translation type="vanished">Arrêter l&apos;import</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini&#xa0;: Import en cours</translation>
+        <translation type="vanished">Photini&#xa0;: Import en cours</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
+        <translation type="vanished">L&apos;import vers {} n&apos;est pas terminé.</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Fermer maintenant arrêtera l&apos;import.</translation>
+        <translation type="vanished">Fermer maintenant arrêtera l&apos;import.</translation>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Connecté en tant que {0} sur {1}</translation>
+        <translation type="vanished">Connecté en tant que {0} sur {1}</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Non connecté à {}</translation>
+        <translation type="vanished">Non connecté à {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Photini&#xa0;: Type incompatible</translation>
+        <translation type="vanished">Photini&#xa0;: Type incompatible</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Type d&apos;image incompatible.</translation>
+        <translation type="vanished">Type d&apos;image incompatible.</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Progression</translation>
+        <translation type="vanished">Progression</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini&#xa0;: Erreur d&apos;import</translation>
+        <translation type="vanished">Photini&#xa0;: Erreur d&apos;import</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation>Photini&#xa0;: Autoriser</translation>
+        <translation type="vanished">Photini&#xa0;: Autoriser</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation>Autorisation requise</translation>
+        <translation type="vanished">Autorisation requise</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation>Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
+        <translation type="vanished">Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Remplacer la photo</translation>
+        <translation type="vanished">Remplacer la photo</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+        <translation type="vanished">Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Remplacer l&apos;image</translation>
+        <translation type="vanished">Remplacer l&apos;image</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Importer comme nouvelle photo</translation>
+        <translation type="vanished">Importer comme nouvelle photo</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Aucune image importée</translation>
+        <translation type="vanished">Aucune image importée</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Sélectionner une image</translation>
+        <translation type="vanished">Sélectionner une image</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+        <translation type="vanished">Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Aucune correspondance</translation>
+        <translation type="vanished">Aucune correspondance</translation>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
-        <translation>Tous droits réservés</translation>
+        <translation type="vanished">Tous droits réservés</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Attribution 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Attribution 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
+        <translation type="vanished">CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Marque du Domaine Public 1.0</translation>
+        <translation type="vanished">Marque du Domaine Public 1.0</translation>
     </message>
     <message>
         <source>Define new licence</source>
-        <translation>Définir une nouvelle licence</translation>
+        <translation type="vanished">Définir une nouvelle licence</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation type="vanished">URL</translation>
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
     </message>
 </context>
 <context>
@@ -1831,67 +1880,67 @@ le modèle</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="vanished">Fermer la fenêtre</translation>
+        <translation>Fermer la fenêtre</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="vanished">Vous pouvez désormais fermer cette fenêtre.</translation>
+        <translation>Vous pouvez désormais fermer cette fenêtre.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">Se connecter</translation>
+        <translation>Se connecter</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">Se déconnecter</translation>
+        <translation>Se déconnecter</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="vanished">Démarrer l&apos;import</translation>
+        <translation>Démarrer l&apos;import</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="vanished">Arrêter l&apos;import</translation>
+        <translation>Arrêter l&apos;import</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="vanished">Progression</translation>
+        <translation>Progression</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini&#xa0;: Import en cours</translation>
+        <translation>Photini&#xa0;: Import en cours</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Fermer maintenant arrêtera l&apos;import.</translation>
+        <translation>Fermer maintenant arrêtera l&apos;import.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation type="vanished">Non connecté à {}</translation>
+        <translation>Non connecté à {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation type="vanished">Photini&#xa0;: Type incompatible</translation>
+        <translation>Photini&#xa0;: Type incompatible</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="vanished">Photini&#xa0;: Erreur d&apos;import</translation>
+        <translation>Photini&#xa0;: Erreur d&apos;import</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="vanished">Ajouter aux albums</translation>
+        <translation>Ajouter aux albums</translation>
     </message>
     <message>
         <source>Logged in as&lt;br&gt;{0} on {1}</source>
@@ -1899,63 +1948,63 @@ le modèle</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
-        <translation type="vanished">Photini&#xa0;: Autoriser</translation>
+        <translation>Photini&#xa0;: Autoriser</translation>
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="vanished">Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
+        <translation>Veuillez utiliser votre navigateur Web pour autoriser Photini, puis fermez cette fenêtre.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="vanished">Remplacer la photo</translation>
+        <translation>Remplacer la photo</translation>
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="vanished">Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="vanished">Remplacer l&apos;image</translation>
+        <translation>Remplacer l&apos;image</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="vanished">Importer comme nouvelle photo</translation>
+        <translation>Importer comme nouvelle photo</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="vanished">Aucune image importée</translation>
+        <translation>Aucune image importée</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="vanished">Sélectionner une image</translation>
+        <translation>Sélectionner une image</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="vanished">Aucune correspondance</translation>
+        <translation>Aucune correspondance</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="vanished">L&apos;import vers {} n&apos;est pas terminé.</translation>
+        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="vanished">Type d&apos;image incompatible.</translation>
+        <translation>Type d&apos;image incompatible.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="vanished">Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Authorisation required</source>
-        <translation type="vanished">Autorisation requise</translation>
+        <translation>Autorisation requise</translation>
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation type="vanished">Connecté en tant que {0} sur {1}</translation>
+        <translation>Connecté en tant que {0} sur {1}</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation type="vanished">Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
 </context>
 <context>

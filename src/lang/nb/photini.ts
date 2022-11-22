@@ -2,29 +2,18 @@
 <!DOCTYPE TS>
 <TS language="nb" sourcelanguage="en_GB" version="2.1">
 <context>
-    <name></name>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="vanished">&lt;øk søket&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="vanished">&lt;gjenta søk&gt;</translation>
-    </message>
-</context>
-<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Gate</translation>
+        <translation>Gate</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">By</translation>
+        <translation>By</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">Land</translation>
+        <translation>Land</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -52,11 +41,11 @@
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="vanished">Skriv inn navnet på byen.</translation>
+        <translation>Skriv inn navnet på byen.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="vanished">Skriv inn navet på landet.</translation>
+        <translation>Skriv inn navet på landet.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -64,6 +53,38 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Region</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -866,48 +887,24 @@ valgt</numerusform>
 <context>
     <name>LocationInfo</name>
     <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the name of the city.</source>
-        <translation>Skriv inn navnet på byen.</translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Skriv inn navnet på byen.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Skriv inn navet på landet.</translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Skriv inn navet på landet.</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation>Gate</translation>
+        <translation type="vanished">Gate</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>By</translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">By</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Land</translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Land</translation>
     </message>
 </context>
 <context>
@@ -1099,17 +1096,6 @@ valgt</numerusform>
     </message>
 </context>
 <context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>OwnerTab</name>
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
@@ -1244,6 +1230,58 @@ mal</translation>
         <translation>Bruksvilkår</translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Navngivelse 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Public Domain-Merket 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1323,182 +1361,98 @@ mal</translation>
     <name>PhotiniUploader</name>
     <message>
         <source>Close window</source>
-        <translation>Lukk vindu</translation>
-    </message>
-    <message>
-        <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Lukk vindu</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Logg inn</translation>
+        <translation type="vanished">Logg inn</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Logg ut</translation>
+        <translation type="vanished">Logg ut</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Legg til i album</translation>
+        <translation type="vanished">Legg til i album</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Start opplasting</translation>
+        <translation type="vanished">Start opplasting</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Stopp opplasting</translation>
+        <translation type="vanished">Stopp opplasting</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini: laster opp …</translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Photini: laster opp …</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Inkompatibel bildetype.</translation>
+        <translation type="vanished">Inkompatibel bildetype.</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Framdrift</translation>
+        <translation type="vanished">Framdrift</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini: opplastingsfeil</translation>
+        <translation type="vanished">Photini: opplastingsfeil</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Kunne ikke laste opp filen «{}».</translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Kunne ikke laste opp filen «{}».</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Erstatt bilde</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Erstatt bilde</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Erstatt bilde</translation>
+        <translation type="vanished">Erstatt bilde</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Last opp som nytt bilde</translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Last opp som nytt bilde</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Velg et bilde</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Velg et bilde</translation>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Navngivelse 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Navngivelse 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
+        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Public Domain-Merket 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Public Domain-Merket 1.0</translation>
     </message>
 </context>
 <context>
@@ -1715,70 +1669,134 @@ mal</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="vanished">Lukk vindu</translation>
+        <translation>Lukk vindu</translation>
+    </message>
+    <message>
+        <source>You may now close this browser window.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">Logg inn</translation>
+        <translation>Logg inn</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">Logg ut</translation>
+        <translation>Logg ut</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="vanished">Start opplasting</translation>
+        <translation>Start opplasting</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="vanished">Stopp opplasting</translation>
+        <translation>Stopp opplasting</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing now will terminate the upload.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: incompatible type</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="vanished">Framdrift</translation>
+        <translation>Framdrift</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No match</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: laster opp …</translation>
+        <translation>Photini: laster opp …</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="vanished">Photini: opplastingsfeil</translation>
+        <translation>Photini: opplastingsfeil</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="vanished">Legg til i album</translation>
+        <translation>Legg til i album</translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="vanished">Erstatt bilde</translation>
+        <translation>Erstatt bilde</translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="vanished">Erstatt bilde</translation>
+        <translation>Erstatt bilde</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="vanished">Last opp som nytt bilde</translation>
+        <translation>Last opp som nytt bilde</translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="vanished">Velg et bilde</translation>
+        <translation>Velg et bilde</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="vanished">Inkompatibel bildetype.</translation>
+        <translation>Inkompatibel bildetype.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="obsolete">Kunne ikke laste opp filen «{}».</translation>
+        <translation>Kunne ikke laste opp filen «{}».</translation>
     </message>
 </context>
 <context>
     <name>Widgets</name>
     <message>
         <source>&lt;multiple&gt;</source>
-        <translation type="unfinished">&lt;flere&gt;</translation>
+        <translation>&lt;flere&gt;</translation>
     </message>
     <message>
         <source>&lt;multiple values&gt;</source>

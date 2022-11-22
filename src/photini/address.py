@@ -25,7 +25,7 @@ import requests
 
 from photini.configstore import key_store
 from photini.metadata import ImageMetadata
-from photini.photinimap import GeocoderBase, LatLongDisplay
+from photini.photinimap import GeocoderBase
 from photini.pyqt import *
 from photini.types import MD_Location
 from photini.widgets import CompactButton, LatLongDisplay, SingleLineEdit
@@ -146,11 +146,11 @@ class OpenCage(GeocoderBase):
         return MD_Location.from_address(address, self.address_map)
 
     def search_terms(self):
-        text = self.tr('Address lookup powered by OpenCage')
+        text = translate('AddressTab', 'Address lookup powered by OpenCage')
         tou_opencage = CompactButton(text)
         tou_opencage.clicked.connect(self.load_tou_opencage)
         tou_osm = CompactButton(
-            self.tr('Geodata © OpenStreetMap contributors'))
+            translate('AddressTab', 'Geodata © OpenStreetMap contributors'))
         tou_osm.clicked.connect(self.load_tou_osm)
         return [tou_opencage, tou_osm]
 
@@ -183,22 +183,24 @@ class LocationInfo(QtWidgets.QWidget):
             self.members[key].new_value.connect(self.editing_finished)
         self.members['CountryCode'].setMaximumWidth(
             width_for_text(self.members['CountryCode'], 'W' * 4))
-        self.members['SubLocation'].setToolTip('<p>' + self.tr(
-            'Enter the name of the sublocation.') + '</p>')
-        self.members['City'].setToolTip('<p>' + self.tr(
-            'Enter the name of the city.') + '</p>')
-        self.members['ProvinceState'].setToolTip('<p>' + self.tr(
-            'Enter the name of the province or state.') + '</p>')
-        self.members['CountryName'].setToolTip('<p>' + self.tr(
-            'Enter the name of the country.') + '<p>')
-        self.members['CountryCode'].setToolTip('<p>' + self.tr(
-            'Enter the 2 or 3 letter ISO 3166 country code of the country.'
-            ) + '</p>')
-        self.members['WorldRegion'].setToolTip('<p>' + self.tr(
-            'Enter the name of the world region.') + '</p>')
-        for j, text in enumerate((
-                self.tr('Street'), self.tr('City'), self.tr('Province'),
-                self.tr('Country'), self.tr('Region'))):
+        self.members['SubLocation'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the sublocation.')))
+        self.members['City'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the city.')))
+        self.members['ProvinceState'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the province or state.')))
+        self.members['CountryName'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the country.')))
+        self.members['CountryCode'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab',
+            'Enter the 2 or 3 letter ISO 3166 country code of the country.')))
+        self.members['WorldRegion'].setToolTip('<p>{}</p>'.format(translate(
+            'AddressTab', 'Enter the name of the world region.')))
+        for j, text in enumerate((translate('AddressTab', 'Street'),
+                                  translate('AddressTab', 'City'),
+                                  translate('AddressTab', 'Province'),
+                                  translate('AddressTab', 'Country'),
+                                  translate('AddressTab', 'Region'))):
             label = QtWidgets.QLabel(text)
             label.setAlignment(Qt.AlignmentFlag.AlignRight)
             layout.addWidget(label, j, 0)
@@ -233,27 +235,26 @@ class QTabBar(QtWidgets.QTabBar):
         self.context_menu.emit(event)
 
 
-class AddressTab(QtWidgets.QWidget):
+class TabWidget(QtWidgets.QWidget):
     @staticmethod
     def tab_name():
         return translate('AddressTab', '&Address')
 
-    def __init__(self, image_list, parent=None):
-        super(AddressTab, self).__init__(parent)
+    def __init__(self, parent=None):
+        super(TabWidget, self).__init__(parent)
         self.app = QtWidgets.QApplication.instance()
         self.geocoder = OpenCage(parent=self)
-        self.image_list = image_list
         self.setLayout(QtWidgets.QHBoxLayout())
         ## left side
         left_side = QtWidgets.QGridLayout()
         # latitude & longitude
-        self.coords = LatLongDisplay(self.image_list)
+        self.coords = LatLongDisplay()
         left_side.addWidget(self.coords.label, 0, 0)
         self.coords.changed.connect(self.new_coords)
         left_side.addWidget(self.coords, 0, 1)
         # convert lat/lng to location info
         self.auto_location = QtWidgets.QPushButton(
-            self.tr('Get address from lat, long'))
+            translate('AddressTab', 'Get address from lat, long'))
         self.auto_location.setEnabled(False)
         self.auto_location.clicked.connect(self.get_address)
         left_side.addWidget(self.auto_location, 1, 0, 1, 2)
@@ -278,7 +279,7 @@ class AddressTab(QtWidgets.QWidget):
         self.layout().addWidget(self.location_info, stretch=1)
 
     def refresh(self):
-        self.new_selection(self.image_list.get_selected_images())
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def do_not_close(self):
         return False
@@ -294,15 +295,17 @@ class AddressTab(QtWidgets.QWidget):
         idx = self.location_info.tabBar().tabAt(event.pos())
         self.location_info.setCurrentIndex(idx)
         menu = QtWidgets.QMenu(self)
-        menu.addAction(self.tr('Duplicate location'), self.duplicate_location)
-        menu.addAction(self.tr('Delete location'), self.delete_location)
+        menu.addAction(translate(
+            'AddressTab', 'Duplicate location'), self.duplicate_location)
+        menu.addAction(translate(
+            'AddressTab', 'Delete location'), self.delete_location)
         action = execute(menu, event.globalPos())
 
     @QtSlot()
     @catch_all
     def duplicate_location(self):
         idx = self.location_info.currentIndex()
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             # duplicate data
             location = MD_Location(self._get_location(image, idx) or {})
             # shuffle data up
@@ -316,7 +319,7 @@ class AddressTab(QtWidgets.QWidget):
     @catch_all
     def delete_location(self):
         idx = self.location_info.currentIndex()
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             # shuffle data down
             location_list = list(image.metadata.location_shown or [])
             if idx == 0:
@@ -343,7 +346,7 @@ class AddressTab(QtWidgets.QWidget):
     def _location_tab_moved(self):
         idx_a, idx_b = self.pending_move
         # swap data
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             temp_a = self._get_location(image, idx_a)
             temp_b = self._get_location(image, idx_b)
             self._set_location(image, idx_a, temp_b)
@@ -376,7 +379,7 @@ class AddressTab(QtWidgets.QWidget):
     @QtSlot(object, dict)
     @catch_all
     def new_location(self, widget, new_value, images=[]):
-        images = images or self.image_list.get_selected_images()
+        images = images or self.app.image_list.get_selected_images()
         idx = self.location_info.indexOf(widget)
         for image in images:
             temp = dict(self._get_location(image, idx) or {})
@@ -388,20 +391,20 @@ class AddressTab(QtWidgets.QWidget):
 
     def set_tab_text(self, idx):
         if idx == 0:
-            text = self.tr('camera')
-            tip = self.tr('Enter the details about a location'
-                          ' where this image was created.')
+            text = translate('AddressTab', 'camera')
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' where this image was created.')
         else:
-            text = self.tr('subject {}').format(idx)
-            tip = self.tr('Enter the details about a location'
-                          ' which is shown in this image.')
+            text = translate('AddressTab', 'subject {}').format(idx)
+            tip = translate('AddressTab', 'Enter the details about a location'
+                            ' which is shown in this image.')
         self.location_info.setTabText(idx, text)
         self.location_info.setTabToolTip(idx, '<p>' + tip + '</p>')
 
     @QtSlot()
     @catch_all
     def display_location(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         # get required number of tabs
         count = 0
         for image in images:
@@ -456,12 +459,8 @@ class AddressTab(QtWidgets.QWidget):
     @QtSlot()
     @catch_all
     def get_address(self):
-        images = self.image_list.get_selected_images()
+        images = self.app.image_list.get_selected_images()
         location = self.geocoder.get_address(self.coords.get_value())
         if location:
             self.new_location(
                 self.location_info.currentWidget(), location, images)
-
-
-class TabWidget(AddressTab):
-    pass

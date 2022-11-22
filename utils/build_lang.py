@@ -16,8 +16,6 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
-
 import os
 import subprocess
 import sys
@@ -32,7 +30,7 @@ def main(argv=None):
         src_file = os.path.join(src_dir, name, 'photini.ts')
         if not os.path.exists(src_file):
             continue
-        cmd = ['lrelease-qt5', src_file,
+        cmd = ['pyside6-lrelease', src_file,
                '-qm', os.path.join(dst_dir, 'photini.' + name + '.qm')]
         result = subprocess.call(cmd)
         if result:

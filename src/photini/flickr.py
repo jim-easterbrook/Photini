@@ -328,7 +328,7 @@ class HiddenWidget(QtWidgets.QCheckBox):
         return ('1', '2')[self.isChecked()]
 
 
-class FlickrTab(PhotiniUploader):
+class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = FlickrSession
 
@@ -337,7 +337,7 @@ class FlickrTab(PhotiniUploader):
         return translate('FlickrTab', '&Flickr upload')
 
     def config_columns(self):
-        self.service_name = self.tr('Flickr')
+        self.service_name = translate('FlickrTab', 'Flickr')
         self.replace_prefs = {'metadata': True}
         self.upload_prefs = {}
         ## first column
@@ -348,31 +348,33 @@ class FlickrTab(PhotiniUploader):
         group.setLayout(FormLayout(wrapped=True))
         # privacy
         self.widget['privacy'] = DropDownSelector(
-            'privacy', values = ((self.tr('Public'), '1'),
-                                 (self.tr('Private'), '5'),
-                                 (self.tr('Friends'), '2'),
-                                 (self.tr('Family'), '3'),
-                                 (self.tr('Friends & family'), '4')),
+            'privacy', values = (
+                (translate('FlickrTab', 'Public'), '1'),
+                (translate('FlickrTab', 'Private'), '5'),
+                (translate('FlickrTab', 'Friends'), '2'),
+                (translate('FlickrTab', 'Family'), '3'),
+                (translate('FlickrTab', 'Friends & family'), '4')),
             default='1', with_multiple=False)
-        group.layout().addRow(
-            self.tr('Viewing privacy'), self.widget['privacy'])
+        group.layout().addRow(translate('FlickrTab', 'Viewing privacy'),
+                              self.widget['privacy'])
         # permissions
-        values = ((self.tr('Only you'), '0'),
-                  (self.tr('Friends & family'), '1'),
-                  (self.tr('People you follow'), '2'),
-                  (self.tr('Any Flickr member'), '3'))
+        values = ((translate('FlickrTab', 'Only you'), '0'),
+                  (translate('FlickrTab', 'Friends & family'), '1'),
+                  (translate('FlickrTab', 'People you follow'), '2'),
+                  (translate('FlickrTab', 'Any Flickr member'), '3'))
         self.widget['perm_comment'] = DropDownSelector(
             'perm_comment', values=values, default='3', with_multiple=False)
-        group.layout().addRow(
-            self.tr('Allow commenting'), self.widget['perm_comment'])
+        group.layout().addRow(translate('FlickrTab', 'Allow commenting'),
+                              self.widget['perm_comment'])
         self.widget['perm_addmeta'] = DropDownSelector(
             'perm_addmeta', values=values, default='2', with_multiple=False)
-        group.layout().addRow(
-            self.tr('Allow tags and notes'), self.widget['perm_addmeta'])
+        group.layout().addRow(translate('FlickrTab', 'Allow tags and notes'),
+                              self.widget['perm_addmeta'])
         # licence
         self.widget['license_id'] = DropDownSelector(
             'license_id', with_multiple=False)
-        group.layout().addRow(self.tr('Licence'), self.widget['license_id'])
+        group.layout().addRow(translate('FlickrTab', 'Licence'),
+                              self.widget['license_id'])
         column.addWidget(group, 0, 0)
         yield column
         ## second column
@@ -383,30 +385,34 @@ class FlickrTab(PhotiniUploader):
         group.setLayout(FormLayout(wrapped=True))
         # safety level
         self.widget['safety_level'] = DropDownSelector(
-            'safety_level', values=((self.tr('Safe'), '1'),
-                                    (self.tr('Moderate'), '2'),
-                                    (self.tr('Restricted'), '3')),
+            'safety_level', values=(
+                (translate('FlickrTab', 'Safe'), '1'),
+                (translate('FlickrTab', 'Moderate'), '2'),
+                (translate('FlickrTab', 'Restricted'), '3')),
             default='1', with_multiple=False)
-        group.layout().addRow(
-            self.tr('Safety level'), self.widget['safety_level'])
-        self.widget['hidden'] = HiddenWidget(self.tr('Hide from search'))
+        group.layout().addRow(translate('FlickrTab', 'Safety level'),
+                              self.widget['safety_level'])
+        self.widget['hidden'] = HiddenWidget(
+            translate('FlickrTab', 'Hide from search'))
         group.layout().addRow(self.widget['hidden'])
         # content type
         self.widget['content_type'] = DropDownSelector(
-            'content_type', values=((self.tr('Photo'), '1'),
-                                    (self.tr('Screenshot'), '2'),
-                                    (self.tr('Art/Illustration'), '3'),
-                                    (self.tr('Virtual Photography'), '4')),
+            'content_type', values=(
+                (translate('FlickrTab', 'Photo'), '1'),
+                (translate('FlickrTab', 'Screenshot'), '2'),
+                (translate('FlickrTab', 'Art/Illustration'), '3'),
+                (translate('FlickrTab', 'Virtual Photography'), '4')),
             default='1', with_multiple=False)
-        group.layout().addRow(
-            self.tr('Content type'), self.widget['content_type'])
+        group.layout().addRow(translate('FlickrTab', 'Content type'),
+                              self.widget['content_type'])
         column.addWidget(group, 0, 0)
         # synchronise metadata
-        self.buttons['sync'] = QtWidgets.QPushButton(self.tr('Synchronise'))
+        self.buttons['sync'] = QtWidgets.QPushButton(
+            translate('FlickrTab', 'Synchronise'))
         self.buttons['sync'].clicked.connect(self.sync_metadata)
         column.addWidget(self.buttons['sync'], 1, 0)
         # create new set
-        button = QtWidgets.QPushButton(self.tr('New album'))
+        button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
         button.clicked.connect(self.new_set)
         column.addWidget(button, 2, 0)
         yield column
@@ -472,7 +478,7 @@ class FlickrTab(PhotiniUploader):
         if not params['function']:
             return None
         convert = super(
-            FlickrTab, self).get_conversion_function(image, params)
+            TabWidget, self).get_conversion_function(image, params)
         if convert == 'omit':
             return convert
         max_size = 2 ** 30
@@ -480,12 +486,13 @@ class FlickrTab(PhotiniUploader):
         if size < max_size:
             return convert
         dialog = QtWidgets.QMessageBox(parent=self)
-        dialog.setWindowTitle(self.tr('Photini: too large'))
-        dialog.setText('<h3>{}</h3>'.format(self.tr('File too large.')))
-        dialog.setInformativeText(
-            self.tr('File "{0}" has {1} bytes and exceeds Flickr\'s limit' +
-                    ' of {2} bytes.').format(
-                        os.path.basename(image.path), size, max_size))
+        dialog.setWindowTitle(translate('FlickrTab', 'Photini: too large'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('FlickrTab', 'File too large.')))
+        dialog.setInformativeText(translate(
+            'FlickrTab', 'File "{0}" has {1} bytes and exceeds Flickr\'s limit'
+            ' of {2} bytes.').format(
+                os.path.basename(image.path), size, max_size))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Ignore)
         execute(dialog)
@@ -555,16 +562,17 @@ class FlickrTab(PhotiniUploader):
         return params
 
     def replace_dialog(self, image):
-        return super(FlickrTab, self).replace_dialog(image, (
-            ('metadata', self.tr('Replace metadata')),
-            ('privacy', self.tr('Change viewing privacy')),
-            ('permissions',
-             self.tr('Change who can comment or tag (and viewing privacy)')),
-            ('safety_level', self.tr('Change safety level')),
-            ('hidden', self.tr('Change hide from search')),
-            ('licence', self.tr('Change licence')),
-            ('content_type', self.tr('Change content type')),
-            ('albums', self.tr('Change album membership'))))
+        return super(TabWidget, self).replace_dialog(image, (
+            ('metadata', translate('FlickrTab', 'Replace metadata')),
+            ('privacy', translate('FlickrTab', 'Change viewing privacy')),
+            ('permissions', translate(
+                'FlickrTab',
+                'Change who can comment or tag (and viewing privacy)')),
+            ('safety_level', translate('FlickrTab', 'Change safety level')),
+            ('hidden', translate('FlickrTab', 'Change hide from search')),
+            ('licence', translate('FlickrTab', 'Change licence')),
+            ('content_type', translate('FlickrTab', 'Change content type')),
+            ('albums', translate('FlickrTab', 'Change album membership'))))
 
     _address_map = {
         'CountryName':   ('country',),
@@ -611,14 +619,15 @@ class FlickrTab(PhotiniUploader):
     @catch_all
     def new_set(self):
         dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(self.tr('Create new Flickr album'))
+        dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
         dialog.setLayout(FormLayout())
         title = SingleLineEdit('title', spell_check=True)
-        dialog.layout().addRow(self.tr('Title'), title)
+        dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
         description = MultiLineEdit('description', spell_check=True)
-        dialog.layout().addRow(self.tr('Description'), description)
-        dialog.layout().addRow(QtWidgets.QLabel(self.tr(
-            'Album will be created when photos are uploaded')))
+        dialog.layout().addRow(translate('FlickrTab', 'Description'),
+                               description)
+        dialog.layout().addRow(QtWidgets.QLabel(translate(
+            'FlickrTab', 'Album will be created when photos are uploaded')))
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok |
             QtWidgets.QDialogButtonBox.StandardButton.Cancel)
@@ -635,7 +644,3 @@ class FlickrTab(PhotiniUploader):
             {'title': title, 'description': description, 'photoset_id': None},
             index=0)
         widget.setChecked(True)
-
-
-class TabWidget(FlickrTab):
-    pass

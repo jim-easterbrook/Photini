@@ -2,37 +2,26 @@
 <!DOCTYPE TS>
 <TS language="ca" sourcelanguage="en_GB" version="2.1">
 <context>
-    <name></name>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="obsolete">&lt;widen search&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="obsolete">&lt;repeat search&gt;</translation>
-    </message>
-</context>
-<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Carrer</translation>
+        <translation>Carrer</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">Ciutat</translation>
+        <translation>Ciutat</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="vanished">Provincia</translation>
+        <translation>Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">País</translation>
+        <translation>País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="vanished">Regió</translation>
+        <translation>Regió</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -64,6 +53,38 @@
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation>Geodades © OpenStreetMap contributors</translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -858,48 +879,24 @@ triats</numerusform>
 <context>
     <name>LocationInfo</name>
     <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Street</source>
-        <translation>Carrer</translation>
+        <translation type="vanished">Carrer</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Ciutat</translation>
+        <translation type="vanished">Ciutat</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincia</translation>
+        <translation type="vanished">Provincia</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>País</translation>
+        <translation type="vanished">País</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Regió</translation>
+        <translation type="vanished">Regió</translation>
     </message>
 </context>
 <context>
@@ -1088,11 +1085,11 @@ funcionant amb Bing</translation>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Cerca d&apos;adreça funciona amb OpenCage</translation>
+        <translation type="vanished">Cerca d&apos;adreça funciona amb OpenCage</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Geodades © OpenStreetMap contributors</translation>
+        <translation type="vanished">Geodades © OpenStreetMap contributors</translation>
     </message>
 </context>
 <context>
@@ -1103,6 +1100,58 @@ funcionant amb Bing</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Reconeixement 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Marca de Domini Públic 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1297,182 +1346,138 @@ funcionant amb Bing</translation>
     <name>PhotiniUploader</name>
     <message>
         <source>Close window</source>
-        <translation>Tanca finestra</translation>
+        <translation type="vanished">Tanca finestra</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>Ja podeu tancar aquesta finestra de navegador.</translation>
+        <translation type="vanished">Ja podeu tancar aquesta finestra de navegador.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Entra</translation>
+        <translation type="vanished">Entra</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Surt</translation>
+        <translation type="vanished">Surt</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Afegir a àlbums</translation>
+        <translation type="vanished">Afegir a àlbums</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Comença càrrega</translation>
+        <translation type="vanished">Comença càrrega</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Para càrrega</translation>
+        <translation type="vanished">Para càrrega</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Photini: càrrega en progrés</translation>
+        <translation type="vanished">Photini: càrrega en progrés</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Càrrega a {} no ha acabat.</translation>
+        <translation type="vanished">Càrrega a {} no ha acabat.</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Tancar ara finalitzarà la càrrega.</translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Tancar ara finalitzarà la càrrega.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>No autenticat a {}</translation>
+        <translation type="vanished">No autenticat a {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Photini: tipus incompatible</translation>
+        <translation type="vanished">Photini: tipus incompatible</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation>Tipus d&apos;imatge incompatible.</translation>
+        <translation type="vanished">Tipus d&apos;imatge incompatible.</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Progrés</translation>
+        <translation type="vanished">Progrés</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Photini: error de càrrega</translation>
+        <translation type="vanished">Photini: error de càrrega</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Reemplaça foto</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Reemplaça foto</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Reemplaçar imatge</translation>
+        <translation type="vanished">Reemplaçar imatge</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Carregar com a nova foto</translation>
+        <translation type="vanished">Carregar com a nova foto</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Cap imatge a pujar</translation>
+        <translation type="vanished">Cap imatge a pujar</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Triar una imatge</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Triar una imatge</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Cap coincidència</translation>
+        <translation type="vanished">Cap coincidència</translation>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Reconeixement 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Reconeixement 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
+        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Marca de Domini Públic 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Marca de Domini Públic 1.0</translation>
     </message>
 </context>
 <context>
@@ -1729,103 +1734,127 @@ funcionant amb Bing</translation>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="vanished">Tanca finestra</translation>
+        <translation>Tanca finestra</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="vanished">Ja podeu tancar aquesta finestra de navegador.</translation>
+        <translation>Ja podeu tancar aquesta finestra de navegador.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">Entra</translation>
+        <translation>Entra</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">Surt</translation>
+        <translation>Surt</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="vanished">Comença càrrega</translation>
+        <translation>Comença càrrega</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="vanished">Para càrrega</translation>
+        <translation>Para càrrega</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="vanished">Progrés</translation>
+        <translation>Progrés</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="vanished">Photini: càrrega en progrés</translation>
+        <translation>Photini: càrrega en progrés</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Tancar ara finalitzarà la càrrega.</translation>
+        <translation>Tancar ara finalitzarà la càrrega.</translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation type="vanished">No autenticat a {}</translation>
+        <translation>No autenticat a {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation type="vanished">Photini: tipus incompatible</translation>
+        <translation>Photini: tipus incompatible</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="vanished">Photini: error de càrrega</translation>
+        <translation>Photini: error de càrrega</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="vanished">Afegir a àlbums</translation>
+        <translation>Afegir a àlbums</translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="vanished">Reemplaça foto</translation>
+        <translation>Reemplaça foto</translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="vanished">Reemplaçar imatge</translation>
+        <translation>Reemplaçar imatge</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="vanished">Carregar com a nova foto</translation>
+        <translation>Carregar com a nova foto</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="vanished">Cap imatge a pujar</translation>
+        <translation>Cap imatge a pujar</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="vanished">Triar una imatge</translation>
+        <translation>Triar una imatge</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="vanished">Cap coincidència</translation>
+        <translation>Cap coincidència</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation type="vanished">Càrrega a {} no ha acabat.</translation>
+        <translation>Càrrega a {} no ha acabat.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
-        <translation type="vanished">Tipus d&apos;imatge incompatible.</translation>
+        <translation>Tipus d&apos;imatge incompatible.</translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="vanished">Fitxer &quot;{}&quot; càrrega fallada.</translation>
+        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
 </context>
 <context>

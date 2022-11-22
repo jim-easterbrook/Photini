@@ -35,6 +35,58 @@
         <source>Enter the details about a location which is shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the sublocation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the city.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the province or state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter the name of the world region.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Street</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>City</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Province</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Country</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Region</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>CLIHelp</name>
@@ -759,53 +811,6 @@
     </message>
 </context>
 <context>
-    <name>LocationInfo</name>
-    <message>
-        <source>Enter the name of the sublocation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the city.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the province or state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the name of the world region.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Street</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>City</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Province</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Country</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Region</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>LoggerWindow</name>
     <message>
         <source>Photini error logging</source>
@@ -942,17 +947,6 @@
     </message>
     <message>
         <source>Selected images</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>OpenCage</name>
-    <message>
-        <source>Address lookup powered by OpenCage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Geodata © OpenStreetMap contributors</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1099,6 +1093,58 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit template</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1151,188 +1197,6 @@
     </message>
     <message>
         <source>&lt;repeat search&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PhotiniUploader</name>
-    <message>
-        <source>Close window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You may now close this browser window.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Log out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add to albums</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start upload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop upload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: upload in progress</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Closing now will terminate the upload.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: incompatible type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: upload error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace photo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Replace image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Upload as new photo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No image upload</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select an image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>RightsDropDown</name>
-    <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Public Domain Mark 1.0</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1512,6 +1376,133 @@
     </message>
     <message>
         <source>Precision</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UploaderTabsAll</name>
+    <message>
+        <source>Close window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You may now close this browser window.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add to albums</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: upload in progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Closing now will terminate the upload.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: incompatible type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Progress</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: upload error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upload as new photo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No image upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select an image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No match</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

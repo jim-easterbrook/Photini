@@ -148,6 +148,191 @@ def SendToInstance(files):
     return True
 
 
+class MenuBar(QtWidgets.QMenuBar):
+    def __init__(self, *args, **kwds):
+        super(MenuBar, self).__init__(*args, **kwds)
+        self.app = QtWidgets.QApplication.instance()
+        # file menu
+        file_menu = self.addMenu(translate('MenuBar', 'File'))
+        action = file_menu.addAction(translate('MenuBar', 'Open files'))
+        action.setShortcuts(QtGui.QKeySequence.StandardKey.Open)
+        action.triggered.connect(self.app.image_list.open_files)
+        self.save_action = file_menu.addAction(
+            translate('MenuBar', 'Save changes'))
+        self.save_action.setShortcuts(QtGui.QKeySequence.StandardKey.Save)
+        self.save_action.setEnabled(False)
+        self.save_action.triggered.connect(self.app.image_list.save_files)
+        self.fix_thumbs_action = file_menu.addAction(
+            translate('MenuBar', 'Fix missing thumbnails'))
+        self.fix_thumbs_action.setEnabled(False)
+        self.fix_thumbs_action.triggered.connect(
+            self.app.image_list.fix_missing_thumbs)
+        action = file_menu.addAction(translate('MenuBar', 'Close all files'))
+        action.triggered.connect(self.app.image_list.close_all_files)
+        file_menu.addSeparator()
+        sep = QtWidgets.QWidgetAction(self)
+        sep.setDefaultWidget(QtWidgets.QLabel(
+            translate('MenuBar', 'Selected images')))
+        file_menu.addAction(sep)
+        self.selected_actions = self.app.image_list.add_selected_actions(file_menu)
+        file_menu.addSeparator()
+        action = file_menu.addAction(translate('MenuBar', 'Quit'))
+        action.setShortcuts([QtGui.QKeySequence.StandardKey.Quit,
+                             QtGui.QKeySequence.StandardKey.Close])
+        action.triggered.connect(self.app.closeAllWindows)
+        # options menu
+        options_menu = self.addMenu(translate('MenuBar', 'Options'))
+        action = options_menu.addAction(translate('MenuBar', 'Settings'))
+        action.triggered.connect(self.edit_settings)
+        options_menu.addSeparator()
+        for module in self.parent().modules:
+            tab = self.parent().tab_info[module]
+            tab['action'] = options_menu.addAction(tab['name'])
+            tab['action'].setCheckable(True)
+            if tab['class']:
+                tab['action'].setChecked(
+                    self.app.config_store.get('tabs', module, True))
+            else:
+                tab['action'].setEnabled(False)
+            tab['action'].triggered.connect(self.parent().add_tabs)
+        # spelling menu
+        languages = self.app.spell_check.available_languages()
+        spelling_menu = self.addMenu(translate('MenuBar', 'Spelling'))
+        action = spelling_menu.addAction(
+            translate('MenuBar', 'Enable spell check'))
+        action.setEnabled(languages is not None)
+        action.setCheckable(True)
+        action.setChecked(self.app.spell_check.enabled)
+        action.toggled.connect(self.app.spell_check.enable)
+        current_language = self.app.spell_check.current_language()
+        if languages:
+            language_group = QtGui2.QActionGroup(self)
+            for language in sorted(languages):
+                language_menu = spelling_menu.addMenu(language)
+                for country, code in languages[language]:
+                    if country:
+                        name = '{}: {}'.format(language, country)
+                    else:
+                        name = language
+                    action = language_menu.addAction(name)
+                    action.setCheckable(True)
+                    action.setChecked(code == current_language)
+                    action.setData(code)
+                    action.setActionGroup(language_group)
+            language_group.triggered.connect(self.set_language)
+        # help menu
+        help_menu = self.addMenu(translate('MenuBar', 'Help'))
+        action = help_menu.addAction(translate('MenuBar', 'About Photini'))
+        action.triggered.connect(self.about)
+        action = help_menu.addAction(translate('MenuBar', 'Check for update'))
+        action.triggered.connect(self.check_update)
+        help_menu.addSeparator()
+        action = help_menu.addAction(
+            translate('MenuBar', 'Photini documentation'))
+        action.triggered.connect(self.open_docs)
+        # connect signals
+        self.app.image_list.selection_changed.connect(self.new_selection)
+        self.app.image_list.image_list_changed.connect(self.new_image_list)
+        self.app.image_list.new_metadata.connect(self.new_metadata)
+
+    @QtSlot()
+    @catch_all
+    def edit_settings(self):
+        dialog = EditSettings(self)
+        execute(dialog)
+        self.parent().tabs.currentWidget().refresh()
+
+    @QtSlot(QtGui2.QAction)
+    @catch_all
+    def set_language(self, action):
+        self.app.spell_check.set_language(action.data())
+
+    @QtSlot()
+    @catch_all
+    def about(self):
+        text = """
+<table width="100%"><tr>
+<td align="center" width="70%">
+<h1>Photini</h1>
+<h3>version {0}</h3>
+<h4>build {1}</h4>
+</td>
+<td align="center"><img src="{2}" /></td>
+</tr></table>
+<p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
+jim@jim-easterbrook.me.uk</a><br /><br />
+{3}<br />
+{4}</p>
+""".format(__version__, build,
+           pkg_resources.resource_filename(
+               'photini', 'data/icons/photini_128.png'),
+           MenuBar.tr('An easy to use digital photograph metadata'
+                      ' (Exif, IPTC, XMP) editing application.'),
+           MenuBar.tr('Open source package available from {}.').format(
+               '<a href="https://github.com/jim-easterbrook/Photini">'
+               'github.com/jim-easterbrook/Photini</a>'),
+           )
+        dialog = QtWidgets.QMessageBox(self)
+        dialog.setWindowTitle(MenuBar.tr('Photini: about'))
+        dialog.setText(text)
+        licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
+        dialog.setDetailedText(licence.decode('utf-8'))
+        dialog.setInformativeText(MenuBar.tr(
+            'This program is released with a GNU General Public'
+            ' License. For details click the "{}" button.').format(
+                dialog.buttons()[0].text()))
+        execute(dialog)
+
+    @QtSlot()
+    @catch_all
+    def check_update(self):
+        import requests
+        with Busy():
+            try:
+                rsp = requests.get(
+                    'https://pypi.org/pypi/photini/json', timeout=20)
+            except:
+                logger.error(str(ex))
+                return
+        if rsp.status_code != 200:
+            logger.error('HTTP error %d', rsp.status_code)
+            return
+        release = rsp.json()['info']['version']
+        dialog = QtWidgets.QMessageBox(self)
+        dialog.setWindowTitle(MenuBar.tr('Photini: version check'))
+        dialog.setText(MenuBar.tr(
+            'You are currently running Photini version {0}. The'
+            ' latest release is {1}.').format(__version__, release))
+        execute(dialog)
+
+    @QtSlot()
+    @catch_all
+    def open_docs(self):
+        QtGui.QDesktopServices.openUrl(
+            QtCore.QUrl('http://photini.readthedocs.io/'))
+
+    @QtSlot(list)
+    @catch_all
+    def new_selection(self, selection):
+        self.app.image_list.configure_selected_actions(self.selected_actions)
+
+    @QtSlot()
+    @catch_all
+    def new_image_list(self):
+        for image in self.app.image_list.images:
+            thumb = image.metadata.thumbnail
+            if not thumb or not thumb['image']:
+                self.fix_thumbs_action.setEnabled(True)
+                return
+        self.fix_thumbs_action.setEnabled(False)
+
+    @QtSlot(bool)
+    @catch_all
+    def new_metadata(self, unsaved_data):
+        self.app.image_list.configure_selected_actions(self.selected_actions)
+        self.save_action.setEnabled(unsaved_data)
+
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, options, initial_files):
         super(MainWindow, self).__init__()
@@ -171,6 +356,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.app.gpx_importer = None
         self.app.options = options
+        self.app.image_list = ImageList()
+        self.app.image_list.selection_changed.connect(self.new_selection)
         # initialise metadata handler
         ImageMetadata.initialise(self.app.config_store, options.verbose)
         # restore size and state
@@ -182,15 +369,10 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.WindowState.WindowMaximized | Qt.WindowState.WindowFullScreen)
         if full_screen:
             self.setWindowState(self.windowState() | full_screen)
-        # image selector
-        self.image_list = ImageList()
-        self.image_list.selection_changed.connect(self.new_selection)
-        self.image_list.image_list_changed.connect(self.new_image_list)
-        self.image_list.new_metadata.connect(self.new_metadata)
         # start instance server
         instance_server = InstanceServer(parent=self)
-        instance_server.new_files.connect(
-            self.image_list.open_file_list, Qt.ConnectionType.QueuedConnection)
+        instance_server.new_files.connect(self.app.image_list.open_file_list,
+                                          Qt.ConnectionType.QueuedConnection)
         # update config file
         if self.app.config_store.config.has_section('tabs'):
             conv = {
@@ -236,85 +418,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 tab['class'] = None
                 tab['name'] = module
             self.tab_info[module] = tab
-        # file menu
-        file_menu = self.menuBar().addMenu(translate('MenuBar', 'File'))
-        action = file_menu.addAction(translate('MenuBar', 'Open files'))
-        action.setShortcuts(QtGui.QKeySequence.StandardKey.Open)
-        action.triggered.connect(self.image_list.open_files)
-        self.save_action = file_menu.addAction(
-            translate('MenuBar', 'Save changes'))
-        self.save_action.setShortcuts(QtGui.QKeySequence.StandardKey.Save)
-        self.save_action.setEnabled(False)
-        self.save_action.triggered.connect(self.image_list.save_files)
-        self.fix_thumbs_action = file_menu.addAction(
-            translate('MenuBar', 'Fix missing thumbnails'))
-        self.fix_thumbs_action.setEnabled(False)
-        self.fix_thumbs_action.triggered.connect(
-            self.image_list.fix_missing_thumbs)
-        action = file_menu.addAction(translate('MenuBar', 'Close all files'))
-        action.triggered.connect(self.image_list.close_all_files)
-        file_menu.addSeparator()
-        sep = QtWidgets.QWidgetAction(self)
-        sep.setDefaultWidget(
-            QtWidgets.QLabel(translate('MenuBar', 'Selected images')))
-        file_menu.addAction(sep)
-        self.selected_actions = self.image_list.add_selected_actions(file_menu)
-        file_menu.addSeparator()
-        action = file_menu.addAction(translate('MenuBar', 'Quit'))
-        action.setShortcuts([QtGui.QKeySequence.StandardKey.Quit,
-                             QtGui.QKeySequence.StandardKey.Close])
-        action.triggered.connect(
-            QtWidgets.QApplication.instance().closeAllWindows)
-        # options menu
-        options_menu = self.menuBar().addMenu(translate('MenuBar', 'Options'))
-        action = options_menu.addAction(translate('MenuBar', 'Settings'))
-        action.triggered.connect(self.edit_settings)
-        options_menu.addSeparator()
-        for module in self.modules:
-            tab = self.tab_info[module]
-            tab['action'] = options_menu.addAction(tab['name'])
-            tab['action'].setCheckable(True)
-            if tab['class']:
-                tab['action'].setChecked(
-                    self.app.config_store.get('tabs', module, True))
-            else:
-                tab['action'].setEnabled(False)
-            tab['action'].triggered.connect(self.add_tabs)
-        # spelling menu
-        languages = self.app.spell_check.available_languages()
-        spelling_menu = self.menuBar().addMenu(translate('MenuBar', 'Spelling'))
-        action = spelling_menu.addAction(
-            translate('MenuBar', 'Enable spell check'))
-        action.setEnabled(languages is not None)
-        action.setCheckable(True)
-        action.setChecked(self.app.spell_check.enabled)
-        action.toggled.connect(self.app.spell_check.enable)
-        current_language = self.app.spell_check.current_language()
-        if languages:
-            language_group = QtGui2.QActionGroup(self)
-            for language in sorted(languages):
-                language_menu = spelling_menu.addMenu(language)
-                for country, code in languages[language]:
-                    if country:
-                        name = '{}: {}'.format(language, country)
-                    else:
-                        name = language
-                    action = language_menu.addAction(name)
-                    action.setCheckable(True)
-                    action.setChecked(code == current_language)
-                    action.setData(code)
-                    action.setActionGroup(language_group)
-            language_group.triggered.connect(self.set_language)
-        # help menu
-        help_menu = self.menuBar().addMenu(translate('MenuBar', 'Help'))
-        action = help_menu.addAction(translate('MenuBar', 'About Photini'))
-        action.triggered.connect(self.about)
-        action = help_menu.addAction(translate('MenuBar', 'Check for update'))
-        action.triggered.connect(self.check_update)
-        help_menu.addSeparator()
-        action = help_menu.addAction(
-            translate('MenuBar', 'Photini documentation'))
-        action.triggered.connect(self.open_docs)
+        # menu bar
+        self.setMenuBar(MenuBar(parent=self))
         # main application area
         self.central_widget = QtWidgets.QSplitter()
         self.central_widget.setOrientation(Qt.Orientation.Vertical)
@@ -327,7 +432,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tabs.tabBar().tabMoved.connect(self.tab_moved)
         self.add_tabs()
         self.central_widget.addWidget(self.tabs)
-        self.central_widget.addWidget(self.image_list)
+        self.central_widget.addWidget(self.app.image_list)
         size = self.central_widget.sizes()
         self.central_widget.setSizes(
             self.app.config_store.get('main_window', 'split', size))
@@ -341,7 +446,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtSlot()
     @catch_all
     def open_initial_files(self):
-        self.image_list.open_file_list(self.initial_files)
+        self.app.image_list.open_file_list(self.initial_files)
 
     @QtSlot()
     @catch_all
@@ -359,7 +464,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if not use_tab:
                 continue
             if 'object' not in tab:
-                tab['object'] = tab['class'](self.image_list)
+                tab['object'] = tab['class'](self.app.image_list)
             idx = self.tabs.addTab(tab['object'], tab['label'])
             self.tabs.setTabToolTip(idx, tab['name'])
             self.tabs.tabBar().setTabData(idx, module)
@@ -368,93 +473,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tabs.setCurrentWidget(current)
         self.new_tab(-1)
 
-    @QtSlot()
-    @catch_all
-    def open_docs(self):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(
-            'http://photini.readthedocs.io/'))
-
     @catch_all
     def closeEvent(self, event):
         for n in range(self.tabs.count()):
             if self.tabs.widget(n).do_not_close():
                 event.ignore()
                 return
-        self.image_list.unsaved_files_dialog(all_files=True, with_cancel=False)
+        self.app.image_list.unsaved_files_dialog(
+            all_files=True, with_cancel=False)
         super(MainWindow, self).closeEvent(event)
-
-    @QtSlot()
-    @catch_all
-    def edit_settings(self):
-        dialog = EditSettings(self)
-        execute(dialog)
-        self.tabs.currentWidget().refresh()
-
-    @QtSlot(QtGui2.QAction)
-    @catch_all
-    def set_language(self, action):
-        self.app.spell_check.set_language(action.data())
-
-    @QtSlot()
-    @catch_all
-    def about(self):
-        text = """
-<table width="100%"><tr>
-<td align="center" width="70%">
-<h1>Photini</h1>
-<h3>version {0}</h3>
-<h4>build {1}</h4>
-</td>
-<td align="center"><img src="{2}" /></td>
-</tr></table>
-<p>&copy; Jim Easterbrook <a href="mailto:jim@jim-easterbrook.me.uk">
-jim@jim-easterbrook.me.uk</a><br /><br />
-{3}<br />
-{4}</p>
-""".format(__version__, build,
-           pkg_resources.resource_filename(
-               'photini', 'data/icons/photini_128.png'),
-           translate('MenuBar',
-                     'An easy to use digital photograph metadata'
-                     ' (Exif, IPTC, XMP) editing application.'),
-           translate('MenuBar',
-                     'Open source package available from {}.').format(
-                         '<a href="https://github.com/jim-easterbrook/Photini">'
-                         'github.com/jim-easterbrook/Photini</a>'),
-           )
-        dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
-        dialog.setText(text)
-        licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
-        dialog.setDetailedText(licence.decode('utf-8'))
-        dialog.setInformativeText(translate(
-            'MenuBar',
-            'This program is released with a GNU General Public'
-            ' License. For details click the "{}" button.').format(
-                dialog.buttons()[0].text()))
-        execute(dialog)
-
-    @QtSlot()
-    @catch_all
-    def check_update(self):
-        import requests
-        with Busy():
-            try:
-                rsp = requests.get(
-                    'https://pypi.org/pypi/photini/json', timeout=20)
-            except:
-                logger.error(str(ex))
-                return
-        if rsp.status_code != 200:
-            logger.error('HTTP error %d', rsp.status_code)
-            return
-        release = rsp.json()['info']['version']
-        dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(translate('MenuBar', 'Photini: version check'))
-        dialog.setText(translate(
-            'MenuBar', 'You are currently running Photini version {0}. The'
-            ' latest release is {1}.').format(__version__, release))
-        execute(dialog)
 
     @QtSlot(int, int)
     @catch_all
@@ -467,7 +494,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     def new_tab(self, index):
         current = self.tabs.currentWidget()
         if current:
-            self.image_list.set_drag_to_map(None)
+            self.app.image_list.set_drag_to_map(None)
             current.refresh()
 
     @QtSlot(int, int)
@@ -484,24 +511,7 @@ jim@jim-easterbrook.me.uk</a><br /><br />
     @QtSlot(list)
     @catch_all
     def new_selection(self, selection):
-        self.image_list.configure_selected_actions(self.selected_actions)
         self.tabs.currentWidget().new_selection(selection)
-
-    @QtSlot()
-    @catch_all
-    def new_image_list(self):
-        for image in self.image_list.images:
-            thumb = image.metadata.thumbnail
-            if not thumb or not thumb['image']:
-                self.fix_thumbs_action.setEnabled(True)
-                return
-        self.fix_thumbs_action.setEnabled(False)
-
-    @QtSlot(bool)
-    @catch_all
-    def new_metadata(self, unsaved_data):
-        self.image_list.configure_selected_actions(self.selected_actions)
-        self.save_action.setEnabled(unsaved_data)
 
     @catch_all
     def resizeEvent(self, event):

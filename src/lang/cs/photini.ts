@@ -2,37 +2,26 @@
 <!DOCTYPE TS>
 <TS language="cs" sourcelanguage="en_GB" version="2.1">
 <context>
-    <name></name>
-    <message>
-        <source>&lt;widen search&gt;</source>
-        <translation type="obsolete">&lt;widen search&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;repeat search&gt;</source>
-        <translation type="obsolete">&lt;repeat search&gt;</translation>
-    </message>
-</context>
-<context>
     <name>AddressTab</name>
     <message>
         <source>Street</source>
-        <translation type="vanished">Ulice</translation>
+        <translation>Ulice</translation>
     </message>
     <message>
         <source>City</source>
-        <translation type="vanished">Město</translation>
+        <translation>Město</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation type="vanished">Provincie</translation>
+        <translation>Provincie</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation type="vanished">Země</translation>
+        <translation>Země</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation type="vanished">Kraj</translation>
+        <translation>Kraj</translation>
     </message>
     <message>
         <source>&amp;Address</source>
@@ -60,27 +49,27 @@
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation type="vanished">Zadejte název dílčího umístění.</translation>
+        <translation>Zadejte název dílčího umístění.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation type="vanished">Zadejte název města.</translation>
+        <translation>Zadejte název města.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation type="vanished">Zadejte název provincie nebo státu.</translation>
+        <translation>Zadejte název provincie nebo státu.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation type="vanished">Zadejte název země.</translation>
+        <translation>Zadejte název země.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation type="vanished">Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
+        <translation>Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation type="vanished">Zadejte název světové oblasti.</translation>
+        <translation>Zadejte název světové oblasti.</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
@@ -89,6 +78,14 @@
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
         <translation>Zadejte podrobnosti k místu, které je zobrazeno na tomto obrázku.</translation>
+    </message>
+    <message>
+        <source>Address lookup powered by OpenCage</source>
+        <translation>Vyhledávání adresy napájeno OpenCage</translation>
+    </message>
+    <message>
+        <source>Geodata © OpenStreetMap contributors</source>
+        <translation>Zeměpisné údaje © OpenStreetMap přispěvatelé</translation>
     </message>
 </context>
 <context>
@@ -836,47 +833,47 @@ selected</numerusform>
     <name>LocationInfo</name>
     <message>
         <source>Enter the name of the sublocation.</source>
-        <translation>Zadejte název dílčího umístění.</translation>
+        <translation type="vanished">Zadejte název dílčího umístění.</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
-        <translation>Zadejte název města.</translation>
+        <translation type="vanished">Zadejte název města.</translation>
     </message>
     <message>
         <source>Enter the name of the province or state.</source>
-        <translation>Zadejte název provincie nebo státu.</translation>
+        <translation type="vanished">Zadejte název provincie nebo státu.</translation>
     </message>
     <message>
         <source>Enter the name of the country.</source>
-        <translation>Zadejte název země.</translation>
+        <translation type="vanished">Zadejte název země.</translation>
     </message>
     <message>
         <source>Enter the 2 or 3 letter ISO 3166 country code of the country.</source>
-        <translation>Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
+        <translation type="vanished">Zadejte dvou- nebo třípísmenný kód země ISO 3166.</translation>
     </message>
     <message>
         <source>Enter the name of the world region.</source>
-        <translation>Zadejte název světové oblasti.</translation>
+        <translation type="vanished">Zadejte název světové oblasti.</translation>
     </message>
     <message>
         <source>Street</source>
-        <translation>Ulice</translation>
+        <translation type="vanished">Ulice</translation>
     </message>
     <message>
         <source>City</source>
-        <translation>Město</translation>
+        <translation type="vanished">Město</translation>
     </message>
     <message>
         <source>Province</source>
-        <translation>Provincie</translation>
+        <translation type="vanished">Provincie</translation>
     </message>
     <message>
         <source>Country</source>
-        <translation>Země</translation>
+        <translation type="vanished">Země</translation>
     </message>
     <message>
         <source>Region</source>
-        <translation>Kraj</translation>
+        <translation type="vanished">Kraj</translation>
     </message>
 </context>
 <context>
@@ -1062,11 +1059,11 @@ selected</numerusform>
     <name>OpenCage</name>
     <message>
         <source>Address lookup powered by OpenCage</source>
-        <translation>Vyhledávání adresy napájeno OpenCage</translation>
+        <translation type="vanished">Vyhledávání adresy napájeno OpenCage</translation>
     </message>
     <message>
         <source>Geodata © OpenStreetMap contributors</source>
-        <translation>Zeměpisné údaje © OpenStreetMap přispěvatelé</translation>
+        <translation type="vanished">Zeměpisné údaje © OpenStreetMap přispěvatelé</translation>
     </message>
 </context>
 <context>
@@ -1078,6 +1075,58 @@ selected</numerusform>
     <message>
         <source>Enter the name of the person that created this image.</source>
         <translation>Zadejte jméno osoby, která tento obrázek vytvořila.</translation>
+    </message>
+    <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Uveďte původ 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Uveďte původ-Zachovejte licenci 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Uveďte původ-Neužívejte komerčně 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Uveďte původ-Neužívejte dílo komerčně-Zachovejte licenci 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Uveďte původ-Nezpracovávejte 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Uveďte původ-Neužívejte komerčně-Nezpracovávejte 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Univerzální (CC0 1.0) Potvrzení o statusu volného díla</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Označení volného díla 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
@@ -1271,182 +1320,126 @@ selected</numerusform>
     <name>PhotiniUploader</name>
     <message>
         <source>Close window</source>
-        <translation>Zavřít okno</translation>
+        <translation type="vanished">Zavřít okno</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation>nyní můžete zavřít okno prohlížeče.</translation>
+        <translation type="vanished">nyní můžete zavřít okno prohlížeče.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation>Přihlásit se</translation>
+        <translation type="vanished">Přihlásit se</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation>Odhlásit se</translation>
+        <translation type="vanished">Odhlásit se</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation>Přidat do alb</translation>
+        <translation type="vanished">Přidat do alb</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation>Spustit nahrávání</translation>
+        <translation type="vanished">Spustit nahrávání</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation>Zastavit nahrávání</translation>
+        <translation type="vanished">Zastavit nahrávání</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation>Probíhá nahrávání</translation>
-    </message>
-    <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Probíhá nahrávání</translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation>Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Nepřihlášen do {}</translation>
+        <translation type="vanished">Nepřihlášen do {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation>Neslučující se typ</translation>
-    </message>
-    <message>
-        <source>Incompatible image type.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Neslučující se typ</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation>Postup</translation>
+        <translation type="vanished">Postup</translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation>Chyba při nahrávání</translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Photini: authorise</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Authorisation required</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Chyba při nahrávání</translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation>Nahradit fotografii</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Nahradit fotografii</translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation>Nahradit obrázek</translation>
+        <translation type="vanished">Nahradit obrázek</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation>Nahrát jako novou fotografii</translation>
+        <translation type="vanished">Nahrát jako novou fotografii</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation>Nenahrán žádný obrázek</translation>
+        <translation type="vanished">Nenahrán žádný obrázek</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation>Vybrat obrázek</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Vybrat obrázek</translation>
     </message>
     <message>
         <source>No match</source>
-        <translation>Žádná shoda</translation>
+        <translation type="vanished">Žádná shoda</translation>
     </message>
 </context>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Uveďte původ 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Uveďte původ 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Uveďte původ-Zachovejte licenci 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Uveďte původ-Zachovejte licenci 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Uveďte původ-Neužívejte komerčně 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Uveďte původ-Neužívejte komerčně 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Uveďte původ-Neužívejte dílo komerčně-Zachovejte licenci 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Uveďte původ-Neužívejte dílo komerčně-Zachovejte licenci 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Uveďte původ-Nezpracovávejte 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Uveďte původ-Nezpracovávejte 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Uveďte původ-Neužívejte komerčně-Nezpracovávejte 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Uveďte původ-Neužívejte komerčně-Nezpracovávejte 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Univerzální (CC0 1.0) Potvrzení o statusu volného díla</translation>
+        <translation type="vanished">CC0 1.0 Univerzální (CC0 1.0) Potvrzení o statusu volného díla</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Označení volného díla 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Označení volného díla 1.0</translation>
     </message>
 </context>
 <context>
@@ -1632,91 +1625,127 @@ selected</numerusform>
     <name>UploaderTabsAll</name>
     <message>
         <source>Close window</source>
-        <translation type="vanished">Zavřít okno</translation>
+        <translation>Zavřít okno</translation>
     </message>
     <message>
         <source>You may now close this browser window.</source>
-        <translation type="vanished">nyní můžete zavřít okno prohlížeče.</translation>
+        <translation>nyní můžete zavřít okno prohlížeče.</translation>
     </message>
     <message>
         <source>Log in</source>
-        <translation type="vanished">Přihlásit se</translation>
+        <translation>Přihlásit se</translation>
     </message>
     <message>
         <source>Log out</source>
-        <translation type="vanished">Odhlásit se</translation>
+        <translation>Odhlásit se</translation>
     </message>
     <message>
         <source>Start upload</source>
-        <translation type="vanished">Spustit nahrávání</translation>
+        <translation>Spustit nahrávání</translation>
     </message>
     <message>
         <source>Stop upload</source>
-        <translation type="vanished">Zastavit nahrávání</translation>
+        <translation>Zastavit nahrávání</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="vanished">Postup</translation>
+        <translation>Postup</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
-        <translation type="vanished">Probíhá nahrávání</translation>
+        <translation>Probíhá nahrávání</translation>
+    </message>
+    <message>
+        <source>Upload to {} has not finished.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="vanished">Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
+        <translation>Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
+    </message>
+    <message>
+        <source>Logged in as {0} on {1}</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation type="vanished">Nepřihlášen do {}</translation>
+        <translation>Nepřihlášen do {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
-        <translation type="vanished">Neslučující se typ</translation>
+        <translation>Neslučující se typ</translation>
+    </message>
+    <message>
+        <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="vanished">Chyba při nahrávání</translation>
+        <translation>Chyba při nahrávání</translation>
     </message>
     <message>
         <source>Add to albums</source>
-        <translation type="vanished">Přidat do alb</translation>
+        <translation>Přidat do alb</translation>
+    </message>
+    <message>
+        <source>File &quot;{}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: authorise</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authorisation required</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace photo</source>
-        <translation type="vanished">Nahradit fotografii</translation>
+        <translation>Nahradit fotografii</translation>
+    </message>
+    <message>
+        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace image</source>
-        <translation type="vanished">Nahradit obrázek</translation>
+        <translation>Nahradit obrázek</translation>
     </message>
     <message>
         <source>Upload as new photo</source>
-        <translation type="vanished">Nahrát jako novou fotografii</translation>
+        <translation>Nahrát jako novou fotografii</translation>
     </message>
     <message>
         <source>No image upload</source>
-        <translation type="vanished">Nenahrán žádný obrázek</translation>
+        <translation>Nenahrán žádný obrázek</translation>
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="vanished">Vybrat obrázek</translation>
+        <translation>Vybrat obrázek</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>
-        <translation type="vanished">Žádná shoda</translation>
+        <translation>Žádná shoda</translation>
     </message>
 </context>
 <context>

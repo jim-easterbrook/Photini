@@ -20,16 +20,17 @@
 import logging
 
 from photini.pyqt import (
-    catch_all, FormLayout, Qt, QtSlot, QtWidgets, width_for_text)
+    catch_all, FormLayout, Qt, QtCore, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class EditSettings(QtWidgets.QDialog):
     def __init__(self, *arg, **kw):
         super(EditSettings, self).__init__(*arg, **kw)
         self.config_store = QtWidgets.QApplication.instance().config_store
-        self.setWindowTitle(self.tr('Photini: settings'))
+        self.setWindowTitle(translate('EditSettings', 'Photini: settings'))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         scroll_area = QtWidgets.QScrollArea()
@@ -51,24 +52,28 @@ class EditSettings(QtWidgets.QDialog):
         self.config_store.delete('files', 'force_iptc')
         iptc_mode = self.config_store.get('files', 'iptc_iim', 'preserve')
         button_group = QtWidgets.QButtonGroup(parent=self)
-        self.iptc_always = QtWidgets.QRadioButton(self.tr('Always write'))
+        self.iptc_always = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Always write'))
         button_group.addButton(self.iptc_always)
         self.iptc_always.setChecked(iptc_mode == 'create')
         self.iptc_always.setMinimumWidth(
             width_for_text(self.iptc_always, 'x' * 35))
-        panel.layout().addRow(self.tr('IPTC-IIM metadata'), self.iptc_always)
-        self.iptc_auto = QtWidgets.QRadioButton(self.tr('Write if exists'))
+        panel.layout().addRow(
+            translate('EditSettings', 'IPTC-IIM metadata'), self.iptc_always)
+        self.iptc_auto = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Write if exists'))
         button_group.addButton(self.iptc_auto)
         self.iptc_auto.setChecked(iptc_mode == 'preserve')
         panel.layout().addRow('', self.iptc_auto)
-        self.iptc_delete = QtWidgets.QRadioButton(self.tr('Always delete'))
+        self.iptc_delete = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Always delete'))
         button_group.addButton(self.iptc_delete)
         self.iptc_delete.setChecked(iptc_mode == 'delete')
         panel.layout().addRow('', self.iptc_delete)
         # show IPTC-IIM length limits
         length_warning = self.config_store.get('files', 'length_warning', True)
-        self.length_warning = QtWidgets.QCheckBox(self.tr(
-            'Show IPTC-IIM length limits'))
+        self.length_warning = QtWidgets.QCheckBox(
+            translate('EditSettings', 'Show IPTC-IIM length limits'))
         self.length_warning.setChecked(length_warning)
         panel.layout().addRow('', self.length_warning)
         # sidecar files
@@ -77,41 +82,50 @@ class EditSettings(QtWidgets.QDialog):
         if not if_mode:
             sc_mode = 'always'
         button_group = QtWidgets.QButtonGroup(parent=self)
-        self.sc_always = QtWidgets.QRadioButton(self.tr('Always create'))
+        self.sc_always = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Always create'))
         button_group.addButton(self.sc_always)
         self.sc_always.setChecked(sc_mode == 'always')
-        panel.layout().addRow(self.tr('Sidecar files'), self.sc_always)
-        self.sc_auto = QtWidgets.QRadioButton(self.tr('Create if necessary'))
+        panel.layout().addRow(
+            translate('EditSettings', 'Sidecar files'), self.sc_always)
+        self.sc_auto = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Create if necessary'))
         button_group.addButton(self.sc_auto)
         self.sc_auto.setChecked(sc_mode == 'auto')
         self.sc_auto.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_auto)
-        self.sc_delete = QtWidgets.QRadioButton(self.tr('Delete when possible'))
+        self.sc_delete = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Delete when possible'))
         button_group.addButton(self.sc_delete)
         self.sc_delete.setChecked(sc_mode == 'delete')
         self.sc_delete.setEnabled(if_mode)
         panel.layout().addRow('', self.sc_delete)
         # image file locking
-        self.write_if = QtWidgets.QCheckBox(self.tr('(when possible)'))
+        self.write_if = QtWidgets.QCheckBox(
+            translate('EditSettings', '(when possible)'))
         self.write_if.setChecked(if_mode)
         self.write_if.clicked.connect(self.new_write_if)
-        panel.layout().addRow(self.tr('Write to image file'), self.write_if)
+        panel.layout().addRow(
+            translate('EditSettings', 'Write to image file'), self.write_if)
         # preserve file timestamps
         keep_time = self.config_store.get('files', 'preserve_timestamps', 'now')
         if isinstance(keep_time, bool):
             # old config format
             keep_time = ('now', 'keep')[keep_time]
         button_group = QtWidgets.QButtonGroup(parent=self)
-        self.keep_time = QtWidgets.QRadioButton(self.tr('Keep original'))
+        self.keep_time = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Keep original'))
         button_group.addButton(self.keep_time)
         self.keep_time.setChecked(keep_time=='keep')
-        panel.layout().addRow(self.tr('File timestamps'), self.keep_time)
+        panel.layout().addRow(
+            translate('EditSettings', 'File timestamps'), self.keep_time)
         self.time_taken = QtWidgets.QRadioButton(
-            self.tr('Set to when photo was taken'))
+            translate('EditSettings', 'Set to when photo was taken'))
         button_group.addButton(self.time_taken)
         self.time_taken.setChecked(keep_time=='taken')
         panel.layout().addRow('', self.time_taken)
-        button = QtWidgets.QRadioButton(self.tr('Set to when file is saved'))
+        button = QtWidgets.QRadioButton(
+            translate('EditSettings', 'Set to when file is saved'))
         button_group.addButton(button)
         button.setChecked(keep_time=='now')
         panel.layout().addRow('', button)

@@ -38,11 +38,10 @@ DRAG_MIMETYPE = 'application/x-photini-image'
 
 
 class Image(QtWidgets.QFrame):
-    def __init__(self, path, image_list, thumb_size=4, *arg, **kw):
+    def __init__(self, path, thumb_size=4, *arg, **kw):
         super(Image, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
         self.path = path
-        self.image_list = image_list
         self.name, ext = os.path.splitext(os.path.basename(self.path))
         self.selected = False
         # read metadata
@@ -85,7 +84,7 @@ class Image(QtWidgets.QFrame):
         self.metadata = Metadata(self.path, notify=self.show_status)
         self.show_status(False)
         self.load_thumbnail()
-        self.image_list.emit_selection()
+        self.app.image_list.emit_selection()
 
     def transform(self, pixmap, orientation):
         orientation = (orientation or 1) - 1
@@ -223,7 +222,7 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
-        self.image_list.add_selected_actions(menu)
+        self.app.image_list.add_selected_actions(menu)
         execute(menu, event.globalPos())
 
     @catch_all
@@ -237,15 +236,15 @@ class Image(QtWidgets.QFrame):
     @catch_all
     def mouseReleaseEvent(self, event):
         if event.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            self.image_list.select_image(self, multiple_selection=True)
+            self.app.image_list.select_image(self, multiple_selection=True)
         elif event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-            self.image_list.select_image(self, extend_selection=True)
+            self.app.image_list.select_image(self, extend_selection=True)
         else:
-            self.image_list.select_image(self)
+            self.app.image_list.select_image(self)
 
     @catch_all
     def mouseMoveEvent(self, event):
-        if not self.image_list.drag_icon:
+        if not self.app.image_list.drag_icon:
             return
         if qt_version_info >= (6, 0):
             pos = event.position()
@@ -256,16 +255,16 @@ class Image(QtWidgets.QFrame):
             return
         if not self.get_selected():
             # user has started dragging an unselected image
-            self.image_list.select_image(self, emit_selection=False)
+            self.app.image_list.select_image(self, emit_selection=False)
         paths = []
-        for image in self.image_list.get_selected_images():
+        for image in self.app.image_list.get_selected_images():
             paths.append(image.path)
         if not paths:
             return
         drag = QtGui.QDrag(self)
         # construct icon
         count = min(len(paths), 8)
-        src_icon = self.image_list.drag_icon
+        src_icon = self.app.image_list.drag_icon
         src_w = src_icon.width()
         src_h = src_icon.height()
         margin = (count - 1) * 4
@@ -282,8 +281,8 @@ class Image(QtWidgets.QFrame):
             finally:
                 del paint
         drag.setPixmap(icon)
-        if self.image_list.drag_hotspot:
-            x, y = self.image_list.drag_hotspot
+        if self.app.image_list.drag_hotspot:
+            x, y = self.app.image_list.drag_hotspot
         else:
             x, y = src_w // 2, src_h
         drag.setHotSpot(QtCore.QPoint(x, y + margin))
@@ -293,7 +292,7 @@ class Image(QtWidgets.QFrame):
         if execute(drag,
                    Qt.DropAction.CopyAction) == Qt.DropAction.IgnoreAction:
             # image wasn't dragged to map
-            self.image_list.emit_selection()
+            self.app.image_list.emit_selection()
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
@@ -310,7 +309,7 @@ class Image(QtWidgets.QFrame):
         self.status.setText(status)
         self._elide_name()
         if changed:
-            self.image_list.new_metadata.emit(True)
+            self.app.image_list.new_metadata.emit(True)
 
     def _elide_name(self):
         self.status.adjustSize()
@@ -544,11 +543,14 @@ class ImageList(QtWidgets.QWidget):
         # sort key selector
         bottom_bar = QtWidgets.QHBoxLayout()
         self.layout().addLayout(bottom_bar)
-        bottom_bar.addWidget(QtWidgets.QLabel(self.tr('Sort by')))
-        self.sort_name = QtWidgets.QRadioButton(self.tr('file name'))
+        bottom_bar.addWidget(QtWidgets.QLabel(
+            translate('ImageList', 'Sort by')))
+        self.sort_name = QtWidgets.QRadioButton(
+            translate('ImageList', 'file name'))
         self.sort_name.clicked.connect(self._new_sort_order)
         bottom_bar.addWidget(self.sort_name)
-        self.sort_date = QtWidgets.QRadioButton(self.tr('date taken'))
+        self.sort_date = QtWidgets.QRadioButton(
+            translate('ImageList', 'date taken'))
         self.sort_date.clicked.connect(self._new_sort_order)
         bottom_bar.addWidget(self.sort_date)
         if self.app.config_store.get('controls', 'sort_date', False):
@@ -557,7 +559,8 @@ class ImageList(QtWidgets.QWidget):
             self.sort_name.setChecked(True)
         # size selector
         bottom_bar.addStretch(1)
-        bottom_bar.addWidget(QtWidgets.QLabel(self.tr('Thumbnail size')))
+        bottom_bar.addWidget(QtWidgets.QLabel(
+            translate('ImageList', 'Thumbnail size')))
         self.size_slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self.size_slider.setTracking(False)
         self.size_slider.setRange(4, 9)
@@ -596,11 +599,12 @@ class ImageList(QtWidgets.QWidget):
     def open_files(self, checked=False):
         args = [
             self,
-            self.tr('Open files'),
+            translate('ImageList', 'Open files'),
             self.app.config_store.get('paths', 'images', ''),
-            self.tr("Images ({0});;Videos ({1});;All files (*)").format(
-                ' '.join(['*.' + x for x in image_types()]),
-                ' '.join(['*.' + x for x in video_types()]))
+            translate('ImageList',
+                      "Images ({0});;Videos ({1});;All files (*)").format(
+                          ' '.join(['*.' + x for x in image_types()]),
+                          ' '.join(['*.' + x for x in video_types()]))
             ]
         if not self.app.config_store.get('pyqt', 'native_dialog', True):
             args += [None, QtWidgets.QFileDialog.Option.DontUseNativeDialog]
@@ -654,7 +658,7 @@ class ImageList(QtWidgets.QWidget):
         if self.get_image(path):
             # already opened this path
             return True
-        image = Image(path, self, thumb_size=self.thumb_size)
+        image = Image(path, thumb_size=self.thumb_size)
         self.images.append(image)
         self.show_thumbnail(image)
         return True
@@ -721,9 +725,9 @@ class ImageList(QtWidgets.QWidget):
         actions = {}
         actions['reload'] = menu.addAction('', self.reload_selected_metadata)
         actions['save'] = menu.addAction(
-            self.tr('Save changes'), self.save_selected_metadata)
+            translate('ImageList', 'Save changes'), self.save_selected_metadata)
         actions['diff'] = menu.addAction(
-            self.tr('View changes'), self.diff_selected_metadata)
+            translate('ImageList', 'View changes'), self.diff_selected_metadata)
         actions['thumbs'] = menu.addAction(
             '', self.regenerate_selected_thumbnails)
         actions['close'] = menu.addAction('', self.close_selected_files)
@@ -738,10 +742,23 @@ class ImageList(QtWidgets.QWidget):
         actions['diff'].setEnabled(changed_images)
         actions['thumbs'].setEnabled(bool(images))
         actions['close'].setEnabled(bool(images))
-        actions['reload'].setText(self.tr('Reload file(s)', '', len(images)))
-        actions['thumbs'].setText(
-            self.tr('Regenerate thumbnail(s)', '', len(images)))
-        actions['close'].setText(self.tr('Close file(s)', '', len(images)))
+
+        if qt_version_info >= (6, 0):
+            # pyside6-lupdate doesn't recognise plurals with 'translate'
+            actions['reload'].setText(
+                ImageList.tr('Reload file(s)', '', len(images)))
+            actions['thumbs'].setText(
+                ImageList.tr('Regenerate thumbnail(s)', '', len(images)))
+            actions['close'].setText(
+                ImageList.tr('Close file(s)', '', len(images)))
+        else:
+            # Qt5 doesn't handle ClassName.tr correctly
+            actions['reload'].setText(translate(
+                'ImageList', 'Reload file(s)', '', len(images)))
+            actions['thumbs'].setText(translate(
+                'ImageList', 'Regenerate thumbnail(s)', '', len(images)))
+            actions['close'].setText(translate(
+                'ImageList', 'Close file(s)', '', len(images)))
 
     @QtSlot()
     @catch_all
@@ -765,8 +782,9 @@ class ImageList(QtWidgets.QWidget):
                             min(width // 2, self.window().height()))
         table = QtWidgets.QTableWidget()
         table.setColumnCount(3)
-        table.setHorizontalHeaderLabels([
-            self.tr('new value'), self.tr('undo'), self.tr('old value')])
+        table.setHorizontalHeaderLabels([translate('ImageList', 'new value'),
+                                         translate('ImageList', 'undo'),
+                                         translate('ImageList', 'old value')])
         table.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeMode.Stretch)
         table.horizontalHeader().setSectionResizeMode(
@@ -783,8 +801,8 @@ class ImageList(QtWidgets.QWidget):
         for image in self.get_selected_images():
             if not image.metadata.changed():
                 continue
-            dialog.setWindowTitle(self.tr(
-                'Metadata differences: {}').format(image.name))
+            dialog.setWindowTitle(translate(
+                'ImageList', 'Metadata differences: {}').format(image.name))
             labels = []
             row = 0
             undo = {}
@@ -934,10 +952,11 @@ class ImageList(QtWidgets.QWidget):
         else:
             return True
         dialog = QtWidgets.QMessageBox(parent=self)
-        dialog.setWindowTitle(self.tr('Photini: unsaved data'))
+        dialog.setWindowTitle(translate('ImageList', 'Photini: unsaved data'))
         dialog.setText('<h3>{}</h3>'.format(
-            self.tr('Some images have unsaved metadata.')))
-        dialog.setInformativeText(self.tr('Do you want to save your changes?'))
+            translate('ImageList', 'Some images have unsaved metadata.')))
+        dialog.setInformativeText(
+            translate('ImageList', 'Do you want to save your changes?'))
         dialog.setIcon(dialog.Icon.Warning)
         buttons = dialog.StandardButton.Save
         if with_cancel:
