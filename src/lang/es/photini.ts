@@ -1007,6 +1007,58 @@ fotos</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Atribución 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Atribución-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Atribución-SinDerivadas 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Atribución-NoComercial-SinDerivadas 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Etiqueta de Dominio Público 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1324,56 +1376,36 @@ fotos</translation>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Atribución 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Atribución 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Atribución-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Atribución-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Atribución-NoComercial 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Atribución-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Atribución-SinDerivadas 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Atribución-SinDerivadas 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Atribución-NoComercial-SinDerivadas 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Atribución-NoComercial-SinDerivadas 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público</translation>
+        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Dedicación de Dominio Público</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Etiqueta de Dominio Público 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Etiqueta de Dominio Público 1.0</translation>
     </message>
 </context>
 <context>

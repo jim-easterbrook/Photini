@@ -1230,6 +1230,58 @@ mal</translation>
         <translation>Bruksvilkår</translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Navngivelse 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Public Domain-Merket 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1435,56 +1487,36 @@ mal</translation>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Navngivelse 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Navngivelse 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Navngivelse-DelPåSammeVilkår 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell-DelPåSammeVilkår 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Navngivelse-Ingen bearbeidelser 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Navngivelse-IkkeKommersiell-Ingen bearbeidelser 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
+        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Fristatus-erklæring</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Public Domain-Merket 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Public Domain-Merket 1.0</translation>
     </message>
 </context>
 <context>

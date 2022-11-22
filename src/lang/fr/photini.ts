@@ -1341,6 +1341,58 @@ le modèle</translation>
         <translation>Initialiser le modèle</translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation>Tous droits réservés</translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Attribution 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Marque du Domaine Public 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation>Définir une nouvelle licence</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nom</translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation>URL</translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+    </message>
+    <message>
         <source>Edit template</source>
         <translation>Modifier le modèle</translation>
     </message>
@@ -1523,55 +1575,55 @@ le modèle</translation>
     <name>RightsDropDown</name>
     <message>
         <source>All rights reserved</source>
-        <translation>Tous droits réservés</translation>
+        <translation type="vanished">Tous droits réservés</translation>
     </message>
     <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Attribution 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Attribution 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Attribution - Partage dans les Mêmes Conditions 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d’Utilisation Commerciale 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d’Utilisation Commerciale - Partage dans les Mêmes Conditions 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Attribution - Pas de Modification 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Attribution - Pas d&apos;Utilisation Commerciale - Pas de Modification 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
+        <translation type="vanished">CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Marque du Domaine Public 1.0</translation>
+        <translation type="vanished">Marque du Domaine Public 1.0</translation>
     </message>
     <message>
         <source>Define new licence</source>
-        <translation>Définir une nouvelle licence</translation>
+        <translation type="vanished">Définir une nouvelle licence</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation>URL</translation>
+        <translation type="vanished">URL</translation>
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
     </message>
 </context>
 <context>

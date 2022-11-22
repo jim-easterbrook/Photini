@@ -1103,6 +1103,58 @@ funcionant amb Bing</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>All rights reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution 4.0 (CC BY 4.0)</source>
+        <translation>Reconeixement 4.0 (CC BY 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
+        <translation>Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
+        <translation>Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
+        <translation>Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
+        <translation>Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
+        <translation>Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
+    </message>
+    <message>
+        <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
+        <translation>CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
+    </message>
+    <message>
+        <source>Public Domain Mark 1.0</source>
+        <translation>Marca de Domini Públic 1.0</translation>
+    </message>
+    <message>
+        <source>Define new licence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1420,56 +1472,36 @@ funcionant amb Bing</translation>
 <context>
     <name>RightsDropDown</name>
     <message>
-        <source>All rights reserved</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Attribution 4.0 (CC BY 4.0)</source>
-        <translation>Reconeixement 4.0 (CC BY 4.0)</translation>
+        <translation type="vanished">Reconeixement 4.0 (CC BY 4.0)</translation>
     </message>
     <message>
         <source>Attribution-ShareAlike 4.0 (CC BY-SA 4.0)</source>
-        <translation>Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
+        <translation type="vanished">Reconeixement-CompartirIgual 4.0 (CC BY-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial 4.0 (CC BY-NC 4.0)</source>
-        <translation>Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial 4.0 (CC BY-NC 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)</source>
-        <translation>Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial-CompartirIgual 4.0 (CC BY-NC-SA 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)</source>
-        <translation>Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
+        <translation type="vanished">Reconeixement-SenseObraDerivada 4.0 (CC BY-ND 4.0)</translation>
     </message>
     <message>
         <source>Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)</source>
-        <translation>Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
+        <translation type="vanished">Reconeixement-NoComercial-SenseObraDerivada 4.0 (CC BY-NC-ND 4.0)</translation>
     </message>
     <message>
         <source>CC0 1.0 Universal (CC0 1.0) Public Domain Dedication</source>
-        <translation>CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
+        <translation type="vanished">CC0 1.0 Universal (CC0 1.0) Oferiment al Domini Públic</translation>
     </message>
     <message>
         <source>Public Domain Mark 1.0</source>
-        <translation>Marca de Domini Públic 1.0</translation>
-    </message>
-    <message>
-        <source>Define new licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Marca de Domini Públic 1.0</translation>
     </message>
 </context>
 <context>
