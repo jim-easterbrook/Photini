@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2012-21  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@ from photini.pyqt import (
     catch_all, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class OutputInterceptor(object):
@@ -77,7 +78,7 @@ class LoggerWindow(QtWidgets.QWidget):
     def __init__(self, verbose, *arg, **kw):
         super(LoggerWindow, self).__init__(*arg, **kw)
         QtWidgets.QApplication.instance().aboutToQuit.connect(self.shutdown)
-        self.setWindowTitle(self.tr("Photini error logging"))
+        self.setWindowTitle(translate('LoggerWindow', "Photini error logging"))
         self.setLayout(QtWidgets.QVBoxLayout())
         # main dialog area
         self.text = QtWidgets.QTextEdit()
@@ -126,7 +127,7 @@ class LoggerWindow(QtWidgets.QWidget):
     @catch_all
     def save(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
-            self, self.tr('Save log file'),
+            self, translate('LoggerWindow', 'Save log file'),
             os.path.expanduser('~/photini_log.txt'))
         file_name = file_name[0]
         if file_name:

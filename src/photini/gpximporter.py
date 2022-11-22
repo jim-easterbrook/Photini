@@ -27,6 +27,7 @@ from photini.pyqt import QtCore, QtWidgets
 
 
 logger = logging.getLogger(__name__)
+translate = QtCore.QCoreApplication.translate
 
 
 class GpxImporter(QtCore.QObject):
@@ -43,9 +44,10 @@ class GpxImporter(QtCore.QObject):
         # get file path
         args = [
             self.parent(),
-            self.tr('Import GPX file'),
+            translate('GpxImporter', 'Import GPX file'),
             self.config_store.get('paths', 'gpx', ''),
-            self.tr("GPX files (*.gpx *.GPX *.Gpx);;All files (*)")
+            translate('GpxImporter',
+                      "GPX files (*.gpx *.GPX *.Gpx);;All files (*)")
             ]
         if not self.config_store.get('pyqt', 'native_dialog', True):
             args += [None, QtWidgets.QFileDialog.Option.DontUseNativeDialog]

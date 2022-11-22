@@ -378,7 +378,7 @@ class LatLongDisplay(SingleLineEdit):
     def __init__(self, *args, **kwds):
         super(LatLongDisplay, self).__init__('latlon', *args, **kwds)
         self.app = QtWidgets.QApplication.instance()
-        self.label = QtWidgets.QLabel(self.tr('Lat, long'))
+        self.label = QtWidgets.QLabel(translate('LatLongDisplay', 'Lat, long'))
         self.label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.setFixedWidth(width_for_text(self, '8' * 23))
         self.setEnabled(False)
@@ -566,8 +566,9 @@ class LangAltWidget(QtWidgets.QWidget):
         self.lang.set_value(LangAltDict.DEFAULT)
         self.edit.set_value(self.value[LangAltDict.DEFAULT])
         lang, OK = QtWidgets.QInputDialog.getText(
-            self, self.tr('New language'), wrap_text(self, self.tr(
-                'What language is the current text in?'
+            self, translate('LangAltWidget', 'New language'),
+            wrap_text(self, translate(
+                'LangAltWidget', 'What language is the current text in?'
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if OK and lang:
             self._set_default_lang(lang)
@@ -580,8 +581,9 @@ class LangAltWidget(QtWidgets.QWidget):
         if prompt in self.value:
             prompt = None
         lang, OK = QtWidgets.QInputDialog.getText(
-            self, self.tr('New language'), wrap_text(self, self.tr(
-                'What language would you like to add?'
+            self, translate('LangAltWidget', 'New language'),
+            wrap_text(self, translate(
+                'LangAltWidget', 'What language would you like to add?'
                 ' Please enter an RFC3066 language tag.'), 2), text=prompt)
         if not (OK and lang):
             return None, None
@@ -601,7 +603,7 @@ class LangAltWidget(QtWidgets.QWidget):
             return
         default_lang = self.value.get_default_lang()
         menu = QtWidgets.QMenu()
-        menu.addAction(self.tr('Set default language'))
+        menu.addAction(translate('LangAltWidget', 'Set default language'))
         for lang in langs:
             action = menu.addAction(lang)
             action.setCheckable(True)
@@ -622,12 +624,12 @@ class LangAltWidget(QtWidgets.QWidget):
     def labeled_lang(self, lang):
         if lang == LangAltDict.DEFAULT:
             if len(self.value) == 1:
-                return self.tr('Language'), lang
+                return translate('LangAltWidget', 'Language'), lang
             label = '-'
         else:
             label = lang
-        label = self.tr('Lang: ',
-                        'Short abbreviation of "Language: "') + label
+        label = translate('LangAltWidget', 'Lang: ',
+                          'Short abbreviation of "Language: "') + label
         return label, lang
 
     def set_value(self, value):
