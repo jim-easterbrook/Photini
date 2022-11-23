@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 12:47+0000\n"
+"POT-Creation-Date: 2022-11-23 11:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -580,9 +580,6 @@ msgstr ""
 msgid "Photini can be made easier to use for people who don't speak English. There are two parts to this -- the text used within the program and the documentation. I rely on users to do the translation as I can not write any other language with any fluency. You can use an online service (Weblate_ or Transifex_) or a suitable text editor installed on your computer."
 msgstr ""
 
-msgid "I'm currently experimenting with using Weblate and Transifex simultaneously. They both synchronise to GitHub, so changes made on one service should eventually appear on the other. Please let me know which of them you prefer."
-msgstr ""
-
 msgid "Translating the program text"
 msgstr ""
 
@@ -640,7 +637,7 @@ msgstr ""
 msgid "Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used."
 msgstr ""
 
-msgid "Start by downloading the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`). You will also need to install Babel_ and ``pylupdate5``. If possible, install these with your operating system software manager. ``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution."
+msgid "Start by downloading the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`). You will also need to install ``pyside6-lupdate``. This is part of the ``PySide6`` package installable with ``pip``."
 msgstr ""
 
 msgid "The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language. First you should update (or initialise if they don't exist) the translation files with the current program strings::"
@@ -709,7 +706,7 @@ msgstr ""
 msgid "If you've been working online then you can download your translation with Weblate's \"Files\" menu. It will have the wrong default name so, for example, make sure you save ``photini-gui-fr.ts`` as ``src/lang/fr/photini.ts``."
 msgstr ""
 
-msgid "The translation file needs to be \"compiled\" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program. This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems."
+msgid "The translation file needs to be \"compiled\" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program. This requires the ``pyside6-lrelease`` program, which is part of the ``PySide6`` package on PyPI."
 msgstr ""
 
 msgid "You can easily update and compile all the language files::"
