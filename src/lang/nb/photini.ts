@@ -457,20 +457,12 @@
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="obsolete">sorter etter: </translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation>filnavn</translation>
     </message>
     <message>
         <source>date taken</source>
         <translation type="unfinished">dato knipset</translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
-        <translation type="obsolete">miniatyrbildestørrelse: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -503,14 +495,6 @@
     <message>
         <source>View changes</source>
         <translation>Vis endringer</translation>
-    </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="obsolete">Ingen
-miniatyrbilder
-i fil</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
@@ -577,42 +561,6 @@ i fil</translation>
         <translation>Målformat</translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation type="obsolete">Velg
-alle</translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation type="obsolete">Velg
-nye</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="obsolete">Flytt
-bilder</translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="obsolete">Stopp
-flytting</translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation type="obsolete">Kopier
-bilder</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="obsolete">Stopp
-kopiering</translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation>Velg rot-mappe</translation>
     </message>
@@ -639,16 +587,6 @@ kopiering</translation>
     <message>
         <source>Closing now will terminate the import.</source>
         <translation>Lukking vil terminere importen.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n fil
-valgt</numerusform>
-            <numerusform>%n filer
-valgt</numerusform>
-        </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -833,10 +771,6 @@ valgt</numerusform>
         <translation>Beskrivelse</translation>
     </message>
     <message>
-        <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Hvem kan kommentere&lt;br&gt;albumet</translation>
-    </message>
-    <message>
         <source>File too large.</source>
         <translation>Filen er for stor.</translation>
     </message>
@@ -850,10 +784,6 @@ valgt</numerusform>
     <message>
         <source>New language</source>
         <translation>Nytt språk</translation>
-    </message>
-    <message>
-        <source>Set default language:</source>
-        <translation type="obsolete">Sett forvalgt språk</translation>
     </message>
     <message>
         <source>Language</source>
@@ -1023,10 +953,6 @@ valgt</numerusform>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Selected images:</source>
-        <translation type="obsolete">Valgte bilder:</translation>
-    </message>
 </context>
 <context>
     <name>OwnerTab</name>
@@ -1041,18 +967,6 @@ valgt</numerusform>
     <message>
         <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Edit
-template</source>
-        <translation type="obsolete">Rediger
-mal</translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="obsolete">Bruk
-mal</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1361,22 +1275,6 @@ mal</translation>
         <translation>Annet</translation>
     </message>
     <message>
-        <source>normal</source>
-        <translation type="obsolete">normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="obsolete">roter -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="obsolete">roter +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="obsolete">roter 180</translation>
-    </message>
-    <message>
         <source>Orientation</source>
         <translation type="unfinished">Sideretning</translation>
     </message>
@@ -1444,21 +1342,6 @@ mal</translation>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
         <translation>normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">roter -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">roter +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">roter 180</translation>
     </message>
     <message>
         <source>reflect left to right</source>

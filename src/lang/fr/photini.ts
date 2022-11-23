@@ -106,10 +106,6 @@
         <source>increase number of logging messages</source>
         <translation>augmente le nombre de messages de débogage affichés</translation>
     </message>
-    <message>
-        <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="obsolete">les métadonnées sont connues pour être codées en ASCII ou en utf-8</translation>
-    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
@@ -144,18 +140,6 @@
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
         <translation>Entrez un nom court, verbal et lisible pae un être humain pour l&apos;image&#xa0;; ceci peut être le nom du fichier.</translation>
-    </message>
-    <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
-this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="obsolete">Saisissez une «&#xa0;légende&#xa0;» décrivant le qui, le quoi et le pourquoi de ce qui se passe dans cette image,
-ceci peut inclure des noms de personnes et/ou leur rôle dans l&apos;action qui se déroule dans l&apos;image.</translation>
-    </message>
-    <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
-Separate them with &quot;;&quot; characters.</source>
-        <translation type="obsolete">Saisissez un nombre quelconque de mots-clés, de termes ou de phrases utilisés pour exprimer le sujet de l&apos;image.
-Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
@@ -473,20 +457,12 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="obsolete">Trier par&#xa0;: </translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation>Nom de fichier</translation>
     </message>
     <message>
         <source>date taken</source>
         <translation>Date de prise de vue</translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
-        <translation type="obsolete">Taille des miniatures&#xa0;: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -519,14 +495,6 @@ Séparez-les par des caractères «&#xa0;;&#xa0;».</translation>
     <message>
         <source>View changes</source>
         <translation>Voir les modifications</translation>
-    </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="obsolete">Pas de
-miniature
-dans le fichier</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
@@ -593,42 +561,6 @@ dans le fichier</translation>
         <translation>Format cible</translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation type="obsolete">Tout
-sélectionner</translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation type="obsolete">Sélectionnez
-nouveau</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="obsolete">Déplacer
-les photos</translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="obsolete">Arrêter
-le déplacement</translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation type="obsolete">Copier
-les photos</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="obsolete">Arrêter
-la copie</translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation>Sélectionner le dossier racine</translation>
     </message>
@@ -655,16 +587,6 @@ la copie</translation>
     <message>
         <source>Closing now will terminate the import.</source>
         <translation>Fermer maintenant stoppera l&apos;import.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n fichier
-sélectionné</numerusform>
-            <numerusform>%n fichiers
-sélectionnés</numerusform>
-        <numerusform>Unused</numerusform></translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -849,10 +771,6 @@ sélectionnés</numerusform>
         <translation>Description</translation>
     </message>
     <message>
-        <source>Who can comment&lt;br&gt;on album</source>
-        <translation type="obsolete">Qui peut commenter&lt;br&gt;sur l&apos;album</translation>
-    </message>
-    <message>
         <source>File too large.</source>
         <translation>Fichier trop volumineux.</translation>
     </message>
@@ -868,18 +786,6 @@ sélectionnés</numerusform>
         <translation>Nouvelle langue</translation>
     </message>
     <message>
-        <source>What language is the current text in?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;?&lt;b&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
-    </message>
-    <message>
-        <source>What language would you like to add?&lt;br&gt;Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;?&lt;br&gt;Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
-    </message>
-    <message>
-        <source>Set default language:</source>
-        <translation type="obsolete">Définir la langue par défaut&#xa0;:</translation>
-    </message>
-    <message>
         <source>Language</source>
         <translation>Langue</translation>
     </message>
@@ -887,14 +793,6 @@ sélectionnés</numerusform>
         <source>Lang: </source>
         <comment>Short abbreviation of &quot;Language: &quot;</comment>
         <translation>Langue&#xa0;: </translation>
-    </message>
-    <message>
-        <source>What language is the current text in? Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">En quelle langue est le texte suivant&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
-    </message>
-    <message>
-        <source>What language would you like to add? Please enter an RFC3066 language tag:</source>
-        <translation type="obsolete">Quel langue souhaitez-vous ajouter&#xa0;? Veuillez saisir un code de langue au format RFC3066&#xa0;:</translation>
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
@@ -934,12 +832,6 @@ sélectionnés</numerusform>
         <translation>Surcharge du serveur, veuillez réessayer</translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="obsolete">Recherche et altitude
-fournie par Bing</translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Carte (&amp;Bing)</translation>
     </message>
@@ -950,10 +842,6 @@ fournie par Bing</translation>
 </context>
 <context>
     <name>MapTabGoogle</name>
-    <message>
-        <source>Search and altitude lookup</source>
-        <translation type="obsolete">Recherche et mesure d&apos;altitude</translation>
-    </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Carte (&amp;Google)</translation>
@@ -1065,10 +953,6 @@ fournie par Bing</translation>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation>Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
     </message>
-    <message>
-        <source>Selected images:</source>
-        <translation type="obsolete">Images sélectionnées&#xa0;:</translation>
-    </message>
 </context>
 <context>
     <name>OwnerTab</name>
@@ -1083,18 +967,6 @@ fournie par Bing</translation>
     <message>
         <source>&amp;Ownership metadata</source>
         <translation>Métadonnées du &amp;propriétaire</translation>
-    </message>
-    <message>
-        <source>Edit
-template</source>
-        <translation type="obsolete">Modifier
-le modèle</translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="obsolete">Appliquer
-le modèle</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1201,12 +1073,6 @@ le modèle</translation>
         <translation>Utilisez %Y pour insérer l&apos;année à laquelle la photo a été prise.</translation>
     </message>
     <message>
-        <source>Initialise
-template</source>
-        <translation type="obsolete">Initialiser
-le modèle</translation>
-    </message>
-    <message>
         <source>Usage Terms</source>
         <translation>Conditions d&apos;utilisation</translation>
     </message>
@@ -1225,10 +1091,6 @@ le modèle</translation>
     <message>
         <source>Rights</source>
         <translation>Droits</translation>
-    </message>
-    <message>
-        <source>Creator&lt;br&gt;Contact&lt;br&gt;Information</source>
-        <translation type="obsolete">Informations&lt;br&gt;de contact&lt;br&gt;du créateur</translation>
     </message>
     <message>
         <source>Photini: ownership template</source>
@@ -1345,10 +1207,6 @@ le modèle</translation>
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="obsolete">Précision&#xa0;:</translation>
-    </message>
-    <message>
         <source>min</source>
         <translation>min</translation>
     </message>
@@ -1415,38 +1273,6 @@ le modèle</translation>
     <message>
         <source>Other</source>
         <translation>Autre</translation>
-    </message>
-    <message>
-        <source>normal</source>
-        <translation type="obsolete">Normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="obsolete">Rotation -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="obsolete">Rotation +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="obsolete">Rotation 180</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="obsolete">refléter gauche-droite</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="obsolete">refléter de haut en bas</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="obsolete">refléter haut droite-bas gauche</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="obsolete">refléter haut droite-bas gauche</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1516,41 +1342,6 @@ le modèle</translation>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
         <translation>Normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Rotation -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Rotation +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">Rotation 180</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <comment>orientation dropdown, horizontal reflection</comment>
-        <translation type="obsolete">refléter gauche-droite</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <comment>orientation dropdown, vertical reflection</comment>
-        <translation type="obsolete">refléter de haut en bas</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation type="obsolete">refléter haut droite-bas gauche</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation type="obsolete">refléter haut gauche-bas droite</translation>
     </message>
     <message>
         <source>reflect left to right</source>
@@ -1657,10 +1448,6 @@ le modèle</translation>
     <message>
         <source>Add to albums</source>
         <translation>Ajouter aux albums</translation>
-    </message>
-    <message>
-        <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Connecté en tant que&lt;br&gt;{0} sur {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>

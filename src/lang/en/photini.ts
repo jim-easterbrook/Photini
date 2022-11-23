@@ -588,16 +588,6 @@
         <source>Closing now will terminate the import.</source>
         <translation></translation>
     </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n file
-selected</numerusform>
-            <numerusform>%n files
-selected</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Importing photos has not finished.</source>
         <translation></translation>

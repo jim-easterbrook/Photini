@@ -106,10 +106,6 @@
         <source>increase number of logging messages</source>
         <translation>Anzahl der Einträge im Fehlerprotokoll erhöhen</translation>
     </message>
-    <message>
-        <source>metadata is known to be ASCII or utf-8 encoded</source>
-        <translation type="obsolete">die Metadaten sind bekanntermaßen ASCII- oder utf-8-kodiert</translation>
-    </message>
 </context>
 <context>
     <name>DescriptiveTab</name>
@@ -144,18 +140,6 @@
     <message>
         <source>Enter a short verbal and human readable name for the image, this may be the file name.</source>
         <translation>Geben Sie einen kurzen, verbalen und menschenlesbaren Namen für das Bild ein, der auch der Dateiname sein kann.</translation>
-    </message>
-    <message>
-        <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image,
-this might include names of people, and/or their role in the action that is taking place within the image.</source>
-        <translation type="obsolete">Geben Sie eine „Bildunterschrift“ ein, die das Wer, Was und Warum des Geschehens auf diesem Bild beschreibt,
-Dies kann Namen von Personen und/oder ihre Rolle in der Handlung, die auf dem Bild stattfindet, beinhalten.</translation>
-    </message>
-    <message>
-        <source>Enter any number of keywords, terms or phrases used to express the subject matter in the image.
-Separate them with &quot;;&quot; characters.</source>
-        <translation type="obsolete">Geben Sie eine beliebige Anzahl von Schlüsselwörtern, Begriffen oder Phrasen ein, die das Thema des Bildes ausdrücken sollen.
-Trennen Sie sie mit ;-Zeichen.</translation>
     </message>
     <message>
         <source>Enter a brief publishable synopsis or summary of the contents of the image.</source>
@@ -473,20 +457,12 @@ Trennen Sie sie mit ;-Zeichen.</translation>
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="obsolete">Sortieren nach: </translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation>Dateiname</translation>
     </message>
     <message>
         <source>date taken</source>
         <translation>Aufnahmedatum</translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
-        <translation type="obsolete">Vorschaubildgröße: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -519,14 +495,6 @@ Trennen Sie sie mit ;-Zeichen.</translation>
     <message>
         <source>View changes</source>
         <translation>Änderungen anzeigen</translation>
-    </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="obsolete">Vorschau
-in Datei
-nicht vorhanden</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
@@ -593,42 +561,6 @@ nicht vorhanden</translation>
         <translation>Zielformat</translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation type="obsolete">Alle
-auswählen</translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation type="obsolete">Neu
-auswählen</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="obsolete">Photos
-verschieben</translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="obsolete">Stop
-Verschieben</translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation type="obsolete">Fotos
-kopieren</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="obsolete">Stop
-Kopieren</translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation>Quellordner auswählen</translation>
     </message>
@@ -655,16 +587,6 @@ Kopieren</translation>
     <message>
         <source>Closing now will terminate the import.</source>
         <translation>Wenn Sie jetzt schließen, wird der Import abgebrochen.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n Datei
-ausgewählt</numerusform>
-            <numerusform>%n Dateien
-ausgewählt</numerusform>
-        </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -910,12 +832,6 @@ ausgewählt</numerusform>
         <translation>Server überlastet, bitte nochmal probieren</translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="obsolete">Suche und Nachschlagen der Höhe
-provided by Bing</translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Karte (&amp;Bing)</translation>
     </message>
@@ -926,10 +842,6 @@ provided by Bing</translation>
 </context>
 <context>
     <name>MapTabGoogle</name>
-    <message>
-        <source>Search and altitude lookup</source>
-        <translation type="obsolete">Suche und Höhenermittlung</translation>
-    </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Karte (&amp;Google)</translation>
@@ -1041,10 +953,6 @@ provided by Bing</translation>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation>Sie verwenden derzeit Photini Version {0}. Die neueste Version ist {1}.</translation>
     </message>
-    <message>
-        <source>Selected images:</source>
-        <translation type="obsolete">Ausgewählte Bilder:</translation>
-    </message>
 </context>
 <context>
     <name>OwnerTab</name>
@@ -1059,18 +967,6 @@ provided by Bing</translation>
     <message>
         <source>&amp;Ownership metadata</source>
         <translation>&amp;Eigentümerschaft-Metadaten</translation>
-    </message>
-    <message>
-        <source>Edit
-template</source>
-        <translation type="obsolete">Vorlage
-bearbeiten</translation>
-    </message>
-    <message>
-        <source>Apply
-template</source>
-        <translation type="obsolete">Vorlage
-anwenden</translation>
     </message>
     <message>
         <source>Creator</source>
@@ -1311,10 +1207,6 @@ anwenden</translation>
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="obsolete">Genauigkeit:</translation>
-    </message>
-    <message>
         <source>min</source>
         <translation>min</translation>
     </message>
@@ -1381,38 +1273,6 @@ anwenden</translation>
     <message>
         <source>Other</source>
         <translation>Andere</translation>
-    </message>
-    <message>
-        <source>normal</source>
-        <translation type="obsolete">normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="obsolete">90 Grad gegen Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="obsolete">90 Grad im Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="obsolete">180 Grad im Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="obsolete">links-rechts spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="obsolete">oben-unten spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="obsolete">rechts oben-links unten spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="obsolete">links oben-rechts unten spiegeln</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1482,41 +1342,6 @@ anwenden</translation>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
         <translation>normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">90 Grad gegen Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">90 Grad im Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">180 Grad im Uhrzeigersinn drehen</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <comment>orientation dropdown, horizontal reflection</comment>
-        <translation type="obsolete">links-rechts spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <comment>orientation dropdown, vertical reflection</comment>
-        <translation type="obsolete">oben-unten spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation type="obsolete">rechts oben-links unten spiegeln</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation type="obsolete">links oben-rechts unten spiegeln</translation>
     </message>
     <message>
         <source>reflect left to right</source>
@@ -1623,10 +1448,6 @@ anwenden</translation>
     <message>
         <source>Add to albums</source>
         <translation>Zu Alben hinzufügen</translation>
-    </message>
-    <message>
-        <source>Logged in as&lt;br&gt;{0} on {1}</source>
-        <translation type="obsolete">Angemeldet als&lt;br&gt;{0} auf {1}</translation>
     </message>
     <message>
         <source>Photini: authorise</source>

@@ -457,20 +457,12 @@
 <context>
     <name>ImageList</name>
     <message>
-        <source>sort by: </source>
-        <translation type="obsolete">ordena per: </translation>
-    </message>
-    <message>
         <source>file name</source>
         <translation>nom de fitxer</translation>
     </message>
     <message>
         <source>date taken</source>
         <translation>data captura</translation>
-    </message>
-    <message>
-        <source>thumbnail size: </source>
-        <translation type="obsolete">mida miniatura: </translation>
     </message>
     <message>
         <source>Open files</source>
@@ -503,14 +495,6 @@
     <message>
         <source>View changes</source>
         <translation>Veure canvis</translation>
-    </message>
-    <message>
-        <source>No
-thumbnail
-in file</source>
-        <translation type="obsolete">Sense
-miniatura
-en el fitxer</translation>
     </message>
     <message numerus="yes">
         <source>Regenerate thumbnail(s)</source>
@@ -577,42 +561,6 @@ en el fitxer</translation>
         <translation>Format destí</translation>
     </message>
     <message>
-        <source>Select
-all</source>
-        <translation type="obsolete">Selecciona
-tot</translation>
-    </message>
-    <message>
-        <source>Select
-new</source>
-        <translation type="obsolete">Selecciona
-nou</translation>
-    </message>
-    <message>
-        <source>Move
-photos</source>
-        <translation type="obsolete">Mou
-fotos</translation>
-    </message>
-    <message>
-        <source>Stop
-move</source>
-        <translation type="obsolete">Para
-moure</translation>
-    </message>
-    <message>
-        <source>Copy
-photos</source>
-        <translation type="obsolete">Copia
-fotos</translation>
-    </message>
-    <message>
-        <source>Stop
-copy</source>
-        <translation type="obsolete">Para
-copia</translation>
-    </message>
-    <message>
         <source>Select root folder</source>
         <translation>Trieu la carpeta destí</translation>
     </message>
@@ -639,16 +587,6 @@ copia</translation>
     <message>
         <source>Closing now will terminate the import.</source>
         <translation>Tancar ara interromprà la importació.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n fitxer
-triat</numerusform>
-            <numerusform>%n fitxers
-triats</numerusform>
-        </translation>
     </message>
     <message>
         <source>Importing photos has not finished.</source>
@@ -894,12 +832,6 @@ triats</numerusform>
         <translation>Sobrecàrrega del servidor, torneu-ho a provar</translation>
     </message>
     <message>
-        <source>Search and altitude lookup
-provided by Bing</source>
-        <translation type="obsolete">Cerca i consulta d&apos;alçada
-funcionant amb Bing</translation>
-    </message>
-    <message>
         <source>Map (&amp;Bing)</source>
         <translation>Mapa (&amp;Bing)</translation>
     </message>
@@ -910,10 +842,6 @@ funcionant amb Bing</translation>
 </context>
 <context>
     <name>MapTabGoogle</name>
-    <message>
-        <source>Search and altitude lookup</source>
-        <translation type="obsolete">Cerca i consulta d&apos;alçada</translation>
-    </message>
     <message>
         <source>Map (&amp;Google)</source>
         <translation>Mapa (&amp;Google)</translation>
@@ -1279,10 +1207,6 @@ funcionant amb Bing</translation>
 <context>
     <name>TechnicalTab</name>
     <message>
-        <source>Precision:</source>
-        <translation type="obsolete">Precissió:</translation>
-    </message>
-    <message>
         <source>min</source>
         <translation>min</translation>
     </message>
@@ -1349,38 +1273,6 @@ funcionant amb Bing</translation>
     <message>
         <source>Other</source>
         <translation>Altres</translation>
-    </message>
-    <message>
-        <source>normal</source>
-        <translation type="obsolete">normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <translation type="obsolete">gira -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <translation type="obsolete">gira +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <translation type="obsolete">gira 180</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <translation type="obsolete">reflexa esquerra-dreta</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <translation type="obsolete">reflexa dalt-baix</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <translation type="obsolete">reflexa dd-be</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <translation type="obsolete">reflexa de-bd</translation>
     </message>
     <message>
         <source>Orientation</source>
@@ -1450,41 +1342,6 @@ funcionant amb Bing</translation>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
         <translation>normal</translation>
-    </message>
-    <message>
-        <source>rotate -90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">gira -90</translation>
-    </message>
-    <message>
-        <source>rotate +90</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">gira +90</translation>
-    </message>
-    <message>
-        <source>rotate 180</source>
-        <comment>orientation dropdown</comment>
-        <translation type="obsolete">gira 180</translation>
-    </message>
-    <message>
-        <source>reflect left-right</source>
-        <comment>orientation dropdown, horizontal reflection</comment>
-        <translation type="obsolete">reflexa esquerra-dreta</translation>
-    </message>
-    <message>
-        <source>reflect top-bottom</source>
-        <comment>orientation dropdown, vertical reflection</comment>
-        <translation type="obsolete">reflexa dalt-baix</translation>
-    </message>
-    <message>
-        <source>reflect tr-bl</source>
-        <comment>orientation dropdown, diagonal reflection top right to bottom left</comment>
-        <translation type="obsolete">reflexa dd-be</translation>
-    </message>
-    <message>
-        <source>reflect tl-br</source>
-        <comment>orientation dropdown, diagonal reflection top left to bottom right</comment>
-        <translation type="obsolete">reflexa de-bd</translation>
     </message>
     <message>
         <source>reflect left to right</source>

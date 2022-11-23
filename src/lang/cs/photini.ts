@@ -591,17 +591,6 @@
         <source>Closing now will terminate the import.</source>
         <translation>Pokud bude program nyní zavřen, zavádění bude ukončeno.</translation>
     </message>
-    <message numerus="yes">
-        <source>%n file(s)
-selected</source>
-        <translation type="obsolete">
-            <numerusform>%n file
-selected</numerusform>
-            <numerusform>%n files
-selected</numerusform>
-            <numerusform></numerusform>
-        <numerusform>Unused</numerusform></translation>
-    </message>
     <message>
         <source>Importing photos has not finished.</source>
         <translation>Zavedení fotografií nebylo dokončen.o</translation>
