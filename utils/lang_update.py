@@ -88,6 +88,8 @@ def extract_program_strings(root):
                    xml_declaration=True, short_empty_elements=False)
     # run pylupdate
     cmd = ['pyside6-lupdate']
+    if args.purge:
+        cmd.append('-no-obsolete')
     if args.strip:
         cmd += ['-locations', 'none']
     cmd += inputs
@@ -202,6 +204,8 @@ def main(argv=None):
                         help='process documentation strings')
     parser.add_argument('-l', '--language',
                         help='language code, e.g. nl or cs_CZ')
+    parser.add_argument('-p', '--purge', action='store_true',
+                        help='remove obsolete strings')
     parser.add_argument('-s', '--strip', action='store_true',
                         help='remove line numbers')
     parser.add_argument('-t', '--transifex', action='store_true',
