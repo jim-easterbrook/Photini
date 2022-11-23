@@ -10,11 +10,6 @@ There are two parts to this -- the text used within the program and the document
 I rely on users to do the translation as I can not write any other language with any fluency.
 You can use an online service (Weblate_ or Transifex_) or a suitable text editor installed on your computer.
 
-.. note::
-    I'm currently experimenting with using Weblate and Transifex simultaneously.
-    They both synchronise to GitHub, so changes made on one service should eventually appear on the other.
-    Please let me know which of them you prefer.
-
 Translating the program text
 ----------------------------
 
@@ -85,9 +80,8 @@ Offline translation
 Translating Photini on your own computer will probably require extra software to be installed, but may be easier as you can see the program source where translations are used.
 
 Start by downloading the development version of Photini by cloning the GitHub repository (see :ref:`installation-photini`).
-You will also need to install Babel_ and ``pylupdate5``.
-If possible, install these with your operating system software manager.
-``pylupdate5`` should be in a package such as ``python3-qt5-devel`` or ``pyqt-tools`` or similar, depending on your Linux distribution.
+You will also need to install ``pyside6-lupdate``.
+This is part of the ``PySide6`` package installable with ``pip``.
 
 The program strings are stored in files with names like ``src/lang/nl/photini.ts``, where ``nl`` is the code for the Dutch language.
 First you should update (or initialise if they don't exist) the translation files with the current program strings::
@@ -96,7 +90,7 @@ First you should update (or initialise if they don't exist) the translation file
 
 Now you can open a translation file in your chosen editor, for example::
 
-   $ linguist-qt5 src/lang/nl/photini.ts
+   $ pyside6-linguist src/lang/nl/photini.ts
 
 You can use any text editor for your translations, but a special purpose translation editor is preferable.
 The `Qt Linguist`_ program is ideal, but any editor that understands the ``.ts`` file format used for the program strings should be acceptable.
@@ -155,7 +149,7 @@ If you've been working online then you can download your translation with Weblat
 It will have the wrong default name so, for example, make sure you save ``photini-gui-fr.ts`` as ``src/lang/fr/photini.ts``.
 
 The translation file needs to be "compiled" (converted from ``.ts`` format to ``.qm`` format) before it can be used by the Photini program.
-This requires the ``lrelease-qt5`` program, which is part of the ``libqt5-linguist`` package on some Linux systems.
+This requires the ``pyside6-lrelease`` program, which is part of the ``PySide6`` package on PyPI.
 
 You can easily update and compile all the language files::
 
@@ -164,12 +158,12 @@ You can easily update and compile all the language files::
 
 Now you can install Photini with your new translation(s)::
 
-   $ pip install .
+   $ pip3 install --user .
 
 Photini should use your new language if your computer's ``LANG`` environment variable is set appropriately.
 You can force this when running Photini from the command line::
 
-   $ LANG=nl photini
+   $ LANG=nl python3 -m photini
 
 Photini should now be using your translations.
 
@@ -195,7 +189,8 @@ The documentation translation uses ``.po`` files as specified by the `GNU gettex
 You can open the translation file in any editor, but a translation tool is best.
 For example::
 
-   $ linguist-qt5 src/lang/nl/LC_MESSAGES/manual.po
+   $ python3 utils/lang_update.py -l nl -d
+   $ pyside6-linguist src/lang/nl/LC_MESSAGES/manual.po
 
 See the :ref:`notes <localisation-documentation-notes>` below for things to be aware of when translating the documentation.
 
@@ -245,7 +240,7 @@ For example, to build Dutch documentation::
 Open ``doc/html/index.html`` with a web browser to read the translated documentation.
 
 .. _Babel:       http://babel.pocoo.org/
-.. _Qt Linguist: https://doc.qt.io/qt-5/linguist-translators.html
+.. _Qt Linguist: https://doc.qt.io/qt-6/linguist-translators.html
 .. _Sphinx:      https://www.sphinx-doc.org/
 .. _Transifex:   https://www.transifex.com/jim-easterbrook/photini/
 .. _Weblate:     https://hosted.weblate.org/projects/photini/
