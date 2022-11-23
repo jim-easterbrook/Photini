@@ -139,6 +139,8 @@ class UploadWorker(QtCore.QObject):
             except UploadAborted:
                 error = 'UploadAborted'
                 session.close_connection()
+            except RuntimeError as ex:
+                error = str(ex)
             except Exception as ex:
                 logger.exception(ex)
                 error = '{}: {}'.format(type(ex), str(ex))
@@ -400,7 +402,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_photo.setPixmap(pixmap)
 
     def convert_to_jpeg(self, image):
-        im = QtGui.QImage(image.path)
+        reader = QtGui.QImageReader(image.path)
+        im = reader.read()
+        if not im or im.isNull():
+            raise RuntimeError(
+                '{}: {}'.format(image.path, reader.errorString()))
         buf = QtCore.QBuffer()
         buf.open(buf.OpenModeFlag.WriteOnly)
         im.save(buf, format='jpeg', quality=95)
