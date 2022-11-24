@@ -265,6 +265,10 @@ class MetadataHandler(object):
         if tag == 'Exif.Photo.UserComment' and type_id in (
                 exiv2.TypeId.comment, exiv2.TypeId.undefined):
             return self.get_exif_comment(datum)
+        if type_id == exiv2.TypeId.asciiString:
+            return datum.toString()
+        if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
+            return self.get_raw_value(datum)
         if type_id == exiv2.TypeId.signedRational:
             value = exiv2.RationalValue(datum.value())
         elif type_id == exiv2.TypeId.unsignedRational:
@@ -278,7 +282,9 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.unsignedLong:
             value = exiv2.ULongValue(datum.value())
         else:
-            # probably a string value, so use the string
+            # unhandled type, use the string representation
+            logger.warning('%s: %s: reading %s as string',
+                           self._name, tag, datum.typeName())
             return datum.toString()
         if len(value) > 1:
             return list(value)
@@ -347,9 +353,30 @@ class MetadataHandler(object):
     def set_exif_value(self, tag, value):
         if not value:
             self.clear_tag(tag)
+            return
+        key = exiv2.ExifKey(tag)
+        type_id = key.defaultTypeId()
+        if type_id == exiv2.TypeId.unsignedByte:
+            value = exiv2.DataValue(value)
+        elif type_id == exiv2.TypeId.asciiString:
+            value = exiv2.AsciiValue(value)
+        elif type_id == exiv2.TypeId.unsignedShort:
+            value = exiv2.UShortValue(value)
+        elif type_id == exiv2.TypeId.unsignedLong:
+            value = exiv2.ULongValue(value)
+        elif type_id == exiv2.TypeId.unsignedRational:
+            if isinstance(value, (list, tuple)):
+                value = exiv2.URationalValue(
+                    [(x.numerator, x.denominator) for x in value])
+            else:
+                value = exiv2.URationalValue(
+                    [(value.numerator, value.denominator)])
         else:
-            datum = self._exifData[tag]
-            datum.setValue(value)
+            # unhandled type, use the string representation
+            logger.warning('%s: %s: writing type %s as string',
+                           self._name, tag, type_id)
+        datum = self._exifData[tag]
+        datum.setValue(value)
 
     # maximum length of Iptc data
     _max_bytes = {

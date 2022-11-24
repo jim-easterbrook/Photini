@@ -36,7 +36,7 @@ __all__ = (
     'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
 
 
-def safe_fraction(value):
+def safe_fraction(value, limit=True):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
     try:
         if isinstance(value, (list, tuple)):
@@ -45,8 +45,10 @@ def safe_fraction(value):
             value = Fraction(value)
     except ZeroDivisionError:
         return Fraction(0.0)
-    # round off excessively large denominators
-    return value.limit_denominator(1000000)
+    if limit:
+        # round off excessively large denominators
+        value = value.limit_denominator(1000000)
+    return value
 
 
 class MD_Value(object):
@@ -217,7 +219,7 @@ class MD_Coordinate(MD_Dict):
             if key == 'pstv':
                 continue
             if not isinstance(value[key], Fraction):
-                value[key] = safe_fraction(value[key] or 0)
+                value[key] = safe_fraction(value[key] or 0, limit=False)
         # make degrees and minutes integer (not mandated by Exif, but typical)
         for hi, lo in (('deg', 'min'), ('min', 'sec')):
             fraction = value[hi] % 1
@@ -230,6 +232,8 @@ class MD_Coordinate(MD_Dict):
             if overflow:
                 value[hi] += overflow
                 value[lo] -= overflow * 60
+        # round off excessively large seconds denominator
+        value['sec'] = value['sec'].limit_denominator(1000000)
         return value
 
     @classmethod
@@ -241,10 +245,7 @@ class MD_Coordinate(MD_Dict):
         return cls((pstv, *value))
 
     def to_exif(self):
-        return ('{:d}/{:d} {:d}/{:d} {:d}/{:d}'.format(
-            self['deg'].numerator, self['deg'].denominator,
-            self['min'].numerator, self['min'].denominator,
-            self['sec'].numerator, self['sec'].denominator), self['pstv'])
+        return ((self['deg'], self['min'], self['sec']), self['pstv'])
 
     @classmethod
     def from_xmp(cls, value):
@@ -622,9 +623,7 @@ class MD_LensSpec(MD_Dict):
         return cls(file_value)
 
     def to_exif(self):
-        return ' '.join(
-            ['{:d}/{:d}'.format(self[x].numerator,
-                                self[x].denominator) for x in self._keys])
+        return [self[x] for x in self._keys]
 
     def __bool__(self):
         return any([bool(x) for x in self.values()])
@@ -683,7 +682,8 @@ class MD_Thumbnail(MD_Dict):
             data = self.data_from_image(self['image'])
         if not data:
             return None, None, None, None
-        return str(self['w']), str(self['h']), fmt, data
+        fmt = (None, 6)[fmt == 'JPEG']
+        return self['w'], self['h'], fmt, data
 
     def to_xmp(self):
         fmt, data = self['fmt'], self['data']
@@ -1134,7 +1134,8 @@ class MD_MultiString(MD_Value, tuple):
 
 
 class MD_Int(MD_Value, int):
-    pass
+    def to_exif(self):
+        return self
 
 
 class MD_Orientation(MD_Int):
@@ -1182,7 +1183,7 @@ class MD_Rational(MD_Value, Fraction):
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
     def to_exif(self):
-        return '{:d}/{:d}'.format(self.numerator, self.denominator)
+        return self
 
     def __str__(self):
         return str(float(self))
@@ -1204,18 +1205,18 @@ class MD_Altitude(MD_Rational):
             return None
         altitude, ref = file_value
         altitude = safe_fraction(altitude)
-        if ref == '1':
+        if ref == b'\x01':
             altitude = -altitude
         return cls(altitude)
 
     def to_exif(self):
-        numerator, denominator = self.numerator, self.denominator
-        if numerator < 0:
-            numerator = -numerator
-            ref = '1'
+        altitude = self
+        if altitude < 0:
+            altitude = -altitude
+            ref = b'\x01'
         else:
-            ref = '0'
-        return ('{:d}/{:d}'.format(numerator, denominator), ref)
+            ref = b'\x00'
+        return (altitude, ref)
 
 
 class MD_Aperture(MD_Rational):
@@ -1236,11 +1237,10 @@ class MD_Aperture(MD_Rational):
         return self
 
     def to_exif(self):
-        file_value = ['{:d}/{:d}'.format(self.numerator, self.denominator)]
+        file_value = [self]
         if float(self) != 0:
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
-            file_value.append(
-                '{:d}/{:d}'.format(apex.numerator, apex.denominator))
+            file_value.append(apex)
         return file_value
 
     def contains(self, this, other):

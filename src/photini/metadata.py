@@ -448,7 +448,6 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Canon.LensModel*'),
                             ('WN', 'Exif.CanonCs.Lens*'),
                             ('WN', 'Exif.OlympusEq.LensModel*'),
-                            ('WN', 'Exif.OlympusEq.LensType'),
                             ('WN', 'Exif.Nikon3.Lens*'),
                             ('WN', 'Exif.NikonLd1.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
