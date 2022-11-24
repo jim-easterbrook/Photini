@@ -244,9 +244,6 @@ class MD_Coordinate(MD_Dict):
         pstv = ref in ('N', 'E')
         return cls((pstv, *value))
 
-    def to_exif(self):
-        return ((self['deg'], self['min'], self['sec']), self['pstv'])
-
     @classmethod
     def from_xmp(cls, value):
         ref = value[-1]
@@ -322,11 +319,13 @@ class MD_LatLon(MD_Dict):
         return cls((lat, lon))
 
     def to_exif(self):
-        lat_string, pstv = self['lat'].to_exif()
+        pstv, degrees, minutes, seconds = self['lat'].to_exif()
+        lat_value = degrees, minutes, seconds
         lat_ref = 'SN'[pstv]
-        lon_string, pstv = self['lon'].to_exif()
+        pstv, degrees, minutes, seconds = self['lon'].to_exif()
+        lon_value = degrees, minutes, seconds
         lon_ref = 'WE'[pstv]
-        return (lat_string, lat_ref, lon_string, lon_ref)
+        return (lat_value, lat_ref, lon_value, lon_ref)
 
     def to_xmp(self):
         lat_string, pstv = self['lat'].to_xmp()
@@ -622,12 +621,6 @@ class MD_LensSpec(MD_Dict):
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
 
-    def to_exif(self):
-        return [self[x] for x in self._keys]
-
-    def __bool__(self):
-        return any([bool(x) for x in self.values()])
-
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
 
@@ -710,6 +703,8 @@ class MD_Collection(MD_Dict):
     @classmethod
     def convert(cls, value):
         for key in value:
+            if not value[key]:
+                continue
             if key in cls._type:
                 value[key] = cls._type[key](value[key])
             else:
@@ -1152,11 +1147,11 @@ class MD_Timezone(MD_Int):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if file_value in (None, ''):
+        if file_value is None:
             return None
         if tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
-            file_value = int(file_value) * 60
+            file_value = file_value * 60
         return cls(file_value)
 
 
