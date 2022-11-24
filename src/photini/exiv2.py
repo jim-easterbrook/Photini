@@ -290,6 +290,14 @@ class MetadataHandler(object):
             return list(value)
         return value[0]
 
+    def decode_iptc_value(self, datum):
+        type_id = datum.typeId()
+        if type_id == exiv2.TypeId.date:
+            return exiv2.DateValue(datum.value())[0]
+        if type_id == exiv2.TypeId.time:
+            return exiv2.TimeValue(datum.value())[0]
+        return datum.toString()
+
     def get_iptc_value(self, tag):
         result = None
         # findKey gets first matching datum and returns an iterator
@@ -297,9 +305,9 @@ class MetadataHandler(object):
         for datum in self._iptcData.findKey(exiv2.IptcKey(tag)):
             if result:
                 if datum.key() == tag:
-                    result.append(datum.toString())
+                    result.append(self.decode_iptc_value(datum))
             else:
-                result = datum.toString()
+                result = self.decode_iptc_value(datum)
                 if not exiv2.IptcDataSets.dataSetRepeatable(
                                         datum.tag(), datum.record()):
                     break
@@ -429,13 +437,22 @@ class MetadataHandler(object):
         self.clear_tag(tag)
         if not value:
             return
+        key = exiv2.IptcKey(tag)
+        type_id = exiv2.IptcDataSets.dataSetType(key.tag(), key.record())
+        if type_id == exiv2.TypeId.date:
+            datum = self._iptcData[tag]
+            datum.setValue(exiv2.DateValue(*value))
+            return
+        if type_id == exiv2.TypeId.time:
+            datum = self._iptcData[tag]
+            datum.setValue(exiv2.TimeValue(*value))
+            return
         if isinstance(value, str):
             # set a single value
             datum = self._iptcData[tag]
             datum.setValue(self.truncate_iptc(tag, value))
             return
         # set a list/tuple of values
-        key = exiv2.IptcKey(tag)
         for sub_value in value:
             datum = exiv2.Iptcdatum(key)
             datum.setValue(self.truncate_iptc(tag, sub_value))

@@ -22,7 +22,7 @@ from fractions import Fraction
 import logging
 import math
 
-from photini.exiv2 import exiv2_version_info, MetadataHandler
+from photini.exiv2 import MetadataHandler
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -401,14 +401,8 @@ class MD_DateTime(MD_Dict):
         precision = min((len(datetime_string) - 1) // 3, 7)
         if precision <= 0:
             return None
-        # set format to use same separators
-        fmt = list(cls._fmt_elements[:precision])
-        for n, idx in (1, 4), (2, 7), (3, 10):
-            if n >= precision:
-                break
-            if fmt[n][0] != datetime_string[idx]:
-                fmt[n] = datetime_string[idx] + fmt[n][1:]
-        fmt = ''.join(fmt)
+        # set format according to precision
+        fmt = ''.join(cls._fmt_elements[:precision])
         return cls((
             datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
@@ -459,6 +453,9 @@ class MD_DateTime(MD_Dict):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
+        # standardise separators
+        datetime_string = datetime_string.replace(':', '-', 2)
+        datetime_string = datetime_string.replace(' ', 'T', 1)
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
@@ -479,64 +476,59 @@ class MD_DateTime(MD_Dict):
         sub_sec_string = datetime_string[20:]
         return date_string + ' ' + time_string, sub_sec_string
 
-    # IPTC date & time should have no separators and be 8 and 11 chars
-    # respectively (time includes time zone offset). The exiv2 library
-    # adds separators if the data is correctly formatted, otherwise it
-    # gives us the raw string.
+    # The exiv2 library parses correctly formatted IPTC date & time and
+    # gives us integer values for each element. If the date or time is
+    # malformed we get a string instead, and ignore it.
 
     # The date (and time?) can have missing values represented by 00
     # according to
     # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
     @classmethod
     def from_iptc(cls, file_value):
-        date_string, time_string = file_value
-        if not date_string:
+        date_value, time_value = file_value
+        if not isinstance(date_value, tuple):
+            # Exiv2 couldn't read malformed date
             return None
-        # try and cope with any format - no separators, duplicate
-        # separators, whatever
-        parts = []
-        expected = 4
-        while date_string:
-            while date_string and not date_string[0].isdecimal():
-                date_string = date_string[1:]
-            part = ''
-            while expected and date_string and date_string[0].isdecimal():
-                part += date_string[0]
-                date_string = date_string[1:]
-                expected -= 1
-            parts.append(int(part))
-            expected = 2
-        # remove missing values
-        while parts[-1] == 0:
-            parts = parts[:-1]
-            if not parts:
-                return None
-        date_string = '-'.join(['{:04d}'.format(parts[0])]
-                               + ['{:02d}'.format(x) for x in parts[1:]])
-        # ignore time if date is not full precision
-        if len(date_string) < 10:
-            time_string = None
-        if time_string:
-            datetime_string = date_string + 'T' + time_string
+        year, month, day = date_value
+        if year == 0:
+            return None
+        precision = 6
+        if day == 0:
+            day = 1
+            precision = 2
+        if month == 0:
+            month = 1
+            precision = 1
+        if isinstance(time_value, tuple):
+            hour, minute, second, tz_hr, tz_min = time_value
         else:
-            datetime_string = date_string
-        return cls.from_ISO_8601(datetime_string)
+            # missing or malformed time
+            hour, minute, second, tz_hr, tz_min = 0, 0, 0, 0, 0
+        if (hour, minute, second) == (0, 0, 0):
+            precision = min(precision, 3)
+        return cls((datetime(year, month, day, hour, minute, second),
+                    precision, (tz_hr * 60) + tz_min))
 
     def to_iptc(self):
         precision = self['precision']
-        if precision <= 3:
-            if exiv2_version_info == (0, 27, 5):
-                # libexiv2 v0.27.5 won't accept zero months or days
-                precision = 3
-            date_string = self.to_ISO_8601(precision=precision)
-            #               YYYY mm dd
-            date_string += '0000-00-00'[len(date_string):]
-            time_string = None
+        datetime = self['datetime']
+        year, month, day = datetime.year, datetime.month, datetime.day
+        if precision < 2:
+            month = 0
+        if precision < 3:
+            day = 0
+        date_value = year, month, day
+        if precision < 4:
+            time_value = None
         else:
-            datetime_string = self.to_ISO_8601(precision=6)
-            date_string = datetime_string[:10]
-            time_string = datetime_string[11:]
-        return date_string, time_string
+            tz_offset = self['tz_offset']
+            if tz_offset is None:
+                tz_hr, tz_min = 0, 0
+            else:
+                tz_hr, tz_min = tz_offset // 60, tz_offset % 60
+            time_value = (
+                datetime.hour, datetime.minute, datetime.second, tz_hr, tz_min)
+        return date_value, time_value
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of
@@ -587,13 +579,18 @@ class MD_DateTime(MD_Dict):
             return self
         # datetime values agree, merge other info
         result = dict(self)
-        if self['precision'] < 7 and other['precision'] < self['precision']:
-            # some formats default to a higher precision than wanted
+        if tag.startswith('Xmp'):
+            # other is Xmp, so has trusted timezone and precision
             result['precision'] = other['precision']
-        # don't trust IPTC time zone and Exif doesn't have time zone
-        if (other['tz_offset'] not in (None, self['tz_offset']) and
-                tag.startswith('Xmp')):
             result['tz_offset'] = other['tz_offset']
+        else:
+            # use higher precision
+            if other['precision'] > self['precision']:
+                result['precision'] = other['precision']
+            # only trust non-zero timezone (IPTC defaults to zero)
+            if (self['tz_offset'] in (None, 0)
+                    and other['tz_offset'] not in (None, 0)):
+                result['tz_offset'] = other['tz_offset']
         return MD_DateTime(result)
 
 
