@@ -623,7 +623,7 @@ class Metadata(object):
                 'delete': False,
                 }
         # read Photini metadata items
-        for name in self._data_type:
+        for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
             for handler in self._sc, video_md, self._if:
@@ -632,6 +632,16 @@ class Metadata(object):
                 values = handler.read(name, self._data_type[name])
                 if values:
                     break
+            # merge in camera timezone
+            if (name in ('date_digitised', 'date_modified', 'date_taken')
+                    and self.timezone):
+                for n, (tag, value) in enumerate(values):
+                    if not tag.startswith('Exif'):
+                        continue
+                    value = dict(value)
+                    value['tz_offset'] = self.timezone
+                    values[n] = (tag, self._data_type[name](value))
+                    logger.info('%s: merged camera timezone offset', tag)
             # choose result and merge in non-matching data so user can review it
             value = None
             if values:
@@ -641,18 +651,6 @@ class Metadata(object):
             for tag2, value2 in values[1:]:
                 value = value.merge(info, tag2, value2)
             super(Metadata, self).__setattr__(name, value)
-        # merge in camera timezone if needed
-        if not self.timezone:
-            return
-        for name in ('date_digitised', 'date_modified', 'date_taken'):
-            value = getattr(self, name)
-            if value['tz_offset'] is None:
-                value = dict(value)
-                value['tz_offset'] = self.timezone
-                info = '{}({})'.format(os.path.basename(self._path), name)
-                logger.info('%s: merged camera timezone offset', info)
-                super(Metadata, self).__setattr__(
-                    name, self._data_type[name](value))
 
     def find_sidecar(self):
         for base in (os.path.splitext(self._path)[0], self._path):
