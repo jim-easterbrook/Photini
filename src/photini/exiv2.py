@@ -539,25 +539,11 @@ class MetadataHandler(object):
             if datum != self._xmpData.end():
                 self._xmpData.erase(datum)
 
-    def clear_tag(self, tag):
-        {'Exif': self.clear_exif_tag,
-         'Iptc': self.clear_iptc_tag,
-         'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
-
     def has_iptc(self):
         return self._iptcData.count() > 0
 
-    def has_tag(self, tag):
-        data = self._data_set(tag)
-        return tag in data
-
-    def _data_set(self, tag):
-        family = tag.split('.')[0]
-        if family == 'Exif':
-            return self._exifData
-        if family == 'Iptc':
-            return self._iptcData
-        return self._xmpData
+    def has_exif_tag(self, tag):
+        return tag in self._exifData
 
     def save_file(self):
         try:

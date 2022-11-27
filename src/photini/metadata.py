@@ -121,14 +121,14 @@ class ImageMetadata(MetadataHandler):
             self.clear_group(tag, idx=idx)
 
     def clear_group(self, tag, idx=1):
-        for t in self._multi_tags[tag]:
-            sub_tag = t.format(idx=idx)
-            self.clear_value(sub_tag)
+        for sub_tag in self._multi_tags[tag]:
+            if sub_tag:
+                self.clear_value(sub_tag.format(idx=idx))
 
     def clear_value(self, tag):
-        if not (tag and self.has_tag(tag)):
-            return
-        self.clear_tag(tag)
+        {'Exif': self.clear_exif_tag,
+         'Iptc': self.clear_iptc_tag,
+         'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
 
     def get_multi_group(self, tag):
         result = []
@@ -193,7 +193,8 @@ class ImageMetadata(MetadataHandler):
 
     def set_group(self, tag, value, idx=1):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-            self.set_value(sub_tag, sub_value, idx=idx)
+            if sub_tag:
+                self.set_value(sub_tag, sub_value, idx=idx)
         if tag == 'Exif.Thumbnail.*' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
@@ -618,7 +619,7 @@ class Metadata(object):
         # get maker note info
         if self._if:
             self._maker_note = {
-                'make': (self._if.has_tag('Exif.Photo.MakerNote') and
+                'make': (self._if.has_exif_tag('Exif.Photo.MakerNote') and
                          self._if.get_value('Exif.Image.Make')),
                 'delete': False,
                 }
