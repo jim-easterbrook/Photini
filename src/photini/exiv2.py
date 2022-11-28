@@ -258,9 +258,9 @@ class MetadataHandler(object):
         return value
 
     def get_exif_value(self, tag):
-        if tag not in self._exifData:
+        datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        if datum == self._exifData.end():
             return None
-        datum = self._exifData[tag]
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                    'Exif.Image.XPTitle', 'Exif.Image.XPComment',
                    'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
@@ -323,9 +323,9 @@ class MetadataHandler(object):
         return result
 
     def get_xmp_value(self, tag):
-        if tag not in self._xmpData:
+        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
+        if datum == self._xmpData.end():
             return None
-        datum = self._xmpData[tag]
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
