@@ -318,8 +318,9 @@ class TabWidget(QtWidgets.QWidget):
                       ' the person that created this image.')))
         contact_group.layout().addRow(translate('OwnerTab', 'Country'),
                                       widgets['contact_info/CiAdrCtry'])
-        form.layout().addRow(Label(translate(
-            'OwnerTab', 'Creator Contact Information'), lines=3), contact_group)
+        form.layout().addRow(
+            Label(translate('OwnerTab', 'Creator Contact Information'),
+                  lines=3, layout=form.layout()), contact_group)
         scrollarea.setWidget(form)
         return scrollarea, widgets
 
