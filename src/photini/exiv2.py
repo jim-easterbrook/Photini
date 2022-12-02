@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import codecs
+from collections import defaultdict
 import logging
 import os
 
@@ -95,12 +96,14 @@ class MetadataHandler(object):
             iptc_charset = codecs.lookup(iptc_charset).name
             logger.info('%s: IPTC character set %s', self._name, iptc_charset)
             encodings.append(iptc_charset)
-        for data in self._exifData, self._iptcData:
+        for data, set_value in ((self._exifData, self.set_exif_value),
+                                (self._iptcData, self.set_iptc_value)):
+            new_data = defaultdict(list)
             for datum in data:
                 if datum.typeId() not in (exiv2.TypeId.asciiString,
                                           exiv2.TypeId.string):
                     continue
-                key = str(datum.key())
+                key = datum.key()
                 if '.0x' in key:
                     # unknown key type
                     continue
@@ -131,7 +134,12 @@ class MetadataHandler(object):
                         logger.warning('%s: failed to transcode %s',
                                        self._name, key)
                         value = raw_value.decode('utf-8', errors='replace')
-                datum.setValue(value)
+                new_data[key].append(value)
+            for key, value in new_data.items():
+                if len(value) == 1:
+                    set_value(key, value[0])
+                else:
+                    set_value(key, value)
 
     def decode_string(self, tag, raw_value, encoding):
         try:
@@ -199,7 +207,7 @@ class MetadataHandler(object):
 
     def set_iptc_encoding(self):
         # escape % G, or \x1b \x25 \x47, selects UTF-8
-        self.set_value('Iptc.Envelope.CharacterSet', '\x1b%G')
+        self.set_iptc_value('Iptc.Envelope.CharacterSet', '\x1b%G')
 
     def clear_exif(self):
         self._exifData.clear()
@@ -250,9 +258,9 @@ class MetadataHandler(object):
         return value
 
     def get_exif_value(self, tag):
-        if tag not in self._exifData:
+        datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        if datum == self._exifData.end():
             return None
-        datum = self._exifData[tag]
         if tag in ('Exif.Canon.ModelID', 'Exif.CanonCs.LensType',
                    'Exif.Image.XPTitle', 'Exif.Image.XPComment',
                    'Exif.Image.XPAuthor', 'Exif.Image.XPKeywords',
@@ -265,6 +273,10 @@ class MetadataHandler(object):
         if tag == 'Exif.Photo.UserComment' and type_id in (
                 exiv2.TypeId.comment, exiv2.TypeId.undefined):
             return self.get_exif_comment(datum)
+        if type_id == exiv2.TypeId.asciiString:
+            return datum.toString()
+        if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
+            return self.get_raw_value(datum)
         if type_id == exiv2.TypeId.signedRational:
             value = exiv2.RationalValue(datum.value())
         elif type_id == exiv2.TypeId.unsignedRational:
@@ -278,32 +290,42 @@ class MetadataHandler(object):
         elif type_id == exiv2.TypeId.unsignedLong:
             value = exiv2.ULongValue(datum.value())
         else:
-            # probably a string value, so use the string
+            # unhandled type, use the string representation
+            logger.warning('%s: %s: reading %s as string',
+                           self._name, tag, datum.typeName())
             return datum.toString()
         if len(value) > 1:
             return list(value)
         return value[0]
+
+    def decode_iptc_value(self, datum):
+        type_id = datum.typeId()
+        if type_id == exiv2.TypeId.date:
+            return exiv2.DateValue(datum.value())[0]
+        if type_id == exiv2.TypeId.time:
+            return exiv2.TimeValue(datum.value())[0]
+        return datum.toString()
 
     def get_iptc_value(self, tag):
         result = None
         # findKey gets first matching datum and returns an iterator
         # which we use to search the rest of the data
         for datum in self._iptcData.findKey(exiv2.IptcKey(tag)):
-            if result:
-                if datum.key() == tag:
-                    result.append(datum.toString())
-            else:
-                result = datum.toString()
+            if result is None:
+                # first datum
+                result = self.decode_iptc_value(datum)
                 if not exiv2.IptcDataSets.dataSetRepeatable(
                                         datum.tag(), datum.record()):
                     break
                 result = [result]
+            elif datum.key() == tag:
+                result.append(self.decode_iptc_value(datum))
         return result
 
     def get_xmp_value(self, tag):
-        if tag not in self._xmpData:
+        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
+        if datum == self._xmpData.end():
             return None
-        datum = self._xmpData[tag]
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.xmpText:
             return datum.toString()
@@ -346,10 +368,31 @@ class MetadataHandler(object):
 
     def set_exif_value(self, tag, value):
         if not value:
-            self.clear_tag(tag)
+            self.clear_exif_tag(tag)
+            return
+        key = exiv2.ExifKey(tag)
+        type_id = key.defaultTypeId()
+        if type_id == exiv2.TypeId.unsignedByte:
+            value = exiv2.DataValue(value)
+        elif type_id == exiv2.TypeId.asciiString:
+            value = exiv2.AsciiValue(value)
+        elif type_id == exiv2.TypeId.unsignedShort:
+            value = exiv2.UShortValue(value)
+        elif type_id == exiv2.TypeId.unsignedLong:
+            value = exiv2.ULongValue(value)
+        elif type_id == exiv2.TypeId.unsignedRational:
+            if isinstance(value, (list, tuple)):
+                value = exiv2.URationalValue(
+                    [(x.numerator, x.denominator) for x in value])
+            else:
+                value = exiv2.URationalValue(
+                    [(value.numerator, value.denominator)])
         else:
-            datum = self._exifData[tag]
-            datum.setValue(value)
+            # unhandled type, use the string representation
+            logger.warning('%s: %s: writing type %s as string',
+                           self._name, tag, type_id)
+        datum = self._exifData[tag]
+        datum.setValue(value)
 
     # maximum length of Iptc data
     _max_bytes = {
@@ -399,26 +442,31 @@ class MetadataHandler(object):
 
     def set_iptc_value(self, tag, value):
         # clear any existing values (which might be repeated)
-        self.clear_tag(tag)
+        self.clear_iptc_tag(tag)
         if not value:
             return
-        if isinstance(value, str):
-            # set a single value
-            datum = self._iptcData[tag]
-            datum.setValue(self.truncate_iptc(tag, value))
-            return
-        # set a list/tuple of values
+        # make list of values
         key = exiv2.IptcKey(tag)
-        for sub_value in value:
+        type_id = exiv2.IptcDataSets.dataSetType(key.tag(), key.record())
+        if type_id == exiv2.TypeId.date:
+            values = [exiv2.DateValue(*value)]
+        elif type_id == exiv2.TypeId.time:
+            values = [exiv2.TimeValue(*value)]
+        elif isinstance(value, (list, tuple)):
+            values = [self.truncate_iptc(tag, x) for x in value]
+        else:
+            values = [self.truncate_iptc(tag, value)]
+        # append values
+        while values:
             datum = exiv2.Iptcdatum(key)
-            datum.setValue(self.truncate_iptc(tag, sub_value))
+            datum.setValue(values.pop(0))
             if self._iptcData.add(datum) != 0:
                 logger.error('%s: duplicated tag %s', self._name, tag)
                 return
 
     def set_xmp_value(self, tag, value):
         if not value:
-            self.clear_tag(tag)
+            self.clear_xmp_tag(tag)
             return
         if '[' in tag:
             # create XMP array
@@ -458,37 +506,44 @@ class MetadataHandler(object):
                 exiv2.TypeId(type_id).name, type(value))
             datum.setValue(';'.join(value))
 
-    def clear_tag(self, tag):
-        data = self._data_set(tag)
-        while tag in data:
-            del data[tag]
+    def clear_exif_tag(self, tag):
+        datum = self._exifData.findKey(exiv2.ExifKey(tag))
+        if datum != self._exifData.end():
+            self._exifData.erase(datum)
+
+    def clear_iptc_tag(self, tag):
+        # findKey gets first matching datum and returns an iterator
+        # which we use to search the rest of the data
+        datum = self._iptcData.findKey(exiv2.IptcKey(tag))
+        while datum != self._iptcData.end():
+            if datum.key() == tag:
+                datum = self._iptcData.erase(datum)
+            else:
+                next(datum)
+
+    def clear_xmp_tag(self, tag):
+        datum = self._xmpData.findKey(exiv2.XmpKey(tag))
+        if datum != self._xmpData.end():
+            self._xmpData.erase(datum)
         # possibly delete Xmp container(s)
         for sep in ('/', '['):
             if sep not in tag:
                 return
             container = tag.split(sep)[0] + sep
-            for datum in data:
+            for datum in self._xmpData:
                 if datum.key().startswith(container):
                     # container is not empty
                     return
             container = tag.split(sep)[0]
-            if container in data:
-                del data[container]
+            datum = self._xmpData.findKey(exiv2.XmpKey(container))
+            if datum != self._xmpData.end():
+                self._xmpData.erase(datum)
 
     def has_iptc(self):
         return self._iptcData.count() > 0
 
-    def has_tag(self, tag):
-        data = self._data_set(tag)
-        return tag in data
-
-    def _data_set(self, tag):
-        family = tag.split('.')[0]
-        if family == 'Exif':
-            return self._exifData
-        if family == 'Iptc':
-            return self._iptcData
-        return self._xmpData
+    def has_exif_tag(self, tag):
+        return tag in self._exifData
 
     def save_file(self):
         try:
@@ -502,11 +557,11 @@ class MetadataHandler(object):
         return True
 
     def clear_maker_note(self):
-        self.clear_tag('Exif.Image.Make')
+        self.clear_exif_tag('Exif.Image.Make')
         self._image.writeMetadata()
         self._image.readMetadata()
         self._exifData = self._image.exifData()
-        self.clear_tag('Exif.Photo.MakerNote')
+        self.clear_exif_tag('Exif.Photo.MakerNote')
 
     @staticmethod
     def create_sc(path, image_md):

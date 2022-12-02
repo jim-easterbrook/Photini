@@ -608,8 +608,9 @@ class TabWidget(PhotiniUploader):
         dialog.layout().addRow(translate(
             'IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')
-        dialog.layout().addRow(Label(translate(
-            'IpernityTab', 'Who can comment on album'), lines=2), perm_comment)
+        dialog.layout().addRow(Label(
+            translate('IpernityTab', 'Who can comment on album'),
+            lines=2, layout=dialog.layout()), perm_comment)
         button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok |
             QtWidgets.QDialogButtonBox.StandardButton.Cancel)

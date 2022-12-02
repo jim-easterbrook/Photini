@@ -22,7 +22,7 @@ from fractions import Fraction
 import logging
 import math
 
-from photini.exiv2 import exiv2_version_info, MetadataHandler
+from photini.exiv2 import MetadataHandler
 from photini.pyqt import QtCore, QtGui
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ __all__ = (
     'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
 
 
-def safe_fraction(value):
+def safe_fraction(value, limit=True):
     # Avoid ZeroDivisionError when '0/0' used for zero values in Exif
     try:
         if isinstance(value, (list, tuple)):
@@ -45,8 +45,10 @@ def safe_fraction(value):
             value = Fraction(value)
     except ZeroDivisionError:
         return Fraction(0.0)
-    # round off excessively large denominators
-    return value.limit_denominator(1000000)
+    if limit:
+        # round off excessively large denominators
+        value = value.limit_denominator(1000000)
+    return value
 
 
 class MD_Value(object):
@@ -217,7 +219,7 @@ class MD_Coordinate(MD_Dict):
             if key == 'pstv':
                 continue
             if not isinstance(value[key], Fraction):
-                value[key] = safe_fraction(value[key] or 0)
+                value[key] = safe_fraction(value[key] or 0, limit=False)
         # make degrees and minutes integer (not mandated by Exif, but typical)
         for hi, lo in (('deg', 'min'), ('min', 'sec')):
             fraction = value[hi] % 1
@@ -230,6 +232,8 @@ class MD_Coordinate(MD_Dict):
             if overflow:
                 value[hi] += overflow
                 value[lo] -= overflow * 60
+        # round off excessively large seconds denominator
+        value['sec'] = value['sec'].limit_denominator(1000000)
         return value
 
     @classmethod
@@ -239,12 +243,6 @@ class MD_Coordinate(MD_Dict):
             value = value.split()
         pstv = ref in ('N', 'E')
         return cls((pstv, *value))
-
-    def to_exif(self):
-        return ('{:d}/{:d} {:d}/{:d} {:d}/{:d}'.format(
-            self['deg'].numerator, self['deg'].denominator,
-            self['min'].numerator, self['min'].denominator,
-            self['sec'].numerator, self['sec'].denominator), self['pstv'])
 
     @classmethod
     def from_xmp(cls, value):
@@ -321,11 +319,13 @@ class MD_LatLon(MD_Dict):
         return cls((lat, lon))
 
     def to_exif(self):
-        lat_string, pstv = self['lat'].to_exif()
+        pstv, degrees, minutes, seconds = self['lat'].to_exif()
+        lat_value = degrees, minutes, seconds
         lat_ref = 'SN'[pstv]
-        lon_string, pstv = self['lon'].to_exif()
+        pstv, degrees, minutes, seconds = self['lon'].to_exif()
+        lon_value = degrees, minutes, seconds
         lon_ref = 'WE'[pstv]
-        return (lat_string, lat_ref, lon_string, lon_ref)
+        return (lat_value, lat_ref, lon_value, lon_ref)
 
     def to_xmp(self):
         lat_string, pstv = self['lat'].to_xmp()
@@ -401,14 +401,8 @@ class MD_DateTime(MD_Dict):
         precision = min((len(datetime_string) - 1) // 3, 7)
         if precision <= 0:
             return None
-        # set format to use same separators
-        fmt = list(cls._fmt_elements[:precision])
-        for n, idx in (1, 4), (2, 7), (3, 10):
-            if n >= precision:
-                break
-            if fmt[n][0] != datetime_string[idx]:
-                fmt[n] = datetime_string[idx] + fmt[n][1:]
-        fmt = ''.join(fmt)
+        # set format according to precision
+        fmt = ''.join(cls._fmt_elements[:precision])
         return cls((
             datetime.strptime(datetime_string, fmt), precision, tz_offset))
 
@@ -459,6 +453,9 @@ class MD_DateTime(MD_Dict):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
+        # standardise separators
+        datetime_string = datetime_string.replace(':', '-', 2)
+        datetime_string = datetime_string.replace(' ', 'T', 1)
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
@@ -479,64 +476,59 @@ class MD_DateTime(MD_Dict):
         sub_sec_string = datetime_string[20:]
         return date_string + ' ' + time_string, sub_sec_string
 
-    # IPTC date & time should have no separators and be 8 and 11 chars
-    # respectively (time includes time zone offset). The exiv2 library
-    # adds separators if the data is correctly formatted, otherwise it
-    # gives us the raw string.
+    # The exiv2 library parses correctly formatted IPTC date & time and
+    # gives us integer values for each element. If the date or time is
+    # malformed we get a string instead, and ignore it.
 
     # The date (and time?) can have missing values represented by 00
     # according to
     # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata#date-created
     @classmethod
     def from_iptc(cls, file_value):
-        date_string, time_string = file_value
-        if not date_string:
+        date_value, time_value = file_value
+        if not isinstance(date_value, tuple):
+            # Exiv2 couldn't read malformed date
             return None
-        # try and cope with any format - no separators, duplicate
-        # separators, whatever
-        parts = []
-        expected = 4
-        while date_string:
-            while date_string and not date_string[0].isdecimal():
-                date_string = date_string[1:]
-            part = ''
-            while expected and date_string and date_string[0].isdecimal():
-                part += date_string[0]
-                date_string = date_string[1:]
-                expected -= 1
-            parts.append(int(part))
-            expected = 2
-        # remove missing values
-        while parts[-1] == 0:
-            parts = parts[:-1]
-            if not parts:
-                return None
-        date_string = '-'.join(['{:04d}'.format(parts[0])]
-                               + ['{:02d}'.format(x) for x in parts[1:]])
-        # ignore time if date is not full precision
-        if len(date_string) < 10:
-            time_string = None
-        if time_string:
-            datetime_string = date_string + 'T' + time_string
+        year, month, day = date_value
+        if year == 0:
+            return None
+        precision = 6
+        if day == 0:
+            day = 1
+            precision = 2
+        if month == 0:
+            month = 1
+            precision = 1
+        if isinstance(time_value, tuple):
+            hour, minute, second, tz_hr, tz_min = time_value
         else:
-            datetime_string = date_string
-        return cls.from_ISO_8601(datetime_string)
+            # missing or malformed time
+            hour, minute, second, tz_hr, tz_min = 0, 0, 0, 0, 0
+        if (hour, minute, second) == (0, 0, 0):
+            precision = min(precision, 3)
+        return cls((datetime(year, month, day, hour, minute, second),
+                    precision, (tz_hr * 60) + tz_min))
 
     def to_iptc(self):
         precision = self['precision']
-        if precision <= 3:
-            if exiv2_version_info == (0, 27, 5):
-                # libexiv2 v0.27.5 won't accept zero months or days
-                precision = 3
-            date_string = self.to_ISO_8601(precision=precision)
-            #               YYYY mm dd
-            date_string += '0000-00-00'[len(date_string):]
-            time_string = None
+        datetime = self['datetime']
+        year, month, day = datetime.year, datetime.month, datetime.day
+        if precision < 2:
+            month = 0
+        if precision < 3:
+            day = 0
+        date_value = year, month, day
+        if precision < 4:
+            time_value = None
         else:
-            datetime_string = self.to_ISO_8601(precision=6)
-            date_string = datetime_string[:10]
-            time_string = datetime_string[11:]
-        return date_string, time_string
+            tz_offset = self['tz_offset']
+            if tz_offset is None:
+                tz_hr, tz_min = 0, 0
+            else:
+                tz_hr, tz_min = tz_offset // 60, tz_offset % 60
+            time_value = (
+                datetime.hour, datetime.minute, datetime.second, tz_hr, tz_min)
+        return date_value, time_value
 
     # XMP uses extended ISO 8601, but the time cannot be hours only. See
     # p75 of
@@ -587,13 +579,18 @@ class MD_DateTime(MD_Dict):
             return self
         # datetime values agree, merge other info
         result = dict(self)
-        if self['precision'] < 7 and other['precision'] < self['precision']:
-            # some formats default to a higher precision than wanted
+        if tag.startswith('Xmp'):
+            # other is Xmp, so has trusted timezone and precision
             result['precision'] = other['precision']
-        # don't trust IPTC time zone and Exif doesn't have time zone
-        if (other['tz_offset'] not in (None, self['tz_offset']) and
-                tag.startswith('Xmp')):
             result['tz_offset'] = other['tz_offset']
+        else:
+            # use higher precision
+            if other['precision'] > self['precision']:
+                result['precision'] = other['precision']
+            # only trust non-zero timezone (IPTC defaults to zero)
+            if (self['tz_offset'] in (None, 0)
+                    and other['tz_offset'] not in (None, 0)):
+                result['tz_offset'] = other['tz_offset']
         return MD_DateTime(result)
 
 
@@ -620,14 +617,6 @@ class MD_LensSpec(MD_Dict):
                 return None
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
-
-    def to_exif(self):
-        return ' '.join(
-            ['{:d}/{:d}'.format(self[x].numerator,
-                                self[x].denominator) for x in self._keys])
-
-    def __bool__(self):
-        return any([bool(x) for x in self.values()])
 
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
@@ -683,7 +672,8 @@ class MD_Thumbnail(MD_Dict):
             data = self.data_from_image(self['image'])
         if not data:
             return None, None, None, None
-        return str(self['w']), str(self['h']), fmt, data
+        fmt = (None, 6)[fmt == 'JPEG']
+        return self['w'], self['h'], fmt, data
 
     def to_xmp(self):
         fmt, data = self['fmt'], self['data']
@@ -710,6 +700,8 @@ class MD_Collection(MD_Dict):
     @classmethod
     def convert(cls, value):
         for key in value:
+            if not value[key]:
+                continue
             if key in cls._type:
                 value[key] = cls._type[key](value[key])
             else:
@@ -1134,7 +1126,8 @@ class MD_MultiString(MD_Value, tuple):
 
 
 class MD_Int(MD_Value, int):
-    pass
+    def to_exif(self):
+        return self
 
 
 class MD_Orientation(MD_Int):
@@ -1151,11 +1144,11 @@ class MD_Timezone(MD_Int):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
-        if file_value in (None, ''):
+        if file_value is None:
             return None
         if tag == 'Exif.Image.TimeZoneOffset':
             # convert hours to minutes
-            file_value = int(file_value) * 60
+            file_value = file_value * 60
         return cls(file_value)
 
 
@@ -1182,7 +1175,7 @@ class MD_Rational(MD_Value, Fraction):
         return super(MD_Rational, cls).__new__(cls, safe_fraction(value))
 
     def to_exif(self):
-        return '{:d}/{:d}'.format(self.numerator, self.denominator)
+        return self
 
     def __str__(self):
         return str(float(self))
@@ -1204,18 +1197,18 @@ class MD_Altitude(MD_Rational):
             return None
         altitude, ref = file_value
         altitude = safe_fraction(altitude)
-        if ref == '1':
+        if ref == b'\x01':
             altitude = -altitude
         return cls(altitude)
 
     def to_exif(self):
-        numerator, denominator = self.numerator, self.denominator
-        if numerator < 0:
-            numerator = -numerator
-            ref = '1'
+        altitude = self
+        if altitude < 0:
+            altitude = -altitude
+            ref = b'\x01'
         else:
-            ref = '0'
-        return ('{:d}/{:d}'.format(numerator, denominator), ref)
+            ref = b'\x00'
+        return (altitude, ref)
 
 
 class MD_Aperture(MD_Rational):
@@ -1236,11 +1229,10 @@ class MD_Aperture(MD_Rational):
         return self
 
     def to_exif(self):
-        file_value = ['{:d}/{:d}'.format(self.numerator, self.denominator)]
+        file_value = [self]
         if float(self) != 0:
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
-            file_value.append(
-                '{:d}/{:d}'.format(apex.numerator, apex.denominator))
+            file_value.append(apex)
         return file_value
 
     def contains(self, this, other):

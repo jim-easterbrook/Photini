@@ -121,14 +121,14 @@ class ImageMetadata(MetadataHandler):
             self.clear_group(tag, idx=idx)
 
     def clear_group(self, tag, idx=1):
-        for t in self._multi_tags[tag]:
-            sub_tag = t.format(idx=idx)
-            self.clear_value(sub_tag)
+        for sub_tag in self._multi_tags[tag]:
+            if sub_tag:
+                self.clear_value(sub_tag.format(idx=idx))
 
     def clear_value(self, tag):
-        if not (tag and self.has_tag(tag)):
-            return
-        self.clear_tag(tag)
+        {'Exif': self.clear_exif_tag,
+         'Iptc': self.clear_iptc_tag,
+         'Xmp': self.clear_xmp_tag}[tag.split('.')[0]](tag)
 
     def get_multi_group(self, tag):
         result = []
@@ -193,7 +193,8 @@ class ImageMetadata(MetadataHandler):
 
     def set_group(self, tag, value, idx=1):
         for sub_tag, sub_value in zip(self._multi_tags[tag], value):
-            self.set_value(sub_tag, sub_value, idx=idx)
+            if sub_tag:
+                self.set_value(sub_tag, sub_value, idx=idx)
         if tag == 'Exif.Thumbnail.*' and value[3]:
             self.set_exif_thumbnail_from_buffer(value[3])
 
@@ -448,7 +449,6 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Canon.LensModel*'),
                             ('WN', 'Exif.CanonCs.Lens*'),
                             ('WN', 'Exif.OlympusEq.LensModel*'),
-                            ('WN', 'Exif.OlympusEq.LensType'),
                             ('WN', 'Exif.Nikon3.Lens*'),
                             ('WN', 'Exif.NikonLd1.LensIDNumber*'),
                             ('WN', 'Exif.NikonLd2.LensIDNumber*'),
@@ -619,12 +619,12 @@ class Metadata(object):
         # get maker note info
         if self._if:
             self._maker_note = {
-                'make': (self._if.has_tag('Exif.Photo.MakerNote') and
+                'make': (self._if.has_exif_tag('Exif.Photo.MakerNote') and
                          self._if.get_value('Exif.Image.Make')),
                 'delete': False,
                 }
         # read Photini metadata items
-        for name in self._data_type:
+        for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
             for handler in self._sc, video_md, self._if:
@@ -633,6 +633,16 @@ class Metadata(object):
                 values = handler.read(name, self._data_type[name])
                 if values:
                     break
+            # merge in camera timezone
+            if (name in ('date_digitised', 'date_modified', 'date_taken')
+                    and self.timezone):
+                for n, (tag, value) in enumerate(values):
+                    if not tag.startswith('Exif'):
+                        continue
+                    value = dict(value)
+                    value['tz_offset'] = self.timezone
+                    values[n] = (tag, self._data_type[name](value))
+                    logger.info('%s: merged camera timezone offset', tag)
             # choose result and merge in non-matching data so user can review it
             value = None
             if values:
@@ -642,18 +652,6 @@ class Metadata(object):
             for tag2, value2 in values[1:]:
                 value = value.merge(info, tag2, value2)
             super(Metadata, self).__setattr__(name, value)
-        # merge in camera timezone if needed
-        if not self.timezone:
-            return
-        for name in ('date_digitised', 'date_modified', 'date_taken'):
-            value = getattr(self, name)
-            if value['tz_offset'] is None:
-                value = dict(value)
-                value['tz_offset'] = self.timezone
-                info = '{}({})'.format(os.path.basename(self._path), name)
-                logger.info('%s: merged camera timezone offset', info)
-                super(Metadata, self).__setattr__(
-                    name, self._data_type[name](value))
 
     def find_sidecar(self):
         for base in (os.path.splitext(self._path)[0], self._path):

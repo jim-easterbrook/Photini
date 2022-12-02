@@ -234,9 +234,8 @@ class TabWidget(QtWidgets.QScrollArea):
             ' relevant to the purpose and meaning of the image.')))
         self.widgets['alt_text'].new_value.connect(self.new_value)
         layout.addRow(
-            Label(translate('DescriptiveTab',
-                            'Alt Text (Accessibility)'), lines=2),
-            self.widgets['alt_text'])
+            Label(translate('DescriptiveTab', 'Alt Text (Accessibility)'),
+                  lines=2, layout=layout), self.widgets['alt_text'])
         # extended alt text
         self.widgets['alt_text_ext'] = LangAltWidget(
             'alt_text_ext', spell_check=True)
@@ -250,8 +249,8 @@ class TabWidget(QtWidgets.QScrollArea):
         self.widgets['alt_text_ext'].new_value.connect(self.new_value)
         layout.addRow(
             Label(translate('DescriptiveTab',
-                            'Extended Description (Accessibility)'), lines=2),
-            self.widgets['alt_text_ext'])
+                            'Extended Description (Accessibility)'),
+                  lines=2, layout=layout), self.widgets['alt_text_ext'])
         # keywords
         self.widgets['keywords'] = KeywordsEditor(
             'keywords', spell_check=True, multi_string=True,

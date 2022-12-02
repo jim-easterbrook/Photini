@@ -47,10 +47,22 @@ class ComboBox(QtWidgets.QComboBox):
 
 
 class Label(QtWidgets.QLabel):
-    def __init__(self, *args, lines=1, **kwds):
+    def __init__(self, *args, lines=1, layout=None, **kwds):
         super(Label, self).__init__(*args, **kwds)
-        if lines != 1:
-            self.setText(wrap_text(self, self.text(), lines))
+        if lines == 1:
+            return
+        self.setText(wrap_text(self, self.text(), lines))
+        if not layout:
+            return
+        # match text alignment to form layout
+        align_h = (layout.labelAlignment()
+                   & Qt.AlignmentFlag.AlignHorizontal_Mask)
+        align_v = self.alignment() & Qt.AlignmentFlag.AlignVertical_Mask
+        self.setAlignment(align_h | align_v)
+        # Qt internally makes labels in form layouts 7/4 as tall, which
+        # is too much for multi=line labels
+        height = self.sizeHint().height() * ((lines * 4) + 3) // (lines * 4)
+        self.setFixedHeight(height)
 
 
 class PushButton(QtWidgets.QPushButton):
