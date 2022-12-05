@@ -441,9 +441,8 @@ class MetadataHandler(object):
         return value
 
     def set_iptc_value(self, tag, value):
-        # clear any existing values (which might be repeated)
-        self.clear_iptc_tag(tag)
         if not value:
+            self.clear_iptc_tag(tag)
             return
         # make list of values
         key = exiv2.IptcKey(tag)
@@ -456,7 +455,17 @@ class MetadataHandler(object):
             values = [self.truncate_iptc(tag, x) for x in value]
         else:
             values = [self.truncate_iptc(tag, value)]
-        # append values
+        # update or delete existing values
+        datum = self._iptcData.findKey(key)
+        while datum != self._iptcData.end():
+            if datum.key() == tag:
+                if values:
+                    datum.setValue(values.pop(0))
+                else:
+                    datum = self._iptcData.erase(datum)
+                    continue
+            next(datum)
+        # append remaining values
         while values:
             datum = exiv2.Iptcdatum(key)
             datum.setValue(values.pop(0))
