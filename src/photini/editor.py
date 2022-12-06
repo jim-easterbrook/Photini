@@ -266,19 +266,19 @@ jim@jim-easterbrook.me.uk</a><br /><br />
 """.format(__version__, build,
            pkg_resources.resource_filename(
                'photini', 'data/icons/photini_128.png'),
-           MenuBar.tr('An easy to use digital photograph metadata'
-                      ' (Exif, IPTC, XMP) editing application.'),
-           MenuBar.tr('Open source package available from {}.').format(
+           translate('MenuBar', 'An easy to use digital photograph metadata'
+                     ' (Exif, IPTC, XMP) editing application.'),
+           translate('MenuBar', 'Open source package available from {}.').format(
                '<a href="https://github.com/jim-easterbrook/Photini">'
                'github.com/jim-easterbrook/Photini</a>'),
            )
         dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(MenuBar.tr('Photini: about'))
+        dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
         dialog.setText(text)
         licence = pkg_resources.resource_string('photini', 'data/LICENSE.txt')
         dialog.setDetailedText(licence.decode('utf-8'))
-        dialog.setInformativeText(MenuBar.tr(
-            'This program is released with a GNU General Public'
+        dialog.setInformativeText(translate(
+            'MenuBar', 'This program is released with a GNU General Public'
             ' License. For details click the "{}" button.').format(
                 dialog.buttons()[0].text()))
         execute(dialog)
@@ -299,9 +299,9 @@ jim@jim-easterbrook.me.uk</a><br /><br />
             return
         release = rsp.json()['info']['version']
         dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(MenuBar.tr('Photini: version check'))
-        dialog.setText(MenuBar.tr(
-            'You are currently running Photini version {0}. The'
+        dialog.setWindowTitle(translate('MenuBar', 'Photini: version check'))
+        dialog.setText(translate(
+            'MenuBar', 'You are currently running Photini version {0}. The'
             ' latest release is {1}.').format(__version__, release))
         execute(dialog)
 
