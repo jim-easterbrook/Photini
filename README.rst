@@ -34,12 +34,13 @@ Features
 *   Can import photographs from many digital cameras.
 *   Upload to Flickr_ or `Google Photos`_ or Ipernity_ with reuse of metadata.
 
-.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_136.png
+.. image:: http://photini.readthedocs.io/en/latest/_images/screenshot_224.png
    :alt: Geotagging screenshot
 
 *   Geotagging - search map to find named places.
 *   Choice of map providers - instantly switch to compare details.
 *   Drag and drop images on to map to set GPS location.
+*   Or set GPS location using data exported by a tracker app.
 *   Edit coordinates if required, or clear to unset GPS data.
 *   Convert GPS coordinates to street address.
 *   Suggestions for further development welcome.
@@ -50,7 +51,7 @@ Dependencies
 Photini requires at least the following:
 
 *   Python3: http://python.org/
-*   PyQt5 or PySide2 or PySide6: http://www.riverbankcomputing.co.uk/software/pyqt/ or https://doc.qt.io/qtforpython/
+*   PyQt5, PyQt6, PySide2, or PySide6: http://www.riverbankcomputing.co.uk/software/pyqt/ or https://doc.qt.io/qtforpython/
 *   python-exiv2: https://pypi.org/project/exiv2/
 
 For a full list of dependencies, please see the `installation documentation`_.
