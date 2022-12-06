@@ -75,10 +75,10 @@ class MD_Value(object):
         return str(self)
 
     def to_iptc(self):
-        return self.to_exif()
+        return str(self)
 
     def to_xmp(self):
-        return self.to_exif()
+        return str(self)
 
     def merge(self, info, tag, other):
         result, merged, ignored = self.merge_item(self, other)
@@ -617,6 +617,10 @@ class MD_LensSpec(MD_Dict):
                 return None
             file_value = [(short_focal, focal_units), (long_focal, focal_units)]
         return cls(file_value)
+
+    def to_xmp(self):
+        return ' '.join(['{}/{}'.format(x.numerator, x.denominator)
+                         for x in self.to_exif()])
 
     def __str__(self):
         return ','.join(['{:g}'.format(float(self[x])) for x in self._keys])
@@ -1166,9 +1170,6 @@ class MD_Rating(MD_Value, float):
     def to_exif(self):
         return str(int(self + 1.5) - 1)
 
-    def to_xmp(self):
-        return str(self)
-
 
 class MD_Rational(MD_Value, Fraction):
     def __new__(cls, value):
@@ -1176,6 +1177,9 @@ class MD_Rational(MD_Value, Fraction):
 
     def to_exif(self):
         return self
+
+    def to_xmp(self):
+        return '{}/{}'.format(self.numerator, self.denominator)
 
     def __str__(self):
         return str(float(self))
@@ -1234,6 +1238,10 @@ class MD_Aperture(MD_Rational):
             apex = getattr(self, 'apex', safe_fraction(math.log(self, 2) * 2.0))
             file_value.append(apex)
         return file_value
+
+    def to_xmp(self):
+        return ['{}/{}'.format(x.numerator, x.denominator)
+                for x in self.to_exif()]
 
     def contains(self, this, other):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
