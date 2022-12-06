@@ -974,6 +974,9 @@ class MD_LangAlt(LangAltDict, MD_Value):
             return None
         return self.default_text()
 
+    def to_iptc(self):
+        return self.to_exif()
+
     def to_xmp(self):
         if not self:
             return None
