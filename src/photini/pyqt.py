@@ -41,7 +41,7 @@ config = BaseConfigStore('editor')
 config.delete('pyqt', 'using_pyqt5')
 using_pyside = config.get('pyqt', 'using_pyside2')
 config.delete('pyqt', 'using_pyside2')
-using_qtwebengine = config.get('pyqt', 'using_qtwebengine', 'auto')
+config.delete('pyqt', 'using_qtwebengine')
 qt_lib = config.get('pyqt', 'qt_lib', 'auto')
 if qt_lib == 'auto' and isinstance(using_pyside, bool):
     # copy old config
@@ -54,7 +54,7 @@ if qt_scale_factor != 1:
 def import_PySide6():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot, PySide_version
-    global QtGui2, using_qtwebengine
+    global QtGui2
     global QWebChannel, QWebEngineView, QWebEnginePage
     from PySide6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide6.QtCore import Qt
@@ -62,7 +62,6 @@ def import_PySide6():
     from PySide6.QtCore import Slot as QtSlot
     from PySide6 import __version__ as PySide_version
     QtGui2 = QtGui
-    using_qtwebengine = True
     from PySide6.QtWebChannel import QWebChannel
     from PySide6.QtWebEngineWidgets import QWebEngineView
     from PySide6.QtWebEngineCore import QWebEnginePage
@@ -70,7 +69,7 @@ def import_PySide6():
 def import_PySide2():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot, PySide_version
-    global QtGui2, using_qtwebengine
+    global QtGui2
     global QWebChannel, QWebEngineView, QWebEnginePage
     from PySide2 import QtCore, QtGui, QtNetwork, QtWidgets
     from PySide2.QtCore import Qt
@@ -78,21 +77,19 @@ def import_PySide2():
     from PySide2.QtCore import Slot as QtSlot
     from PySide2 import __version__ as PySide_version
     QtGui2 = QtWidgets
-    using_qtwebengine = True
     from PySide2.QtWebChannel import QWebChannel
     from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 
 def import_PyQt6():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot
-    global QtGui2, using_qtwebengine
+    global QtGui2
     global QWebChannel, QWebEngineView, QWebEnginePage
     from PyQt6 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt6.QtCore import Qt
     from PyQt6.QtCore import pyqtSignal as QtSignal
     from PyQt6.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtGui
-    using_qtwebengine = True
     from PyQt6.QtWebChannel import QWebChannel
     from PyQt6.QtWebEngineWidgets import QWebEngineView
     from PyQt6.QtWebEngineCore import QWebEnginePage
@@ -100,35 +97,15 @@ def import_PyQt6():
 def import_PyQt5():
     global QtCore, QtGui, QtNetwork, QtWidgets
     global Qt, QtSignal, QtSlot
-    global QtGui2, using_qtwebengine
+    global QtGui2
     global QWebChannel, QWebEngineView, QWebEnginePage
     from PyQt5 import QtCore, QtGui, QtNetwork, QtWidgets
     from PyQt5.QtCore import Qt
     from PyQt5.QtCore import pyqtSignal as QtSignal
     from PyQt5.QtCore import pyqtSlot as QtSlot
     QtGui2 = QtWidgets
-    # choose WebEngine or WebKit
-    error = ['']
-    if using_qtwebengine != False:
-        try:
-            from PyQt5.QtWebChannel import QWebChannel
-            from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
-            using_qtwebengine = True
-            return
-        except ImportError as ex:
-            error.append(str(ex))
-    if using_qtwebengine != True:
-        try:
-            from PyQt5.QtWebKitWidgets import QWebPage as QWebEnginePage
-            from PyQt5.QtWebKitWidgets import QWebView as QWebEngineView
-            using_qtwebengine = False
-            QWebChannel = None
-            print('Use of QtWebKit will be withdrawn in a future release'
-                  ' of Photini.\nPlease install QtWebEngine soon.')
-            return
-        except ImportError as ex:
-            error.append(str(ex))
-    raise ImportError('\n'.join(error))
+    from PyQt5.QtWebChannel import QWebChannel
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 
 # choose Qt package
 if qt_lib == 'auto':
@@ -185,9 +162,6 @@ if sys.platform.startswith('linux') and qt_version_info < (5, 11, 0):
     import ctypes
     import ctypes.util
     ctypes.CDLL(ctypes.util.find_library('GL'), ctypes.RTLD_GLOBAL)
-
-qt_version += ', using {}'.format(
-    ('QtWebKit', 'QtWebEngine')[using_qtwebengine])
 
 translate = QtCore.QCoreApplication.translate
 
