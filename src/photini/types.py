@@ -271,7 +271,7 @@ class MD_Coordinate(MD_Dict):
         degrees = int(self['deg'])
         minutes = float(((self['deg'] - degrees) * 60) + self['min']
                         + (self['sec'] / 60))
-        return ('{:d},{:f}'.format(degrees, minutes), self['pstv'])
+        return ('{:d},{:.7f}'.format(degrees, minutes), self['pstv'])
 
     def __float__(self):
         result = float(self['deg'] + (self['min'] / 60) + (self['sec'] / 3600))
