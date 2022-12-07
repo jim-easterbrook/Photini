@@ -63,7 +63,7 @@ If you'd like to store it elsewhere (e.g. on a networked drive so you can share 
 PyQt options
 ^^^^^^^^^^^^
 
-The configuration file includes options to select use of PyQt5, PySide2, or PySide6, and use of QtWebKit instead of QtWebEngine.
+The configuration file includes options to select use of PyQt5, PyQt6, PySide2, or PySide6.
 These may be useful if one of these components on your computer is incompatible with Photini.
 There are so many versions of PyQt that it is impossible to test Photini with every one.
 
@@ -72,13 +72,12 @@ The default options in the configuration file are in the ``[pyqt]`` section:
 .. code-block:: guess
 
    [pyqt]
-   using_qtwebengine = 'auto'
    qt_lib = 'auto'
    scale_factor = 1
    native_dialog = True
 
-To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PySide2'``, or ``'PySide6'``.
-To force the use of QtWebKit set the value of ``using_qtwebengine`` to ``False``.
+To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PyQt6'``, ``'PySide2'``, or ``'PySide6'``.
+(You can also use the ``photini-configure`` command to set this.)
 You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::
 
    photini --version

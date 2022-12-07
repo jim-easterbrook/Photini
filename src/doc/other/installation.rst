@@ -585,8 +585,7 @@ PyQt_ [1]                      5.9                ``python3-qt5``
                                                   or ``python310-PyQt6``
 PySide2_ [1]                   5.11.0             ``python3-pyside2``               PySide2
 PySide6_ [1]                   6.2.0              ``python3-pyside6``               PySide6
-QtWebEngine_ or QtWebKit_ [2]                     ``python3-pyside2.qtwebengine``   PyQtWebEngine
-                                                  or ``python3-pyqt5.qtwebkit``
+QtWebEngine_ [2]                                  ``python3-pyside2.qtwebengine``   PyQtWebEngine
                                                   or ``python310-PyQt6-WebEngine``
 `python-exiv2`_                0.12.1                                               exiv2
 appdirs                        1.3                ``python3-appdirs``               appdirs
@@ -597,12 +596,9 @@ requests_                      2.4                ``python3-requests``          
 Photini can use any of them (although PySide2 is preferred), so you can install whichever one you prefer that is available for your operating system.
 If more than one of them is installed you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>` or by running ``photini-configure``.
 
-[2] Photini needs the Python version of either QtWebEngine_ or QtWebKit_.
-QtWebEngine is preferred, but is not available on all operating systems.
-QtWebEngine is included in PySide6_ and some PyQt_ or PySide2_ installations.
-QtWebKit is deprecated and Photini will no longer be able to use it in a future release.
-Try running Photini before installing either as an extra package.
-If you have both you can choose which one Photini uses by editing its :ref:`configuration file <configuration-pyqt>`.
+[2] Photini needs the Python interface to QtWebEngine_.
+This is included in PySide6_ and some PyQt_ or PySide2_ installations, otherwise you need to install a separate package.
+The ``photini-configure`` command will tell you if it's missing.
 
 .. _installation-optional:
 
@@ -773,7 +769,6 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 .. _PySide2:           https://pypi.org/project/PySide2/
 .. _PySide6:           https://pypi.org/project/PySide6/
 .. _QtWebEngine:       https://wiki.qt.io/QtWebEngine
-.. _QtWebKit:          https://wiki.qt.io/Qt_WebKit
 .. _requests:          http://python-requests.org/
 .. _requests-oauthlib: https://requests-oauthlib.readthedocs.io/
 .. _requests-toolbelt: https://toolbelt.readthedocs.io/
