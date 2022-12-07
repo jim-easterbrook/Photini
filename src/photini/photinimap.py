@@ -118,30 +118,34 @@ class CallHandler(QtCore.QObject):
         self.parent().marker_drop(lat, lng)
 
 
-class TransientWebPage(QWebEnginePage):
-    @catch_all
-    def acceptNavigationRequest(self, url, type_, isMainFrame):
-        if url.isLocalFile():
-            url.setScheme('http')
-        QtGui.QDesktopServices.openUrl(url)
-        # delete temporary child created by createWindow
-        self.deleteLater()
-        return False
-
-
 class MapWebPage(QWebEnginePage):
-    def __init__(self, call_handler, *args, **kwds):
+    def __init__(self, *args, call_handler=None, transient=False, **kwds):
         super(MapWebPage, self).__init__(*args, **kwds)
         self.call_handler = call_handler
-        self.web_channel = QWebChannel(parent=self)
-        self.setWebChannel(self.web_channel)
-        self.web_channel.registerObject('python', self.call_handler)
+        self.transient = transient
+        if self.call_handler:
+            self.web_channel = QWebChannel(parent=self)
+            self.setWebChannel(self.web_channel)
+            self.web_channel.registerObject('python', self.call_handler)
         self.profile().setCachePath(
             os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
 
     @catch_all
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
+        if type_ != self.NavigationType.NavigationTypeLinkClicked:
+            return super(MapWebPage, self).acceptNavigationRequest(
+                url, type_, isMainFrame)
+        if url.isLocalFile():
+            url.setScheme('http')
+        QtGui.QDesktopServices.openUrl(url)
+        if self.transient:
+            # delete temporary child created by createWindow
+            self.deleteLater()
+        return False
+
+    @catch_all
     def createWindow(self, type_):
-        return TransientWebPage(parent=self)
+        return MapWebPage(transient=True, parent=self)
 
     @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
@@ -154,7 +158,7 @@ class MapWebView(QWebEngineView):
 
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
-        self.setPage(MapWebPage(call_handler, parent=self))
+        self.setPage(MapWebPage(call_handler=call_handler, parent=self))
         settings = self.settings()
         settings.setAttribute(
             settings.WebAttribute.Accelerated2dCanvasEnabled, False)
