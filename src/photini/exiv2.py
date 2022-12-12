@@ -448,9 +448,9 @@ class MetadataHandler(object):
         key = exiv2.IptcKey(tag)
         type_id = exiv2.IptcDataSets.dataSetType(key.tag(), key.record())
         if type_id == exiv2.TypeId.date:
-            values = [exiv2.DateValue(*value)]
+            values = [exiv2.DateValue(value)]
         elif type_id == exiv2.TypeId.time:
-            values = [exiv2.TimeValue(*value)]
+            values = [exiv2.TimeValue(value)]
         elif isinstance(value, (list, tuple)):
             values = [self.truncate_iptc(tag, x) for x in value]
         else:

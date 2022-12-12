@@ -45,7 +45,7 @@ extras_require['win10'] = extras_require['win7']
 
 # add version numbers
 min_version = {
-    'appdirs': '1.3', 'cachetools': '3.0', 'chardet': '3.0', 'exiv2': '0.12.1',
+    'appdirs': '1.3', 'cachetools': '3.0', 'chardet': '3.0', 'exiv2': '0.13',
     'gphoto2': '1.8.0', 'gpxpy': '1.3.5', 'keyring': '7.0', 'Pillow': '2.0.0',
     'pyenchant': '2.0', 'PyQt5': '5.9', 'PySide2': '5.11.0', 'PySide6': '6.2.0',
     'requests': '2.4.0', 'requests-oauthlib': '1.0', 'requests-toolbelt': '0.9',
