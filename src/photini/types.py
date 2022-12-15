@@ -486,28 +486,29 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
-        if not isinstance(date_value, tuple):
+        if not isinstance(date_value, dict):
             # Exiv2 couldn't read malformed date
             return None
-        year, month, day = date_value
-        if year == 0:
+        if date_value['year'] == 0:
             return None
-        precision = 6
-        if day == 0:
-            day = 1
-            precision = 2
-        if month == 0:
-            month = 1
-            precision = 1
-        if isinstance(time_value, tuple):
-            hour, minute, second, tz_hr, tz_min = time_value
+        precision = 3
+        if isinstance(time_value, dict):
+            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
+            del time_value['tzHour'], time_value['tzMinute']
+            # all-zero time is assumed to be no time info
+            if any(time_value.values()):
+                precision = 6
         else:
             # missing or malformed time
-            hour, minute, second, tz_hr, tz_min = 0, 0, 0, 0, 0
-        if (hour, minute, second) == (0, 0, 0):
-            precision = min(precision, 3)
-        return cls((datetime(year, month, day, hour, minute, second),
-                    precision, (tz_hr * 60) + tz_min))
+            time_value = {}
+            tz_offset = None
+        if date_value['day'] == 0:
+            date_value['day'] = 1
+            precision = 2
+        if date_value['month'] == 0:
+            date_value['month'] = 1
+            precision = 1
+        return cls((datetime(**date_value, **time_value), precision, tz_offset))
 
     def to_iptc(self):
         precision = self['precision']

@@ -301,9 +301,9 @@ class MetadataHandler(object):
     def decode_iptc_value(self, datum):
         type_id = datum.typeId()
         if type_id == exiv2.TypeId.date:
-            return exiv2.DateValue(datum.value())[0]
+            return dict(exiv2.DateValue(datum.value()).getDate())
         if type_id == exiv2.TypeId.time:
-            return exiv2.TimeValue(datum.value())[0]
+            return dict(exiv2.TimeValue(datum.value()).getTime())
         return datum.toString()
 
     def get_iptc_value(self, tag):
@@ -448,9 +448,9 @@ class MetadataHandler(object):
         key = exiv2.IptcKey(tag)
         type_id = exiv2.IptcDataSets.dataSetType(key.tag(), key.record())
         if type_id == exiv2.TypeId.date:
-            values = [exiv2.DateValue(value)]
+            values = [exiv2.DateValue(*value)]
         elif type_id == exiv2.TypeId.time:
-            values = [exiv2.TimeValue(value)]
+            values = [exiv2.TimeValue(*value)]
         elif isinstance(value, (list, tuple)):
             values = [self.truncate_iptc(tag, x) for x in value]
         else:
