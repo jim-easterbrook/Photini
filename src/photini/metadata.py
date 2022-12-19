@@ -681,7 +681,11 @@ class Metadata(object):
         if self._sc:
             image.merge_sc(self._sc)
         if image.save_file():
-            data = bytes(image._image.io())
+            io = image._image.io()
+            io.open()
+            data = bytes(io.mmap())
+            io.munmap()
+            io.close()
         return data
 
     def _handler_save(self, handler, *arg, **kw):
