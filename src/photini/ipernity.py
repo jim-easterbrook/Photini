@@ -24,10 +24,6 @@ import logging
 import os
 import time
 
-try:
-    import PIL.Image as PIL
-except ImportError:
-    PIL = None
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
@@ -319,6 +315,8 @@ class LicenceWidget(DropDownSelector):
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = IpernitySession
+    max_size = {'image': 2 ** 30,
+                'video': 2 ** 30}
 
     @staticmethod
     def tab_name():
@@ -405,6 +403,10 @@ class TabWidget(PhotiniUploader):
             if key in self.widget:
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
+        if self.session.cached_data['is_pro'] == '0':
+            # guest user can upload 2.5 MB photos and no videos
+            self.max_size = {'image': (2 ** 20) * 5 // 2,
+                             'video': 0}
 
     def get_fixed_params(self):
         albums = []
@@ -448,91 +450,9 @@ class TabWidget(PhotiniUploader):
             self.widget['albums'].layout().addWidget(widget)
         return widget
 
-    def accepted_file_type(self, file_type):
-        if self.session.cached_data['is_pro'] == '0':
-            # guest user can not upload video
-            return file_type.split('/')[0] == 'image'
+    def accepted_image_type(self, file_type):
         # ipernity accepts most RAW formats!
-        return file_type.split('/')[0] in ('image', 'video')
-
-    def resize_file(self, image):
-        # convert to JPEG data
-        file_type = image.file_type
-        if file_type == 'image/jpeg':
-            with open(image.path, 'rb') as f:
-                src_data = f.read()
-        else:
-            src_data, file_type = self.convert_to_jpeg(image)
-            if len(src_data) < self.max_size:
-                return src_data, file_type
-        if PIL:
-            # use Pillow for good quality
-            src_im = PIL.open(io.BytesIO(src_data))
-            w, h = src_im.size
-        else:
-            # use Qt, lower quality but available
-            src_im = QtGui.QImage.fromData(src_data)
-            w, h = src_im.width(), src_im.height()
-        # scale image
-        for scale in (1000, 680, 470, 330, 220, 150,
-                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
-            if scale == 1000:
-                im = src_im
-            elif PIL:
-                im = src_im.resize((w * scale // 1000, h * scale // 1000),
-                               resample=PIL.BICUBIC)
-            else:
-                im = src_im.scaled(
-                    w * scale // 1000, h * scale // 1000,
-                    Qt.AspectRatioMode.IgnoreAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation)
-            # try different JPEG quality levels
-            for quality in (95, 85, 75):
-                if PIL:
-                    dest_buf = io.BytesIO()
-                else:
-                    dest_buf = QtCore.QBuffer()
-                    dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
-                im.save(dest_buf, format='JPEG', quality=quality)
-                if PIL:
-                    dest_data = dest_buf.getbuffer()
-                else:
-                    dest_data = dest_buf.data().data()
-                dest_data = image.metadata.clone(dest_data)
-                if len(dest_data) < self.max_size:
-                    return dest_data, file_type
-        return None
-
-    def get_conversion_function(self, image, params):
-        if not params['function']:
-            return None
-        convert = super(
-            TabWidget, self).get_conversion_function(image, params)
-        if convert == 'omit':
-            return convert
-        if self.session.cached_data['is_pro'] == '0':
-            # guest user file limit is 2.5 MB
-            self.max_size = (2 ** 20) * 5 // 2
-        else:
-            self.max_size = 2 ** 30
-        size = os.stat(image.path).st_size
-        if size < self.max_size:
-            return convert
-        dialog = QtWidgets.QMessageBox(parent=self)
-        dialog.setWindowTitle(translate('IpernityTab', 'Photini: too large'))
-        dialog.setText('<h3>{}</h3>'.format(
-            translate('IpernityTab', 'File too large.')))
-        dialog.setInformativeText(translate(
-            'IpernityTab',
-            'File "{0}" has {1} bytes which exceeds Ipernity\'s limit of' +
-            ' {2} bytes. Would you like to resize it?').format(
-                os.path.basename(image.path), size, self.max_size))
-        dialog.setIcon(dialog.Icon.Question)
-        dialog.setStandardButtons(
-            dialog.StandardButton.Yes | dialog.StandardButton.Ignore)
-        if execute(dialog) == dialog.StandardButton.Ignore:
-            return 'omit'
-        return self.resize_file
+        return True
 
     def get_variable_params(self, image, upload_prefs, replace_prefs, doc_id):
         params = {}

@@ -738,13 +738,38 @@ class Metadata(object):
             if self._notify:
                 self._notify(self.dirty)
 
+    def get_preview_images(self):
+        md = self._if
+        if not md:
+            return
+        for result in md.get_preview_images():
+            yield result
+
+    def get_sensor_size(self):
+        md = self._if or self._sc
+        if not md:
+            return 0, 0
+        # get largest preview
+        sensor_size = {}
+        sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
+        # search metadata for something larger
+        for key in md.get_all_tags():
+            family, group, tag = key.split('.', 2)
+            if tag in ('PixelXDimension', 'ImageWidth'):
+                sensor_size['x'] = max(sensor_size['x'], int(md.get_value(key)))
+            elif tag in ('PixelYDimension', 'ImageLength'):
+                sensor_size['y'] = max(sensor_size['y'], int(md.get_value(key)))
+        return sensor_size
+
     def get_crop_factor(self):
         md = self._if or self._sc
         if not md:
             return None
         # get relevant metadata
+        sensor_size = self.get_sensor_size()
+        if not sensor_size['x'] or not sensor_size['y']:
+            return None
         resolution = {}
-        sensor_size = {}
         resolution_source = None, None
         for key in md.get_all_tags():
             family, group, tag = key.split('.', 2)
@@ -752,9 +777,6 @@ class Metadata(object):
                        'FocalPlaneResolutionUnit'):
                 resolution[key] = md.get_value(key)
                 resolution_source = family, group
-            if tag in ('PixelXDimension', 'PixelYDimension',
-                       'ImageWidth', 'ImageLength'):
-                sensor_size[key] = md.get_value(key)
         # convert resolution values
         if not resolution:
             return None
@@ -769,20 +791,6 @@ class Metadata(object):
         resolution['y'] = safe_fraction(resolution['FocalPlaneYResolution'])
         resolution['unit'] = int(resolution['FocalPlaneResolutionUnit'])
         # find largest image dimensions
-        sensor_size['x'], sensor_size['y'] = md.get_preview_imagedims()
-        for x_key in sensor_size:
-            if 'PixelXDimension' in x_key:
-                y_key = x_key.replace('PixelXDimension', 'PixelYDimension')
-            elif 'ImageWidth' in x_key:
-                y_key = x_key.replace('ImageWidth', 'ImageLength')
-            else:
-                continue
-            if y_key not in sensor_size:
-                continue
-            sensor_size['x'] = max(sensor_size['x'], int(sensor_size[x_key]))
-            sensor_size['y'] = max(sensor_size['y'], int(sensor_size[y_key]))
-        if not sensor_size['x'] or not sensor_size['y']:
-            return None
         w = sensor_size['x'] / resolution['x']
         h = sensor_size['y'] / resolution['y']
         d = math.sqrt((h ** 2) + (w ** 2))

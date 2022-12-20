@@ -28,6 +28,10 @@ import time
 import urllib
 
 import keyring
+try:
+    import PIL.Image as PIL
+except ImportError:
+    PIL = None
 import requests
 
 from photini.configstore import key_store
@@ -77,12 +81,13 @@ class UploadAborted(Exception):
 
 class AbortableFileReader(object):
     def __init__(self, path=None, data=None):
+        # requests library uses 'len' attribute instead of seeking to
+        # end of file and back
         if data:
             self._f = io.BytesIO(data)
-            # requests library uses 'len' attribute instead of seeking to
-            # end of file and back
             self.len = len(data)
         else:
+            self.len = os.stat(path).st_size
             self._f = open(path, 'rb')
         # thread safe way to abort reading large file
         self._closing = threading.Event()
@@ -402,18 +407,84 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_photo.setPixmap(pixmap)
 
     def convert_to_jpeg(self, image):
-        reader = QtGui.QImageReader(image.path)
-        im = reader.read()
-        if not im or im.isNull():
-            raise RuntimeError(
-                '{}: {}'.format(image.path, reader.errorString()))
-        buf = QtCore.QBuffer()
-        buf.open(buf.OpenModeFlag.WriteOnly)
-        im.save(buf, format='jpeg', quality=95)
-        data = buf.data().data()
+        file_type = image.file_type
+        if file_type == 'image/jpeg':
+            # read JPEG file
+            with open(image.path, 'rb') as f:
+                src_data = f.read()
+        else:
+            # try reading preview images
+            pv_im = QtGui.QImage()
+            for data in image.metadata.get_preview_images():
+                pv_im = QtGui.QImage.fromData(data)
+                if not pv_im.isNull():
+                    break
+            # try reading image file
+            reader = QtGui.QImageReader(image.path)
+            im = reader.read()
+            if not (im.isNull() or pv_im.isNull()):
+                if pv_im.width() > im.width():
+                    im = pv_im
+            if im.isNull():
+                raise RuntimeError(
+                    '{}: {}'.format(image.path, reader.errorString()))
+            # check we have full size image
+            image_size = image.metadata.get_sensor_size()
+            if im.width() < image_size['x'] * 9 // 10:
+                raise RuntimeError(
+                    '{}: could not read full size image'.format(image.path))
+            # save as JPEG
+            buf = QtCore.QBuffer()
+            buf.open(buf.OpenModeFlag.WriteOnly)
+            writer = QtGui.QImageWriter(buf, b'jpeg')
+            writer.setQuality(95)
+            if not writer.write(im):
+                raise RuntimeError(
+                    'save data: {}'.format(writer.errorString()))
+            src_data = buf.data().data()
+            file_type = 'image/jpeg'
         # copy metadata
-        data = image.metadata.clone(data)
-        return data, 'image/jpeg'
+        src_data = image.metadata.clone(src_data)
+        if len(src_data) < self.max_size['image']:
+            # no resizing needed
+            return src_data, file_type
+        if PIL:
+            # use Pillow for good quality
+            src_im = PIL.open(io.BytesIO(src_data))
+            w, h = src_im.size
+        else:
+            # use Qt, lower quality but available
+            src_im = QtGui.QImage.fromData(src_data)
+            w, h = src_im.width(), src_im.height()
+        # scale image
+        for scale in (1000, 680, 470, 330, 220, 150,
+                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
+            if scale == 1000:
+                im = src_im
+            elif PIL:
+                im = src_im.resize((w * scale // 1000, h * scale // 1000),
+                                   resample=PIL.BICUBIC)
+            else:
+                im = src_im.scaled(w * scale // 1000, h * scale // 1000,
+                                   Qt.AspectRatioMode.IgnoreAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
+            # try different JPEG quality levels
+            for quality in (95, 85, 75):
+                if PIL:
+                    dest_buf = io.BytesIO()
+                else:
+                    dest_buf = QtCore.QBuffer()
+                    dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
+                im.save(dest_buf, format='JPEG', quality=quality)
+                if PIL:
+                    dest_data = dest_buf.getbuffer()
+                else:
+                    dest_data = dest_buf.data().data()
+                # copy metadata
+                dest_data = image.metadata.clone(dest_data)
+                if len(dest_data) < self.max_size['image']:
+                    return dest_data, file_type
+        return None
 
     def copy_file_and_metadata(self, image):
         with open(image.path, 'rb') as f:
@@ -422,60 +493,72 @@ class PhotiniUploader(QtWidgets.QWidget):
         data = image.metadata.clone(data)
         return data, image.file_type
 
-    def is_convertible(self, image):
-        if not image.file_type.startswith('image'):
-            # can only convert images
-            return False
-        return QtGui.QImageReader(image.path).canRead()
+    def add_skip_button(self, dialog):
+        return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
+                                dialog.ButtonRole.AcceptRole)
 
-    def accepted_file_type(self, file_type):
-        return file_type in ('image/gif', 'image/jpeg', 'image/png',
-                             'video/mp4', 'video/quicktime', 'video/riff')
-
-    def rejected_file_type(self, file_type):
-        return file_type in ('image/x-canon-cr2',)
-
-    def get_conversion_function(self, image, params):
-        if self.accepted_file_type(image.file_type):
-            if image.file_type.startswith('video'):
-                # don't try to write metadata to videos
-                return None
-            if image.metadata.find_sidecar():
-                # need to create file without sidecar
-                return self.copy_file_and_metadata
+    def ask_resize_image(self, image, resizable=False):
+        max_size = self.max_size[image.file_type.split('/')[0]]
+        size = os.stat(image.path).st_size
+        if size <= max_size:
             return None
         dialog = QtWidgets.QMessageBox(parent=self)
-        if not self.is_convertible(image):
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' does not accept and Photini cannot convert.')
-            buttons = dialog.StandardButton.Ignore
-        elif self.rejected_file_type(image.file_type):
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' does not accept. Would you like to convert it to JPEG?')
-            buttons = dialog.StandardButton.Yes | dialog.StandardButton.Ignore
-        else:
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' may not handle correctly. Would you like to convert it'
-                ' to JPEG?')
-            buttons = dialog.StandardButton.Yes | dialog.StandardButton.No
+        dialog.setWindowTitle(
+            translate('UploaderTabsAll', 'Photini: too large'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('UploaderTabsAll', 'File too large.')))
+        text = translate(
+            'UploaderTabsAll', 'File "{0}" has {1} bytes and exceeds {2}\'s'
+            ' limit of {3} bytes.').format(
+                os.path.basename(image.path), size, self.service_name, max_size)
+        if resizable:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to resize it?')
+            dialog.setStandardButtons(dialog.StandardButton.Yes)
+        self.add_skip_button(dialog)
+        dialog.setInformativeText(text)
+        dialog.setIcon(dialog.Icon.Warning)
+        if execute(dialog) == dialog.StandardButton.Yes:
+            return self.convert_to_jpeg
+        return 'omit'
+
+    def ask_convert_image(self, image):
+        dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: incompatible type'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll', 'Incompatible image type.')))
-        dialog.setInformativeText(msg.format(os.path.basename(image.path),
-                                             image.file_type, self.service_name))
+        dialog.setInformativeText(translate(
+            'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
+            ' may not handle correctly. Would you like to convert it'
+            ' to JPEG?'
+            ).format(os.path.basename(image.path),
+                     image.file_type, self.service_name))
         dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(buttons)
+        dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                  dialog.StandardButton.No)
+        self.add_skip_button(dialog)
         dialog.setDefaultButton(dialog.StandardButton.Yes)
         result = execute(dialog)
-        if result == dialog.StandardButton.Ignore:
-            return 'omit'
         if result == dialog.StandardButton.Yes:
             return self.convert_to_jpeg
-        return None
+        if result == dialog.StandardButton.No:
+            return None
+        return 'omit'
+
+    def get_conversion_function(self, image, params):
+        if image.file_type.startswith('video'):
+            # videos in most formats are accepted, as long as not too large
+            return self.ask_resize_image(image)
+        convert = None
+        if not self.accepted_image_type(image.file_type):
+            convert = self.ask_convert_image(image)
+        if not convert:
+            convert = self.ask_resize_image(image, resizable=True)
+        if (not convert) and image.metadata.find_sidecar():
+            # need to create file without sidecar
+            convert = self.copy_file_and_metadata
+        return convert
 
     @QtSlot()
     @catch_all

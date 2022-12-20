@@ -359,6 +359,15 @@ class MetadataHandler(object):
                 image = preview_manager.getPreviewImage(props[idx])
                 yield bytes(image.copy()), 'preview ' + str(idx)
 
+    def get_preview_images(self):
+        preview_manager = exiv2.PreviewManager(self._image)
+        props = preview_manager.getPreviewProperties()
+        if not props:
+            return
+        for prop in reversed(props):
+            image = preview_manager.getPreviewImage(prop)
+            yield bytes(image.copy())
+
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()

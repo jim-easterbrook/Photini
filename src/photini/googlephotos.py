@@ -217,6 +217,8 @@ class GooglePhotosSession(UploaderSession):
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = GooglePhotosSession
+    max_size = {'image': 200 * (2 ** 20),
+                'video': 10 * (2 ** 30)}
 
     @staticmethod
     def tab_name():
@@ -261,10 +263,8 @@ class TabWidget(PhotiniUploader):
             self.widget['albums'].layout().addWidget(widget)
         return widget
 
-    def accepted_file_type(self, file_type):
-        if file_type.startswith('video'):
-            # Google seems to accept any video format
-            return True
+    def accepted_image_type(self, file_type):
+        # see https://developers.google.com/photos/library/guides/upload-media#file-types-sizes
         return file_type in ('image/gif', 'image/heic', 'image/jpeg',
                              'image/png', 'image/tiff', 'image/webp',
                              'image/x-ms-bmp')
@@ -274,9 +274,11 @@ class TabWidget(PhotiniUploader):
             TabWidget, self).get_conversion_function(image, params)
         if convert == 'omit':
             return convert
+        # Google's docs say to remind user of storage limits if uploads
+        # exceed 25 MB per user. We do it if any item exceeds 25 MB.
         max_size = 25 * 1024 * 1024
         size = os.stat(image.path).st_size
-        if size < max_size:
+        if size <= max_size:
             return convert
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
@@ -289,9 +291,10 @@ class TabWidget(PhotiniUploader):
                       'uploads count towards storage in your Google Account. '
                       'Upload it anyway?').format(os.path.basename(image.path)))
         dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(
-            dialog.StandardButton.Yes | dialog.StandardButton.Ignore)
-        execute(dialog)
+        dialog.setStandardButtons(dialog.StandardButton.Yes)
+        self.add_skip_button(dialog)
+        if execute(dialog) == dialog.StandardButton.Yes:
+            return convert
         return 'omit'
 
     def get_upload_params(self, image):
