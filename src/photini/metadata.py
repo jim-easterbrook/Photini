@@ -680,13 +680,8 @@ class Metadata(object):
             image._image.setMetadata(self._if._image)
         if self._sc:
             image.merge_sc(self._sc)
-        if image.save_file():
-            io = image._image.io()
-            io.open()
-            data = bytes(io.mmap())
-            io.munmap()
-            io.close()
-        return data
+        image.save_file()
+        return image._image
 
     def _handler_save(self, handler, *arg, **kw):
         # store Photini metadata items

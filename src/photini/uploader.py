@@ -17,6 +17,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import io
@@ -79,19 +80,20 @@ class UploadAborted(Exception):
     pass
 
 
-class AbortableFileReader(object):
-    def __init__(self, path=None, data=None):
+class AbortableFileReader(QtCore.QObject):
+    def __init__(self, fileobj, size, *args, **kwds):
+        super(AbortableFileReader, self).__init__(*args, **kwds)
+        self._f = fileobj
         # requests library uses 'len' attribute instead of seeking to
         # end of file and back
-        if data:
-            self._f = io.BytesIO(data)
-            self.len = len(data)
-        else:
-            self.len = os.stat(path).st_size
-            self._f = open(path, 'rb')
+        self.len = size
         # thread safe way to abort reading large file
         self._closing = threading.Event()
-        self.abort = self._closing.set
+
+    @QtSlot()
+    @catch_all
+    def abort_upload(self):
+        self._closing.set()
 
     # substitute read method
     def read(self, size):
@@ -111,12 +113,35 @@ class UploadWorker(QtCore.QObject):
     finished = QtSignal()
     upload_error = QtSignal(str, str)
     upload_progress = QtSignal(dict)
+    _abort_upload = QtSignal()
 
     def __init__(self, session_factory, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session_factory = session_factory
         self.upload_list = upload_list
-        self.fileobj = None
+
+    @contextmanager
+    def open_file(self, image, convert):
+        if convert:
+            exiv_image, image_type = convert(image)
+            exiv_io = exiv_image.io()
+            exiv_io.open()
+            fileobj = AbortableFileReader(
+                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
+            try:
+                yield image_type, fileobj
+            finally:
+                fileobj.close()
+                exiv_io.munmap()
+                exiv_io.close()
+        else:
+            fileobj = AbortableFileReader(
+                open(image.path, 'rb'), os.stat(image.path).st_size,
+                parent=self)
+            try:
+                yield image.file_type, fileobj
+            finally:
+                fileobj.close()
 
     @QtSlot()
     @catch_all
@@ -133,14 +158,11 @@ class UploadWorker(QtCore.QObject):
                      name, 1 + upload_count, len(self.upload_list)),
                 })
             try:
-                if convert:
-                    data, image_type = convert(image)
-                    self.fileobj = AbortableFileReader(data=data)
-                else:
-                    image_type = image.file_type
-                    self.fileobj = AbortableFileReader(path=image.path)
-                error = session.do_upload(
-                    self.fileobj, image_type, image, params)
+                with self.open_file(image, convert) as (image_type, fileobj):
+                    self._abort_upload.connect(
+                        fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+                    error = session.do_upload(
+                        fileobj, image_type, image, params)
             except UploadAborted:
                 error = 'UploadAborted'
                 session.close_connection()
@@ -149,11 +171,7 @@ class UploadWorker(QtCore.QObject):
             except Exception as ex:
                 logger.exception(ex)
                 error = '{}: {}'.format(type(ex), str(ex))
-            finally:
-                if self.fileobj:
-                    self.fileobj.close()
             self.upload_progress.emit({'busy': False})
-            self.fileobj = None
             if error:
                 if not session.api:
                     break
@@ -174,9 +192,7 @@ class UploadWorker(QtCore.QObject):
     @catch_all
     def abort_upload(self, retry):
         self.retry = retry
-        if self.fileobj:
-            # brutal way to interrupt an upload
-            self.fileobj.abort()
+        self._abort_upload.emit()
 
 
 class AuthRequestHandler(BaseHTTPRequestHandler):
@@ -445,17 +461,23 @@ class PhotiniUploader(QtWidgets.QWidget):
             file_type = 'image/jpeg'
         # copy metadata
         src_data = image.metadata.clone(src_data)
-        if len(src_data) < self.max_size['image']:
+        exiv_io = src_data.io()
+        if exiv_io.size() < self.max_size['image']:
             # no resizing needed
             return src_data, file_type
+        exiv_io.open()
+        data = exiv_io.mmap()
         if PIL:
             # use Pillow for good quality
-            src_im = PIL.open(io.BytesIO(src_data))
+            src_im = PIL.open(io.BytesIO(data))
+            src_im.load()
             w, h = src_im.size
         else:
             # use Qt, lower quality but available
-            src_im = QtGui.QImage.fromData(src_data)
+            src_im = QtGui.QImage.fromData(bytes(data))
             w, h = src_im.width(), src_im.height()
+        exiv_io.munmap()
+        exiv_io.close()
         # scale image
         for scale in (1000, 680, 470, 330, 220, 150,
                       100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
@@ -482,7 +504,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     dest_data = dest_buf.data().data()
                 # copy metadata
                 dest_data = image.metadata.clone(dest_data)
-                if len(dest_data) < self.max_size['image']:
+                if dest_data.io().size() < self.max_size['image']:
                     return dest_data, file_type
         return None
 
