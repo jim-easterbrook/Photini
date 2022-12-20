@@ -344,7 +344,7 @@ class MetadataHandler(object):
         data = thumb.copy()
         if data:
             logger.info('%s: trying thumbnail', self._name)
-            yield bytes(data), 'thumbnail'
+            yield bytes(data.data()), 'thumbnail'
         # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
@@ -357,7 +357,7 @@ class MetadataHandler(object):
             if max(props[idx].width_, props[idx].height_) <= 640:
                 logger.info('%s: trying preview %d', self._name, idx)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield bytes(image.copy()), 'preview ' + str(idx)
+                yield bytes(image.pData()), 'preview ' + str(idx)
 
     def get_preview_images(self):
         preview_manager = exiv2.PreviewManager(self._image)
