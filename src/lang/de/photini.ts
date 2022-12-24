@@ -147,7 +147,7 @@
     </message>
     <message>
         <source>Headline</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschrift</translation>
     </message>
     <message>
         <source>Enter a &quot;caption&quot; describing the who, what, and why of what is happening in this image, this might include names of people, and/or their role in the action that is taking place within the image.</source>
@@ -159,19 +159,19 @@
     </message>
     <message>
         <source>Enter text describing the appearance of the image from a visual perspective, focusing on details that are relevant to the purpose and meaning of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie einen Text ein, der das Aussehen des Bildes aus einer visuellen Perspektive beschreibt, und konzentrieren Sie sich dabei auf Details, die für den Zweck und die Bedeutung des Bildes relevant sind.</translation>
     </message>
     <message>
         <source>A more detailed textual description of the purpose and meaning of an image that elaborates on the information provided by the Alt Text (Accessibility) property. This property does not have a character limitation and is not required if the Alt Text (Accessibility) field sufficiently describes the image..</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine detailliertere textliche Beschreibung des Zwecks und der Bedeutung eines Bildes, die die durch die Eigenschaft Alt-Text (Barrierefreiheit) bereitgestellten Informationen weiter ausführt. Diese Eigenschaft hat keine Zeichenbegrenzung und ist nicht erforderlich, wenn das Feld Alt-Text (Barrierefreiheit) das Bild ausreichend beschreibt...</translation>
     </message>
     <message>
         <source>Alt Text (Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt-Text (Barrierefreiheit)</translation>
     </message>
     <message>
         <source>Extended Description (Accessibility)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Beschreibung (Barrierefreiheit)</translation>
     </message>
 </context>
 <context>
@@ -660,7 +660,7 @@
     </message>
     <message>
         <source>Attribution + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + gleichberechtigte Nutzung</translation>
     </message>
     <message>
         <source>Attribution + non commercial + no derivative</source>
@@ -668,11 +668,11 @@
     </message>
     <message>
         <source>Attribution + non commercial + share alike</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensnennung + nicht kommerziell + gleichberechtigte Nutzung</translation>
     </message>
     <message>
         <source>Free use (copyright surrendered, no licence)</source>
-        <translation type="unfinished"></translation>
+        <translation>Freie Verwendung (Urheberrecht abgetreten, keine Lizenz)</translation>
     </message>
     <message>
         <source>&amp;Ipernity upload</source>
@@ -752,7 +752,7 @@
     </message>
     <message>
         <source>Change the licence</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenz ändern</translation>
     </message>
     <message>
         <source>Change album membership</source>
@@ -760,7 +760,7 @@
     </message>
     <message>
         <source>Create new Ipernity album</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Ipernity-Album erstellen</translation>
     </message>
     <message>
         <source>Title</source>
@@ -796,11 +796,11 @@
     </message>
     <message>
         <source>What language is the current text in? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>In welcher Sprache ist der aktuelle Text? Bitte geben Sie ein RFC3066-Sprachkennzeichen ein.</translation>
     </message>
     <message>
         <source>What language would you like to add? Please enter an RFC3066 language tag.</source>
-        <translation type="unfinished"></translation>
+        <translation>Welche Sprache möchten Sie hinzufügen? Bitte geben Sie ein RFC3066-Sprachkennzeichen ein.</translation>
     </message>
     <message>
         <source>Set default language</source>
@@ -958,7 +958,7 @@
     <name>OwnerTab</name>
     <message>
         <source>Enter a notice on the current owner of the copyright for this image, such as &quot;©2008 Jane Doe&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie einen Hinweis auf den aktuellen Inhaber des Urheberrechts für dieses Bild ein, z. B. &quot;©2008 Jane Doe&quot;.</translation>
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
@@ -974,7 +974,7 @@
     </message>
     <message>
         <source>Enter the job title of the person listed in the Creator field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Berufsbezeichnung der Person ein, die im Feld Urheber aufgeführt ist.</translation>
     </message>
     <message>
         <source>Creator&apos;s Jobtitle</source>
@@ -982,7 +982,7 @@
     </message>
     <message>
         <source>Enter who should be credited when this image is published.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie ein, wer bei der Veröffentlichung des Bildes genannt werden soll.</translation>
     </message>
     <message>
         <source>Credit Line</source>
@@ -990,15 +990,15 @@
     </message>
     <message>
         <source>Copyright Notice</source>
-        <translation type="unfinished"></translation>
+        <translation>Urheberrechtshinweis</translation>
     </message>
     <message>
         <source>Enter instructions on how this image can legally be used.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Anweisungen zur legalen Nutzung des Bildes ein.</translation>
     </message>
     <message>
         <source>Enter information about embargoes, or other restrictions not covered by the Rights Usage Terms field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Informationen über Embargos oder andere Einschränkungen ein, die nicht durch das Feld Rechteverwendungsbedingungen abgedeckt sind.</translation>
     </message>
     <message>
         <source>Instructions</source>
@@ -1014,15 +1014,15 @@
     </message>
     <message>
         <source>Enter the work Web URL(s) for the person that created this image, such as http://www.domain.com/.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Arbeits-URL(s) der Person ein, die dieses Bild erstellt hat, z. B. http://www.domain.com/.</translation>
     </message>
     <message>
         <source>Web URL(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Web-URL(s)</translation>
     </message>
     <message>
         <source>Enter the work phone number(s) for the person that created this image, using the international format, such as +1 (123) 456789.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die berufliche(n) Telefonnummer(n) der Person ein, die dieses Bild erstellt hat, und verwenden Sie dabei das internationale Format, z. B. +1 (123) 456789.</translation>
     </message>
     <message>
         <source>Phone(s)</source>
@@ -1038,7 +1038,7 @@
     </message>
     <message>
         <source>Enter the city for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Stadt für die Adresse der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>City</source>
@@ -1046,7 +1046,7 @@
     </message>
     <message>
         <source>Enter the postal code for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die Postleitzahl für die Adresse der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>Postal Code</source>
@@ -1054,7 +1054,7 @@
     </message>
     <message>
         <source>Enter the state for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie das Bundesland für die Adresse der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>State/Province</source>
@@ -1062,7 +1062,7 @@
     </message>
     <message>
         <source>Enter the country name for the address of the person that created this image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie den Ländernamen für die Adresse der Person ein, die dieses Bild erstellt hat.</translation>
     </message>
     <message>
         <source>Country</source>
@@ -1134,11 +1134,11 @@
     </message>
     <message>
         <source>URL for a licensor web page. May facilitate licensing of the image.</source>
-        <translation type="unfinished"></translation>
+        <translation>URL für eine Lizenzgeber-Webseite. Kann die Lizenzierung des Bildes erleichtern.</translation>
     </message>
     <message>
         <source>Licensor URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenzgeber-URL</translation>
     </message>
     <message>
         <source>Rights</source>
@@ -1146,7 +1146,7 @@
     </message>
     <message>
         <source>Photini: ownership template</source>
-        <translation type="unfinished"></translation>
+        <translation>Photini: Eigentumsvorlage</translation>
     </message>
     <message>
         <source>Initialise template</source>
@@ -1162,7 +1162,7 @@
     </message>
     <message>
         <source>Creator Contact Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontaktinformationen des Urhebers</translation>
     </message>
 </context>
 <context>
@@ -1316,7 +1316,7 @@
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;{}&quot; entfernen</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
