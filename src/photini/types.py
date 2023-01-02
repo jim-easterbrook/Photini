@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -634,7 +634,7 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def image_from_data(data):
         buf = QtCore.QBuffer()
-        buf.setData(data)
+        buf.setData(bytes(data))
         reader = QtGui.QImageReader(buf)
         fmt = reader.format().data().decode().upper()
         reader.setAutoTransform(False)
