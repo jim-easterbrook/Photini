@@ -809,7 +809,8 @@ class ImageList(QtWidgets.QWidget):
             table.clearContents()
             new_md = image.metadata
             old_md = Metadata(image.path)
-            for key in ('title', 'description', 'keywords', 'rating',
+            for key in ('title', 'headline', 'description', 'alt_text',
+                        'alt_text_ext', 'keywords', 'rating',
                         'creator', 'creator_title', 'credit_line', 'copyright',
                         'rights', 'instructions', 'contact_info',
                         'date_taken', 'date_digitised', 'date_modified',
