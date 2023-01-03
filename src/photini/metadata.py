@@ -169,6 +169,8 @@ class ImageMetadata(MetadataHandler):
     def _get_exif_thumbnail(self, w, h, fmt):
         for data, label in self.get_exif_thumbnails():
             if data:
+                if not isinstance(data, bytes):
+                    data = bytes(data)
                 fmt, image = self._decode_thumbnail(data, label)
                 if image:
                     return w, h, fmt, data, image

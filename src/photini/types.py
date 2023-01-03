@@ -634,7 +634,7 @@ class MD_Thumbnail(MD_Dict):
     @staticmethod
     def image_from_data(data):
         buf = QtCore.QBuffer()
-        buf.setData(bytes(data))
+        buf.setData(data)
         reader = QtGui.QImageReader(buf)
         fmt = reader.format().data().decode().upper()
         reader.setAutoTransform(False)
