@@ -23,7 +23,7 @@ import logging
 import math
 
 from photini.exiv2 import MetadataHandler
-from photini.pyqt import QtCore, QtGui
+from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
@@ -633,6 +633,10 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
+        # PyQt5 seems to be the only thing that can use memoryviews
+        if isinstance(data, memoryview) and (
+                using_pyside or qt_version_info >= (6, 0)):
+            data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)
         reader = QtGui.QImageReader(buf)
