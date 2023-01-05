@@ -45,11 +45,15 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>subject {}</translation>
+        <translation type="vanished">subject {}</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>subject {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -427,6 +431,10 @@
         <translation>Photini: fitxer gran</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El fitxer &quot;{file_name}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Títol de l&apos;àlbum</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Imatges ({0});;Vídeos ({1});;Tots els fitxers (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Diferències en metadades: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -505,7 +517,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Diferències en metadades: {}</translation>
+        <translation type="vanished">Diferències en metadades: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -561,6 +573,10 @@
         <translation>Format destí</translation>
     </message>
     <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select root folder</source>
         <translation>Trieu la carpeta destí</translation>
     </message>
@@ -570,11 +586,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>càmera: {0}</translation>
+        <translation type="vanished">càmera: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>carpeta: {0}</translation>
+        <translation type="vanished">carpeta: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -615,6 +631,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Para copia</translation>
+    </message>
+    <message>
+        <source>folder: {dir_name}</source>
+        <translation type="vanished">carpeta: {dir_name}</translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>càmera: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>carpeta: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -902,8 +930,16 @@
         <translation>Documentació Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Paquet de codi obert disponible de {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>Photini: quant a</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -911,7 +947,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Paquet de codi obert disponible de {}.</translation>
+        <translation type="vanished">Paquet de codi obert disponible de {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -927,7 +963,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
+        <translation type="vanished">Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -938,11 +974,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{details}&quot;.</translation>
     </message>
     <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <source>Photini: version check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1006,10 +1042,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1125,6 +1157,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1231,6 +1267,10 @@
         <translation>Nom del fabricant</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Número de serie</translation>
     </message>
@@ -1309,10 +1349,6 @@
     <message>
         <source>Aperture</source>
         <translation>Obertura</translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define camera</source>

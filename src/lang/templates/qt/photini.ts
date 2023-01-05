@@ -28,10 +28,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>subject {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enter the details about a location which is shown in this image.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -85,6 +81,10 @@
     </message>
     <message>
         <source>Region</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -419,15 +419,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please enter a title for the album</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -499,7 +499,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Metadata differences: {}</source>
+        <source>Metadata differences: {file_name}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -546,7 +546,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>folder: {0}</source>
+        <source>Remove &quot;{source_name}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -555,10 +555,6 @@
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>camera: {0}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -599,6 +595,14 @@
     </message>
     <message>
         <source>Stop copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -902,7 +906,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open source package available from {}.</source>
+        <source>Open source package available from {url}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -910,15 +922,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -928,6 +932,10 @@
 </context>
 <context>
     <name>OwnerTab</name>
+    <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>&amp;Ownership metadata</source>
         <translation type="unfinished"></translation>
@@ -1117,10 +1125,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit template</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1178,10 +1182,6 @@
 </context>
 <context>
     <name>TechnicalTab</name>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Maker&apos;s name</source>
         <translation type="unfinished"></translation>
@@ -1313,6 +1313,10 @@
     <message>
         <source>normal</source>
         <comment>orientation dropdown, no transformation</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

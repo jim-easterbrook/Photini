@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>emne {}</translation>
+        <translation type="vanished">emne {}</translation>
     </message>
     <message>
         <source>Enter the name of the city.</source>
@@ -50,6 +50,10 @@
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>emne {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -423,6 +427,10 @@
         <translation>Photini: stor fil</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Albumnavn</translation>
     </message>
@@ -433,10 +441,6 @@
     <message>
         <source>Large file.</source>
         <translation>Stor fil.</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -467,6 +471,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Bilder ({0});;Videoer ({1});;Alle filer (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Metadata-forskjeller: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -501,7 +509,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Metadata-forskjeller: {}</translation>
+        <translation type="vanished">Metadata-forskjeller: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -566,11 +574,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>kamera: {0}</translation>
+        <translation type="vanished">kamera: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>mappe: {0}</translation>
+        <translation type="vanished">mappe: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -611,6 +619,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Stopp kopiering</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation>Fjern «{source_name}»</translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>kamera: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>mappe: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -898,15 +918,19 @@
         <translation>Photini-dokumentasjon</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>Photini: om</translation>
     </message>
     <message>
-        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open source package available from {}.</source>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -926,10 +950,6 @@
         <translation>Valgte bilder</translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fix missing thumbnails</source>
         <translation>Fiks manglende miniatyrbilder</translation>
     </message>
@@ -938,12 +958,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: version check</source>
-        <translation>Photini: versjonssjekk</translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation type="unfinished"></translation>
+        <source>Photini: version check</source>
+        <translation>Photini: versjonssjekk</translation>
     </message>
 </context>
 <context>
@@ -954,6 +974,10 @@
     </message>
     <message>
         <source>Enter the name of the person that created this image.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{licence}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1117,10 +1141,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open link to &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1227,6 +1247,10 @@
         <translation type="unfinished">Fabrikatnavn</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Serienummer</translation>
     </message>
@@ -1308,7 +1332,7 @@
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation>Fjern «{}»</translation>
+        <translation type="vanished">Fjern «{}»</translation>
     </message>
     <message>
         <source>Photini: define camera</source>

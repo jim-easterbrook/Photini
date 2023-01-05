@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -268,9 +268,10 @@ jim@jim-easterbrook.me.uk</a><br /><br />
                'photini', 'data/icons/photini_128.png'),
            translate('MenuBar', 'An easy to use digital photograph metadata'
                      ' (Exif, IPTC, XMP) editing application.'),
-           translate('MenuBar', 'Open source package available from {}.').format(
-               '<a href="https://github.com/jim-easterbrook/Photini">'
-               'github.com/jim-easterbrook/Photini</a>'),
+           translate(
+               'MenuBar', 'Open source package available from {url}.').format(
+                   url='<a href="https://github.com/jim-easterbrook/Photini">'
+                   'github.com/jim-easterbrook/Photini</a>'),
            )
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: about'))
@@ -279,8 +280,8 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         dialog.setDetailedText(licence.decode('utf-8'))
         dialog.setInformativeText(translate(
             'MenuBar', 'This program is released with a GNU General Public'
-            ' License. For details click the "{}" button.').format(
-                dialog.buttons()[0].text()))
+            ' License. For details click the "{details}" button.').format(
+                details=dialog.buttons()[0].text()))
         execute(dialog)
 
     @QtSlot()
@@ -301,8 +302,9 @@ jim@jim-easterbrook.me.uk</a><br /><br />
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(translate('MenuBar', 'Photini: version check'))
         dialog.setText(translate(
-            'MenuBar', 'You are currently running Photini version {0}. The'
-            ' latest release is {1}.').format(__version__, release))
+            'MenuBar', 'You are currently running Photini version {version}.'
+            ' The latest release is {release}.').format(
+                version=__version__, release=release))
         execute(dialog)
 
     @QtSlot()

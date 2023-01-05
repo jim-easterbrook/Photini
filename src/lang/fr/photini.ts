@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>sujet {}</translation>
+        <translation type="vanished">sujet {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -74,6 +74,10 @@
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation>Saisissez les informations sur l’endroit où cette image a été créée.</translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>sujet {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -427,6 +431,10 @@
         <translation>Photini&#xa0;: gros fichier</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Nom de l&apos;album</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Images ({0});; Vidéos ({1});; Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Différence des métadonnées&#xa0;: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -505,7 +517,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Différence des métadonnées&#xa0;: {}</translation>
+        <translation type="vanished">Différence des métadonnées&#xa0;: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -570,11 +582,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>Appareil photo&#xa0;: {0}</translation>
+        <translation type="vanished">Appareil photo&#xa0;: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>Dossier&#xa0;: {0}</translation>
+        <translation type="vanished">Dossier&#xa0;: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -615,6 +627,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Arrêter la copie</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished">Supprimer «&#xa0;{source_name}&#xa0;»</translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>Appareil photo&#xa0;: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>Dossier&#xa0;: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -906,8 +930,16 @@
         <translation>Documentation de Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Paquet à code source ouvert disponible sur {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>Photini&#xa0;: À propos</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation>Vous exécutez actuellement la version {version} de Photini. La dernière version est la {release}.</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -915,7 +947,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Paquet à code source ouvert disponible sur {}.</translation>
+        <translation type="vanished">Paquet à code source ouvert disponible sur {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -935,7 +967,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -946,12 +978,16 @@
         <translation>Vérifier les mises à jour</translation>
     </message>
     <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{details}&#xa0;».</translation>
+    </message>
+    <message>
         <source>Photini: version check</source>
         <translation>Photini&#xa0;: Vérification des mises à jour</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation>Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
+        <translation type="vanished">Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
     </message>
 </context>
 <context>
@@ -963,6 +999,10 @@
     <message>
         <source>Enter the name of the person that created this image.</source>
         <translation>Saisissez le nom de la personne qui a créé cette image.</translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation>Ouvrir le lien vers «&#xa0;{licence}&#xa0;»</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
@@ -1150,7 +1190,7 @@
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
     </message>
     <message>
         <source>Edit template</source>
@@ -1235,6 +1275,10 @@
         <translation>Nom du fabricant</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation>Supprimer «&#xa0;{camera_or_lens}&#xa0;»</translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Numéro de série</translation>
     </message>
@@ -1316,7 +1360,7 @@
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation>Supprimer «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Supprimer «&#xa0;{}&#xa0;»</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1381,6 +1425,10 @@
     <message>
         <source>Precision</source>
         <translation>Précision</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{name}&quot;</source>
+        <translation type="vanished">Supprimer «&#xa0;{name}&#xa0;»</translation>
     </message>
 </context>
 <context>

@@ -24,11 +24,11 @@
         <translation></translation>
     </message>
     <message>
-        <source>subject {}</source>
+        <source>Enter the details about a location where this image was created.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Enter the details about a location where this image was created.</source>
+        <source>subject {idx}</source>
         <translation></translation>
     </message>
     <message>
@@ -415,6 +415,10 @@
         <translation></translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation></translation>
     </message>
@@ -424,10 +428,6 @@
     </message>
     <message>
         <source>Large file.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation></translation>
     </message>
 </context>
@@ -461,6 +461,10 @@
         <translation></translation>
     </message>
     <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Photini: unsaved data</source>
         <translation></translation>
     </message>
@@ -490,10 +494,6 @@
             <numerusform>Regenerate thumbnail</numerusform>
             <numerusform>Regenerate thumbnails</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Metadata differences: {}</source>
-        <translation></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -549,19 +549,15 @@
         <translation></translation>
     </message>
     <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Select root folder</source>
         <translation></translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>camera: {0}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>folder: {0}</source>
         <translation></translation>
     </message>
     <message>
@@ -602,6 +598,14 @@
     </message>
     <message>
         <source>Stop copy</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
         <translation></translation>
     </message>
     <message numerus="yes">
@@ -882,15 +886,19 @@
         <translation></translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation></translation>
     </message>
     <message>
-        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Open source package available from {}.</source>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
         <translation></translation>
     </message>
     <message>
@@ -906,10 +914,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Fix missing thumbnails</source>
         <translation></translation>
     </message>
@@ -918,11 +922,11 @@
         <translation></translation>
     </message>
     <message>
-        <source>Photini: version check</source>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
         <translation></translation>
     </message>
     <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <source>Photini: version check</source>
         <translation></translation>
     </message>
     <message>
@@ -986,10 +990,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation></translation>
     </message>
     <message>
@@ -1105,6 +1105,10 @@
         <translation></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation></translation>
     </message>
@@ -1211,6 +1215,10 @@
         <translation></translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation></translation>
     </message>
@@ -1288,10 +1296,6 @@
     </message>
     <message>
         <source>Aperture</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
         <translation></translation>
     </message>
     <message>

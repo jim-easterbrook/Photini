@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>předmět {}</translation>
+        <translation type="vanished">předmět {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -74,6 +74,10 @@
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation>Zadejte údaje o místě, kde byl tento obrázek vytvořen.</translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>předmět {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -427,6 +431,10 @@
         <translation>Velký soubor</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &quot;{file_name}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Název alba</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Obrázky ({0});;Obrazové záznamy ({1});;Všechny soubory (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Rozdíly mezi popisnými údaji: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -506,7 +518,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Rozdíly mezi popisnými údaji: {}</translation>
+        <translation type="vanished">Rozdíly mezi popisnými údaji: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -573,11 +585,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>Fotoaparát: {0}</translation>
+        <translation type="vanished">Fotoaparát: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>Složka: {0}</translation>
+        <translation type="vanished">Složka: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -618,6 +630,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Zastavit kopírování</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>Fotoaparát: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>Složka: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -910,8 +934,16 @@
         <translation>Dokumentace k Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Balíček s otevřeným zdrojovým kódem dostupný na {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>O programu Photini</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation>V současné době používáte Photini verze {version}. Nejnovější vydání je {release}.</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -919,7 +951,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
+        <translation type="vanished">Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -935,7 +967,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
+        <translation type="vanished">Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -946,12 +978,16 @@
         <translation>Podívat se po nejnovější verzi</translation>
     </message>
     <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{details}&quot;.</translation>
+    </message>
+    <message>
         <source>Photini: version check</source>
         <translation>Photini: ověření verze</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation>V současné době používáte Photini verze {0}. Nejnovější vydání je {1}.</translation>
+        <translation type="vanished">V současné době používáte Photini verze {0}. Nejnovější vydání je {1}.</translation>
     </message>
     <message>
         <source>Selected images</source>
@@ -1014,10 +1050,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1133,6 +1165,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1239,6 +1275,10 @@
         <translation>Název výrobce</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Sériové číslo</translation>
     </message>
@@ -1317,10 +1357,6 @@
     <message>
         <source>Aperture</source>
         <translation>Clona</translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define camera</source>

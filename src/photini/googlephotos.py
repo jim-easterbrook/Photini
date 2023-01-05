@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -287,9 +287,10 @@ class TabWidget(PhotiniUploader):
             translate('GooglePhotosTab', 'Large file.')))
         dialog.setInformativeText(
             translate('GooglePhotosTab',
-                      'File "{0}" is over 25 MB. Remember that Photini '
+                      'File "{file_name}" is over 25 MB. Remember that Photini '
                       'uploads count towards storage in your Google Account. '
-                      'Upload it anyway?').format(os.path.basename(image.path)))
+                      'Upload it anyway?').format(
+                          file_name=os.path.basename(image.path)))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Yes)
         self.add_skip_button(dialog)

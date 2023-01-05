@@ -49,7 +49,8 @@ class DropdownEdit(DropDownSelector):
             if not name:
                 continue
             action = QtGui2.QAction(
-                translate('TechnicalTab', 'Remove "{}"').format(name),
+                translate('TechnicalTab', 'Remove "{camera_or_lens}"'
+                          ).format(camera_or_lens=name),
                 parent=self)
             action.setData(self.itemData(n))
             menu.addAction(action)
