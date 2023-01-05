@@ -1406,8 +1406,36 @@
         <translation>Para càrrega</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation>Càrrega a {service} no ha acabat.</translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>No autenticat a {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation>El fitxer &quot;{file_name}&quot; té {size} bytes i excedeix el límit de {service} de {max_size} bytes.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>El fitxer &quot;{file_name}&quot; és de tipus &quot;{file_type}&quot;, que {service} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Progrés</translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1418,12 +1446,8 @@
         <translation>Tancar ara finalitzarà la càrrega.</translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
-        <translation>No autenticat a {}</translation>
+        <translation type="vanished">No autenticat a {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
@@ -1435,7 +1459,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1463,11 +1487,15 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
-        <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de {2} de {3} bytes.</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de {2} de {3} bytes.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Fitxer &quot;{file_name}&quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1486,10 +1514,6 @@
         <translation>Reemplaça foto</translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation>Reemplaçar imatge</translation>
     </message>
@@ -1506,16 +1530,12 @@
         <translation>Triar una imatge</translation>
     </message>
     <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No match</source>
         <translation>Cap coincidència</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Càrrega a {} no ha acabat.</translation>
+        <translation type="vanished">Càrrega a {} no ha acabat.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1523,7 +1543,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
+        <translation type="vanished">Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
 </context>
 <context>

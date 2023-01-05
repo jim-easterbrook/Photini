@@ -1406,8 +1406,36 @@
         <translation>Hochladen stoppen</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation>Hochladen nach {service} wurde nicht beendet.</translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation>Angemeldet als {user} auf {service}</translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>Nicht angemeldet bei {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished">Die Datei „{file_name}“ hat {size} Bytes und überschreitet {service} Begrenzung von {max_size} Bytes.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished">Datei „{file_name}“ ist im Format „{file_type}“, das {service} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Fortschritt</translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished">Datei {file_name} wurde bereits auf {service} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1419,7 +1447,7 @@
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Nicht angemeldet bei {}</translation>
+        <translation type="vanished">Nicht angemeldet bei {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
@@ -1431,7 +1459,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1459,11 +1487,15 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
-        <translation>Die Datei „{0}“ hat {1} Bytes und überschreitet {2} Begrenzung von {3} Bytes.</translation>
+        <translation type="vanished">Die Datei „{0}“ hat {1} Bytes und überschreitet {2} Begrenzung von {3} Bytes.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Hochladen der Datei „{file_name}“ fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1479,7 +1511,7 @@
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
+        <translation type="vanished">Datei {0} wurde bereits auf {1} hochgeladen. Wie möchten Sie sie aktualisieren?</translation>
     </message>
     <message>
         <source>Replace image</source>
@@ -1498,16 +1530,12 @@
         <translation>Bild auswählen</translation>
     </message>
     <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No match</source>
         <translation>Kein Treffer</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Hochladen nach {} wurde nicht beendet.</translation>
+        <translation type="vanished">Hochladen nach {} wurde nicht beendet.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1515,7 +1543,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Hochladen der Datei „{}“ fehlgeschlagen.</translation>
+        <translation type="vanished">Hochladen der Datei „{}“ fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1523,7 +1551,7 @@
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Angemeldet als {0} auf {1}</translation>
+        <translation type="vanished">Angemeldet als {0} auf {1}</translation>
     </message>
 </context>
 <context>

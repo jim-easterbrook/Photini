@@ -1394,23 +1394,23 @@
         <translation></translation>
     </message>
     <message>
-        <source>Upload to {} has not finished.</source>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
         <translation></translation>
     </message>
     <message>
         <source>Closing now will terminate the upload.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
         <translation></translation>
     </message>
     <message>
@@ -1422,15 +1422,23 @@
         <translation></translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Photini: too large</source>
         <translation></translation>
     </message>
     <message>
         <source>File too large.</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
         <translation></translation>
     </message>
     <message>
@@ -1442,15 +1450,15 @@
         <translation></translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation></translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation></translation>
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
         <translation></translation>
     </message>
     <message>
@@ -1470,10 +1478,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation></translation>
     </message>
@@ -1487,10 +1491,6 @@
     </message>
     <message>
         <source>Select an image</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
         <translation></translation>
     </message>
     <message>

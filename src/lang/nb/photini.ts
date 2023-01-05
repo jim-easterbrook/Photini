@@ -1402,23 +1402,7 @@
         <translation>Stopp opplasting</translation>
     </message>
     <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1430,10 +1414,6 @@
         <translation>Framdrift</translation>
     </message>
     <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No match</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1442,12 +1422,28 @@
         <translation>Photini: laster opp …</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Photini: upload error</source>
         <translation>Photini: opplastingsfeil</translation>
     </message>
     <message>
         <source>Add to albums</source>
         <translation>Legg til i album</translation>
+    </message>
+    <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Skip</source>
@@ -1462,12 +1458,24 @@
         <translation>Filen er for stor.</translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Kunne ikke laste opp filen «{file_name}».</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1484,10 +1492,6 @@
     <message>
         <source>Replace photo</source>
         <translation>Erstatt bilde</translation>
-    </message>
-    <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Replace image</source>
@@ -1511,7 +1515,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Kunne ikke laste opp filen «{}».</translation>
+        <translation type="vanished">Kunne ikke laste opp filen «{}».</translation>
     </message>
 </context>
 <context>

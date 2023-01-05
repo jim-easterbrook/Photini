@@ -396,8 +396,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: upload in progress'))
         dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll',
-            'Upload to {} has not finished.').format(self.service_name)))
+            'UploaderTabsAll',  'Upload to {service} has not finished.'
+            ).format(service=self.service_name)))
         dialog.setInformativeText(translate(
             'UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(dialog.Icon.Warning)
@@ -411,12 +411,12 @@ class PhotiniUploader(QtWidgets.QWidget):
         if name:
             name = name[:10].replace(' ', '\xa0') + name[10:]
             self.user_name.setText(translate(
-                'UploaderTabsAll',
-                'Logged in as {0} on {1}').format(name, self.service_name))
+                'UploaderTabsAll', 'Logged in as {user} on {service}'
+                ).format(user=name, service=self.service_name))
         else:
             self.user_name.setText(translate(
-                'UploaderTabsAll',
-                'Not logged in to {}').format(self.service_name))
+                'UploaderTabsAll', 'Not logged in to {service}'
+                ).format(service=self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
             pixmap.loadFromData(picture)
@@ -530,9 +530,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setText('<h3>{}</h3>'.format(
             translate('UploaderTabsAll', 'File too large.')))
         text = translate(
-            'UploaderTabsAll', 'File "{0}" has {1} bytes and exceeds {2}\'s'
-            ' limit of {3} bytes.').format(
-                os.path.basename(image.path), size, self.service_name, max_size)
+            'UploaderTabsAll', 'File "{file_name}" has {size} bytes and exceeds'
+            ' {service}\'s limit of {max_size} bytes.').format(
+                file_name=os.path.basename(image.path), size=size,
+                service=self.service_name, max_size=max_size)
         if resizable:
             text += ' ' + translate(
                 'UploaderTabsAll', 'Would you like to resize it?')
@@ -551,11 +552,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll', 'Incompatible image type.')))
         dialog.setInformativeText(translate(
-            'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-            ' may not handle correctly. Would you like to convert it'
-            ' to JPEG?'
-            ).format(os.path.basename(image.path),
-                     image.file_type, self.service_name))
+            'UploaderTabsAll', 'File "{file_name}" is of type "{file_type}",'
+            ' which {service} may not handle correctly. Would you like to'
+            ' convert it to JPEG?'
+            ).format(file_name=os.path.basename(image.path),
+                     file_type=image.file_type, service=self.service_name))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Yes |
                                   dialog.StandardButton.No)
@@ -657,7 +658,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: upload error'))
         dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll', 'File "{}" upload failed.').format(name)))
+            'UploaderTabsAll', 'File "{file_name}" upload failed.'
+            ).format(file_name=name)))
         dialog.setInformativeText(error)
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Abort |
@@ -823,9 +825,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Replace photo'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         message = QtWidgets.QLabel(translate(
-            'UploaderTabsAll', 'File {0} has already been uploaded to {1}.'
-            ' How would you like to update it?').format(
-                os.path.basename(image.path), self.service_name))
+            'UploaderTabsAll', 'File {file_name} has already been uploaded to'
+            ' {service}. How would you like to update it?').format(
+                file_name=os.path.basename(image.path),
+                service=self.service_name))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
         replace_options = {}
@@ -924,8 +927,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         label.setPixmap(pixmap)
         dialog.layout().addRow(label, Label(translate(
             'UploaderTabsAll',
-            'Which image file matches this picture on {}?').format(
-                self.service_name), lines=2))
+            'Which image file matches this picture on {service}?').format(
+                service=self.service_name), lines=2))
         buttons = {}
         frame = QtWidgets.QFrame()
         frame.setLayout(FormLayout())

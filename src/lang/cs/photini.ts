@@ -1414,28 +1414,52 @@
         <translation>Zastavit nahrávání</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>Nepřihlášen do {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; má {size} bytů a překračuje omezení {service} {max_size} bytů.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Postup</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
         <translation>Probíhá nahrávání</translation>
     </message>
     <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
-        <translation>Nepřihlášen do {}</translation>
+        <translation type="vanished">Nepřihlášen do {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
@@ -1447,7 +1471,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1479,14 +1503,10 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1506,10 +1526,6 @@
         <translation>Nahradit fotografii</translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation>Nahradit obrázek</translation>
     </message>
@@ -1524,10 +1540,6 @@
     <message>
         <source>Select an image</source>
         <translation>Vybrat obrázek</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>

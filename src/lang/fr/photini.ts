@@ -1410,8 +1410,32 @@
         <translation>Arrêter l&apos;import</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation>L&apos;import vers {service} n&apos;est pas terminé.</translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation>Connecté en tant que {user} sur {service}</translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>Non connecté à {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;»contient {size} octets et dépasse la limite de {max_size} octets fixée par {service}.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;» est du type «&#xa0;{file_type}&#xa0;» que {service} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Progression</translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation>Le fichier {file_name} a déjà été téléversé sur {service}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1423,7 +1447,7 @@
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Non connecté à {}</translation>
+        <translation type="vanished">Non connecté à {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
@@ -1435,7 +1459,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1463,11 +1487,15 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {3} octets fixée par {2}.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {3} octets fixée par {2}.</translation>
     </message>
     <message>
         <source>Would you like to resize it?</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Échec de l&apos;import du fichier «&#xa0;{file_name}&#xa0;».</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1483,7 +1511,7 @@
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+        <translation type="vanished">Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>
@@ -1502,12 +1530,16 @@
         <translation>Sélectionner une image</translation>
     </message>
     <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation>Quel fichier correspond à cette image sur {service}&#xa0;?</translation>
+    </message>
+    <message>
         <source>No match</source>
         <translation>Aucune correspondance</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
+        <translation type="vanished">L&apos;import vers {} n&apos;est pas terminé.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1515,7 +1547,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1523,11 +1555,11 @@
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Connecté en tant que {0} sur {1}</translation>
+        <translation type="vanished">Connecté en tant que {0} sur {1}</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+        <translation type="vanished">Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
 </context>
 <context>
