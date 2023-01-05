@@ -281,11 +281,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: zu groß</translation>
+        <translation type="vanished">Photini: zu groß</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Die Datei „{0}“ hat {1} Bytes und überschreitet Flickrs Begrenzung von {2} Bytes.</translation>
+        <translation type="vanished">Die Datei „{0}“ hat {1} Bytes und überschreitet Flickrs Begrenzung von {2} Bytes.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +401,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Datei zu groß.</translation>
+        <translation type="vanished">Datei zu groß.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -732,11 +732,7 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: zu groß</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Photini: zu groß</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -772,7 +768,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Datei zu groß.</translation>
+        <translation type="vanished">Datei zu groß.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -1427,11 +1423,11 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
+        <translation type="vanished">Die Datei „{0}“ ist vom Typ „{1}“, der von {2} nicht akzeptiert wird und von Photini nicht konvertiert werden kann.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
+        <translation type="vanished">Datei „{0}“ ist im Format „{1}“, das {2} evtl. nicht korrekt behandelt. Die Datei ins JPEG-Format konvertieren?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
@@ -1448,6 +1444,26 @@
     <message>
         <source>Add to albums</source>
         <translation>Zu Alben hinzufügen</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Photini: zu groß</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Datei zu groß.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation>Die Datei „{0}“ hat {1} Bytes und überschreitet {2} Begrenzung von {3} Bytes.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: authorise</source>

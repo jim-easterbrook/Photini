@@ -281,11 +281,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini&#xa0;: trop volumineux</translation>
+        <translation type="vanished">Photini&#xa0;: trop volumineux</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {2} octets fixée par Flickr.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {2} octets fixée par Flickr.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +401,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fichier trop volumineux.</translation>
+        <translation type="vanished">Fichier trop volumineux.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -732,11 +732,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini&#xa0;: Trop volumineux</translation>
+        <translation type="vanished">Photini&#xa0;: Trop volumineux</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» fait {1} octets, ce qui dépasse la limite de {2} octets fixée par Ipernity. Voulez-vous le redimensionner&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» fait {1} octets, ce qui dépasse la limite de {2} octets fixée par Ipernity. Voulez-vous le redimensionner&#xa0;?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -772,7 +772,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fichier trop volumineux.</translation>
+        <translation type="vanished">Fichier trop volumineux.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -1427,11 +1427,11 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
@@ -1448,6 +1448,26 @@
     <message>
         <source>Add to albums</source>
         <translation>Ajouter aux albums</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Photini&#xa0;: trop volumineux</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Fichier trop volumineux.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation>Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {3} octets fixée par {2}.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: authorise</source>

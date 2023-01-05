@@ -280,14 +280,6 @@
         <translation>Flickr</translation>
     </message>
     <message>
-        <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -397,10 +389,6 @@
     </message>
     <message>
         <source>Change licence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -735,14 +723,6 @@
         <translation>Nowy album</translation>
     </message>
     <message>
-        <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -773,10 +753,6 @@
     <message>
         <source>Description</source>
         <translation>Opis</translation>
-    </message>
-    <message>
-        <source>File too large.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -1438,20 +1414,32 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
         <translation>Photini: niezgodny typ</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload error</source>

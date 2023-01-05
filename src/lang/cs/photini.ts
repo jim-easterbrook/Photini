@@ -281,11 +281,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Příliš velký</translation>
+        <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +401,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="vanished">Soubor je příliš velký.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -736,11 +736,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Příliš velký</translation>
+        <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -776,7 +776,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="vanished">Soubor je příliš velký.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -1439,11 +1439,11 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
@@ -1464,6 +1464,26 @@
     <message>
         <source>Add to albums</source>
         <translation>Přidat do alb</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Příliš velký</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Soubor je příliš velký.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
