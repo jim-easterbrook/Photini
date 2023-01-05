@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -400,9 +400,11 @@ class ImporterTab(QtWidgets.QWidget):
                 section, 'last_transfer', datetime.min.isoformat(' '))))
         roots.sort(key=lambda x: x[1], reverse=True)
         for root, last_transfer in roots:
-            name = translate('ImporterTab', 'folder: {0}').format(root)
+            name = translate(
+                'ImporterTab', 'folder: {folder_name}').format(folder_name=root)
             action = QtGui2.QAction(
-                translate('TechnicalTab', 'Remove "{}"').format(name),
+                translate('ImporterTab', 'Remove "{source_name}"'
+                          ).format(source_name=name),
                 parent=self)
             action.setData('importer folder ' + root)
             menu.addAction(action)
@@ -433,7 +435,8 @@ class ImporterTab(QtWidgets.QWidget):
         self.config_store.set(
             section, 'last_transfer', datetime.min.isoformat(' '))
         self.source_selector.addItem(
-            translate('ImporterTab', 'folder: {0}').format(root),
+            translate('ImporterTab', 'folder: {folder_name}'
+                      ).format(folder_name=root),
             (FolderSource(root), section))
         idx = self.source_selector.count() - 1
         self.source_selector.setCurrentIndex(idx)
@@ -463,7 +466,8 @@ class ImporterTab(QtWidgets.QWidget):
             translate('ImporterTab', '<select source>'), self._new_file_list)
         for model, port_name in get_camera_list():
             self.source_selector.addItem(
-                translate('ImporterTab', 'camera: {0}').format(model),
+                translate('ImporterTab', 'camera: {camera_name}'
+                          ).format(camera_name=model),
                 (CameraSource(model, port_name), 'importer ' + model))
         roots = []
         for section in self.config_store.config.sections():
@@ -475,7 +479,8 @@ class ImporterTab(QtWidgets.QWidget):
         for root, last_transfer in roots:
             if os.path.isdir(root):
                 self.source_selector.addItem(
-                    translate('ImporterTab', 'folder: {0}').format(root),
+                    translate('ImporterTab', 'folder: {folder_name}'
+                              ).format(folder_name=root),
                     (FolderSource(root), 'importer folder ' + root))
         self.source_selector.addItem(
             translate('ImporterTab', '<add a folder>'), self.add_folder)

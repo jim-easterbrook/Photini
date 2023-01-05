@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@ import logging
 import math
 
 from photini.exiv2 import MetadataHandler
-from photini.pyqt import QtCore, QtGui
+from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
 
 logger = logging.getLogger(__name__)
 
@@ -271,7 +271,7 @@ class MD_Coordinate(MD_Dict):
         degrees = int(self['deg'])
         minutes = float(((self['deg'] - degrees) * 60) + self['min']
                         + (self['sec'] / 60))
-        return ('{:d},{:f}'.format(degrees, minutes), self['pstv'])
+        return ('{:d},{:.7f}'.format(degrees, minutes), self['pstv'])
 
     def __float__(self):
         result = float(self['deg'] + (self['min'] / 60) + (self['sec'] / 3600))
@@ -486,28 +486,29 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
-        if not isinstance(date_value, tuple):
+        if not isinstance(date_value, dict):
             # Exiv2 couldn't read malformed date
             return None
-        year, month, day = date_value
-        if year == 0:
+        if date_value['year'] == 0:
             return None
-        precision = 6
-        if day == 0:
-            day = 1
-            precision = 2
-        if month == 0:
-            month = 1
-            precision = 1
-        if isinstance(time_value, tuple):
-            hour, minute, second, tz_hr, tz_min = time_value
+        precision = 3
+        if isinstance(time_value, dict):
+            tz_offset = (time_value['tzHour'] * 60) + time_value['tzMinute']
+            del time_value['tzHour'], time_value['tzMinute']
+            # all-zero time is assumed to be no time info
+            if any(time_value.values()):
+                precision = 6
         else:
             # missing or malformed time
-            hour, minute, second, tz_hr, tz_min = 0, 0, 0, 0, 0
-        if (hour, minute, second) == (0, 0, 0):
-            precision = min(precision, 3)
-        return cls((datetime(year, month, day, hour, minute, second),
-                    precision, (tz_hr * 60) + tz_min))
+            time_value = {}
+            tz_offset = None
+        if date_value['day'] == 0:
+            date_value['day'] = 1
+            precision = 2
+        if date_value['month'] == 0:
+            date_value['month'] = 1
+            precision = 1
+        return cls((datetime(**date_value, **time_value), precision, tz_offset))
 
     def to_iptc(self):
         precision = self['precision']
@@ -632,6 +633,10 @@ class MD_Thumbnail(MD_Dict):
 
     @staticmethod
     def image_from_data(data):
+        # PyQt5 seems to be the only thing that can use memoryviews
+        if isinstance(data, memoryview) and (
+                using_pyside or qt_version_info >= (6, 0)):
+            data = bytes(data)
         buf = QtCore.QBuffer()
         buf.setData(data)
         reader = QtGui.QImageReader(buf)

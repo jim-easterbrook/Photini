@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2019-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2019-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -395,7 +395,7 @@ class TabWidget(QtWidgets.QWidget):
             tip = translate('AddressTab', 'Enter the details about a location'
                             ' where this image was created.')
         else:
-            text = translate('AddressTab', 'subject {}').format(idx)
+            text = translate('AddressTab', 'subject {idx}').format(idx=idx)
             tip = translate('AddressTab', 'Enter the details about a location'
                             ' which is shown in this image.')
         self.location_info.setTabText(idx, text)

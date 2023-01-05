@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -802,14 +802,16 @@ class ImageList(QtWidgets.QWidget):
             if not image.metadata.changed():
                 continue
             dialog.setWindowTitle(translate(
-                'ImageList', 'Metadata differences: {}').format(image.name))
+                'ImageList', 'Metadata differences: {file_name}').format(
+                    file_name=image.name))
             labels = []
             row = 0
             undo = {}
             table.clearContents()
             new_md = image.metadata
             old_md = Metadata(image.path)
-            for key in ('title', 'description', 'keywords', 'rating',
+            for key in ('title', 'headline', 'description', 'alt_text',
+                        'alt_text_ext', 'keywords', 'rating',
                         'creator', 'creator_title', 'credit_line', 'copyright',
                         'rights', 'instructions', 'contact_info',
                         'date_taken', 'date_digitised', 'date_modified',

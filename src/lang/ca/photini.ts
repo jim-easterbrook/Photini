@@ -45,11 +45,15 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>subject {}</translation>
+        <translation type="vanished">subject {}</translation>
     </message>
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>subject {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -281,11 +285,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: massa gran</translation>
+        <translation type="vanished">Photini: massa gran</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de Flickr de {2} bytes.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +405,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fitxer massa gran.</translation>
+        <translation type="vanished">Fitxer massa gran.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -427,6 +431,10 @@
         <translation>Photini: fitxer gran</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>El fitxer &quot;{file_name}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Títol de l&apos;àlbum</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; està per sobre de 25MB. Recordeu que les pujades de Photini es tenen en compte per l&apos;espai ocupat en el vostre compte de google. Voleu pujar-lo igualment?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Imatges ({0});;Vídeos ({1});;Tots els fitxers (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Diferències en metadades: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -505,7 +517,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Diferències en metadades: {}</translation>
+        <translation type="vanished">Diferències en metadades: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -561,6 +573,10 @@
         <translation>Format destí</translation>
     </message>
     <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select root folder</source>
         <translation>Trieu la carpeta destí</translation>
     </message>
@@ -570,11 +586,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>càmera: {0}</translation>
+        <translation type="vanished">càmera: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>carpeta: {0}</translation>
+        <translation type="vanished">carpeta: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -615,6 +631,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Para copia</translation>
+    </message>
+    <message>
+        <source>folder: {dir_name}</source>
+        <translation type="vanished">carpeta: {dir_name}</translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>càmera: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>carpeta: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -732,11 +760,7 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini: massa gran</translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Photini: massa gran</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -772,7 +796,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fitxer massa gran.</translation>
+        <translation type="vanished">Fitxer massa gran.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -906,8 +930,16 @@
         <translation>Documentació Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Paquet de codi obert disponible de {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>Photini: quant a</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -915,7 +947,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Paquet de codi obert disponible de {}.</translation>
+        <translation type="vanished">Paquet de codi obert disponible de {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -931,7 +963,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
+        <translation type="vanished">Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -942,11 +974,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: version check</source>
-        <translation type="unfinished"></translation>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Aquest programa s&apos;ha publicat amb una llicència GNU General Public License. Per meś detalls feu click al &quot;{details}&quot;.</translation>
     </message>
     <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <source>Photini: version check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1010,10 +1042,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1129,6 +1157,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1235,6 +1267,10 @@
         <translation>Nom del fabricant</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Número de serie</translation>
     </message>
@@ -1313,10 +1349,6 @@
     <message>
         <source>Aperture</source>
         <translation>Obertura</translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1410,8 +1442,36 @@
         <translation>Para càrrega</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation>Càrrega a {service} no ha acabat.</translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>No autenticat a {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation>El fitxer &quot;{file_name}&quot; té {size} bytes i excedeix el límit de {service} de {max_size} bytes.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>El fitxer &quot;{file_name}&quot; és de tipus &quot;{file_type}&quot;, que {service} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Progrés</translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1422,24 +1482,20 @@
         <translation>Tancar ara finalitzarà la càrrega.</translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
-        <translation>No autenticat a {}</translation>
+        <translation type="vanished">No autenticat a {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem in Photini no pot convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} no acceptem. El voleu convertir a JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
+        <translation type="vanished">El fitxer &quot;{0}&quot; és de tipus &quot;{1}&quot;, que {2} podem no tractar correctament. Voleu convertir-lo a JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1452,6 +1508,30 @@
     <message>
         <source>Add to albums</source>
         <translation>Afegir a àlbums</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Photini: massa gran</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Fitxer massa gran.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation type="vanished">El fitxer &quot;{0}&quot; té {1} bytes i excedeix el límit de {2} de {3} bytes.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Fitxer &quot;{file_name}&quot; càrrega fallada.</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1470,10 +1550,6 @@
         <translation>Reemplaça foto</translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation>Reemplaçar imatge</translation>
     </message>
@@ -1490,16 +1566,12 @@
         <translation>Triar una imatge</translation>
     </message>
     <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No match</source>
         <translation>Cap coincidència</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>Càrrega a {} no ha acabat.</translation>
+        <translation type="vanished">Càrrega a {} no ha acabat.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1507,7 +1579,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Fitxer &quot;{}&quot; càrrega fallada.</translation>
+        <translation type="vanished">Fitxer &quot;{}&quot; càrrega fallada.</translation>
     </message>
 </context>
 <context>

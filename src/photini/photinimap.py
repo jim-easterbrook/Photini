@@ -28,8 +28,7 @@ import pkg_resources
 from photini.imagelist import DRAG_MIMETYPE
 from photini.pyqt import *
 from photini.pyqt import (
-    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView,
-    qt_version_info, using_qtwebengine)
+    QtNetwork, QWebChannel, QWebEnginePage, QWebEngineView, qt_version_info)
 from photini.technical import DoubleSpinBox
 from photini.widgets import ComboBox, LatLongDisplay
 
@@ -119,59 +118,34 @@ class CallHandler(QtCore.QObject):
         self.parent().marker_drop(lat, lng)
 
 
-class BaseWebEnginePage(QWebEnginePage):
-    @QtSlot(QtCore.QUrl)
-    @catch_all
-    def open_in_browser(self, url):
-        if url.isLocalFile():
-            url.setScheme('http')
-        QtGui.QDesktopServices.openUrl(url)
-
-
-class TransientWebPage(BaseWebEnginePage):
-    @catch_all
-    def acceptNavigationRequest(self, url, type_, isMainFrame):
-        self.open_in_browser(url)
-        # delete temporary child created by createWindow
-        self.deleteLater()
-        return False
-
-
-class MapWebPage(BaseWebEnginePage):
-    def __init__(self, call_handler, *args, **kwds):
+class MapWebPage(QWebEnginePage):
+    def __init__(self, *args, call_handler=None, transient=False, **kwds):
         super(MapWebPage, self).__init__(*args, **kwds)
         self.call_handler = call_handler
-        if using_qtwebengine:
+        self.transient = transient
+        if self.call_handler:
             self.web_channel = QWebChannel(parent=self)
             self.setWebChannel(self.web_channel)
             self.web_channel.registerObject('python', self.call_handler)
-            self.profile().setCachePath(
-                os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
-        else:
-            self.setLinkDelegationPolicy(self.DelegateAllLinks)
-            self.linkClicked.connect(self.open_in_browser)
-            self.mainFrame().javaScriptWindowObjectCleared.connect(
-                self.java_script_window_object_cleared)
-            cache = QtNetwork.QNetworkDiskCache()
-            cache.setCacheDirectory(
-                os.path.join(appdirs.user_cache_dir('photini'), 'WebKit'))
-            self.networkAccessManager().setCache(cache)
+        self.profile().setCachePath(
+            os.path.join(appdirs.user_cache_dir('photini'), 'WebEngine'))
 
-    @QtSlot()
     @catch_all
-    def java_script_window_object_cleared(self):
-        self.mainFrame().addToJavaScriptWindowObject(
-            'python', self.call_handler)
+    def acceptNavigationRequest(self, url, type_, isMainFrame):
+        if type_ != self.NavigationType.NavigationTypeLinkClicked:
+            return super(MapWebPage, self).acceptNavigationRequest(
+                url, type_, isMainFrame)
+        if url.isLocalFile():
+            url.setScheme('http')
+        QtGui.QDesktopServices.openUrl(url)
+        if self.transient:
+            # delete temporary child created by createWindow
+            self.deleteLater()
+        return False
 
     @catch_all
     def createWindow(self, type_):
-        return TransientWebPage(parent=self)
-
-    def do_java_script(self, command):
-        if using_qtwebengine:
-            self.runJavaScript(command)
-        else:
-            self.mainFrame().evaluateJavaScript(command)
+        return MapWebPage(transient=True, parent=self)
 
     @catch_all
     def javaScriptConsoleMessage(self, level, msg, line, source):
@@ -184,11 +158,10 @@ class MapWebView(QWebEngineView):
 
     def __init__(self, call_handler, *args, **kwds):
         super(MapWebView, self).__init__(*args, **kwds)
-        self.setPage(MapWebPage(call_handler, parent=self))
+        self.setPage(MapWebPage(call_handler=call_handler, parent=self))
         settings = self.settings()
-        if using_qtwebengine:
-            settings.setAttribute(
-                settings.WebAttribute.Accelerated2dCanvasEnabled, False)
+        settings.setAttribute(
+            settings.WebAttribute.Accelerated2dCanvasEnabled, False)
         settings.setAttribute(
             settings.WebAttribute.LocalContentCanAccessRemoteUrls, True)
         settings.setAttribute(
@@ -338,8 +311,7 @@ class PhotiniMap(QtWidgets.QWidget):
 </html>'''
         lat, lng = self.app.config_store.get('map', 'centre', (51.0, 0.0))
         zoom = int(self.app.config_store.get('map', 'zoom', 11))
-        if using_qtwebengine:
-            initialize = '''    <script type="text/javascript"
+        initialize = '''    <script type="text/javascript"
       src="qrc:///qtwebchannel/qwebchannel.js">
     </script>
     <script type="text/javascript">
@@ -351,13 +323,6 @@ class PhotiniMap(QtWidgets.QWidget):
       function doLoadMap(channel)
       {{
           python = channel.objects.python;
-          loadMap({lat}, {lng}, {zoom});
-      }}
-    </script>'''
-        else:
-            initialize = '''    <script type="text/javascript">
-      function initialize()
-      {{
           loadMap({lat}, {lng}, {zoom});
       }}
     </script>'''
@@ -690,4 +655,4 @@ class PhotiniMap(QtWidgets.QWidget):
 
     def JavaScript(self, command):
         if self.map_loaded >= 2:
-            self.widgets['map'].page().do_java_script(command)
+            self.widgets['map'].page().runJavaScript(command)

@@ -17,6 +17,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import io
@@ -28,6 +29,10 @@ import time
 import urllib
 
 import keyring
+try:
+    import PIL.Image as PIL
+except ImportError:
+    PIL = None
 import requests
 
 from photini.configstore import key_store
@@ -75,18 +80,20 @@ class UploadAborted(Exception):
     pass
 
 
-class AbortableFileReader(object):
-    def __init__(self, path=None, data=None):
-        if data:
-            self._f = io.BytesIO(data)
-            # requests library uses 'len' attribute instead of seeking to
-            # end of file and back
-            self.len = len(data)
-        else:
-            self._f = open(path, 'rb')
+class AbortableFileReader(QtCore.QObject):
+    def __init__(self, fileobj, size, *args, **kwds):
+        super(AbortableFileReader, self).__init__(*args, **kwds)
+        self._f = fileobj
+        # requests library uses 'len' attribute instead of seeking to
+        # end of file and back
+        self.len = size
         # thread safe way to abort reading large file
         self._closing = threading.Event()
-        self.abort = self._closing.set
+
+    @QtSlot()
+    @catch_all
+    def abort_upload(self):
+        self._closing.set()
 
     # substitute read method
     def read(self, size):
@@ -106,12 +113,35 @@ class UploadWorker(QtCore.QObject):
     finished = QtSignal()
     upload_error = QtSignal(str, str)
     upload_progress = QtSignal(dict)
+    _abort_upload = QtSignal()
 
     def __init__(self, session_factory, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session_factory = session_factory
         self.upload_list = upload_list
-        self.fileobj = None
+
+    @contextmanager
+    def open_file(self, image, convert):
+        if convert:
+            exiv_image, image_type = convert(image)
+            exiv_io = exiv_image.io()
+            exiv_io.open()
+            fileobj = AbortableFileReader(
+                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
+            try:
+                yield image_type, fileobj
+            finally:
+                fileobj.close()
+                exiv_io.munmap()
+                exiv_io.close()
+        else:
+            fileobj = AbortableFileReader(
+                open(image.path, 'rb'), os.stat(image.path).st_size,
+                parent=self)
+            try:
+                yield image.file_type, fileobj
+            finally:
+                fileobj.close()
 
     @QtSlot()
     @catch_all
@@ -128,14 +158,11 @@ class UploadWorker(QtCore.QObject):
                      name, 1 + upload_count, len(self.upload_list)),
                 })
             try:
-                if convert:
-                    data, image_type = convert(image)
-                    self.fileobj = AbortableFileReader(data=data)
-                else:
-                    image_type = image.file_type
-                    self.fileobj = AbortableFileReader(path=image.path)
-                error = session.do_upload(
-                    self.fileobj, image_type, image, params)
+                with self.open_file(image, convert) as (image_type, fileobj):
+                    self._abort_upload.connect(
+                        fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+                    error = session.do_upload(
+                        fileobj, image_type, image, params)
             except UploadAborted:
                 error = 'UploadAborted'
                 session.close_connection()
@@ -144,11 +171,7 @@ class UploadWorker(QtCore.QObject):
             except Exception as ex:
                 logger.exception(ex)
                 error = '{}: {}'.format(type(ex), str(ex))
-            finally:
-                if self.fileobj:
-                    self.fileobj.close()
             self.upload_progress.emit({'busy': False})
-            self.fileobj = None
             if error:
                 if not session.api:
                     break
@@ -169,9 +192,7 @@ class UploadWorker(QtCore.QObject):
     @catch_all
     def abort_upload(self, retry):
         self.retry = retry
-        if self.fileobj:
-            # brutal way to interrupt an upload
-            self.fileobj.abort()
+        self._abort_upload.emit()
 
 
 class AuthRequestHandler(BaseHTTPRequestHandler):
@@ -375,8 +396,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: upload in progress'))
         dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll',
-            'Upload to {} has not finished.').format(self.service_name)))
+            'UploaderTabsAll',  'Upload to {service} has not finished.'
+            ).format(service=self.service_name)))
         dialog.setInformativeText(translate(
             'UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(dialog.Icon.Warning)
@@ -390,30 +411,102 @@ class PhotiniUploader(QtWidgets.QWidget):
         if name:
             name = name[:10].replace(' ', '\xa0') + name[10:]
             self.user_name.setText(translate(
-                'UploaderTabsAll',
-                'Logged in as {0} on {1}').format(name, self.service_name))
+                'UploaderTabsAll', 'Logged in as {user} on {service}'
+                ).format(user=name, service=self.service_name))
         else:
             self.user_name.setText(translate(
-                'UploaderTabsAll',
-                'Not logged in to {}').format(self.service_name))
+                'UploaderTabsAll', 'Not logged in to {service}'
+                ).format(service=self.service_name))
         pixmap = QtGui.QPixmap()
         if picture:
             pixmap.loadFromData(picture)
         self.user_photo.setPixmap(pixmap)
 
     def convert_to_jpeg(self, image):
-        reader = QtGui.QImageReader(image.path)
-        im = reader.read()
-        if not im or im.isNull():
-            raise RuntimeError(
-                '{}: {}'.format(image.path, reader.errorString()))
-        buf = QtCore.QBuffer()
-        buf.open(buf.OpenModeFlag.WriteOnly)
-        im.save(buf, format='jpeg', quality=95)
-        data = buf.data().data()
+        file_type = image.file_type
+        if file_type == 'image/jpeg':
+            # read JPEG file
+            with open(image.path, 'rb') as f:
+                src_data = f.read()
+        else:
+            # try reading preview images
+            pv_im = QtGui.QImage()
+            for data in image.metadata.get_preview_images():
+                pv_im = QtGui.QImage.fromData(data)
+                if not pv_im.isNull():
+                    break
+            # try reading image file
+            reader = QtGui.QImageReader(image.path)
+            im = reader.read()
+            if not (im.isNull() or pv_im.isNull()):
+                if pv_im.width() > im.width():
+                    im = pv_im
+            if im.isNull():
+                raise RuntimeError(
+                    '{}: {}'.format(image.path, reader.errorString()))
+            # check we have full size image
+            image_size = image.metadata.get_sensor_size()
+            if im.width() < image_size['x'] * 9 // 10:
+                raise RuntimeError(
+                    '{}: could not read full size image'.format(image.path))
+            # save as JPEG
+            buf = QtCore.QBuffer()
+            buf.open(buf.OpenModeFlag.WriteOnly)
+            writer = QtGui.QImageWriter(buf, b'jpeg')
+            writer.setQuality(95)
+            if not writer.write(im):
+                raise RuntimeError(
+                    'save data: {}'.format(writer.errorString()))
+            src_data = buf.data().data()
+            file_type = 'image/jpeg'
         # copy metadata
-        data = image.metadata.clone(data)
-        return data, 'image/jpeg'
+        src_data = image.metadata.clone(src_data)
+        exiv_io = src_data.io()
+        if exiv_io.size() < self.max_size['image']:
+            # no resizing needed
+            return src_data, file_type
+        exiv_io.open()
+        data = exiv_io.mmap()
+        if PIL:
+            # use Pillow for good quality
+            src_im = PIL.open(io.BytesIO(data))
+            src_im.load()
+            w, h = src_im.size
+        else:
+            # use Qt, lower quality but available
+            src_im = QtGui.QImage.fromData(bytes(data))
+            w, h = src_im.width(), src_im.height()
+        exiv_io.munmap()
+        exiv_io.close()
+        # scale image
+        for scale in (1000, 680, 470, 330, 220, 150,
+                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
+            if scale == 1000:
+                im = src_im
+            elif PIL:
+                im = src_im.resize((w * scale // 1000, h * scale // 1000),
+                                   resample=PIL.BICUBIC)
+            else:
+                im = src_im.scaled(w * scale // 1000, h * scale // 1000,
+                                   Qt.AspectRatioMode.IgnoreAspectRatio,
+                                   Qt.TransformationMode.SmoothTransformation)
+            # try different JPEG quality levels
+            for quality in (95, 85, 75):
+                if PIL:
+                    dest_buf = io.BytesIO()
+                else:
+                    dest_buf = QtCore.QBuffer()
+                    dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
+                im.save(dest_buf, format='JPEG', quality=quality)
+                if PIL:
+                    dest_data = dest_buf.getbuffer()
+                else:
+                    dest_data = dest_buf.data().data()
+                # copy metadata
+                dest_data = image.metadata.clone(dest_data)
+                if dest_data.io().size() < self.max_size['image']:
+                    return dest_data, file_type
+        return None
 
     def copy_file_and_metadata(self, image):
         with open(image.path, 'rb') as f:
@@ -422,60 +515,73 @@ class PhotiniUploader(QtWidgets.QWidget):
         data = image.metadata.clone(data)
         return data, image.file_type
 
-    def is_convertible(self, image):
-        if not image.file_type.startswith('image'):
-            # can only convert images
-            return False
-        return QtGui.QImageReader(image.path).canRead()
+    def add_skip_button(self, dialog):
+        return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
+                                dialog.ButtonRole.AcceptRole)
 
-    def accepted_file_type(self, file_type):
-        return file_type in ('image/gif', 'image/jpeg', 'image/png',
-                             'video/mp4', 'video/quicktime', 'video/riff')
-
-    def rejected_file_type(self, file_type):
-        return file_type in ('image/x-canon-cr2',)
-
-    def get_conversion_function(self, image, params):
-        if self.accepted_file_type(image.file_type):
-            if image.file_type.startswith('video'):
-                # don't try to write metadata to videos
-                return None
-            if image.metadata.find_sidecar():
-                # need to create file without sidecar
-                return self.copy_file_and_metadata
+    def ask_resize_image(self, image, resizable=False):
+        max_size = self.max_size[image.file_type.split('/')[0]]
+        size = os.stat(image.path).st_size
+        if size <= max_size:
             return None
         dialog = QtWidgets.QMessageBox(parent=self)
-        if not self.is_convertible(image):
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' does not accept and Photini cannot convert.')
-            buttons = dialog.StandardButton.Ignore
-        elif self.rejected_file_type(image.file_type):
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' does not accept. Would you like to convert it to JPEG?')
-            buttons = dialog.StandardButton.Yes | dialog.StandardButton.Ignore
-        else:
-            msg = translate(
-                'UploaderTabsAll', 'File "{0}" is of type "{1}", which {2}'
-                ' may not handle correctly. Would you like to convert it'
-                ' to JPEG?')
-            buttons = dialog.StandardButton.Yes | dialog.StandardButton.No
+        dialog.setWindowTitle(
+            translate('UploaderTabsAll', 'Photini: too large'))
+        dialog.setText('<h3>{}</h3>'.format(
+            translate('UploaderTabsAll', 'File too large.')))
+        text = translate(
+            'UploaderTabsAll', 'File "{file_name}" has {size} bytes and exceeds'
+            ' {service}\'s limit of {max_size} bytes.').format(
+                file_name=os.path.basename(image.path), size=size,
+                service=self.service_name, max_size=max_size)
+        if resizable:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to resize it?')
+            dialog.setStandardButtons(dialog.StandardButton.Yes)
+        self.add_skip_button(dialog)
+        dialog.setInformativeText(text)
+        dialog.setIcon(dialog.Icon.Warning)
+        if execute(dialog) == dialog.StandardButton.Yes:
+            return self.convert_to_jpeg
+        return 'omit'
+
+    def ask_convert_image(self, image):
+        dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: incompatible type'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll', 'Incompatible image type.')))
-        dialog.setInformativeText(msg.format(os.path.basename(image.path),
-                                             image.file_type, self.service_name))
+        dialog.setInformativeText(translate(
+            'UploaderTabsAll', 'File "{file_name}" is of type "{file_type}",'
+            ' which {service} may not handle correctly. Would you like to'
+            ' convert it to JPEG?'
+            ).format(file_name=os.path.basename(image.path),
+                     file_type=image.file_type, service=self.service_name))
         dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(buttons)
+        dialog.setStandardButtons(dialog.StandardButton.Yes |
+                                  dialog.StandardButton.No)
+        self.add_skip_button(dialog)
         dialog.setDefaultButton(dialog.StandardButton.Yes)
         result = execute(dialog)
-        if result == dialog.StandardButton.Ignore:
-            return 'omit'
         if result == dialog.StandardButton.Yes:
             return self.convert_to_jpeg
-        return None
+        if result == dialog.StandardButton.No:
+            return None
+        return 'omit'
+
+    def get_conversion_function(self, image, params):
+        if image.file_type.startswith('video'):
+            # videos in most formats are accepted, as long as not too large
+            return self.ask_resize_image(image)
+        convert = None
+        if not self.accepted_image_type(image.file_type):
+            convert = self.ask_convert_image(image)
+        if not convert:
+            convert = self.ask_resize_image(image, resizable=True)
+        if (not convert) and image.metadata.find_sidecar():
+            # need to create file without sidecar
+            convert = self.copy_file_and_metadata
+        return convert
 
     @QtSlot()
     @catch_all
@@ -552,7 +658,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: upload error'))
         dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll', 'File "{}" upload failed.').format(name)))
+            'UploaderTabsAll', 'File "{file_name}" upload failed.'
+            ).format(file_name=name)))
         dialog.setInformativeText(error)
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Abort |
@@ -718,9 +825,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setWindowTitle(translate('UploaderTabsAll', 'Replace photo'))
         dialog.setLayout(QtWidgets.QVBoxLayout())
         message = QtWidgets.QLabel(translate(
-            'UploaderTabsAll', 'File {0} has already been uploaded to {1}.'
-            ' How would you like to update it?').format(
-                os.path.basename(image.path), self.service_name))
+            'UploaderTabsAll', 'File {file_name} has already been uploaded to'
+            ' {service}. How would you like to update it?').format(
+                file_name=os.path.basename(image.path),
+                service=self.service_name))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
         replace_options = {}
@@ -819,8 +927,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         label.setPixmap(pixmap)
         dialog.layout().addRow(label, Label(translate(
             'UploaderTabsAll',
-            'Which image file matches this picture on {}?').format(
-                self.service_name), lines=2))
+            'Which image file matches this picture on {service}?').format(
+                service=self.service_name), lines=2))
         buttons = {}
         frame = QtWidgets.QFrame()
         frame.setLayout(FormLayout())

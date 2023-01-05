@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -246,16 +246,42 @@ class MetadataHandler(object):
         thumb = exiv2.ExifThumb(self._exifData)
         thumb.setJpegThumbnail(buffer)
 
-    def get_exif_comment(self, datum):
-        value = exiv2.CommentValue(datum.value()).comment()
-        try:
-            value.encode('utf-8')
-        except UnicodeEncodeError:
-            logger.error(
-                '%s: %s: %d bytes binary data will be deleted when metadata'
-                ' is saved', self._name, datum.key(), datum.size())
+    def get_exif_comment(self, tag, value):
+        # ignore Exiv2's comment handling, Python is better at unicode
+        data = bytearray(value.size())
+        value.copy(data, exiv2.ByteOrder.invalidByteOrder)
+        if not any(data):
             return None
-        return value
+        charset = data[:8]
+        raw_value = data[8:]
+        if charset == b'ASCII\x00\x00\x00':
+            encodings = ('ascii',)
+        elif charset == b'JIS\x00\x00\x00\x00\x00':
+            # Exif standard says JIS X208-1990, but doesn't say what encoding
+            encodings = ('iso2022_jp', 'euc_jp', 'shift_jis', 'cp932')
+        elif charset == b'UNICODE\x00':
+            # Exif refers to 1991 unicode, which predates UTF-8. It
+            # doesn't appear to say which endianness to use.
+            encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
+        else:
+            encodings = ()
+            if charset != b'\x00\x00\x00\x00\x00\x00\x00\x00':
+                logger.warning(
+                    '%s: %s: unknown charset %s', self._name, tag, charset)
+                raw_value = data
+        for encoding in encodings:
+            result = self.decode_string(tag, raw_value, encoding)
+            if result:
+                return result
+        encoding = chardet.detect(raw_value)['encoding']
+        if encoding:
+            result = self.decode_string(tag, raw_value, encoding)
+            if result:
+                return result
+        logger.error(
+            '%s: %s: %d bytes binary data will be deleted when metadata'
+            ' is saved', self._name, tag, value.size())
+        return None
 
     def get_exif_value(self, tag):
         datum = self._exifData.findKey(exiv2.ExifKey(tag))
@@ -270,41 +296,33 @@ class MetadataHandler(object):
             # use Exiv2's "interpreted string"
             return datum._print()
         type_id = datum.typeId()
-        if tag == 'Exif.Photo.UserComment' and type_id in (
-                exiv2.TypeId.comment, exiv2.TypeId.undefined):
-            return self.get_exif_comment(datum)
+        value = datum.value()
+        if tag == 'Exif.Photo.UserComment':
+            return self.get_exif_comment(tag, value)
         if type_id == exiv2.TypeId.asciiString:
-            return datum.toString()
+            return value.toString()
         if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
-            return self.get_raw_value(datum)
-        if type_id == exiv2.TypeId.signedRational:
-            value = exiv2.RationalValue(datum.value())
-        elif type_id == exiv2.TypeId.unsignedRational:
-            value = exiv2.URationalValue(datum.value())
-        elif type_id == exiv2.TypeId.signedShort:
-            value = exiv2.ShortValue(datum.value())
-        elif type_id == exiv2.TypeId.unsignedShort:
-            value = exiv2.UShortValue(datum.value())
-        elif type_id == exiv2.TypeId.signedLong:
-            value = exiv2.LongValue(datum.value())
-        elif type_id == exiv2.TypeId.unsignedLong:
-            value = exiv2.ULongValue(datum.value())
-        else:
+            return self.get_raw_value(value)
+        if type_id not in (
+                exiv2.TypeId.signedRational, exiv2.TypeId.unsignedRational,
+                exiv2.TypeId.signedShort, exiv2.TypeId.unsignedShort,
+                exiv2.TypeId.signedLong, exiv2.TypeId.unsignedLong):
             # unhandled type, use the string representation
             logger.warning('%s: %s: reading %s as string',
                            self._name, tag, datum.typeName())
-            return datum.toString()
+            return value.toString()
         if len(value) > 1:
             return list(value)
         return value[0]
 
     def decode_iptc_value(self, datum):
         type_id = datum.typeId()
+        value = datum.value()
         if type_id == exiv2.TypeId.date:
-            return exiv2.DateValue(datum.value())[0]
+            return dict(value.getDate())
         if type_id == exiv2.TypeId.time:
-            return exiv2.TimeValue(datum.value())[0]
-        return datum.toString()
+            return dict(value.getTime())
+        return value.toString()
 
     def get_iptc_value(self, tag):
         result = None
@@ -327,11 +345,12 @@ class MetadataHandler(object):
         if datum == self._xmpData.end():
             return None
         type_id = datum.typeId()
+        value = datum.value()
         if type_id == exiv2.TypeId.xmpText:
-            return datum.toString()
+            return value.toString()
         if type_id == exiv2.TypeId.langAlt:
-            return dict(exiv2.LangAltValue(datum.value()))
-        return list(exiv2.XmpArrayValue(datum.value()))
+            return dict(value)
+        return list(value)
 
     def get_raw_value(self, datum):
         result = bytearray(datum.size())
@@ -344,7 +363,7 @@ class MetadataHandler(object):
         data = thumb.copy()
         if data:
             logger.info('%s: trying thumbnail', self._name)
-            yield bytes(data), 'thumbnail'
+            yield memoryview(data.data()), 'thumbnail'
         # try preview images
         preview_manager = exiv2.PreviewManager(self._image)
         props = preview_manager.getPreviewProperties()
@@ -357,7 +376,16 @@ class MetadataHandler(object):
             if max(props[idx].width_, props[idx].height_) <= 640:
                 logger.info('%s: trying preview %d', self._name, idx)
                 image = preview_manager.getPreviewImage(props[idx])
-                yield bytes(image.copy()), 'preview ' + str(idx)
+                yield memoryview(image.pData()), 'preview ' + str(idx)
+
+    def get_preview_images(self):
+        preview_manager = exiv2.PreviewManager(self._image)
+        props = preview_manager.getPreviewProperties()
+        if not props:
+            return
+        for prop in reversed(props):
+            image = preview_manager.getPreviewImage(prop)
+            yield memoryview(image.copy())
 
     def get_preview_imagedims(self):
         preview_manager = exiv2.PreviewManager(self._image)
@@ -441,9 +469,8 @@ class MetadataHandler(object):
         return value
 
     def set_iptc_value(self, tag, value):
-        # clear any existing values (which might be repeated)
-        self.clear_iptc_tag(tag)
         if not value:
+            self.clear_iptc_tag(tag)
             return
         # make list of values
         key = exiv2.IptcKey(tag)
@@ -456,7 +483,17 @@ class MetadataHandler(object):
             values = [self.truncate_iptc(tag, x) for x in value]
         else:
             values = [self.truncate_iptc(tag, value)]
-        # append values
+        # update or delete existing values
+        datum = self._iptcData.findKey(key)
+        while datum != self._iptcData.end():
+            if datum.key() == tag:
+                if values:
+                    datum.setValue(values.pop(0))
+                else:
+                    datum = self._iptcData.erase(datum)
+                    continue
+            next(datum)
+        # append remaining values
         while values:
             datum = exiv2.Iptcdatum(key)
             datum.setValue(values.pop(0))

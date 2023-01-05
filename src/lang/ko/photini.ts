@@ -24,11 +24,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>subject {}</source>
+        <source>Enter the details about a location where this image was created.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter the details about a location where this image was created.</source>
+        <source>subject {idx}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -280,14 +280,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -400,10 +392,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File too large.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Virtual Photography</source>
         <translation type="unfinished"></translation>
     </message>
@@ -427,6 +415,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation type="unfinished"></translation>
     </message>
@@ -436,10 +428,6 @@
     </message>
     <message>
         <source>Large file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -473,6 +461,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Photini: unsaved data</source>
         <translation type="unfinished"></translation>
     </message>
@@ -501,10 +493,6 @@
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Metadata differences: {}</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -558,19 +546,15 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select root folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;select source&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>camera: {0}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>folder: {0}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -611,6 +595,14 @@
     </message>
     <message>
         <source>Stop copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -727,14 +719,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: too large</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace metadata</source>
         <translation type="unfinished"></translation>
     </message>
@@ -764,10 +748,6 @@
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File too large.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -902,15 +882,19 @@
         <translation>Photini 문서</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open source package available from {}.</source>
+        <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -926,10 +910,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fix missing thumbnails</source>
         <translation type="unfinished"></translation>
     </message>
@@ -938,11 +918,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Photini: version check</source>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>You are currently running Photini version {0}. The latest release is {1}.</source>
+        <source>Photini: version check</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1006,10 +986,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1125,6 +1101,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1231,6 +1211,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1309,10 +1293,6 @@
     <message>
         <source>Aperture</source>
         <translation>조리개</translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1414,7 +1394,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Upload to {} has not finished.</source>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1422,31 +1414,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not logged in to {}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Photini: incompatible type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Incompatible image type.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1455,10 +1459,6 @@
     </message>
     <message>
         <source>Photini: upload error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File &quot;{}&quot; upload failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1478,10 +1478,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1495,10 +1491,6 @@
     </message>
     <message>
         <source>Select an image</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

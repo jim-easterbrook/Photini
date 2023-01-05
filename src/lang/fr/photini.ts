@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>sujet {}</translation>
+        <translation type="vanished">sujet {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -74,6 +74,10 @@
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation>Saisissez les informations sur l’endroit où cette image a été créée.</translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>sujet {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -281,11 +285,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini&#xa0;: trop volumineux</translation>
+        <translation type="vanished">Photini&#xa0;: trop volumineux</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {2} octets fixée par Flickr.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {2} octets fixée par Flickr.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +405,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fichier trop volumineux.</translation>
+        <translation type="vanished">Fichier trop volumineux.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -427,6 +431,10 @@
         <translation>Photini&#xa0;: gros fichier</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Nom de l&apos;album</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est dépasse 25&#xa0;Mo. N&apos;oubliez pas que les téléversements de Photini comptent pour le stockage dans votre compte Google. Téléverser quand même&#xa0;?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Images ({0});; Vidéos ({1});; Tous les fichiers (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Différence des métadonnées&#xa0;: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -505,7 +517,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Différence des métadonnées&#xa0;: {}</translation>
+        <translation type="vanished">Différence des métadonnées&#xa0;: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -570,11 +582,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>Appareil photo&#xa0;: {0}</translation>
+        <translation type="vanished">Appareil photo&#xa0;: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>Dossier&#xa0;: {0}</translation>
+        <translation type="vanished">Dossier&#xa0;: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -615,6 +627,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Arrêter la copie</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished">Supprimer «&#xa0;{source_name}&#xa0;»</translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>Appareil photo&#xa0;: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>Dossier&#xa0;: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -732,11 +756,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Photini&#xa0;: Trop volumineux</translation>
+        <translation type="vanished">Photini&#xa0;: Trop volumineux</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» fait {1} octets, ce qui dépasse la limite de {2} octets fixée par Ipernity. Voulez-vous le redimensionner&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» fait {1} octets, ce qui dépasse la limite de {2} octets fixée par Ipernity. Voulez-vous le redimensionner&#xa0;?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -772,7 +796,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Fichier trop volumineux.</translation>
+        <translation type="vanished">Fichier trop volumineux.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -906,8 +930,16 @@
         <translation>Documentation de Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Paquet à code source ouvert disponible sur {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>Photini&#xa0;: À propos</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation>Vous exécutez actuellement la version {version} de Photini. La dernière version est la {release}.</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -915,7 +947,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Paquet à code source ouvert disponible sur {}.</translation>
+        <translation type="vanished">Paquet à code source ouvert disponible sur {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -935,7 +967,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -946,12 +978,16 @@
         <translation>Vérifier les mises à jour</translation>
     </message>
     <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Ce programme est sous la licence publique générale GNU. Pour plus d&apos;informations cliquez sur le bouton «&#xa0;{details}&#xa0;».</translation>
+    </message>
+    <message>
         <source>Photini: version check</source>
         <translation>Photini&#xa0;: Vérification des mises à jour</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation>Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
+        <translation type="vanished">Vous exécutez actuellement la version {0} de Photini. La dernière version est la {1}.</translation>
     </message>
 </context>
 <context>
@@ -963,6 +999,10 @@
     <message>
         <source>Enter the name of the person that created this image.</source>
         <translation>Saisissez le nom de la personne qui a créé cette image.</translation>
+    </message>
+    <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation>Ouvrir le lien vers «&#xa0;{licence}&#xa0;»</translation>
     </message>
     <message>
         <source>&amp;Ownership metadata</source>
@@ -1150,7 +1190,7 @@
     </message>
     <message>
         <source>Open link to &quot;{}&quot;</source>
-        <translation>Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Ouvrir le lien vers «&#xa0;{}&#xa0;»</translation>
     </message>
     <message>
         <source>Edit template</source>
@@ -1235,6 +1275,10 @@
         <translation>Nom du fabricant</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation>Supprimer «&#xa0;{camera_or_lens}&#xa0;»</translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Numéro de série</translation>
     </message>
@@ -1316,7 +1360,7 @@
     </message>
     <message>
         <source>Remove &quot;{}&quot;</source>
-        <translation>Supprimer «&#xa0;{}&#xa0;»</translation>
+        <translation type="vanished">Supprimer «&#xa0;{}&#xa0;»</translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1382,6 +1426,10 @@
         <source>Precision</source>
         <translation>Précision</translation>
     </message>
+    <message>
+        <source>Remove &quot;{name}&quot;</source>
+        <translation type="vanished">Supprimer «&#xa0;{name}&#xa0;»</translation>
+    </message>
 </context>
 <context>
     <name>UploaderTabsAll</name>
@@ -1410,8 +1458,32 @@
         <translation>Arrêter l&apos;import</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation>L&apos;import vers {service} n&apos;est pas terminé.</translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation>Connecté en tant que {user} sur {service}</translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>Non connecté à {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;»contient {size} octets et dépasse la limite de {max_size} octets fixée par {service}.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation>Le fichier «&#xa0;{file_name}&#xa0;» est du type «&#xa0;{file_type}&#xa0;» que {service} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Progression</translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation>Le fichier {file_name} a déjà été téléversé sur {service}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
@@ -1423,19 +1495,19 @@
     </message>
     <message>
         <source>Not logged in to {}</source>
-        <translation>Non connecté à {}</translation>
+        <translation type="vanished">Non connecté à {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} n&apos;accepte pas et que Photini ne peut pas convertir.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;», que {2} n&apos;accepte pas. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;» est du type «&#xa0;{1}&#xa0;» que {2} ne peut pas traiter correctement. Voulez-vous le convertir en JPEG&#xa0;?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1448,6 +1520,30 @@
     <message>
         <source>Add to albums</source>
         <translation>Ajouter aux albums</translation>
+    </message>
+    <message>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Photini&#xa0;: trop volumineux</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Fichier trop volumineux.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation type="vanished">Le fichier «&#xa0;{0}&#xa0;»contient {1} octets et dépasse la limite de {3} octets fixée par {2}.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation>Échec de l&apos;import du fichier «&#xa0;{file_name}&#xa0;».</translation>
     </message>
     <message>
         <source>Photini: authorise</source>
@@ -1463,7 +1559,7 @@
     </message>
     <message>
         <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation>Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
+        <translation type="vanished">Le fichier {0} a déjà été téléversé sur {1}. Comment voulez-vous le mettre à jour&#xa0;?</translation>
     </message>
     <message>
         <source>Replace image</source>
@@ -1482,12 +1578,16 @@
         <translation>Sélectionner une image</translation>
     </message>
     <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation>Quel fichier correspond à cette image sur {service}&#xa0;?</translation>
+    </message>
+    <message>
         <source>No match</source>
         <translation>Aucune correspondance</translation>
     </message>
     <message>
         <source>Upload to {} has not finished.</source>
-        <translation>L&apos;import vers {} n&apos;est pas terminé.</translation>
+        <translation type="vanished">L&apos;import vers {} n&apos;est pas terminé.</translation>
     </message>
     <message>
         <source>Incompatible image type.</source>
@@ -1495,7 +1595,7 @@
     </message>
     <message>
         <source>File &quot;{}&quot; upload failed.</source>
-        <translation>Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
+        <translation type="vanished">Échec de l&apos;import du fichier «&#xa0;{}&#xa0;».</translation>
     </message>
     <message>
         <source>Authorisation required</source>
@@ -1503,11 +1603,11 @@
     </message>
     <message>
         <source>Logged in as {0} on {1}</source>
-        <translation>Connecté en tant que {0} sur {1}</translation>
+        <translation type="vanished">Connecté en tant que {0} sur {1}</translation>
     </message>
     <message>
         <source>Which image file matches this picture on {}?</source>
-        <translation>Quel fichier correspond à cette image sur {}&#xa0;?</translation>
+        <translation type="vanished">Quel fichier correspond à cette image sur {}&#xa0;?</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2021-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2021-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -93,8 +93,8 @@ class RightsDropDown(DropDownSelector):
         menu = QtWidgets.QMenu()
         for n in range(1, self._last_idx()):
             action = QtGui2.QAction(
-                translate('OwnerTab',
-                          'Open link to "{}"').format(self.itemText(n)),
+                translate('OwnerTab', 'Open link to "{licence}"'
+                          ).format(licence=self.itemText(n)),
                 parent=self)
             action.setData(self.itemData(n))
             menu.addAction(action)

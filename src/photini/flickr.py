@@ -331,6 +331,8 @@ class HiddenWidget(QtWidgets.QCheckBox):
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = FlickrSession
+    max_size = {'image': 200 * (2 ** 20),
+                'video': 2 ** 30}
 
     @staticmethod
     def tab_name():
@@ -474,29 +476,8 @@ class TabWidget(PhotiniUploader):
             self.widget['albums'].layout().addWidget(widget)
         return widget
 
-    def get_conversion_function(self, image, params):
-        if not params['function']:
-            return None
-        convert = super(
-            TabWidget, self).get_conversion_function(image, params)
-        if convert == 'omit':
-            return convert
-        max_size = 2 ** 30
-        size = os.stat(image.path).st_size
-        if size < max_size:
-            return convert
-        dialog = QtWidgets.QMessageBox(parent=self)
-        dialog.setWindowTitle(translate('FlickrTab', 'Photini: too large'))
-        dialog.setText('<h3>{}</h3>'.format(
-            translate('FlickrTab', 'File too large.')))
-        dialog.setInformativeText(translate(
-            'FlickrTab', 'File "{0}" has {1} bytes and exceeds Flickr\'s limit'
-            ' of {2} bytes.').format(
-                os.path.basename(image.path), size, max_size))
-        dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(dialog.StandardButton.Ignore)
-        execute(dialog)
-        return 'omit'
+    def accepted_image_type(self, file_type):
+        return file_type in ('image/gif', 'image/jpeg', 'image/png')
 
     def finalise_config(self):
         # get licences

@@ -45,7 +45,7 @@
     </message>
     <message>
         <source>subject {}</source>
-        <translation>předmět {}</translation>
+        <translation type="vanished">předmět {}</translation>
     </message>
     <message>
         <source>Enter the name of the sublocation.</source>
@@ -74,6 +74,10 @@
     <message>
         <source>Enter the details about a location where this image was created.</source>
         <translation>Zadejte údaje o místě, kde byl tento obrázek vytvořen.</translation>
+    </message>
+    <message>
+        <source>subject {idx}</source>
+        <translation>předmět {idx}</translation>
     </message>
     <message>
         <source>Enter the details about a location which is shown in this image.</source>
@@ -281,11 +285,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Příliš velký</translation>
+        <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes and exceeds Flickr&apos;s limit of {2} bytes.</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení Flickru {2} bytů.</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -401,7 +405,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="vanished">Soubor je příliš velký.</translation>
     </message>
     <message>
         <source>Virtual Photography</source>
@@ -427,6 +431,10 @@
         <translation>Velký soubor</translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
+        <translation>Soubor &quot;{file_name}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+    </message>
+    <message>
         <source>Album title</source>
         <translation>Název alba</translation>
     </message>
@@ -440,7 +448,7 @@
     </message>
     <message>
         <source>File &quot;{0}&quot; is over 25&#xa0;MB. Remember that Photini uploads count towards storage in your Google Account. Upload it anyway?</source>
-        <translation>Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má více než 25 MB. Pamatujte, že nahrávání Photini se počítají vůči úložišti vašeho účtu u Google. Přesto jej nahrát?</translation>
     </message>
 </context>
 <context>
@@ -471,6 +479,10 @@
     <message>
         <source>Images ({0});;Videos ({1});;All files (*)</source>
         <translation>Obrázky ({0});;Obrazové záznamy ({1});;Všechny soubory (*)</translation>
+    </message>
+    <message>
+        <source>Metadata differences: {file_name}</source>
+        <translation>Rozdíly mezi popisnými údaji: {file_name}</translation>
     </message>
     <message>
         <source>Photini: unsaved data</source>
@@ -506,7 +518,7 @@
     </message>
     <message>
         <source>Metadata differences: {}</source>
-        <translation>Rozdíly mezi popisnými údaji: {}</translation>
+        <translation type="vanished">Rozdíly mezi popisnými údaji: {}</translation>
     </message>
     <message>
         <source>Save changes</source>
@@ -573,11 +585,11 @@
     </message>
     <message>
         <source>camera: {0}</source>
-        <translation>Fotoaparát: {0}</translation>
+        <translation type="vanished">Fotoaparát: {0}</translation>
     </message>
     <message>
         <source>folder: {0}</source>
-        <translation>Složka: {0}</translation>
+        <translation type="vanished">Složka: {0}</translation>
     </message>
     <message>
         <source>&lt;add a folder&gt;</source>
@@ -618,6 +630,18 @@
     <message>
         <source>Stop copy</source>
         <translation>Zastavit kopírování</translation>
+    </message>
+    <message>
+        <source>Remove &quot;{source_name}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>camera: {camera_name}</source>
+        <translation>Fotoaparát: {camera_name}</translation>
+    </message>
+    <message>
+        <source>folder: {folder_name}</source>
+        <translation>Složka: {folder_name}</translation>
     </message>
     <message numerus="yes">
         <source>%n file(s) selected</source>
@@ -736,11 +760,11 @@
     </message>
     <message>
         <source>Photini: too large</source>
-        <translation>Příliš velký</translation>
+        <translation type="vanished">Příliš velký</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; has {1} bytes which exceeds Ipernity&apos;s limit of {2} bytes. Would you like to resize it?</source>
-        <translation>Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů, což překračuje omezení Ipernity {2} bytů. Chcete změnit jeho velikost?</translation>
     </message>
     <message>
         <source>Replace metadata</source>
@@ -776,7 +800,7 @@
     </message>
     <message>
         <source>File too large.</source>
-        <translation>Soubor je příliš velký.</translation>
+        <translation type="vanished">Soubor je příliš velký.</translation>
     </message>
     <message>
         <source>Who can comment on album</source>
@@ -910,8 +934,16 @@
         <translation>Dokumentace k Photini</translation>
     </message>
     <message>
+        <source>Open source package available from {url}.</source>
+        <translation>Balíček s otevřeným zdrojovým kódem dostupný na {url}.</translation>
+    </message>
+    <message>
         <source>Photini: about</source>
         <translation>O programu Photini</translation>
+    </message>
+    <message>
+        <source>You are currently running Photini version {version}. The latest release is {release}.</source>
+        <translation>V současné době používáte Photini verze {version}. Nejnovější vydání je {release}.</translation>
     </message>
     <message>
         <source>An easy to use digital photograph metadata (Exif, IPTC, XMP) editing application.</source>
@@ -919,7 +951,7 @@
     </message>
     <message>
         <source>Open source package available from {}.</source>
-        <translation>Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
+        <translation type="vanished">Balíček s otevřeným zdrojovým kódem dostupný na {}.</translation>
     </message>
     <message>
         <source>Open files</source>
@@ -935,7 +967,7 @@
     </message>
     <message>
         <source>This program is released with a GNU General Public License. For details click the &quot;{}&quot; button.</source>
-        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
+        <translation type="vanished">Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{}&quot;.</translation>
     </message>
     <message>
         <source>Fix missing thumbnails</source>
@@ -946,12 +978,16 @@
         <translation>Podívat se po nejnovější verzi</translation>
     </message>
     <message>
+        <source>This program is released with a GNU General Public License. For details click the &quot;{details}&quot; button.</source>
+        <translation>Tento program je vydán pod licencí GNU General Public License. Pro podrobnosti klepněte na tlačítko &quot;{details}&quot;.</translation>
+    </message>
+    <message>
         <source>Photini: version check</source>
         <translation>Photini: ověření verze</translation>
     </message>
     <message>
         <source>You are currently running Photini version {0}. The latest release is {1}.</source>
-        <translation>V současné době používáte Photini verze {0}. Nejnovější vydání je {1}.</translation>
+        <translation type="vanished">V současné době používáte Photini verze {0}. Nejnovější vydání je {1}.</translation>
     </message>
     <message>
         <source>Selected images</source>
@@ -1014,10 +1050,6 @@
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open link to &quot;{}&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1133,6 +1165,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Open link to &quot;{licence}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Web Statement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1239,6 +1275,10 @@
         <translation>Název výrobce</translation>
     </message>
     <message>
+        <source>Remove &quot;{camera_or_lens}&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Serial number</source>
         <translation>Sériové číslo</translation>
     </message>
@@ -1317,10 +1357,6 @@
     <message>
         <source>Aperture</source>
         <translation>Clona</translation>
-    </message>
-    <message>
-        <source>Remove &quot;{}&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: define camera</source>
@@ -1414,40 +1450,64 @@
         <translation>Zastavit nahrávání</translation>
     </message>
     <message>
+        <source>Upload to {service} has not finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Logged in as {user} on {service}</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not logged in to {service}</source>
+        <translation>Nepřihlášen do {service}</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} bytes and exceeds {service}&apos;s limit of {max_size} bytes.</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; má {size} bytů a překračuje omezení {service} {max_size} bytů.</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
+    </message>
+    <message>
         <source>Progress</source>
         <translation>Postup</translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; upload failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File {file_name} has already been uploaded to {service}. How would you like to update it?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which image file matches this picture on {service}?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Photini: upload in progress</source>
         <translation>Probíhá nahrávání</translation>
     </message>
     <message>
-        <source>Upload to {} has not finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Closing now will terminate the upload.</source>
         <translation>Pokud bude program nyní zavřen, nahrávání bude ukončeno.</translation>
     </message>
     <message>
-        <source>Logged in as {0} on {1}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Not logged in to {}</source>
-        <translation>Nepřihlášen do {}</translation>
+        <translation type="vanished">Nepřihlášen do {}</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept and Photini cannot convert.</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá a Photini nedokáže převést.</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} does not accept. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, který {2} nepřijímá. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>File &quot;{0}&quot; is of type &quot;{1}&quot;, which {2} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation>Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation type="vanished">Soubor &quot;{0}&quot; je typu &quot;{1}&quot;, se kterým {2} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Photini: incompatible type</source>
@@ -1466,7 +1526,23 @@
         <translation>Přidat do alb</translation>
     </message>
     <message>
-        <source>File &quot;{}&quot; upload failed.</source>
+        <source>Skip</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Photini: too large</source>
+        <translation>Příliš velký</translation>
+    </message>
+    <message>
+        <source>File too large.</source>
+        <translation>Soubor je příliš velký.</translation>
+    </message>
+    <message>
+        <source>File &quot;{0}&quot; has {1} bytes and exceeds {2}&apos;s limit of {3} bytes.</source>
+        <translation type="vanished">Soubor &quot;{0}&quot; má {1} bytů a překračuje omezení {2} {3} bytů.</translation>
+    </message>
+    <message>
+        <source>Would you like to resize it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1486,10 +1562,6 @@
         <translation>Nahradit fotografii</translation>
     </message>
     <message>
-        <source>File {0} has already been uploaded to {1}. How would you like to update it?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Replace image</source>
         <translation>Nahradit obrázek</translation>
     </message>
@@ -1504,10 +1576,6 @@
     <message>
         <source>Select an image</source>
         <translation>Vybrat obrázek</translation>
-    </message>
-    <message>
-        <source>Which image file matches this picture on {}?</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No match</source>
