@@ -796,7 +796,7 @@
     </message>
     <message>
         <source>Who can comment on album</source>
-        <translation type="unfinished"></translation>
+        <translation>Wer darf das Album kommentieren</translation>
     </message>
 </context>
 <context>
