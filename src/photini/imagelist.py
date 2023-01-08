@@ -29,8 +29,8 @@ except ImportError:
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import *
-from photini.pyqt import (
-    image_types, qt_version_info, set_symbol_font, video_types)
+from photini.pyqt import (image_types, image_types_lower, qt_version_info,
+                          set_symbol_font, video_types, video_types_lower)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -618,6 +618,7 @@ class ImageList(QtWidgets.QWidget):
     @catch_all
     def open_file_list(self, path_list, top_level=True, dir_list=[]):
         last_path = None
+        types = ['.' + x for x in (image_types_lower() + video_types_lower())]
         with Busy():
             for path in path_list:
                 if os.path.basename(path).startswith('.'):
@@ -632,6 +633,9 @@ class ImageList(QtWidgets.QWidget):
                     last_path = self.open_file_list(
                         [os.path.join(path, x) for x in os.listdir(path)],
                         top_level=False, dir_list=dir_list) or last_path
+                elif (not top_level and
+                          os.path.splitext(path)[1].lower() not in types):
+                    pass
                 elif self.open_file(path):
                     last_path = path
         if top_level and last_path:
