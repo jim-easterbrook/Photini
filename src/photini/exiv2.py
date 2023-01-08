@@ -465,7 +465,7 @@ class MetadataHandler(object):
     def truncate_iptc(cls, tag, value):
         if tag in cls._max_bytes:
             value = value.encode('utf-8')[:cls._max_bytes[tag]]
-            value = value.decode('utf-8')
+            value = value.decode('utf-8', errors='ignore')
         return value
 
     def set_iptc_value(self, tag, value):
