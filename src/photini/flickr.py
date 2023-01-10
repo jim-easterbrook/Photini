@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -247,7 +247,8 @@ class FlickrSession(UploaderSession):
                     return 'Flickr file conversion failed'
                 time.sleep(1)
         # store photo id in image keywords, in main thread
-        self.upload_progress.emit({'keyword': (image, 'flickr:id=' + photo_id)})
+        self.upload_progress.emit({
+            'busy': True, 'keyword': (image, 'flickr:id=' + photo_id)})
         # set metadata after uploading image
         if 'hidden' in params:
             # flickr.photos.setSafetyLevel has different 'hidden' values
