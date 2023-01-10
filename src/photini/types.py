@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
+import re
 
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
@@ -369,6 +370,7 @@ class MD_DateTime(MD_Dict):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
     _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+    _tz_re = re.compile(r'(.*?)([+-])(\d+):(\d+)$')
 
     @classmethod
     def from_ISO_8601(cls, datetime_string):
@@ -381,16 +383,11 @@ class MD_DateTime(MD_Dict):
         if not datetime_string:
             return None
         # extract time zone
-        tz_idx = datetime_string.find('+', 13)
-        if tz_idx < 0:
-            tz_idx = datetime_string.find('-', 13)
-        if tz_idx >= 0:
-            tz_string = datetime_string[tz_idx:]
-            datetime_string = datetime_string[:tz_idx]
-            tz_offset = int(tz_string[1:3]) * 60
-            if len(tz_string) >= 5:
-                tz_offset += int(tz_string[-2:])
-            if tz_string[0] == '-':
+        match = cls._tz_re.match(datetime_string)
+        if match:
+            datetime_string, sign, hours, minutes = match.groups()
+            tz_offset = (int(hours) * 60) + int(minutes)
+            if sign == '-':
                 tz_offset = -tz_offset
         elif datetime_string[-1] == 'Z':
             tz_offset = 0
@@ -398,7 +395,7 @@ class MD_DateTime(MD_Dict):
         else:
             tz_offset = None
         # compute precision from string length
-        precision = min((len(datetime_string) - 1) // 3, 7)
+        precision = min(len(datetime_string) // 3, 7)
         if precision <= 0:
             return None
         # set format according to precision
