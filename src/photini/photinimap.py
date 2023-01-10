@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -58,8 +58,8 @@ class GeocoderBase(QtCore.QObject):
             except (AttributeError, FileNotFoundError):
                 self.query_cache = cachetools.TTLCache(
                     self.cache_size, self.cache_ttl)
-            logger.info('cache %s has %d entries',
-                        self.cache_file, self.query_cache.currsize)
+            logger.debug('cache %s has %d entries',
+                         self.cache_file, self.query_cache.currsize)
             self.app.aboutToQuit.connect(self.save_cache)
         else:
             self.query_cache = None
