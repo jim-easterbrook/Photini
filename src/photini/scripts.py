@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2020-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2020-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -33,6 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 def configure(argv=None):
+    # get config
+    config = BaseConfigStore('editor')
     install_extras = []
     ## Qt library choice is complicated
     print('Which Qt package would you like to use?')
@@ -40,6 +42,7 @@ def configure(argv=None):
     # get installed Qt packages
     installed = []
     choices = {}
+    default = None
     n = 0
     for package in packages:
         # run separate python interpreter for each to avoid interactions
@@ -59,17 +62,21 @@ def configure(argv=None):
                 # can't install PyQt5 or PyQt6 with pip
                 continue
             status = 'not installed'
+        if package == config.get('pyqt', 'qt_lib'):
+            default = str(n)
         choices[str(n)] = package
         print('  {} {} [{}]'.format(n, package, status))
         n += 1
     # get user choice
     while True:
-        choice = input('Choose {}: '.format('/'.join(choices)))
+        msg = 'Choose {}'.format('/'.join(choices))
+        if default:
+            msg += ' [{}]'.format(default)
+        choice = input(msg + ': ') or default
         if choice in choices:
             break
     choice = choices[choice]
     # set config
-    config = BaseConfigStore('editor')
     config.set('pyqt', 'qt_lib', choice)
     # add to installation list
     if choice not in installed:
@@ -86,7 +93,15 @@ def configure(argv=None):
         options.append(
             ('importer', 'photini.importer', 'import pictures from a camera'))
     for name, module, description in options:
-        choice = input('Would you like to {}? (y/n): '.format(description))
+        msg = 'Would you like to {}? (y/n)'.format(description)
+        if module:
+            default = config.get('tabs', module)
+        else:
+            default = True
+        if default is not None:
+            default = ('n', 'y')[default]
+            msg += ' [{}]'.format(default)
+        choice = input(msg + ': ') or default
         if choice not in ('y', 'Y'):
             continue
         install_extras.append(name)
