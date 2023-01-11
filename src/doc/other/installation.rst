@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2012-22  Jim Easterbrook.
+   Copyright (C)  2012-23  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 .. |nbsp| unicode:: 0xA0
@@ -587,7 +587,7 @@ PySide2_ [1]                   5.11.0             ``python3-pyside2``           
 PySide6_ [1]                   6.2.0              ``python3-pyside6``               PySide6
 QtWebEngine_ [2]                                  ``python3-pyside2.qtwebengine``   PyQtWebEngine
                                                   or ``python310-PyQt6-WebEngine``
-`python-exiv2`_                0.13                                                 exiv2
+`python-exiv2`_                0.13.1                                               exiv2
 appdirs                        1.3                ``python3-appdirs``               appdirs
 requests_                      2.4                ``python3-requests``              requests
 =============================  =================  ================================  =================
