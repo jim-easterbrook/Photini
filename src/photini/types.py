@@ -369,11 +369,13 @@ class MD_DateTime(MD_Dict):
     def truncate_datetime(cls, date_time, precision):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
-    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
     _tz_re = re.compile(r'(.*?)([+-])(\d+):(\d+)$')
+    _subsec_re = re.compile(r'(.*?)\.(\d+)$')
+    _time_re = re.compile(r'(.*?)[T ](\d+):?(\d+)?:?(\d+)?$')
+    _date_re = re.compile(r'(\d+)[:-]?(\d+)?[:-]?(\d+)?$')
 
     @classmethod
-    def from_ISO_8601(cls, datetime_string):
+    def from_ISO_8601(cls, datetime_string, sub_sec_string=None):
         """Sufficiently general ISO 8601 parser.
 
         Input must be in "extended" format, i.e. with separators.
@@ -382,26 +384,55 @@ class MD_DateTime(MD_Dict):
         """
         if not datetime_string:
             return None
+        unparsed = datetime_string
+        precision = 7
         # extract time zone
-        match = cls._tz_re.match(datetime_string)
+        match = cls._tz_re.match(unparsed)
         if match:
-            datetime_string, sign, hours, minutes = match.groups()
+            unparsed, sign, hours, minutes = match.groups()
             tz_offset = (int(hours) * 60) + int(minutes)
             if sign == '-':
                 tz_offset = -tz_offset
-        elif datetime_string[-1] == 'Z':
+        elif unparsed[-1] == 'Z':
             tz_offset = 0
-            datetime_string = datetime_string[:-1]
+            unparsed = unparsed[:-1]
         else:
             tz_offset = None
-        # compute precision from string length
-        precision = min(len(datetime_string) // 3, 7)
-        if precision <= 0:
-            return None
-        # set format according to precision
-        fmt = ''.join(cls._fmt_elements[:precision])
+        # extract sub seconds
+        if not sub_sec_string:
+            match = cls._subsec_re.match(unparsed)
+            if match:
+                unparsed, sub_sec_string = match.groups()
+        if sub_sec_string:
+            microsecond = int((sub_sec_string + '000000')[:6])
+        else:
+            microsecond = 0
+            precision = 6
+        # extract time
+        match = cls._time_re.match(unparsed)
+        if match:
+            groups = match.groups('0')
+            unparsed = groups[0]
+            hour, minute, second = [int(x) for x in groups[1:]]
+            if match.lastindex < 4:
+                precision = 2 + match.lastindex
+        else:
+            hour, minute, second = 0, 0, 0
+            precision = 3
+        # extract date
+        match = cls._date_re.match(unparsed)
+        if match:
+            year, month, day = [int(x) for x in match.groups('1')]
+            if match.lastindex < 3:
+                precision = match.lastindex
+        else:
+            raise ValueError(
+                'Cannot parse datetime "{}"'.format(datetime_string))
         return cls((
-            datetime.strptime(datetime_string, fmt), precision, tz_offset))
+            datetime(year, month, day, hour, minute, second, microsecond),
+            precision, tz_offset))
+
+    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
 
     def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
@@ -450,20 +481,11 @@ class MD_DateTime(MD_Dict):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
-        # standardise separators
-        datetime_string = datetime_string.replace(':', '-', 2)
-        datetime_string = datetime_string.replace(' ', 'T', 1)
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
-        # append sub seconds
-        if len(datetime_string) == 19 and len(file_value) > 1:
-            if sub_sec_string:
-                sub_sec_string = sub_sec_string.strip()
-            if sub_sec_string:
-                datetime_string += '.' + sub_sec_string
         # do conversion
-        return cls.from_ISO_8601(datetime_string)
+        return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
@@ -483,9 +505,13 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
-        if not isinstance(date_value, dict):
-            # Exiv2 couldn't read malformed date
+        if not date_value:
             return None
+        if isinstance(date_value, str):
+            # Exiv2 couldn't read malformed date, let our parser have a go
+            if isinstance(time_value, str):
+                date_value += 'T' + time_value
+            return cls.from_ISO_8601(date_value)
         if date_value['year'] == 0:
             return None
         precision = 3
