@@ -369,16 +369,15 @@ class MD_DateTime(MD_Dict):
     def truncate_datetime(cls, date_time, precision):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
-    _tz_re = re.compile(r'(.*?)([+-])(\d+):(\d+)$')
+    _tz_re = re.compile(r'(.*?)([+-])(\d{1,2}):?(\d{1,2})$')
     _subsec_re = re.compile(r'(.*?)\.(\d+)$')
-    _time_re = re.compile(r'(.*?)[T ](\d+):?(\d+)?:?(\d+)?$')
-    _date_re = re.compile(r'(\d+)[:-]?(\d+)?[:-]?(\d+)?$')
+    _time_re = re.compile(r'(.*?)[T ](\d{1,2}):?(\d{1,2})?:?(\d{1,2})?$')
+    _date_re = re.compile(r'(\d{1,4})[:-]?(\d{1,2})?[:-]?(\d{1,2})?$')
 
     @classmethod
     def from_ISO_8601(cls, datetime_string, sub_sec_string=None):
         """Sufficiently general ISO 8601 parser.
 
-        Input must be in "extended" format, i.e. with separators.
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
@@ -425,6 +424,12 @@ class MD_DateTime(MD_Dict):
             year, month, day = [int(x) for x in match.groups('1')]
             if match.lastindex < 3:
                 precision = match.lastindex
+            if day == 0:
+                day = 1
+                precision = 2
+            if month == 0:
+                month = 1
+                precision = 1
         else:
             raise ValueError(
                 'Cannot parse datetime "{}"'.format(datetime_string))
