@@ -465,7 +465,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
         'rights'         : (('WA', 'Xmp.xmpRights.*'),),
-        'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
+        'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
         # Both xmpGImg and xapGImg namespaces are specified in different
