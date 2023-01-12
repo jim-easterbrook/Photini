@@ -89,6 +89,11 @@ class MetadataHandler(object):
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
+        # remove old software tag
+        tag = 'Exif.Image.ProcessingSoftware'
+        if (tag in self._exifData
+                and str(self._exifData[tag].value()).startswith('Photini')):
+            del self._exifData[tag]
         # transcode any non utf-8 strings (Xmp is always utf-8)
         encodings = []
         iptc_charset = self.get_iptc_encoding()
