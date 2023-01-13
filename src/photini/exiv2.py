@@ -615,6 +615,16 @@ class MetadataHandler(object):
             return False
         return True
 
+    def clear_gps(self):
+        for data in self._exifData, self._xmpData:
+            pos = data.begin()
+            while pos != data.end():
+                tag = pos.key().split('.')[2]
+                if tag.startswith('GPS'):
+                    pos = data.erase(pos)
+                else:
+                    next(pos)
+
     def clear_maker_note(self):
         self.clear_exif_tag('Exif.Image.Make')
         self._image.writeMetadata()

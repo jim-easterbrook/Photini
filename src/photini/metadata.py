@@ -826,6 +826,12 @@ class Metadata(object):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
+        if name == 'gps_info':
+            # erase other GPS stuff such as direction and speed
+            if self._if:
+                self._if.clear_gps()
+            if self._sc:
+                self._sc.clear_gps()
         if not self.dirty:
             self.dirty = True
             if self._notify:

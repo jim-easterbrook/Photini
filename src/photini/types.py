@@ -1295,6 +1295,21 @@ class MD_GPSinfo(MD_Dict):
                 ignored = True
         return result, merged, ignored
 
+    def __eq__(self, other):
+        if not isinstance(other, MD_GPSinfo):
+            return super(MD_GPSinfo, self).__eq__(other)
+        if bool(other['alt']) != bool(self['alt']):
+            return False
+        if bool(other['lat']) != bool(self['lat']):
+            return False
+        if abs(float(other['alt']) - float(self['alt'])) > 0.001:
+            return False
+        if abs(float(other['lat']) - float(self['lat'])) > 0.0000001:
+            return False
+        if abs(float(other['lon']) - float(self['lon'])) > 0.0000001:
+            return False
+        return True
+
 
 class MD_Aperture(MD_Rational):
     # store FNumber and APEX aperture as fractions
