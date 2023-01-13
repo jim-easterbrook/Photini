@@ -420,7 +420,8 @@ class MetadataHandler(object):
         key = exiv2.ExifKey(tag)
         type_id = key.defaultTypeId()
         if type_id == exiv2.TypeId.unsignedByte:
-            value = exiv2.DataValue(value)
+            value = exiv2.DataValue(
+                value, exiv2.ByteOrder.invalidByteOrder, type_id)
         elif type_id == exiv2.TypeId.asciiString:
             value = exiv2.AsciiValue(value)
         elif type_id == exiv2.TypeId.comment:
