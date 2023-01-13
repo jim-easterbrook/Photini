@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-3  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -404,12 +404,17 @@ class LatLongDisplay(SingleLineEdit):
         if new_value:
             try:
                 new_value = [float(x) for x in new_value.split(',')]
+                lat, lng = new_value
             except Exception:
                 # user typed in an invalid value
                 self.update_display(selected_images)
                 return
+        else:
+            lat, lng = None, None
         for image in selected_images:
-            image.metadata.latlong = new_value
+            gps = dict(image.metadata.gps_info or {})
+            gps['lat'], gps['lon'] = lat, lng
+            image.metadata.gps_info = gps
         self.update_display(selected_images)
         self.changed.emit()
 
@@ -422,11 +427,16 @@ class LatLongDisplay(SingleLineEdit):
             return
         values = []
         for image in selected_images:
-            value = image.metadata.latlong
+            gps = image.metadata.gps_info
+            if not (gps and gps['lat']):
+                continue
+            value = '{lat}, {lon}'.format(**gps)
             if value not in values:
                 values.append(value)
-        if len(values) > 1:
-            self.set_multiple(choices=filter(None, values))
+        if not values:
+            self.set_value(None)
+        elif len(values) > 1:
+            self.set_multiple(choices=values)
         else:
             self.set_value(values[0])
         self.setEnabled(True)

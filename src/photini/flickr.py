@@ -531,12 +531,11 @@ class TabWidget(PhotiniUploader):
                 elif date_taken['precision'] <= 2:
                     params['dates']['date_taken_granularity'] = '4'
             # location
-            if image.metadata.latlong:
+            gps = image.metadata.gps_info
+            if gps and gps['lat']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(
-                        float(image.metadata.latlong['lat'])),
-                    'lon': '{:.6f}'.format(
-                        float(image.metadata.latlong['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['lat'])),
+                    'lon': '{:.6f}'.format(float(gps['lon'])),
                     }
             else:
                 # clear any existing location
@@ -587,8 +586,9 @@ class TabWidget(PhotiniUploader):
                                               '%Y-%m-%d %H:%M:%S'),
                 'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['latlong'] = {'lat': photo['location']['latitude'],
-                               'lon': photo['location']['longitude']}
+            data['gps_info'] = {'alt': None,
+                                'lat': photo['location']['latitude'],
+                                'lon': photo['location']['longitude']}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:

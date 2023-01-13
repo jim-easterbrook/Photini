@@ -301,7 +301,7 @@ class Image(QtWidgets.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.latlong:
+        if self.metadata.gps_info and self.metadata.gps_info['lat']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -821,8 +821,7 @@ class ImageList(QtWidgets.QWidget):
                         'date_taken', 'date_digitised', 'date_modified',
                         'orientation', 'camera_model', 'lens_model',
                         'focal_length', 'focal_length_35', 'aperture',
-                        'latlong', 'altitude',
-                        'location_taken', 'location_shown',
+                        'gps_info', 'location_taken', 'location_shown',
                         'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:

@@ -474,12 +474,11 @@ class TabWidget(PhotiniUploader):
                     date_taken['datetime'].strftime('%Y-%m-%d %H:%M:%S')
                     }
             # location
-            if image.metadata.latlong:
+            gps = image.metadata.gps_info
+            if gps and gps['lat']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(
-                        float(image.metadata.latlong['lat'])),
-                    'lng': '{:.6f}'.format(
-                        float(image.metadata.latlong['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['lat'])),
+                    'lng': '{:.6f}'.format(float(gps['lon'])),
                     }
             else:
                 # clear any existing location
@@ -512,8 +511,9 @@ class TabWidget(PhotiniUploader):
                 'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['latlong'] = {'lat': photo['geo']['lat'],
-                               'lon': photo['geo']['lng']}
+            data['gps_info'] = {'alt': None,
+                                'lat': photo['geo']['lat'],
+                                'lon': photo['geo']['lng']}
         self.merge_metadata_items(image, data)
 
     @QtSlot()

@@ -377,19 +377,20 @@ class PhotiniMap(QtWidgets.QWidget):
     def marker_drop(self, lat, lng):
         for path in self.dropped_images:
             image = self.app.image_list.get_image(path)
-            image.metadata.latlong = lat, lng
+            gps = dict(image.metadata.gps_info or {})
+            gps['lat'] = lat
+            gps['lon'] = lng
+            image.metadata.gps_info = gps
         self.dropped_images = []
-        selected_images = self.app.image_list.get_selected_images()
-        self.redraw_markers()
-        self.widgets['latlon'].update_display(selected_images)
-        self.update_altitude(selected_images)
-        self.see_selection(selected_images)
+        self.new_coords()
 
     @QtSlot()
     @catch_all
     def new_coords(self):
         selected_images = self.app.image_list.get_selected_images()
         self.redraw_markers()
+        self.widgets['latlon'].update_display(selected_images)
+        self.update_altitude(selected_images)
         self.see_selection(selected_images)
 
     @QtSlot(object)
@@ -397,7 +398,9 @@ class PhotiniMap(QtWidgets.QWidget):
     def new_altitude(self, value, images=[]):
         images = images or self.app.image_list.get_selected_images()
         for image in images:
-            image.metadata.altitude = value
+            gps = dict(image.metadata.gps_info or {})
+            gps['alt'] = value
+            image.metadata.gps_info = gps
         self.update_altitude(images)
 
     def update_altitude(self, selected_images):
@@ -409,11 +412,15 @@ class PhotiniMap(QtWidgets.QWidget):
             return
         values = []
         for image in selected_images:
-            value = image.metadata.altitude
-            if value not in values:
-                values.append(value)
-        if len(values) > 1:
-            self.widgets['altitude'].set_multiple(choices=filter(None, values))
+            gps = image.metadata.gps_info
+            if not (gps and gps['alt']):
+                continue
+            if gps['alt'] not in values:
+                values.append(gps['alt'])
+        if not values:
+            self.widgets['altitude'].set_value(None)
+        elif len(values) > 1:
+            self.widgets['altitude'].set_multiple(choices=values)
         else:
             self.widgets['altitude'].set_value(values[0])
         self.widgets['altitude'].setEnabled(True)
@@ -425,10 +432,10 @@ class PhotiniMap(QtWidgets.QWidget):
         locations = []
         # get locations of selected images
         for image in selected_images:
-            latlong = image.metadata.latlong
-            if not latlong:
+            gps = image.metadata.gps_info
+            if not (gps and gps['lat']):
                 continue
-            location = [float(latlong['lat']), float(latlong['lon'])]
+            location = [float(gps['lat']), float(gps['lon'])]
             if location not in locations:
                 locations.append(location)
         # get locations of GPS track points around time of selected images
@@ -459,10 +466,10 @@ class PhotiniMap(QtWidgets.QWidget):
             info['images'] = []
         # assign images to existing markers or create new markers
         for image in self.app.image_list.get_images():
-            latlong = image.metadata.latlong
-            if not latlong:
+            gps = image.metadata.gps_info
+            if not (gps and gps['lat']):
                 continue
-            location = [float(latlong['lat']), float(latlong['lon'])]
+            location = [float(gps['lat']), float(gps['lon'])]
             for info in self.marker_info.values():
                 if info['location'] == location:
                     info['images'].append(image)
@@ -560,7 +567,10 @@ class PhotiniMap(QtWidgets.QWidget):
             for c in candidates[1:]:
                 if abs(c.time - utc_time) < abs(nearest.time - utc_time):
                     nearest = c
-            image.metadata.latlong = nearest.latitude, nearest.longitude
+            gps = dict(image.metadata.gps_info or {})
+            gps['lat'] = nearest.latitude
+            gps['lon'] = nearest.longitude
+            image.metadata.gps_info = gps
             changed = True
         if changed:
             self.redraw_markers()
@@ -648,9 +658,12 @@ class PhotiniMap(QtWidgets.QWidget):
     def marker_drag_end(self, lat, lng, marker_id):
         info = self.marker_info[marker_id]
         for image in info['images']:
-            image.metadata.latlong = lat, lng
-        info['location'] = [float(image.metadata.latlong['lat']),
-                            float(image.metadata.latlong['lon'])]
+            gps = dict(image.metadata.gps_info or {})
+            gps['lat'] = lat
+            gps['lon'] = lng
+            image.metadata.gps_info = gps
+        info['location'] = [float(image.metadata.gps_info['lat']),
+                            float(image.metadata.gps_info['lon'])]
         self.widgets['latlon'].update_display()
 
     def JavaScript(self, command):

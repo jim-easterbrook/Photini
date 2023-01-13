@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -35,8 +35,6 @@ logger = logging.getLogger(__name__)
 
 class FFMPEGMetadata(object):
     _tag_list = {
-        'altitude':       ('com.apple.quicktime.location.ISO6709',
-                           'location'),
         'camera_model':   ('model',
                            'Model',
                            'com.apple.quicktime.model'),
@@ -52,7 +50,7 @@ class FFMPEGMetadata(object):
                            'creation_time',
                            'DateTimeOriginal'),
         'description':    ('comment',),
-        'latlong':        ('com.apple.quicktime.location.ISO6709',
+        'gps_info':       ('com.apple.quicktime.location.ISO6709',
                            'location'),
         'orientation':    ('rotate',),
         'rating':         ('com.apple.quicktime.rating.user',),
@@ -266,9 +264,8 @@ class ImageMetadata(MetadataHandler):
         'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
                                '', 'Exif.CanonCs.Lens'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
-        'Exif.GPSInfo.GPSAltitude*': (
-            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
-        'Exif.GPSInfo.GPSCoords*': (
+        'Exif.GPSInfo.GPS*': (
+            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef',
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
@@ -320,9 +317,8 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.GPSAltitude*': (
-            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
-        'Xmp.exif.GPSCoords*': (
+        'Xmp.exif.GPS*': (
+            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
@@ -379,8 +375,6 @@ class ImageMetadata(MetadataHandler):
     _tag_list = {
         'alt_text'       : (('WA', 'Xmp.iptc.AltTextAccessibility'),),
         'alt_text_ext'   : (('WA', 'Xmp.iptc.ExtDescrAccessibility'),),
-        'altitude'       : (('WA', 'Exif.GPSInfo.GPSAltitude*'),
-                            ('WX', 'Xmp.exif.GPSAltitude*')),
         'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
                             ('W0', 'Exif.Image.FNumber*'),
                             ('WX', 'Xmp.exif.FNumber*')),
@@ -434,6 +428,8 @@ class ImageMetadata(MetadataHandler):
                             ('WX', 'Xmp.exif.FocalLength')),
         'focal_length_35': (('WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
                             ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
+        'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
+                            ('WX', 'Xmp.exif.GPS*')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
@@ -441,8 +437,6 @@ class ImageMetadata(MetadataHandler):
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
-        'latlong'        : (('WA', 'Exif.GPSInfo.GPSCoords*'),
-                            ('WX', 'Xmp.exif.GPSCoords*')),
         'lens_model'     : (('WA', 'Exif.Photo.Lens*'),
                             ('WX', 'Xmp.exifEX.Lens*'),
                             ('W0', 'Exif.Image.Lens*'),
@@ -571,7 +565,6 @@ class Metadata(object):
     _data_type = {
         'alt_text'       : MD_LangAlt,
         'alt_text_ext'   : MD_LangAlt,
-        'altitude'       : MD_Altitude,
         'aperture'       : MD_Aperture,
         'camera_model'   : MD_CameraModel,
         'contact_info'   : MD_ContactInformation,
@@ -585,10 +578,10 @@ class Metadata(object):
         'description'    : MD_LangAlt,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
+        'gps_info'       : MD_GPSinfo,
         'headline'       : MD_String,
         'instructions'   : MD_String,
         'keywords'       : MD_MultiString,
-        'latlong'        : MD_LatLon,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
         'location_taken' : MD_Location,

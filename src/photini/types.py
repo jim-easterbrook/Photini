@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
-    'MD_Altitude', 'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
-    'MD_DateTime', 'MD_Int', 'MD_LangAlt', 'MD_LatLon', 'MD_LensModel',
+    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
+    'MD_DateTime', 'MD_GPSinfo', 'MD_Int', 'MD_LangAlt', 'MD_LensModel',
     'MD_Location', 'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation',
     'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software', 'MD_String',
     'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
@@ -214,6 +214,17 @@ class MD_Coordinate(MD_Dict):
     # stores latitude or longitude as three fractions and a sign boolean
     _keys = ('pstv', 'deg', 'min', 'sec')
 
+    def __init__(self, value):
+        # can initialise from a single float / string
+        if isinstance(value, str):
+            value = float(value)
+        if isinstance(value, float):
+            pstv = value >= 0
+            if not pstv:
+                value = -value
+            value = pstv, value
+        super(MD_Coordinate, self).__init__(value)
+
     @staticmethod
     def convert(value):
         for key in value:
@@ -239,14 +250,16 @@ class MD_Coordinate(MD_Dict):
 
     @classmethod
     def from_exif(cls, file_value):
+        if not all(file_value):
+            return None
         value, ref = file_value
-        if isinstance(value, str):
-            value = value.split()
         pstv = ref in ('N', 'E')
         return cls((pstv, *value))
 
     @classmethod
     def from_xmp(cls, value):
+        if not value:
+            return None
         ref = value[-1]
         if ref in ('N', 'E'):
             pstv = True
@@ -280,67 +293,8 @@ class MD_Coordinate(MD_Dict):
             result = -result
         return result
 
-
-class MD_LatLon(MD_Dict):
-    # simple class to store latitude and longitude
-    _keys = ('lat', 'lon')
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if isinstance(value[key], MD_Coordinate):
-                continue
-            if not isinstance(value[key], float):
-                value[key] = float(value[key])
-            pstv = True
-            if value[key] < 0.0:
-                value[key] = -value[key]
-                pstv = False
-            value[key] = MD_Coordinate((pstv, value[key]))
-        return value
-
-    @classmethod
-    def from_ffmpeg(cls, file_value, tag):
-        if file_value:
-            match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-            if match:
-                return cls(match.group(1, 2))
-        return None
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not all(file_value):
-            return None
-        if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[:2])
-            lon = MD_Coordinate.from_exif(file_value[2:])
-        else:
-            lat = MD_Coordinate.from_xmp(file_value[0])
-            lon = MD_Coordinate.from_xmp(file_value[1])
-        return cls((lat, lon))
-
-    def to_exif(self):
-        pstv, degrees, minutes, seconds = self['lat'].to_exif()
-        lat_value = degrees, minutes, seconds
-        lat_ref = 'SN'[pstv]
-        pstv, degrees, minutes, seconds = self['lon'].to_exif()
-        lon_value = degrees, minutes, seconds
-        lon_ref = 'WE'[pstv]
-        return (lat_value, lat_ref, lon_value, lon_ref)
-
-    def to_xmp(self):
-        lat_string, pstv = self['lat'].to_xmp()
-        lat_string += 'SN'[pstv]
-        lon_string, pstv = self['lon'].to_xmp()
-        lon_string += 'WE'[pstv]
-        return (lat_string, lon_string)
-
     def __str__(self):
-        return '{:.6f}, {:.6f}'.format(float(self['lat']), float(self['lon']))
-
-    def contains(self, this, other):
-        return (abs(float(other['lat']) - float(this['lat'])) < 0.000001
-                and abs(float(other['lon']) - float(this['lon'])) < 0.000001)
+        return '{:.6f}'.format(float(self))
 
 
 class MD_DateTime(MD_Dict):
@@ -1223,21 +1177,12 @@ class MD_Rational(MD_Value, Fraction):
 
 class MD_Altitude(MD_Rational):
     @classmethod
-    def from_ffmpeg(cls, file_value, tag):
-        if file_value:
-            match = re.match(
-                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-            if match:
-                return cls(match.group(3))
-        return None
-
-    @classmethod
     def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
         altitude, ref = file_value
         altitude = safe_fraction(altitude)
-        if ref == b'\x01':
+        if ref in (b'\x01', '1'):
             altitude = -altitude
         return cls(altitude)
 
@@ -1248,7 +1193,116 @@ class MD_Altitude(MD_Rational):
             ref = b'\x01'
         else:
             ref = b'\x00'
-        return (altitude, ref)
+        return altitude, ref
+
+    def to_xmp(self):
+        altitude = self
+        if altitude < 0:
+            altitude = -altitude
+            ref = '1'
+        else:
+            ref = '0'
+        return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
+
+
+class MD_GPSinfo(MD_Dict):
+    # stores GPS information
+    _keys = ('alt', 'lat', 'lon')
+
+    @staticmethod
+    def convert(value):
+        if value['alt'] and not isinstance(value['alt'], MD_Altitude):
+            value['alt'] = MD_Altitude(value['alt'])
+        for key in 'lat', 'lon':
+            if not value[key]:
+                value['lat'] = None
+                value['lon'] = None
+                break
+            if not isinstance(value[key], MD_Coordinate):
+                value[key] = MD_Coordinate(value[key])
+        return value
+
+    @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        if file_value:
+            match = re.match(
+                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
+            if match:
+                return cls((match.group(3), match.group(1), match.group(2)))
+        return None
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        alt = MD_Altitude.from_exiv2(file_value[0:2], tag)
+        if tag.startswith('Exif'):
+            lat = MD_Coordinate.from_exif(file_value[2:4])
+            lon = MD_Coordinate.from_exif(file_value[4:6])
+        else:
+            lat = MD_Coordinate.from_xmp(file_value[2])
+            lon = MD_Coordinate.from_xmp(file_value[3])
+        if not any((alt, lat, lon)):
+            return None
+        return cls((alt, lat, lon))
+
+    def to_exif(self):
+        if self['alt']:
+            altitude, alt_ref = self['alt'].to_exif()
+        else:
+            altitude, alt_ref = None, None
+        if self['lat']:
+            pstv, degrees, minutes, seconds = self['lat'].to_exif()
+            lat_value = degrees, minutes, seconds
+            lat_ref = 'SN'[pstv]
+            pstv, degrees, minutes, seconds = self['lon'].to_exif()
+            lon_value = degrees, minutes, seconds
+            lon_ref = 'WE'[pstv]
+        else:
+            lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
+        return altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref
+
+    def to_xmp(self):
+        if self['alt']:
+            altitude, alt_ref = self['alt'].to_xmp()
+        else:
+            altitude, alt_ref = None, None
+        if self['lat']:
+            lat_string, pstv = self['lat'].to_xmp()
+            lat_string += 'SN'[pstv]
+            lon_string, pstv = self['lon'].to_xmp()
+            lon_string += 'WE'[pstv]
+        else:
+            lat_string, lon_string = None, None
+        return altitude, alt_ref, lat_string, lon_string
+
+    def merge_item(self, this, other):
+        merged = False
+        ignored = False
+        result = dict(this)
+        # compare coordinates
+        if other['lat']:
+            if not result['lat']:
+                # swap entirely
+                result = dict(other)
+                other = this
+                merged = True
+            elif (abs(float(other['lat']) -
+                      float(result['lat'])) > 0.000001
+                  or abs(float(other['lon']) -
+                         float(result['lon'])) > 0.000001):
+                # lat, lon differs, keep the one with altitude
+                if other['alt'] and not result['alt']:
+                    result = dict(other)
+                    other = this
+                ignored = True
+        # now consider altitude
+        if other['alt'] and not ignored:
+            if not result['alt']:
+                result['alt'] = other['alt']
+                merged = True
+            elif abs(float(other['alt']) - float(result['alt'])) > 0.01:
+                # alt differs, can only keep one of them
+                ignored = True
+        return result, merged, ignored
 
 
 class MD_Aperture(MD_Rational):
