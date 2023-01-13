@@ -316,7 +316,8 @@ class MetadataHandler(object):
             # use Exiv2's "interpreted string"
             return datum._print()
         type_id = datum.typeId()
-        if tag == 'Exif.Photo.UserComment':
+        if tag in ('Exif.Photo.UserComment',
+                   'Exif.GPSInfo.GPSProcessingMethod'):
             value = datum.value(exiv2.TypeId.comment)
             return self.get_exif_comment(tag, value)
         value = datum.value()
@@ -422,6 +423,8 @@ class MetadataHandler(object):
             value = exiv2.DataValue(value)
         elif type_id == exiv2.TypeId.asciiString:
             value = exiv2.AsciiValue(value)
+        elif type_id == exiv2.TypeId.comment:
+            value = exiv2.CommentValue(value)
         elif type_id == exiv2.TypeId.unsignedShort:
             value = exiv2.UShortValue(value)
         elif type_id == exiv2.TypeId.unsignedLong:

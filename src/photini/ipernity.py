@@ -511,9 +511,9 @@ class TabWidget(PhotiniUploader):
                 'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['gps_info'] = {'alt': None,
-                                'lat': photo['geo']['lat'],
-                                'lon': photo['geo']['lng']}
+            data['gps_info'] = {'lat': photo['geo']['lat'],
+                                'lon': photo['geo']['lng'],
+                                'method': 'MANUAL'}
         self.merge_metadata_items(image, data)
 
     @QtSlot()

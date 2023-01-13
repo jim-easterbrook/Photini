@@ -414,6 +414,7 @@ class LatLongDisplay(SingleLineEdit):
         for image in selected_images:
             gps = dict(image.metadata.gps_info or {})
             gps['lat'], gps['lon'] = lat, lng
+            gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
         self.update_display(selected_images)
         self.changed.emit()

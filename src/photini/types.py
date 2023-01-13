@@ -1189,7 +1189,7 @@ class MD_Coordinate(MD_Rational):
 
 class MD_GPSinfo(MD_Dict):
     # stores GPS information
-    _keys = ('alt', 'lat', 'lon')
+    _keys = ('alt', 'lat', 'lon', 'method')
 
     @staticmethod
     def convert(value):
@@ -1216,6 +1216,7 @@ class MD_GPSinfo(MD_Dict):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         alt = MD_Altitude.from_exiv2(file_value[0:2], tag)
+        method = MD_UnmergableString.from_exiv2(file_value[-1], tag)
         if tag.startswith('Exif'):
             lat = MD_Coordinate.from_exif(file_value[2:4])
             lon = MD_Coordinate.from_exif(file_value[4:6])
@@ -1224,7 +1225,7 @@ class MD_GPSinfo(MD_Dict):
             lon = MD_Coordinate.from_xmp(file_value[3])
         if not any((alt, lat, lon)):
             return None
-        return cls((alt, lat, lon))
+        return cls((alt, lat, lon, method))
 
     def to_exif(self):
         if self['alt']:
@@ -1240,7 +1241,12 @@ class MD_GPSinfo(MD_Dict):
             lon_ref = ('W', 'E')[pstv]
         else:
             lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
-        return altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref
+        if self['method']:
+            method = 'charset=Ascii ' + self['method']
+        else:
+            method = None
+        return (altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref,
+                method)
 
     def to_xmp(self):
         if self['alt']:
@@ -1254,12 +1260,15 @@ class MD_GPSinfo(MD_Dict):
             lon_string += ('W', 'E')[pstv]
         else:
             lat_string, lon_string = None, None
-        return altitude, alt_ref, lat_string, lon_string
+        return (altitude, alt_ref, lat_string, lon_string,
+                self['method'])
 
     def merge_item(self, this, other):
         merged = False
         ignored = False
         result = dict(this)
+        if not isinstance(other, MD_GPSinfo):
+            other = MD_GPSinfo(other)
         # compare coordinates
         if other['lat']:
             if not result['lat']:

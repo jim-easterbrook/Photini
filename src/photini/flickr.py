@@ -586,9 +586,9 @@ class TabWidget(PhotiniUploader):
                                               '%Y-%m-%d %H:%M:%S'),
                 'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['gps_info'] = {'alt': None,
-                                'lat': photo['location']['latitude'],
-                                'lon': photo['location']['longitude']}
+            data['gps_info'] = {'lat': photo['location']['latitude'],
+                                'lon': photo['location']['longitude'],
+                                'method': 'MANUAL'}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:

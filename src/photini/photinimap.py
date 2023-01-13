@@ -380,6 +380,7 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info or {})
             gps['lat'] = lat
             gps['lon'] = lng
+            gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
         self.dropped_images = []
         self.new_coords()
@@ -400,6 +401,7 @@ class PhotiniMap(QtWidgets.QWidget):
         for image in images:
             gps = dict(image.metadata.gps_info or {})
             gps['alt'] = value
+            gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
         self.update_altitude(images)
 
@@ -570,6 +572,7 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info or {})
             gps['lat'] = nearest.latitude
             gps['lon'] = nearest.longitude
+            gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
             changed = True
         if changed:
@@ -661,6 +664,7 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info or {})
             gps['lat'] = lat
             gps['lon'] = lng
+            gps['method'] = 'MANUAL'
             image.metadata.gps_info = gps
         info['location'] = [float(image.metadata.gps_info['lat']),
                             float(image.metadata.gps_info['lon'])]
