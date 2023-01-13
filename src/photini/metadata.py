@@ -265,6 +265,7 @@ class ImageMetadata(MetadataHandler):
                                '', 'Exif.CanonCs.Lens'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPS*': (
+            'Exif.GPSInfo.GPSVersionID',
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef',
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef',
@@ -319,6 +320,7 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Xmp.exif.GPS*': (
+            'Xmp.exif.GPSVersionID',
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude',
             'Xmp.exif.GPSProcessingMethod'),
