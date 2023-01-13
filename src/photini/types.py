@@ -1189,7 +1189,7 @@ class MD_Coordinate(MD_Rational):
 
 class MD_GPSinfo(MD_Dict):
     # stores GPS information
-    _keys = ('version_id', 'alt', 'lat', 'lon', 'method')
+    _keys = ('version_id', 'method', 'alt', 'lat', 'lon')
 
     @staticmethod
     def convert(value):
@@ -1211,25 +1211,25 @@ class MD_GPSinfo(MD_Dict):
             match = re.match(
                 r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
             if match:
-                return cls((match.group(3), match.group(1), match.group(2)))
+                return cls(zip(('lat', 'lon', 'alt'), match.groups()))
         return None
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
         version_id = file_value[0]
-        alt = MD_Altitude.from_exiv2(file_value[1:3], tag)
-        method = MD_UnmergableString.from_exiv2(file_value[-1], tag)
+        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
+        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
         if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[3:5])
-            lon = MD_Coordinate.from_exif(file_value[5:7])
+            lat = MD_Coordinate.from_exif(file_value[4:6])
+            lon = MD_Coordinate.from_exif(file_value[6:8])
         else:
             if version_id:
                 version_id = bytes([int(x) for x in version_id.split('.')])
-            lat = MD_Coordinate.from_xmp(file_value[3])
-            lon = MD_Coordinate.from_xmp(file_value[4])
+            lat = MD_Coordinate.from_xmp(file_value[4])
+            lon = MD_Coordinate.from_xmp(file_value[5])
         if not any((alt, lat, lon)):
             return None
-        return cls((version_id, alt, lat, lon, method))
+        return cls((version_id, method, alt, lat, lon))
 
     def to_exif(self):
         if self['alt']:
@@ -1249,9 +1249,8 @@ class MD_GPSinfo(MD_Dict):
             method = 'charset=Ascii ' + self['method']
         else:
             method = None
-        return (self['version_id'],
-                altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref,
-                method)
+        return (self['version_id'], method,
+                altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref)
 
     def to_xmp(self):
         version_id = '.'.join([str(x) for x in self['version_id']])
@@ -1266,8 +1265,8 @@ class MD_GPSinfo(MD_Dict):
             lon_string += ('W', 'E')[pstv]
         else:
             lat_string, lon_string = None, None
-        return (version_id, altitude, alt_ref, lat_string, lon_string,
-                self['method'])
+        return (version_id, self['method'],
+                altitude, alt_ref, lat_string, lon_string)
 
     def merge_item(self, this, other):
         merged = False

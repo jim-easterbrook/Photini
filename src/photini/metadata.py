@@ -265,11 +265,10 @@ class ImageMetadata(MetadataHandler):
                                '', 'Exif.CanonCs.Lens'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
         'Exif.GPSInfo.GPS*': (
-            'Exif.GPSInfo.GPSVersionID',
+            'Exif.GPSInfo.GPSVersionID', 'Exif.GPSInfo.GPSProcessingMethod',
             'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef',
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
-            'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef',
-            'Exif.GPSInfo.GPSProcessingMethod'),
+            'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
             'Exif.Image.DateTime', 'Exif.Photo.SubSecTime'),
         'Exif.Image.DateTimeOriginal*': ('Exif.Image.DateTimeOriginal', ''),
@@ -320,10 +319,9 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
         'Xmp.exif.GPS*': (
-            'Xmp.exif.GPSVersionID',
+            'Xmp.exif.GPSVersionID', 'Xmp.exif.GPSProcessingMethod',
             'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
-            'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude',
-            'Xmp.exif.GPSProcessingMethod'),
+            'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
             'Xmp.exifEX.LensSerialNumber', 'Xmp.exifEX.LensSpecification'),
