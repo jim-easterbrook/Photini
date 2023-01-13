@@ -210,93 +210,6 @@ class MD_Dict(MD_Value, dict):
         return '\n'.join(result)
 
 
-class MD_Coordinate(MD_Dict):
-    # stores latitude or longitude as three fractions and a sign boolean
-    _keys = ('pstv', 'deg', 'min', 'sec')
-
-    def __init__(self, value):
-        # can initialise from a single float / string
-        if isinstance(value, str):
-            value = float(value)
-        if isinstance(value, float):
-            pstv = value >= 0
-            if not pstv:
-                value = -value
-            value = pstv, value
-        super(MD_Coordinate, self).__init__(value)
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if key == 'pstv':
-                continue
-            if not isinstance(value[key], Fraction):
-                value[key] = safe_fraction(value[key] or 0, limit=False)
-        # make degrees and minutes integer (not mandated by Exif, but typical)
-        for hi, lo in (('deg', 'min'), ('min', 'sec')):
-            fraction = value[hi] % 1
-            if fraction:
-                value[lo] += fraction * 60
-                value[hi] -= fraction
-        # make sure minutes and seconds are in range
-        for lo, hi in (('sec', 'min'), ('min', 'deg')):
-            overflow = value[lo] // 60
-            if overflow:
-                value[hi] += overflow
-                value[lo] -= overflow * 60
-        # round off excessively large seconds denominator
-        value['sec'] = value['sec'].limit_denominator(1000000)
-        return value
-
-    @classmethod
-    def from_exif(cls, file_value):
-        if not all(file_value):
-            return None
-        value, ref = file_value
-        pstv = ref in ('N', 'E')
-        return cls((pstv, *value))
-
-    @classmethod
-    def from_xmp(cls, value):
-        if not value:
-            return None
-        ref = value[-1]
-        if ref in ('N', 'E'):
-            pstv = True
-            value = value[:-1]
-        elif ref in ('S', 'W'):
-            pstv = False
-            value = value[:-1]
-        else:
-            logger.info('no direction in XMP GPSCoordinate: %s', value)
-            pstv = True
-        if value[0] in ('+', '-'):
-            logger.info('incorrect use of signed XMP GPSCoordinate: %s', value)
-            value = value[1:]
-            if value[0] == '-':
-                pstv = not pstv
-        return cls((pstv, *value.split(',')))
-
-    def to_xmp(self):
-        numbers = self['deg'], self['min'], self['sec']
-        if all([x.denominator == 1 for x in numbers]):
-            return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
-                    not self['pstv'])
-        degrees = int(self['deg'])
-        minutes = float(((self['deg'] - degrees) * 60) + self['min']
-                        + (self['sec'] / 60))
-        return ('{:d},{:.7f}'.format(degrees, minutes), self['pstv'])
-
-    def __float__(self):
-        result = float(self['deg'] + (self['min'] / 60) + (self['sec'] / 3600))
-        if not self['pstv']:
-            result = -result
-        return result
-
-    def __str__(self):
-        return '{:.6f}'.format(float(self))
-
-
 class MD_DateTime(MD_Dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
@@ -1205,6 +1118,75 @@ class MD_Altitude(MD_Rational):
         return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
 
 
+class MD_Coordinate(MD_Rational):
+    @classmethod
+    def from_exif(cls, value):
+        if not all(value):
+            return None
+        value, ref = value
+        value = [safe_fraction(x, limit=False) for x in value]
+        degrees, minutes, seconds = value
+        degrees += (minutes / 60) + (seconds / 3600)
+        if ref in ('S', 'W'):
+            degrees = -degrees
+        return cls(degrees)
+
+    @classmethod
+    def from_xmp(cls, value):
+        if not value:
+            return None
+        ref = value[-1]
+        if ref in ('N', 'E', 'S', 'W'):
+            negative = ref in ('S', 'W')
+            value = value[:-1]
+        else:
+            logger.warning('no direction in XMP GPSCoordinate: %s', value)
+            negative = False
+        if value[0] in ('+', '-'):
+            logger.warning(
+                'incorrect use of signed XMP GPSCoordinate: %s', value)
+            if value[0] == '-':
+                negative = not negative
+            value = value[1:]
+        value = [safe_fraction(x, limit=False) for x in value.split(',')]
+        degrees, minutes = value[:2]
+        degrees += (minutes / 60)
+        if len(value) > 2:
+            seconds = value[2]
+            degrees += (seconds / 3600)
+        if negative:
+            degrees = -degrees
+        return cls(degrees)
+
+    def to_exif(self):
+        degrees = self
+        pstv = degrees >= 0
+        if not pstv:
+            degrees = -degrees
+        # make degrees and minutes integer (not mandated by Exif, but typical)
+        i = int(degrees)
+        minutes = (degrees - i) * 60
+        degrees = Fraction(i)
+        i = int(minutes)
+        seconds = (minutes - i) * 60
+        minutes = Fraction(i)
+        seconds = seconds.limit_denominator(1000000)
+        return pstv, degrees, minutes, seconds
+
+    def to_xmp(self):
+        pstv, degrees, minutes, seconds = self.to_exif()
+        numbers = degrees, minutes, seconds
+        if all([x.denominator == 1 for x in numbers]):
+            return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
+                    pstv)
+        degrees = int(degrees)
+        minutes = float(minutes + (seconds / 60))
+        return '{:d},{:.8f}'.format(degrees, minutes), pstv
+
+    def __str__(self):
+        return '{:.6f}'.format(float(self))
+
+
 class MD_GPSinfo(MD_Dict):
     # stores GPS information
     _keys = ('alt', 'lat', 'lon')
@@ -1252,10 +1234,10 @@ class MD_GPSinfo(MD_Dict):
         if self['lat']:
             pstv, degrees, minutes, seconds = self['lat'].to_exif()
             lat_value = degrees, minutes, seconds
-            lat_ref = 'SN'[pstv]
+            lat_ref = ('S', 'N')[pstv]
             pstv, degrees, minutes, seconds = self['lon'].to_exif()
             lon_value = degrees, minutes, seconds
-            lon_ref = 'WE'[pstv]
+            lon_ref = ('W', 'E')[pstv]
         else:
             lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
         return altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref
@@ -1267,9 +1249,9 @@ class MD_GPSinfo(MD_Dict):
             altitude, alt_ref = None, None
         if self['lat']:
             lat_string, pstv = self['lat'].to_xmp()
-            lat_string += 'SN'[pstv]
+            lat_string += ('S', 'N')[pstv]
             lon_string, pstv = self['lon'].to_xmp()
-            lon_string += 'WE'[pstv]
+            lon_string += ('W', 'E')[pstv]
         else:
             lat_string, lon_string = None, None
         return altitude, alt_ref, lat_string, lon_string
