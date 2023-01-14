@@ -1307,11 +1307,14 @@ class MD_GPSinfo(MD_Dict):
             return False
         if bool(other['lat']) != bool(self['lat']):
             return False
-        if abs(float(other['alt']) - float(self['alt'])) > 0.001:
+        if self['alt'] and abs(float(other['alt']) -
+                               float(self['alt'])) > 0.001:
             return False
-        if abs(float(other['lat']) - float(self['lat'])) > 0.0000001:
+        if self['lat'] and abs(float(other['lat']) -
+                               float(self['lat'])) > 0.0000001:
             return False
-        if abs(float(other['lon']) - float(self['lon'])) > 0.0000001:
+        if self['lon'] and abs(float(other['lon']) -
+                               float(self['lon'])) > 0.0000001:
             return False
         return True
 
