@@ -549,6 +549,9 @@ class PhotiniMap(QtWidgets.QWidget):
             time_stamp, lat, lng = p
             latlngs.append([lat, lng])
         self.JavaScript('fitPoints({!r})'.format(latlngs))
+        self.widgets['set_from_gpx'].setEnabled(
+            bool(self.app.image_list.get_selected_images())
+            and bool(self.app.gpx_importer.display_points))
         self.widgets['clear_gpx'].setEnabled(
             bool(self.app.gpx_importer.display_points))
 
@@ -572,7 +575,8 @@ class PhotiniMap(QtWidgets.QWidget):
             gps = dict(image.metadata.gps_info or {})
             gps['lat'] = nearest.latitude
             gps['lon'] = nearest.longitude
-            gps['method'] = 'MANUAL'
+            gps['alt'] = nearest.elevation
+            gps['method'] = 'GPS'
             image.metadata.gps_info = gps
             changed = True
         if changed:
