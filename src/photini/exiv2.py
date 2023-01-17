@@ -439,8 +439,8 @@ class MetadataHandler(object):
                     [(value.numerator, value.denominator)])
         else:
             # unhandled type, use the string representation
-            logger.warning('%s: %s: writing type %s as string',
-                           self._name, tag, type_id)
+            logger.warning('%s: %s: writing %s type as string',
+                           self._name, tag, exiv2.TypeInfo.typeName(type_id))
         datum = self._exifData[tag]
         datum.setValue(value)
 
