@@ -330,12 +330,26 @@ class MD_DateTime(MD_Dict):
     def from_ffmpeg(cls, file_value, tag):
         return cls.from_ISO_8601(file_value)
 
+    # many quicktime movies use Apple's 1904 timestamp zero point
+    _qt_offset = (datetime(1970, 1, 1) - datetime(1904, 1, 1)).total_seconds()
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Exif'):
             return cls.from_exif(file_value)
         if tag.startswith('Iptc'):
             return cls.from_iptc(file_value)
+        if tag.startswith('Xmp.video'):
+            try:
+                time_stamp = int(file_value)
+            except Exception:
+                # not an integer timestamp
+                time_stamp = None
+            if time_stamp:
+                # assume date should be in range 1970 to 2034
+                if time_stamp > cls._qt_offset:
+                    time_stamp -= cls._qt_offset
+                return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_ISO_8601(file_value)
 
     # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
@@ -1216,6 +1230,8 @@ class MD_GPSinfo(MD_Dict):
 
     @classmethod
     def from_exiv2(cls, file_value, tag):
+        if tag.startswith('Xmp.video'):
+            return cls.from_ffmpeg(file_value, tag)
         version_id = file_value[0]
         method = MD_UnmergableString.from_exiv2(file_value[1], tag)
         alt = MD_Altitude.from_exiv2(file_value[2:4], tag)

@@ -353,6 +353,7 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmp.Thumbnails*': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
@@ -387,7 +388,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Nikon3.SerialNumber*'),
                             ('WN', 'Exif.OlympusEq.Camera*'),
                             ('WN', 'Exif.Pentax.ModelID*'),
-                            ('WN', 'Xmp.aux.SerialNumber*')),
+                            ('WN', 'Xmp.aux.SerialNumber*'),
+                            ('WN', 'Xmp.video.Make*')),
         'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
                             ('WA', 'Iptc.Application2.Contact*')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
@@ -411,12 +413,21 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.DigitizationDate*')),
         'date_modified'  : (('WA', 'Exif.Image.DateTime*'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
-                            ('W0', 'Xmp.tiff.DateTime')),
+                            ('W0', 'Xmp.tiff.DateTime'),
+                            ('WN', 'Xmp.video.ModificationDate'),
+                            ('WN', 'Xmp.video.MediaModifyDate'),
+                            ('WN', 'Xmp.video.TrackModifyDate')),
         'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal*'),
                             ('W0', 'Exif.Image.DateTimeOriginal*'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
-                            ('WA', 'Iptc.Application2.DateCreated*')),
+                            ('WA', 'Iptc.Application2.DateCreated*'),
+                            ('WN', 'Xmp.video.DateTimeOriginal'),
+                            ('WN', 'Xmp.video.CreateDate'),
+                            ('WN', 'Xmp.video.CreationDate'),
+                            ('WN', 'Xmp.video.DateUTC'),
+                            ('WN', 'Xmp.video.MediaCreateDate'),
+                            ('WN', 'Xmp.video.TrackCreateDate')),
         'description'    : (('WA', 'Xmp.dc.description'),
                             ('WA', 'Exif.Image.ImageDescription'),
                             ('W0', 'Exif.Image.XPComment'),
@@ -424,14 +435,16 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Photo.UserComment'),
                             ('W0', 'Xmp.exif.UserComment'),
                             ('W0', 'Xmp.tiff.ImageDescription'),
-                            ('WA', 'Iptc.Application2.Caption')),
+                            ('WA', 'Iptc.Application2.Caption'),
+                            ('WN', 'Xmp.video.Information')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
         'focal_length_35': (('WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
                             ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
         'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
-                            ('WX', 'Xmp.exif.GPS*')),
+                            ('WX', 'Xmp.exif.GPS*'),
+                            ('WN', 'Xmp.video.GPSCoordinates')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
@@ -472,10 +485,12 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.xmp.ThumbnailsXap*')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
                             ('WN', 'Exif.CanonTi.TimeZone'),
-                            ('WN', 'Exif.NikonWt.Timezone')),
+                            ('WN', 'Exif.NikonWt.Timezone'),
+                            ('WN', 'Xmp.video.TimeZone')),
         'title'          : (('WA', 'Xmp.dc.title'),
                             ('WA', 'Iptc.Application2.ObjectName'),
-                            ('W0', 'Exif.Image.XPTitle')),
+                            ('W0', 'Exif.Image.XPTitle'),
+                            ('WN', 'Xmp.video.StreamName')),
         }
 
     def read(self, name, type_):
@@ -622,7 +637,7 @@ class Metadata(object):
         for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
-            for handler in self._sc, video_md, self._if:
+            for handler in self._sc, self._if, video_md:
                 if not handler:
                     continue
                 values = handler.read(name, self._data_type[name])
@@ -632,7 +647,8 @@ class Metadata(object):
             if (name in ('date_digitised', 'date_modified', 'date_taken')
                     and self.timezone):
                 for n, (tag, value) in enumerate(values):
-                    if not tag.startswith('Exif'):
+                    if not (tag.startswith('Exif') or
+                            tag.startswith('Xmp.video')):
                         continue
                     value = dict(value)
                     value['tz_offset'] = self.timezone

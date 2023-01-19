@@ -240,7 +240,9 @@ class MetadataHandler(object):
             return cls(*arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
-            if not quiet:
+            if quiet:
+                logger.info(str(ex))
+            else:
                 logger.warning(str(ex))
             return None
         except Exception as ex:
