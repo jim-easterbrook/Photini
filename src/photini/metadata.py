@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -35,8 +35,6 @@ logger = logging.getLogger(__name__)
 
 class FFMPEGMetadata(object):
     _tag_list = {
-        'altitude':       ('com.apple.quicktime.location.ISO6709',
-                           'location'),
         'camera_model':   ('model',
                            'Model',
                            'com.apple.quicktime.model'),
@@ -52,7 +50,7 @@ class FFMPEGMetadata(object):
                            'creation_time',
                            'DateTimeOriginal'),
         'description':    ('comment',),
-        'latlong':        ('com.apple.quicktime.location.ISO6709',
+        'gps_info':       ('com.apple.quicktime.location.ISO6709',
                            'location'),
         'orientation':    ('rotate',),
         'rating':         ('com.apple.quicktime.rating.user',),
@@ -266,9 +264,9 @@ class ImageMetadata(MetadataHandler):
         'Exif.CanonCs.Lens*': ('', 'Exif.CanonCs.LensType',
                                '', 'Exif.CanonCs.Lens'),
         'Exif.Fujifilm.SerialNumber*': ('', '', 'Exif.Fujifilm.SerialNumber'),
-        'Exif.GPSInfo.GPSAltitude*': (
-            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef'),
-        'Exif.GPSInfo.GPSCoords*': (
+        'Exif.GPSInfo.GPS*': (
+            'Exif.GPSInfo.GPSVersionID', 'Exif.GPSInfo.GPSProcessingMethod',
+            'Exif.GPSInfo.GPSAltitude', 'Exif.GPSInfo.GPSAltitudeRef',
             'Exif.GPSInfo.GPSLatitude', 'Exif.GPSInfo.GPSLatitudeRef',
             'Exif.GPSInfo.GPSLongitude', 'Exif.GPSInfo.GPSLongitudeRef'),
         'Exif.Image.DateTime*': (
@@ -320,9 +318,9 @@ class ImageMetadata(MetadataHandler):
         'Xmp.aux.Lens*': ('', 'Xmp.aux.Lens'),
         'Xmp.aux.SerialNumber*': ('', '', 'Xmp.aux.SerialNumber'),
         'Xmp.exif.FNumber*': ('Xmp.exif.FNumber', 'Xmp.exif.ApertureValue'),
-        'Xmp.exif.GPSAltitude*': (
-            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef'),
-        'Xmp.exif.GPSCoords*': (
+        'Xmp.exif.GPS*': (
+            'Xmp.exif.GPSVersionID', 'Xmp.exif.GPSProcessingMethod',
+            'Xmp.exif.GPSAltitude', 'Xmp.exif.GPSAltitudeRef',
             'Xmp.exif.GPSLatitude', 'Xmp.exif.GPSLongitude'),
         'Xmp.exifEX.Lens*': (
             'Xmp.exifEX.LensMake', 'Xmp.exifEX.LensModel',
@@ -355,6 +353,7 @@ class ImageMetadata(MetadataHandler):
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:CountryCode',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:WorldRegion',
             'Xmp.Iptc4xmpExt.LocationCreated[1]/Iptc4xmpExt:LocationId'),
+        'Xmp.video.Make*': ('Xmp.video.Make', 'Xmp.video.Model'),
         'Xmp.xmp.Thumbnails*': (
             'Xmp.xmp.Thumbnails[1]/xmpGImg:width',
             'Xmp.xmp.Thumbnails[1]/xmpGImg:height',
@@ -379,8 +378,6 @@ class ImageMetadata(MetadataHandler):
     _tag_list = {
         'alt_text'       : (('WA', 'Xmp.iptc.AltTextAccessibility'),),
         'alt_text_ext'   : (('WA', 'Xmp.iptc.ExtDescrAccessibility'),),
-        'altitude'       : (('WA', 'Exif.GPSInfo.GPSAltitude*'),
-                            ('WX', 'Xmp.exif.GPSAltitude*')),
         'aperture'       : (('WA', 'Exif.Photo.FNumber*'),
                             ('W0', 'Exif.Image.FNumber*'),
                             ('WX', 'Xmp.exif.FNumber*')),
@@ -391,7 +388,8 @@ class ImageMetadata(MetadataHandler):
                             ('WN', 'Exif.Nikon3.SerialNumber*'),
                             ('WN', 'Exif.OlympusEq.Camera*'),
                             ('WN', 'Exif.Pentax.ModelID*'),
-                            ('WN', 'Xmp.aux.SerialNumber*')),
+                            ('WN', 'Xmp.aux.SerialNumber*'),
+                            ('WN', 'Xmp.video.Make*')),
         'contact_info'   : (('WA', 'Xmp.iptc.CreatorContactInfo*'),
                             ('WA', 'Iptc.Application2.Contact*')),
         'copyright'      : (('WA', 'Xmp.dc.rights'),
@@ -415,12 +413,21 @@ class ImageMetadata(MetadataHandler):
                             ('WA', 'Iptc.Application2.DigitizationDate*')),
         'date_modified'  : (('WA', 'Exif.Image.DateTime*'),
                             ('WA', 'Xmp.xmp.ModifyDate'),
-                            ('W0', 'Xmp.tiff.DateTime')),
+                            ('W0', 'Xmp.tiff.DateTime'),
+                            ('WN', 'Xmp.video.ModificationDate'),
+                            ('WN', 'Xmp.video.MediaModifyDate'),
+                            ('WN', 'Xmp.video.TrackModifyDate')),
         'date_taken'     : (('WA', 'Exif.Photo.DateTimeOriginal*'),
                             ('W0', 'Exif.Image.DateTimeOriginal*'),
                             ('WA', 'Xmp.photoshop.DateCreated'),
                             ('W0', 'Xmp.exif.DateTimeOriginal'),
-                            ('WA', 'Iptc.Application2.DateCreated*')),
+                            ('WA', 'Iptc.Application2.DateCreated*'),
+                            ('WN', 'Xmp.video.DateTimeOriginal'),
+                            ('WN', 'Xmp.video.CreateDate'),
+                            ('WN', 'Xmp.video.CreationDate'),
+                            ('WN', 'Xmp.video.DateUTC'),
+                            ('WN', 'Xmp.video.MediaCreateDate'),
+                            ('WN', 'Xmp.video.TrackCreateDate')),
         'description'    : (('WA', 'Xmp.dc.description'),
                             ('WA', 'Exif.Image.ImageDescription'),
                             ('W0', 'Exif.Image.XPComment'),
@@ -428,12 +435,16 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Photo.UserComment'),
                             ('W0', 'Xmp.exif.UserComment'),
                             ('W0', 'Xmp.tiff.ImageDescription'),
-                            ('WA', 'Iptc.Application2.Caption')),
+                            ('WA', 'Iptc.Application2.Caption'),
+                            ('WN', 'Xmp.video.Information')),
         'focal_length'   : (('WA', 'Exif.Photo.FocalLength'),
                             ('W0', 'Exif.Image.FocalLength'),
                             ('WX', 'Xmp.exif.FocalLength')),
         'focal_length_35': (('WA', 'Exif.Photo.FocalLengthIn35mmFilm'),
                             ('WX', 'Xmp.exif.FocalLengthIn35mmFilm')),
+        'gps_info'       : (('WA', 'Exif.GPSInfo.GPS*'),
+                            ('WX', 'Xmp.exif.GPS*'),
+                            ('WN', 'Xmp.video.GPSCoordinates')),
         'headline'       : (('WA', 'Xmp.photoshop.Headline'),
                             ('WA', 'Iptc.Application2.Headline')),
         'instructions'   : (('WA', 'Xmp.photoshop.Instructions'),
@@ -441,8 +452,6 @@ class ImageMetadata(MetadataHandler):
         'keywords'       : (('WA', 'Xmp.dc.subject'),
                             ('WA', 'Iptc.Application2.Keywords'),
                             ('W0', 'Exif.Image.XPKeywords')),
-        'latlong'        : (('WA', 'Exif.GPSInfo.GPSCoords*'),
-                            ('WX', 'Xmp.exif.GPSCoords*')),
         'lens_model'     : (('WA', 'Exif.Photo.Lens*'),
                             ('WX', 'Xmp.exifEX.Lens*'),
                             ('W0', 'Exif.Image.Lens*'),
@@ -465,7 +474,7 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Exif.Image.RatingPercent'),
                             ('W0', 'Xmp.MicrosoftPhoto.Rating')),
         'rights'         : (('WA', 'Xmp.xmpRights.*'),),
-        'software'       : (('WA', 'Exif.Image.ProcessingSoftware'),
+        'software'       : (('WA', 'Exif.Image.Software'),
                             ('WA', 'Iptc.Application2.Program*'),
                             ('WX', 'Xmp.xmp.CreatorTool')),
         # Both xmpGImg and xapGImg namespaces are specified in different
@@ -476,10 +485,12 @@ class ImageMetadata(MetadataHandler):
                             ('W0', 'Xmp.xmp.ThumbnailsXap*')),
         'timezone'       : (('WN', 'Exif.Image.TimeZoneOffset'),
                             ('WN', 'Exif.CanonTi.TimeZone'),
-                            ('WN', 'Exif.NikonWt.Timezone')),
+                            ('WN', 'Exif.NikonWt.Timezone'),
+                            ('WN', 'Xmp.video.TimeZone')),
         'title'          : (('WA', 'Xmp.dc.title'),
                             ('WA', 'Iptc.Application2.ObjectName'),
-                            ('W0', 'Exif.Image.XPTitle')),
+                            ('W0', 'Exif.Image.XPTitle'),
+                            ('WN', 'Xmp.video.StreamName')),
         }
 
     def read(self, name, type_):
@@ -571,7 +582,6 @@ class Metadata(object):
     _data_type = {
         'alt_text'       : MD_LangAlt,
         'alt_text_ext'   : MD_LangAlt,
-        'altitude'       : MD_Altitude,
         'aperture'       : MD_Aperture,
         'camera_model'   : MD_CameraModel,
         'contact_info'   : MD_ContactInformation,
@@ -585,10 +595,10 @@ class Metadata(object):
         'description'    : MD_LangAlt,
         'focal_length'   : MD_Rational,
         'focal_length_35': MD_Int,
+        'gps_info'       : MD_GPSinfo,
         'headline'       : MD_String,
         'instructions'   : MD_String,
         'keywords'       : MD_MultiString,
-        'latlong'        : MD_LatLon,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
         'location_taken' : MD_Location,
@@ -627,7 +637,7 @@ class Metadata(object):
         for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
-            for handler in self._sc, video_md, self._if:
+            for handler in self._sc, self._if, video_md:
                 if not handler:
                     continue
                 values = handler.read(name, self._data_type[name])
@@ -637,7 +647,8 @@ class Metadata(object):
             if (name in ('date_digitised', 'date_modified', 'date_taken')
                     and self.timezone):
                 for n, (tag, value) in enumerate(values):
-                    if not tag.startswith('Exif'):
+                    if not (tag.startswith('Exif') or
+                            tag.startswith('Xmp.video')):
                         continue
                     value = dict(value)
                     value['tz_offset'] = self.timezone
@@ -831,6 +842,12 @@ class Metadata(object):
         if getattr(self, name) == value:
             return
         super(Metadata, self).__setattr__(name, value)
+        if name == 'gps_info':
+            # erase other GPS stuff such as direction and speed
+            if self._if:
+                self._if.clear_gps()
+            if self._sc:
+                self._sc.clear_gps()
         if not self.dirty:
             self.dirty = True
             if self._notify:

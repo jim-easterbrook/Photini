@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2022  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2022-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -234,7 +234,8 @@ class IpernitySession(UploaderSession):
                     break
             doc_id = rsp['tickets']['ticket'][0]['doc_id']
         # store photo id in image keywords, in main thread
-        self.upload_progress.emit({'keyword': (image, 'ipernity:id=' + doc_id)})
+        self.upload_progress.emit({
+            'busy': True, 'keyword': (image, 'ipernity:id=' + doc_id)})
         # set remaining metadata after uploading image
         if 'visibility' in params and 'permissions' in params:
             params['permissions'].update(params['visibility'])
@@ -473,12 +474,11 @@ class TabWidget(PhotiniUploader):
                     date_taken['datetime'].strftime('%Y-%m-%d %H:%M:%S')
                     }
             # location
-            if image.metadata.latlong:
+            gps = image.metadata.gps_info
+            if gps and gps['lat']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(
-                        float(image.metadata.latlong['lat'])),
-                    'lng': '{:.6f}'.format(
-                        float(image.metadata.latlong['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['lat'])),
+                    'lng': '{:.6f}'.format(float(gps['lon'])),
                     }
             else:
                 # clear any existing location
@@ -511,8 +511,9 @@ class TabWidget(PhotiniUploader):
                 'precision': 6, 'tz_offset': None}
             }
         if 'geo' in photo:
-            data['latlong'] = {'lat': photo['geo']['lat'],
-                               'lon': photo['geo']['lng']}
+            data['gps_info'] = {'lat': photo['geo']['lat'],
+                                'lon': photo['geo']['lng'],
+                                'method': 'MANUAL'}
         self.merge_metadata_items(image, data)
 
     @QtSlot()

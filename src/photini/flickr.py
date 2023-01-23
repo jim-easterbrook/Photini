@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -247,7 +247,8 @@ class FlickrSession(UploaderSession):
                     return 'Flickr file conversion failed'
                 time.sleep(1)
         # store photo id in image keywords, in main thread
-        self.upload_progress.emit({'keyword': (image, 'flickr:id=' + photo_id)})
+        self.upload_progress.emit({
+            'busy': True, 'keyword': (image, 'flickr:id=' + photo_id)})
         # set metadata after uploading image
         if 'hidden' in params:
             # flickr.photos.setSafetyLevel has different 'hidden' values
@@ -530,12 +531,11 @@ class TabWidget(PhotiniUploader):
                 elif date_taken['precision'] <= 2:
                     params['dates']['date_taken_granularity'] = '4'
             # location
-            if image.metadata.latlong:
+            gps = image.metadata.gps_info
+            if gps and gps['lat']:
                 params['location'] = {
-                    'lat': '{:.6f}'.format(
-                        float(image.metadata.latlong['lat'])),
-                    'lon': '{:.6f}'.format(
-                        float(image.metadata.latlong['lon'])),
+                    'lat': '{:.6f}'.format(float(gps['lat'])),
+                    'lon': '{:.6f}'.format(float(gps['lon'])),
                     }
             else:
                 # clear any existing location
@@ -586,8 +586,9 @@ class TabWidget(PhotiniUploader):
                                               '%Y-%m-%d %H:%M:%S'),
                 'precision': precision, 'tz_offset': None}
         if 'location' in photo:
-            data['latlong'] = {'lat': photo['location']['latitude'],
-                               'lon': photo['location']['longitude']}
+            data['gps_info'] = {'lat': photo['location']['latitude'],
+                                'lon': photo['location']['longitude'],
+                                'method': 'MANUAL'}
             address = {}
             for key in photo['location']:
                 if '_content' in photo['location'][key]:

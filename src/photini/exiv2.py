@@ -89,6 +89,11 @@ class MetadataHandler(object):
         if self.xmp_only:
             self.clear_exif()
             self.clear_iptc()
+        # remove old software tag
+        tag = 'Exif.Image.ProcessingSoftware'
+        if (tag in self._exifData
+                and str(self._exifData[tag].value()).startswith('Photini')):
+            del self._exifData[tag]
         # transcode any non utf-8 strings (Xmp is always utf-8)
         encodings = []
         iptc_charset = self.get_iptc_encoding()
@@ -107,7 +112,7 @@ class MetadataHandler(object):
                 if '.0x' in key:
                     # unknown key type
                     continue
-                raw_value = self.get_raw_value(datum)
+                raw_value = memoryview(datum.value().data())
                 if self.decode_string(key, raw_value, 'utf-8') is not None:
                     # no need to do anything
                     continue
@@ -116,7 +121,7 @@ class MetadataHandler(object):
                     if value:
                         break
                 else:
-                    encoding = chardet.detect(raw_value)['encoding']
+                    encoding = chardet.detect(bytearray(raw_value))['encoding']
                     if encoding:
                         try:
                             encoding = codecs.lookup(encoding).name
@@ -143,7 +148,7 @@ class MetadataHandler(object):
 
     def decode_string(self, tag, raw_value, encoding):
         try:
-            result = raw_value.decode(encoding)
+            result = codecs.decode(raw_value, encoding=encoding)
         except UnicodeDecodeError:
             return None
         if encoding != 'utf-8':
@@ -159,8 +164,8 @@ class MetadataHandler(object):
         # final byte.
         if 'Iptc.Envelope.CharacterSet' not in self._iptcData:
             return None
-        iptc_charset_code = self.get_raw_value(
-            self._iptcData['Iptc.Envelope.CharacterSet'])
+        iptc_charset_code = memoryview(
+            self._iptcData['Iptc.Envelope.CharacterSet'].value().data())
         if len(iptc_charset_code) >= 3 and iptc_charset_code[0] == 0x1b:
             intermediate = iptc_charset_code[1:-1]
             final = iptc_charset_code[-1]
@@ -202,7 +207,7 @@ class MetadataHandler(object):
                 if final == 0x4c:
                     return 'utf-16-be'
         logger.error('Unrecognised IPTC character set %s',
-                     repr(iptc_charset_code))
+                     repr(bytes(iptc_charset_code)))
         return None
 
     def set_iptc_encoding(self):
@@ -235,7 +240,9 @@ class MetadataHandler(object):
             return cls(*arg, **kw)
         except exiv2.Exiv2Error as ex:
             # expected if unrecognised file format
-            if not quiet:
+            if quiet:
+                logger.info(str(ex))
+            else:
                 logger.warning(str(ex))
             return None
         except Exception as ex:
@@ -247,33 +254,48 @@ class MetadataHandler(object):
         thumb.setJpegThumbnail(buffer)
 
     def get_exif_comment(self, tag, value):
-        # ignore Exiv2's comment handling, Python is better at unicode
-        data = bytearray(value.size())
-        value.copy(data, exiv2.ByteOrder.invalidByteOrder)
+        # ignore Exiv2's comment decoding, Python is better at unicode
+        data = memoryview(value.data())
         if not any(data):
             return None
-        charset = data[:8]
+        charset = value.charsetId()
         raw_value = data[8:]
-        if charset == b'ASCII\x00\x00\x00':
+        if charset == exiv2.CharsetId.ascii:
             encodings = ('ascii',)
-        elif charset == b'JIS\x00\x00\x00\x00\x00':
+        elif charset == exiv2.CharsetId.jis:
             # Exif standard says JIS X208-1990, but doesn't say what encoding
             encodings = ('iso2022_jp', 'euc_jp', 'shift_jis', 'cp932')
-        elif charset == b'UNICODE\x00':
-            # Exif refers to 1991 unicode, which predates UTF-8. It
-            # doesn't appear to say which endianness to use.
-            encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
+        elif charset == exiv2.CharsetId.unicode:
+            # Exif refers to 1991 unicode, which predates UTF-8.
+            # Check for BOM.
+            if raw_value[:3] == b'\xef\xbb\xbf':
+                raw_value = raw_value[3:]
+                encodings = ('utf_8',)
+            elif raw_value[:2] == b'\xff\xfe':
+                raw_value = raw_value[2:]
+                encodings = ('utf_16_le',)
+            elif raw_value[:2] == b'\xfe\xff':
+                raw_value = raw_value[2:]
+                encodings = ('utf_16_be',)
+            else:
+                # If no BOM, utf-16 should be bigendian so try that first.
+                encodings = ('utf_16_be', 'utf_16_le', 'utf_8')
         else:
             encodings = ()
-            if charset != b'\x00\x00\x00\x00\x00\x00\x00\x00':
-                logger.warning(
-                    '%s: %s: unknown charset %s', self._name, tag, charset)
+            if charset != exiv2.CharsetId.undefined:
+                logger.warning('%s: %s: unknown charset', self._name, tag)
                 raw_value = data
         for encoding in encodings:
             result = self.decode_string(tag, raw_value, encoding)
             if result:
                 return result
-        encoding = chardet.detect(raw_value)['encoding']
+        detector = chardet.universaldetector.UniversalDetector()
+        for i in range(0, len(raw_value), 100):
+            detector.feed(raw_value[i:i+100])
+            if detector.done:
+                break
+        detector.close()
+        encoding = detector.result['encoding']
         if encoding:
             result = self.decode_string(tag, raw_value, encoding)
             if result:
@@ -296,13 +318,17 @@ class MetadataHandler(object):
             # use Exiv2's "interpreted string"
             return datum._print()
         type_id = datum.typeId()
-        value = datum.value()
-        if tag == 'Exif.Photo.UserComment':
+        if tag in ('Exif.Photo.UserComment',
+                   'Exif.GPSInfo.GPSProcessingMethod'):
+            value = datum.value(exiv2.TypeId.comment)
             return self.get_exif_comment(tag, value)
+        value = datum.value()
         if type_id == exiv2.TypeId.asciiString:
             return value.toString()
         if type_id in (exiv2.TypeId.unsignedByte, exiv2.TypeId.undefined):
-            return self.get_raw_value(value)
+            result = bytearray(value.size())
+            value.copy(result, exiv2.ByteOrder.invalidByteOrder)
+            return result
         if type_id not in (
                 exiv2.TypeId.signedRational, exiv2.TypeId.unsignedRational,
                 exiv2.TypeId.signedShort, exiv2.TypeId.unsignedShort,
@@ -352,11 +378,6 @@ class MetadataHandler(object):
             return dict(value)
         return list(value)
 
-    def get_raw_value(self, datum):
-        result = bytearray(datum.size())
-        datum.copy(result, exiv2.ByteOrder.invalidByteOrder)
-        return result
-
     def get_exif_thumbnails(self):
         # try normal thumbnail
         thumb = exiv2.ExifThumb(self._exifData)
@@ -401,9 +422,12 @@ class MetadataHandler(object):
         key = exiv2.ExifKey(tag)
         type_id = key.defaultTypeId()
         if type_id == exiv2.TypeId.unsignedByte:
-            value = exiv2.DataValue(value)
+            value = exiv2.DataValue(
+                value, exiv2.ByteOrder.invalidByteOrder, type_id)
         elif type_id == exiv2.TypeId.asciiString:
             value = exiv2.AsciiValue(value)
+        elif type_id == exiv2.TypeId.comment:
+            value = exiv2.CommentValue(value)
         elif type_id == exiv2.TypeId.unsignedShort:
             value = exiv2.UShortValue(value)
         elif type_id == exiv2.TypeId.unsignedLong:
@@ -417,8 +441,8 @@ class MetadataHandler(object):
                     [(value.numerator, value.denominator)])
         else:
             # unhandled type, use the string representation
-            logger.warning('%s: %s: writing type %s as string',
-                           self._name, tag, type_id)
+            logger.warning('%s: %s: writing %s type as string',
+                           self._name, tag, exiv2.TypeInfo.typeName(type_id))
         datum = self._exifData[tag]
         datum.setValue(value)
 
@@ -592,6 +616,16 @@ class MetadataHandler(object):
             logger.exception(ex)
             return False
         return True
+
+    def clear_gps(self):
+        for data in self._exifData, self._xmpData:
+            pos = data.begin()
+            while pos != data.end():
+                tag = pos.key().split('.')[2]
+                if tag.startswith('GPS'):
+                    pos = data.erase(pos)
+                else:
+                    next(pos)
 
     def clear_maker_note(self):
         self.clear_exif_tag('Exif.Image.Make')

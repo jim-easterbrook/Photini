@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from fractions import Fraction
 import logging
 import math
+import re
 
 from photini.exiv2 import MetadataHandler
 from photini.pyqt import QtCore, QtGui, qt_version_info, using_pyside
@@ -29,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
-    'MD_Altitude', 'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
-    'MD_DateTime', 'MD_Int', 'MD_LangAlt', 'MD_LatLon', 'MD_LensModel',
+    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
+    'MD_DateTime', 'MD_GPSinfo', 'MD_Int', 'MD_LangAlt', 'MD_LensModel',
     'MD_Location', 'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation',
     'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software', 'MD_String',
     'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
@@ -209,139 +210,6 @@ class MD_Dict(MD_Value, dict):
         return '\n'.join(result)
 
 
-class MD_Coordinate(MD_Dict):
-    # stores latitude or longitude as three fractions and a sign boolean
-    _keys = ('pstv', 'deg', 'min', 'sec')
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if key == 'pstv':
-                continue
-            if not isinstance(value[key], Fraction):
-                value[key] = safe_fraction(value[key] or 0, limit=False)
-        # make degrees and minutes integer (not mandated by Exif, but typical)
-        for hi, lo in (('deg', 'min'), ('min', 'sec')):
-            fraction = value[hi] % 1
-            if fraction:
-                value[lo] += fraction * 60
-                value[hi] -= fraction
-        # make sure minutes and seconds are in range
-        for lo, hi in (('sec', 'min'), ('min', 'deg')):
-            overflow = value[lo] // 60
-            if overflow:
-                value[hi] += overflow
-                value[lo] -= overflow * 60
-        # round off excessively large seconds denominator
-        value['sec'] = value['sec'].limit_denominator(1000000)
-        return value
-
-    @classmethod
-    def from_exif(cls, file_value):
-        value, ref = file_value
-        if isinstance(value, str):
-            value = value.split()
-        pstv = ref in ('N', 'E')
-        return cls((pstv, *value))
-
-    @classmethod
-    def from_xmp(cls, value):
-        ref = value[-1]
-        if ref in ('N', 'E'):
-            pstv = True
-            value = value[:-1]
-        elif ref in ('S', 'W'):
-            pstv = False
-            value = value[:-1]
-        else:
-            logger.info('no direction in XMP GPSCoordinate: %s', value)
-            pstv = True
-        if value[0] in ('+', '-'):
-            logger.info('incorrect use of signed XMP GPSCoordinate: %s', value)
-            value = value[1:]
-            if value[0] == '-':
-                pstv = not pstv
-        return cls((pstv, *value.split(',')))
-
-    def to_xmp(self):
-        numbers = self['deg'], self['min'], self['sec']
-        if all([x.denominator == 1 for x in numbers]):
-            return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
-                    not self['pstv'])
-        degrees = int(self['deg'])
-        minutes = float(((self['deg'] - degrees) * 60) + self['min']
-                        + (self['sec'] / 60))
-        return ('{:d},{:.7f}'.format(degrees, minutes), self['pstv'])
-
-    def __float__(self):
-        result = float(self['deg'] + (self['min'] / 60) + (self['sec'] / 3600))
-        if not self['pstv']:
-            result = -result
-        return result
-
-
-class MD_LatLon(MD_Dict):
-    # simple class to store latitude and longitude
-    _keys = ('lat', 'lon')
-
-    @staticmethod
-    def convert(value):
-        for key in value:
-            if isinstance(value[key], MD_Coordinate):
-                continue
-            if not isinstance(value[key], float):
-                value[key] = float(value[key])
-            pstv = True
-            if value[key] < 0.0:
-                value[key] = -value[key]
-                pstv = False
-            value[key] = MD_Coordinate((pstv, value[key]))
-        return value
-
-    @classmethod
-    def from_ffmpeg(cls, file_value, tag):
-        if file_value:
-            match = re.match(r'([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-            if match:
-                return cls(match.group(1, 2))
-        return None
-
-    @classmethod
-    def from_exiv2(cls, file_value, tag):
-        if not all(file_value):
-            return None
-        if tag.startswith('Exif'):
-            lat = MD_Coordinate.from_exif(file_value[:2])
-            lon = MD_Coordinate.from_exif(file_value[2:])
-        else:
-            lat = MD_Coordinate.from_xmp(file_value[0])
-            lon = MD_Coordinate.from_xmp(file_value[1])
-        return cls((lat, lon))
-
-    def to_exif(self):
-        pstv, degrees, minutes, seconds = self['lat'].to_exif()
-        lat_value = degrees, minutes, seconds
-        lat_ref = 'SN'[pstv]
-        pstv, degrees, minutes, seconds = self['lon'].to_exif()
-        lon_value = degrees, minutes, seconds
-        lon_ref = 'WE'[pstv]
-        return (lat_value, lat_ref, lon_value, lon_ref)
-
-    def to_xmp(self):
-        lat_string, pstv = self['lat'].to_xmp()
-        lat_string += 'SN'[pstv]
-        lon_string, pstv = self['lon'].to_xmp()
-        lon_string += 'WE'[pstv]
-        return (lat_string, lon_string)
-
-    def __str__(self):
-        return '{:.6f}, {:.6f}'.format(float(self['lat']), float(self['lon']))
-
-    def contains(self, this, other):
-        return (abs(float(other['lat']) - float(this['lat'])) < 0.000001
-                and abs(float(other['lon']) - float(this['lon'])) < 0.000001)
-
-
 class MD_DateTime(MD_Dict):
     # store date and time with "precision" to store how much is valid
     # tz_offset is stored in minutes
@@ -368,43 +236,75 @@ class MD_DateTime(MD_Dict):
     def truncate_datetime(cls, date_time, precision):
         return date_time.replace(**dict(cls._replace[:7 - precision]))
 
-    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
+    _tz_re = re.compile(r'(.*?)([+-])(\d{1,2}):?(\d{1,2})$')
+    _subsec_re = re.compile(r'(.*?)\.(\d+)$')
+    _time_re = re.compile(r'(.*?)[T ](\d{1,2}):?(\d{1,2})?:?(\d{1,2})?$')
+    _date_re = re.compile(r'(\d{1,4})[:-]?(\d{1,2})?[:-]?(\d{1,2})?$')
 
     @classmethod
-    def from_ISO_8601(cls, datetime_string):
+    def from_ISO_8601(cls, datetime_string, sub_sec_string=None):
         """Sufficiently general ISO 8601 parser.
 
-        Input must be in "extended" format, i.e. with separators.
         See https://en.wikipedia.org/wiki/ISO_8601
 
         """
         if not datetime_string:
             return None
+        unparsed = datetime_string
+        precision = 7
         # extract time zone
-        tz_idx = datetime_string.find('+', 13)
-        if tz_idx < 0:
-            tz_idx = datetime_string.find('-', 13)
-        if tz_idx >= 0:
-            tz_string = datetime_string[tz_idx:]
-            datetime_string = datetime_string[:tz_idx]
-            tz_offset = int(tz_string[1:3]) * 60
-            if len(tz_string) >= 5:
-                tz_offset += int(tz_string[-2:])
-            if tz_string[0] == '-':
+        match = cls._tz_re.match(unparsed)
+        if match:
+            unparsed, sign, hours, minutes = match.groups()
+            tz_offset = (int(hours) * 60) + int(minutes)
+            if sign == '-':
                 tz_offset = -tz_offset
-        elif datetime_string[-1] == 'Z':
+        elif unparsed[-1] == 'Z':
             tz_offset = 0
-            datetime_string = datetime_string[:-1]
+            unparsed = unparsed[:-1]
         else:
             tz_offset = None
-        # compute precision from string length
-        precision = min((len(datetime_string) - 1) // 3, 7)
-        if precision <= 0:
-            return None
-        # set format according to precision
-        fmt = ''.join(cls._fmt_elements[:precision])
+        # extract sub seconds
+        if not sub_sec_string:
+            match = cls._subsec_re.match(unparsed)
+            if match:
+                unparsed, sub_sec_string = match.groups()
+        if sub_sec_string:
+            microsecond = int((sub_sec_string + '000000')[:6])
+        else:
+            microsecond = 0
+            precision = 6
+        # extract time
+        match = cls._time_re.match(unparsed)
+        if match:
+            groups = match.groups('0')
+            unparsed = groups[0]
+            hour, minute, second = [int(x) for x in groups[1:]]
+            if match.lastindex < 4:
+                precision = 2 + match.lastindex
+        else:
+            hour, minute, second = 0, 0, 0
+            precision = 3
+        # extract date
+        match = cls._date_re.match(unparsed)
+        if match:
+            year, month, day = [int(x) for x in match.groups('1')]
+            if match.lastindex < 3:
+                precision = match.lastindex
+            if day == 0:
+                day = 1
+                precision = 2
+            if month == 0:
+                month = 1
+                precision = 1
+        else:
+            raise ValueError(
+                'Cannot parse datetime "{}"'.format(datetime_string))
         return cls((
-            datetime.strptime(datetime_string, fmt), precision, tz_offset))
+            datetime(year, month, day, hour, minute, second, microsecond),
+            precision, tz_offset))
+
+    _fmt_elements = ('%Y', '-%m', '-%d', 'T%H', ':%M', ':%S', '.%f')
 
     def to_ISO_8601(self, precision=None, time_zone=True):
         if precision is None:
@@ -430,12 +330,26 @@ class MD_DateTime(MD_Dict):
     def from_ffmpeg(cls, file_value, tag):
         return cls.from_ISO_8601(file_value)
 
+    # many quicktime movies use Apple's 1904 timestamp zero point
+    _qt_offset = (datetime(1970, 1, 1) - datetime(1904, 1, 1)).total_seconds()
+
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if tag.startswith('Exif'):
             return cls.from_exif(file_value)
         if tag.startswith('Iptc'):
             return cls.from_iptc(file_value)
+        if tag.startswith('Xmp.video'):
+            try:
+                time_stamp = int(file_value)
+            except Exception:
+                # not an integer timestamp
+                time_stamp = None
+            if time_stamp:
+                # assume date should be in range 1970 to 2034
+                if time_stamp > cls._qt_offset:
+                    time_stamp -= cls._qt_offset
+                return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_ISO_8601(file_value)
 
     # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
@@ -453,20 +367,11 @@ class MD_DateTime(MD_Dict):
         datetime_string, sub_sec_string = file_value
         if not datetime_string:
             return None
-        # standardise separators
-        datetime_string = datetime_string.replace(':', '-', 2)
-        datetime_string = datetime_string.replace(' ', 'T', 1)
         # check for blank values
         while datetime_string[-2:] == '  ':
             datetime_string = datetime_string[:-3]
-        # append sub seconds
-        if len(datetime_string) == 19 and len(file_value) > 1:
-            if sub_sec_string:
-                sub_sec_string = sub_sec_string.strip()
-            if sub_sec_string:
-                datetime_string += '.' + sub_sec_string
         # do conversion
-        return cls.from_ISO_8601(datetime_string)
+        return cls.from_ISO_8601(datetime_string, sub_sec_string=sub_sec_string)
 
     def to_exif(self):
         datetime_string = self.to_ISO_8601(
@@ -486,9 +391,13 @@ class MD_DateTime(MD_Dict):
     @classmethod
     def from_iptc(cls, file_value):
         date_value, time_value = file_value
-        if not isinstance(date_value, dict):
-            # Exiv2 couldn't read malformed date
+        if not date_value:
             return None
+        if isinstance(date_value, str):
+            # Exiv2 couldn't read malformed date, let our parser have a go
+            if isinstance(time_value, str):
+                date_value += 'T' + time_value
+            return cls.from_ISO_8601(date_value)
         if date_value['year'] == 0:
             return None
         precision = 3
@@ -1195,21 +1104,12 @@ class MD_Rational(MD_Value, Fraction):
 
 class MD_Altitude(MD_Rational):
     @classmethod
-    def from_ffmpeg(cls, file_value, tag):
-        if file_value:
-            match = re.match(
-                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)', file_value)
-            if match:
-                return cls(match.group(3))
-        return None
-
-    @classmethod
     def from_exiv2(cls, file_value, tag):
         if not all(file_value):
             return None
         altitude, ref = file_value
         altitude = safe_fraction(altitude)
-        if ref == b'\x01':
+        if ref in (b'\x01', '1'):
             altitude = -altitude
         return cls(altitude)
 
@@ -1220,7 +1120,219 @@ class MD_Altitude(MD_Rational):
             ref = b'\x01'
         else:
             ref = b'\x00'
-        return (altitude, ref)
+        return altitude, ref
+
+    def to_xmp(self):
+        altitude = self
+        if altitude < 0:
+            altitude = -altitude
+            ref = '1'
+        else:
+            ref = '0'
+        return '{}/{}'.format(altitude.numerator, altitude.denominator), ref
+
+
+class MD_Coordinate(MD_Rational):
+    @classmethod
+    def from_exif(cls, value):
+        if not all(value):
+            return None
+        value, ref = value
+        value = [safe_fraction(x, limit=False) for x in value]
+        degrees, minutes, seconds = value
+        degrees += (minutes / 60) + (seconds / 3600)
+        if ref in ('S', 'W'):
+            degrees = -degrees
+        return cls(degrees)
+
+    @classmethod
+    def from_xmp(cls, value):
+        if not value:
+            return None
+        ref = value[-1]
+        if ref in ('N', 'E', 'S', 'W'):
+            negative = ref in ('S', 'W')
+            value = value[:-1]
+        else:
+            logger.warning('no direction in XMP GPSCoordinate: %s', value)
+            negative = False
+        if value[0] in ('+', '-'):
+            logger.warning(
+                'incorrect use of signed XMP GPSCoordinate: %s', value)
+            if value[0] == '-':
+                negative = not negative
+            value = value[1:]
+        value = [safe_fraction(x, limit=False) for x in value.split(',')]
+        degrees, minutes = value[:2]
+        degrees += (minutes / 60)
+        if len(value) > 2:
+            seconds = value[2]
+            degrees += (seconds / 3600)
+        if negative:
+            degrees = -degrees
+        return cls(degrees)
+
+    def to_exif(self):
+        degrees = self
+        pstv = degrees >= 0
+        if not pstv:
+            degrees = -degrees
+        # make degrees and minutes integer (not mandated by Exif, but typical)
+        i = int(degrees)
+        minutes = (degrees - i) * 60
+        degrees = Fraction(i)
+        i = int(minutes)
+        seconds = (minutes - i) * 60
+        minutes = Fraction(i)
+        seconds = seconds.limit_denominator(1000000)
+        return pstv, degrees, minutes, seconds
+
+    def to_xmp(self):
+        pstv, degrees, minutes, seconds = self.to_exif()
+        numbers = degrees, minutes, seconds
+        if all([x.denominator == 1 for x in numbers]):
+            return ('{:d},{:d},{:d}'.format(*[x.numerator for x in numbers]),
+                    pstv)
+        degrees = int(degrees)
+        minutes = float(minutes + (seconds / 60))
+        return '{:d},{:.8f}'.format(degrees, minutes), pstv
+
+    def __str__(self):
+        return '{:.6f}'.format(float(self))
+
+
+class MD_GPSinfo(MD_Dict):
+    # stores GPS information
+    _keys = ('version_id', 'method', 'alt', 'lat', 'lon')
+
+    @staticmethod
+    def convert(value):
+        value['version_id'] = value['version_id'] or b'\x02\x00\x00\x00'
+        if value['alt'] and not isinstance(value['alt'], MD_Altitude):
+            value['alt'] = MD_Altitude(value['alt'])
+        for key in 'lat', 'lon':
+            if not value[key]:
+                value['lat'] = None
+                value['lon'] = None
+                break
+            if not isinstance(value[key], MD_Coordinate):
+                value[key] = MD_Coordinate(value[key])
+        return value
+
+    @classmethod
+    def from_ffmpeg(cls, file_value, tag):
+        if file_value:
+            match = re.match(
+                r'([-+]\d+\.\d+)([-+]\d+\.\d+)([-+]\d+\.\d+)/$', file_value)
+            if match:
+                return cls(zip(('lat', 'lon', 'alt'), match.groups()))
+        return None
+
+    @classmethod
+    def from_exiv2(cls, file_value, tag):
+        if tag.startswith('Xmp.video'):
+            return cls.from_ffmpeg(file_value, tag)
+        version_id = file_value[0]
+        method = MD_UnmergableString.from_exiv2(file_value[1], tag)
+        alt = MD_Altitude.from_exiv2(file_value[2:4], tag)
+        if tag.startswith('Exif'):
+            lat = MD_Coordinate.from_exif(file_value[4:6])
+            lon = MD_Coordinate.from_exif(file_value[6:8])
+        else:
+            if version_id:
+                version_id = bytes([int(x) for x in version_id.split('.')])
+            lat = MD_Coordinate.from_xmp(file_value[4])
+            lon = MD_Coordinate.from_xmp(file_value[5])
+        if not any((alt, lat, lon)):
+            return None
+        return cls((version_id, method, alt, lat, lon))
+
+    def to_exif(self):
+        if self['alt']:
+            altitude, alt_ref = self['alt'].to_exif()
+        else:
+            altitude, alt_ref = None, None
+        if self['lat']:
+            pstv, degrees, minutes, seconds = self['lat'].to_exif()
+            lat_value = degrees, minutes, seconds
+            lat_ref = ('S', 'N')[pstv]
+            pstv, degrees, minutes, seconds = self['lon'].to_exif()
+            lon_value = degrees, minutes, seconds
+            lon_ref = ('W', 'E')[pstv]
+        else:
+            lat_value, lat_ref, lon_value, lon_ref = None, None, None, None
+        if self['method']:
+            method = 'charset=Ascii ' + self['method']
+        else:
+            method = None
+        return (self['version_id'], method,
+                altitude, alt_ref, lat_value, lat_ref, lon_value, lon_ref)
+
+    def to_xmp(self):
+        version_id = '.'.join([str(x) for x in self['version_id']])
+        if self['alt']:
+            altitude, alt_ref = self['alt'].to_xmp()
+        else:
+            altitude, alt_ref = None, None
+        if self['lat']:
+            lat_string, pstv = self['lat'].to_xmp()
+            lat_string += ('S', 'N')[pstv]
+            lon_string, pstv = self['lon'].to_xmp()
+            lon_string += ('W', 'E')[pstv]
+        else:
+            lat_string, lon_string = None, None
+        return (version_id, self['method'],
+                altitude, alt_ref, lat_string, lon_string)
+
+    def merge_item(self, this, other):
+        merged = False
+        ignored = False
+        result = dict(this)
+        if not isinstance(other, MD_GPSinfo):
+            other = MD_GPSinfo(other)
+        # compare coordinates
+        if other['lat']:
+            if not result['lat']:
+                # swap entirely
+                result = dict(other)
+                other = this
+                merged = True
+            elif (abs(float(other['lat']) -
+                      float(result['lat'])) > 0.000001
+                  or abs(float(other['lon']) -
+                         float(result['lon'])) > 0.000001):
+                # lat, lon differs, keep the one with altitude
+                if other['alt'] and not result['alt']:
+                    result = dict(other)
+                    other = this
+                ignored = True
+        # now consider altitude
+        if other['alt'] and not ignored:
+            if not result['alt']:
+                result['alt'] = other['alt']
+                merged = True
+            elif abs(float(other['alt']) - float(result['alt'])) > 0.01:
+                # alt differs, can only keep one of them
+                ignored = True
+        return result, merged, ignored
+
+    def __eq__(self, other):
+        if not isinstance(other, MD_GPSinfo):
+            return super(MD_GPSinfo, self).__eq__(other)
+        if bool(other['alt']) != bool(self['alt']):
+            return False
+        if bool(other['lat']) != bool(self['lat']):
+            return False
+        if self['alt'] and abs(float(other['alt']) -
+                               float(self['alt'])) > 0.001:
+            return False
+        if self['lat'] and abs(float(other['lat']) -
+                               float(self['lat'])) > 0.0000001:
+            return False
+        if self['lon'] and abs(float(other['lon']) -
+                               float(self['lon'])) > 0.0000001:
+            return False
+        return True
 
 
 class MD_Aperture(MD_Rational):

@@ -29,8 +29,8 @@ except ImportError:
 from photini.ffmpeg import FFmpeg
 from photini.metadata import Metadata
 from photini.pyqt import *
-from photini.pyqt import (
-    image_types, qt_version_info, set_symbol_font, video_types)
+from photini.pyqt import (image_types, image_types_lower, qt_version_info,
+                          set_symbol_font, video_types, video_types_lower)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -301,7 +301,7 @@ class Image(QtWidgets.QFrame):
     def show_status(self, changed):
         status = ''
         # set 'geotagged' status
-        if self.metadata.latlong:
+        if self.metadata.gps_info and self.metadata.gps_info['lat']:
             status += chr(0x2690)
         # set 'unsaved' status
         if changed:
@@ -618,6 +618,7 @@ class ImageList(QtWidgets.QWidget):
     @catch_all
     def open_file_list(self, path_list, top_level=True, dir_list=[]):
         last_path = None
+        types = ['.' + x for x in (image_types_lower() + video_types_lower())]
         with Busy():
             for path in path_list:
                 if os.path.basename(path).startswith('.'):
@@ -632,6 +633,9 @@ class ImageList(QtWidgets.QWidget):
                     last_path = self.open_file_list(
                         [os.path.join(path, x) for x in os.listdir(path)],
                         top_level=False, dir_list=dir_list) or last_path
+                elif (not top_level and
+                          os.path.splitext(path)[1].lower() not in types):
+                    pass
                 elif self.open_file(path):
                     last_path = path
         if top_level and last_path:
@@ -817,8 +821,7 @@ class ImageList(QtWidgets.QWidget):
                         'date_taken', 'date_digitised', 'date_modified',
                         'orientation', 'camera_model', 'lens_model',
                         'focal_length', 'focal_length_35', 'aperture',
-                        'latlong', 'altitude',
-                        'location_taken', 'location_shown',
+                        'gps_info', 'location_taken', 'location_shown',
                         'thumbnail'):
                 values = getattr(new_md, key), getattr(old_md, key)
                 if values[0] == values[1]:
