@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2022.11.0\n"
+"Project-Id-Version: Photini 2023.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 12:47+0000\n"
+"POT-Creation-Date: 2023-01-23 08:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,13 +88,13 @@ msgstr ""
 msgid "PyQt options"
 msgstr ""
 
-msgid "The configuration file includes options to select use of PyQt5, PySide2, or PySide6, and use of QtWebKit instead of QtWebEngine. These may be useful if one of these components on your computer is incompatible with Photini. There are so many versions of PyQt that it is impossible to test Photini with every one."
+msgid "The configuration file includes options to select use of PyQt5, PyQt6, PySide2, or PySide6. These may be useful if one of these components on your computer is incompatible with Photini. There are so many versions of PyQt that it is impossible to test Photini with every one."
 msgstr ""
 
 msgid "The default options in the configuration file are in the ``[pyqt]`` section:"
 msgstr ""
 
-msgid "To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PySide2'``, or ``'PySide6'``. To force the use of QtWebKit set the value of ``using_qtwebengine`` to ``False``. You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::"
+msgid "To force use of a particular Qt library set the value of ``qt_lib`` to ``'PyQt5'``, ``'PyQt6'``, ``'PySide2'``, or ``'PySide6'``. (You can also use the ``photini-configure`` command to set this.) You can check which versions Photini is currently using by running it in a command window with the ``--version`` option::"
 msgstr ""
 
 msgid "If your computer has a high resolution screen, or you have poor eyesight, you may find the Photini user interface's text is too small to read comfortably. Setting ``scale_factor`` to a value larger than ``1`` should enlarge Photini. Using non-integer values is possible, but might show artefacts from the scaling."
