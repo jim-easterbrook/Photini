@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -115,9 +115,9 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtSignal(dict)
     _abort_upload = QtSignal()
 
-    def __init__(self, session_factory, upload_list, *args, **kwds):
+    def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
-        self.session_factory = session_factory
+        self.session = session
         self.upload_list = upload_list
 
     @contextmanager
@@ -146,9 +146,8 @@ class UploadWorker(QtCore.QObject):
     @QtSlot()
     @catch_all
     def start(self):
-        session = self.session_factory()
-        session.open_connection()
-        session.upload_progress.connect(self.upload_progress)
+        self.session.open_connection()
+        self.session.upload_progress.connect(self.upload_progress)
         upload_count = 0
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
@@ -161,11 +160,11 @@ class UploadWorker(QtCore.QObject):
                 with self.open_file(image, convert) as (image_type, fileobj):
                     self._abort_upload.connect(
                         fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
-                    error = session.do_upload(
+                    error = self.session.do_upload(
                         fileobj, image_type, image, params)
             except UploadAborted:
                 error = 'UploadAborted'
-                session.close_connection()
+                self.session.close_connection()
             except RuntimeError as ex:
                 error = str(ex)
             except Exception as ex:
@@ -173,7 +172,7 @@ class UploadWorker(QtCore.QObject):
                 error = '{}: {}'.format(type(ex), str(ex))
             self.upload_progress.emit({'busy': False})
             if error:
-                if not session.api:
+                if not self.session.api:
                     break
                 self.retry = None
                 self.upload_error.emit(name, error)
@@ -185,7 +184,7 @@ class UploadWorker(QtCore.QObject):
             else:
                 upload_count += 1
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
-        session.close_connection()
+        self.session.close_connection()
         self.finished.emit()
 
     @QtSlot(bool)
@@ -611,7 +610,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.buttons['connect'].setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(self.session_factory, upload_list)
+        self.upload_worker = UploadWorker(self.session_factory(), upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
         self.upload_worker.upload_error.connect(
