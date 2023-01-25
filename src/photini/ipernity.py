@@ -41,53 +41,32 @@ translate = QtCore.QCoreApplication.translate
 class IpernitySession(UploaderSession):
     name = 'ipernity'
 
-    def open_connection(self):
+    def set_user(self, user_data):
         self.cached_data = {}
-        self.auth_token = self.get_password()
+        self.auth_token = user_data and user_data['auth_token']
         if not self.auth_token:
-            return False
+            self.authorised = False
+            return
         rsp = self.api_call('auth.checkToken')
-        authorised = rsp and rsp['auth']['permissions']['doc'] == 'write'
-        if authorised:
+        self.authorised = rsp and rsp['auth']['permissions']['doc'] == 'write'
+        if self.authorised:
             self.cached_data['user_id'] = rsp['auth']['user']['user_id']
-        self.connection_changed.emit(authorised)
-        return authorised
-
-    def get_frob(self):
-        rsp = self.api_call('auth.getFrob', auth=False)
-        if not rsp:
-            return ''
-        return rsp['auth']['frob']
-
-    def get_auth_url(self, frob):
-        params = {'frob': frob, 'perm_doc': 'write'}
-        params = self.sign_request('', False, params)
-        request = requests.Request(
-            'GET', 'http://www.ipernity.com/apps/authorize', params=params)
-        return request.prepare().url
-
-    def get_access_token(self, frob):
-        if not frob:
-            return
-        rsp = self.api_call('auth.getToken', auth=False, frob=frob)
-        if not rsp:
-            return
-        self.set_password(rsp['auth']['token'])
-        self.open_connection()
 
     def sign_request(self, method, auth, params):
         params = dict(params)
-        params['api_key'] = self.api_key
-        if auth:
+        params['api_key'] = self.client_data['api_key']
+        if auth and self.auth_token:
             params['auth_token'] = self.auth_token
         string = ''
         for key in sorted(params):
             string += key + params[key]
-        string += method + self.api_secret
+        string += method + self.client_data['api_secret']
         params['api_sig'] = hashlib.md5(string.encode('utf-8')).hexdigest()
         return params
 
     def api_call(self, method, post=False, auth=True, **params):
+        if self.timer:
+            self.timer.start()
         if not self.api:
             self.api = requests.session()
         url = 'http://api.ipernity.com/api/' + method
@@ -314,12 +293,48 @@ class LicenceWidget(DropDownSelector):
 
 
 class IpernityUser(UploaderUser):
-    pass
+    name = 'ipernity'
+
+    def __init__(self, *arg, **kw):
+        super(IpernityUser, self).__init__(*arg, **kw)
+        self.user_data['auth_token'] = self.get_password()
+        self.session = self.new_session(parent=self)
+
+    @staticmethod
+    def service_name():
+        return translate('IpernityTab', 'Ipernity')
+
+    def new_session(self, **kw):
+        return IpernitySession(
+            user_data=self.user_data, client_data=self.client_data, **kw)
+
+    def get_frob(self):
+        rsp = self.session.api_call('auth.getFrob', auth=False)
+        if not rsp:
+            return ''
+        return rsp['auth']['frob']
+
+    def get_auth_url(self, frob):
+        params = {'frob': frob, 'perm_doc': 'write'}
+        params = self.session.sign_request('', False, params)
+        request = requests.Request(
+            'GET', 'http://www.ipernity.com/apps/authorize', params=params)
+        return request.prepare().url
+
+    def get_access_token(self, frob):
+        if not frob:
+            return
+        rsp = self.session.api_call('auth.getToken', auth=False, frob=frob)
+        if not rsp:
+            return
+        self.user_data['auth_token'] = rsp['auth']['token']
+        self.set_password(self.user_data['auth_token'])
+        self.session.set_user(self.user_data)
+        self.connection_changed.emit(self.session.authorised)
 
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    session_factory = IpernitySession
     max_size = {'image': 2 ** 30,
                 'video': 2 ** 30}
 
@@ -332,7 +347,6 @@ class TabWidget(PhotiniUploader):
         return translate('IpernityTab', '&Ipernity upload')
 
     def config_columns(self):
-        self.service_name = translate('IpernityTab', 'Ipernity')
         self.replace_prefs = {'metadata': True}
         self.upload_prefs = {}
         ## first column

@@ -44,36 +44,31 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 class UploaderSession(QtCore.QObject):
-    connection_changed = QtSignal(bool)
     upload_progress = QtSignal(dict)
 
-    def __init__(self, *arg, **kwds):
-        super(UploaderSession, self).__init__(*arg, **kwds)
+    def __init__(self, user_data={}, client_data={}, parent=None,
+                 idle_timeout=True):
+        super(UploaderSession, self).__init__(parent=parent)
+        if idle_timeout:
+            # timer to close connection after idling for 60 seconds
+            self.timer = QtCore.QTimer(self)
+            self.timer.setSingleShot(True)
+            self.timer.setInterval(60000)
+            self.timer.timeout.connect(self.close_connection)
+            QtCore.QCoreApplication.instance().aboutToQuit.connect(
+                self.close_connection)
+        else:
+            self.timer = None
+        self.client_data = client_data
         self.api = None
-        # get api client id and secret
-        for option in key_store.config.options(self.name):
-            setattr(self, option, key_store.get(self.name, option))
+        self.set_user(user_data)
 
     @QtSlot()
     @catch_all
-    def log_out(self):
-        keyring.delete_password('photini', self.name)
-        self.close_connection()
-
     def close_connection(self):
-        self.connection_changed.emit(False)
         if self.api:
             self.api.close()
             self.api = None
-
-    def get_password(self):
-        return keyring.get_password('photini', self.name)
-
-    def set_password(self, password):
-        keyring.set_password('photini', self.name, password)
-
-    def get_frob(self):
-        return None
 
 
 class UploadAborted(Exception):
@@ -115,9 +110,9 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtSignal(dict)
     _abort_upload = QtSignal()
 
-    def __init__(self, session, upload_list, *args, **kwds):
+    def __init__(self, new_session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
-        self.session = session
+        self.new_session = new_session
         self.upload_list = upload_list
 
     @contextmanager
@@ -146,8 +141,8 @@ class UploadWorker(QtCore.QObject):
     @QtSlot()
     @catch_all
     def start(self):
-        self.session.open_connection()
-        self.session.upload_progress.connect(self.upload_progress)
+        session = self.new_session(parent=self, idle_timeout=False)
+        session.upload_progress.connect(self.upload_progress)
         upload_count = 0
         while upload_count < len(self.upload_list):
             image, convert, params = self.upload_list[upload_count]
@@ -160,20 +155,19 @@ class UploadWorker(QtCore.QObject):
                 with self.open_file(image, convert) as (image_type, fileobj):
                     self._abort_upload.connect(
                         fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
-                    error = self.session.do_upload(
+                    error = session.do_upload(
                         fileobj, image_type, image, params)
             except UploadAborted:
                 error = 'UploadAborted'
-                self.session.close_connection()
             except RuntimeError as ex:
                 error = str(ex)
             except Exception as ex:
                 logger.exception(ex)
                 error = '{}: {}'.format(type(ex), str(ex))
             self.upload_progress.emit({'busy': False})
-            if error:
-                if not self.session.api:
-                    break
+            if error == 'UploadAborted':
+                break
+            elif error:
                 self.retry = None
                 self.upload_error.emit(name, error)
                 # wait for response from user dialog
@@ -184,7 +178,7 @@ class UploadWorker(QtCore.QObject):
             else:
                 upload_count += 1
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
-        self.session.close_connection()
+        session.close_connection()
         self.finished.emit()
 
     @QtSlot(bool)
@@ -249,6 +243,8 @@ class AuthServer(QtCore.QObject):
 
 
 class UploaderUser(QtWidgets.QGridLayout):
+    connection_changed = QtSignal(bool)
+
     def __init__(self, *arg, **kw):
         super(UploaderUser, self).__init__(*arg, **kw)
         self.setContentsMargins(0, 0, 0, 0)
@@ -271,24 +267,112 @@ class UploaderUser(QtWidgets.QGridLayout):
         self.connect_button = StartStopButton(
             translate('UploaderTabsAll', 'Log in'),
             translate('UploaderTabsAll', 'Log out'))
-##        self.connect_button.click_start.connect(self.log_in)
-##        self.connect_button.click_stop.connect(self.session.log_out)
+        self.connect_button.click_start.connect(self.log_in)
+        self.connect_button.click_stop.connect(self.log_out)
         self.addWidget(self.connect_button, 1, 0)
+        # other init
+        self.client_data = {}
+        if key_store.config.has_section(self.name):
+            for option in key_store.config.options(self.name):
+                self.client_data[option] = key_store.get(self.name, option)
+        self.user_data = {}
 
     def show_user(self, name, picture):
         if name:
             name = name[:10].replace(' ', '\xa0') + name[10:]
             self.user_name.setText(translate(
                 'UploaderTabsAll', 'Logged in as {user} on {service}'
-                ).format(user=name, service=self.service_name))
+                ).format(user=name, service=self.service_name()))
         else:
             self.user_name.setText(translate(
                 'UploaderTabsAll', 'Not logged in to {service}'
-                ).format(service=self.service_name))
+                ).format(service=self.service_name()))
         pixmap = QtGui.QPixmap()
         if picture:
             pixmap.loadFromData(picture)
         self.user_photo.setPixmap(pixmap)
+
+    @QtSlot()
+    @catch_all
+    def log_out(self):
+        if keyring.get_password('photini', self.name):
+            keyring.delete_password('photini', self.name)
+        self.user_data = {}
+        self.session.set_user(self.user_data)
+        self.connection_changed.emit(False)
+
+    @QtSlot()
+    @catch_all
+    def log_in(self, do_auth=True):
+        with DisableWidget(self.connect_button):
+            if self.session.authorised:
+                self.connection_changed.emit(True)
+            elif do_auth:
+                self.authorise()
+
+    def authorise(self):
+        with Busy():
+            # do full authentication procedure
+            frob = self.get_frob()
+            if frob is not None:
+                auth_url = self.get_auth_url(frob)
+                if not auth_url:
+                    self.logger.error('Failed to get auth URL')
+                    return
+            else:
+                # create temporary local web server
+                http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
+                redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
+                auth_url = self.get_auth_url(redirect_uri)
+                if not auth_url:
+                    self.logger.error('Failed to get auth URL')
+                    http_server.server_close()
+                    return
+                server = AuthServer()
+                thread = QtCore.QThread(self)
+                server.moveToThread(thread)
+                server.server = http_server
+                server.response.connect(self.auth_response)
+                thread.started.connect(server.handle_requests)
+                server.finished.connect(thread.quit)
+                server.finished.connect(server.deleteLater)
+                thread.finished.connect(thread.deleteLater)
+                thread.start()
+            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
+                self.logger.error('Failed to open web browser')
+                return
+        if frob is None:
+            # server will call auth_response with a token
+            return
+        # wait for user to authorise in web browser
+        dialog = QtWidgets.QMessageBox(self.parentWidget())
+        dialog.setWindowTitle(
+            translate('UploaderTabsAll', 'Photini: authorise'))
+        dialog.setText('<h3>{}</h3>'.format(translate(
+            'UploaderTabsAll', 'Authorisation required')))
+        dialog.setInformativeText(translate(
+            'UploaderTabsAll', 'Please use your web browser to authorise'
+            ' Photini, and then close this dialog.'))
+        dialog.setIcon(dialog.Icon.Warning)
+        dialog.setStandardButtons(dialog.StandardButton.Ok)
+        execute(dialog)
+        with Busy():
+            self.get_access_token(frob)
+
+    @QtSlot(dict)
+    @catch_all
+    def auth_response(self, result):
+        with Busy():
+            self.get_access_token(result)
+
+    def get_frob(self):
+        return None
+
+    def get_password(self):
+        return keyring.get_password('photini', self.name)
+
+    def set_password(self, password):
+        keyring.set_password('photini', self.name, password)
 
 
 class PhotiniUploader(QtWidgets.QWidget):
@@ -300,18 +384,15 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.app.aboutToQuit.connect(self.shutdown)
         self.logger.debug('using %s', keyring.get_keyring().__module__)
         self.setLayout(QtWidgets.QGridLayout())
-        self.session = self.session_factory()
-        self.session.connection_changed.connect(self.connection_changed)
+        self.session = self.user_widget.session
         self.upload_worker = None
         # dictionary of all widgets with parameter settings
         self.widget = {}
         # dictionary of control buttons
         self.buttons = {}
-        ## first column
-        layout = self.user_widget
-        self.user_widget.connect_button.click_start.connect(self.log_in)
-        self.user_widget.connect_button.click_stop.connect(self.session.log_out)
-        self.layout().addLayout(layout, 0, 0)
+        ## first column is "user" widget
+        self.user_widget.connection_changed.connect(self.connection_changed)
+        self.layout().addLayout(self.user_widget, 0, 0)
         ## middle columns are 'service' specific
         self.config_layouts = []
         column_count = 1
@@ -372,7 +453,6 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.stop_upload()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
-        self.session.close_connection()
 
     @QtSlot(bool)
     @catch_all
@@ -406,7 +486,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def refresh(self):
         if not self.user_widget.connect_button.is_checked():
-            self.log_in(do_auth=False)
+            self.user_widget.log_in(do_auth=False)
         self.enable_upload_button()
 
     def do_not_close(self):
@@ -417,7 +497,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             translate('UploaderTabsAll', 'Photini: upload in progress'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll',  'Upload to {service} has not finished.'
-            ).format(service=self.service_name)))
+            ).format(service=self.user_widget.service_name())))
         dialog.setInformativeText(translate(
             'UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(dialog.Icon.Warning)
@@ -538,7 +618,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             'UploaderTabsAll', 'File "{file_name}" has {size} bytes and exceeds'
             ' {service}\'s limit of {max_size} bytes.').format(
                 file_name=os.path.basename(image.path), size=size,
-                service=self.service_name, max_size=max_size)
+                service=self.user_widget.service_name(), max_size=max_size)
         if resizable:
             text += ' ' + translate(
                 'UploaderTabsAll', 'Would you like to resize it?')
@@ -561,7 +641,8 @@ class PhotiniUploader(QtWidgets.QWidget):
             ' which {service} may not handle correctly. Would you like to'
             ' convert it to JPEG?'
             ).format(file_name=os.path.basename(image.path),
-                     file_type=image.file_type, service=self.service_name))
+                     file_type=image.file_type,
+                     service=self.user_widget.service_name()))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Yes |
                                   dialog.StandardButton.No)
@@ -616,7 +697,8 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_widget.connect_button.setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(self.session_factory(), upload_list)
+        self.upload_worker = UploadWorker(
+            self.user_widget.new_session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
         self.upload_worker.upload_error.connect(
@@ -680,73 +762,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_widget.connect_button.setEnabled(True)
         self.upload_worker = None
         self.enable_upload_button()
-
-    @QtSlot()
-    @catch_all
-    def log_in(self, do_auth=True):
-        with DisableWidget(self.user_widget.connect_button):
-            with Busy():
-                connect = self.session.open_connection()
-            if connect is None:
-                # can't reach server
-                return
-            if do_auth and not connect:
-                self.authorise()
-
-    def authorise(self):
-        with Busy():
-            # do full authentication procedure
-            frob = self.session.get_frob()
-            if frob is not None:
-                auth_url = self.session.get_auth_url(frob)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
-                    return
-            else:
-                # create temporary local web server
-                http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
-                redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
-                auth_url = self.session.get_auth_url(redirect_uri)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
-                    http_server.server_close()
-                    return
-                server = AuthServer()
-                thread = QtCore.QThread(self)
-                server.moveToThread(thread)
-                server.server = http_server
-                server.response.connect(self.auth_response)
-                thread.started.connect(server.handle_requests)
-                server.finished.connect(thread.quit)
-                server.finished.connect(server.deleteLater)
-                thread.finished.connect(thread.deleteLater)
-                thread.start()
-            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
-                self.logger.error('Failed to open web browser')
-                return
-        if not frob:
-            # server will call auth_response with a token
-            return
-        # wait for user to authorise in web browser
-        dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(
-            translate('UploaderTabsAll', 'Photini: authorise'))
-        dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll', 'Authorisation required')))
-        dialog.setInformativeText(translate(
-            'UploaderTabsAll', 'Please use your web browser to authorise'
-            ' Photini, and then close this dialog.'))
-        dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(dialog.StandardButton.Ok)
-        execute(dialog)
-        with Busy():
-            self.session.get_access_token(frob)
-
-    @QtSlot(dict)
-    @catch_all
-    def auth_response(self, result):
-        with Busy():
-            self.session.get_access_token(result)
 
     def new_selection(self, selection):
         self.enable_upload_button(selection=selection)
@@ -833,7 +848,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             'UploaderTabsAll', 'File {file_name} has already been uploaded to'
             ' {service}. How would you like to update it?').format(
                 file_name=os.path.basename(image.path),
-                service=self.service_name))
+                service=self.user_widget.service_name()))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
         replace_options = {}
@@ -933,7 +948,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.layout().addRow(label, Label(translate(
             'UploaderTabsAll',
             'Which image file matches this picture on {service}?').format(
-                service=self.service_name), lines=2))
+                service=self.user_widget.service_name()), lines=2))
         buttons = {}
         frame = QtWidgets.QFrame()
         frame.setLayout(FormLayout())
@@ -976,7 +991,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def uploaded_id(self, keyword):
         ns, predicate, value = self.machine_tag(keyword)
-        if ns == self.session.name and predicate in (
+        if ns == self.user_widget.name and predicate in (
                 'photo_id', 'doc_id', 'id'):
             return value
         return None
@@ -1015,7 +1030,8 @@ class PhotiniUploader(QtWidgets.QWidget):
                     if match:
                         match.metadata.keywords = list(
                             match.metadata.keywords or []) + [
-                                '{}:id={}'.format(self.session.name, photo_id)]
+                                '{}:id={}'.format(self.user_widget.name,
+                                                  photo_id)]
                         photo_ids[photo_id] = match
                         unknowns.remove(match)
             # merge remote metadata into file
@@ -1031,6 +1047,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             if value:
                 old_value = getattr(md, key)
                 if old_value:
-                    value = old_value.merge('{}({})'.format(image.name, key),
-                                            self.service_name, value)
+                    value = old_value.merge(
+                        '{}({})'.format(image.name, key),
+                        self.user_widget.service_name(), value)
                 setattr(md, key, value)

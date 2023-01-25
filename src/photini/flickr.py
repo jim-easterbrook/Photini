@@ -44,56 +44,20 @@ class FlickrSession(UploaderSession):
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 
-    def open_connection(self):
+    def set_user(self, user_data):
         self.cached_data = {}
-        stored_token = self.get_password()
-        if not stored_token:
-            return False
-        token, token_secret = stored_token.split('&')
-        self.auth = requests_oauthlib.OAuth1(
-            client_key=self.api_key, client_secret=self.api_secret,
-            resource_owner_key=token, resource_owner_secret=token_secret)
-        rsp = self.api_call('flickr.auth.oauth.checkToken')
-        if not rsp:
-            return False
-        authorised = rsp['oauth']['perms']['_content'] == 'write'
-        if authorised:
-            self.cached_data['nsid'] = rsp['oauth']['user']['nsid']
-        self.connection_changed.emit(authorised)
-        return authorised
-
-    def get_auth_url(self, redirect_uri):
-        # initialise oauth1 session
-        if self.api:
-            self.api.close()
-        self.api = requests_oauthlib.OAuth1Session(
-            client_key=self.api_key, client_secret=self.api_secret,
-            callback_uri=redirect_uri)
-        try:
-            self.api.fetch_request_token(
-                self.oauth_url + 'request_token', timeout=20)
-            return self.api.authorization_url(
-                self.oauth_url + 'authorize', perms='write')
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
-        return ''
-
-    def get_access_token(self, result):
-        oauth_verifier = str(result['oauth_verifier'][0])
-        try:
-            token = self.api.fetch_access_token(
-                self.oauth_url + 'access_token', verifier=oauth_verifier,
-                timeout=20)
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_connection()
+        if not user_data:
+            self.authorised = False
             return
-        self.set_password(
-            token['oauth_token'] + '&' + token['oauth_token_secret'])
-        self.open_connection()
+        self.auth = requests_oauthlib.OAuth1(**self.client_data, **user_data)
+        rsp = self.api_call('flickr.auth.oauth.checkToken')
+        self.authorised = rsp and rsp['oauth']['perms']['_content'] == 'write'
+        if self.authorised:
+            self.cached_data['nsid'] = rsp['oauth']['user']['nsid']
 
     def api_call(self, method, post=False, auth=True, **params):
+        if self.timer:
+            self.timer.start()
         if not self.api:
             self.api = requests.session()
         params['method'] = method
@@ -103,7 +67,7 @@ class FlickrSession(UploaderSession):
         if auth:
             kwds['auth'] = self.auth
         else:
-            params['api_key'] = self.api_key
+            params['api_key'] = self.client_data['client_key']
         url = 'https://www.flickr.com/services/rest'
         try:
             if post:
@@ -330,12 +294,66 @@ class HiddenWidget(QtWidgets.QCheckBox):
 
 
 class FlickrUser(UploaderUser):
-    pass
+    name = 'flickr'
+    oauth_url  = 'https://www.flickr.com/services/oauth/'
+
+    def __init__(self, *arg, **kw):
+        super(FlickrUser, self).__init__(*arg, **kw)
+        stored_token = self.get_password()
+        if stored_token:
+            token, token_secret = stored_token.split('&')
+            self.user_data['resource_owner_key'] = token
+            self.user_data['resource_owner_secret'] = token_secret
+        self.session = self.new_session(parent=self)
+
+    @staticmethod
+    def service_name():
+        return translate('FlickrTab', 'Flickr')
+
+    def new_session(self, **kw):
+        return FlickrSession(
+            user_data=self.user_data, client_data=self.client_data, **kw)
+
+    def get_auth_url(self, redirect_uri):
+        # initialise oauth1 session
+        self.auth_session = requests_oauthlib.OAuth1Session(
+            callback_uri=redirect_uri, **self.client_data)
+        try:
+            self.auth_session.fetch_request_token(
+                self.oauth_url + 'request_token', timeout=20)
+            return self.auth_session.authorization_url(
+                self.oauth_url + 'authorize', perms='write')
+        except Exception as ex:
+            logger.error(str(ex))
+            self.close_auth_session()
+        return ''
+
+    def get_access_token(self, result):
+        oauth_verifier = str(result['oauth_verifier'][0])
+        try:
+            token = self.auth_session.fetch_access_token(
+                self.oauth_url + 'access_token', verifier=oauth_verifier,
+                timeout=20)
+        except Exception as ex:
+            logger.error(str(ex))
+            self.close_auth_session()
+            return
+        self.set_password(
+            token['oauth_token'] + '&' + token['oauth_token_secret'])
+        self.user_data['resource_owner_key'] = token['oauth_token']
+        self.user_data['resource_owner_secret'] = token['oauth_token_secret']
+        self.close_auth_session()
+        self.session.set_user(self.user_data)
+        self.connection_changed.emit(self.session.authorised)
+
+    def close_auth_session(self):
+        if self.auth_session:
+            self.auth_session.close()
+            self.auth_session = None
 
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    session_factory = FlickrSession
     max_size = {'image': 200 * (2 ** 20),
                 'video': 2 ** 30}
 
@@ -348,7 +366,6 @@ class TabWidget(PhotiniUploader):
         return translate('FlickrTab', '&Flickr upload')
 
     def config_columns(self):
-        self.service_name = translate('FlickrTab', 'Flickr')
         self.replace_prefs = {'metadata': True}
         self.upload_prefs = {}
         ## first column
