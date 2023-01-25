@@ -25,7 +25,7 @@ from requests_oauthlib import OAuth2Session
 
 from photini.pyqt import (
     catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -214,11 +214,19 @@ class GooglePhotosSession(UploaderSession):
         return ''
 
 
+class GooglePhotosUser(UploaderUser):
+    pass
+
+
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = GooglePhotosSession
     max_size = {'image': 200 * (2 ** 20),
                 'video': 10 * (2 ** 30)}
+
+    def __init__(self, *arg, **kw):
+        self.user_widget = GooglePhotosUser()
+        super(TabWidget, self).__init__(*arg, **kw)
 
     @staticmethod
     def tab_name():

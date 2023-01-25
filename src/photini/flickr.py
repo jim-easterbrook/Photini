@@ -29,7 +29,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.types import MD_Location
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
@@ -329,11 +329,19 @@ class HiddenWidget(QtWidgets.QCheckBox):
         return ('1', '2')[self.isChecked()]
 
 
+class FlickrUser(UploaderUser):
+    pass
+
+
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = FlickrSession
     max_size = {'image': 200 * (2 ** 20),
                 'video': 2 ** 30}
+
+    def __init__(self, *arg, **kw):
+        self.user_widget = FlickrUser()
+        super(TabWidget, self).__init__(*arg, **kw)
 
     @staticmethod
     def tab_name():

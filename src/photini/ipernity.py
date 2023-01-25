@@ -28,7 +28,7 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
-from photini.uploader import PhotiniUploader, UploaderSession
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -313,11 +313,19 @@ class LicenceWidget(DropDownSelector):
             default=default, with_multiple=False)
 
 
+class IpernityUser(UploaderUser):
+    pass
+
+
 class TabWidget(PhotiniUploader):
     logger = logger
     session_factory = IpernitySession
     max_size = {'image': 2 ** 30,
                 'video': 2 ** 30}
+
+    def __init__(self, *arg, **kw):
+        self.user_widget = IpernityUser()
+        super(TabWidget, self).__init__(*arg, **kw)
 
     @staticmethod
     def tab_name():

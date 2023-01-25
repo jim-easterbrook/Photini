@@ -248,6 +248,49 @@ class AuthServer(QtCore.QObject):
         self.finished.emit()
 
 
+class UploaderUser(QtWidgets.QGridLayout):
+    def __init__(self, *arg, **kw):
+        super(UploaderUser, self).__init__(*arg, **kw)
+        self.setContentsMargins(0, 0, 0, 0)
+        # user details
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 17))
+        group.setLayout(QtWidgets.QVBoxLayout())
+        self.user_photo = QtWidgets.QLabel()
+        self.user_photo.setAlignment(
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
+        group.layout().addWidget(self.user_photo)
+        self.user_name = QtWidgets.QLabel()
+        self.user_name.setWordWrap(True)
+        self.user_name.setMinimumWidth(10)
+        group.layout().addWidget(self.user_name)
+        group.layout().addStretch(1)
+        self.addWidget(group, 0, 0)
+        self.setRowStretch(0, 1)
+        # connect / disconnect button
+        self.connect_button = StartStopButton(
+            translate('UploaderTabsAll', 'Log in'),
+            translate('UploaderTabsAll', 'Log out'))
+##        self.connect_button.click_start.connect(self.log_in)
+##        self.connect_button.click_stop.connect(self.session.log_out)
+        self.addWidget(self.connect_button, 1, 0)
+
+    def show_user(self, name, picture):
+        if name:
+            name = name[:10].replace(' ', '\xa0') + name[10:]
+            self.user_name.setText(translate(
+                'UploaderTabsAll', 'Logged in as {user} on {service}'
+                ).format(user=name, service=self.service_name))
+        else:
+            self.user_name.setText(translate(
+                'UploaderTabsAll', 'Not logged in to {service}'
+                ).format(service=self.service_name))
+        pixmap = QtGui.QPixmap()
+        if picture:
+            pixmap.loadFromData(picture)
+        self.user_photo.setPixmap(pixmap)
+
+
 class PhotiniUploader(QtWidgets.QWidget):
     abort_upload = QtSignal(bool)
 
@@ -265,32 +308,10 @@ class PhotiniUploader(QtWidgets.QWidget):
         # dictionary of control buttons
         self.buttons = {}
         ## first column
-        layout = QtWidgets.QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout = self.user_widget
+        self.user_widget.connect_button.click_start.connect(self.log_in)
+        self.user_widget.connect_button.click_stop.connect(self.session.log_out)
         self.layout().addLayout(layout, 0, 0)
-        # user details
-        self.user = {}
-        group = QtWidgets.QGroupBox()
-        group.setMinimumWidth(width_for_text(group, 'x' * 17))
-        group.setLayout(QtWidgets.QVBoxLayout())
-        self.user_photo = QtWidgets.QLabel()
-        self.user_photo.setAlignment(
-            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
-        group.layout().addWidget(self.user_photo)
-        self.user_name = QtWidgets.QLabel()
-        self.user_name.setWordWrap(True)
-        self.user_name.setMinimumWidth(10)
-        group.layout().addWidget(self.user_name)
-        group.layout().addStretch(1)
-        layout.addWidget(group, 0, 0)
-        layout.setRowStretch(0, 1)
-        # connect / disconnect button
-        self.buttons['connect'] = StartStopButton(
-            translate('UploaderTabsAll', 'Log in'),
-            translate('UploaderTabsAll', 'Log out'))
-        self.buttons['connect'].click_start.connect(self.log_in)
-        self.buttons['connect'].click_stop.connect(self.session.log_out)
-        layout.addWidget(self.buttons['connect'], 1, 0)
         ## middle columns are 'service' specific
         self.config_layouts = []
         column_count = 1
@@ -359,17 +380,17 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.clear_albums()
         if connected:
             with Busy():
-                self.show_user(*self.session.get_user())
+                self.user_widget.show_user(*self.session.get_user())
                 self.app.processEvents()
                 for album in self.session.get_albums():
                     self.add_album(album)
                     self.app.processEvents()
                 self.finalise_config()
         else:
-            self.show_user(None, None)
-        self.buttons['connect'].set_checked(connected)
+            self.user_widget.show_user(None, None)
+        self.user_widget.connect_button.set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
-        self.buttons['connect'].setEnabled(not self.upload_worker)
+        self.user_widget.connect_button.setEnabled(not self.upload_worker)
         self.enable_upload_button()
 
     def finalise_config(self):
@@ -384,7 +405,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     widget.setEnabled(enabled)
 
     def refresh(self):
-        if not self.buttons['connect'].is_checked():
+        if not self.user_widget.connect_button.is_checked():
             self.log_in(do_auth=False)
         self.enable_upload_button()
 
@@ -405,21 +426,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setDefaultButton(dialog.StandardButton.Cancel)
         result = execute(dialog)
         return result == dialog.StandardButton.Cancel
-
-    def show_user(self, name, picture):
-        if name:
-            name = name[:10].replace(' ', '\xa0') + name[10:]
-            self.user_name.setText(translate(
-                'UploaderTabsAll', 'Logged in as {user} on {service}'
-                ).format(user=name, service=self.service_name))
-        else:
-            self.user_name.setText(translate(
-                'UploaderTabsAll', 'Not logged in to {service}'
-                ).format(service=self.service_name))
-        pixmap = QtGui.QPixmap()
-        if picture:
-            pixmap.loadFromData(picture)
-        self.user_photo.setPixmap(pixmap)
 
     def convert_to_jpeg(self, image):
         file_type = image.file_type
@@ -607,7 +613,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         self.buttons['upload'].set_checked(True)
         self.enable_config(False)
-        self.buttons['connect'].setEnabled(False)
+        self.user_widget.connect_button.setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
         self.upload_worker = UploadWorker(self.session_factory(), upload_list)
@@ -671,14 +677,14 @@ class PhotiniUploader(QtWidgets.QWidget):
     def uploader_finished(self):
         self.buttons['upload'].set_checked(False)
         self.enable_config(True)
-        self.buttons['connect'].setEnabled(True)
+        self.user_widget.connect_button.setEnabled(True)
         self.upload_worker = None
         self.enable_upload_button()
 
     @QtSlot()
     @catch_all
     def log_in(self, do_auth=True):
-        with DisableWidget(self.buttons['connect']):
+        with DisableWidget(self.user_widget.connect_button):
             with Busy():
                 connect = self.session.open_connection()
             if connect is None:
@@ -750,7 +756,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # can always cancel upload in progress
             self.buttons['upload'].setEnabled(True)
             return
-        if not self.buttons['connect'].is_checked():
+        if not self.user_widget.connect_button.is_checked():
             # can't upload if not logged in
             self.buttons['upload'].setEnabled(False)
             return
@@ -759,7 +765,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.buttons['upload'].setEnabled(len(selection) > 0)
         if 'sync' in self.buttons:
             self.buttons['sync'].setEnabled(
-                len(selection) > 0 and self.buttons['connect'].is_checked())
+                len(selection) > 0 and self.user_widget.connect_button.is_checked())
 
     def get_upload_params(self, image):
         # get user preferences for this upload
