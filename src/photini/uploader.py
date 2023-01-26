@@ -450,17 +450,18 @@ class PhotiniUploader(QtWidgets.QWidget):
     @catch_all
     def connection_changed(self, connected):
         self.clear_albums()
+        self.user_widget.show_user(None, None)
         if connected:
             with Busy():
                 with self.user_widget.session(parent=self) as session:
-                    self.user_widget.show_user(*session.get_user())
-                    self.app.processEvents()
-                    for album in session.get_albums():
-                        self.add_album(album)
+                    connected = session.authorised
+                    if connected:
+                        self.user_widget.show_user(*session.get_user())
                         self.app.processEvents()
-                    self.finalise_config(session)
-        else:
-            self.user_widget.show_user(None, None)
+                        for album in session.get_albums():
+                            self.add_album(album)
+                            self.app.processEvents()
+                        self.finalise_config(session)
         self.user_widget.connect_button.set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
         self.user_widget.connect_button.setEnabled(not self.upload_worker)
