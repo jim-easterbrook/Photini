@@ -41,22 +41,29 @@ translate = QtCore.QCoreApplication.translate
 class IpernitySession(UploaderSession):
     name = 'ipernity'
 
-    def set_user(self, user_data):
-        self.cached_data = {}
-        self.auth_token = user_data and user_data['auth_token']
-        if not self.auth_token:
-            self.authorised = False
-            return
+    def authorised(self):
         rsp = self.api_call('auth.checkToken')
-        self.authorised = rsp and rsp['auth']['permissions']['doc'] == 'write'
-        if self.authorised:
-            self.cached_data['user_id'] = rsp['auth']['user']['user_id']
+        if not rsp:
+            return False
+        self._userid = rsp['auth']['user']['user_id']
+        return rsp['auth']['permissions']['doc'] == 'write'
+
+    def user_id(self):
+        self.open_connection()
+        if not self._userid:
+            self.authorised()
+        return self._userid
+
+    def open_connection(self):
+        if not self.api:
+            self._userid = None
+            self.api = requests.session()
 
     def sign_request(self, method, auth, params):
         params = dict(params)
         params['api_key'] = self.client_data['api_key']
-        if auth and self.auth_token:
-            params['auth_token'] = self.auth_token
+        if auth:
+            params['auth_token'] = self.user_data['auth_token']
         string = ''
         for key in sorted(params):
             string += key + params[key]
@@ -65,8 +72,7 @@ class IpernitySession(UploaderSession):
         return params
 
     def api_call(self, method, post=False, auth=True, **params):
-        if not self.api:
-            self.api = requests.session()
+        self.open_connection()
         url = 'http://api.ipernity.com/api/' + method
         params = self.sign_request(method, auth, params)
         try:
@@ -88,15 +94,12 @@ class IpernitySession(UploaderSession):
         return rsp
 
     def get_user(self):
-        if 'user' in self.cached_data:
-            return self.cached_data['user']
         name, picture = None, None
         # get user info
-        rsp = self.api_call(
-            'user.get', auth=False, user_id=self.cached_data['user_id'])
+        rsp = self.api_call('user.get', auth=False, user_id=self.user_id())
         if not rsp:
             return name, picture
-        self.cached_data['is_pro'] = rsp['user']['is_pro']
+        self.user_data['is_pro'] = rsp['user']['is_pro']
         name = rsp['user']['username']
         icon_url = rsp['user']['icon']
         # get icon
@@ -105,13 +108,9 @@ class IpernitySession(UploaderSession):
             picture = rsp.content
         else:
             logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
-        self.cached_data['user'] = name, picture
-        return self.cached_data['user']
+        return name, picture
 
     def get_albums(self):
-        if 'albums' in self.cached_data:
-            return self.cached_data['albums']
-        self.cached_data['albums'] = []
         page = 1
         while True:
             # get list of album ids
@@ -130,7 +129,6 @@ class IpernitySession(UploaderSession):
                     'description': rsp['album']['description'],
                     'album_id': rsp['album']['album_id'],
                     }
-                self.cached_data['albums'].append(details)
                 yield details
             if int(albums['page']) >= int(albums['pages']):
                 break
@@ -139,7 +137,7 @@ class IpernitySession(UploaderSession):
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
         params = {
-            'user_id': self.cached_data['user_id'],
+            'user_id': self.user_id(),
             'media': 'photo,video',
             'created_min': min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
             'created_max': max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -164,6 +162,7 @@ class IpernitySession(UploaderSession):
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
+        self.open_connection()
         doc_id = params['doc_id']
         if params['function']:
             # upload or replace photo
@@ -428,7 +427,7 @@ class TabWidget(PhotiniUploader):
             if key in self.widget:
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
-        if session.cached_data['is_pro'] == '0':
+        if session.user_data['is_pro'] == '0':
             # guest user can upload 2.5 MB photos and no videos
             self.max_size = {'image': (2 ** 20) * 5 // 2,
                              'video': 0}

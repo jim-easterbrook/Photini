@@ -48,9 +48,9 @@ class UploaderSession(QtCore.QObject):
 
     def __init__(self, user_data={}, client_data={}, parent=None):
         super(UploaderSession, self).__init__(parent=parent)
+        self.user_data = user_data
         self.client_data = client_data
         self.api = None
-        self.set_user(user_data)
 
     def close_connection(self):
         if self.api:
@@ -454,7 +454,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if connected:
             with Busy():
                 with self.user_widget.session(parent=self) as session:
-                    connected = session.authorised
+                    connected = session.authorised()
                     if connected:
                         self.user_widget.show_user(*session.get_user())
                         self.app.processEvents()

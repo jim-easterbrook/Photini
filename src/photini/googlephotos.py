@@ -24,7 +24,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.pyqt import (
-    catch_all, execute, QtCore, QtSlot, QtWidgets, width_for_text)
+    catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 
 logger = logging.getLogger(__name__)
@@ -33,26 +33,26 @@ translate = QtCore.QCoreApplication.translate
 # Google Photos API: https://developers.google.com/photos/library/reference/rest
 
 class GooglePhotosSession(UploaderSession):
+    new_token = QtSignal(dict)
     name       = 'googlephotos'
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
 
-    def open_connection(self):
-        self.api = OAuth2Session(
-            client_id=self.client_data['client_id'], token=self.user_data)
-        if self.user_data['expires_in'] < 600:
-            # refresh token
-            self.user_data = self.api.refresh_token(
-                self.oauth_url + 'v4/token', **self.client_data)
-
-    def set_user(self, user_data):
-        self.close_connection()
-        self.user_data = user_data
-        if not self.user_data:
-            self.authorised = False
-            return
+    def authorised(self):
         self.open_connection()
-        self.authorised = self.api.authorized
+        return self.api.authorized
+
+    def open_connection(self):
+        if self.api:
+            return
+        self.api = OAuth2Session(
+            client_id=self.client_data['client_id'], token=self.user_data,
+            auto_refresh_url=self.oauth_url + 'v4/token',
+            auto_refresh_kwargs=self.client_data, token_updater=self.save_token)
+
+    def save_token(self, token):
+        self.user_data = token
+        self.new_token.emit(token)
 
     def api_call(self, url, post=False, **params):
         if not self.api:
@@ -106,6 +106,8 @@ class GooglePhotosSession(UploaderSession):
             self.photos_url + 'v1/albums', json=body, timeout=5, post=True)
 
     def do_upload(self, fileobj, image_type, image, params):
+        if not self.api:
+            self.open_connection()
         # see https://developers.google.com/photos/library/guides/upload-media
         # 1/ initiate a resumable upload session (to do file in chunks)
         headers = {
@@ -172,16 +174,12 @@ class GooglePhotosUser(UploaderUser):
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 
     def load_user_data(self):
-        stored_token = self.get_password()
-        if not stored_token:
+        refresh_token = self.get_password()
+        if not refresh_token:
             return False
         # create an expired token
-        if '&' in stored_token:
-            access_token, refresh_token = stored_token.split('&')
-        else:
-            access_token, refresh_token = 'xxx', stored_token
         self.user_data = {
-            'access_token' : access_token,
+            'access_token' : 'xxx',
             'refresh_token': refresh_token,
             'expires_in'   : -30,
             }
@@ -192,8 +190,10 @@ class GooglePhotosUser(UploaderUser):
         return translate('GooglePhotosTab', 'Google Photos')
 
     def new_session(self, **kw):
-        return GooglePhotosSession(
+        session = GooglePhotosSession(
             user_data=self.user_data, client_data=self.client_data, **kw)
+        session.new_token.connect(self.new_token)
+        return session
 
     def get_auth_url(self, redirect_uri):
         code_verifier = ''
@@ -227,10 +227,14 @@ class GooglePhotosUser(UploaderUser):
         if 'access_token' not in rsp:
             logger.info('No access token received')
             return
-        self.user_data = rsp
-        self.set_password(self.user_data['access_token'] + '&' +
-                          self.user_data['refresh_token'])
+        self.new_token(rsp)
         self.connection_changed.emit(True)
+
+    @QtSlot(dict)
+    @catch_all
+    def new_token(self, token):
+        self.user_data = token
+        self.set_password(self.user_data['refresh_token'])
 
 
 class TabWidget(PhotiniUploader):

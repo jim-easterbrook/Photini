@@ -44,20 +44,28 @@ class FlickrSession(UploaderSession):
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 
-    def set_user(self, user_data):
-        self.cached_data = {}
-        if not user_data:
-            self.authorised = False
-            return
-        self.auth = requests_oauthlib.OAuth1(**self.client_data, **user_data)
+    def authorised(self):
         rsp = self.api_call('flickr.auth.oauth.checkToken')
-        self.authorised = rsp and rsp['oauth']['perms']['_content'] == 'write'
-        if self.authorised:
-            self.cached_data['nsid'] = rsp['oauth']['user']['nsid']
+        if not rsp:
+            return False
+        self._nsid = rsp['oauth']['user']['nsid']
+        return rsp['oauth']['perms']['_content'] == 'write'
+
+    def user_id(self):
+        self.open_connection()
+        if not self._nsid:
+            self.authorised()
+        return self._nsid
+
+    def open_connection(self):
+        if not self.api:
+            self._nsid = None
+            self.auth = requests_oauthlib.OAuth1(
+                **self.client_data, **self.user_data)
+            self.api = requests.session()
 
     def api_call(self, method, post=False, auth=True, **params):
-        if not self.api:
-            self.api = requests.session()
+        self.open_connection()
         params['method'] = method
         params['format'] = 'json'
         params['nojsoncallback'] = '1'
@@ -86,20 +94,19 @@ class FlickrSession(UploaderSession):
         return rsp
 
     def get_user(self):
-        if 'user' in self.cached_data:
-            return self.cached_data['user']
         name, picture = None, None
-        # get nsid of logged in user
-        nsid = self.cached_data['nsid']
+        # get user_id of logged in user
+        user_id = self.user_id()
         # get user info
-        rsp = self.api_call('flickr.people.getInfo', auth=False, user_id=nsid)
+        rsp = self.api_call(
+            'flickr.people.getInfo', auth=False, user_id=user_id)
         if not rsp:
             return name, picture
         person = rsp['person']
         name = person['realname']['_content']
         if person['iconserver'] != '0':
             icon_url = 'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
-                person['iconfarm'], person['iconserver'], nsid)
+                person['iconfarm'], person['iconserver'], user_id)
         else:
             icon_url = 'https://www.flickr.com/images/buddyicon.gif'
         # get icon
@@ -108,18 +115,14 @@ class FlickrSession(UploaderSession):
             picture = rsp.content
         else:
             logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
-        self.cached_data['user'] = name, picture
-        return self.cached_data['user']
+        return name, picture
 
     def get_albums(self):
-        if 'albums' in self.cached_data:
-            return self.cached_data['albums']
-        self.cached_data['albums'] = []
+        user_id = self.user_id()
         page = 1
         while True:
             rsp = self.api_call(
-                'flickr.photosets.getList', auth=False,
-                user_id=self.cached_data['nsid'],
+                'flickr.photosets.getList', auth=False, user_id=user_id,
                 page=str(page), per_page='10')
             if not rsp:
                 break
@@ -129,7 +132,6 @@ class FlickrSession(UploaderSession):
                     'description': album['description']['_content'],
                     'photoset_id': album['id'],
                     }
-                self.cached_data['albums'].append(details)
                 yield details
             if rsp['photosets']['page'] == rsp['photosets']['pages']:
                 break
@@ -137,11 +139,11 @@ class FlickrSession(UploaderSession):
 
     def find_photos(self, min_taken_date, max_taken_date):
         # search Flickr
+        user_id = self.user_id()
         page = 1
         while True:
             rsp = self.api_call(
-                'flickr.people.getPhotos',
-                user_id=self.cached_data['nsid'],
+                'flickr.people.getPhotos', user_id=user_id,
                 page=page, extras='date_taken,url_t',
                 min_taken_date=min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
                 max_taken_date=max_taken_date.strftime('%Y-%m-%d %H:%M:%S'))
@@ -158,6 +160,7 @@ class FlickrSession(UploaderSession):
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
+        self.open_connection()
         photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
