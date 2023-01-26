@@ -50,7 +50,7 @@ class GooglePhotosSession(UploaderSession):
     def set_user(self, user_data):
         self.close_connection()
         self.user_data = user_data
-        if not (self.user_data and self.user_data['refresh_token']):
+        if not self.user_data:
             self.authorised = False
             return
         self.open_connection()
@@ -177,12 +177,18 @@ class GooglePhotosUser(UploaderUser):
 
     def __init__(self, *arg, **kw):
         super(GooglePhotosUser, self).__init__(*arg, **kw)
-        # create an expired token
-        self.user_data = {
-            'access_token' : 'xxx',
-            'refresh_token': self.get_password(),
-            'expires_in'   : -30,
-            }
+        stored_token = self.get_password()
+        if stored_token:
+            # create an expired token
+            if '&' in stored_token:
+                access_token, refresh_token = stored_token.split('&')
+            else:
+                access_token, refresh_token = 'xxx', stored_token
+            self.user_data = {
+                'access_token' : access_token,
+                'refresh_token': refresh_token,
+                'expires_in'   : -30,
+                }
         self.session = self.new_session(parent=self)
 
     @staticmethod
@@ -226,7 +232,8 @@ class GooglePhotosUser(UploaderUser):
             logger.info('No access token received')
             return
         self.user_data = rsp
-        self.set_password(self.user_data['refresh_token'])
+        self.set_password(self.user_data['access_token'] + '&' +
+                          self.user_data['refresh_token'])
         self.session.set_user(self.user_data)
         self.connection_changed.emit(True)
 
