@@ -65,8 +65,6 @@ class IpernitySession(UploaderSession):
         return params
 
     def api_call(self, method, post=False, auth=True, **params):
-        if self.timer:
-            self.timer.start()
         if not self.api:
             self.api = requests.session()
         url = 'http://api.ipernity.com/api/' + method
@@ -295,10 +293,12 @@ class LicenceWidget(DropDownSelector):
 class IpernityUser(UploaderUser):
     name = 'ipernity'
 
-    def __init__(self, *arg, **kw):
-        super(IpernityUser, self).__init__(*arg, **kw)
-        self.user_data['auth_token'] = self.get_password()
-        self.session = self.new_session(parent=self)
+    def load_user_data(self):
+        stored_token = self.get_password()
+        if not stored_token:
+            return False
+        self.user_data['auth_token'] = stored_token
+        return True
 
     @staticmethod
     def service_name():
@@ -309,14 +309,16 @@ class IpernityUser(UploaderUser):
             user_data=self.user_data, client_data=self.client_data, **kw)
 
     def get_frob(self):
-        rsp = self.session.api_call('auth.getFrob', auth=False)
+        with self.session(parent=self) as session:
+            rsp = session.api_call('auth.getFrob', auth=False)
         if not rsp:
             return ''
         return rsp['auth']['frob']
 
     def get_auth_url(self, frob):
         params = {'frob': frob, 'perm_doc': 'write'}
-        params = self.session.sign_request('', False, params)
+        with self.session(parent=self) as session:
+            params = session.sign_request('', False, params)
         request = requests.Request(
             'GET', 'http://www.ipernity.com/apps/authorize', params=params)
         return request.prepare().url
@@ -324,13 +326,13 @@ class IpernityUser(UploaderUser):
     def get_access_token(self, frob):
         if not frob:
             return
-        rsp = self.session.api_call('auth.getToken', auth=False, frob=frob)
+        with self.session(parent=self) as session:
+            rsp = session.api_call('auth.getToken', auth=False, frob=frob)
         if not rsp:
             return
         self.user_data['auth_token'] = rsp['auth']['token']
         self.set_password(self.user_data['auth_token'])
-        self.session.set_user(self.user_data)
-        self.connection_changed.emit(self.session.authorised)
+        self.connection_changed.emit(True)
 
 
 class TabWidget(PhotiniUploader):
@@ -419,14 +421,14 @@ class TabWidget(PhotiniUploader):
     def new_value(self, key, value):
         self.app.config_store.set('ipernity', key, value)
 
-    def finalise_config(self):
+    def finalise_config(self, session):
         if not self.app.config_store.has_section('ipernity'):
             return
         for key in self.app.config_store.config.options('ipernity'):
             if key in self.widget:
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
-        if self.session.cached_data['is_pro'] == '0':
+        if session.cached_data['is_pro'] == '0':
             # guest user can upload 2.5 MB photos and no videos
             self.max_size = {'image': (2 ** 20) * 5 // 2,
                              'video': 0}
@@ -517,8 +519,8 @@ class TabWidget(PhotiniUploader):
             ('albums', translate('IpernityTab', 'Change album membership'))
             ), replace=False)
 
-    def merge_metadata(self, doc_id, image):
-        rsp = self.session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+    def merge_metadata(self, session, doc_id, image):
+        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
         if not rsp:
             return
         photo = rsp['doc']
@@ -569,7 +571,8 @@ class TabWidget(PhotiniUploader):
             }
         if not params['title']:
             return
-        rsp = self.session.api_call('album.create', post=True, **params)
+        with self.session(parent=self) as session:
+            rsp = session.api_call('album.create', post=True, **params)
         if not rsp:
             return
         widget = self.add_album(

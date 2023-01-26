@@ -38,8 +38,6 @@ class GooglePhotosSession(UploaderSession):
     photos_url = 'https://photoslibrary.googleapis.com/'
 
     def open_connection(self):
-        if self.timer:
-            self.timer.start()
         self.api = OAuth2Session(
             client_id=self.client_data['client_id'], token=self.user_data)
         if self.user_data['expires_in'] < 600:
@@ -57,8 +55,6 @@ class GooglePhotosSession(UploaderSession):
         self.authorised = self.api.authorized
 
     def api_call(self, url, post=False, **params):
-        if self.timer:
-            self.timer.start()
         if not self.api:
             self.open_connection()
         if post:
@@ -175,21 +171,21 @@ class GooglePhotosUser(UploaderUser):
     name       = 'googlephotos'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 
-    def __init__(self, *arg, **kw):
-        super(GooglePhotosUser, self).__init__(*arg, **kw)
+    def load_user_data(self):
         stored_token = self.get_password()
-        if stored_token:
-            # create an expired token
-            if '&' in stored_token:
-                access_token, refresh_token = stored_token.split('&')
-            else:
-                access_token, refresh_token = 'xxx', stored_token
-            self.user_data = {
-                'access_token' : access_token,
-                'refresh_token': refresh_token,
-                'expires_in'   : -30,
-                }
-        self.session = self.new_session(parent=self)
+        if not stored_token:
+            return False
+        # create an expired token
+        if '&' in stored_token:
+            access_token, refresh_token = stored_token.split('&')
+        else:
+            access_token, refresh_token = 'xxx', stored_token
+        self.user_data = {
+            'access_token' : access_token,
+            'refresh_token': refresh_token,
+            'expires_in'   : -30,
+            }
+        return True
 
     @staticmethod
     def service_name():
@@ -234,7 +230,6 @@ class GooglePhotosUser(UploaderUser):
         self.user_data = rsp
         self.set_password(self.user_data['access_token'] + '&' +
                           self.user_data['refresh_token'])
-        self.session.set_user(self.user_data)
         self.connection_changed.emit(True)
 
 
@@ -350,7 +345,8 @@ class TabWidget(PhotiniUploader):
             translate('GooglePhotosTab', 'Please enter a title for the album'))
         if not OK or not title:
             return
-        album = self.session.new_album(title)
+        with self.session(parent=self) as session:
+            album = session.new_album(title)
         if not album:
             return
         widget = self.add_album(album, index=0)

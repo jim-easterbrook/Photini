@@ -56,8 +56,6 @@ class FlickrSession(UploaderSession):
             self.cached_data['nsid'] = rsp['oauth']['user']['nsid']
 
     def api_call(self, method, post=False, auth=True, **params):
-        if self.timer:
-            self.timer.start()
         if not self.api:
             self.api = requests.session()
         params['method'] = method
@@ -297,14 +295,14 @@ class FlickrUser(UploaderUser):
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 
-    def __init__(self, *arg, **kw):
-        super(FlickrUser, self).__init__(*arg, **kw)
+    def load_user_data(self):
         stored_token = self.get_password()
-        if stored_token:
-            token, token_secret = stored_token.split('&')
-            self.user_data['resource_owner_key'] = token
-            self.user_data['resource_owner_secret'] = token_secret
-        self.session = self.new_session(parent=self)
+        if not stored_token:
+            return False
+        token, token_secret = stored_token.split('&')
+        self.user_data['resource_owner_key'] = token
+        self.user_data['resource_owner_secret'] = token_secret
+        return True
 
     @staticmethod
     def service_name():
@@ -343,8 +341,7 @@ class FlickrUser(UploaderUser):
         self.user_data['resource_owner_key'] = token['oauth_token']
         self.user_data['resource_owner_secret'] = token['oauth_token_secret']
         self.close_auth_session()
-        self.session.set_user(self.user_data)
-        self.connection_changed.emit(self.session.authorised)
+        self.connection_changed.emit(True)
 
     def close_auth_session(self):
         if self.auth_session:
@@ -505,9 +502,9 @@ class TabWidget(PhotiniUploader):
     def accepted_image_type(self, file_type):
         return file_type in ('image/gif', 'image/jpeg', 'image/png')
 
-    def finalise_config(self):
+    def finalise_config(self, session):
         # get licences
-        rsp = self.session.api_call(
+        rsp = session.api_call(
             'flickr.photos.licenses.getInfo', auth=False)
         if not rsp:
             return
@@ -526,7 +523,7 @@ class TabWidget(PhotiniUploader):
                 ('hidden', 'flickr.prefs.getHidden'),
                 ('content_type', 'flickr.prefs.getContentType'),
                 ):
-            rsp = self.session.api_call(function)
+            rsp = session.api_call(function)
             if not rsp:
                 return
             self.widget[key].set_value(str(rsp['person'][key]))
@@ -586,8 +583,8 @@ class TabWidget(PhotiniUploader):
         'City':          ('neighbourhood', 'locality'),
         }
 
-    def merge_metadata(self, photo_id, image):
-        rsp = self.session.api_call(
+    def merge_metadata(self, session, photo_id, image):
+        rsp = session.api_call(
             'flickr.photos.getInfo', photo_id=photo_id)
         if not rsp:
             return

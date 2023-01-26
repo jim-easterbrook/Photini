@@ -46,25 +46,12 @@ translate = QtCore.QCoreApplication.translate
 class UploaderSession(QtCore.QObject):
     upload_progress = QtSignal(dict)
 
-    def __init__(self, user_data={}, client_data={}, parent=None,
-                 idle_timeout=True):
+    def __init__(self, user_data={}, client_data={}, parent=None):
         super(UploaderSession, self).__init__(parent=parent)
-        if idle_timeout:
-            # timer to close connection after idling for 60 seconds
-            self.timer = QtCore.QTimer(self)
-            self.timer.setSingleShot(True)
-            self.timer.setInterval(60000)
-            self.timer.timeout.connect(self.close_connection)
-            QtCore.QCoreApplication.instance().aboutToQuit.connect(
-                self.close_connection)
-        else:
-            self.timer = None
         self.client_data = client_data
         self.api = None
         self.set_user(user_data)
 
-    @QtSlot()
-    @catch_all
     def close_connection(self):
         if self.api:
             self.api.close()
@@ -110,9 +97,9 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtSignal(dict)
     _abort_upload = QtSignal()
 
-    def __init__(self, new_session, upload_list, *args, **kwds):
+    def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
-        self.new_session = new_session
+        self.session = session
         self.upload_list = upload_list
 
     @contextmanager
@@ -141,44 +128,43 @@ class UploadWorker(QtCore.QObject):
     @QtSlot()
     @catch_all
     def start(self):
-        session = self.new_session(parent=self, idle_timeout=False)
-        session.upload_progress.connect(self.upload_progress)
-        upload_count = 0
-        while upload_count < len(self.upload_list):
-            image, convert, params = self.upload_list[upload_count]
-            name = os.path.basename(image.path)
-            self.upload_progress.emit({
-                'label': '{} ({}/{})'.format(
-                     name, 1 + upload_count, len(self.upload_list)),
-                })
-            try:
-                with self.open_file(image, convert) as (image_type, fileobj):
-                    self._abort_upload.connect(
-                        fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
-                    error = session.do_upload(
-                        fileobj, image_type, image, params)
-            except UploadAborted:
-                error = 'UploadAborted'
-            except RuntimeError as ex:
-                error = str(ex)
-            except Exception as ex:
-                logger.exception(ex)
-                error = '{}: {}'.format(type(ex), str(ex))
-            self.upload_progress.emit({'busy': False})
-            if error == 'UploadAborted':
-                break
-            elif error:
-                self.retry = None
-                self.upload_error.emit(name, error)
-                # wait for response from user dialog
-                while self.retry is None:
-                    QtWidgets.QApplication.processEvents()
-                if not self.retry:
+        with self.session(parent=self) as session:
+            session.upload_progress.connect(self.upload_progress)
+            upload_count = 0
+            while upload_count < len(self.upload_list):
+                image, convert, params = self.upload_list[upload_count]
+                name = os.path.basename(image.path)
+                self.upload_progress.emit({
+                    'label': '{} ({}/{})'.format(
+                         name, 1 + upload_count, len(self.upload_list)),
+                    })
+                try:
+                    with self.open_file(image, convert) as (image_type, fileobj):
+                        self._abort_upload.connect(
+                            fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+                        error = session.do_upload(
+                            fileobj, image_type, image, params)
+                except UploadAborted:
+                    error = 'UploadAborted'
+                except RuntimeError as ex:
+                    error = str(ex)
+                except Exception as ex:
+                    logger.exception(ex)
+                    error = '{}: {}'.format(type(ex), str(ex))
+                self.upload_progress.emit({'busy': False})
+                if error == 'UploadAborted':
                     break
-            else:
-                upload_count += 1
+                elif error:
+                    self.retry = None
+                    self.upload_error.emit(name, error)
+                    # wait for response from user dialog
+                    while self.retry is None:
+                        QtWidgets.QApplication.processEvents()
+                    if not self.retry:
+                        break
+                else:
+                    upload_count += 1
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
-        session.close_connection()
         self.finished.emit()
 
     @QtSlot(bool)
@@ -277,6 +263,14 @@ class UploaderUser(QtWidgets.QGridLayout):
                 self.client_data[option] = key_store.get(self.name, option)
         self.user_data = {}
 
+    @contextmanager
+    def session(self, **kw):
+        try:
+            session = self.new_session(**kw)
+            yield session
+        finally:
+            session.close_connection()
+
     def show_user(self, name, picture):
         if name:
             name = name[:10].replace(' ', '\xa0') + name[10:]
@@ -298,14 +292,13 @@ class UploaderUser(QtWidgets.QGridLayout):
         if keyring.get_password('photini', self.name):
             keyring.delete_password('photini', self.name)
         self.user_data = {}
-        self.session.set_user(self.user_data)
         self.connection_changed.emit(False)
 
     @QtSlot()
     @catch_all
     def log_in(self, do_auth=True):
         with DisableWidget(self.connect_button):
-            if self.session.authorised:
+            if self.load_user_data():
                 self.connection_changed.emit(True)
             elif do_auth:
                 self.authorise()
@@ -384,7 +377,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.app.aboutToQuit.connect(self.shutdown)
         self.logger.debug('using %s', keyring.get_keyring().__module__)
         self.setLayout(QtWidgets.QGridLayout())
-        self.session = self.user_widget.session
         self.upload_worker = None
         # dictionary of all widgets with parameter settings
         self.widget = {}
@@ -460,12 +452,13 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.clear_albums()
         if connected:
             with Busy():
-                self.user_widget.show_user(*self.session.get_user())
-                self.app.processEvents()
-                for album in self.session.get_albums():
-                    self.add_album(album)
+                with self.user_widget.session(parent=self) as session:
+                    self.user_widget.show_user(*session.get_user())
                     self.app.processEvents()
-                self.finalise_config()
+                    for album in session.get_albums():
+                        self.add_album(album)
+                        self.app.processEvents()
+                    self.finalise_config(session)
         else:
             self.user_widget.show_user(None, None)
         self.user_widget.connect_button.set_checked(connected)
@@ -473,7 +466,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_widget.connect_button.setEnabled(not self.upload_worker)
         self.enable_upload_button()
 
-    def finalise_config(self):
+    def finalise_config(self, session):
         # allow derived class to make any changes that require a connection
         pass
 
@@ -697,8 +690,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_widget.connect_button.setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(
-            self.user_widget.new_session, upload_list)
+        self.upload_worker = UploadWorker(self.user_widget.session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
         self.upload_worker.upload_error.connect(
@@ -1011,32 +1003,33 @@ class PhotiniUploader(QtWidgets.QWidget):
                         break
                 else:
                     unknowns.append(image)
-            if unknowns:
-                # get date range of photos without an id
-                search_min, search_max = datetime.max, datetime.min
-                for image in unknowns:
-                    if not image.metadata.date_taken:
-                        continue
-                    min_taken_date, max_taken_date = self.date_range(image)
-                    search_min = min(search_min, min_taken_date)
-                    search_max = max(search_max, max_taken_date)
-                # search remote service
-                for photo_id, date_taken, icon_url in self.session.find_photos(
-                        search_min, search_max):
-                    if photo_id in photo_ids:
-                        continue
-                    # find local image that matches remote date & icon
-                    match = self.find_local(unknowns, date_taken, icon_url)
-                    if match:
-                        match.metadata.keywords = list(
-                            match.metadata.keywords or []) + [
-                                '{}:id={}'.format(self.user_widget.name,
-                                                  photo_id)]
-                        photo_ids[photo_id] = match
-                        unknowns.remove(match)
-            # merge remote metadata into file
-            for photo_id, image in photo_ids.items():
-                self.merge_metadata(photo_id, image)
+            with self.user_widget.session(parent=self) as session:
+                if unknowns:
+                    # get date range of photos without an id
+                    search_min, search_max = datetime.max, datetime.min
+                    for image in unknowns:
+                        if not image.metadata.date_taken:
+                            continue
+                        min_taken_date, max_taken_date = self.date_range(image)
+                        search_min = min(search_min, min_taken_date)
+                        search_max = max(search_max, max_taken_date)
+                    # search remote service
+                    for photo_id, date_taken, icon_url in session.find_photos(
+                            search_min, search_max):
+                        if photo_id in photo_ids:
+                            continue
+                        # find local image that matches remote date & icon
+                        match = self.find_local(unknowns, date_taken, icon_url)
+                        if match:
+                            match.metadata.keywords = list(
+                                match.metadata.keywords or []) + [
+                                    '{}:id={}'.format(self.user_widget.name,
+                                                      photo_id)]
+                            photo_ids[photo_id] = match
+                            unknowns.remove(match)
+                # merge remote metadata into file
+                for photo_id, image in photo_ids.items():
+                    self.merge_metadata(session, photo_id, image)
 
     def merge_metadata_items(self, image, data):
         md = image.metadata
