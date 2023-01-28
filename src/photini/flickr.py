@@ -52,7 +52,6 @@ class FlickrSession(UploaderSession):
         return rsp['oauth']['perms']['_content'] == 'write'
 
     def user_id(self):
-        self.open_connection()
         if not self._nsid:
             self.authorised()
         return self._nsid
@@ -160,7 +159,6 @@ class FlickrSession(UploaderSession):
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
-        self.open_connection()
         photo_id = params['photo_id']
         if params['function']:
             # upload or replace photo
@@ -444,6 +442,8 @@ class TabWidget(PhotiniUploader):
         button.clicked.connect(self.new_set)
         column.addWidget(button, 2, 0)
         yield column
+        ## last column is list of albums
+        yield self.album_list()
 
     def get_fixed_params(self):
         albums = []

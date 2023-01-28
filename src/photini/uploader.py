@@ -22,6 +22,7 @@ from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import io
 import logging
+import math
 import os
 import re
 import threading
@@ -51,6 +52,7 @@ class UploaderSession(QtCore.QObject):
         self.user_data = user_data
         self.client_data = client_data
         self.api = None
+        self.open_connection()
 
     def close_connection(self):
         if self.api:
@@ -284,6 +286,10 @@ class UploaderUser(QtWidgets.QGridLayout):
         pixmap = QtGui.QPixmap()
         if picture:
             pixmap.loadFromData(picture)
+            max_width = self.user_photo.frameRect().width()
+            if pixmap.width() > max_width:
+                pixmap = pixmap.scaledToWidth(
+                    max_width, Qt.TransformationMode.SmoothTransformation)
         self.user_photo.setPixmap(pixmap)
 
     @QtSlot()
@@ -385,36 +391,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         ## first column is "user" widget
         self.user_widget.connection_changed.connect(self.connection_changed)
         self.layout().addLayout(self.user_widget, 0, 0)
-        ## middle columns are 'service' specific
+        ## remaining columns are 'service' specific
         self.config_layouts = []
         column_count = 1
         for layout in self.config_columns():
             self.config_layouts.append(layout)
             self.layout().addLayout(layout, 0, column_count)
             column_count += 1
-        ## last column is list of albums
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
-        group = QtWidgets.QGroupBox()
-        group.setLayout(QtWidgets.QVBoxLayout())
-        # list of albums widget
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('UploaderTabsAll', 'Add to albums')))
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
-        self.widget['albums'] = QtWidgets.QWidget()
-        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
-        self.widget['albums'].layout().setSpacing(0)
-        self.widget['albums'].layout().setSizeConstraint(
-            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
-        scrollarea.setWidget(self.widget['albums'])
-        self.widget['albums'].setAutoFillBackground(False)
-        group.layout().addWidget(scrollarea)
-        column.addWidget(group, 0, 0)
-        self.config_layouts.append(column)
-        self.layout().addLayout(column, 0, column_count)
-        column_count += 1
+        self.layout().setColumnStretch(column_count - 1, 1)
         ## bottom row
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -438,6 +422,28 @@ class PhotiniUploader(QtWidgets.QWidget):
         # initialise as not connected
         self.connection_changed(False)
 
+    def album_list(self):
+        # list of albums widget
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        group = QtWidgets.QGroupBox()
+        group.setLayout(QtWidgets.QVBoxLayout())
+        group.layout().addWidget(QtWidgets.QLabel(
+            translate('UploaderTabsAll', 'Add to albums')))
+        scrollarea = QtWidgets.QScrollArea()
+        scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
+        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
+        self.widget['albums'] = QtWidgets.QWidget()
+        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
+        self.widget['albums'].layout().setSpacing(0)
+        self.widget['albums'].layout().setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
+        scrollarea.setWidget(self.widget['albums'])
+        self.widget['albums'].setAutoFillBackground(False)
+        group.layout().addWidget(scrollarea)
+        column.addWidget(group, 0, 0)
+        return column
+
     @QtSlot()
     @catch_all
     def shutdown(self):
@@ -449,7 +455,8 @@ class PhotiniUploader(QtWidgets.QWidget):
     @QtSlot(bool)
     @catch_all
     def connection_changed(self, connected):
-        self.clear_albums()
+        if 'albums' in self.widget:
+            self.clear_albums()
         self.user_widget.show_user(None, None)
         if connected:
             with Busy():
@@ -538,12 +545,13 @@ class PhotiniUploader(QtWidgets.QWidget):
                     'save data: {}'.format(writer.errorString()))
             src_data = buf.data().data()
             file_type = 'image/jpeg'
+        # may need to resize image
+        max_pixels = 20000 ** 2
+        if 'image_pixels' in self.max_size:
+            max_pixels = self.max_size['image_pixels']
         # copy metadata
         src_data = image.metadata.clone(src_data)
         exiv_io = src_data.io()
-        if exiv_io.size() < self.max_size['image']:
-            # no resizing needed
-            return src_data, file_type
         exiv_io.open()
         data = exiv_io.mmap()
         if PIL:
@@ -558,9 +566,16 @@ class PhotiniUploader(QtWidgets.QWidget):
         exiv_io.munmap()
         exiv_io.close()
         # scale image
-        for scale in (1000, 680, 470, 330, 220, 150,
-                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
+        scales = (1000, 680, 470, 330, 220, 150,
+                  100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1)
+        shrink = int(math.sqrt(float(w * h) / float(max_pixels)))
+        if shrink > 1.0:
+            scales = [int(x / shrink) for x in scales]
+        for scale in scales:
             if scale == 1000:
+                if src_data.io().size() < self.max_size['image']:
+                    # no resizing needed
+                    return src_data, file_type
                 im = src_im
             elif PIL:
                 im = src_im.resize((w * scale // 1000, h * scale // 1000),

@@ -49,7 +49,6 @@ class IpernitySession(UploaderSession):
         return rsp['auth']['permissions']['doc'] == 'write'
 
     def user_id(self):
-        self.open_connection()
         if not self._userid:
             self.authorised()
         return self._userid
@@ -162,7 +161,6 @@ class IpernitySession(UploaderSession):
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
-        self.open_connection()
         doc_id = params['doc_id']
         if params['function']:
             # upload or replace photo
@@ -414,6 +412,8 @@ class TabWidget(PhotiniUploader):
         column.addWidget(new_album_button, 2, 1)
         column.setRowStretch(0, 1)
         yield column
+        ## last column is list of albums
+        yield self.album_list()
 
     @QtSlot(str, object)
     @catch_all

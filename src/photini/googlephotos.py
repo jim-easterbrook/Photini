@@ -39,7 +39,6 @@ class GooglePhotosSession(UploaderSession):
     photos_url = 'https://photoslibrary.googleapis.com/'
 
     def authorised(self):
-        self.open_connection()
         return self.api.authorized
 
     def open_connection(self):
@@ -55,8 +54,7 @@ class GooglePhotosSession(UploaderSession):
         self.new_token.emit(token)
 
     def api_call(self, url, post=False, **params):
-        if not self.api:
-            self.open_connection()
+        self.open_connection()
         if post:
             return self.check_response(self.api.post(url, **params))
         return self.check_response(self.api.get(url, **params))
@@ -106,8 +104,6 @@ class GooglePhotosSession(UploaderSession):
             self.photos_url + 'v1/albums', json=body, timeout=5, post=True)
 
     def do_upload(self, fileobj, image_type, image, params):
-        if not self.api:
-            self.open_connection()
         # see https://developers.google.com/photos/library/guides/upload-media
         # 1/ initiate a resumable upload session (to do file in chunks)
         headers = {
@@ -264,6 +260,8 @@ class TabWidget(PhotiniUploader):
         column.addWidget(new_set_button, 1, 0)
         column.setRowStretch(0, 1)
         yield column
+        ## last column is list of albums
+        yield self.album_list()
 
     def clear_albums(self):
         for child in self.widget['albums'].children():
