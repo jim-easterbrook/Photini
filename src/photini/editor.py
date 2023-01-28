@@ -400,7 +400,8 @@ class MainWindow(QtWidgets.QMainWindow):
                            'photini.googlemap',    'photini.bingmap',
                            'photini.mapboxmap',    'photini.address',
                            'photini.flickr',       'photini.ipernity',
-                           'photini.googlephotos', 'photini.importer']
+                           'photini.googlephotos', 'photini.pixelfed',
+                           'photini.importer']
         self.modules = self.app.config_store.get(
             'tabs', 'modules', default_modules)
         if 'photini.openstreetmap' in self.modules:
