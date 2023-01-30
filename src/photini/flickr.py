@@ -289,6 +289,7 @@ class HiddenWidget(QtWidgets.QCheckBox):
 
 
 class FlickrUser(UploaderUser):
+    logger = logger
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 

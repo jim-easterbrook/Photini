@@ -284,6 +284,7 @@ class LicenceWidget(DropDownSelector):
 
 
 class IpernityUser(UploaderUser):
+    logger = logger
     name = 'ipernity'
 
     def load_user_data(self):

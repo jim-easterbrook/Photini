@@ -165,6 +165,7 @@ class GooglePhotosSession(UploaderSession):
 
 
 class GooglePhotosUser(UploaderUser):
+    logger = logger
     name       = 'googlephotos'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 

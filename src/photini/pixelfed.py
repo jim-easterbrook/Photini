@@ -35,7 +35,6 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 # Pixelfed API: https://docs.pixelfed.org/technical-documentation/api/
-# Mastodon.py docs: https://mastodonpy.readthedocs.io/
 
 
 class PixelfedSession(UploaderSession):
@@ -69,13 +68,11 @@ class PixelfedSession(UploaderSession):
         return self.check_response(self.api.get(url, **params))
 
     @staticmethod
-    def check_response(rsp, decode=True):
+    def check_response(rsp):
         if rsp.status_code != 200:
             logger.error('HTTP error %d', rsp.status_code)
             return (None, {})[decode]
-        if decode:
-            return rsp.json()
-        return rsp
+        return rsp.json()
 
     def get_user(self):
         name, picture = None, None
@@ -186,6 +183,7 @@ class ChooseInstance(QtWidgets.QDialog):
 
 
 class PixelfedUser(UploaderUser):
+    logger = logger
     name       = 'pixelfed'
     scopes     = ['read', 'write']
 
@@ -283,36 +281,31 @@ class PixelfedUser(UploaderUser):
         return True
 
     def get_auth_url(self, redirect_uri):
-        self.redirect_uri = redirect_uri
-        params = {
-            'client_id': self.client_data['client_id'],
-            'scope': ' '.join(self.scopes),
-            'redirect_uri': redirect_uri,
-            'response_type': 'code',
-            'force_login': False,
-            }
-        request = requests.Request(
-            url=self.client_data['api_base_url'] + '/oauth/authorize',
-            params=params)
-        return request.prepare().url
+        self.auth_session = OAuth2Session(
+            self.client_data['client_id'], redirect_uri=redirect_uri,
+            scope=self.scopes)
+        authorization_url, state = self.auth_session.authorization_url(
+            self.client_data['api_base_url'] + '/oauth/authorize')
+        return authorization_url
 
     def get_access_token(self, result):
-        data = {
-            'client_id': self.client_data['client_id'],
-            'client_secret': self.client_data['client_secret'],
-            'scope': ' '.join(self.scopes),
-            'redirect_uri': self.redirect_uri,
-            'code': result['code'][0],
-            'grant_type': 'authorization_code',
-            }
-        rsp = PixelfedSession.check_response(requests.post(
+        # often get more scopes than asked for, which upsets requests_oauthlib
+        os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+        token = self.auth_session.fetch_token(
             self.client_data['api_base_url'] + '/oauth/token',
-            data=data, timeout=20))
-        if 'access_token' not in rsp:
+            client_secret=self.client_data['client_secret'],
+            code=result['code'][0])
+        self.close_auth_session()
+        if 'access_token' not in token:
             logger.info('No access token received')
             return
-        self.new_token(rsp)
+        self.new_token(token)
         self.connection_changed.emit(True)
+
+    def close_auth_session(self):
+        if self.auth_session:
+            self.auth_session.close()
+            self.auth_session = None
 
     @QtSlot(dict)
     @catch_all
