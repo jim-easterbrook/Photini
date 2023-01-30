@@ -45,6 +45,7 @@ translate = QtCore.QCoreApplication.translate
 
 class UploaderSession(QtCore.QObject):
     upload_progress = QtSignal(dict)
+    new_token = QtSignal(dict)
 
     def __init__(self, user_data={}, client_data={}, parent=None):
         super(UploaderSession, self).__init__(parent=parent)

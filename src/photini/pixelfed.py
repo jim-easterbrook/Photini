@@ -20,9 +20,8 @@ import logging
 import math
 import os
 
-from mastodon import Mastodon
-from mastodon.errors import MastodonNetworkError
 import requests
+from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.configstore import BaseConfigStore, key_store
@@ -30,7 +29,7 @@ from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import (
     PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
-from photini.widgets import DropDownSelector, MultiLineEdit
+from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -39,45 +38,48 @@ translate = QtCore.QCoreApplication.translate
 # Mastodon.py docs: https://mastodonpy.readthedocs.io/
 
 
-class Session(requests.Session):
-    def __init__(self, *args, call_back=None, **kw):
-        super(Session, self).__init__(*args, **kw)
-        self._call_back = call_back
-
-    def request(self, *args, data=None, headers=None, files=None, **kw):
-        if files:
-            # replace data and files with a mult-part encoder
-            data.update(files)
-            data = MultipartEncoder(fields=data)
-            if self._call_back:
-                data = MultipartEncoderMonitor(data, self._call_back)
-            files = None
-            headers['Content-Type'] = data.content_type
-        return super(Session, self).request(
-            *args, data=data, headers=headers, **kw)
-
-
 class PixelfedSession(UploaderSession):
     name = 'pixelfed'
 
     def authorised(self):
-        return True
+        return self.api.authorized
 
     def open_connection(self):
         if self.api:
             return
-        self.session = Session(call_back=self.progress)
-        self.api = Mastodon(
-            session=self.session, **self.client_data, **self.user_data)
+        auto_refresh_kwargs = {
+            'client_id': self.client_data['client_id'],
+            'client_secret': self.client_data['client_secret'],
+            }
+        self.api = OAuth2Session(
+            client_id=self.client_data['client_id'], token=self.user_data,
+            auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
+            auto_refresh_kwargs=auto_refresh_kwargs,
+            token_updater=self.save_token)
 
-    def close_connection(self):
-        if self.api:
-            self.session.close()
-            self.api = None
+    def save_token(self, token):
+        self.user_data = token
+        self.new_token.emit(token)
+
+    def api_call(self, endpoint, post=False, **params):
+        self.open_connection()
+        url = self.client_data['api_base_url'] + endpoint
+        if post:
+            return self.check_response(self.api.post(url, **params))
+        return self.check_response(self.api.get(url, **params))
+
+    @staticmethod
+    def check_response(rsp, decode=True):
+        if rsp.status_code != 200:
+            logger.error('HTTP error %d', rsp.status_code)
+            return (None, {})[decode]
+        if decode:
+            return rsp.json()
+        return rsp
 
     def get_user(self):
         name, picture = None, None
-        account = self.api.account_verify_credentials()
+        account = self.api_call('/api/v1/accounts/verify_credentials')
         name = account['display_name']
         # get icon
         icon_url = account['avatar_static']
@@ -94,16 +96,18 @@ class PixelfedSession(UploaderSession):
 
     def do_upload(self, fileobj, image_type, image, params):
         self.upload_progress.emit({'busy': False})
-        try:
-            media = self.api.media_post(
-                fileobj, mime_type=image_type, **params['media'])
-        except MastodonNetworkError as ex:
-            if isinstance(ex.__context__, UploadAborted):
-                raise ex.__context__
-            raise
+        fields = dict(params['media'])
+        fields['file'] = (params['file_name'], fileobj, image_type)
+        data = MultipartEncoderMonitor(
+            MultipartEncoder(fields=fields), self.progress)
+        rsp = self.api_call('/api/v1/media', post=True, data=data,
+                            headers={'Content-Type': data.content_type})
+        if not rsp:
+            return ''
         self.upload_progress.emit({'busy': True})
-        status = self.api.status_post(
-            params['status'], media_ids=[media], **params['options'])
+        data = dict(params['status'])
+        data['media_ids[]'] = [rsp['id']]
+        self.api_call('/api/v1/statuses', post=True, data=data)
         return ''
 
 
@@ -176,7 +180,7 @@ class ChooseInstance(QtWidgets.QDialog):
         for button in self.buttons:
             if button.isChecked():
                 if button == self.buttons[-1]:
-                    return self.other_text.text()
+                    return self.other_text.text().strip().strip('/')
                 return button.text()
         return None
 
@@ -216,10 +220,10 @@ class PixelfedUser(UploaderUser):
             return False
         self.client_data = self.instance_data[self.instance]
         # get user access token
-        access_token = self.get_password()
-        if not access_token:
+        token = self.get_password()
+        if not token:
             return False
-        self.user_data['access_token'] = access_token
+        self.user_data = eval(token)
         return True
 
     def service_name(self):
@@ -231,6 +235,7 @@ class PixelfedUser(UploaderUser):
     def new_session(self, **kw):
         session = PixelfedSession(
             user_data=self.user_data, client_data=self.client_data, **kw)
+        session.new_token.connect(self.new_token)
         return session
 
     def authorise(self):
@@ -251,43 +256,69 @@ class PixelfedUser(UploaderUser):
             self.client_data = self.instance_data[instance]
             return True
         # create new registration
-        instance_data = {'api_base_url': 'https://' + instance}
         api_base_url = 'https://' + instance
-        try:
-            client_id, client_secret = Mastodon.create_app(
-                'Photini', scopes=self.scopes,
-                redirect_uris='http://127.0.0.1',
-                website='https://photini.readthedocs.io/',
-                api_base_url=instance_data['api_base_url'])
-        except MastodonNetworkError as ex:
-            # user probably mistyped instance url
-            logger.error(str(ex))
+        data = {
+            'client_name': 'Photini',
+            'scopes': ' '.join(self.scopes),
+            'redirect_uris': 'http://127.0.0.1',
+            'website': 'https://photini.readthedocs.io/',
+            }
+        rsp = PixelfedSession.check_response(requests.post(
+            api_base_url + '/api/v1/apps', data=data, timeout=20))
+        if not rsp:
             return False
+        client_id = rsp['client_id']
+        client_secret = rsp['client_secret']
         # store result
         self.local_config.set(instance, 'client_id', client_id)
         self.local_config.set(instance, 'client_secret', client_secret)
         self.local_config.save()
-        instance_data['client_id'] = client_id
-        instance_data['client_secret'] = client_secret
+        self.client_data = {
+            'api_base_url': api_base_url,
+            'client_id': client_id,
+            'client_secret': client_secret,
+            }
         self.instances.append(instance)
-        self.instance_data[instance] = instance_data
-        self.client_data = instance_data
+        self.instance_data[instance] = self.client_data
         return True
 
     def get_auth_url(self, redirect_uri):
         self.redirect_uri = redirect_uri
-        with self.session(parent=self) as session:
-            return session.api.auth_request_url(
-                scopes=self.scopes, redirect_uris=redirect_uri)
+        params = {
+            'client_id': self.client_data['client_id'],
+            'scope': ' '.join(self.scopes),
+            'redirect_uri': redirect_uri,
+            'response_type': 'code',
+            'force_login': False,
+            }
+        request = requests.Request(
+            url=self.client_data['api_base_url'] + '/oauth/authorize',
+            params=params)
+        return request.prepare().url
 
     def get_access_token(self, result):
-        with self.session(parent=self) as session:
-            access_token = session.api.log_in(
-                code=result['code'][0], redirect_uri=self.redirect_uri,
-                scopes=self.scopes)
-        self.user_data['access_token'] = access_token
-        self.set_password(access_token)
+        data = {
+            'client_id': self.client_data['client_id'],
+            'client_secret': self.client_data['client_secret'],
+            'scope': ' '.join(self.scopes),
+            'redirect_uri': self.redirect_uri,
+            'code': result['code'][0],
+            'grant_type': 'authorization_code',
+            }
+        rsp = PixelfedSession.check_response(requests.post(
+            self.client_data['api_base_url'] + '/oauth/token',
+            data=data, timeout=20))
+        if 'access_token' not in rsp:
+            logger.info('No access token received')
+            return
+        self.new_token(rsp)
         self.connection_changed.emit(True)
+
+    @QtSlot(dict)
+    @catch_all
+    def new_token(self, token):
+        self.user_data = token
+        self.set_password(repr(self.user_data))
 
 
 class TabWidget(PhotiniUploader):
@@ -313,8 +344,7 @@ class TabWidget(PhotiniUploader):
             'visibility', values = (
                 (translate('PixelfedTab', 'Public'), 'public'),
                 (translate('PixelfedTab', 'Followers only'), 'private'),
-                (translate('PixelfedTab', 'Mentioned only'), 'direct'),
-                (translate('PixelfedTab', 'Hidden from timeline'), 'unlisted')),
+                (translate('PixelfedTab', 'Unlisted'), 'unlisted')),
             default='public', with_multiple=False)
         group.layout().addRow(translate('PixelfedTab', 'Post visibility'),
                               self.widget['visibility'])
@@ -328,20 +358,18 @@ class TabWidget(PhotiniUploader):
         yield QtWidgets.QGridLayout()
 
     def accepted_image_type(self, file_type):
-        return file_type in self.instance_config['media_attachments'][
-            'supported_mime_types']
+        return file_type in self.instance_config[
+            'configuration']['media_attachments']['supported_mime_types']
 
     def finalise_config(self, session):
-        self.instance_config = session.api.instance()['configuration']
+        self.instance_config = session.api_call('/api/v1/instance')
+        if not self.instance_config:
+            return
+        media = self.instance_config['configuration']['media_attachments']
         self.max_size = {
-            'image': self.instance_config['media_attachments'][
-                'image_size_limit'],
-            'image_pixels': self.instance_config['media_attachments'][
-                'image_matrix_limit'],
-            'video': self.instance_config['media_attachments'][
-                'video_size_limit'],
-            'video_pixels': self.instance_config['media_attachments'][
-                'video_matrix_limit'],
+            'image': media['image_size_limit'],
+            'image_pixels': media['image_matrix_limit'],
+            'video': media['video_size_limit'],
             }
 
     def get_conversion_function(self, image, params):
@@ -367,16 +395,16 @@ class TabWidget(PhotiniUploader):
             image = self.resize_image(image, w, h)
         # convert mime type
         mime_type = image['mime_type']
-        if mime_type not in self.instance_config['media_attachments'][
-                'supported_mime_types']:
+        if mime_type not in self.instance_config[
+                'configuration']['media_attachments']['supported_mime_types']:
             mime_type = 'image/jpeg'
         image = self.image_to_data(
             image, mime_type=mime_type, max_size=self.max_size['image'])
         return image['data'], image['mime_type']
 
     def get_upload_params(self, image):
-        params = {'media': {}, 'options': {}}
-        params['media']['file_name'] = os.path.basename(image.path)
+        params = {'media': {}, 'status': {}}
+        params['file_name'] = os.path.basename(image.path)
         # 'description' is the ALT text for an image
         description = []
         if image.metadata.alt_text:
@@ -394,9 +422,9 @@ class TabWidget(PhotiniUploader):
         if image.metadata.description:
             description.append(image.metadata.description.default_text())
         if description:
-            params['status'] = '\n\n'.join(description)
+            params['status']['status'] = '\n\n'.join(description)
         else:
-            params['status'] = params['media']['file_name']
-        params['options']['visibility'] = self.widget['visibility'].get_value()
-        params['options']['sensitive'] = self.widget['sensitive'].isChecked()
+            params['status']['status'] = params['file_name']
+        params['status']['visibility'] = self.widget['visibility'].get_value()
+        params['status']['sensitive'] = self.widget['sensitive'].isChecked()
         return params

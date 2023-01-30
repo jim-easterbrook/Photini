@@ -24,7 +24,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.pyqt import (
-    catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
+    catch_all, execute, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,6 @@ translate = QtCore.QCoreApplication.translate
 # Google Photos API: https://developers.google.com/photos/library/reference/rest
 
 class GooglePhotosSession(UploaderSession):
-    new_token = QtSignal(dict)
     name       = 'googlephotos'
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
