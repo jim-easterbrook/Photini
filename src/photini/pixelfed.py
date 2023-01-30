@@ -17,6 +17,7 @@
 ##  <http://www.gnu.org/licenses/>.
 
 import logging
+import math
 import os
 
 from mastodon import Mastodon
@@ -346,11 +347,35 @@ class TabWidget(PhotiniUploader):
                 'video_matrix_limit'],
             }
 
+    def get_conversion_function(self, image, params):
+        if image.file_type.split('/')[0] == 'video':
+            return 'omit'
+        return self.prepare_image
+
     def ask_resize_image(self, image, resizable=False):
         if image.file_type.split('/')[0] == 'video':
             return super(TabWidget, self).ask_resize_image(
                 image, resizable=resizable)
-        return self.convert_to_jpeg
+        return self.prepare_image
+
+    def prepare_image(self, image):
+        image = self.read_image(image)
+        image = self.data_to_image(image)
+        # reduce image size
+        w, h = image['width'], image['height']
+        shrink = math.sqrt(float(w * h) / float(self.max_size['image_pixels']))
+        if shrink > 1.0:
+            w = int(float(w) / shrink)
+            h = int(float(h) / shrink)
+            image = self.resize_image(image, w, h)
+        # convert mime type
+        mime_type = image['mime_type']
+        if mime_type not in self.instance_config['media_attachments'][
+                'supported_mime_types']:
+            mime_type = 'image/jpeg'
+        image = self.image_to_data(
+            image, mime_type=mime_type, max_size=self.max_size['image'])
+        return image['data'], image['mime_type']
 
     def get_upload_params(self, image):
         params = {'media': {}, 'options': {}}

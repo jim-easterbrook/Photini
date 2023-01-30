@@ -1,6 +1,6 @@
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2015-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2015-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -152,6 +152,13 @@ else:
 if qt_version_info < (5, 8):
     raise ImportError(
         'Qt version {}.{}.{} is less than 5.8'.format(*qt_version_info))
+
+# increase image size that can be read
+if qt_version_info >= (6, 0):
+    if qt_version_info > (6, 3, 1) or using_pyside:
+        QtGui.QImageReader.setAllocationLimit(0)
+    else:
+        os.environ['QT_IMAGEIO_MAXALLOC'] = '256'
 
 # set network proxy
 QtNetwork.QNetworkProxyFactory.setUseSystemConfiguration(True)

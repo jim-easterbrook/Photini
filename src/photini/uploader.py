@@ -22,7 +22,6 @@ from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import io
 import logging
-import math
 import os
 import re
 import threading
@@ -508,106 +507,106 @@ class PhotiniUploader(QtWidgets.QWidget):
         result = execute(dialog)
         return result == dialog.StandardButton.Cancel
 
-    def convert_to_jpeg(self, image):
-        file_type = image.file_type
-        if file_type == 'image/jpeg':
-            # read JPEG file
-            with open(image.path, 'rb') as f:
-                src_data = f.read()
-        else:
-            # try reading preview images
-            pv_im = QtGui.QImage()
-            for data in image.metadata.get_preview_images():
-                pv_im = QtGui.QImage.fromData(data)
-                if not pv_im.isNull():
-                    break
-            # try reading image file
-            reader = QtGui.QImageReader(image.path)
-            im = reader.read()
-            if not (im.isNull() or pv_im.isNull()):
-                if pv_im.width() > im.width():
-                    im = pv_im
-            if im.isNull():
-                raise RuntimeError(
-                    '{}: {}'.format(image.path, reader.errorString()))
-            # check we have full size image
-            image_size = image.metadata.get_sensor_size()
-            if im.width() < image_size['x'] * 9 // 10:
-                raise RuntimeError(
-                    '{}: could not read full size image'.format(image.path))
-            # save as JPEG
-            buf = QtCore.QBuffer()
-            buf.open(buf.OpenModeFlag.WriteOnly)
-            writer = QtGui.QImageWriter(buf, b'jpeg')
-            writer.setQuality(95)
-            if not writer.write(im):
-                raise RuntimeError(
-                    'save data: {}'.format(writer.errorString()))
-            src_data = buf.data().data()
-            file_type = 'image/jpeg'
-        # may need to resize image
-        max_pixels = 20000 ** 2
-        if 'image_pixels' in self.max_size:
-            max_pixels = self.max_size['image_pixels']
-        # copy metadata
-        src_data = image.metadata.clone(src_data)
-        exiv_io = src_data.io()
+    def read_image(self, image):
+        with open(image.path, 'rb') as f:
+            data = f.read()
+        return {'image': None,
+                'width': None,
+                'height': None,
+                'data': image.metadata.clone(data),
+                'mime_type': image.file_type,
+                'metadata': image.metadata,
+                }
+
+    def data_to_image(self, src):
+        dst = dict(src)
+        if dst['image']:
+            return dst
+        exiv_io = dst['data'].io()
         exiv_io.open()
         data = exiv_io.mmap()
         if PIL:
             # use Pillow for good quality
-            src_im = PIL.open(io.BytesIO(data))
-            src_im.load()
-            w, h = src_im.size
+            dst['image'] = PIL.open(io.BytesIO(data))
+            dst['image'].load()
+            dst['width'], dst['height'] = dst['image'].size
         else:
             # use Qt, lower quality but available
-            src_im = QtGui.QImage.fromData(bytes(data))
-            w, h = src_im.width(), src_im.height()
+            buf = QtCore.QBuffer()
+            buf.setData(bytes(data))
+            reader = QtGui.QImageReader(buf)
+            im = reader.read()
+            if im.isNull():
+                raise RuntimeError(reader.errorString())
+            dst['image'] = im
+            dst['width'] = dst['image'].width()
+            dst['height'] = dst['image'].height()
         exiv_io.munmap()
         exiv_io.close()
-        # scale image
-        scales = (1000, 680, 470, 330, 220, 150,
-                  100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1)
-        shrink = int(math.sqrt(float(w * h) / float(max_pixels)))
-        if shrink > 1.0:
-            scales = [int(x / shrink) for x in scales]
-        for scale in scales:
-            if scale == 1000:
-                if src_data.io().size() < self.max_size['image']:
-                    # no resizing needed
-                    return src_data, file_type
-                im = src_im
-            elif PIL:
-                im = src_im.resize((w * scale // 1000, h * scale // 1000),
-                                   resample=PIL.BICUBIC)
+        return dst
+
+    def image_to_data(self, src, mime_type=None, max_size=None):
+        dst_mime_type = mime_type or src['mime_type']
+        if src['data'] and src['mime_type'] == dst_mime_type and not (
+                            max_size and src['data'].io().size() > max_size):
+            return src
+        w, h = src['width'], src['height']
+        for scale in (1000, 680, 470, 330, 220, 150,
+                      100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
+            dst = self.data_to_image(src)
+            if scale != 1000:
+                dst = self.resize_image(
+                    dst, w * scale // 1000, h * scale // 1000)
+            dst_mime_type = mime_type or dst['mime_type']
+            fmt = dst_mime_type.split('/')[1].upper()
+            if dst_mime_type == 'image/jpeg':
+                options = [{'quality': 95}, {'quality': 85}, {'quality': 75}]
             else:
-                im = src_im.scaled(w * scale // 1000, h * scale // 1000,
-                                   Qt.AspectRatioMode.IgnoreAspectRatio,
-                                   Qt.TransformationMode.SmoothTransformation)
-            # try different JPEG quality levels
-            for quality in (95, 85, 75):
+                options = [{}]
+            for option in options:
                 if PIL:
                     dest_buf = io.BytesIO()
+                    dst['image'].save(dest_buf, format=fmt, **option)
+                    data = dest_buf.getbuffer()
                 else:
                     dest_buf = QtCore.QBuffer()
                     dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
-                im.save(dest_buf, format='JPEG', quality=quality)
-                if PIL:
-                    dest_data = dest_buf.getbuffer()
-                else:
-                    dest_data = dest_buf.data().data()
-                # copy metadata
-                dest_data = image.metadata.clone(dest_data)
-                if dest_data.io().size() < self.max_size['image']:
-                    return dest_data, file_type
+                    writer = QtGui.QImageWriter(dest_buf, fmt.encode('ascii'))
+                    writer.setQuality(option['quality'])
+                    if not writer.write(dst['image']):
+                        raise RuntimeError(writer.errorString())
+                    data = dest_buf.data().data()
+                dst['data'] = src['metadata'].clone(data)
+                dst['mime_type'] = dst_mime_type
+                if not (max_size and dst['data'].io().size() > max_size):
+                    return dst
         return None
 
+    def resize_image(self, src, w, h):
+        dst = self.data_to_image(src)
+        if PIL:
+            dst['image'] = dst['image'].resize(
+                (w, h), resample=PIL.BICUBIC)
+            dst['width'], dst['height'] = dst['image'].size
+        else:
+            dst['image'] = dst['image'].scaled(
+                w, h, Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation)
+            dst['width'] = dst['image'].width()
+            dst['height'] = dst['image'].height()
+        dst['data'] = None
+        dst['mime_type'] = 'image/jpeg'
+        return dst
+
+    def convert_to_jpeg(self, image):
+        image = self.read_image(image)
+        image = self.image_to_data(
+            image, mime_type='image/jpeg', max_size=self.max_size['image'])
+        return image['data'], image['mime_type']
+
     def copy_file_and_metadata(self, image):
-        with open(image.path, 'rb') as f:
-            data = f.read()
-        # copy metadata
-        data = image.metadata.clone(data)
-        return data, image.file_type
+        image = self.read_image(image)
+        return image['data'], image['mime_type']
 
     def add_skip_button(self, dialog):
         return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
