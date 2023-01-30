@@ -58,6 +58,10 @@ class UploaderSession(QtCore.QObject):
             self.api.close()
             self.api = None
 
+    def progress(self, monitor):
+        self.upload_progress.emit(
+            {'value': monitor.bytes_read * 100 // monitor.len})
+
 
 class UploadAborted(Exception):
     pass

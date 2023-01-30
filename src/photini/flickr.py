@@ -154,10 +154,6 @@ class FlickrSession(UploaderSession):
                 yield photo['id'], date_taken, photo['url_t']
             page += 1
 
-    def progress(self, monitor):
-        self.upload_progress.emit(
-            {'value': monitor.bytes_read * 100 // monitor.len})
-
     def do_upload(self, fileobj, image_type, image, params):
         photo_id = params['photo_id']
         if params['function']:

@@ -89,11 +89,8 @@ class PixelfedSession(UploaderSession):
         return name, picture
 
     def get_albums(self):
+        # pixelfed "collections" would be here, if mastodon API gave access
         return []
-
-    def progress(self, monitor):
-        self.upload_progress.emit(
-            {'value': monitor.bytes_read * 100 // monitor.len})
 
     def do_upload(self, fileobj, image_type, image, params):
         self.upload_progress.emit({'busy': False})

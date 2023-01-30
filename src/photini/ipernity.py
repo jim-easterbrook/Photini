@@ -156,10 +156,6 @@ class IpernitySession(UploaderSession):
                 return
             params['page'] = str(page + 1)
 
-    def progress(self, monitor):
-        self.upload_progress.emit(
-            {'value': monitor.bytes_read * 100 // monitor.len})
-
     def do_upload(self, fileobj, image_type, image, params):
         doc_id = params['doc_id']
         if params['function']:
