@@ -54,13 +54,14 @@ class PixelfedSession(UploaderSession):
             'client_secret': self.client_data['client_secret'],
             }
         self.api = OAuth2Session(
-            client_id=self.client_data['client_id'], token=self.user_data,
+            client_id=self.client_data['client_id'],
+            token=self.user_data['token'],
             auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
 
     def save_token(self, token):
-        self.user_data = token
+        self.user_data['token'] = token
         self.new_token.emit(token)
 
     def api_call(self, endpoint, post=False, **params):
@@ -79,6 +80,8 @@ class PixelfedSession(UploaderSession):
         return rsp.json()
 
     def do_upload(self, fileobj, image_type, image, params):
+        print('do_upload')
+        pprint(params)
         self.upload_progress.emit({'busy': False})
         fields = dict(params['media'])
         fields['file'] = (params['file_name'], fileobj, image_type)
@@ -91,7 +94,18 @@ class PixelfedSession(UploaderSession):
         self.upload_progress.emit({'busy': True})
         data = dict(params['status'])
         data['media_ids[]'] = [rsp['id']]
-        self.api_call('/api/v1/statuses', post=True, data=data)
+        rsp = self.api_call('/api/v1/statuses', post=True, data=data)
+        if not rsp:
+            return ''
+        post_id = rsp['id']
+        for album_id in params['albums']:
+            data = {
+                'post_id': int(post_id),
+                'collection_id': int(album_id),
+                }
+            rsp = self.api_call(
+                '/api/v1.1/collections/add', post=True, data=data)
+            pprint(rsp)
         return ''
 
 
@@ -181,7 +195,7 @@ class PixelfedUser(UploaderUser):
             # get user info
             name, picture = None, None
             account = session.api_call('/api/v1/accounts/verify_credentials')
-            self._user_id = account['id']
+            self.user_data['id'] = account['id']
             name = account['display_name']
             # get icon
             icon_url = account['avatar_static']
@@ -215,7 +229,8 @@ class PixelfedUser(UploaderUser):
             if not self.version['pixelfed']:
                 return
             for collection in session.api_call(
-                    '/api/v1.1/collections/accounts/{}'.format(self._user_id)):
+                    '/api/v1.1/collections/accounts/{}'.format(
+                        self.user_data['id'])):
                 yield 'album', {
                     'title': collection['title'],
                     'description': collection['description'],
@@ -256,11 +271,11 @@ class PixelfedUser(UploaderUser):
         token = self.get_password()
         if not token:
             return False
-        self.user_data = eval(token)
+        self.user_data['token'] = eval(token)
         return True
 
     def service_name(self):
-        if self.user_data:
+        if 'token' in self.user_data:
             # logged in to a particular server
             return self.instance
         return translate('PixelfedTab', 'Pixelfed')
@@ -338,8 +353,8 @@ class PixelfedUser(UploaderUser):
     @QtSlot(dict)
     @catch_all
     def new_token(self, token):
-        self.user_data = token
-        self.set_password(repr(self.user_data))
+        self.user_data['token'] = token
+        self.set_password(repr(token))
 
 class TabWidget(PhotiniUploader):
     logger = logger
@@ -450,4 +465,9 @@ class TabWidget(PhotiniUploader):
             params['status']['status'] = params['file_name']
         params['status']['visibility'] = self.widget['visibility'].get_value()
         params['status']['sensitive'] = self.widget['sensitive'].isChecked()
+        # collections to add post to
+        params['albums'] = []
+        for child in self.widget['albums'].children():
+            if child.isWidgetType() and child.isChecked():
+                params['albums'].append(child.property('id'))
         return params
