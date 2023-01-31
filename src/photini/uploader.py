@@ -454,6 +454,12 @@ class PhotiniUploader(QtWidgets.QWidget):
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
+    def clear_albums(self):
+        for child in self.widget['albums'].children():
+            if child.isWidgetType():
+                self.widget['albums'].layout().removeWidget(child)
+                child.setParent(None)
+
     @QtSlot(bool)
     @catch_all
     def connection_changed(self, connected):
@@ -462,23 +468,20 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_widget.show_user(None, None)
         if connected:
             with Busy():
-                with self.user_widget.session(parent=self) as session:
-                    connected = session.authorised()
-                    if connected:
-                        self.user_widget.show_user(*session.get_user())
-                        self.app.processEvents()
-                        for album in session.get_albums():
-                            self.add_album(album)
-                            self.app.processEvents()
-                        self.finalise_config(session)
+                for key, value in self.user_widget.on_connect(self.widget):
+                    if key == 'connected':
+                        connected = value
+                        if not connected:
+                            break
+                    elif key == 'user':
+                        self.user_widget.show_user(*value)
+                    elif key == 'album':
+                        self.add_album(value)
+                    self.app.processEvents()
         self.user_widget.connect_button.set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
         self.user_widget.connect_button.setEnabled(not self.upload_worker)
         self.enable_upload_button()
-
-    def finalise_config(self, session):
-        # allow derived class to make any changes that require a connection
-        pass
 
     def enable_config(self, enabled):
         for layout in self.config_layouts:
@@ -604,7 +607,8 @@ class PhotiniUploader(QtWidgets.QWidget):
     def convert_to_jpeg(self, image):
         image = self.read_image(image)
         image = self.image_to_data(
-            image, mime_type='image/jpeg', max_size=self.max_size['image'])
+            image, mime_type='image/jpeg',
+            max_size=self.user_widget.max_size['image'])
         return image['data'], image['mime_type']
 
     def copy_file_and_metadata(self, image):
@@ -616,7 +620,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                                 dialog.ButtonRole.AcceptRole)
 
     def ask_resize_image(self, image, resizable=False):
-        max_size = self.max_size[image.file_type.split('/')[0]]
+        max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
         size = os.stat(image.path).st_size
         if size <= max_size:
             return None

@@ -20,6 +20,7 @@ import logging
 import math
 import os
 from pprint import pprint
+import re
 
 import requests
 from requests_oauthlib import OAuth2Session
@@ -72,26 +73,10 @@ class PixelfedSession(UploaderSession):
     @staticmethod
     def check_response(rsp):
         if rsp.status_code != 200:
+            print(rsp.text)
             logger.error('HTTP error %d', rsp.status_code)
             return {}
         return rsp.json()
-
-    def get_user(self):
-        name, picture = None, None
-        account = self.api_call('/api/v1/accounts/verify_credentials')
-        name = account['display_name']
-        # get icon
-        icon_url = account['avatar_static']
-        rsp = requests.get(icon_url)
-        if rsp.status_code == 200:
-            picture = rsp.content
-        else:
-            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
-        return name, picture
-
-    def get_albums(self):
-##        pprint(self.api_call('/api/v1.1/collections/accounts/{}'.format(account['id'])))
-        return []
 
     def do_upload(self, fileobj, image_type, image, params):
         self.upload_progress.emit({'busy': False})
@@ -188,6 +173,54 @@ class PixelfedUser(UploaderUser):
     logger = logger
     name       = 'pixelfed'
     scopes     = ['read', 'write']
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            connected = session.authorised()
+            yield 'connected', connected
+            # get user info
+            name, picture = None, None
+            account = session.api_call('/api/v1/accounts/verify_credentials')
+            self._user_id = account['id']
+            name = account['display_name']
+            # get icon
+            icon_url = account['avatar_static']
+            rsp = requests.get(icon_url)
+            if rsp.status_code == 200:
+                picture = rsp.content
+            else:
+                logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
+            yield 'user', (name, picture)
+            # get instance info
+            self.version = {'mastodon': None, 'pixelfed': None}
+            self.instance_config = session.api_call('/api/v1/instance')
+            version = self.instance_config['version']
+            match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
+            if match:
+                self.version['mastodon'] = tuple(
+                    [int(x) for x in match.groups()])
+            match = re.search(r'Pixelfed\s+(\d+)\.(\d+)\.(\d+)', version)
+            if match:
+                self.version['pixelfed'] = tuple(
+                    [int(x) for x in match.groups()])
+            print('mastodon version', self.version['mastodon'])
+            print('pixelfed version', self.version['pixelfed'])
+            media = self.instance_config['configuration']['media_attachments']
+            self.max_size = {
+                'image': media['image_size_limit'],
+                'image_pixels': media['image_matrix_limit'],
+                'video': media['video_size_limit'],
+                }
+            # get collections
+            if not self.version['pixelfed']:
+                return
+            for collection in session.api_call(
+                    '/api/v1.1/collections/accounts/{}'.format(self._user_id)):
+                yield 'album', {
+                    'title': collection['title'],
+                    'description': collection['description'],
+                    'id': collection['id'],
+                    }
 
     def load_user_data(self):
         self.config_store = QtWidgets.QApplication.instance().config_store
@@ -308,7 +341,6 @@ class PixelfedUser(UploaderUser):
         self.user_data = token
         self.set_password(repr(self.user_data))
 
-
 class TabWidget(PhotiniUploader):
     logger = logger
 
@@ -342,23 +374,26 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(self.widget['sensitive'])
         column.addWidget(group, 0, 0)
         yield column
-        ## last column is just empty space
-        yield QtWidgets.QGridLayout()
+        ## last column is list of albums
+        yield self.album_list()
+
+    def add_album(self, album, index=-1):
+        print('add_album', album)
+        if not album['title']:
+            return None
+        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
+        if album['description']:
+            widget.setToolTip('<p>' + album['description'] + '</p>')
+        widget.setProperty('id', album['id'])
+        if index >= 0:
+            self.widget['albums'].layout().insertWidget(index, widget)
+        else:
+            self.widget['albums'].layout().addWidget(widget)
+        return widget
 
     def accepted_image_type(self, file_type):
-        return file_type in self.instance_config[
+        return file_type in self.user_widget.instance_config[
             'configuration']['media_attachments']['supported_mime_types']
-
-    def finalise_config(self, session):
-        self.instance_config = session.api_call('/api/v1/instance')
-        if not self.instance_config:
-            return
-        media = self.instance_config['configuration']['media_attachments']
-        self.max_size = {
-            'image': media['image_size_limit'],
-            'image_pixels': media['image_matrix_limit'],
-            'video': media['video_size_limit'],
-            }
 
     def get_conversion_function(self, image, params):
         if image.file_type.split('/')[0] == 'video':
@@ -376,18 +411,18 @@ class TabWidget(PhotiniUploader):
         image = self.data_to_image(image)
         # reduce image size
         w, h = image['width'], image['height']
-        shrink = math.sqrt(float(w * h) / float(self.max_size['image_pixels']))
+        shrink = math.sqrt(float(w * h) / float(self.user_widget.max_size['image_pixels']))
         if shrink > 1.0:
             w = int(float(w) / shrink)
             h = int(float(h) / shrink)
             image = self.resize_image(image, w, h)
         # convert mime type
         mime_type = image['mime_type']
-        if mime_type not in self.instance_config[
+        if mime_type not in self.user_widget.instance_config[
                 'configuration']['media_attachments']['supported_mime_types']:
             mime_type = 'image/jpeg'
         image = self.image_to_data(
-            image, mime_type=mime_type, max_size=self.max_size['image'])
+            image, mime_type=mime_type, max_size=self.user_widget.max_size['image'])
         return image['data'], image['mime_type']
 
     def get_upload_params(self, image):

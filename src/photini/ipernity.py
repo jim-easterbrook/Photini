@@ -286,6 +286,20 @@ class LicenceWidget(DropDownSelector):
 class IpernityUser(UploaderUser):
     logger = logger
     name = 'ipernity'
+    max_size = {'image': 2 ** 30,
+                'video': 2 ** 30}
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            connected = session.authorised()
+            yield 'connected', connected
+            yield 'user', session.get_user()
+            for album in session.get_albums():
+                yield 'album', album
+            if session.user_data['is_pro'] == '0':
+                # guest user can upload 2.5 MB photos and no videos
+                self.max_size = {'image': (2 ** 20) * 5 // 2,
+                                 'video': 0}
 
     def load_user_data(self):
         stored_token = self.get_password()
@@ -326,8 +340,6 @@ class IpernityUser(UploaderUser):
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    max_size = {'image': 2 ** 30,
-                'video': 2 ** 30}
 
     def __init__(self, *arg, **kw):
         self.user_widget = IpernityUser()
@@ -406,23 +418,18 @@ class TabWidget(PhotiniUploader):
         yield column
         ## last column is list of albums
         yield self.album_list()
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_value(self, key, value):
-        self.app.config_store.set('ipernity', key, value)
-
-    def finalise_config(self, session):
+        # load user's preferences
         if not self.app.config_store.has_section('ipernity'):
             return
         for key in self.app.config_store.config.options('ipernity'):
             if key in self.widget:
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
-        if session.user_data['is_pro'] == '0':
-            # guest user can upload 2.5 MB photos and no videos
-            self.max_size = {'image': (2 ** 20) * 5 // 2,
-                             'video': 0}
+
+    @QtSlot(str, object)
+    @catch_all
+    def new_value(self, key, value):
+        self.app.config_store.set('ipernity', key, value)
 
     def get_fixed_params(self):
         albums = []
@@ -448,12 +455,6 @@ class TabWidget(PhotiniUploader):
                 },
             'albums': albums,
             }
-
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
 
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))

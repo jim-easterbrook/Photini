@@ -292,6 +292,42 @@ class FlickrUser(UploaderUser):
     logger = logger
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
+    max_size = {'image': 200 * (2 ** 20),
+                'video': 2 ** 30}
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            connected = session.authorised()
+            yield 'connected', connected
+            yield 'user', session.get_user()
+            for album in session.get_albums():
+                yield 'album', album
+            # get licences
+            rsp = session.api_call(
+                'flickr.photos.licenses.getInfo', auth=False)
+            if not rsp:
+                return
+            values = []
+            for licence in rsp['licenses']['license']:
+                licence['id'] = str(licence['id'])
+                if licence['id'] == '7':
+                    continue
+                values.append((licence['name'], licence['id']))
+            if values:
+                widgets['license_id'].set_values(values, default='0')
+            yield None, None
+            # get user's default settings
+            for key, function in (
+                    ('privacy', 'flickr.prefs.getPrivacy'),
+                    ('safety_level', 'flickr.prefs.getSafetyLevel'),
+                    ('hidden', 'flickr.prefs.getHidden'),
+                    ('content_type', 'flickr.prefs.getContentType'),
+                    ):
+                rsp = session.api_call(function)
+                if not rsp:
+                    return
+                widgets[key].set_value(str(rsp['person'][key]))
+                yield None, None
 
     def load_user_data(self):
         stored_token = self.get_password()
@@ -334,8 +370,6 @@ class FlickrUser(UploaderUser):
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    max_size = {'image': 200 * (2 ** 20),
-                'video': 2 ** 30}
 
     def __init__(self, *arg, **kw):
         self.user_widget = FlickrUser()
@@ -465,12 +499,6 @@ class TabWidget(PhotiniUploader):
             'albums': albums,
             }
 
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
-
     def add_album(self, album, index=-1):
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
         if album['description']:
@@ -486,32 +514,6 @@ class TabWidget(PhotiniUploader):
 
     def accepted_image_type(self, file_type):
         return file_type in ('image/gif', 'image/jpeg', 'image/png')
-
-    def finalise_config(self, session):
-        # get licences
-        rsp = session.api_call(
-            'flickr.photos.licenses.getInfo', auth=False)
-        if not rsp:
-            return
-        values = []
-        for licence in rsp['licenses']['license']:
-            licence['id'] = str(licence['id'])
-            if licence['id'] == '7':
-                continue
-            values.append((licence['name'], licence['id']))
-        if values:
-            self.widget['license_id'].set_values(values, default='0')
-        # get user's default settings
-        for key, function in (
-                ('privacy', 'flickr.prefs.getPrivacy'),
-                ('safety_level', 'flickr.prefs.getSafetyLevel'),
-                ('hidden', 'flickr.prefs.getHidden'),
-                ('content_type', 'flickr.prefs.getContentType'),
-                ):
-            rsp = session.api_call(function)
-            if not rsp:
-                return
-            self.widget[key].set_value(str(rsp['person'][key]))
 
     def get_variable_params(self, image, upload_prefs, replace_prefs, photo_id):
         params = {}

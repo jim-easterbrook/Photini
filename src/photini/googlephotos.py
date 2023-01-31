@@ -168,6 +168,16 @@ class GooglePhotosUser(UploaderUser):
     logger = logger
     name       = 'googlephotos'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
+    max_size = {'image': 200 * (2 ** 20),
+                'video': 10 * (2 ** 30)}
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            connected = session.authorised()
+            yield 'connected', connected
+            yield 'user', session.get_user()
+            for album in session.get_albums():
+                yield 'album', album
 
     def load_user_data(self):
         refresh_token = self.get_password()
@@ -233,8 +243,6 @@ class GooglePhotosUser(UploaderUser):
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    max_size = {'image': 200 * (2 ** 20),
-                'video': 10 * (2 ** 30)}
 
     def __init__(self, *arg, **kw):
         self.user_widget = GooglePhotosUser()
@@ -260,12 +268,6 @@ class TabWidget(PhotiniUploader):
         yield column
         ## last column is list of albums
         yield self.album_list()
-
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
 
     def checked_albums(self):
         result = []
