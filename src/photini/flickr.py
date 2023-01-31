@@ -310,41 +310,26 @@ class FlickrUser(UploaderUser):
         return FlickrSession(
             user_data=self.user_data, client_data=self.client_data, **kw)
 
-    def get_auth_url(self, redirect_uri):
-        # initialise oauth1 session
-        self.auth_session = requests_oauthlib.OAuth1Session(
-            callback_uri=redirect_uri, **self.client_data)
-        try:
-            self.auth_session.fetch_request_token(
-                self.oauth_url + 'request_token', timeout=20)
-            return self.auth_session.authorization_url(
-                self.oauth_url + 'authorize', perms='write')
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_auth_session()
-        return ''
-
-    def get_access_token(self, result):
-        oauth_verifier = str(result['oauth_verifier'][0])
-        try:
-            token = self.auth_session.fetch_access_token(
-                self.oauth_url + 'access_token', verifier=oauth_verifier,
-                timeout=20)
-        except Exception as ex:
-            logger.error(str(ex))
-            self.close_auth_session()
-            return
+    def auth_exchange(self, redirect_uri):
+        with requests_oauthlib.OAuth1Session(
+                callback_uri=redirect_uri, **self.client_data) as session:
+            try:
+                session.fetch_request_token(
+                    self.oauth_url + 'request_token', timeout=20)
+                result = yield session.authorization_url(
+                    self.oauth_url + 'authorize', perms='write')
+                oauth_verifier = str(result['oauth_verifier'][0])
+                token = session.fetch_access_token(
+                    self.oauth_url + 'access_token', verifier=oauth_verifier,
+                    timeout=20)
+            except Exception as ex:
+                logger.error(str(ex))
+                return
         self.set_password(
             token['oauth_token'] + '&' + token['oauth_token_secret'])
         self.user_data['resource_owner_key'] = token['oauth_token']
         self.user_data['resource_owner_secret'] = token['oauth_token_secret']
-        self.close_auth_session()
         self.connection_changed.emit(True)
-
-    def close_auth_session(self):
-        if self.auth_session:
-            self.auth_session.close()
-            self.auth_session = None
 
 
 class TabWidget(PhotiniUploader):

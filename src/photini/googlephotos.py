@@ -191,24 +191,22 @@ class GooglePhotosUser(UploaderUser):
         session.new_token.connect(self.new_token)
         return session
 
-    def get_auth_url(self, redirect_uri):
+    def auth_exchange(self, redirect_uri):
         code_verifier = ''
         while len(code_verifier) < 43:
             code_verifier += OAuth2Session().new_state()
-        self.auth_params = {
+        auth_params = {
             'code_verifier': code_verifier,
             'redirect_uri' : redirect_uri,
             }
-        self.auth_params.update(self.client_data)
+        auth_params.update(self.client_data)
         url = 'https://accounts.google.com/o/oauth2/v2/auth'
-        url += '?client_id=' + self.auth_params['client_id']
-        url += '&redirect_uri=' + self.auth_params['redirect_uri']
+        url += '?client_id=' + auth_params['client_id']
+        url += '&redirect_uri=' + auth_params['redirect_uri']
         url += '&response_type=code'
         url += '&scope=' + urllib.parse.quote(' '.join(self.scope))
-        url += '&code_challenge=' + self.auth_params['code_verifier']
-        return url
-
-    def get_access_token(self, result):
+        url += '&code_challenge=' + auth_params['code_verifier']
+        result = yield url
         if not 'code' in result:
             logger.info('No authorisaton code received')
             return
@@ -216,7 +214,7 @@ class GooglePhotosUser(UploaderUser):
             'code'      : result['code'][0],
             'grant_type': 'authorization_code',
             }
-        data.update(self.auth_params)
+        data.update(auth_params)
         rsp = GooglePhotosSession.check_response(
             requests.post(GooglePhotosSession.oauth_url + 'v4/token',
                           data=data, timeout=5))

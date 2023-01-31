@@ -309,18 +309,13 @@ class IpernityUser(UploaderUser):
             return ''
         return rsp['auth']['frob']
 
-    def get_auth_url(self, frob):
+    def auth_exchange(self, frob):
         params = {'frob': frob, 'perm_doc': 'write'}
         with self.session(parent=self) as session:
             params = session.sign_request('', False, params)
-        request = requests.Request(
-            'GET', 'http://www.ipernity.com/apps/authorize', params=params)
-        return request.prepare().url
-
-    def get_access_token(self, frob):
-        if not frob:
-            return
-        with self.session(parent=self) as session:
+            request = requests.Request(
+                'GET', 'http://www.ipernity.com/apps/authorize', params=params)
+            response = yield request.prepare().url
             rsp = session.api_call('auth.getToken', auth=False, frob=frob)
         if not rsp:
             return

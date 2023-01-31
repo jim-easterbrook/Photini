@@ -313,23 +313,22 @@ class UploaderUser(QtWidgets.QGridLayout):
     def authorise(self):
         with Busy():
             # do full authentication procedure
-            frob = self.get_frob()
-            if frob:
-                auth_url = self.get_auth_url(frob)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
-                    return
-                auth_response = frob
+            frob_or_uri = self.get_frob()
+            if frob_or_uri:
+                http_server = None
+                auth_response = frob_or_uri
             else:
-                auth_response = None
                 # create temporary local web server
                 http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
-                redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
-                auth_url = self.get_auth_url(redirect_uri)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
+                frob_or_uri = 'http://127.0.0.1:' + str(http_server.server_port)
+            auth = self.auth_exchange(frob_or_uri)
+            auth_url = next(auth)
+            if not auth_url:
+                self.logger.error('Failed to get auth URL')
+                if http_server:
                     http_server.server_close()
-                    return
+                return
+            if http_server:
                 server = AuthServer()
                 thread = QtCore.QThread(self)
                 server.moveToThread(thread)
@@ -353,15 +352,19 @@ class UploaderUser(QtWidgets.QGridLayout):
             ' Photini, and then close this dialog.'))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Ok)
-        if not frob:
+        if http_server:
             server.finished.connect(dialog.close)
         execute(dialog)
-        if not frob:
+        if http_server:
             auth_response = http_server.result
             server.running = False
-        if auth_response:
-            with Busy():
-                self.get_access_token(auth_response)
+        if not auth_response:
+            return
+        with Busy():
+            try:
+                auth.send(auth_response)
+            except StopIteration:
+                pass
 
     def get_frob(self):
         return None

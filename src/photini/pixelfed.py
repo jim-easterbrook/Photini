@@ -19,6 +19,7 @@
 import logging
 import math
 import os
+from pprint import pprint
 
 import requests
 from requests_oauthlib import OAuth2Session
@@ -35,6 +36,7 @@ logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
 # Pixelfed API: https://docs.pixelfed.org/technical-documentation/api/
+# Endpoint list: https://github.com/pixelfed/pixelfed/blob/dev/routes/api.php
 
 
 class PixelfedSession(UploaderSession):
@@ -71,7 +73,7 @@ class PixelfedSession(UploaderSession):
     def check_response(rsp):
         if rsp.status_code != 200:
             logger.error('HTTP error %d', rsp.status_code)
-            return (None, {})[decode]
+            return {}
         return rsp.json()
 
     def get_user(self):
@@ -88,7 +90,7 @@ class PixelfedSession(UploaderSession):
         return name, picture
 
     def get_albums(self):
-        # pixelfed "collections" would be here, if mastodon API gave access
+##        pprint(self.api_call('/api/v1.1/collections/accounts/{}'.format(account['id'])))
         return []
 
     def do_upload(self, fileobj, image_type, image, params):
@@ -280,32 +282,25 @@ class PixelfedUser(UploaderUser):
         self.instance_data[instance] = self.client_data
         return True
 
-    def get_auth_url(self, redirect_uri):
-        self.auth_session = OAuth2Session(
-            self.client_data['client_id'], redirect_uri=redirect_uri,
-            scope=self.scopes)
-        authorization_url, state = self.auth_session.authorization_url(
-            self.client_data['api_base_url'] + '/oauth/authorize')
-        return authorization_url
-
-    def get_access_token(self, result):
-        # often get more scopes than asked for, which upsets requests_oauthlib
-        os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
-        token = self.auth_session.fetch_token(
-            self.client_data['api_base_url'] + '/oauth/token',
-            client_secret=self.client_data['client_secret'],
-            code=result['code'][0])
-        self.close_auth_session()
+    def auth_exchange(self, redirect_uri):
+        with OAuth2Session(self.client_data['client_id'],
+                           redirect_uri=redirect_uri,
+                           scope=self.scopes) as session:
+            authorization_url, state = session.authorization_url(
+                self.client_data['api_base_url'] + '/oauth/authorize')
+            result = yield authorization_url
+            # often get more scopes than asked for, which upsets
+            # requests_oauthlib
+            os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+            token = session.fetch_token(
+                self.client_data['api_base_url'] + '/oauth/token',
+                client_secret=self.client_data['client_secret'],
+                code=result['code'][0])
         if 'access_token' not in token:
             logger.info('No access token received')
             return
         self.new_token(token)
         self.connection_changed.emit(True)
-
-    def close_auth_session(self):
-        if self.auth_session:
-            self.auth_session.close()
-            self.auth_session = None
 
     @QtSlot(dict)
     @catch_all
