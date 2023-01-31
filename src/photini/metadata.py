@@ -598,7 +598,7 @@ class Metadata(object):
         'gps_info'       : MD_GPSinfo,
         'headline'       : MD_String,
         'instructions'   : MD_String,
-        'keywords'       : MD_MultiString,
+        'keywords'       : MD_Keywords,
         'lens_model'     : MD_LensModel,
         'location_shown' : MD_MultiLocation,
         'location_taken' : MD_Location,

@@ -213,6 +213,7 @@ class PixelfedUser(UploaderUser):
             # get instance info
             self.version = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
+##            pprint(self.instance_config)
             version = self.instance_config['version']
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
@@ -481,48 +482,41 @@ class TabWidget(PhotiniUploader):
                 params['albums'].append(child.property('id'))
         return params
 
-    def new_selection(self, selection):
-        super(TabWidget, self).new_selection(selection)
-        titles = []
-        headlines = []
-        descriptions = []
-        keywords = []
+    def enable_upload_button(self, selection=None):
+        selection = selection or self.app.image_list.get_selected_images()
+        super(TabWidget, self).enable_upload_button(selection=selection)
+        if (self.buttons['upload'].isEnabled()
+                and len(selection) > self.user_widget.instance_config[
+                    'configuration']['statuses']['max_media_attachments']
+                and not self.buttons['upload'].is_checked()):
+            self.buttons['upload'].setEnabled(False)
+            return
+        result = {
+            'title': [], 'headline': [], 'description': [], 'keywords': []}
         for image in selection:
             md = image.metadata
-            text = md.title and md.title.default_text()
-            if text and text not in titles:
-                titles.append(text)
-            text = str(md.headline or '')
-            if text and text not in headlines:
-                headlines.append(text)
-            text = md.description and md.description.default_text()
-            if text and text not in descriptions:
-                descriptions.append(text)
-            for text in md.keywords or []:
-                if text not in keywords:
-                    keywords.append('#' + text)
-        result = []
-        if titles:
-            titles.sort(key=lambda x: len(x))
-            title = titles[0]
-            for text in titles[1:]:
-                if text not in title:
-                    title += '\n' + text
-            result.append(title)
-        if headlines:
-            headlines.sort(key=lambda x: len(x))
-            headline = headlines[0]
-            for text in headlines[1:]:
-                if text not in headline:
-                    headline += '\n' + text
-            result.append(headline)
-        if descriptions:
-            descriptions.sort(key=lambda x: len(x))
-            description = descriptions[0]
-            for text in descriptions[1:]:
-                if text not in description:
-                    description += '\n' + text
-            result.append(description)
+            if md.title:
+                result['title'].append(md.title.default_text())
+            if md.headline:
+                result['headline'].append(str(md.headline))
+            if md.description:
+                result['description'].append(md.description.default_text())
+            if md.keywords:
+                result['keywords'] += md.keywords.human_tags()
+        strings = []
+        for key in ('title', 'headline', 'description'):
+            if not result[key]:
+                continue
+            result[key].sort(key=lambda x: -len(x))
+            string = result[key][0]
+            for text in result[key][1:]:
+                if text not in string:
+                    string += '\n' + text
+            strings.append(string)
+        keywords = []
+        for text in result['keywords']:
+            if text not in keywords:
+                keywords.append(text)
         if keywords:
-            result.append(' '.join(keywords))
-        self.widget['status'].set_value('\n\n'.join(result))
+            strings.append(' '.join(['#' + x for x in keywords]))
+        self.widget['status'].set_value('\n\n'.join(strings))

@@ -31,10 +31,10 @@ logger = logging.getLogger(__name__)
 # photini.metadata imports these classes
 __all__ = (
     'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
-    'MD_DateTime', 'MD_GPSinfo', 'MD_Int', 'MD_LangAlt', 'MD_LensModel',
-    'MD_Location', 'MD_MultiLocation', 'MD_MultiString', 'MD_Orientation',
-    'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software', 'MD_String',
-    'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
+    'MD_DateTime', 'MD_GPSinfo', 'MD_Int', 'MD_Keywords', 'MD_LangAlt',
+    'MD_LensModel', 'MD_Location', 'MD_MultiLocation', 'MD_MultiString',
+    'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software',
+    'MD_String', 'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
 
 
 def safe_fraction(value, limit=True):
@@ -1044,6 +1044,13 @@ class MD_MultiString(MD_Value, tuple):
             self.log_merged(info, tag, other)
             return MD_MultiString(result)
         return self
+
+
+class MD_Keywords(MD_MultiString):
+    _machine_tag = re.compile(r'^(.+):(.+)=(.+)$')
+
+    def human_tags(self):
+        return [x for x in self if not self._machine_tag.match(x)]
 
 
 class MD_Int(MD_Value, int):
