@@ -415,9 +415,9 @@ class TabWidget(PhotiniUploader):
         new_album_button.clicked.connect(self.new_album)
         column.addWidget(new_album_button, 2, 1)
         column.setRowStretch(0, 1)
-        yield column
+        yield column, 0
         ## last column is list of albums
-        yield self.album_list()
+        yield self.album_list(), 1
         # load user's preferences
         if not self.app.config_store.has_section('ipernity'):
             return

@@ -139,6 +139,7 @@ class UploadWorker(QtCore.QObject):
             upload_count = 0
             while upload_count < len(self.upload_list):
                 image, convert, params = self.upload_list[upload_count]
+                params['last_image'] = upload_count == len(self.upload_list) - 1
                 name = os.path.basename(image.path)
                 self.upload_progress.emit({
                     'label': '{} ({}/{})'.format(
@@ -396,11 +397,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         ## remaining columns are 'service' specific
         self.config_layouts = []
         column_count = 1
-        for layout in self.config_columns():
+        for layout, stretch in self.config_columns():
             self.config_layouts.append(layout)
             self.layout().addLayout(layout, 0, column_count)
+            self.layout().setColumnStretch(column_count, stretch)
             column_count += 1
-        self.layout().setColumnStretch(column_count - 1, 1)
         ## bottom row
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -429,6 +430,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(QtWidgets.QVBoxLayout())
         group.layout().addWidget(QtWidgets.QLabel(
             translate('UploaderTabsAll', 'Add to albums')))

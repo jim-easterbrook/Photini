@@ -418,7 +418,7 @@ class TabWidget(PhotiniUploader):
         group.layout().addRow(translate('FlickrTab', 'Licence'),
                               self.widget['license_id'])
         column.addWidget(group, 0, 0)
-        yield column
+        yield column, 0
         ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
@@ -457,9 +457,9 @@ class TabWidget(PhotiniUploader):
         button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
         button.clicked.connect(self.new_set)
         column.addWidget(button, 2, 0)
-        yield column
+        yield column, 0
         ## last column is list of albums
-        yield self.album_list()
+        yield self.album_list(), 1
 
     def get_fixed_params(self):
         albums = []

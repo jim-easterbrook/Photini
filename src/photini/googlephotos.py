@@ -265,9 +265,9 @@ class TabWidget(PhotiniUploader):
         new_set_button.clicked.connect(self.new_set)
         column.addWidget(new_set_button, 1, 0)
         column.setRowStretch(0, 1)
-        yield column
+        yield column, 0
         ## last column is list of albums
-        yield self.album_list()
+        yield self.album_list(), 1
 
     def checked_albums(self):
         result = []

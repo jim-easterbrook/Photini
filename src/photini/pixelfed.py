@@ -59,6 +59,7 @@ class PixelfedSession(UploaderSession):
             auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
+        self.media_ids = []
 
     def save_token(self, token):
         self.user_data['token'] = token
@@ -92,8 +93,12 @@ class PixelfedSession(UploaderSession):
         if not rsp:
             return ''
         self.upload_progress.emit({'busy': True})
+        self.media_ids.append(rsp['id'])
+        if not params['last_image']:
+            return ''
         data = dict(params['status'])
-        data['media_ids[]'] = [rsp['id']]
+        data['media_ids[]'] = self.media_ids
+        self.media_ids = []
         rsp = self.api_call('/api/v1/statuses', post=True, data=data)
         if not rsp:
             return ''
@@ -372,6 +377,19 @@ class TabWidget(PhotiniUploader):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
+        group.setLayout(FormLayout(wrapped=True))
+        self.widget['status'] = MultiLineEdit('status')
+        policy = self.widget['status'].sizePolicy()
+        policy.setVerticalStretch(1)
+        self.widget['status'].setSizePolicy(policy)
+        group.layout().addRow(translate('PixelfedTab', 'Caption'),
+                              self.widget['status'])
+        column.addWidget(group, 0, 0)
+        yield column, 1
+        ## second column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(FormLayout(wrapped=True))
         # visibility
@@ -388,9 +406,9 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'Sensitive post'))
         group.layout().addRow(self.widget['sensitive'])
         column.addWidget(group, 0, 0)
-        yield column
+        yield column, 0
         ## last column is list of albums
-        yield self.album_list()
+        yield self.album_list(), 0
 
     def add_album(self, album, index=-1):
         print('add_album', album)
@@ -452,17 +470,8 @@ class TabWidget(PhotiniUploader):
         if description:
             params['media']['description'] = '\n\n'.join(description)
         # 'status' is the text that accompanies the media
-        description = []
-        if image.metadata.title:
-            description.append(image.metadata.title.default_text())
-        if image.metadata.headline:
-            description.append(image.metadata.headline)
-        if image.metadata.description:
-            description.append(image.metadata.description.default_text())
-        if description:
-            params['status']['status'] = '\n\n'.join(description)
-        else:
-            params['status']['status'] = params['file_name']
+        params['status']['status'] = self.widget[
+            'status'].get_value() or params['file_name']
         params['status']['visibility'] = self.widget['visibility'].get_value()
         params['status']['sensitive'] = self.widget['sensitive'].isChecked()
         # collections to add post to
@@ -471,3 +480,49 @@ class TabWidget(PhotiniUploader):
             if child.isWidgetType() and child.isChecked():
                 params['albums'].append(child.property('id'))
         return params
+
+    def new_selection(self, selection):
+        super(TabWidget, self).new_selection(selection)
+        titles = []
+        headlines = []
+        descriptions = []
+        keywords = []
+        for image in selection:
+            md = image.metadata
+            text = md.title and md.title.default_text()
+            if text and text not in titles:
+                titles.append(text)
+            text = str(md.headline or '')
+            if text and text not in headlines:
+                headlines.append(text)
+            text = md.description and md.description.default_text()
+            if text and text not in descriptions:
+                descriptions.append(text)
+            for text in md.keywords or []:
+                if text not in keywords:
+                    keywords.append('#' + text)
+        result = []
+        if titles:
+            titles.sort(key=lambda x: len(x))
+            title = titles[0]
+            for text in titles[1:]:
+                if text not in title:
+                    title += '\n' + text
+            result.append(title)
+        if headlines:
+            headlines.sort(key=lambda x: len(x))
+            headline = headlines[0]
+            for text in headlines[1:]:
+                if text not in headline:
+                    headline += '\n' + text
+            result.append(headline)
+        if descriptions:
+            descriptions.sort(key=lambda x: len(x))
+            description = descriptions[0]
+            for text in descriptions[1:]:
+                if text not in description:
+                    description += '\n' + text
+            result.append(description)
+        if keywords:
+            result.append(' '.join(keywords))
+        self.widget['status'].set_value('\n\n'.join(result))
