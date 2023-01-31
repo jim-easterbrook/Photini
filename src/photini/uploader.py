@@ -238,6 +238,8 @@ class UploaderUser(QtWidgets.QGridLayout):
     def __init__(self, *arg, **kw):
         super(UploaderUser, self).__init__(*arg, **kw)
         self.setContentsMargins(0, 0, 0, 0)
+        # dictionary of unavailable widgets (e.g. server version too low)
+        self.unavailable = {}
         # user details
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 17))
@@ -491,6 +493,9 @@ class PhotiniUploader(QtWidgets.QWidget):
                 widget = layout.itemAt(idx).widget()
                 if widget:
                     widget.setEnabled(enabled)
+        for key in self.user_widget.unavailable:
+            self.widget[key].setEnabled(
+                enabled and not self.user_widget.unavailable[key])
 
     def refresh(self):
         if not self.user_widget.connect_button.is_checked():

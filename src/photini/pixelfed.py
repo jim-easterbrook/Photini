@@ -26,6 +26,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
+from photini import __version__
 from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
@@ -59,6 +60,7 @@ class PixelfedSession(UploaderSession):
             auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
+        self.api.headers.update({'user-agent': 'Photini/' + __version__})
         self.media_ids = []
 
     def save_token(self, token):
@@ -81,8 +83,6 @@ class PixelfedSession(UploaderSession):
         return rsp.json()
 
     def do_upload(self, fileobj, image_type, image, params):
-        print('do_upload')
-        pprint(params)
         self.upload_progress.emit({'busy': False})
         fields = dict(params['media'])
         fields['file'] = (params['file_name'], fileobj, image_type)
@@ -100,17 +100,6 @@ class PixelfedSession(UploaderSession):
         data['media_ids[]'] = self.media_ids
         self.media_ids = []
         rsp = self.api_call('/api/v1/statuses', post=True, data=data)
-        if not rsp:
-            return ''
-        post_id = rsp['id']
-        for album_id in params['albums']:
-            data = {
-                'post_id': int(post_id),
-                'collection_id': int(album_id),
-                }
-            rsp = self.api_call(
-                '/api/v1.1/collections/add', post=True, data=data)
-            pprint(rsp)
         return ''
 
 
@@ -213,7 +202,6 @@ class PixelfedUser(UploaderUser):
             # get instance info
             self.version = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
-##            pprint(self.instance_config)
             version = self.instance_config['version']
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
@@ -223,16 +211,22 @@ class PixelfedUser(UploaderUser):
             if match:
                 self.version['pixelfed'] = tuple(
                     [int(x) for x in match.groups()])
-            print('mastodon version', self.version['mastodon'])
-            print('pixelfed version', self.version['pixelfed'])
+            self.unavailable['albums'] = not (
+                self.version['pixelfed']
+                and self.version['pixelfed'] >= (0, 11, 4))
+            self.unavailable['comments_disabled'] = self.unavailable['albums']
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
                 'image': media['image_size_limit'],
                 'image_pixels': media['image_matrix_limit'],
                 'video': media['video_size_limit'],
                 }
+            # get user preferences
+            prefs = session.api_call('/api/v1/preferences')
+            widgets['sensitive'].setChecked(prefs['posting:default:sensitive'])
+            widgets['visibility'].set_value(prefs['posting:default:visibility'])
             # get collections
-            if not self.version['pixelfed']:
+            if self.unavailable['albums']:
                 return
             for collection in session.api_call(
                     '/api/v1.1/collections/accounts/{}'.format(
@@ -406,13 +400,16 @@ class TabWidget(PhotiniUploader):
         self.widget['sensitive'] = QtWidgets.QCheckBox(
             translate('PixelfedTab', 'Sensitive post'))
         group.layout().addRow(self.widget['sensitive'])
+        # comments disabled
+        self.widget['comments_disabled'] = QtWidgets.QCheckBox(
+            translate('PixelfedTab', 'Disable comments'))
+        group.layout().addRow(self.widget['comments_disabled'])
         column.addWidget(group, 0, 0)
         yield column, 0
         ## last column is list of albums
         yield self.album_list(), 0
 
     def add_album(self, album, index=-1):
-        print('add_album', album)
         if not album['title']:
             return None
         widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
@@ -475,11 +472,17 @@ class TabWidget(PhotiniUploader):
             'status'].get_value() or params['file_name']
         params['status']['visibility'] = self.widget['visibility'].get_value()
         params['status']['sensitive'] = self.widget['sensitive'].isChecked()
-        # collections to add post to
-        params['albums'] = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                params['albums'].append(child.property('id'))
+        if (self.user_widget.version['pixelfed']
+                and self.user_widget.version['pixelfed'] >= (0, 11, 4)):
+            params['status']['comments_disabled'] = ('0', '1')[
+                self.widget['comments_disabled'].isChecked()]
+            # collections to add post to
+            album_ids = []
+            for child in self.widget['albums'].children():
+                if child.isWidgetType() and child.isChecked():
+                    album_ids.append(child.property('id'))
+            if album_ids:
+                params['status']['collection_ids[]'] = album_ids
         return params
 
     def enable_upload_button(self, selection=None):
