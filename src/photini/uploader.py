@@ -216,19 +216,16 @@ class AuthRequestHandler(BaseHTTPRequestHandler):
 
 class AuthServer(QtCore.QObject):
     finished = QtSignal()
-    response = QtSignal(dict)
 
     @QtSlot()
     @catch_all
     def handle_requests(self):
+        self.running = True
         self.server.timeout = 10
         self.server.result = None
-        # allow user 5 minutes to finish the process
-        timeout = time.time() + 300
-        while time.time() < timeout:
+        while self.running:
             self.server.handle_request()
             if self.server.result:
-                self.response.emit(self.server.result)
                 break
         self.server.server_close()
         self.finished.emit()
@@ -317,12 +314,14 @@ class UploaderUser(QtWidgets.QGridLayout):
         with Busy():
             # do full authentication procedure
             frob = self.get_frob()
-            if frob is not None:
+            if frob:
                 auth_url = self.get_auth_url(frob)
                 if not auth_url:
                     self.logger.error('Failed to get auth URL')
                     return
+                auth_response = frob
             else:
+                auth_response = None
                 # create temporary local web server
                 http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
                 redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
@@ -335,7 +334,6 @@ class UploaderUser(QtWidgets.QGridLayout):
                 thread = QtCore.QThread(self)
                 server.moveToThread(thread)
                 server.server = http_server
-                server.response.connect(self.auth_response)
                 thread.started.connect(server.handle_requests)
                 server.finished.connect(thread.quit)
                 server.finished.connect(server.deleteLater)
@@ -344,9 +342,6 @@ class UploaderUser(QtWidgets.QGridLayout):
             if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
                 self.logger.error('Failed to open web browser')
                 return
-        if frob is None:
-            # server will call auth_response with a token
-            return
         # wait for user to authorise in web browser
         dialog = QtWidgets.QMessageBox(self.parentWidget())
         dialog.setWindowTitle(
@@ -358,15 +353,15 @@ class UploaderUser(QtWidgets.QGridLayout):
             ' Photini, and then close this dialog.'))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Ok)
+        if not frob:
+            server.finished.connect(dialog.close)
         execute(dialog)
-        with Busy():
-            self.get_access_token(frob)
-
-    @QtSlot(dict)
-    @catch_all
-    def auth_response(self, result):
-        with Busy():
-            self.get_access_token(result)
+        if not frob:
+            auth_response = http_server.result
+            server.running = False
+        if auth_response:
+            with Busy():
+                self.get_access_token(auth_response)
 
     def get_frob(self):
         return None
