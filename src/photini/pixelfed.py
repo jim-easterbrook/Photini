@@ -215,6 +215,9 @@ class PixelfedUser(UploaderUser):
                 self.version['pixelfed']
                 and self.version['pixelfed'] >= (0, 11, 4))
             self.unavailable['comments_disabled'] = self.unavailable['albums']
+            self.unavailable['new_album'] = not (
+                self.version['pixelfed']
+                and self.version['pixelfed'] >= (99, 0, 0))
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
                 'image': media['image_size_limit'],
@@ -358,6 +361,7 @@ class PixelfedUser(UploaderUser):
         self.user_data['token'] = token
         self.set_password(repr(token))
 
+
 class TabWidget(PhotiniUploader):
     logger = logger
 
@@ -407,10 +411,15 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'Disable comments'))
         group.layout().addRow(self.widget['comments_disabled'])
         column.addWidget(group, 0, 0)
+        # create new collection
+        self.widget['new_album'] = QtWidgets.QPushButton(
+            translate('PixelfedTab', 'New collection'))
+        self.widget['new_album'].clicked.connect(self.new_album)
+        column.addWidget(self.widget['new_album'], 1, 0)
         yield column, 0
         ## last column is list of albums
         yield self.album_list(
-            label=translate('PixelfedTab', 'Add to collections')
+            label=translate('PixelfedTab', 'Add to collections'),
             max_selected=3), 0
 
     def accepted_image_type(self, file_type):
@@ -511,3 +520,53 @@ class TabWidget(PhotiniUploader):
         if keywords:
             strings.append(' '.join(['#' + x for x in keywords]))
         self.widget['status'].set_value('\n\n'.join(strings))
+
+    @QtSlot()
+    @catch_all
+    def new_album(self):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))
+        dialog.setLayout(FormLayout())
+        title = SingleLineEdit('title', spell_check=True, length_check=50)
+        dialog.layout().addRow(translate('PixelfedTab', 'Title'), title)
+        description = MultiLineEdit(
+            'description', spell_check=True, length_check=500)
+        dialog.layout().addRow(
+            translate('PixelfedTab', 'Description'), description)
+        visibility = DropDownSelector(
+            'visibility', values = (
+                (translate('PixelfedTab', 'Public'), 'public'),
+                (translate('PixelfedTab', 'Followers only'), 'private'),
+                (translate('PixelfedTab', 'Draft'), 'draft')),
+            default='public', with_multiple=False)
+        dialog.layout().addRow(
+            translate('PixelfedTab', 'Collection visibility'), visibility)
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
+        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
+            return
+        data = {
+            'title': title.toPlainText(),
+            'description': description.toPlainText(),
+            'visibility': visibility.get_value(),
+            }
+        if not data['title']:
+            return
+        # currently no known endpoint to create a collection
+        return
+        with self.user_widget.session(parent=self) as session:
+            # this endpoint doesn't exist
+            album = session.api_call('/api/v1.1/collections/create')
+            # this endpoint updates an existing album
+            album = session.api_call(
+                '/api/v1.1/collections/update/{}'.format(
+                    album['id']), data=data)
+        widget = self.widget['albums'].add_album(
+            {'title': album['title'], 'description': album['description'],
+             'id': album['id'], 'writeable': True},
+            index=0)
+        widget.setChecked(True)
