@@ -32,7 +32,8 @@ from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import (
     PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
-from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
+from photini.widgets import (
+    DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -60,7 +61,7 @@ class PixelfedSession(UploaderSession):
             auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
-        self.api.headers.update({'user-agent': 'Photini/' + __version__})
+        self.api.headers.update({'User-Agent': 'Photini/' + __version__})
         self.media_ids = []
 
     def save_token(self, token):
@@ -83,6 +84,8 @@ class PixelfedSession(UploaderSession):
         return rsp.json()
 
     def do_upload(self, fileobj, image_type, image, params):
+        print('do_upload')
+        pprint(params)
         self.upload_progress.emit({'busy': False})
         fields = dict(params['media'])
         fields['file'] = (params['file_name'], fileobj, image_type)
@@ -202,6 +205,8 @@ class PixelfedUser(UploaderUser):
             # get instance info
             self.version = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
+            widgets['status'].highlighter.length_check = self.instance_config[
+                'configuration']['statuses']['max_characters']
             version = self.instance_config['version']
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
@@ -379,12 +384,28 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
         group.setLayout(FormLayout(wrapped=True))
-        self.widget['status'] = MultiLineEdit('status')
+        sub_grid = QtWidgets.QGridLayout()
+        sub_grid.setContentsMargins(0, 0, 0, 0)
+        sub_grid.addWidget(
+            Label(translate('PixelfedTab', 'Caption'), layout=group.layout()),
+            0, 0)
+        self.widget['auto_status'] = QtWidgets.QPushButton(
+            translate('PixelfedTab', 'Generate'))
+        self.widget['auto_status'].clicked.connect(self.auto_status)
+        sub_grid.addWidget(self.widget['auto_status'], 0, 2)
+        self.widget['status'] = MultiLineEdit(
+            'status', spell_check=True, length_check=1000, length_always=True)
         policy = self.widget['status'].sizePolicy()
         policy.setVerticalStretch(1)
         self.widget['status'].setSizePolicy(policy)
-        group.layout().addRow(translate('PixelfedTab', 'Caption'),
-                              self.widget['status'])
+        sub_grid.addWidget(self.widget['status'], 1, 0, 1, 3)
+        sub_grid.setColumnStretch(1, 1)
+        group.layout().addRow(sub_grid)
+        self.widget['spoiler_text'] = SingleLineEdit(
+            'spoiler_text', spell_check=True,
+            length_check=140, length_always=True)
+        group.layout().addRow(
+            translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
         column.addWidget(group, 0, 0)
         yield column, 1
         ## second column
@@ -468,14 +489,15 @@ class TabWidget(PhotiniUploader):
         if description:
             params['media']['description'] = '\n\n'.join(description)
         # 'status' is the text that accompanies the media
-        params['status']['status'] = self.widget[
-            'status'].get_value() or params['file_name']
-        params['status']['visibility'] = self.widget['visibility'].get_value()
+        for key in ('status', 'spoiler_text', 'visibility'):
+            params['status'][key] = self.widget[key].get_value()
+        params['status']['status'] = params[
+            'status']['status'] or params['file_name']
         params['status']['sensitive'] = self.widget['sensitive'].isChecked()
-        if (self.user_widget.version['pixelfed']
-                and self.user_widget.version['pixelfed'] >= (0, 11, 4)):
+        if not self.user_widget.unavailable['comments_disabled']:
             params['status']['comments_disabled'] = ('0', '1')[
                 self.widget['comments_disabled'].isChecked()]
+        if not self.user_widget.unavailable['albums']:
             # collections to add post to
             album_ids = self.widget['albums'].get_checked_ids()
             if album_ids:
@@ -491,9 +513,13 @@ class TabWidget(PhotiniUploader):
                 and not self.buttons['upload'].is_checked()):
             self.buttons['upload'].setEnabled(False)
             return
+
+    @QtSlot()
+    @catch_all
+    def auto_status(self):
         result = {
             'title': [], 'headline': [], 'description': [], 'keywords': []}
-        for image in selection:
+        for image in self.app.image_list.get_selected_images():
             md = image.metadata
             if md.title:
                 result['title'].append(md.title.default_text())
@@ -527,10 +553,11 @@ class TabWidget(PhotiniUploader):
         dialog = QtWidgets.QDialog(parent=self)
         dialog.setWindowTitle(translate('PixelfedTab', 'Create new collection'))
         dialog.setLayout(FormLayout())
-        title = SingleLineEdit('title', spell_check=True, length_check=50)
+        title = SingleLineEdit('title', spell_check=True,
+                               length_check=50, length_always=True)
         dialog.layout().addRow(translate('PixelfedTab', 'Title'), title)
-        description = MultiLineEdit(
-            'description', spell_check=True, length_check=500)
+        description = MultiLineEdit('description', spell_check=True,
+                                    length_check=500, length_always=True)
         dialog.layout().addRow(
             translate('PixelfedTab', 'Description'), description)
         visibility = DropDownSelector(
