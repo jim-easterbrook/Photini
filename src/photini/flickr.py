@@ -79,14 +79,12 @@ class FlickrSession(UploaderSession):
                 rsp = self.api.post(url, data=params, **kwds)
             else:
                 rsp = self.api.get(url, params=params, **kwds)
+            rsp.raise_for_status()
+            rsp = rsp.json()
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
             return {}
-        if rsp.status_code != 200:
-            logger.error('HTTP error %d', rsp.status_code)
-            return {}
-        rsp = rsp.json()
         if not ('stat' in rsp and rsp['stat'] == 'ok'):
             logger.error('%s: %s', method, rsp['message'])
             return {}

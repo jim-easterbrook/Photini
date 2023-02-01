@@ -71,17 +71,17 @@ class PixelfedSession(UploaderSession):
     def api_call(self, endpoint, post=False, **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
-        if post:
-            return self.check_response(self.api.post(url, **params))
-        return self.check_response(self.api.get(url, **params))
-
-    @staticmethod
-    def check_response(rsp):
-        if rsp.status_code != 200:
-            print(rsp.text)
-            logger.error('HTTP error %d', rsp.status_code)
+        try:
+            if post:
+                rsp = self.api.post(url, **params)
+            else:
+                rsp = self.api.get(url, **params)
+            rsp.raise_for_status()
+            return rsp.json()
+        except Exception as ex:
+            logger.error(str(ex))
+            self.close_connection()
             return {}
-        return rsp.json()
 
     def do_upload(self, fileobj, image_type, image, params):
         print('do_upload')
@@ -321,9 +321,13 @@ class PixelfedUser(UploaderUser):
             'redirect_uris': 'http://127.0.0.1',
             'website': 'https://photini.readthedocs.io/',
             }
-        rsp = PixelfedSession.check_response(requests.post(
-            api_base_url + '/api/v1/apps', data=data, timeout=20))
-        if not rsp:
+        try:
+            rsp = requests.post(
+                api_base_url + '/api/v1/apps', data=data, timeout=20)
+            rsp.raise_for_status()
+            rsp = rsp.json()
+        except Exception as ex:
+            logger.error(str(ex))
             return False
         client_id = rsp['client_id']
         client_secret = rsp['client_secret']

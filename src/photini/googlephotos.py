@@ -54,18 +54,17 @@ class GooglePhotosSession(UploaderSession):
 
     def api_call(self, url, post=False, **params):
         self.open_connection()
-        if post:
-            return self.check_response(self.api.post(url, **params))
-        return self.check_response(self.api.get(url, **params))
-
-    @staticmethod
-    def check_response(rsp, decode=True):
-        if rsp.status_code != 200:
-            logger.error('HTTP error %d', rsp.status_code)
-            return (None, {})[decode]
-        if decode:
+        try:
+            if post:
+                rsp = self.api.post(url, **params)
+            else:
+                rsp = self.api.get(url, **params)
+            rsp.raise_for_status()
             return rsp.json()
-        return rsp
+        except Exception as ex:
+            logger.error(str(ex))
+            self.close_connection()
+            return {}
 
     def get_user(self):
         rsp = self.api_call(self.oauth_url + 'v2/userinfo', timeout=5)
@@ -73,10 +72,12 @@ class GooglePhotosSession(UploaderSession):
         if 'name' in rsp:
             name = rsp['name']
         if 'picture' in rsp:
-            rsp = self.check_response(
-                requests.get(rsp['picture']), decode=False)
-            if rsp:
+            try:
+                rsp = requests.get(rsp['picture'])
+                rsp.raise_for_status()
                 picture = rsp.content
+            except Exception as ex:
+                logger.error(str(ex))
         return name, picture
 
     def get_albums(self):
@@ -111,9 +112,7 @@ class GooglePhotosSession(UploaderSession):
             'X-Goog-Upload-Raw-Size'    : str(fileobj.len),
             }
         rsp = self.api.post(self.photos_url + 'v1/uploads', headers=headers)
-        rsp = self.check_response(rsp, decode=False)
-        if not rsp:
-            return 'upload failed'
+        rsp.raise_for_status()
         upload_url = rsp.headers['X-Goog-Upload-URL']
         chunk_size = int(rsp.headers['X-Goog-Upload-Chunk-Granularity'])
         # 2/ upload data in chunks, size set by google
@@ -127,10 +126,8 @@ class GooglePhotosSession(UploaderSession):
             if offset >= fileobj.len:
                 headers['X-Goog-Upload-Command'] = 'upload, finalize'
             rsp = self.api.post(upload_url, headers=headers, data=chunk)
+            rsp.raise_for_status()
             self.upload_progress.emit({'value': offset * 100 // fileobj.len})
-            rsp = self.check_response(rsp, decode=False)
-            if not rsp:
-                break
             if rsp.text:
                 upload_token = rsp.text
         self.upload_progress.emit({'busy': True})
@@ -223,9 +220,14 @@ class GooglePhotosUser(UploaderUser):
             'grant_type': 'authorization_code',
             }
         data.update(auth_params)
-        rsp = GooglePhotosSession.check_response(
-            requests.post(GooglePhotosSession.oauth_url + 'v4/token',
-                          data=data, timeout=5))
+        try:
+            rsp = requests.post(GooglePhotosSession.oauth_url + 'v4/token',
+                                data=data, timeout=5)
+            rsp.raise_for_status()
+            rsp = rsp.json()
+        except Exception as ex:
+            logger.error(str(ex))
+            return
         if 'access_token' not in rsp:
             logger.info('No access token received')
             return

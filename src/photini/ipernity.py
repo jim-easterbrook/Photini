@@ -79,14 +79,12 @@ class IpernitySession(UploaderSession):
                 rsp = self.api.post(url, timeout=20, data=params)
             else:
                 rsp = self.api.get(url, timeout=20, params=params)
+            rsp.raise_for_status()
+            rsp = rsp.json()
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
             return {}
-        if rsp.status_code != 200:
-            logger.error('HTTP error %s: %d', method, rsp.status_code)
-            return {}
-        rsp = rsp.json()
         if rsp['api']['status'] != 'ok':
             logger.error('API error %s: %s', method, str(rsp['api']))
             return {}
@@ -102,11 +100,12 @@ class IpernitySession(UploaderSession):
         name = rsp['user']['username']
         icon_url = rsp['user']['icon']
         # get icon
-        rsp = self.api.get(icon_url)
-        if rsp.status_code == 200:
+        try:
+            rsp = self.api.get(icon_url)
+            rsp.raise_for_status()
             picture = rsp.content
-        else:
-            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
+        except Exception as ex:
+            logger.error(str(ex))
         return name, picture
 
     def get_albums(self):

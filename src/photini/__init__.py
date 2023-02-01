@@ -1,4 +1,4 @@
 """Full documentation is at https://photini.readthedocs.io/"""
 
 __version__ = '2023.2.0'
-build = '2404 (b60baca)'
+build = '2405 (968cccf)'
