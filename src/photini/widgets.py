@@ -205,7 +205,7 @@ class DropDownSelector(ComboBox):
 
 
 class TextHighlighter(QtGui.QSyntaxHighlighter):
-    def __init__(self, spelling, length, multi_string, parent):
+    def __init__(self, spelling, length, length_always, multi_string, parent):
         super(TextHighlighter, self).__init__(parent)
         self.config_store = QtWidgets.QApplication.instance().config_store
         if spelling:
@@ -221,23 +221,28 @@ class TextHighlighter(QtGui.QSyntaxHighlighter):
             self.spell_check = None
         if length:
             self.length_check = length
+            self.length_always = length_always
             self.length_formatter = QtGui.QTextCharFormat()
             self.length_formatter.setUnderlineColor(Qt.GlobalColor.blue)
             self.length_formatter.setUnderlineStyle(
                 QtGui.QTextCharFormat.UnderlineStyle.SingleUnderline)
             if multi_string:
+                # treat each keyword separately
                 self.pattern = re.compile(r'\s*(.+?)(;|$)')
             else:
-                self.pattern = re.compile(r'\s*(.+)')
+                # treat the entire block as one
+                self.pattern = re.compile(r'(.+)')
         else:
             self.length_check = None
 
     @catch_all
     def highlightBlock(self, text):
         if not text:
+            if self.length_check:
+                self.setCurrentBlockState(self.previousBlockState())
             return
         if self.length_check:
-            length_warning = self.config_store.get(
+            length_warning = self.length_always or self.config_store.get(
                 'files', 'length_warning', True)
             if length_warning:
                 consumed = max(self.previousBlockState(), 0)
@@ -263,7 +268,7 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
     new_value = QtSignal(str, object)
 
     def __init__(self, key, *arg, spell_check=False, length_check=None,
-                 multi_string=False, **kw):
+                 multi_string=False, length_always=False, **kw):
         super(MultiLineEdit, self).__init__(*arg, **kw)
         if self.isRightToLeft():
             self.set_text_alignment(Qt.AlignmentFlag.AlignRight)
@@ -273,7 +278,8 @@ class MultiLineEdit(QtWidgets.QPlainTextEdit):
         self._is_multiple = False
         self.spell_check = spell_check
         self.highlighter = TextHighlighter(
-            spell_check, length_check, multi_string, self.document())
+            spell_check, length_check, length_always, multi_string,
+            self.document())
 
     @catch_all
     def focusOutEvent(self, event):
