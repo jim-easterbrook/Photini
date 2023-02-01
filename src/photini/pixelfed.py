@@ -231,11 +231,13 @@ class PixelfedUser(UploaderUser):
             for collection in session.api_call(
                     '/api/v1.1/collections/accounts/{}'.format(
                         self.user_data['id'])):
-                yield 'album', {
-                    'title': collection['title'],
-                    'description': collection['description'],
-                    'id': collection['id'],
-                    }
+                if collection['title']:
+                    yield 'album', {
+                        'title': collection['title'],
+                        'description': collection['description'],
+                        'id': collection['id'],
+                        'writeable': collection['post_count'] < 18,
+                        }
 
     def load_user_data(self):
         self.config_store = QtWidgets.QApplication.instance().config_store
@@ -407,20 +409,9 @@ class TabWidget(PhotiniUploader):
         column.addWidget(group, 0, 0)
         yield column, 0
         ## last column is list of albums
-        yield self.album_list(), 0
-
-    def add_album(self, album, index=-1):
-        if not album['title']:
-            return None
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        if album['description']:
-            widget.setToolTip('<p>' + album['description'] + '</p>')
-        widget.setProperty('id', album['id'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
+        yield self.album_list(
+            label=translate('PixelfedTab', 'Add to collections')
+            max_selected=3), 0
 
     def accepted_image_type(self, file_type):
         return file_type in self.user_widget.instance_config[
@@ -477,10 +468,7 @@ class TabWidget(PhotiniUploader):
             params['status']['comments_disabled'] = ('0', '1')[
                 self.widget['comments_disabled'].isChecked()]
             # collections to add post to
-            album_ids = []
-            for child in self.widget['albums'].children():
-                if child.isWidgetType() and child.isChecked():
-                    album_ids.append(child.property('id'))
+            album_ids = self.widget['albums'].get_checked_ids()
             if album_ids:
                 params['status']['collection_ids[]'] = album_ids
         return params

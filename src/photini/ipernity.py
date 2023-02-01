@@ -126,7 +126,8 @@ class IpernitySession(UploaderSession):
                 details = {
                     'title': rsp['album']['title'],
                     'description': rsp['album']['description'],
-                    'album_id': rsp['album']['album_id'],
+                    'id': rsp['album']['album_id'],
+                    'writeable': True,
                     }
                 yield details
             if int(albums['page']) >= int(albums['pages']):
@@ -432,10 +433,6 @@ class TabWidget(PhotiniUploader):
         self.app.config_store.set('ipernity', key, value)
 
     def get_fixed_params(self):
-        albums = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                albums.append(child.property('album_id'))
         visibility = {
             '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
             '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
@@ -453,19 +450,8 @@ class TabWidget(PhotiniUploader):
             'licence': {
                 'license': self.widget['license'].get_value(),
                 },
-            'albums': albums,
+            'albums': self.widget['albums'].get_checked_ids(),
             }
-
-    def add_album(self, album, index=-1):
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        if album['description']:
-            widget.setToolTip('<p>' + album['description'] + '</p>')
-        widget.setProperty('album_id', album['album_id'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
 
     def accepted_image_type(self, file_type):
         # ipernity accepts most RAW formats!
@@ -563,12 +549,13 @@ class TabWidget(PhotiniUploader):
             }
         if not params['title']:
             return
-        with self.session(parent=self) as session:
+        with self.user_widget.session(parent=self) as session:
             rsp = session.api_call('album.create', post=True, **params)
         if not rsp:
             return
-        widget = self.add_album(
+        widget = self.widget['albums'].add_album(
             {'title': params['title'],
              'description': params['description'],
-             'album_id': rsp['album']['album_id']}, index=0)
+             'id': rsp['album']['album_id'],
+             'writeable': True}, index=0)
         widget.setChecked(True)

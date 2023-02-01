@@ -87,12 +87,10 @@ class GooglePhotosSession(UploaderSession):
             if 'albums' not in rsp:
                 break
             for album in rsp['albums']:
-                if 'id' in album:
-                    safe_album = {'title': '', 'isWriteable': False}
-                    safe_album.update(album)
-                    yield safe_album
-                else:
+                if 'id' not in album:
                     logger.info('Malformed album', album)
+                    continue
+                yield album
             if 'nextPageToken' not in rsp:
                 break
             params['pageToken'] = rsp['nextPageToken']
@@ -177,7 +175,7 @@ class GooglePhotosUser(UploaderUser):
             yield 'connected', connected
             yield 'user', session.get_user()
             for album in session.get_albums():
-                yield 'album', album
+                yield 'album', self.normalise_album(album)
 
     def load_user_data(self):
         refresh_token = self.get_password()
@@ -240,6 +238,13 @@ class GooglePhotosUser(UploaderUser):
         self.user_data = token
         self.set_password(self.user_data['refresh_token'])
 
+    @staticmethod
+    def normalise_album(album):
+        album['writeable'] = not ('isWriteable' in album
+                                  and not album['isWriteable'])
+        album['description'] = None
+        return album
+
 
 class TabWidget(PhotiniUploader):
     logger = logger
@@ -268,23 +273,6 @@ class TabWidget(PhotiniUploader):
         yield column, 0
         ## last column is list of albums
         yield self.album_list(), 1
-
-    def checked_albums(self):
-        result = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                result.append(child.property('id'))
-        return result
-
-    def add_album(self, album, index=-1):
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        widget.setProperty('id', album['id'])
-        widget.setEnabled(album['isWriteable'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
 
     def accepted_image_type(self, file_type):
         # see https://developers.google.com/photos/library/guides/upload-media#file-types-sizes
@@ -335,7 +323,7 @@ class TabWidget(PhotiniUploader):
             description = image.path
         params = {
             'description': description,
-            'albums'     : self.checked_albums(),
+            'albums'     : self.widget['albums'].get_checked_ids(),
             }
         return params
 
@@ -347,9 +335,10 @@ class TabWidget(PhotiniUploader):
             translate('GooglePhotosTab', 'Please enter a title for the album'))
         if not OK or not title:
             return
-        with self.session(parent=self) as session:
+        with self.user_widget.session(parent=self) as session:
             album = session.new_album(title)
         if not album:
             return
-        widget = self.add_album(album, index=0)
+        album = GooglePhotosUser.normalise_album(album)
+        widget = self.widget['albums'].add_album(album, index=0)
         widget.setChecked(True)

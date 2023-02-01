@@ -129,7 +129,8 @@ class FlickrSession(UploaderSession):
                 details = {
                     'title': album['title']['_content'],
                     'description': album['description']['_content'],
-                    'photoset_id': album['id'],
+                    'id': album['id'],
+                    'writeable': True,
                     }
                 yield details
             if rsp['photosets']['page'] == rsp['photosets']['pages']:
@@ -256,7 +257,7 @@ class FlickrSession(UploaderSession):
                 for p_set in rsp['set']:
                     current_albums[p_set['id']] = p_set
         for widget in params['albums']:
-            photoset_id = widget.property('photoset_id')
+            photoset_id = widget.property('id')
             if not photoset_id:
                 # create new set
                 rsp = self.api_call(
@@ -462,10 +463,7 @@ class TabWidget(PhotiniUploader):
         yield self.album_list(), 1
 
     def get_fixed_params(self):
-        albums = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                albums.append(child)
+        albums = self.widget['albums'].get_checked_widgets()
         # is_public etc are optional parameters to
         # https://up.flickr.com/services/upload/ but required for
         # flickr.photos.setPerms. perm_comment and perm_addmeta are
@@ -498,19 +496,6 @@ class TabWidget(PhotiniUploader):
                 },
             'albums': albums,
             }
-
-    def add_album(self, album, index=-1):
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        if album['description']:
-            widget.setToolTip('<p>' + album['description'] + '</p>')
-        widget.setProperty('photoset_id', album['photoset_id'])
-        widget.setProperty('title', album['title'])
-        widget.setProperty('description', album['description'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
 
     def accepted_image_type(self, file_type):
         return file_type in ('image/gif', 'image/jpeg', 'image/png')
@@ -631,7 +616,11 @@ class TabWidget(PhotiniUploader):
         if not title:
             return
         description = description.toPlainText()
-        widget = self.add_album(
-            {'title': title, 'description': description, 'photoset_id': None},
+        widget = self.widget['albums'].add_album(
+            {'title': title, 'description': description,
+             'id': None, 'writeable': True},
             index=0)
+        # set properties to be used when album is actually created
+        widget.setProperty('title', title)
+        widget.setProperty('description', description)
         widget.setChecked(True)

@@ -379,6 +379,64 @@ class UploaderUser(QtWidgets.QGridLayout):
         keyring.set_password('photini', self.name, password)
 
 
+class AlbumList(QtWidgets.QWidget):
+    def __init__(self, *arg, max_selected=0, **kw):
+        super(AlbumList, self).__init__(*arg, **kw)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setSpacing(0)
+        self.layout().setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
+        self.setAutoFillBackground(False)
+        self.album_widgets = []
+        self.max_selected = max_selected
+        self.checked_widgets = []
+
+    def add_album(self, album, index=-1):
+        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
+        if album['description']:
+            widget.setToolTip('<p>' + album['description'] + '</p>')
+        widget.setEnabled(album['writeable'])
+        widget.setProperty('id', album['id'])
+        if self.max_selected:
+            widget.stateChanged.connect(self.state_changed)
+        if index >= 0:
+            self.layout().insertWidget(index, widget)
+            self.album_widgets.insert(index, widget)
+        else:
+            self.layout().addWidget(widget)
+            self.album_widgets.append(widget)
+        return widget
+
+    @QtSlot(int)
+    @catch_all
+    def state_changed(self, state):
+        for widget in list(self.checked_widgets):
+            if not widget.isChecked():
+                self.checked_widgets.remove(widget)
+        for widget in self.get_checked_widgets():
+            if widget not in self.checked_widgets:
+                self.checked_widgets.append(widget)
+        while len(self.checked_widgets) > self.max_selected:
+            widget = self.checked_widgets.pop(0)
+            widget.setChecked(False)
+
+    def clear_albums(self):
+        for widget in self.album_widgets:
+            self.layout().removeWidget(widget)
+            widget.setParent(None)
+        self.album_widgets = []
+
+    def get_checked_widgets(self):
+        result = []
+        for widget in self.album_widgets:
+            if widget.isChecked():
+                result.append(widget)
+        return result
+
+    def get_checked_ids(self):
+        return [x.property('id') for x in self.get_checked_widgets()]
+
+
 class PhotiniUploader(QtWidgets.QWidget):
     abort_upload = QtSignal(bool)
 
@@ -427,25 +485,20 @@ class PhotiniUploader(QtWidgets.QWidget):
         # initialise as not connected
         self.connection_changed(False)
 
-    def album_list(self):
+    def album_list(self, label=None, max_selected=0):
         # list of albums widget
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 23))
         group.setLayout(QtWidgets.QVBoxLayout())
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('UploaderTabsAll', 'Add to albums')))
+        label = label or translate('UploaderTabsAll', 'Add to albums')
+        group.layout().addWidget(QtWidgets.QLabel(label))
         scrollarea = QtWidgets.QScrollArea()
         scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
         scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
-        self.widget['albums'] = QtWidgets.QWidget()
-        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
-        self.widget['albums'].layout().setSpacing(0)
-        self.widget['albums'].layout().setSizeConstraint(
-            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
+        self.widget['albums'] = AlbumList(max_selected=max_selected)
         scrollarea.setWidget(self.widget['albums'])
-        self.widget['albums'].setAutoFillBackground(False)
         group.layout().addWidget(scrollarea)
         column.addWidget(group, 0, 0)
         return column
@@ -458,17 +511,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
 
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
-
     @QtSlot(bool)
     @catch_all
     def connection_changed(self, connected):
         if 'albums' in self.widget:
-            self.clear_albums()
+            self.widget['albums'].clear_albums()
         self.user_widget.show_user(None, None)
         if connected:
             with Busy():
@@ -480,7 +527,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                     elif key == 'user':
                         self.user_widget.show_user(*value)
                     elif key == 'album':
-                        self.add_album(value)
+                        self.widget['albums'].add_album(value)
                     self.app.processEvents()
         self.user_widget.connect_button.set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
