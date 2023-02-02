@@ -27,6 +27,7 @@ import requests
 import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
+from photini import __version__
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import (
@@ -63,6 +64,7 @@ class FlickrSession(UploaderSession):
             self.auth = requests_oauthlib.OAuth1(
                 **self.client_data, **self.user_data)
             self.api = requests.session()
+            self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
     def api_call(self, method, post=False, auth=True, **params):
         self.open_connection()

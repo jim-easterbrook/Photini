@@ -23,6 +23,7 @@ import urllib
 import requests
 from requests_oauthlib import OAuth2Session
 
+from photini import __version__
 from photini.pyqt import (
     catch_all, execute, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import (
@@ -48,6 +49,7 @@ class GooglePhotosSession(UploaderSession):
             client_id=self.client_data['client_id'], token=self.user_data,
             auto_refresh_url=self.oauth_url + 'v4/token',
             auto_refresh_kwargs=self.client_data, token_updater=self.save_token)
+        self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
     def save_token(self, token):
         self.user_data = token

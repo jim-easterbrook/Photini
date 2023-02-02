@@ -27,6 +27,7 @@ import time
 import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
+from photini import __version__
 from photini.pyqt import *
 from photini.uploader import (
     PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
@@ -58,6 +59,7 @@ class IpernitySession(UploaderSession):
         if not self.api:
             self._userid = None
             self.api = requests.session()
+            self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
     def sign_request(self, method, auth, params):
         params = dict(params)
