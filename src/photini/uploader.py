@@ -738,28 +738,34 @@ class PhotiniUploader(QtWidgets.QWidget):
             return {'resize': True}
         return {'omit': True}
 
-    def ask_convert_image(self, image, mime_type=None):
+    def ask_convert_image(self, image, convertible=True, mime_type=None):
         mime_type = mime_type or image.file_type
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: incompatible type'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll', 'Incompatible image type.')))
-        dialog.setInformativeText(translate(
+        text = translate(
             'UploaderTabsAll', 'File "{file_name}" is of type "{file_type}",'
-            ' which {service} may not handle correctly. Would you like to'
-            ' convert it to JPEG?'
+            ' which {service} may not handle correctly.'
             ).format(file_name=os.path.basename(image.path),
                      file_type=mime_type,
-                     service=self.user_widget.service_name()))
+                     service=self.user_widget.service_name())
+        if convertible:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to convert it to JPEG?')
+            dialog.setStandardButtons(dialog.StandardButton.No)
+        else:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to upload it anyway?')
+        dialog.setInformativeText(text)
         dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(dialog.StandardButton.Yes |
-                                  dialog.StandardButton.No)
+        dialog.setStandardButtons(dialog.StandardButton.Yes)
         self.add_skip_button(dialog)
         dialog.setDefaultButton(dialog.StandardButton.Yes)
         result = execute(dialog)
         if result == dialog.StandardButton.Yes:
-            return {'convert': True}
+            return ({}, {'convert': True})[convertible]
         if result == dialog.StandardButton.No:
             return {}
         return {'omit': True}

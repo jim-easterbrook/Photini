@@ -462,13 +462,25 @@ class TabWidget(PhotiniUploader):
             'configuration']['media_attachments']['supported_mime_types']
 
     def get_conversion_function(self, image, params):
-        if image.file_type.split('/')[0] == 'video':
-            return 'omit'
         convert = {
             'omit': False,
             'resize': False,
             'convert': False,
             }
+        mime_type = image.file_type
+        if mime_type.startswith('video'):
+            dims = image.metadata.dimensions
+            if dims['width'] and dims['height']:
+                convert.update(self.ask_resize_image(
+                    image, pixels=dims['width'] * dims['height']))
+            if not any(convert.values()):
+                convert.update(self.ask_resize_image(image))
+            if not (any(convert.values()) or self.accepted_image_type(mime_type)):
+                convert.update(self.ask_convert_image(
+                    image, mime_type=mime_type, convertible=False))
+            if any(convert.values()):
+                return 'omit'
+            return None
         tmp = self.data_to_image(self.read_image(image))
         convert.update(self.ask_resize_image(
             image, resizable=True, pixels=tmp['width'] * tmp['height']))
