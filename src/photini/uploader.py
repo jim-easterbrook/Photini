@@ -602,6 +602,7 @@ class PhotiniUploader(QtWidgets.QWidget):
                 'data': image.metadata.clone(data),
                 'mime_type': image.file_type,
                 'metadata': image.metadata,
+                'name': os.path.basename(image.path),
                 }
 
     def data_to_image(self, src):
@@ -636,13 +637,14 @@ class PhotiniUploader(QtWidgets.QWidget):
         if src['data'] and src['mime_type'] == dst_mime_type and not (
                             max_size and src['data'].io().size() > max_size):
             return src
-        w, h = src['width'], src['height']
+        w_src, h_src = src['width'], src['height']
         for scale in (1000, 680, 470, 330, 220, 150,
                       100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
             dst = self.data_to_image(src)
+            w_dst = w_src * scale // 1000
+            h_dst = h_src * scale // 1000
             if scale != 1000:
-                dst = self.resize_image(
-                    dst, w * scale // 1000, h * scale // 1000)
+                dst = self.resize_image(dst, w_dst, h_dst)
             dst_mime_type = mime_type or dst['mime_type']
             fmt = dst_mime_type.split('/')[1].upper()
             if dst_mime_type == 'image/jpeg':
@@ -665,6 +667,8 @@ class PhotiniUploader(QtWidgets.QWidget):
                 dst['data'] = src['metadata'].clone(data)
                 dst['mime_type'] = dst_mime_type
                 if not (max_size and dst['data'].io().size() > max_size):
+                    logger.info('Converted %s from %dx%d to %dx%d JPEG',
+                                src['name'], w_src, h_src, w_dst, h_dst)
                     return dst
         return None
 
@@ -699,19 +703,28 @@ class PhotiniUploader(QtWidgets.QWidget):
         return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
                                 dialog.ButtonRole.AcceptRole)
 
-    def ask_resize_image(self, image, resizable=False):
-        max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
-        size = os.stat(image.path).st_size
+    def ask_resize_image(self, image, resizable=False, pixels=None):
+        if pixels:
+            max_size = self.user_widget.max_size[
+                image.file_type.split('/')[0] + '_pixels']
+            size = pixels
+            text = translate(
+                'UploaderTabsAll', 'File "{file_name}" has {size} pixels and'
+                ' exceeds {service}\'s limit of {max_size} pixels.')
+        else:
+            max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
+            size = os.stat(image.path).st_size
+            text = translate(
+                'UploaderTabsAll', 'File "{file_name}" has {size} bytes and'
+                ' exceeds {service}\'s limit of {max_size} bytes.')
         if size <= max_size:
-            return None
+            return {}
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: too large'))
         dialog.setText('<h3>{}</h3>'.format(
             translate('UploaderTabsAll', 'File too large.')))
-        text = translate(
-            'UploaderTabsAll', 'File "{file_name}" has {size} bytes and exceeds'
-            ' {service}\'s limit of {max_size} bytes.').format(
+        text = text.format(
                 file_name=os.path.basename(image.path), size=size,
                 service=self.user_widget.service_name(), max_size=max_size)
         if resizable:
@@ -722,10 +735,11 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setInformativeText(text)
         dialog.setIcon(dialog.Icon.Warning)
         if execute(dialog) == dialog.StandardButton.Yes:
-            return self.convert_to_jpeg
-        return 'omit'
+            return {'resize': True}
+        return {'omit': True}
 
-    def ask_convert_image(self, image):
+    def ask_convert_image(self, image, mime_type=None):
+        mime_type = mime_type or image.file_type
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: incompatible type'))
@@ -736,7 +750,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             ' which {service} may not handle correctly. Would you like to'
             ' convert it to JPEG?'
             ).format(file_name=os.path.basename(image.path),
-                     file_type=image.file_type,
+                     file_type=mime_type,
                      service=self.user_widget.service_name()))
         dialog.setIcon(dialog.Icon.Warning)
         dialog.setStandardButtons(dialog.StandardButton.Yes |
@@ -745,24 +759,35 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setDefaultButton(dialog.StandardButton.Yes)
         result = execute(dialog)
         if result == dialog.StandardButton.Yes:
-            return self.convert_to_jpeg
+            return {'convert': True}
         if result == dialog.StandardButton.No:
-            return None
-        return 'omit'
+            return {}
+        return {'omit': True}
 
     def get_conversion_function(self, image, params):
+        convert = {
+            'omit': False,
+            'resize': False,
+            'convert': False,
+            }
         if image.file_type.startswith('video'):
             # videos in most formats are accepted, as long as not too large
-            return self.ask_resize_image(image)
-        convert = None
+            convert.update(self.ask_resize_image(image))
+            if convert['omit']:
+                return 'omit'
+            return None
         if not self.accepted_image_type(image.file_type):
-            convert = self.ask_convert_image(image)
-        if not convert:
-            convert = self.ask_resize_image(image, resizable=True)
-        if (not convert) and image.metadata.find_sidecar():
+            convert.update(self.ask_convert_image(image))
+        if not any(convert.values()):
+            convert.update(self.ask_resize_image(image, resizable=True))
+        if convert['omit']:
+            return 'omit'
+        if convert['resize'] or convert['convert']:
+            return self.convert_to_jpeg
+        if image.metadata.find_sidecar():
             # need to create file without sidecar
-            convert = self.copy_file_and_metadata
-        return convert
+            return self.copy_file_and_metadata
+        return None
 
     @QtSlot()
     @catch_all

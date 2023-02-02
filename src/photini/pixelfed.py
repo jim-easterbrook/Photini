@@ -238,6 +238,7 @@ class PixelfedUser(UploaderUser):
                 'image': media['image_size_limit'],
                 'image_pixels': media['image_matrix_limit'],
                 'video': media['video_size_limit'],
+                'video_pixels': media['video_matrix_limit'],
                 }
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
@@ -463,31 +464,44 @@ class TabWidget(PhotiniUploader):
     def get_conversion_function(self, image, params):
         if image.file_type.split('/')[0] == 'video':
             return 'omit'
-        return self.prepare_image
-
-    def ask_resize_image(self, image, resizable=False):
-        if image.file_type.split('/')[0] == 'video':
-            return super(TabWidget, self).ask_resize_image(
-                image, resizable=resizable)
-        return self.prepare_image
+        convert = {
+            'omit': False,
+            'resize': False,
+            'convert': False,
+            }
+        tmp = self.data_to_image(self.read_image(image))
+        convert.update(self.ask_resize_image(
+            image, resizable=True, pixels=tmp['width'] * tmp['height']))
+        mime_type = tmp['mime_type']
+        if not (any(convert.values()) or self.accepted_image_type(mime_type)):
+            convert.update(self.ask_convert_image(image, mime_type=mime_type))
+        if not any(convert.values()):
+            convert.update(self.ask_resize_image(image, resizable=True))
+        if convert['omit']:
+            return 'omit'
+        if convert['resize'] or convert['convert']:
+            return self.prepare_image
+        if image.metadata.find_sidecar():
+            # need to create file without sidecar
+            return self.copy_file_and_metadata
+        return None
 
     def prepare_image(self, image):
         image = self.read_image(image)
         image = self.data_to_image(image)
         # reduce image size
         w, h = image['width'], image['height']
-        shrink = math.sqrt(float(w * h) / float(self.user_widget.max_size['image_pixels']))
+        shrink = math.sqrt(float(w * h) /
+                           float(self.user_widget.max_size['image_pixels']))
         if shrink > 1.0:
             w = int(float(w) / shrink)
             h = int(float(h) / shrink)
+            logger.info('Resizing %s to %dx%d pixels', image['name'], w, h)
             image = self.resize_image(image, w, h)
-        # convert mime type
-        mime_type = image['mime_type']
-        if mime_type not in self.user_widget.instance_config[
-                'configuration']['media_attachments']['supported_mime_types']:
-            mime_type = 'image/jpeg'
+        # convert to jpeg and reduce size if necessary
         image = self.image_to_data(
-            image, mime_type=mime_type, max_size=self.user_widget.max_size['image'])
+            image, mime_type='image/jpeg',
+            max_size=self.user_widget.max_size['image'])
         return image['data'], image['mime_type']
 
     def get_upload_params(self, image):
