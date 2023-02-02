@@ -63,6 +63,15 @@ class UploaderSession(QtCore.QObject):
         self.upload_progress.emit(
             {'value': monitor.bytes_read * 100 // monitor.len})
 
+    def upload_files(self, upload_list):
+        for image, convert, params in upload_list:
+            retry = True
+            while retry:
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                # UploadWorker decides if to retry after error
+                retry = yield self.do_upload(fileobj, image_type, image, params)
+
 
 class UploadAborted(Exception):
     pass
@@ -107,6 +116,7 @@ class UploadWorker(QtCore.QObject):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session = session
         self.upload_list = upload_list
+        self.retry = None
 
     @contextmanager
     def open_file(self, image, convert):
@@ -136,21 +146,25 @@ class UploadWorker(QtCore.QObject):
     def start(self):
         with self.session(parent=self) as session:
             session.upload_progress.connect(self.upload_progress)
-            upload_count = 0
-            while upload_count < len(self.upload_list):
-                image, convert, params = self.upload_list[upload_count]
-                params['last_image'] = upload_count == len(self.upload_list) - 1
+            uploader = session.upload_files(self.upload_list)
+            upload_count = 1
+            while True:
+                try:
+                    image, convert = uploader.send(self.retry)
+                except StopIteration:
+                    break
                 name = os.path.basename(image.path)
                 self.upload_progress.emit({
                     'label': '{} ({}/{})'.format(
-                         name, 1 + upload_count, len(self.upload_list)),
-                    })
+                        name, upload_count, len(self.upload_list)),
+                    'busy': True})
                 try:
-                    with self.open_file(image, convert) as (image_type, fileobj):
+                    with self.open_file(
+                            image, convert) as (image_type, fileobj):
                         self._abort_upload.connect(
-                            fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
-                        error = session.do_upload(
-                            fileobj, image_type, image, params)
+                            fileobj.abort_upload,
+                            Qt.ConnectionType.DirectConnection)
+                        error = uploader.send((fileobj, image_type))
                 except UploadAborted:
                     error = 'UploadAborted'
                 except RuntimeError as ex:

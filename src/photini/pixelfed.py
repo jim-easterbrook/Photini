@@ -62,7 +62,6 @@ class PixelfedSession(UploaderSession):
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
         self.api.headers.update({'User-Agent': 'Photini/' + __version__})
-        self.media_ids = []
 
     def save_token(self, token):
         self.user_data['token'] = token
@@ -83,27 +82,44 @@ class PixelfedSession(UploaderSession):
             self.close_connection()
             return {}
 
-    def do_upload(self, fileobj, image_type, image, params):
-        print('do_upload')
-        pprint(params)
-        self.upload_progress.emit({'busy': False})
-        fields = dict(params['media'])
-        fields['file'] = (params['file_name'], fileobj, image_type)
-        data = MultipartEncoderMonitor(
-            MultipartEncoder(fields=fields), self.progress)
-        rsp = self.api_call('/api/v1/media', post=True, data=data,
-                            headers={'Content-Type': data.content_type})
-        if not rsp:
-            return ''
-        self.upload_progress.emit({'busy': True})
-        self.media_ids.append(rsp['id'])
-        if not params['last_image']:
-            return ''
-        data = dict(params['status'])
-        data['media_ids[]'] = self.media_ids
-        self.media_ids = []
-        rsp = self.api_call('/api/v1/statuses', post=True, data=data)
-        return ''
+    def upload_files(self, upload_list):
+        media_ids = []
+        remaining = len(upload_list)
+        for image, convert, params in upload_list:
+            remaining -= 1
+            do_media = True
+            do_status = remaining == 0
+            print('do_upload')
+            pprint(params)
+            retry = True
+            while retry:
+                error = ''
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                if do_media:
+                    # upload fileobj
+                    fields = dict(params['media'])
+                    fields['file'] = (params['file_name'], fileobj, image_type)
+                    data = MultipartEncoderMonitor(
+                        MultipartEncoder(fields=fields), self.progress)
+                    self.upload_progress.emit({'busy': False})
+                    rsp = self.api_call(
+                        '/api/v1/media', post=True, data=data,
+                        headers={'Content-Type': data.content_type})
+                    self.upload_progress.emit({'busy': True})
+                    if rsp:
+                        media_ids.append(rsp['id'])
+                        do_media = False
+                    else:
+                        error = 'Image upload failed'
+                if do_status and not error:
+                    data = dict(params['status'])
+                    data['media_ids[]'] = media_ids
+                    rsp = self.api_call(
+                        '/api/v1/statuses', post=True, data=data)
+                    if not rsp:
+                        error = 'Post status failed'
+                retry = yield error
 
 
 class ChooseInstance(QtWidgets.QDialog):
