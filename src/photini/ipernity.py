@@ -82,7 +82,7 @@ class IpernitySession(UploaderSession):
             rsp = self.api.get(url, timeout=20, params=params)
         rsp = self.check_response(rsp)
         if not rsp:
-            print('close_connection', endpoint)
+            print('close_connection', method)
             self.close_connection()
         elif rsp['api']['status'] != 'ok':
             logger.error('API error %s: %s', method, str(rsp['api']))
@@ -519,41 +519,30 @@ class TabWidget(PhotiniUploader):
     @QtSlot()
     @catch_all
     def new_album(self):
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate(
-            'IpernityTab', 'Create new Ipernity album'))
-        dialog.setLayout(FormLayout())
+        dialog = self.new_album_dialog()
         title = SingleLineEdit('title', spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
         description = MultiLineEdit('description', spell_check=True)
-        dialog.layout().addRow(translate(
-            'IpernityTab', 'Description'), description)
+        dialog.layout().addRow(
+            translate('IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')
         dialog.layout().addRow(Label(
             translate('IpernityTab', 'Who can comment on album'),
             lines=2, layout=dialog.layout()), perm_comment)
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok |
-            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
+        if not self.exec_album_dialog(dialog):
             return
-        params = {
+        album = {
             'title': title.toPlainText(),
             'description': description.toPlainText(),
             'perm_comment': perm_comment.get_value(),
             }
-        if not params['title']:
+        if not album['title']:
             return
         with self.user_widget.session(parent=self) as session:
-            rsp = session.api_call('album.create', post=True, **params)
+            rsp = session.api_call('album.create', post=True, **album)
         if not rsp:
             return
-        widget = self.widget['albums'].add_album(
-            {'title': params['title'],
-             'description': params['description'],
-             'id': rsp['album']['album_id'],
-             'writeable': True}, index=0)
+        album['id'] = rsp['album']['album_id']
+        album['writeable'] = True
+        widget = self.widget['albums'].add_album(album, index=0)
         widget.setChecked(True)

@@ -60,6 +60,8 @@ class PixelfedSession(UploaderSession):
         self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
     def save_token(self, token):
+        print('save_token')
+        pprint(token)
         self.user_data['token'] = token
         self.new_token.emit(token)
 

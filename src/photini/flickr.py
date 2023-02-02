@@ -82,7 +82,7 @@ class FlickrSession(UploaderSession):
             rsp = self.api.get(url, params=params, **kwds)
         rsp = self.check_response(rsp)
         if not rsp:
-            print('close_connection', endpoint)
+            print('close_connection', method)
             self.close_connection()
         elif rsp['stat'] != 'ok':
             logger.error('%s: %s', method, rsp['message'])
@@ -453,7 +453,7 @@ class TabWidget(PhotiniUploader):
         column.addWidget(self.buttons['sync'], 1, 0)
         # create new set
         button = QtWidgets.QPushButton(translate('FlickrTab', 'New album'))
-        button.clicked.connect(self.new_set)
+        button.clicked.connect(self.new_album)
         column.addWidget(button, 2, 0)
         yield column, 0
         ## last column is list of albums
@@ -590,34 +590,27 @@ class TabWidget(PhotiniUploader):
 
     @QtSlot()
     @catch_all
-    def new_set(self):
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate('FlickrTab', 'Create new Flickr album'))
-        dialog.setLayout(FormLayout())
+    def new_album(self):
+        dialog = self.new_album_dialog()
         title = SingleLineEdit('title', spell_check=True)
         dialog.layout().addRow(translate('FlickrTab', 'Title'), title)
         description = MultiLineEdit('description', spell_check=True)
-        dialog.layout().addRow(translate('FlickrTab', 'Description'),
-                               description)
+        dialog.layout().addRow(translate(
+            'FlickrTab', 'Description'), description)
         dialog.layout().addRow(QtWidgets.QLabel(translate(
             'FlickrTab', 'Album will be created when photos are uploaded')))
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok |
-            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
+        if not self.exec_album_dialog(dialog):
             return
-        title = title.toPlainText()
-        if not title:
+        album = {
+            'title': title.toPlainText(),
+            'description': description.toPlainText(),
+            'id': None,
+            'writeable': True,
+            }
+        if not album['title']:
             return
-        description = description.toPlainText()
-        widget = self.widget['albums'].add_album(
-            {'title': title, 'description': description,
-             'id': None, 'writeable': True},
-            index=0)
+        widget = self.widget['albums'].add_album(album, index=0)
         # set properties to be used when album is actually created
-        widget.setProperty('title', title)
-        widget.setProperty('description', description)
+        widget.setProperty('title', album['title'])
+        widget.setProperty('description', album['description'])
         widget.setChecked(True)

@@ -1146,3 +1146,18 @@ class PhotiniUploader(QtWidgets.QWidget):
                         '{}({})'.format(image.name, key),
                         self.user_widget.service_name(), value)
                 setattr(md, key, value)
+
+    def new_album_dialog(self):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('UploaderTabsAll', 'Create new album'))
+        dialog.setLayout(FormLayout())
+        return dialog
+
+    def exec_album_dialog(self, dialog):
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
+        return execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted
