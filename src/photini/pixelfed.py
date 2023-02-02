@@ -45,9 +45,6 @@ translate = QtCore.QCoreApplication.translate
 class PixelfedSession(UploaderSession):
     name = 'pixelfed'
 
-    def authorised(self):
-        return self.api.authorized
-
     def open_connection(self):
         if self.api:
             return
@@ -70,18 +67,26 @@ class PixelfedSession(UploaderSession):
     def api_call(self, endpoint, post=False, **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
+        if post:
+            rsp = self.check_response(self.api.post(url, **params))
+        else:
+            rsp = self.check_response(self.api.get(url, **params))
+        if not rsp:
+            print('close_connection', endpoint)
+            self.close_connection()
+        return rsp
+
+    @staticmethod
+    def check_response(rsp, decode=True):
         try:
-            if post:
-                rsp = self.api.post(url, **params)
-            else:
-                rsp = self.api.get(url, **params)
             rsp.raise_for_status()
-            return rsp.json()
+            if decode:
+                return rsp.json()
+            return rsp
         except UploadAborted:
             raise
         except Exception as ex:
             logger.error(str(ex))
-            self.close_connection()
             return {}
 
     def upload_files(self, upload_list):
@@ -91,8 +96,6 @@ class PixelfedSession(UploaderSession):
             remaining -= 1
             do_media = True
             do_status = remaining == 0
-            print('do_upload')
-            pprint(params)
             retry = True
             while retry:
                 error = ''
@@ -205,35 +208,35 @@ class PixelfedUser(UploaderUser):
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
-            connected = session.authorised()
-            yield 'connected', connected
+            yield 'connected', session.api.authorized
             # get user info
             name, picture = None, None
             account = session.api_call('/api/v1/accounts/verify_credentials')
+            if not account:
+                yield 'connected', False
             self.user_data['id'] = account['id']
             name = account['display_name']
             # get icon
             icon_url = account['avatar_static']
-            rsp = requests.get(icon_url)
-            if rsp.status_code == 200:
+            rsp = PixelfedSession.check_response(
+                requests.get(icon_url), decode=False)
+            if rsp:
                 picture = rsp.content
-            else:
-                logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
             yield 'user', (name, picture)
             # get instance info
             self.version = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
+            if not self.instance_config:
+                yield 'connected', False
             widgets['status'].highlighter.length_check = self.instance_config[
                 'configuration']['statuses']['max_characters']
             version = self.instance_config['version']
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['mastodon'] = tuple(
-                    [int(x) for x in match.groups()])
+                self.version['mastodon'] = tuple(int(x) for x in match.groups())
             match = re.search(r'Pixelfed\s+(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['pixelfed'] = tuple(
-                    [int(x) for x in match.groups()])
+                self.version['pixelfed'] = tuple(int(x) for x in match.groups())
             self.unavailable['albums'] = not (
                 self.version['pixelfed']
                 and self.version['pixelfed'] >= (0, 11, 4))
@@ -249,17 +252,20 @@ class PixelfedUser(UploaderUser):
                 }
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
-            widgets['sensitive'].setChecked(prefs['posting:default:sensitive'])
-            widgets['visibility'].set_value(prefs['posting:default:visibility'])
+            if prefs:
+                widgets['sensitive'].setChecked(
+                    prefs['posting:default:sensitive'])
+                widgets['visibility'].set_value(
+                    prefs['posting:default:visibility'])
             # get collections
             if self.unavailable['albums']:
                 return
             for collection in session.api_call(
                     '/api/v1.1/collections/accounts/{}'.format(
                         self.user_data['id'])):
-                if collection['title']:
+                if collection:
                     yield 'album', {
-                        'title': collection['title'],
+                        'title': collection['title'] or 'Untitled',
                         'description': collection['description'],
                         'id': collection['id'],
                         'writeable': collection['post_count'] < 18,
@@ -339,13 +345,9 @@ class PixelfedUser(UploaderUser):
             'redirect_uris': 'http://127.0.0.1',
             'website': 'https://photini.readthedocs.io/',
             }
-        try:
-            rsp = requests.post(
-                api_base_url + '/api/v1/apps', data=data, timeout=20)
-            rsp.raise_for_status()
-            rsp = rsp.json()
-        except Exception as ex:
-            logger.error(str(ex))
+        rsp = PixelfedSession.check_response(requests.post(
+            api_base_url + '/api/v1/apps', data=data, timeout=20))
+        if not rsp:
             return False
         client_id = rsp['client_id']
         client_secret = rsp['client_secret']
