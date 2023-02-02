@@ -77,6 +77,8 @@ class PixelfedSession(UploaderSession):
                 rsp = self.api.get(url, **params)
             rsp.raise_for_status()
             return rsp.json()
+        except UploadAborted:
+            raise
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()

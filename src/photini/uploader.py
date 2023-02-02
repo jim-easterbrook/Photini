@@ -166,16 +166,14 @@ class UploadWorker(QtCore.QObject):
                             Qt.ConnectionType.DirectConnection)
                         error = uploader.send((fileobj, image_type))
                 except UploadAborted:
-                    error = 'UploadAborted'
+                    break
                 except RuntimeError as ex:
                     error = str(ex)
                 except Exception as ex:
                     logger.exception(ex)
                     error = '{}: {}'.format(type(ex), str(ex))
                 self.upload_progress.emit({'busy': False})
-                if error == 'UploadAborted':
-                    break
-                elif error:
+                if error:
                     self.retry = None
                     self.upload_error.emit(name, error)
                     # wait for response from user dialog

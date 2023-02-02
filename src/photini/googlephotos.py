@@ -25,7 +25,8 @@ from requests_oauthlib import OAuth2Session
 
 from photini.pyqt import (
     catch_all, execute, QtCore, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
+from photini.uploader import (
+    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -61,6 +62,8 @@ class GooglePhotosSession(UploaderSession):
                 rsp = self.api.get(url, **params)
             rsp.raise_for_status()
             return rsp.json()
+        except UploadAborted:
+            raise
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()

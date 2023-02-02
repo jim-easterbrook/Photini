@@ -29,7 +29,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
+from photini.uploader import (
+    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
 from photini.types import MD_Location
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
@@ -81,6 +82,8 @@ class FlickrSession(UploaderSession):
                 rsp = self.api.get(url, params=params, **kwds)
             rsp.raise_for_status()
             rsp = rsp.json()
+        except UploadAborted:
+            raise
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()

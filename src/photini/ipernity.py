@@ -28,7 +28,8 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
-from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
+from photini.uploader import (
+    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -81,6 +82,8 @@ class IpernitySession(UploaderSession):
                 rsp = self.api.get(url, timeout=20, params=params)
             rsp.raise_for_status()
             rsp = rsp.json()
+        except UploadAborted:
+            raise
         except Exception as ex:
             logger.error(str(ex))
             self.close_connection()
