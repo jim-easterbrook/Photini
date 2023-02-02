@@ -43,6 +43,11 @@ from photini.widgets import Label, StartStopButton
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
+
+class UploadAborted(Exception):
+    pass
+
+
 class UploaderSession(QtCore.QObject):
     upload_progress = QtSignal(dict)
     new_token = QtSignal(dict)
@@ -59,6 +64,19 @@ class UploaderSession(QtCore.QObject):
             self.api.close()
             self.api = None
 
+    @staticmethod
+    def check_response(rsp, decode=True):
+        try:
+            rsp.raise_for_status()
+            if decode:
+                return rsp.json()
+            return rsp
+        except UploadAborted:
+            raise
+        except Exception as ex:
+            logger.error(str(ex))
+            return {}
+
     def progress(self, monitor):
         self.upload_progress.emit(
             {'value': monitor.bytes_read * 100 // monitor.len})
@@ -71,10 +89,6 @@ class UploaderSession(QtCore.QObject):
                 fileobj, image_type = yield image, convert
                 # UploadWorker decides if to retry after error
                 retry = yield self.do_upload(fileobj, image_type, image, params)
-
-
-class UploadAborted(Exception):
-    pass
 
 
 class AbortableFileReader(QtCore.QObject):

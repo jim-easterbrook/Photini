@@ -30,8 +30,7 @@ from photini import __version__
 from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import (
-    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -68,26 +67,14 @@ class PixelfedSession(UploaderSession):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
         if post:
-            rsp = self.check_response(self.api.post(url, **params))
+            rsp = self.api.post(url, **params)
         else:
-            rsp = self.check_response(self.api.get(url, **params))
+            rsp = self.api.get(url, **params)
+        rsp = self.check_response(rsp)
         if not rsp:
             print('close_connection', endpoint)
             self.close_connection()
         return rsp
-
-    @staticmethod
-    def check_response(rsp, decode=True):
-        try:
-            rsp.raise_for_status()
-            if decode:
-                return rsp.json()
-            return rsp
-        except UploadAborted:
-            raise
-        except Exception as ex:
-            logger.error(str(ex))
-            return {}
 
     def upload_files(self, upload_list):
         media_ids = []

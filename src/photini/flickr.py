@@ -30,8 +30,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini import __version__
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import (
-    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.types import MD_Location
 from photini.widgets import DropDownSelector, MultiLineEdit, SingleLineEdit
 
@@ -77,20 +76,15 @@ class FlickrSession(UploaderSession):
         else:
             params['api_key'] = self.client_data['client_key']
         url = 'https://www.flickr.com/services/rest'
-        try:
-            if post:
-                rsp = self.api.post(url, data=params, **kwds)
-            else:
-                rsp = self.api.get(url, params=params, **kwds)
-            rsp.raise_for_status()
-            rsp = rsp.json()
-        except UploadAborted:
-            raise
-        except Exception as ex:
-            logger.error(str(ex))
+        if post:
+            rsp = self.api.post(url, data=params, **kwds)
+        else:
+            rsp = self.api.get(url, params=params, **kwds)
+        rsp = self.check_response(rsp)
+        if not rsp:
+            print('close_connection', endpoint)
             self.close_connection()
-            return {}
-        if not ('stat' in rsp and rsp['stat'] == 'ok'):
+        elif rsp['stat'] != 'ok':
             logger.error('%s: %s', method, rsp['message'])
             return {}
         return rsp
