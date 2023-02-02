@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 # photini.metadata imports these classes
 __all__ = (
-    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation',
-    'MD_DateTime', 'MD_GPSinfo', 'MD_Int', 'MD_Keywords', 'MD_LangAlt',
+    'MD_Aperture', 'MD_CameraModel', 'MD_ContactInformation', 'MD_DateTime',
+    'MD_Dimensions', 'MD_GPSinfo', 'MD_Int', 'MD_Keywords', 'MD_LangAlt',
     'MD_LensModel', 'MD_Location', 'MD_MultiLocation', 'MD_MultiString',
     'MD_Orientation', 'MD_Rating', 'MD_Rational', 'MD_Rights', 'MD_Software',
     'MD_String', 'MD_Thumbnail', 'MD_Timezone', 'safe_fraction')
@@ -344,12 +344,13 @@ class MD_DateTime(MD_Dict):
                 time_stamp = int(file_value)
             except Exception:
                 # not an integer timestamp
-                time_stamp = None
-            if time_stamp:
-                # assume date should be in range 1970 to 2034
-                if time_stamp > cls._qt_offset:
-                    time_stamp -= cls._qt_offset
-                return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
+                return None
+            if not time_stamp:
+                return None
+            # assume date should be in range 1970 to 2034
+            if time_stamp > cls._qt_offset:
+                time_stamp -= cls._qt_offset
+            return cls((datetime.utcfromtimestamp(time_stamp), 6, None))
         return cls.from_ISO_8601(file_value)
 
     # From the Exif spec: "The format is "YYYY:MM:DD HH:MM:SS" with time
@@ -1080,7 +1081,10 @@ class MD_Timezone(MD_Int):
         return cls(file_value)
 
 
-class MD_Rating(MD_Value, float):
+class MD_Float(MD_Value, float):
+    pass
+
+class MD_Rating(MD_Float):
     @classmethod
     def from_exiv2(cls, file_value, tag):
         if not file_value:
@@ -1372,3 +1376,9 @@ class MD_Aperture(MD_Rational):
 
     def contains(self, this, other):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
+
+
+class MD_Dimensions(MD_Collection):
+    _keys = ('width', 'height', 'frame_rate')
+    _default_type = MD_Int
+    _type = {'frame_rate': MD_Float}
