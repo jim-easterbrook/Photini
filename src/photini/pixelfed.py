@@ -16,6 +16,7 @@
 ##  along with this program.  If not, see
 ##  <http://www.gnu.org/licenses/>.
 
+import itertools
 import logging
 import math
 import os
@@ -560,14 +561,14 @@ class TabWidget(PhotiniUploader):
             'title': [], 'headline': [], 'description': [], 'keywords': []}
         for image in self.app.image_list.get_selected_images():
             md = image.metadata
-            if md.title:
-                result['title'].append(md.title.default_text())
-            if md.headline:
-                result['headline'].append(str(md.headline))
-            if md.description:
-                result['description'].append(md.description.default_text())
-            if md.keywords:
-                result['keywords'] += md.keywords.human_tags()
+            for key in result:
+                result[key].append(getattr(md, key))
+        result['title'] = [x.default_text() for x in result['title'] if x]
+        result['headline'] = [str(x) for x in result['headline'] if x]
+        result['description'] = [
+            x.default_text() for x in result['description'] if x]
+        result['keywords'] = [x.human_tags() for x in result['keywords'] if x]
+        result['keywords'] = itertools.chain(*result['keywords'])
         strings = []
         for key in ('title', 'headline', 'description'):
             if not result[key]:
@@ -578,12 +579,8 @@ class TabWidget(PhotiniUploader):
                 if text not in string:
                     string += '\n' + text
             strings.append(string)
-        keywords = []
-        for text in result['keywords']:
-            if text not in keywords:
-                keywords.append(text)
-        if keywords:
-            strings.append(' '.join(['#' + x for x in keywords]))
+        if result['keywords']:
+            strings.append(' '.join(['#' + x for x in set(result['keywords'])]))
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
