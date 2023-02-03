@@ -290,8 +290,8 @@ class FlickrUser(UploaderUser):
     logger = logger
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
-    max_size = {'image': 200 * (2 ** 20),
-                'video': 2 ** 30}
+    max_size = {'image': {'bytes': 200 * (2 ** 20)},
+                'video': {'bytes': 2 ** 30}}
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:

@@ -236,10 +236,10 @@ class PixelfedUser(UploaderUser):
                 and self.version['pixelfed'] >= (99, 0, 0))
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
-                'image': media['image_size_limit'],
-                'image_pixels': media['image_matrix_limit'],
-                'video': media['video_size_limit'],
-                'video_pixels': media['video_matrix_limit'],
+                'image': {'bytes': media['image_size_limit'],
+                          'pixels': media['image_matrix_limit']},
+                'video': {'bytes': media['video_size_limit'],
+                          'pixels': media['video_matrix_limit']},
                 }
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
@@ -482,14 +482,22 @@ class TabWidget(PhotiniUploader):
             if any(convert.values()):
                 return 'omit'
             return None
-        tmp = self.data_to_image(self.read_image(image))
-        convert.update(self.ask_resize_image(
-            image, resizable=True, pixels=tmp['width'] * tmp['height']))
-        mime_type = tmp['mime_type']
-        if not (any(convert.values()) or self.accepted_image_type(mime_type)):
-            convert.update(self.ask_convert_image(image, mime_type=mime_type))
+        readable = True
+        try:
+            tmp = self.data_to_image(self.read_image(image))
+        except Exception as ex:
+            logger.error(str(ex))
+            readable = False
+        if readable:
+            convert.update(self.ask_resize_image(
+                image, resizable=True, pixels=tmp['width'] * tmp['height']))
+            mime_type = tmp['mime_type']
+            if not (any(convert.values())
+                    or self.accepted_image_type(mime_type)):
+                convert.update(
+                    self.ask_convert_image(image, mime_type=mime_type))
         if not any(convert.values()):
-            convert.update(self.ask_resize_image(image, resizable=True))
+            convert.update(self.ask_resize_image(image, resizable=readable))
         if convert['omit']:
             return 'omit'
         if convert['resize'] or convert['convert']:
@@ -505,7 +513,7 @@ class TabWidget(PhotiniUploader):
         # reduce image size
         w, h = image['width'], image['height']
         shrink = math.sqrt(float(w * h) /
-                           float(self.user_widget.max_size['image_pixels']))
+                           float(self.user_widget.max_size['image']['pixels']))
         if shrink > 1.0:
             w = int(float(w) / shrink)
             h = int(float(h) / shrink)
@@ -514,7 +522,7 @@ class TabWidget(PhotiniUploader):
         # convert to jpeg and reduce size if necessary
         image = self.image_to_data(
             image, mime_type='image/jpeg',
-            max_size=self.user_widget.max_size['image'])
+            max_size=self.user_widget.max_size['image']['bytes'])
         return image['data'], image['mime_type']
 
     def get_upload_params(self, image):

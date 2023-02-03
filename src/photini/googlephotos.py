@@ -163,8 +163,8 @@ class GooglePhotosUser(UploaderUser):
     logger = logger
     name       = 'googlephotos'
     scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
-    max_size = {'image': 200 * (2 ** 20),
-                'video': 10 * (2 ** 30)}
+    max_size = {'image': {'bytes': 200 * (2 ** 20)},
+                'video': {'bytes': 10 * (2 ** 30)}}
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:

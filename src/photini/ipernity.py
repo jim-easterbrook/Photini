@@ -285,8 +285,8 @@ class LicenceWidget(DropDownSelector):
 class IpernityUser(UploaderUser):
     logger = logger
     name = 'ipernity'
-    max_size = {'image': 2 ** 30,
-                'video': 2 ** 30}
+    max_size = {'image': {'bytes': 2 ** 30},
+                'video': {'bytes': 2 ** 30}}
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
@@ -297,8 +297,8 @@ class IpernityUser(UploaderUser):
                 yield 'album', album
             if session.user_data['is_pro'] == '0':
                 # guest user can upload 2.5 MB photos and no videos
-                self.max_size = {'image': (2 ** 20) * 5 // 2,
-                                 'video': 0}
+                self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
+                                 'video': {'bytes': 0}}
 
     def load_user_data(self):
         stored_token = self.get_password()

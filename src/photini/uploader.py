@@ -692,7 +692,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         image = self.read_image(image)
         image = self.image_to_data(
             image, mime_type='image/jpeg',
-            max_size=self.user_widget.max_size['image'])
+            max_size=self.user_widget.max_size['image']['bytes'])
         return image['data'], image['mime_type']
 
     def copy_file_and_metadata(self, image):
@@ -704,15 +704,15 @@ class PhotiniUploader(QtWidgets.QWidget):
                                 dialog.ButtonRole.AcceptRole)
 
     def ask_resize_image(self, image, resizable=False, pixels=None):
+        max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
         if pixels:
-            max_size = self.user_widget.max_size[
-                image.file_type.split('/')[0] + '_pixels']
+            max_size = max_size['pixels']
             size = pixels
             text = translate(
                 'UploaderTabsAll', 'File "{file_name}" has {size} pixels and'
                 ' exceeds {service}\'s limit of {max_size} pixels.')
         else:
-            max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
+            max_size = max_size['bytes']
             size = os.stat(image.path).st_size
             text = translate(
                 'UploaderTabsAll', 'File "{file_name}" has {size} bytes and'
