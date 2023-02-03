@@ -587,7 +587,7 @@ PySide2_ [1]                   5.11.0             ``python3-pyside2``           
 PySide6_ [1]                   6.2.0              ``python3-pyside6``               PySide6
 QtWebEngine_ [2]                                  ``python3-pyside2.qtwebengine``   PyQtWebEngine
                                                   or ``python310-PyQt6-WebEngine``
-`python-exiv2`_                0.13.1                                               exiv2
+`python-exiv2`_                0.13.2                                               exiv2
 appdirs                        1.3                ``python3-appdirs``               appdirs
 requests_                      2.4                ``python3-requests``              requests
 =============================  =================  ================================  =================
@@ -741,26 +741,18 @@ Open ``doc/html/index.html`` with a web browser to read the local documentation.
 
 .. _Exiv2:             http://exiv2.org/
 .. _FFmpeg:            https://ffmpeg.org/
-.. _gexiv2:            https://wiki.gnome.org/Projects/gexiv2
 .. _GitHub releases:   https://github.com/jim-easterbrook/Photini/releases
-.. _Windows installers:
-        https://github.com/jim-easterbrook/Photini/releases/tag/2020.4.0-win
 .. _gpxpy:             https://pypi.org/project/gpxpy/
-.. _Gspell:            https://gitlab.gnome.org/GNOME/gspell
 .. _keyring:           https://keyring.readthedocs.io/
 .. _Managing Python packages the right way:
         https://opensource.com/article/19/4/managing-python-packages
 .. _MSYS2:             http://www.msys2.org/
-.. _NumPy:             http://www.numpy.org/
-.. _OpenCV:            http://opencv.org/
-.. _pacman:            https://wiki.archlinux.org/index.php/Pacman
 .. _pgi:               https://pgi.readthedocs.io/
 .. _Pillow:            http://pillow.readthedocs.io/
 .. _pip:               https://pip.pypa.io/en/latest/
 .. _PyEnchant:         https://pypi.org/project/pyenchant/
 .. _pyenchant documentation:
         https://pyenchant.github.io/pyenchant/install.html
-.. _PyGObject:         https://pygobject.readthedocs.io/
 .. _Python:            https://www.python.org/
 .. _python-exiv2:      https://pypi.org/project/python-exiv2/
 .. _python3-gphoto2:   https://pypi.org/project/gphoto2/
