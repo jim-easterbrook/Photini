@@ -66,14 +66,10 @@ class PixelfedSession(UploaderSession):
         self.user_data['token'] = token
         self.new_token.emit(token)
 
-    def api_call(self, endpoint, post=False, **params):
+    def api_call(self, endpoint, method='GET', **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
-        if post:
-            rsp = self.api.post(url, **params)
-        else:
-            rsp = self.api.get(url, **params)
-        rsp = self.check_response(rsp)
+        rsp = self.check_response(self.api.request(method, url, **params))
         if not rsp:
             print('close_connection', endpoint)
             self.close_connection()
@@ -92,6 +88,11 @@ class PixelfedSession(UploaderSession):
                 # UploadWorker converts image to fileobj
                 fileobj, image_type = yield image, convert
                 if do_media:
+                    # set licence
+                    if params['license'] != params['default_license']:
+                        data = {'license': params['license']}
+                        self.api_call('/api/v1/accounts/update_credentials',
+                                      'PATCH', data=data)
                     # upload fileobj
                     fields = dict(params['media'])
                     fields['file'] = (params['file_name'], fileobj, image_type)
@@ -99,7 +100,7 @@ class PixelfedSession(UploaderSession):
                         MultipartEncoder(fields=fields), self.progress)
                     self.upload_progress.emit({'busy': False})
                     rsp = self.api_call(
-                        '/api/v1/media', post=True, data=data,
+                        '/api/v1/media', method='POST', data=data,
                         headers={'Content-Type': data.content_type})
                     self.upload_progress.emit({'busy': True})
                     if rsp:
@@ -107,11 +108,16 @@ class PixelfedSession(UploaderSession):
                         do_media = False
                     else:
                         error = 'Image upload failed'
+                    # reset licence
+                    if params['license'] != params['default_license']:
+                        data = {'license': params['default_license']}
+                        self.api_call('/api/v1/accounts/update_credentials',
+                                      'PATCH', data=data)
                 if do_status and not error:
                     data = dict(params['status'])
                     data['media_ids[]'] = media_ids
                     rsp = self.api_call(
-                        '/api/v1/statuses', post=True, data=data)
+                        '/api/v1/statuses', method='POST', data=data)
                     if not rsp:
                         error = 'Post status failed'
                 retry = yield error
@@ -248,6 +254,12 @@ class PixelfedUser(UploaderUser):
                     prefs['posting:default:sensitive'])
                 widgets['visibility'].set_value(
                     prefs['posting:default:visibility'])
+            self.compose_settings = session.api_call(
+                '/api/v1.1/compose/settings')
+            widgets['license'].set_value(
+                self.compose_settings['default_license'])
+            widgets['visibility'].set_value(
+                self.compose_settings['default_scope'])
             # get collections
             if self.unavailable['albums']:
                 return
@@ -433,8 +445,8 @@ class TabWidget(PhotiniUploader):
         self.widget['visibility'] = DropDownSelector(
             'visibility', values = (
                 (translate('PixelfedTab', 'Public'), 'public'),
-                (translate('PixelfedTab', 'Followers only'), 'private'),
-                (translate('PixelfedTab', 'Unlisted'), 'unlisted')),
+                (translate('PixelfedTab', 'Unlisted'), 'unlisted'),
+                (translate('PixelfedTab', 'Followers only'), 'private')),
             default='public', with_multiple=False)
         group.layout().addRow(translate('PixelfedTab', 'Post visibility'),
                               self.widget['visibility'])
@@ -446,6 +458,25 @@ class TabWidget(PhotiniUploader):
         self.widget['comments_disabled'] = QtWidgets.QCheckBox(
             translate('PixelfedTab', 'Disable comments'))
         group.layout().addRow(self.widget['comments_disabled'])
+        # licence
+        self.widget['license'] = DropDownSelector(
+            'license', values=(
+                (translate('PixelfedTab', 'All Rights Reserved'), 1),
+                (translate('PixelfedTab', 'Public Domain Work'), 5),
+                (translate('PixelfedTab',
+                           'Public Domain Dedication (CC0)'), 6),
+                (translate('PixelfedTab', 'Attribution'), 11),
+                (translate('PixelfedTab', 'Attribution-ShareAlike'), 12),
+                (translate('PixelfedTab', 'Attribution-NonCommercial'), 13),
+                (translate('PixelfedTab',
+                           'Attribution-NonCommercial-ShareAlike'), 14),
+                (translate('PixelfedTab', 'Attribution-NoDerivs'), 15),
+                (translate('PixelfedTab',
+                           'Attribution-NonCommercial-NoDerivs'), 16),
+                ),
+            default=1, with_multiple=False)
+        group.layout().addRow(
+            translate('PixelfedTab', 'Licence'), self.widget['license'])
         column.addWidget(group, 0, 0)
         # create new collection
         self.widget['new_album'] = QtWidgets.QPushButton(
@@ -530,12 +561,20 @@ class TabWidget(PhotiniUploader):
         params['file_name'] = os.path.basename(image.path)
         # 'description' is the ALT text for an image
         description = []
+        max_len = int(self.user_widget.compose_settings['max_altext_length'])
         if image.metadata.alt_text:
-            description.append(image.metadata.alt_text.default_text())
+            text = image.metadata.alt_text.default_text()
+            description.append(text)
+            max_len -= len(text) + 2
         if image.metadata.alt_text_ext:
-            description.append(image.metadata.alt_text_ext.default_text())
+            text = image.metadata.alt_text_ext.default_text()
+            if len(text) < max_len:
+                description.append(text)
         if description:
             params['media']['description'] = '\n\n'.join(description)
+        params['license'] = self.widget['license'].get_value()
+        params['default_license'] = self.user_widget.compose_settings[
+            'default_license']
         # 'status' is the text that accompanies the media
         for key in ('status', 'spoiler_text', 'visibility'):
             params['status'][key] = self.widget[key].get_value()
