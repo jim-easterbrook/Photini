@@ -78,7 +78,10 @@ class PixelfedSession(UploaderSession):
     def upload_files(self, upload_list):
         media_ids = []
         remaining = len(upload_list)
+        licence = None
         for image, convert, params in upload_list:
+            default_licence = params['default_license']
+            licence = licence or default_licence
             remaining -= 1
             do_media = True
             do_status = remaining == 0
@@ -89,8 +92,9 @@ class PixelfedSession(UploaderSession):
                 fileobj, image_type = yield image, convert
                 if do_media:
                     # set licence
-                    if params['license'] != params['default_license']:
-                        data = {'license': params['license']}
+                    if params['license'] != licence:
+                        licence = params['license']
+                        data = {'license': licence}
                         self.api_call('/api/v1/accounts/update_credentials',
                                       'PATCH', data=data)
                     # upload fileobj
@@ -108,11 +112,6 @@ class PixelfedSession(UploaderSession):
                         do_media = False
                     else:
                         error = 'Image upload failed'
-                    # reset licence
-                    if params['license'] != params['default_license']:
-                        data = {'license': params['default_license']}
-                        self.api_call('/api/v1/accounts/update_credentials',
-                                      'PATCH', data=data)
                 if do_status and not error:
                     data = dict(params['status'])
                     data['media_ids[]'] = media_ids
@@ -121,6 +120,11 @@ class PixelfedSession(UploaderSession):
                     if not rsp:
                         error = 'Post status failed'
                 retry = yield error
+        # reset licence
+        if licence != default_licence:
+            data = {'license': default_licence}
+            self.api_call('/api/v1/accounts/update_credentials',
+                          'PATCH', data=data)
 
 
 class ChooseInstance(QtWidgets.QDialog):
@@ -257,7 +261,7 @@ class PixelfedUser(UploaderUser):
             self.compose_settings = session.api_call(
                 '/api/v1.1/compose/settings')
             widgets['license'].set_value(
-                self.compose_settings['default_license'])
+                int(self.compose_settings['default_license']))
             widgets['visibility'].set_value(
                 self.compose_settings['default_scope'])
             # get collections
@@ -573,8 +577,8 @@ class TabWidget(PhotiniUploader):
         if description:
             params['media']['description'] = '\n\n'.join(description)
         params['license'] = self.widget['license'].get_value()
-        params['default_license'] = self.user_widget.compose_settings[
-            'default_license']
+        params['default_license'] = int(
+            self.user_widget.compose_settings['default_license'])
         # 'status' is the text that accompanies the media
         for key in ('status', 'spoiler_text', 'visibility'):
             params['status'][key] = self.widget[key].get_value()
