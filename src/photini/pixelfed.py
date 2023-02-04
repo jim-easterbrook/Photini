@@ -508,52 +508,7 @@ class TabWidget(PhotiniUploader):
         return file_type in self.user_widget.instance_config[
             'configuration']['media_attachments']['supported_mime_types']
 
-    def get_conversion_function(self, image, params):
-        convert = {
-            'omit': False,
-            'resize': False,
-            'convert': False,
-            }
-        mime_type = image.file_type
-        if mime_type.startswith('video'):
-            dims = image.metadata.dimensions
-            if dims['width'] and dims['height']:
-                convert.update(self.ask_resize_image(
-                    image, pixels=dims['width'] * dims['height']))
-            if not any(convert.values()):
-                convert.update(self.ask_resize_image(image))
-            if not (any(convert.values()) or self.accepted_image_type(mime_type)):
-                convert.update(self.ask_convert_image(
-                    image, mime_type=mime_type, convertible=False))
-            if any(convert.values()):
-                return 'omit'
-            return None
-        readable = True
-        try:
-            tmp = self.data_to_image(self.read_image(image))
-        except Exception as ex:
-            logger.error(str(ex))
-            readable = False
-        if readable:
-            convert.update(self.ask_resize_image(
-                image, resizable=True, pixels=tmp['width'] * tmp['height']))
-            mime_type = tmp['mime_type']
-            if not (any(convert.values())
-                    or self.accepted_image_type(mime_type)):
-                convert.update(
-                    self.ask_convert_image(image, mime_type=mime_type))
-        if not any(convert.values()):
-            convert.update(self.ask_resize_image(image, resizable=readable))
-        if convert['omit']:
-            return 'omit'
-        if convert['resize'] or convert['convert']:
-            return self.prepare_image
-        if image.metadata.find_sidecar():
-            # need to create file without sidecar
-            return self.copy_file_and_metadata
-        return None
-
-    def prepare_image(self, image):
+    def process_image(self, image):
         image = self.read_image(image)
         image = self.data_to_image(image)
         # reduce image size
