@@ -241,6 +241,9 @@ class PixelfedUser(UploaderUser):
                 self.version['pixelfed']
                 and self.version['pixelfed'] >= (0, 11, 4))
             self.unavailable['comments_disabled'] = self.unavailable['albums']
+            self.unavailable['license'] = not (
+                self.version['pixelfed']
+                and self.version['pixelfed'] >= (0, 11, 1))
             self.unavailable['new_album'] = not (
                 self.version['pixelfed']
                 and self.version['pixelfed'] >= (99, 0, 0))
@@ -258,12 +261,20 @@ class PixelfedUser(UploaderUser):
                     prefs['posting:default:sensitive'])
                 widgets['visibility'].set_value(
                     prefs['posting:default:visibility'])
-            self.compose_settings = session.api_call(
-                '/api/v1.1/compose/settings')
-            widgets['license'].set_value(
-                int(self.compose_settings['default_license']))
-            widgets['visibility'].set_value(
-                self.compose_settings['default_scope'])
+            if self.version['pixelfed']:
+                self.compose_settings = session.api_call(
+                    '/api/v1.1/compose/settings')
+                if 'default_license' in self.compose_settings:
+                    widgets['license'].set_value(
+                        int(self.compose_settings['default_license']))
+                if 'default_scope' in self.compose_settings:
+                    widgets['visibility'].set_value(
+                        self.compose_settings['default_scope'])
+            else:
+                self.compose_settings = {
+                    'max_altext_length': 5000,
+                    'default_license': widgets['license'].get_value(),
+                    }
             # get collections
             if self.unavailable['albums']:
                 return
@@ -572,7 +583,7 @@ class TabWidget(PhotiniUploader):
             max_len -= len(text) + 2
         if image.metadata.alt_text_ext:
             text = image.metadata.alt_text_ext.default_text()
-            if len(text) < max_len:
+            if len(text) <= max_len:
                 description.append(text)
         if description:
             params['media']['description'] = '\n\n'.join(description)
@@ -584,7 +595,8 @@ class TabWidget(PhotiniUploader):
             params['status'][key] = self.widget[key].get_value()
         params['status']['status'] = params[
             'status']['status'] or params['file_name']
-        params['status']['sensitive'] = self.widget['sensitive'].isChecked()
+        params['status']['sensitive'] = ('0', '1')[
+            self.widget['sensitive'].isChecked()]
         if not self.user_widget.unavailable['comments_disabled']:
             params['status']['comments_disabled'] = ('0', '1')[
                 self.widget['comments_disabled'].isChecked()]
