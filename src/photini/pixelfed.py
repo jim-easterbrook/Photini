@@ -30,7 +30,8 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini import __version__
 from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import (
-    catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
+    catch_all, execute, FormLayout, Qt, QtCore, QtSlot, QtWidgets,
+    width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
@@ -409,6 +410,46 @@ class PixelfedUser(UploaderUser):
         self.set_password(repr(token))
 
 
+class ThumbList(QtWidgets.QWidget):
+    def __init__(self, *arg, **kw):
+        super(ThumbList, self).__init__(*arg, **kw)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setSpacing(0)
+        self.thumb_widgets = []
+        self.image_selection = []
+
+    def new_selection(self, selection):
+        width = self.layout().contentsRect().width()
+        n = len(self.image_selection)
+        while n:
+            n -= 1
+            if self.image_selection[n] not in selection:
+                self.image_selection.pop(n)
+                widget = self.thumb_widgets.pop(n)
+                self.layout().removeWidget(widget)
+                widget.setParent(None)
+        for image in selection:
+            if image not in self.image_selection:
+                self.image_selection.append(image)
+                widget = QtWidgets.QLabel()
+                widget.setWordWrap(True)
+                widget.setFrameStyle(widget.Shape.Box)
+                widget.setToolTip(image.name)
+                widget.setAlignment(Qt.AlignmentFlag.AlignHCenter |
+                                    Qt.AlignmentFlag.AlignVCenter)
+                widget.setFixedSize(width, width)
+                image.load_thumbnail(label=widget)
+                self.layout().addWidget(widget)
+                self.thumb_widgets.append(widget)
+
+
+class ScrollArea(QtWidgets.QScrollArea):
+    @catch_all
+    def resizeEvent(self, event):
+        super(ScrollArea, self).resizeEvent(event)
+        self.widget().setFixedWidth(self.viewport().contentsRect().width())
+
+
 class TabWidget(PhotiniUploader):
     logger = logger
 
@@ -422,6 +463,18 @@ class TabWidget(PhotiniUploader):
 
     def config_columns(self):
         ## first column
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        scroll_area = ScrollArea()
+        scroll_area.setMinimumWidth(width_for_text(scroll_area, 'x' * 17))
+        self.widget['thumb_list'] = ThumbList()
+        scroll_area.setWidget(self.widget['thumb_list'])
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        column.addWidget(scroll_area, 0, 0)
+        yield column, 0
+        ## second column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
@@ -450,7 +503,7 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
         column.addWidget(group, 0, 0)
         yield column, 1
-        ## second column
+        ## third column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         group = QtWidgets.QGroupBox()
@@ -504,6 +557,10 @@ class TabWidget(PhotiniUploader):
             label=translate('PixelfedTab', 'Add to collections'),
             max_selected=3), 0
 
+    def new_selection(self, selection):
+        self.widget['thumb_list'].new_selection(selection)
+        super(TabWidget, self).new_selection(selection)
+
     def accepted_image_type(self, file_type):
         return file_type in self.user_widget.instance_config[
             'configuration']['media_attachments']['supported_mime_types']
@@ -525,6 +582,9 @@ class TabWidget(PhotiniUploader):
             image, mime_type='image/jpeg',
             max_size=self.user_widget.max_size['image']['bytes'])
         return image['data'], image['mime_type']
+
+    def get_selected_images(self):
+        return self.widget['thumb_list'].image_selection
 
     def get_upload_params(self, image):
         params = {'media': {}, 'status': {}}
@@ -586,12 +646,11 @@ class TabWidget(PhotiniUploader):
         result['description'] = [
             x.default_text() for x in result['description'] if x]
         result['keywords'] = [x.human_tags() for x in result['keywords'] if x]
-        result['keywords'] = itertools.chain(*result['keywords'])
+        result['keywords'] = list(itertools.chain(*result['keywords']))
         strings = []
         for key in ('title', 'headline', 'description'):
             if not result[key]:
                 continue
-            result[key].sort(key=lambda x: -len(x))
             string = result[key][0]
             for text in result[key][1:]:
                 if text not in string:

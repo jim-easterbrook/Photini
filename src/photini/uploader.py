@@ -822,6 +822,9 @@ class PhotiniUploader(QtWidgets.QWidget):
     def stop_upload(self):
         self.abort_upload.emit(False)
 
+    def get_selected_images(self):
+        return self.app.image_list.get_selected_images()
+
     @QtSlot()
     @catch_all
     def start_upload(self):
@@ -829,7 +832,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         # make list of items to upload
         upload_list = []
-        for image in self.app.image_list.get_selected_images():
+        for image in self.get_selected_images():
             params = self.get_upload_params(image)
             if not params:
                 continue
