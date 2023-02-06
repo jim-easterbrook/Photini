@@ -217,6 +217,7 @@ class PixelfedUser(UploaderUser):
             if not account:
                 yield 'connected', False
             self.user_data['id'] = account['id']
+            self.user_data['lang'] = account['source']['language']
             name = account['display_name']
             # get icon
             icon_url = account['avatar_static']
@@ -260,6 +261,8 @@ class PixelfedUser(UploaderUser):
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
             if prefs:
+                if prefs['posting:default:language']:
+                    self.user_data['lang'] = prefs['posting:default:language']
                 widgets['sensitive'].setChecked(
                     prefs['posting:default:sensitive'])
                 widgets['visibility'].set_value(
@@ -611,13 +614,14 @@ class TabWidget(PhotiniUploader):
         params['file_name'] = os.path.basename(image.path)
         # 'description' is the ALT text for an image
         description = []
+        lang = self.user_widget.user_data['lang']
         max_len = int(self.user_widget.compose_settings['max_altext_length'])
         if image.metadata.alt_text:
-            text = image.metadata.alt_text.default_text()
+            text = image.metadata.alt_text.best_match(lang)
             description.append(text)
             max_len -= len(text) + 2
         if image.metadata.alt_text_ext:
-            text = image.metadata.alt_text_ext.default_text()
+            text = image.metadata.alt_text_ext.best_match(lang)
             if len(text) <= max_len:
                 description.append(text)
         if description:
@@ -660,10 +664,11 @@ class TabWidget(PhotiniUploader):
         for image in self.get_selected_images():
             for key in result:
                 result[key].append(getattr(image.metadata, key))
-        result['title'] = [x.default_text() for x in result['title'] if x]
+        lang = self.user_widget.user_data['lang']
+        result['title'] = [x.best_match(lang) for x in result['title'] if x]
         result['headline'] = [str(x) for x in result['headline'] if x]
         result['description'] = [
-            x.default_text() for x in result['description'] if x]
+            x.best_match(lang) for x in result['description'] if x]
         result['keywords'] = [x.human_tags() for x in result['keywords'] if x]
         result['keywords'] = list(itertools.chain(*result['keywords']))
         strings = []

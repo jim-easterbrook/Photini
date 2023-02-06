@@ -855,6 +855,18 @@ class LangAltDict(dict):
     def __iter__(self):
         return iter(self.keys())
 
+    def best_match(self, lang):
+        if not lang:
+            return self.default_text()
+        k = self.find_key(lang)
+        if k:
+            return self[k]
+        lang = lang.lower()
+        for k in self:
+            if k.lower().startswith(lang):
+                return self[k]
+        return self.default_text()
+
     def default_text(self):
         return self[self.keys()[0]]
 
