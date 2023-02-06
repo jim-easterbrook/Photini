@@ -513,6 +513,7 @@ class TabWidget(PhotiniUploader):
         self.widget['spoiler_text'] = SingleLineEdit(
             'spoiler_text', spell_check=True,
             length_check=140, length_always=True)
+        self.widget['spoiler_text'].textChanged.connect(self.new_spoiler_text)
         group.layout().addRow(
             translate('PixelfedTab', 'Spoiler'), self.widget['spoiler_text'])
         column.addWidget(group, 0, 0)
@@ -570,6 +571,15 @@ class TabWidget(PhotiniUploader):
         yield self.album_list(
             label=translate('PixelfedTab', 'Add to collections'),
             max_selected=3), 0
+
+    @QtSlot()
+    @catch_all
+    def new_spoiler_text(self):
+        if self.widget['spoiler_text'].get_value():
+            self.widget['sensitive'].setChecked(True)
+            self.widget['sensitive'].setEnabled(False)
+        else:
+            self.widget['sensitive'].setEnabled(True)
 
     def new_selection(self, selection):
         self.widget['thumb_list'].new_selection(selection)
