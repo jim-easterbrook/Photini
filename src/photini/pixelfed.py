@@ -581,10 +581,6 @@ class TabWidget(PhotiniUploader):
         else:
             self.widget['sensitive'].setEnabled(True)
 
-    def new_selection(self, selection):
-        self.widget['thumb_list'].new_selection(selection)
-        super(TabWidget, self).new_selection(selection)
-
     def accepted_image_type(self, file_type):
         return file_type in self.user_widget.instance_config[
             'configuration']['media_attachments']['supported_mime_types']
@@ -650,11 +646,11 @@ class TabWidget(PhotiniUploader):
         selection = selection or self.app.image_list.get_selected_images()
         super(TabWidget, self).enable_upload_button(selection=selection)
         if (self.buttons['upload'].isEnabled()
-                and len(selection) > self.user_widget.instance_config[
-                    'configuration']['statuses']['max_media_attachments']
+                and len(selection) > self.widget[
+                    'thumb_list'].max_media_attachments
                 and not self.buttons['upload'].is_checked()):
             self.buttons['upload'].setEnabled(False)
-            return
+        self.widget['thumb_list'].new_selection(selection)
 
     @QtSlot()
     @catch_all
