@@ -614,6 +614,7 @@ Feature                       Dependencies
 Spell check[1]                pyenchant_ 2.0+
 Flickr upload                 `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Ipernity upload               `requests-toolbelt`_ 0.9+, keyring_ 7.0+
+Pixelfed upload               `requests-oauthlib`_ 1.0+, `requests-toolbelt`_ 0.9+, keyring_ 7.0+
 Google Photos upload          `requests-oauthlib`_ 1.0+, keyring_ 7.0+
 Thumbnail creation[2]         FFmpeg_, Pillow_ 2.0+
 Import photos from camera[3]  `python3-gphoto2`_ 1.8+
