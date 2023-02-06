@@ -30,7 +30,7 @@ from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 from photini import __version__
 from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import (
-    catch_all, execute, FormLayout, Qt, QtCore, QtSlot, QtWidgets,
+    catch_all, execute, FormLayout, Qt, QtCore, QtSignal, QtSlot, QtWidgets,
     width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
@@ -203,6 +203,7 @@ class ChooseInstance(QtWidgets.QDialog):
 
 
 class PixelfedUser(UploaderUser):
+    new_instance_config = QtSignal(dict)
     logger = logger
     name       = 'pixelfed'
     scopes     = ['read', 'write']
@@ -229,6 +230,7 @@ class PixelfedUser(UploaderUser):
             self.instance_config = session.api_call('/api/v1/instance')
             if not self.instance_config:
                 yield 'connected', False
+            self.new_instance_config.emit(self.instance_config)
             widgets['status'].highlighter.length_check = self.instance_config[
                 'configuration']['statuses']['max_characters']
             version = self.instance_config['version']
@@ -413,12 +415,22 @@ class PixelfedUser(UploaderUser):
 class ThumbList(QtWidgets.QWidget):
     def __init__(self, *arg, **kw):
         super(ThumbList, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setSpacing(0)
         self.thumb_widgets = []
         self.image_selection = []
+        self.max_media_attachments = 4
+
+    @QtSlot(dict)
+    @catch_all
+    def new_instance_config(self, config):
+        self.max_media_attachments = config[
+            'configuration']['statuses']['max_media_attachments']
+        self.new_selection(self.app.image_list.get_selected_images())
 
     def new_selection(self, selection):
+        selection = selection[:self.max_media_attachments]
         width = self.layout().contentsRect().width()
         n = len(self.image_selection)
         while n:
@@ -466,8 +478,10 @@ class TabWidget(PhotiniUploader):
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
         scroll_area = ScrollArea()
-        scroll_area.setMinimumWidth(width_for_text(scroll_area, 'x' * 17))
+        scroll_area.setMinimumWidth(width_for_text(scroll_area, 'x' * 14))
         self.widget['thumb_list'] = ThumbList()
+        self.user_widget.new_instance_config.connect(
+            self.widget['thumb_list'].new_instance_config)
         scroll_area.setWidget(self.widget['thumb_list'])
         scroll_area.setWidgetResizable(True)
         scroll_area.setVerticalScrollBarPolicy(
@@ -637,7 +651,7 @@ class TabWidget(PhotiniUploader):
     def auto_status(self):
         result = {
             'title': [], 'headline': [], 'description': [], 'keywords': []}
-        for image in self.app.image_list.get_selected_images():
+        for image in self.get_selected_images():
             md = image.metadata
             for key in result:
                 result[key].append(getattr(md, key))
