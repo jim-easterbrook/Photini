@@ -652,9 +652,8 @@ class TabWidget(PhotiniUploader):
         result = {
             'title': [], 'headline': [], 'description': [], 'keywords': []}
         for image in self.get_selected_images():
-            md = image.metadata
             for key in result:
-                result[key].append(getattr(md, key))
+                result[key].append(getattr(image.metadata, key))
         result['title'] = [x.default_text() for x in result['title'] if x]
         result['headline'] = [str(x) for x in result['headline'] if x]
         result['description'] = [
@@ -667,7 +666,9 @@ class TabWidget(PhotiniUploader):
                 continue
             string = result[key][0]
             for text in result[key][1:]:
-                if text not in string:
+                if string in text:
+                    string = text
+                elif text not in string:
                     string += '\n' + text
             strings.append(string)
         if result['keywords']:
