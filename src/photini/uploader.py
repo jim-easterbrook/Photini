@@ -326,6 +326,7 @@ class UploaderUser(QtWidgets.QGridLayout):
     @catch_all
     def log_out(self):
         if keyring.get_password('photini', self.name):
+            self.unauthorise()
             keyring.delete_password('photini', self.name)
         self.user_data = {}
         self.connection_changed.emit(False)
@@ -338,6 +339,9 @@ class UploaderUser(QtWidgets.QGridLayout):
                 self.connection_changed.emit(True)
             elif do_auth:
                 self.authorise()
+
+    def unauthorise(self):
+        pass
 
     def authorise(self):
         with Busy():

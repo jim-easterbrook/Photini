@@ -215,6 +215,7 @@ class PixelfedUser(UploaderUser):
             name, picture = None, None
             account = session.api_call('/api/v1/accounts/verify_credentials')
             if not account:
+                self.log_out()
                 yield 'connected', False
             self.user_data['id'] = account['id']
             self.user_data['lang'] = account['source']['language']
@@ -407,6 +408,17 @@ class PixelfedUser(UploaderUser):
             return
         self.new_token(token)
         self.connection_changed.emit(True)
+
+    def unauthorise(self):
+        if self.version['pixelfed'] and self.version['pixelfed'] < (0, 12):
+            return
+        data = {
+            'client_id': self.client_data['client_id'],
+            'client_secret': self.client_data['client_secret'],
+            'token': self.user_data['token']['access_token']
+            }
+        PixelfedSession.check_response(requests.post(
+            self.client_data['api_base_url'] + '/oauth/revoke', data=data))
 
     @QtSlot(dict)
     @catch_all
