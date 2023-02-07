@@ -118,7 +118,7 @@ class FlickrSession(UploaderSession):
         page = 1
         while True:
             rsp = self.api_call(
-                'flickr.photosets.getList', auth=False, user_id=user_id,
+                'flickr.photosets.getList', auth=True, user_id=user_id,
                 page=str(page), per_page='10')
             if not rsp:
                 break
@@ -228,7 +228,8 @@ class FlickrSession(UploaderSession):
             'dates':        'flickr.photos.setDates',
             'location':     'flickr.photos.geo.setLocation',
             }
-        params['keywords'] = {'tags': params['keywords']['keywords']}
+        if 'keywords' in params:
+            params['keywords'] = {'tags': params['keywords']['keywords']}
         for key in params:
             if params[key] and key in metadata_set_func:
                 rsp = self.api_call(metadata_set_func[key], post=True,
@@ -253,24 +254,22 @@ class FlickrSession(UploaderSession):
             if 'set' in rsp:
                 for p_set in rsp['set']:
                     current_albums[p_set['id']] = p_set
-        for widget in params['albums']:
-            photoset_id = widget.property('id')
-            if not photoset_id:
+        for album in params['albums']:
+            if not album['id']:
                 # create new set
                 rsp = self.api_call(
                     'flickr.photosets.create', post=True,
                     primary_photo_id=photo_id,
-                    title=widget.property('title'),
-                    description=widget.property('description'))
+                    title=album['title'], description=album['description'])
                 if rsp:
-                    widget.setProperty('photoset_id', rsp['photoset']['id'])
-            elif photoset_id in current_albums:
+                    album['id'] = rsp['photoset']['id']
+            elif album['id'] in current_albums:
                 # photo is already in the set
-                del current_albums[photoset_id]
+                del current_albums[album['id']]
             else:
                 # add to existing set
                 self.api_call('flickr.photosets.addPhoto', post=True,
-                              photo_id=photo_id, photoset_id=photoset_id)
+                              photo_id=photo_id, photoset_id=album['id'])
         # remove from any other albums
         for p_set in current_albums.values():
             self.api_call('flickr.photosets.removePhoto', post=True,
@@ -460,7 +459,13 @@ class TabWidget(PhotiniUploader):
         yield self.album_list(), 1
 
     def get_fixed_params(self):
-        albums = self.widget['albums'].get_checked_widgets()
+        albums = []
+        for widget in self.widget['albums'].get_checked_widgets():
+            album = {'id': widget.property('id')}
+            if not album['id']:
+                album['title'] = widget.property('title')
+                album['description'] = widget.property('description')
+            albums.append(album)
         # is_public etc are optional parameters to
         # https://up.flickr.com/services/upload/ but required for
         # flickr.photos.setPerms. perm_comment and perm_addmeta are
