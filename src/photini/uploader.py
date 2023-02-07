@@ -619,7 +619,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         if PIL:
             # use Pillow for good quality
             dst['image'] = PIL.open(io.BytesIO(data))
-            dst['image'].load()
             dst['width'], dst['height'] = dst['image'].size
         else:
             # use Qt, lower quality but available
