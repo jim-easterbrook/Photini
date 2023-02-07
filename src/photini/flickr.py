@@ -65,16 +65,12 @@ class FlickrSession(UploaderSession):
             self.api = requests.session()
             self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
-    def api_call(self, method, post=False, auth=True, **params):
+    def api_call(self, method, post=False, **params):
         self.open_connection()
         params['method'] = method
         params['format'] = 'json'
         params['nojsoncallback'] = '1'
-        kwds = {'timeout': 20}
-        if auth:
-            kwds['auth'] = self.auth
-        else:
-            params['api_key'] = self.client_data['client_key']
+        kwds = {'timeout': 20, 'auth': self.auth}
         url = 'https://www.flickr.com/services/rest'
         if post:
             rsp = self.api.post(url, data=params, **kwds)
@@ -94,8 +90,7 @@ class FlickrSession(UploaderSession):
         # get user_id of logged in user
         user_id = self.user_id()
         # get user info
-        rsp = self.api_call(
-            'flickr.people.getInfo', auth=False, user_id=user_id)
+        rsp = self.api_call('flickr.people.getInfo', user_id=user_id)
         if not rsp:
             return name, picture
         person = rsp['person']
@@ -118,7 +113,7 @@ class FlickrSession(UploaderSession):
         page = 1
         while True:
             rsp = self.api_call(
-                'flickr.photosets.getList', auth=True, user_id=user_id,
+                'flickr.photosets.getList', user_id=user_id,
                 page=str(page), per_page='10')
             if not rsp:
                 break
@@ -170,19 +165,20 @@ class FlickrSession(UploaderSession):
             data['async'] = '1'
             # get the headers (without 'photo') from a dummy Request, an idea
             # I've stolen from https://github.com/sybrenstuvel/flickrapi
-            headers = self.api.prepare_request(
-                requests.Request('POST', url, auth=self.auth, data=data)).headers
+            request = requests.Request('POST', url, auth=self.auth, data=data)
+            headers = self.api.prepare_request(request).headers
             # add photo to parameters now we've got the headers without it
             data = list(data.items()) + [('photo', ('dummy_name', fileobj))]
             data = MultipartEncoderMonitor(
                 MultipartEncoder(fields=data), self.progress)
             headers = {'Authorization': headers['Authorization'],
                        'Content-Type': data.content_type}
-            # post data
-            rsp = self.api.post(url, data=data, headers=headers, timeout=20)
-            if rsp.status_code != 200:
-                return '{}: HTTP error {}'.format(
-                    params['function'], rsp.status_code)
+            # post data, without additional auth
+            rsp = self.check_response(
+                self.api.post(url, data=data, headers=headers, timeout=20),
+                decode=False)
+            if not rsp:
+                return 'Flickr upload failed'
             # parse XML response
             rsp = ET.fromstring(rsp.text)
             status = rsp.attrib['stat']
@@ -193,7 +189,7 @@ class FlickrSession(UploaderSession):
             self.upload_progress.emit({'busy': True})
             while True:
                 rsp = self.api_call('flickr.photos.upload.checkTickets',
-                                    auth=False, tickets=ticket_id)
+                                    tickets=ticket_id)
                 if not rsp:
                     return 'Wait for processing failed'
                 complete = rsp['uploader']['ticket'][0]['complete']
@@ -300,8 +296,7 @@ class FlickrUser(UploaderUser):
             for album in session.get_albums():
                 yield 'album', album
             # get licences
-            rsp = session.api_call(
-                'flickr.photos.licenses.getInfo', auth=False)
+            rsp = session.api_call('flickr.photos.licenses.getInfo')
             if not rsp:
                 return
             values = []
@@ -558,8 +553,7 @@ class TabWidget(PhotiniUploader):
         }
 
     def merge_metadata(self, session, photo_id, image):
-        rsp = session.api_call(
-            'flickr.photos.getInfo', photo_id=photo_id)
+        rsp = session.api_call('flickr.photos.getInfo', photo_id=photo_id)
         if not rsp:
             return
         photo = rsp['photo']
