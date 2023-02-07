@@ -45,23 +45,12 @@ class FlickrSession(UploaderSession):
     name = 'flickr'
     oauth_url  = 'https://www.flickr.com/services/oauth/'
 
-    def authorised(self):
-        rsp = self.api_call('flickr.auth.oauth.checkToken')
-        if not rsp:
-            return False
-        self._nsid = rsp['oauth']['user']['nsid']
-        return rsp['oauth']['perms']['_content'] == 'write'
-
-    def user_id(self):
-        if not self._nsid:
-            self.authorised()
-        return self._nsid
-
     def open_connection(self):
         if not self.api:
-            self._nsid = None
             self.auth = requests_oauthlib.OAuth1(
-                **self.client_data, **self.user_data)
+                resource_owner_key=self.user_data['oauth_token'],
+                resource_owner_secret=self.user_data['oauth_token_secret'],
+                **self.client_data)
             self.api = requests.Session()
             self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
@@ -85,52 +74,9 @@ class FlickrSession(UploaderSession):
             return {}
         return rsp
 
-    def get_user(self):
-        name, picture = None, None
-        # get user_id of logged in user
-        user_id = self.user_id()
-        # get user info
-        rsp = self.api_call('flickr.people.getInfo', user_id=user_id)
-        if not rsp:
-            return name, picture
-        person = rsp['person']
-        name = person['realname']['_content']
-        if person['iconserver'] != '0':
-            icon_url = (
-                'http://farm{}.staticflickr.com/{}/buddyicons/{}.jpg'.format(
-                    person['iconfarm'], person['iconserver'], user_id))
-        else:
-            icon_url = 'https://www.flickr.com/images/buddyicon.gif'
-        # get icon
-        rsp = self.check_response(self.api.get(icon_url), decode=False)
-        if rsp:
-            picture = rsp.content
-        return name, picture
-
-    def get_albums(self):
-        user_id = self.user_id()
-        page = 1
-        while True:
-            rsp = self.api_call(
-                'flickr.photosets.getList', user_id=user_id,
-                page=str(page), per_page='10')
-            if not rsp:
-                break
-            for album in rsp['photosets']['photoset']:
-                details = {
-                    'title': album['title']['_content'],
-                    'description': album['description']['_content'],
-                    'id': album['id'],
-                    'writeable': True,
-                    }
-                yield details
-            if rsp['photosets']['page'] == rsp['photosets']['pages']:
-                break
-            page += 1
-
     def find_photos(self, min_taken_date, max_taken_date):
         # search Flickr
-        user_id = self.user_id()
+        user_id = self.user_data['user_nsid']
         page = 1
         while True:
             rsp = self.api_call(
@@ -291,11 +237,46 @@ class FlickrUser(UploaderUser):
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
-            connected = session.authorised()
+            # check auth
+            connected = False
+            rsp = session.api_call('flickr.auth.oauth.checkToken')
+            if rsp:
+                self.user_data['user_nsid'] = rsp['oauth']['user']['nsid']
+                self.user_data['fullname'] = rsp['oauth']['user']['fullname']
+                self.user_data['username'] = rsp['oauth']['user']['username']
+                connected = rsp['oauth']['perms']['_content'] == 'write'
             yield 'connected', connected
-            yield 'user', session.get_user()
-            for album in session.get_albums():
-                yield 'album', album
+            # get user icon
+            rsp = session.api_call(
+                'flickr.people.getInfo', user_id=self.user_data['user_nsid'])
+            if rsp and rsp['person']['iconserver'] != '0':
+                icon_url = (
+                    'http://farm{iconfarm}.staticflickr.com/'
+                    '{iconserver}/buddyicons/{id}.jpg').format(**rsp['person'])
+            else:
+                icon_url = 'https://www.flickr.com/images/buddyicon.gif'
+            rsp = FlickrSession.check_response(
+                session.api.get(icon_url), decode=False)
+            picture = rsp and rsp.content
+            yield 'user', (self.user_data['fullname'], picture)
+            # get albums
+            params = {'user_id': self.user_data['user_nsid'], 'per_page': '10'}
+            page = 1
+            while True:
+                params['page'] = str(page)
+                rsp = session.api_call('flickr.photosets.getList', **params)
+                if not rsp:
+                    break
+                for album in rsp['photosets']['photoset']:
+                    yield 'album', {
+                        'title': album['title']['_content'],
+                        'description': album['description']['_content'],
+                        'id': album['id'],
+                        'writeable': True,
+                        }
+                if rsp['photosets']['page'] == rsp['photosets']['pages']:
+                    break
+                page += 1
             # get licences
             rsp = session.api_call('flickr.photos.licenses.getInfo')
             if not rsp:
@@ -327,8 +308,8 @@ class FlickrUser(UploaderUser):
         if not stored_token:
             return False
         token, token_secret = stored_token.split('&')
-        self.user_data['resource_owner_key'] = token
-        self.user_data['resource_owner_secret'] = token_secret
+        self.user_data['oauth_token'] = token
+        self.user_data['oauth_token_secret'] = token_secret
         return True
 
     @staticmethod
@@ -356,8 +337,7 @@ class FlickrUser(UploaderUser):
                 return
         self.set_password(
             token['oauth_token'] + '&' + token['oauth_token_secret'])
-        self.user_data['resource_owner_key'] = token['oauth_token']
-        self.user_data['resource_owner_secret'] = token['oauth_token_secret']
+        self.user_data.update(token)
         self.connection_changed.emit(True)
 
 
