@@ -640,6 +640,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         if src['data'] and src['mime_type'] == dst_mime_type and not (
                             max_size and src['data'].io().size() > max_size):
             return src
+        src = self.data_to_image(src)
         w_src, h_src = src['width'], src['height']
         for scale in (1000, 680, 470, 330, 220, 150,
                       100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
