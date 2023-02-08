@@ -100,77 +100,59 @@ class IpernitySession(UploaderSession):
                 return
             params['page'] = str(page + 1)
 
-    def do_upload(self, fileobj, image_type, image, params):
-        doc_id = params['doc_id']
-        if params['function']:
-            # upload or replace photo
-            self.upload_progress.emit({'busy': False})
-            url = 'http://api.ipernity.com/api/' + params['function']
-            if params['function'] == 'upload.file':
-                data = {}
-                # set some metadata with upload function
-                for key in ('visibility', 'permissions', 'licence', 'meta',
-                            'dates', 'location'):
-                    if key in params and params[key]:
-                        data.update(params[key])
-                        del(params[key])
-            else:
-                data = {'doc_id': doc_id}
-            data['async'] = '1'
-            # sign the request before including the file to upload
-            data = self.sign_request(params['function'], True, data)
-            # create multi-part data encoder
-            data = list(data.items()) + [('file', ('dummy_name', fileobj))]
-            data = MultipartEncoderMonitor(
-                MultipartEncoder(fields=data), self.progress)
-            headers = {'Content-Type': data.content_type}
-            # post data
-            rsp = self.api.post(url, data=data, headers=headers, timeout=20)
-            if rsp.status_code != 200:
-                logger.error('HTTP error %d', rsp.status_code)
-                return 'HTTP error {}'.format(rsp.status_code)
-            # parse response
-            rsp = rsp.json()
-            if rsp['api']['status'] != 'ok':
-                return params['function'] + ' ' + str(rsp['api'])
-            ticket = rsp['ticket']
-            # wait for processing to finish
-            self.upload_progress.emit({'busy': True})
-            # upload.checkTickets returns an eta but it's very
-            # unreliable (e.g. saying 360 seconds for something that
-            # then takes 15). Easier to poll every two seconds.
-            while True:
-                time.sleep(2)
-                rsp = self.api_call('upload.checkTickets', tickets=ticket)
-                if not rsp:
-                    return 'Wait for processing failed'
-                if rsp['tickets']['done'] != '0':
-                    break
-            doc_id = rsp['tickets']['ticket'][0]['doc_id']
-        # store photo id in image keywords, in main thread
-        self.upload_progress.emit({
-            'busy': True, 'keyword': (image, 'ipernity:id=' + doc_id)})
-        # set remaining metadata after uploading image
-        if 'visibility' in params and 'permissions' in params:
-            params['permissions'].update(params['visibility'])
-            del params['visibility']
-        metadata_set_func = {
-            'visibility' : 'doc.setPerms',
-            'permissions': 'doc.setPerms',
-            'licence'    : 'doc.setLicense',
-            'meta'       : 'doc.set',
-            'keywords'   : 'doc.tags.edit',
-            'location'   : 'doc.setGeo',
-            }
-        for key in params:
-            if params[key] and key in metadata_set_func:
-                rsp = self.api_call(metadata_set_func[key], post=True,
+    def upload_image(self, params, data, fileobj, image_type):
+        data = dict(data)
+        # sign the request before including the file to upload
+        data = self.sign_request(params['function'], True, data)
+        # create multi-part data encoder
+        data['file'] = 'dummy_name', fileobj, image_type
+        data = MultipartEncoderMonitor(
+            MultipartEncoder(fields=data), self.progress)
+        headers = {'Content-Type': data.content_type}
+        # post data
+        url = 'http://api.ipernity.com/api/' + params['function']
+        self.upload_progress.emit({'busy': False})
+        rsp = self.check_response(
+            self.api.post(url, data=data, headers=headers, timeout=20))
+        self.upload_progress.emit({'busy': True})
+        if not rsp:
+            return 'Ipernity upload failed', None
+        # parse response
+        if rsp['api']['status'] != 'ok':
+            return params['function'] + ' ' + str(rsp['api']), None
+        ticket = rsp['ticket']
+        # wait for processing to finish
+        # upload.checkTickets returns an eta but it's very
+        # unreliable (e.g. saying 360 seconds for something that
+        # then takes 15). Easier to poll every two seconds.
+        while True:
+            time.sleep(2)
+            rsp = self.api_call('upload.checkTickets', tickets=ticket)
+            if not rsp:
+                return 'Wait for processing failed', None
+            if rsp['tickets']['done'] != '0':
+                return '', rsp['tickets']['ticket'][0]['doc_id']
+
+    metadata_set_func = {
+        'visibility' : 'doc.setPerms',
+        'permissions': 'doc.setPerms',
+        'licence'    : 'doc.setLicense',
+        'meta'       : 'doc.set',
+        'keywords'   : 'doc.tags.edit',
+        'location'   : 'doc.setGeo',
+        }
+
+    def set_metadata(self, params, doc_id):
+        for key in list(params):
+            if params[key] and key in self.metadata_set_func:
+                rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     doc_id=doc_id, **params[key])
                 if not rsp:
                     return 'Failed to set ' + key
-        # add to or remove from albums
-        if 'albums' not in params:
-            return ''
+                del params[key]
+        return ''
+
+    def set_albums(self, params, doc_id):
         current_albums = []
         if params['function'] != 'upload.file':
             # get albums existing photo is in
@@ -188,12 +170,59 @@ class IpernitySession(UploaderSession):
                 rsp = self.api_call('album.docs.add', post=True,
                                     album_id=album_id, doc_id=doc_id)
                 if not rsp:
-                    return 'Failed to set album'
+                    return 'Failed to add to album'
         # remove from any other albums
         for album_id in current_albums:
-            self.api_call('album.docs.remove', post=True,
-                          album_id=album_id, doc_id=doc_id)
+            rsp = self.api_call('album.docs.remove', post=True,
+                                album_id=album_id, doc_id=doc_id)
+            if not rsp:
+                return 'Failed to remove from album'
         return ''
+
+    def upload_files(self, upload_list):
+        for image, convert, params in upload_list:
+            doc_id = params['doc_id']
+            upload_data = {}
+            if params['function']:
+                # upload or replace photo
+                if params['function'] == 'upload.file':
+                    # set some metadata with upload function
+                    for key in ('visibility', 'permissions', 'licence', 'meta',
+                                'dates', 'location'):
+                        if key in params and params[key]:
+                            upload_data.update(params[key])
+                            del(params[key])
+                else:
+                    upload_data['doc_id'] = doc_id
+                upload_data['async'] = '1'
+            if 'visibility' in params and 'permissions' in params:
+                params['permissions'].update(params['visibility'])
+                del params['visibility']
+            retry = True
+            while retry:
+                error = ''
+                if not upload_data:
+                    # no image conversion required
+                    convert = None
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                if upload_data:
+                    # upload or replace photo
+                    error, doc_id = self.upload_image(
+                        params, upload_data, fileobj, image_type)
+                    if not error:
+                        # don't retry
+                        upload_data = {}
+                        # store photo id in image keywords, in main thread
+                        self.upload_progress.emit({
+                            'keyword': (image, 'ipernity:id=' + doc_id)})
+                # set remaining metadata after uploading image
+                if not error:
+                    error = self.set_metadata(params, doc_id)
+                # add to or remove from albums
+                if 'albums' in params and not error:
+                    error = self.set_albums(params, doc_id)
+                retry = yield error
 
 
 class PermissionWidget(DropDownSelector):
