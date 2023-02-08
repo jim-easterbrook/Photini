@@ -38,9 +38,6 @@ class GooglePhotosSession(UploaderSession):
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
 
-    def authorised(self):
-        return self.api.authorized
-
     def open_connection(self):
         if self.api:
             return
@@ -57,49 +54,19 @@ class GooglePhotosSession(UploaderSession):
     def api_call(self, url, post=False, **params):
         self.open_connection()
         if post:
-            rsp = self.api.post(url, **params)
+            rsp = self.api.post(url, timeout=5, **params)
         else:
-            rsp = self.api.get(url, **params)
+            rsp = self.api.get(url, timeout=5, **params)
         rsp = self.check_response(rsp)
         if not rsp:
             print('close_connection', url)
             self.close_connection()
         return rsp
 
-    def get_user(self):
-        rsp = self.api_call(self.oauth_url + 'v2/userinfo', timeout=5)
-        name, picture = None, None
-        if 'name' in rsp:
-            name = rsp['name']
-        if 'picture' in rsp:
-            try:
-                rsp = requests.get(rsp['picture'])
-                rsp.raise_for_status()
-                picture = rsp.content
-            except Exception as ex:
-                logger.error(str(ex))
-        return name, picture
-
-    def get_albums(self):
-        params = {}
-        while True:
-            rsp = self.api_call(
-                self.photos_url + 'v1/albums', params=params, timeout=5)
-            if 'albums' not in rsp:
-                break
-            for album in rsp['albums']:
-                if 'id' not in album:
-                    logger.info('Malformed album', album)
-                    continue
-                yield album
-            if 'nextPageToken' not in rsp:
-                break
-            params['pageToken'] = rsp['nextPageToken']
-
     def new_album(self, title):
         body = {'album': {'title': title}}
         return self.api_call(
-            self.photos_url + 'v1/albums', json=body, timeout=5, post=True)
+            self.photos_url + 'v1/albums', json=body, post=True)
 
     def do_upload(self, fileobj, image_type, image, params):
         # see https://developers.google.com/photos/library/guides/upload-media
@@ -168,11 +135,33 @@ class GooglePhotosUser(UploaderUser):
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
-            connected = session.authorised()
-            yield 'connected', connected
-            yield 'user', session.get_user()
-            for album in session.get_albums():
-                yield 'album', self.normalise_album(album)
+            # check auth
+            yield 'connected', session.api.authorized
+            # get user details
+            name, picture = None, None
+            rsp = session.api_call(session.oauth_url + 'v2/userinfo')
+            if 'name' in rsp:
+                name = rsp['name']
+            if 'picture' in rsp:
+                rsp = session.check_response(
+                    session.api.get(rsp['picture']), decode=False)
+                picture = rsp and rsp.content
+            yield 'user', (name, picture)
+            # get albums
+            params = {}
+            while True:
+                rsp = session.api_call(
+                    session.photos_url + 'v1/albums', params=params)
+                if 'albums' not in rsp:
+                    break
+                for album in rsp['albums']:
+                    if 'id' not in album:
+                        logger.info('Malformed album', album)
+                        continue
+                    yield 'album', self.normalise_album(album)
+                if 'nextPageToken' not in rsp:
+                    break
+                params['pageToken'] = rsp['nextPageToken']
 
     def load_user_data(self):
         refresh_token = self.get_password()
@@ -242,8 +231,7 @@ class GooglePhotosUser(UploaderUser):
 
     @staticmethod
     def normalise_album(album):
-        album['writeable'] = not ('isWriteable' in album
-                                  and not album['isWriteable'])
+        album['writeable'] = 'isWriteable' in album and album['isWriteable']
         album['description'] = None
         return album
 
