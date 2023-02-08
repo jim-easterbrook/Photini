@@ -700,7 +700,7 @@ class TabWidget(PhotiniUploader):
                         for x in result['keywords']]
             # convert to #CamelCase
             keywords = ['#' + x.title().replace(' ', '') for x in keywords]
-            strings.append(' '.join(keywords))
+            strings.append(' '.join(set(keywords)))
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
