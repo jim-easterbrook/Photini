@@ -440,12 +440,13 @@ class PhotiniMap(QtWidgets.QWidget):
             location = [float(gps['lat']), float(gps['lon'])]
             if location not in locations:
                 locations.append(location)
-        # get locations of GPS track points around time of selected images
-        for point in self.get_nearest_gps(selected_images):
-            time_stamp, lat, lng = point
-            location = [lat, lng]
-            if location not in locations:
-                locations.append(location)
+        if not locations:
+            # get locations of GPS track points around time of selected images
+            for point in self.get_nearest_gps(selected_images):
+                time_stamp, lat, lng = point
+                location = [lat, lng]
+                if location not in locations:
+                    locations.append(location)
         # adjust map
         if locations:
             self.JavaScript('fitPoints({!r})'.format(locations))
