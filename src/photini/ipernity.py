@@ -42,18 +42,6 @@ translate = QtCore.QCoreApplication.translate
 class IpernitySession(UploaderSession):
     name = 'ipernity'
 
-    def authorised(self):
-        rsp = self.api_call('auth.checkToken')
-        if not rsp:
-            return False
-        self._userid = rsp['auth']['user']['user_id']
-        return rsp['auth']['permissions']['doc'] == 'write'
-
-    def user_id(self):
-        if not self._userid:
-            self.authorised()
-        return self._userid
-
     def open_connection(self):
         if not self.api:
             self._userid = None
@@ -89,53 +77,10 @@ class IpernitySession(UploaderSession):
             return {}
         return rsp
 
-    def get_user(self):
-        name, picture = None, None
-        # get user info
-        rsp = self.api_call('user.get', auth=False, user_id=self.user_id())
-        if not rsp:
-            return name, picture
-        self.user_data['is_pro'] = rsp['user']['is_pro']
-        name = rsp['user']['username']
-        icon_url = rsp['user']['icon']
-        # get icon
-        try:
-            rsp = self.api.get(icon_url)
-            rsp.raise_for_status()
-            picture = rsp.content
-        except Exception as ex:
-            logger.error(str(ex))
-        return name, picture
-
-    def get_albums(self):
-        page = 1
-        while True:
-            # get list of album ids
-            rsp = self.api_call(
-                'album.getList', empty='1', page=str(page), per_page='10')
-            if not rsp:
-                break
-            albums = rsp['albums']
-            # get details of each album
-            for album in albums['album']:
-                rsp = self.api_call('album.get', album_id=album['album_id'])
-                if not rsp:
-                    continue
-                details = {
-                    'title': rsp['album']['title'],
-                    'description': rsp['album']['description'],
-                    'id': rsp['album']['album_id'],
-                    'writeable': True,
-                    }
-                yield details
-            if int(albums['page']) >= int(albums['pages']):
-                break
-            page += 1
-
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
         params = {
-            'user_id': self.user_id(),
+            'user_id': self.user_data['user_id'],
             'media': 'photo,video',
             'created_min': min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
             'created_max': max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -290,15 +235,52 @@ class IpernityUser(UploaderUser):
 
     def on_connect(self, widgets):
         with self.session(parent=self) as session:
-            connected = session.authorised()
+            # check auth
+            rsp = session.api_call('auth.checkToken')
+            if rsp:
+                self.user_data['user_id'] = rsp['auth']['user']['user_id']
+                self.user_data['realname'] = rsp['auth']['user']['realname']
+                if rsp['auth']['user']['is_pro'] == '0':
+                    # guest user can upload 2.5 MB photos and no videos
+                    self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
+                                     'video': {'bytes': 0}}
+                connected = rsp['auth']['permissions']['doc'] == 'write'
             yield 'connected', connected
-            yield 'user', session.get_user()
-            for album in session.get_albums():
-                yield 'album', album
-            if session.user_data['is_pro'] == '0':
-                # guest user can upload 2.5 MB photos and no videos
-                self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
-                                 'video': {'bytes': 0}}
+            # get user icon
+            rsp = session.api_call(
+                'user.get', user_id=self.user_data['user_id'])
+            picture = None
+            if rsp:
+                rsp = IpernitySession.check_response(
+                    session.api.get(rsp['user']['icon']),
+                    decode=False)
+            picture = rsp and rsp.content
+            yield 'user', (self.user_data['realname'], picture)
+            # get albums
+            params = {'empty': '1', 'per_page': '10'}
+            page = 1
+            while True:
+                params['page'] = str(page)
+                # get list of album ids
+                rsp = session.api_call('album.getList', **params)
+                if not rsp:
+                    break
+                albums = rsp['albums']
+                # get details of each album
+                for album in albums['album']:
+                    rsp = session.api_call(
+                        'album.get', album_id=album['album_id'])
+                    if not rsp:
+                        continue
+                    yield 'album', {
+                        'title': rsp['album']['title'],
+                        'description': rsp['album']['description'],
+                        'id': rsp['album']['album_id'],
+                        'writeable': True,
+                        }
+                if int(albums['page']) >= int(albums['pages']):
+                    break
+                page += 1
 
     def load_user_data(self):
         stored_token = self.get_password()
