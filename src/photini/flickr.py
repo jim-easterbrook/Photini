@@ -233,6 +233,9 @@ class FlickrSession(UploaderSession):
             retry = True
             while retry:
                 error = ''
+                if not upload_data:
+                    # no image conversion required
+                    convert = None
                 # UploadWorker converts image to fileobj
                 fileobj, image_type = yield image, convert
                 if upload_data:
