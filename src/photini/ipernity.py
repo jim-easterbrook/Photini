@@ -41,17 +41,18 @@ translate = QtCore.QCoreApplication.translate
 
 class IpernitySession(UploaderSession):
     name = 'ipernity'
+    api_url = 'http://api.ipernity.com/api/'
+    auth_url = 'http://www.ipernity.com/apps/authorize'
 
     def open_connection(self):
         if not self.api:
-            self._userid = None
-            self.api = requests.session()
+            self.api = requests.Session()
             self.api.headers.update({'User-Agent': 'Photini/' + __version__})
 
-    def sign_request(self, method, auth, params):
+    def sign_request(self, method, params):
         params = dict(params)
         params['api_key'] = self.client_data['api_key']
-        if auth:
+        if 'auth_token' in self.user_data:
             params['auth_token'] = self.user_data['auth_token']
         string = ''
         for key in sorted(params):
@@ -60,10 +61,10 @@ class IpernitySession(UploaderSession):
         params['api_sig'] = hashlib.md5(string.encode('utf-8')).hexdigest()
         return params
 
-    def api_call(self, method, post=False, auth=True, **params):
+    def api_call(self, method, post=False, **params):
         self.open_connection()
-        url = 'http://api.ipernity.com/api/' + method
-        params = self.sign_request(method, auth, params)
+        url = self.api_url + method
+        params = self.sign_request(method, params)
         if post:
             rsp = self.api.post(url, timeout=20, data=params)
         else:
@@ -76,6 +77,11 @@ class IpernitySession(UploaderSession):
             logger.error('API error %s: %s', method, str(rsp['api']))
             return {}
         return rsp
+
+    def get_auth_url(self, frob):
+        params = self.sign_request('', {'frob': frob, 'perm_doc': 'write'})
+        request = requests.Request('GET', self.auth_url, params=params)
+        return request.prepare().url
 
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
@@ -103,14 +109,14 @@ class IpernitySession(UploaderSession):
     def upload_image(self, params, data, fileobj, image_type):
         data = dict(data)
         # sign the request before including the file to upload
-        data = self.sign_request(params['function'], True, data)
+        data = self.sign_request(params['function'], data)
         # create multi-part data encoder
         data['file'] = 'dummy_name', fileobj, image_type
         data = MultipartEncoderMonitor(
             MultipartEncoder(fields=data), self.progress)
         headers = {'Content-Type': data.content_type}
         # post data
-        url = 'http://api.ipernity.com/api/' + params['function']
+        url = self.api_url + params['function']
         self.upload_progress.emit({'busy': False})
         rsp = self.check_response(
             self.api.post(url, data=data, headers=headers, timeout=20))
@@ -328,19 +334,15 @@ class IpernityUser(UploaderUser):
 
     def get_frob(self):
         with self.session(parent=self) as session:
-            rsp = session.api_call('auth.getFrob', auth=False)
+            rsp = session.api_call('auth.getFrob')
         if not rsp:
             return ''
         return rsp['auth']['frob']
 
     def auth_exchange(self, frob):
-        params = {'frob': frob, 'perm_doc': 'write'}
         with self.session(parent=self) as session:
-            params = session.sign_request('', False, params)
-            request = requests.Request(
-                'GET', 'http://www.ipernity.com/apps/authorize', params=params)
-            response = yield request.prepare().url
-            rsp = session.api_call('auth.getToken', auth=False, frob=frob)
+            response = yield session.get_auth_url(frob)
+            rsp = session.api_call('auth.getToken', frob=frob)
         if not rsp:
             return
         self.user_data['auth_token'] = rsp['auth']['token']
