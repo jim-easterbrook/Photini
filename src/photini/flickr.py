@@ -92,132 +92,168 @@ class FlickrSession(UploaderSession):
                 yield photo['id'], date_taken, photo['url_t']
             page += 1
 
-    def do_upload(self, fileobj, image_type, image, params):
-        photo_id = params['photo_id']
-        if params['function']:
-            # upload or replace photo
-            self.upload_progress.emit({'busy': False})
-            url = 'https://up.flickr.com/services/{}/'.format(params['function'])
-            if params['function'] == 'upload':
-                data = {}
-                # set some metadata with upload function
-                for key in ('privacy', 'content_type', 'hidden',
-                            'safety_level', 'meta'):
-                    data.update(params[key])
-                    del(params[key])
-            else:
-                data = {'photo_id': photo_id}
-            data['async'] = '1'
-            # get the headers (without 'photo') from a dummy Request, an idea
-            # I've stolen from https://github.com/sybrenstuvel/flickrapi
-            request = requests.Request('POST', url, auth=self.auth, data=data)
-            headers = self.api.prepare_request(request).headers
-            # add photo to parameters now we've got the headers without it
-            data = list(data.items()) + [('photo', ('dummy_name', fileobj))]
-            data = MultipartEncoderMonitor(
-                MultipartEncoder(fields=data), self.progress)
-            headers = {'Authorization': headers['Authorization'],
-                       'Content-Type': data.content_type}
-            # post data, without additional auth
-            rsp = self.check_response(
-                self.api.post(url, data=data, headers=headers, timeout=20),
-                decode=False)
+    def upload_image(self, url, data, fileobj, image_type):
+        # get the headers (without 'photo') from a dummy Request, an idea
+        # I've stolen from https://github.com/sybrenstuvel/flickrapi
+        request = requests.Request('POST', url, auth=self.auth, data=data)
+        headers = self.api.prepare_request(request).headers
+        # add photo to parameters now we've got the headers without it
+        data = dict(data)
+        data['photo'] = 'dummy_name', fileobj, image_type
+        data = MultipartEncoderMonitor(
+            MultipartEncoder(fields=data), self.progress)
+        headers = {'Authorization': headers['Authorization'],
+                   'Content-Type': data.content_type}
+        # post data, without additional auth
+        self.upload_progress.emit({'busy': False})
+        rsp = self.check_response(
+            self.api.post(url, data=data, headers=headers, timeout=20),
+            decode=False)
+        self.upload_progress.emit({'busy': True})
+        if not rsp:
+            return 'Flickr upload failed', None
+        # parse XML response
+        rsp = ET.fromstring(rsp.text)
+        status = rsp.attrib['stat']
+        if status != 'ok':
+            return 'Flickr upload: ' + status, None
+        ticket_id = rsp.find('ticketid').text
+        # wait for processing to finish
+        while True:
+            rsp = self.api_call('flickr.photos.upload.checkTickets',
+                                tickets=ticket_id)
             if not rsp:
-                return 'Flickr upload failed'
-            # parse XML response
-            rsp = ET.fromstring(rsp.text)
-            status = rsp.attrib['stat']
-            if status != 'ok':
-                return params['function'] + ' ' + status
-            ticket_id = rsp.find('ticketid').text
-            # wait for processing to finish
-            self.upload_progress.emit({'busy': True})
-            while True:
-                rsp = self.api_call('flickr.photos.upload.checkTickets',
-                                    tickets=ticket_id)
-                if not rsp:
-                    return 'Wait for processing failed'
-                complete = rsp['uploader']['ticket'][0]['complete']
-                if complete == 1:
-                    photo_id = rsp['uploader']['ticket'][0]['photoid']
-                    break
-                elif complete != 0:
-                    return 'Flickr file conversion failed'
-                time.sleep(1)
-        # store photo id in image keywords, in main thread
-        self.upload_progress.emit({
-            'busy': True, 'keyword': (image, 'flickr:id=' + photo_id)})
-        # set metadata after uploading image
-        if 'hidden' in params:
-            # flickr.photos.setSafetyLevel has different 'hidden' values
-            # than upload function
-            params['hidden']['hidden'] = str(int(params['hidden']['hidden']) - 1)
-            if 'safety_level' in params:
-                params['safety_level'].update(params['hidden'])
-                del params['hidden']
-        if 'privacy' in params and 'permissions' in params:
-            del params['privacy']
-        metadata_set_func = {
-            'privacy':      'flickr.photos.setPerms',
-            'permissions':  'flickr.photos.setPerms',
-            'content_type': 'flickr.photos.setContentType',
-            'safety_level': 'flickr.photos.setSafetyLevel',
-            'hidden':       'flickr.photos.setSafetyLevel',
-            'licence':      'flickr.photos.licenses.setLicense',
-            'meta':         'flickr.photos.setMeta',
-            'keywords':     'flickr.photos.setTags',
-            'dates':        'flickr.photos.setDates',
-            'location':     'flickr.photos.geo.setLocation',
-            }
-        if 'keywords' in params:
-            params['keywords'] = {'tags': params['keywords']['keywords']}
-        for key in params:
-            if params[key] and key in metadata_set_func:
-                rsp = self.api_call(metadata_set_func[key], post=True,
+                return 'Wait for processing failed', None
+            complete = rsp['uploader']['ticket'][0]['complete']
+            if complete == 1:
+                return '', rsp['uploader']['ticket'][0]['photoid']
+            elif complete != 0:
+                return 'Flickr file conversion failed', None
+            time.sleep(1)
+
+    metadata_set_func = {
+        'privacy':      'flickr.photos.setPerms',
+        'permissions':  'flickr.photos.setPerms',
+        'content_type': 'flickr.photos.setContentType',
+        'safety_level': 'flickr.photos.setSafetyLevel',
+        'hidden':       'flickr.photos.setSafetyLevel',
+        'licence':      'flickr.photos.licenses.setLicense',
+        'meta':         'flickr.photos.setMeta',
+        'keywords':     'flickr.photos.setTags',
+        'dates':        'flickr.photos.setDates',
+        'location':     'flickr.photos.geo.setLocation',
+        }
+
+    def set_metadata(self, params, photo_id):
+        for key in list(params):
+            if params[key] and key in self.metadata_set_func:
+                rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     photo_id=photo_id, **params[key])
                 if not rsp:
                     return 'Failed to set ' + key
+                del params[key]
         # existing photo may have a location that needs deleting
         if params['function'] != 'upload' and (
                 'location' in params and not params['location']):
             rsp = self.api_call('flickr.photos.getInfo', photo_id=photo_id)
             if 'photo' in rsp and 'location' in rsp['photo']:
-                self.api_call('flickr.photos.geo.removeLocation',
-                              post=True, photo_id=photo_id)
-        # add to or remove from albums
-        if 'albums' not in params:
-            return ''
-        current_albums = {}
+                rsp = self.api_call('flickr.photos.geo.removeLocation',
+                                    post=True, photo_id=photo_id)
+                if not rsp:
+                    return 'Failed to clear location'
+            del params['location']
+        return ''
+
+    def set_albums(self, params, photo_id):
+        current_albums = []
         if params['function'] != 'upload':
             # get albums existing photo is in
             rsp = self.api_call(
                 'flickr.photos.getAllContexts', photo_id=photo_id)
             if 'set' in rsp:
-                for p_set in rsp['set']:
-                    current_albums[p_set['id']] = p_set
+                for album in rsp['set']:
+                    current_albums.append(album['id'])
         for widget in params['albums']:
-            photoset_id = widget.property('id')
-            if not photoset_id:
+            album_id = widget.property('id')
+            if not album_id:
                 # create new set
                 rsp = self.api_call(
                     'flickr.photosets.create', post=True,
                     primary_photo_id=photo_id,
                     title=widget.property('title'),
                     description=widget.property('description'))
-                if rsp:
-                    widget.setProperty('id', rsp['photoset']['id'])
-            elif photoset_id in current_albums:
+                if not rsp:
+                    return 'Failed to create album'
+                widget.setProperty('id', rsp['photoset']['id'])
+            elif album_id in current_albums:
                 # photo is already in the set
-                del current_albums[photoset_id]
+                current_albums.remove(album_id)
             else:
                 # add to existing set
-                self.api_call('flickr.photosets.addPhoto', post=True,
-                              photo_id=photo_id, photoset_id=photoset_id)
+                rsp = self.api_call('flickr.photosets.addPhoto', post=True,
+                                    photo_id=photo_id, photoset_id=album_id)
+                if not rsp:
+                    return 'Failed to add to album'
         # remove from any other albums
-        for p_set in current_albums.values():
-            self.api_call('flickr.photosets.removePhoto', post=True,
-                          photo_id=photo_id, photoset_id=p_set['id'])
+        for album_id in current_albums:
+            rsp = self.api_call('flickr.photosets.removePhoto', post=True,
+                                photo_id=photo_id, photoset_id=album_id)
+            if not rsp:
+                return 'Failed to remove from album'
         return ''
+
+    def upload_files(self, upload_list):
+        for image, convert, params in upload_list:
+            photo_id = params['photo_id']
+            upload_data = {}
+            if params['function']:
+                # upload or replace photo
+                if params['function'] == 'upload':
+                    # set some metadata with upload function
+                    for key in ('privacy', 'content_type', 'hidden',
+                                'safety_level', 'meta'):
+                        upload_data.update(params[key])
+                        del params[key]
+                else:
+                    # replace existing photo
+                    upload_data['photo_id'] = photo_id
+                upload_data['async'] = '1'
+            if 'hidden' in params:
+                # flickr.photos.setSafetyLevel has different 'hidden' values
+                # than upload function
+                params['hidden']['hidden'] = str(
+                    int(params['hidden']['hidden']) - 1)
+                if 'safety_level' in params:
+                    params['safety_level'].update(params['hidden'])
+                    del params['hidden']
+            if 'privacy' in params and 'permissions' in params:
+                del params['privacy']
+            if 'keywords' in params:
+                params['keywords'] = {'tags': params['keywords']['keywords']}
+            retry = True
+            while retry:
+                error = ''
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                if upload_data:
+                    # upload or replace photo
+                    url = 'https://up.flickr.com/services/{}/'.format(
+                        params['function'])
+                    error, photo_id = self.upload_image(
+                        url, upload_data, fileobj, image_type)
+                    if not error:
+                        # don't retry
+                        upload_data = {}
+                        # store photo id in image keywords, in main thread
+                        self.upload_progress.emit({
+                            'keyword': (image, 'flickr:id=' + photo_id)})
+                # set metadata after uploading image
+                if not error:
+                    error = self.set_metadata(params, photo_id)
+                # add to or remove from albums
+                if 'albums' in params and not error:
+                    error = self.set_albums(params, photo_id)
+                retry = yield error
 
 
 class HiddenWidget(QtWidgets.QCheckBox):
