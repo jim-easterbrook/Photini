@@ -695,7 +695,12 @@ class TabWidget(PhotiniUploader):
                     string += '\n' + text
             strings.append(string)
         if result['keywords']:
-            strings.append(' '.join(['#' + x for x in set(result['keywords'])]))
+            # remove punctuation
+            keywords = [re.sub(r'[^\w\s]', '', x, re.UNICODE)
+                        for x in result['keywords']]
+            # convert to #CamelCase
+            keywords = ['#' + x.title().replace(' ', '') for x in keywords]
+            strings.append(' '.join(keywords))
         self.widget['status'].set_value('\n\n'.join(strings))
 
     @QtSlot()
