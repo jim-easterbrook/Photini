@@ -1,6 +1,6 @@
 #  Photini - a simple photo metadata editor.
 #  http://github.com/jim-easterbrook/Photini
-#  Copyright (C) 2015-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+#  Copyright (C) 2015-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 #
 #  This program is free software: you can redistribute it and/or
 #  modify it under the terms of the GNU General Public License as
@@ -17,8 +17,8 @@
 #  <http://www.gnu.org/licenses/>.
 
 [flickr]
-api_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
-api_secret = MWUwZDkxMmY1ODZkMGVkMQ==
+client_key    = YjYyNjNjNDY5M2UzNDA2YWFkY2ZhZWJlMDA1MjgwYTU=
+client_secret = MWUwZDkxMmY1ODZkMGVkMQ==
 
 [ipernity]
 api_key    = MWYyMzY5MDkwMDAwMjk1MmVlNWRhOTY5ZmMwNThmODk=
@@ -39,3 +39,23 @@ api_key = YWE3YjIwMTE3ZTBkNGE4NDk4NzQzMTc3MTI0NmY1NjU=
 
 [mapboxmap]
 api_key = cGsuZXlKMUlqb2lhbWx0TFdWaGMzUmxjbUp5YjI5cklpd2lZU0k2SW1Oc1lUZzNPSHBqT1RBd2VUSXpibTUyTTI5cmNXczRiMllpZlEudW14YnF6bVV2OU5PX2hQcGtZMEx1Zw==
+
+[pixelfed pixelfed.de]
+client_id = NDIyNjQ=
+client_secret = NWI0a0tLMGRmTm9YYUtKdUw2QWJPNFZmeG5Qd1FJeU9nclhjZlpweQ==
+
+[pixelfed pxlmo.com]
+client_id = MTY1MQ==
+client_secret = cGhuRDZZNElRMW5yd2IzZlUzd1E3Z0hoaVV5MVh5SEs5V3RLdzFxRQ==
+
+[pixelfed metapixl.com]
+client_id = MTQ5MA==
+client_secret = Q3FRdVZxS09hNmthY1Z5VGR4NnhBT21RV2Z2QWczbXNNUmI2ek5ZNQ==
+
+[pixelfed pixelfed.tokyo]
+client_id = MTY5Mg==
+client_secret = d0t5TWFoQnpuM0V1N3UwUjg3RVRpZjRrNTA2SnZmR1BObWY3QWJISw==
+
+[pixelfed pixey.org]
+client_id = MTU2Ng==
+client_secret = TGtKblJwRGdTUENaQVB1eFp1cGN5Sko0S3huWGxaallOTW0yUWVLTg==

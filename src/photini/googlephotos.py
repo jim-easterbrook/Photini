@@ -24,8 +24,8 @@ import requests
 from requests_oauthlib import OAuth2Session
 
 from photini.pyqt import (
-    catch_all, execute, QtCore, QtSignal, QtSlot, QtWidgets, width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession
+    catch_all, execute, QtCore, QtSlot, QtWidgets, width_for_text)
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
@@ -36,120 +36,36 @@ class GooglePhotosSession(UploaderSession):
     name       = 'googlephotos'
     oauth_url  = 'https://www.googleapis.com/oauth2/'
     photos_url = 'https://photoslibrary.googleapis.com/'
-    scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
 
-    def open_connection(self, token=None):
-        self.cached_data = {}
-        refresh_token = self.get_password()
-        if not refresh_token:
-            return False
-        if not token:
-            # create expired token
-            token = {
-                'access_token' : 'xxx',
-                'refresh_token': refresh_token,
-                'expires_in'   : -30,
-                }
-        auto_refresh_kwargs = {
-            'client_id'    : self.client_id,
-            'client_secret': self.client_secret,
-            }
-        token_url = self.oauth_url + 'v4/token'
+    def open_connection(self):
+        if self.api:
+            return
         self.api = OAuth2Session(
-            client_id=self.client_id, token=token,
-            token_updater=self.save_token,
-            auto_refresh_kwargs=auto_refresh_kwargs,
-            auto_refresh_url=token_url)
-        if token['expires_in'] < 0:
-            # refresh token
-            self.api.refresh_token(token_url, **auto_refresh_kwargs)
-        self.connection_changed.emit(self.api.authorized)
-        return self.api.authorized
-
-    def check_response(self, rsp, decode=True):
-        if rsp.status_code != 200:
-            logger.error('HTTP error %d', rsp.status_code)
-            return (None, {})[decode]
-        if decode:
-            return rsp.json()
-        return rsp
-
-    def get_auth_url(self, redirect_uri):
-        code_verifier = ''
-        while len(code_verifier) < 43:
-            code_verifier += OAuth2Session().new_state()
-        self.auth_params = {
-            'client_id'    : self.client_id,
-            'client_secret': self.client_secret,
-            'code_verifier': code_verifier,
-            'redirect_uri' : redirect_uri,
-            }
-        url = 'https://accounts.google.com/o/oauth2/v2/auth'
-        url += '?client_id=' + self.auth_params['client_id']
-        url += '&redirect_uri=' + self.auth_params['redirect_uri']
-        url += '&response_type=code'
-        url += '&scope=' + urllib.parse.quote(' '.join(self.scope))
-        url += '&code_challenge=' + self.auth_params['code_verifier']
-        return url
-
-    def get_access_token(self, result):
-        if not 'code' in result:
-            logger.info('No authorisaton code received')
-            return
-        data = {
-            'code'      : result['code'][0],
-            'grant_type': 'authorization_code',
-            }
-        data.update(self.auth_params)
-        rsp = self.check_response(
-            requests.post(self.oauth_url + 'v4/token', data=data, timeout=5))
-        if 'access_token' not in rsp:
-            logger.info('No access token received')
-            return
-        self.save_token(rsp)
-        self.open_connection(token=rsp)
+            client_id=self.client_data['client_id'], token=self.user_data,
+            auto_refresh_url=self.oauth_url + 'v4/token',
+            auto_refresh_kwargs=self.client_data, token_updater=self.save_token)
+        self.api.headers.update(self.headers)
 
     def save_token(self, token):
-        self.set_password(token['refresh_token'])
+        self.user_data = token
+        self.new_token.emit(token)
 
-    def get_user(self):
-        if 'user' in self.cached_data:
-            return self.cached_data['user']
-        rsp = self.check_response(
-            self.api.get(self.oauth_url + 'v2/userinfo', timeout=5))
-        name, picture = None, None
-        if 'name' in rsp:
-            name = rsp['name']
-        if 'picture' in rsp:
-            rsp = self.check_response(
-                requests.get(rsp['picture']), decode=False)
-            if rsp:
-                picture = rsp.content
-        self.cached_data['user'] = name, picture
-        return self.cached_data['user']
-
-    def get_albums(self):
-        params = {}
-        while True:
-            rsp = self.check_response(self.api.get(
-                self.photos_url + 'v1/albums', params=params, timeout=5))
-            if 'albums' not in rsp:
-                break
-            for album in rsp['albums']:
-                if 'id' in album:
-                    safe_album = {'title': '', 'isWriteable': False}
-                    safe_album.update(album)
-                    yield safe_album
-                else:
-                    logger.info('Malformed album', album)
-            if 'nextPageToken' not in rsp:
-                break
-            params['pageToken'] = rsp['nextPageToken']
+    def api_call(self, url, post=False, **params):
+        self.open_connection()
+        if post:
+            rsp = self.api.post(url, timeout=5, **params)
+        else:
+            rsp = self.api.get(url, timeout=5, **params)
+        rsp = self.check_response(rsp)
+        if not rsp:
+            print('close_connection', url)
+            self.close_connection()
+        return rsp
 
     def new_album(self, title):
         body = {'album': {'title': title}}
-        return self.check_response(self.api.post(
-            self.photos_url + 'v1/albums', json=body, timeout=5))
+        return self.api_call(
+            self.photos_url + 'v1/albums', json=body, post=True)
 
     def do_upload(self, fileobj, image_type, image, params):
         # see https://developers.google.com/photos/library/guides/upload-media
@@ -162,9 +78,7 @@ class GooglePhotosSession(UploaderSession):
             'X-Goog-Upload-Raw-Size'    : str(fileobj.len),
             }
         rsp = self.api.post(self.photos_url + 'v1/uploads', headers=headers)
-        rsp = self.check_response(rsp, decode=False)
-        if not rsp:
-            return 'upload failed'
+        rsp.raise_for_status()
         upload_url = rsp.headers['X-Goog-Upload-URL']
         chunk_size = int(rsp.headers['X-Goog-Upload-Chunk-Granularity'])
         # 2/ upload data in chunks, size set by google
@@ -178,10 +92,8 @@ class GooglePhotosSession(UploaderSession):
             if offset >= fileobj.len:
                 headers['X-Goog-Upload-Command'] = 'upload, finalize'
             rsp = self.api.post(upload_url, headers=headers, data=chunk)
+            rsp.raise_for_status()
             self.upload_progress.emit({'value': offset * 100 // fileobj.len})
-            rsp = self.check_response(rsp, decode=False)
-            if not rsp:
-                break
             if rsp.text:
                 upload_token = rsp.text
         self.upload_progress.emit({'busy': True})
@@ -194,9 +106,8 @@ class GooglePhotosSession(UploaderSession):
             }]}
         if params['albums']:
             body['albumId'] = params['albums'][0]
-        rsp = self.check_response(self.api.post(
-            self.photos_url + 'v1/mediaItems:batchCreate',
-            json=body))
+        rsp = self.api_call(self.photos_url + 'v1/mediaItems:batchCreate',
+                            json=body, post=True)
         if 'newMediaItemResults' not in rsp:
             return 'failed to create media item'
         rsp = rsp['newMediaItemResults'][0]
@@ -210,22 +121,132 @@ class GooglePhotosSession(UploaderSession):
             for album_id in params['albums'][1:]:
                 url = (self.photos_url + 'v1/albums/' +
                        album_id + ':batchAddMediaItems')
-                rsp = self.check_response(self.api.post(url, json=body))
+                rsp = self.api_call(url, json=body, post=True)
         return ''
+
+
+class GooglePhotosUser(UploaderUser):
+    logger = logger
+    name       = 'googlephotos'
+    scope      = ('profile', 'https://www.googleapis.com/auth/photoslibrary')
+    max_size = {'image': {'bytes': 200 * (2 ** 20)},
+                'video': {'bytes': 10 * (2 ** 30)}}
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            # check auth
+            yield 'connected', session.api.authorized
+            # get user details
+            name, picture = None, None
+            rsp = session.api_call(session.oauth_url + 'v2/userinfo')
+            if 'name' in rsp:
+                name = rsp['name']
+            if 'picture' in rsp:
+                rsp = session.check_response(
+                    session.api.get(rsp['picture']), decode=False)
+                picture = rsp and rsp.content
+            yield 'user', (name, picture)
+            # get albums
+            params = {}
+            while True:
+                rsp = session.api_call(
+                    session.photos_url + 'v1/albums', params=params)
+                if 'albums' not in rsp:
+                    break
+                for album in rsp['albums']:
+                    if 'id' not in album:
+                        logger.info('Malformed album', album)
+                        continue
+                    yield 'album', self.normalise_album(album)
+                if 'nextPageToken' not in rsp:
+                    break
+                params['pageToken'] = rsp['nextPageToken']
+
+    def load_user_data(self):
+        refresh_token = self.get_password()
+        if not refresh_token:
+            return False
+        # create an expired token
+        self.user_data = {
+            'access_token' : 'xxx',
+            'refresh_token': refresh_token,
+            'expires_in'   : -30,
+            }
+        return True
+
+    @staticmethod
+    def service_name():
+        return translate('GooglePhotosTab', 'Google Photos')
+
+    def new_session(self, **kw):
+        session = GooglePhotosSession(
+            user_data=self.user_data, client_data=self.client_data, **kw)
+        session.new_token.connect(self.new_token)
+        return session
+
+    def auth_exchange(self, redirect_uri):
+        code_verifier = ''
+        while len(code_verifier) < 43:
+            code_verifier += OAuth2Session().new_state()
+        auth_params = {
+            'code_verifier': code_verifier,
+            'redirect_uri' : redirect_uri,
+            }
+        auth_params.update(self.client_data)
+        url = 'https://accounts.google.com/o/oauth2/v2/auth'
+        url += '?client_id=' + auth_params['client_id']
+        url += '&redirect_uri=' + auth_params['redirect_uri']
+        url += '&response_type=code'
+        url += '&scope=' + urllib.parse.quote(' '.join(self.scope))
+        url += '&code_challenge=' + auth_params['code_verifier']
+        result = yield url
+        if not 'code' in result:
+            logger.info('No authorisaton code received')
+            return
+        data = {
+            'code'      : result['code'][0],
+            'grant_type': 'authorization_code',
+            }
+        data.update(auth_params)
+        try:
+            rsp = requests.post(GooglePhotosSession.oauth_url + 'v4/token',
+                                data=data, timeout=5)
+            rsp.raise_for_status()
+            rsp = rsp.json()
+        except Exception as ex:
+            logger.error(str(ex))
+            return
+        if 'access_token' not in rsp:
+            logger.info('No access token received')
+            return
+        self.new_token(rsp)
+        self.connection_changed.emit(True)
+
+    @QtSlot(dict)
+    @catch_all
+    def new_token(self, token):
+        self.user_data = token
+        self.set_password(self.user_data['refresh_token'])
+
+    @staticmethod
+    def normalise_album(album):
+        album['writeable'] = 'isWriteable' in album and album['isWriteable']
+        album['description'] = None
+        return album
 
 
 class TabWidget(PhotiniUploader):
     logger = logger
-    session_factory = GooglePhotosSession
-    max_size = {'image': 200 * (2 ** 20),
-                'video': 10 * (2 ** 30)}
+
+    def __init__(self, *arg, **kw):
+        self.user_widget = GooglePhotosUser()
+        super(TabWidget, self).__init__(*arg, **kw)
 
     @staticmethod
     def tab_name():
         return translate('GooglePhotosTab', 'Google &Photos upload')
 
     def config_columns(self):
-        self.service_name = translate('GooglePhotosTab', 'Google Photos')
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
@@ -238,30 +259,9 @@ class TabWidget(PhotiniUploader):
         new_set_button.clicked.connect(self.new_set)
         column.addWidget(new_set_button, 1, 0)
         column.setRowStretch(0, 1)
-        yield column
-
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
-
-    def checked_albums(self):
-        result = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                result.append(child.property('id'))
-        return result
-
-    def add_album(self, album, index=-1):
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        widget.setProperty('id', album['id'])
-        widget.setEnabled(album['isWriteable'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
+        yield column, 0
+        ## last column is list of albums
+        yield self.album_list(), 1
 
     def accepted_image_type(self, file_type):
         # see https://developers.google.com/photos/library/guides/upload-media#file-types-sizes
@@ -312,7 +312,7 @@ class TabWidget(PhotiniUploader):
             description = image.path
         params = {
             'description': description,
-            'albums'     : self.checked_albums(),
+            'albums'     : self.widget['albums'].get_checked_ids(),
             }
         return params
 
@@ -324,8 +324,10 @@ class TabWidget(PhotiniUploader):
             translate('GooglePhotosTab', 'Please enter a title for the album'))
         if not OK or not title:
             return
-        album = self.session.new_album(title)
+        with self.user_widget.session(parent=self) as session:
+            album = session.new_album(title)
         if not album:
             return
-        widget = self.add_album(album, index=0)
+        album = GooglePhotosUser.normalise_album(album)
+        widget = self.widget['albums'].add_album(album, index=0)
         widget.setChecked(True)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##  Photini - a simple photo metadata editor.
 ##  http://github.com/jim-easterbrook/Photini
-##  Copyright (C) 2012-22  Jim Easterbrook  jim@jim-easterbrook.me.uk
+##  Copyright (C) 2012-23  Jim Easterbrook  jim@jim-easterbrook.me.uk
 ##
 ##  This program is free software: you can redistribute it and/or
 ##  modify it under the terms of the GNU General Public License as
@@ -35,6 +35,7 @@ except ImportError:
     PIL = None
 import requests
 
+from photini import __version__
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import *
@@ -43,41 +44,58 @@ from photini.widgets import Label, StartStopButton
 logger = logging.getLogger(__name__)
 translate = QtCore.QCoreApplication.translate
 
+
+class UploadAborted(Exception):
+    pass
+
+
 class UploaderSession(QtCore.QObject):
-    connection_changed = QtSignal(bool)
     upload_progress = QtSignal(dict)
+    new_token = QtSignal(dict)
+    headers = {'User-Agent': 'Photini/' + __version__}
 
-    def __init__(self, *arg, **kwds):
-        super(UploaderSession, self).__init__(*arg, **kwds)
+    def __init__(self, user_data={}, client_data={}, parent=None):
+        super(UploaderSession, self).__init__(parent=parent)
+        self.user_data = user_data
+        self.client_data = client_data
         self.api = None
-        # get api client id and secret
-        for option in key_store.config.options(self.name):
-            setattr(self, option, key_store.get(self.name, option))
+        self.open_connection()
 
-    @QtSlot()
-    @catch_all
-    def log_out(self):
-        keyring.delete_password('photini', self.name)
-        self.close_connection()
+    def open_connection(self):
+        if not self.api:
+            self.api = requests.Session()
+            self.api.headers.update(self.headers)
 
     def close_connection(self):
-        self.connection_changed.emit(False)
         if self.api:
             self.api.close()
             self.api = None
 
-    def get_password(self):
-        return keyring.get_password('photini', self.name)
+    @staticmethod
+    def check_response(rsp, decode=True):
+        try:
+            rsp.raise_for_status()
+            if decode:
+                return rsp.json()
+            return rsp
+        except UploadAborted:
+            raise
+        except Exception as ex:
+            logger.error(str(ex))
+            return {}
 
-    def set_password(self, password):
-        keyring.set_password('photini', self.name, password)
+    def progress(self, monitor):
+        self.upload_progress.emit(
+            {'value': monitor.bytes_read * 100 // monitor.len})
 
-    def get_frob(self):
-        return None
-
-
-class UploadAborted(Exception):
-    pass
+    def upload_files(self, upload_list):
+        for image, convert, params in upload_list:
+            retry = True
+            while retry:
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                # UploadWorker decides if to retry after error
+                retry = yield self.do_upload(fileobj, image_type, image, params)
 
 
 class AbortableFileReader(QtCore.QObject):
@@ -115,10 +133,11 @@ class UploadWorker(QtCore.QObject):
     upload_progress = QtSignal(dict)
     _abort_upload = QtSignal()
 
-    def __init__(self, session_factory, upload_list, *args, **kwds):
+    def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
-        self.session_factory = session_factory
+        self.session = session
         self.upload_list = upload_list
+        self.retry = None
 
     @contextmanager
     def open_file(self, image, convert):
@@ -146,46 +165,47 @@ class UploadWorker(QtCore.QObject):
     @QtSlot()
     @catch_all
     def start(self):
-        session = self.session_factory()
-        session.open_connection()
-        session.upload_progress.connect(self.upload_progress)
-        upload_count = 0
-        while upload_count < len(self.upload_list):
-            image, convert, params = self.upload_list[upload_count]
-            name = os.path.basename(image.path)
-            self.upload_progress.emit({
-                'label': '{} ({}/{})'.format(
-                     name, 1 + upload_count, len(self.upload_list)),
-                })
-            try:
-                with self.open_file(image, convert) as (image_type, fileobj):
-                    self._abort_upload.connect(
-                        fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
-                    error = session.do_upload(
-                        fileobj, image_type, image, params)
-            except UploadAborted:
-                error = 'UploadAborted'
-                session.close_connection()
-            except RuntimeError as ex:
-                error = str(ex)
-            except Exception as ex:
-                logger.exception(ex)
-                error = '{}: {}'.format(type(ex), str(ex))
-            self.upload_progress.emit({'busy': False})
-            if error:
-                if not session.api:
+        with self.session(parent=self) as session:
+            session.upload_progress.connect(self.upload_progress)
+            uploader = session.upload_files(self.upload_list)
+            upload_count = 1
+            while True:
+                try:
+                    image, convert = uploader.send(self.retry)
+                except StopIteration:
                     break
-                self.retry = None
-                self.upload_error.emit(name, error)
-                # wait for response from user dialog
-                while self.retry is None:
-                    QtWidgets.QApplication.processEvents()
-                if not self.retry:
+                name = os.path.basename(image.path)
+                self.upload_progress.emit({
+                    'label': '{} ({}/{})'.format(
+                        name, upload_count, len(self.upload_list)),
+                    'busy': True})
+                try:
+                    with self.open_file(
+                            image, convert) as (image_type, fileobj):
+                        self._abort_upload.connect(
+                            fileobj.abort_upload,
+                            Qt.ConnectionType.DirectConnection)
+                        error = uploader.send((fileobj, image_type))
+                except UploadAborted:
                     break
-            else:
-                upload_count += 1
+                except RuntimeError as ex:
+                    error = str(ex)
+                except Exception as ex:
+                    logger.exception(ex)
+                    error = '{}: {}'.format(type(ex), str(ex))
+                self.upload_progress.emit({'busy': False})
+                if error:
+                    self.retry = None
+                    self.upload_error.emit(name, error)
+                    # wait for response from user dialog
+                    while self.retry is None:
+                        QtWidgets.QApplication.processEvents()
+                    if not self.retry:
+                        break
+                else:
+                    upload_count += 1
+            self.retry = False
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
-        session.close_connection()
         self.finished.emit()
 
     @QtSlot(bool)
@@ -231,46 +251,30 @@ class AuthRequestHandler(BaseHTTPRequestHandler):
 
 class AuthServer(QtCore.QObject):
     finished = QtSignal()
-    response = QtSignal(dict)
 
     @QtSlot()
     @catch_all
     def handle_requests(self):
+        self.running = True
         self.server.timeout = 10
         self.server.result = None
-        # allow user 5 minutes to finish the process
-        timeout = time.time() + 300
-        while time.time() < timeout:
+        while self.running:
             self.server.handle_request()
             if self.server.result:
-                self.response.emit(self.server.result)
                 break
         self.server.server_close()
         self.finished.emit()
 
 
-class PhotiniUploader(QtWidgets.QWidget):
-    abort_upload = QtSignal(bool)
+class UploaderUser(QtWidgets.QGridLayout):
+    connection_changed = QtSignal(bool)
 
     def __init__(self, *arg, **kw):
-        super(PhotiniUploader, self).__init__(*arg, **kw)
-        self.app = QtWidgets.QApplication.instance()
-        self.app.aboutToQuit.connect(self.shutdown)
-        self.logger.debug('using %s', keyring.get_keyring().__module__)
-        self.setLayout(QtWidgets.QGridLayout())
-        self.session = self.session_factory()
-        self.session.connection_changed.connect(self.connection_changed)
-        self.upload_worker = None
-        # dictionary of all widgets with parameter settings
-        self.widget = {}
-        # dictionary of control buttons
-        self.buttons = {}
-        ## first column
-        layout = QtWidgets.QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.layout().addLayout(layout, 0, 0)
+        super(UploaderUser, self).__init__(*arg, **kw)
+        self.setContentsMargins(0, 0, 0, 0)
+        # dictionary of unavailable widgets (e.g. server version too low)
+        self.unavailable = {}
         # user details
-        self.user = {}
         group = QtWidgets.QGroupBox()
         group.setMinimumWidth(width_for_text(group, 'x' * 17))
         group.setLayout(QtWidgets.QVBoxLayout())
@@ -283,45 +287,219 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.user_name.setMinimumWidth(10)
         group.layout().addWidget(self.user_name)
         group.layout().addStretch(1)
-        layout.addWidget(group, 0, 0)
-        layout.setRowStretch(0, 1)
+        self.addWidget(group, 0, 0)
+        self.setRowStretch(0, 1)
         # connect / disconnect button
-        self.buttons['connect'] = StartStopButton(
+        self.connect_button = StartStopButton(
             translate('UploaderTabsAll', 'Log in'),
             translate('UploaderTabsAll', 'Log out'))
-        self.buttons['connect'].click_start.connect(self.log_in)
-        self.buttons['connect'].click_stop.connect(self.session.log_out)
-        layout.addWidget(self.buttons['connect'], 1, 0)
-        ## middle columns are 'service' specific
+        self.connect_button.click_start.connect(self.log_in)
+        self.connect_button.click_stop.connect(self.log_out)
+        self.addWidget(self.connect_button, 1, 0)
+        # other init
+        self.client_data = {}
+        if key_store.config.has_section(self.name):
+            for option in key_store.config.options(self.name):
+                self.client_data[option] = key_store.get(self.name, option)
+        self.user_data = {}
+
+    @contextmanager
+    def session(self, **kw):
+        try:
+            session = self.new_session(**kw)
+            yield session
+        finally:
+            session.close_connection()
+
+    def show_user(self, name, picture):
+        if name:
+            name = name[:10].replace(' ', '\xa0') + name[10:]
+            self.user_name.setText(translate(
+                'UploaderTabsAll', 'Logged in as {user} on {service}'
+                ).format(user=name, service=self.service_name()))
+        else:
+            self.user_name.setText(translate(
+                'UploaderTabsAll', 'Not logged in to {service}'
+                ).format(service=self.service_name()))
+        pixmap = QtGui.QPixmap()
+        if picture:
+            pixmap.loadFromData(picture)
+            max_width = self.user_photo.frameRect().width()
+            if pixmap.width() > max_width:
+                pixmap = pixmap.scaledToWidth(
+                    max_width, Qt.TransformationMode.SmoothTransformation)
+        self.user_photo.setPixmap(pixmap)
+
+    @QtSlot()
+    @catch_all
+    def log_out(self):
+        if keyring.get_password('photini', self.name):
+            self.unauthorise()
+            keyring.delete_password('photini', self.name)
+        self.user_data = {}
+        self.connection_changed.emit(False)
+
+    @QtSlot()
+    @catch_all
+    def log_in(self, do_auth=True):
+        with DisableWidget(self.connect_button):
+            if self.load_user_data():
+                self.connection_changed.emit(True)
+            elif do_auth:
+                self.authorise()
+
+    def unauthorise(self):
+        pass
+
+    def authorise(self):
+        with Busy():
+            # do full authentication procedure
+            frob_or_uri = self.get_frob()
+            if frob_or_uri:
+                http_server = None
+                auth_response = frob_or_uri
+            else:
+                # create temporary local web server
+                http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
+                frob_or_uri = 'http://127.0.0.1:' + str(http_server.server_port)
+            auth = self.auth_exchange(frob_or_uri)
+            auth_url = next(auth)
+            if not auth_url:
+                self.logger.error('Failed to get auth URL')
+                if http_server:
+                    http_server.server_close()
+                return
+            if http_server:
+                server = AuthServer()
+                thread = QtCore.QThread(self)
+                server.moveToThread(thread)
+                server.server = http_server
+                thread.started.connect(server.handle_requests)
+                server.finished.connect(thread.quit)
+                server.finished.connect(server.deleteLater)
+                thread.finished.connect(thread.deleteLater)
+                thread.start()
+            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
+                self.logger.error('Failed to open web browser')
+                return
+        # wait for user to authorise in web browser
+        dialog = QtWidgets.QMessageBox(self.parentWidget())
+        dialog.setWindowTitle(
+            translate('UploaderTabsAll', 'Photini: authorise'))
+        dialog.setText('<h3>{}</h3>'.format(translate(
+            'UploaderTabsAll', 'Authorisation required')))
+        dialog.setInformativeText(translate(
+            'UploaderTabsAll', 'Please use your web browser to authorise'
+            ' Photini, and then close this dialog.'))
+        dialog.setIcon(dialog.Icon.Warning)
+        dialog.setStandardButtons(dialog.StandardButton.Ok)
+        if http_server:
+            server.finished.connect(dialog.close)
+        execute(dialog)
+        if http_server:
+            auth_response = http_server.result
+            server.running = False
+        if not auth_response:
+            return
+        with Busy():
+            try:
+                auth.send(auth_response)
+            except StopIteration:
+                pass
+
+    def get_frob(self):
+        return None
+
+    def get_password(self):
+        return keyring.get_password('photini', self.name)
+
+    def set_password(self, password):
+        keyring.set_password('photini', self.name, password)
+
+
+class AlbumList(QtWidgets.QWidget):
+    def __init__(self, *arg, max_selected=0, **kw):
+        super(AlbumList, self).__init__(*arg, **kw)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setSpacing(0)
+        self.layout().setSizeConstraint(
+            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
+        self.setAutoFillBackground(False)
+        self.album_widgets = []
+        self.max_selected = max_selected
+        self.checked_widgets = []
+
+    def add_album(self, album, index=-1):
+        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
+        if album['description']:
+            widget.setToolTip('<p>' + album['description'] + '</p>')
+        widget.setEnabled(album['writeable'])
+        widget.setProperty('id', album['id'])
+        if self.max_selected:
+            widget.stateChanged.connect(self.state_changed)
+        if index >= 0:
+            self.layout().insertWidget(index, widget)
+            self.album_widgets.insert(index, widget)
+        else:
+            self.layout().addWidget(widget)
+            self.album_widgets.append(widget)
+        return widget
+
+    @QtSlot(int)
+    @catch_all
+    def state_changed(self, state):
+        for widget in list(self.checked_widgets):
+            if not widget.isChecked():
+                self.checked_widgets.remove(widget)
+        for widget in self.get_checked_widgets():
+            if widget not in self.checked_widgets:
+                self.checked_widgets.append(widget)
+        while len(self.checked_widgets) > self.max_selected:
+            widget = self.checked_widgets.pop(0)
+            widget.setChecked(False)
+
+    def clear_albums(self):
+        for widget in self.album_widgets:
+            self.layout().removeWidget(widget)
+            widget.setParent(None)
+        self.album_widgets = []
+
+    def get_checked_widgets(self):
+        result = []
+        for widget in self.album_widgets:
+            if widget.isChecked():
+                result.append(widget)
+        return result
+
+    def get_checked_ids(self):
+        return [x.property('id') for x in self.get_checked_widgets()]
+
+
+class PhotiniUploader(QtWidgets.QWidget):
+    abort_upload = QtSignal(bool)
+
+    def __init__(self, *arg, **kw):
+        super(PhotiniUploader, self).__init__(*arg, **kw)
+        self.app = QtWidgets.QApplication.instance()
+        self.app.aboutToQuit.connect(self.shutdown)
+        self.logger.debug('using %s', keyring.get_keyring().__module__)
+        self.setLayout(QtWidgets.QGridLayout())
+        self.upload_worker = None
+        # dictionary of all widgets with parameter settings
+        self.widget = {}
+        # dictionary of control buttons
+        self.buttons = {}
+        ## first column is "user" widget
+        self.user_widget.connection_changed.connect(self.connection_changed)
+        self.layout().addLayout(self.user_widget, 0, 0)
+        ## remaining columns are 'service' specific
         self.config_layouts = []
         column_count = 1
-        for layout in self.config_columns():
+        for layout, stretch in self.config_columns():
             self.config_layouts.append(layout)
             self.layout().addLayout(layout, 0, column_count)
+            self.layout().setColumnStretch(column_count, stretch)
             column_count += 1
-        ## last column is list of albums
-        column = QtWidgets.QGridLayout()
-        column.setContentsMargins(0, 0, 0, 0)
-        group = QtWidgets.QGroupBox()
-        group.setLayout(QtWidgets.QVBoxLayout())
-        # list of albums widget
-        group.layout().addWidget(QtWidgets.QLabel(
-            translate('UploaderTabsAll', 'Add to albums')))
-        scrollarea = QtWidgets.QScrollArea()
-        scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
-        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
-        self.widget['albums'] = QtWidgets.QWidget()
-        self.widget['albums'].setLayout(QtWidgets.QVBoxLayout())
-        self.widget['albums'].layout().setSpacing(0)
-        self.widget['albums'].layout().setSizeConstraint(
-            QtWidgets.QLayout.SizeConstraint.SetMinAndMaxSize)
-        scrollarea.setWidget(self.widget['albums'])
-        self.widget['albums'].setAutoFillBackground(False)
-        group.layout().addWidget(scrollarea)
-        column.addWidget(group, 0, 0)
-        self.config_layouts.append(column)
-        self.layout().addLayout(column, 0, column_count)
-        column_count += 1
         ## bottom row
         layout = QtWidgets.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -345,6 +523,24 @@ class PhotiniUploader(QtWidgets.QWidget):
         # initialise as not connected
         self.connection_changed(False)
 
+    def album_list(self, label=None, max_selected=0):
+        # list of albums widget
+        column = QtWidgets.QGridLayout()
+        column.setContentsMargins(0, 0, 0, 0)
+        group = QtWidgets.QGroupBox()
+        group.setMinimumWidth(width_for_text(group, 'x' * 23))
+        group.setLayout(QtWidgets.QVBoxLayout())
+        label = label or translate('UploaderTabsAll', 'Add to albums')
+        group.layout().addWidget(QtWidgets.QLabel(label))
+        scrollarea = QtWidgets.QScrollArea()
+        scrollarea.setFrameStyle(scrollarea.Shape.NoFrame)
+        scrollarea.setStyleSheet("QScrollArea {background-color: transparent}")
+        self.widget['albums'] = AlbumList(max_selected=max_selected)
+        scrollarea.setWidget(self.widget['albums'])
+        group.layout().addWidget(scrollarea)
+        column.addWidget(group, 0, 0)
+        return column
+
     @QtSlot()
     @catch_all
     def shutdown(self):
@@ -352,30 +548,29 @@ class PhotiniUploader(QtWidgets.QWidget):
             self.stop_upload()
         while self.upload_worker and self.upload_worker.thread().isRunning():
             self.app.processEvents()
-        self.session.close_connection()
 
     @QtSlot(bool)
     @catch_all
     def connection_changed(self, connected):
-        self.clear_albums()
+        if 'albums' in self.widget:
+            self.widget['albums'].clear_albums()
+        self.user_widget.show_user(None, None)
         if connected:
             with Busy():
-                self.show_user(*self.session.get_user())
-                self.app.processEvents()
-                for album in self.session.get_albums():
-                    self.add_album(album)
+                for key, value in self.user_widget.on_connect(self.widget):
+                    if key == 'connected':
+                        connected = value
+                        if not connected:
+                            break
+                    elif key == 'user':
+                        self.user_widget.show_user(*value)
+                    elif key == 'album':
+                        self.widget['albums'].add_album(value)
                     self.app.processEvents()
-                self.finalise_config()
-        else:
-            self.show_user(None, None)
-        self.buttons['connect'].set_checked(connected)
+        self.user_widget.connect_button.set_checked(connected)
         self.enable_config(connected and not self.upload_worker)
-        self.buttons['connect'].setEnabled(not self.upload_worker)
+        self.user_widget.connect_button.setEnabled(not self.upload_worker)
         self.enable_upload_button()
-
-    def finalise_config(self):
-        # allow derived class to make any changes that require a connection
-        pass
 
     def enable_config(self, enabled):
         for layout in self.config_layouts:
@@ -383,10 +578,13 @@ class PhotiniUploader(QtWidgets.QWidget):
                 widget = layout.itemAt(idx).widget()
                 if widget:
                     widget.setEnabled(enabled)
+        for key in self.user_widget.unavailable:
+            self.widget[key].setEnabled(
+                enabled and not self.user_widget.unavailable[key])
 
     def refresh(self):
-        if not self.buttons['connect'].is_checked():
-            self.log_in(do_auth=False)
+        if not self.user_widget.connect_button.is_checked():
+            self.user_widget.log_in(do_auth=False)
         self.enable_upload_button()
 
     def do_not_close(self):
@@ -397,7 +595,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             translate('UploaderTabsAll', 'Photini: upload in progress'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll',  'Upload to {service} has not finished.'
-            ).format(service=self.service_name)))
+            ).format(service=self.user_widget.service_name())))
         dialog.setInformativeText(translate(
             'UploaderTabsAll', 'Closing now will terminate the upload.'))
         dialog.setIcon(dialog.Icon.Warning)
@@ -407,133 +605,142 @@ class PhotiniUploader(QtWidgets.QWidget):
         result = execute(dialog)
         return result == dialog.StandardButton.Cancel
 
-    def show_user(self, name, picture):
-        if name:
-            name = name[:10].replace(' ', '\xa0') + name[10:]
-            self.user_name.setText(translate(
-                'UploaderTabsAll', 'Logged in as {user} on {service}'
-                ).format(user=name, service=self.service_name))
-        else:
-            self.user_name.setText(translate(
-                'UploaderTabsAll', 'Not logged in to {service}'
-                ).format(service=self.service_name))
-        pixmap = QtGui.QPixmap()
-        if picture:
-            pixmap.loadFromData(picture)
-        self.user_photo.setPixmap(pixmap)
+    def read_image(self, image):
+        with open(image.path, 'rb') as f:
+            data = f.read()
+        return {'image': None,
+                'width': None,
+                'height': None,
+                'data': image.metadata.clone(data),
+                'mime_type': image.file_type,
+                'metadata': image.metadata,
+                'name': os.path.basename(image.path),
+                }
 
-    def convert_to_jpeg(self, image):
-        file_type = image.file_type
-        if file_type == 'image/jpeg':
-            # read JPEG file
-            with open(image.path, 'rb') as f:
-                src_data = f.read()
-        else:
-            # try reading preview images
-            pv_im = QtGui.QImage()
-            for data in image.metadata.get_preview_images():
-                pv_im = QtGui.QImage.fromData(data)
-                if not pv_im.isNull():
-                    break
-            # try reading image file
-            reader = QtGui.QImageReader(image.path)
-            im = reader.read()
-            if not (im.isNull() or pv_im.isNull()):
-                if pv_im.width() > im.width():
-                    im = pv_im
-            if im.isNull():
-                raise RuntimeError(
-                    '{}: {}'.format(image.path, reader.errorString()))
-            # check we have full size image
-            image_size = image.metadata.get_sensor_size()
-            if im.width() < image_size['x'] * 9 // 10:
-                raise RuntimeError(
-                    '{}: could not read full size image'.format(image.path))
-            # save as JPEG
-            buf = QtCore.QBuffer()
-            buf.open(buf.OpenModeFlag.WriteOnly)
-            writer = QtGui.QImageWriter(buf, b'jpeg')
-            writer.setQuality(95)
-            if not writer.write(im):
-                raise RuntimeError(
-                    'save data: {}'.format(writer.errorString()))
-            src_data = buf.data().data()
-            file_type = 'image/jpeg'
-        # copy metadata
-        src_data = image.metadata.clone(src_data)
-        exiv_io = src_data.io()
-        if exiv_io.size() < self.max_size['image']:
-            # no resizing needed
-            return src_data, file_type
+    def data_to_image(self, src):
+        dst = dict(src)
+        if dst['image']:
+            return dst
+        exiv_io = dst['data'].io()
         exiv_io.open()
         data = exiv_io.mmap()
         if PIL:
             # use Pillow for good quality
-            src_im = PIL.open(io.BytesIO(data))
-            src_im.load()
-            w, h = src_im.size
+            dst['image'] = PIL.open(io.BytesIO(data))
+            dst['width'], dst['height'] = dst['image'].size
         else:
             # use Qt, lower quality but available
-            src_im = QtGui.QImage.fromData(bytes(data))
-            w, h = src_im.width(), src_im.height()
+            buf = QtCore.QBuffer()
+            buf.setData(bytes(data))
+            reader = QtGui.QImageReader(buf)
+            im = reader.read()
+            if im.isNull():
+                raise RuntimeError(reader.errorString())
+            dst['image'] = im
+            dst['width'] = dst['image'].width()
+            dst['height'] = dst['image'].height()
         exiv_io.munmap()
         exiv_io.close()
-        # scale image
+        return dst
+
+    def image_to_data(self, src, mime_type=None, max_size=None):
+        dst_mime_type = mime_type or src['mime_type']
+        if src['data'] and src['mime_type'] == dst_mime_type and not (
+                            max_size and src['data'].io().size() > max_size):
+            return src
+        src = self.data_to_image(src)
+        w_src, h_src = src['width'], src['height']
         for scale in (1000, 680, 470, 330, 220, 150,
                       100, 68, 47, 33, 22, 15, 10, 7, 5, 3, 2, 1):
-            if scale == 1000:
-                im = src_im
-            elif PIL:
-                im = src_im.resize((w * scale // 1000, h * scale // 1000),
-                                   resample=PIL.BICUBIC)
+            dst = self.data_to_image(src)
+            w_dst = w_src * scale // 1000
+            h_dst = h_src * scale // 1000
+            if scale != 1000:
+                dst = self.resize_image(dst, w_dst, h_dst)
+            dst_mime_type = mime_type or dst['mime_type']
+            fmt = dst_mime_type.split('/')[1].upper()
+            if dst_mime_type == 'image/jpeg':
+                options = [{'quality': 95}, {'quality': 85}, {'quality': 75}]
             else:
-                im = src_im.scaled(w * scale // 1000, h * scale // 1000,
-                                   Qt.AspectRatioMode.IgnoreAspectRatio,
-                                   Qt.TransformationMode.SmoothTransformation)
-            # try different JPEG quality levels
-            for quality in (95, 85, 75):
+                options = [{}]
+            for option in options:
                 if PIL:
                     dest_buf = io.BytesIO()
+                    dst['image'].save(dest_buf, format=fmt, **option)
+                    data = dest_buf.getbuffer()
                 else:
                     dest_buf = QtCore.QBuffer()
                     dest_buf.open(dest_buf.OpenModeFlag.WriteOnly)
-                im.save(dest_buf, format='JPEG', quality=quality)
-                if PIL:
-                    dest_data = dest_buf.getbuffer()
-                else:
-                    dest_data = dest_buf.data().data()
-                # copy metadata
-                dest_data = image.metadata.clone(dest_data)
-                if dest_data.io().size() < self.max_size['image']:
-                    return dest_data, file_type
+                    writer = QtGui.QImageWriter(dest_buf, fmt.encode('ascii'))
+                    writer.setQuality(option['quality'])
+                    if not writer.write(dst['image']):
+                        raise RuntimeError(writer.errorString())
+                    data = dest_buf.data().data()
+                dst['data'] = src['metadata'].clone(data)
+                dst['mime_type'] = dst_mime_type
+                if not (max_size and dst['data'].io().size() > max_size):
+                    logger.info('Converted %s from %dx%d to %dx%d JPEG',
+                                src['name'], w_src, h_src, w_dst, h_dst)
+                    return dst
         return None
 
+    def resize_image(self, src, w, h):
+        dst = self.data_to_image(src)
+        if PIL:
+            dst['image'] = dst['image'].resize(
+                (w, h), resample=PIL.BICUBIC)
+            dst['width'], dst['height'] = dst['image'].size
+        else:
+            dst['image'] = dst['image'].scaled(
+                w, h, Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation)
+            dst['width'] = dst['image'].width()
+            dst['height'] = dst['image'].height()
+        dst['data'] = None
+        dst['mime_type'] = 'image/jpeg'
+        return dst
+
+    def process_image(self, image):
+        image = self.read_image(image)
+        image = self.image_to_data(
+            image, mime_type='image/jpeg',
+            max_size=self.user_widget.max_size['image']['bytes'])
+        return image['data'], image['mime_type']
+
     def copy_file_and_metadata(self, image):
-        with open(image.path, 'rb') as f:
-            data = f.read()
-        # copy metadata
-        data = image.metadata.clone(data)
-        return data, image.file_type
+        image = self.read_image(image)
+        return image['data'], image['mime_type']
 
     def add_skip_button(self, dialog):
         return dialog.addButton(translate('UploaderTabsAll', 'Skip'),
                                 dialog.ButtonRole.AcceptRole)
 
-    def ask_resize_image(self, image, resizable=False):
-        max_size = self.max_size[image.file_type.split('/')[0]]
-        size = os.stat(image.path).st_size
+    def ask_resize_image(self, image, resizable=False, pixels=None):
+        max_size = self.user_widget.max_size[image.file_type.split('/')[0]]
+        if pixels:
+            if 'pixels' not in max_size:
+                return {}
+            max_size = max_size['pixels']
+            size = pixels
+            text = translate(
+                'UploaderTabsAll', 'File "{file_name}" has {size} pixels and'
+                ' exceeds {service}\'s limit of {max_size} pixels.')
+        else:
+            max_size = max_size['bytes']
+            size = os.stat(image.path).st_size
+            text = translate(
+                'UploaderTabsAll', 'File "{file_name}" has {size} bytes and'
+                ' exceeds {service}\'s limit of {max_size} bytes.')
         if size <= max_size:
-            return None
+            return {}
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(
             translate('UploaderTabsAll', 'Photini: too large'))
         dialog.setText('<h3>{}</h3>'.format(
             translate('UploaderTabsAll', 'File too large.')))
-        text = translate(
-            'UploaderTabsAll', 'File "{file_name}" has {size} bytes and exceeds'
-            ' {service}\'s limit of {max_size} bytes.').format(
+        text = text.format(
                 file_name=os.path.basename(image.path), size=size,
-                service=self.service_name, max_size=max_size)
+                service=self.user_widget.service_name(), max_size=max_size)
         if resizable:
             text += ' ' + translate(
                 'UploaderTabsAll', 'Would you like to resize it?')
@@ -542,51 +749,93 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.setInformativeText(text)
         dialog.setIcon(dialog.Icon.Warning)
         if execute(dialog) == dialog.StandardButton.Yes:
-            return self.convert_to_jpeg
-        return 'omit'
+            return {'resize': True}
+        return {'omit': True}
 
-    def ask_convert_image(self, image):
+    def ask_convert_image(self, image, convertible=True, mime_type=None):
+        mime_type = mime_type or image.file_type
         dialog = QtWidgets.QMessageBox(parent=self)
         dialog.setWindowTitle(translate(
             'UploaderTabsAll', 'Photini: incompatible type'))
         dialog.setText('<h3>{}</h3>'.format(translate(
             'UploaderTabsAll', 'Incompatible image type.')))
-        dialog.setInformativeText(translate(
-            'UploaderTabsAll', 'File "{file_name}" is of type "{file_type}",'
-            ' which {service} may not handle correctly. Would you like to'
-            ' convert it to JPEG?'
-            ).format(file_name=os.path.basename(image.path),
-                     file_type=image.file_type, service=self.service_name))
-        dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(dialog.StandardButton.Yes |
-                                  dialog.StandardButton.No)
-        self.add_skip_button(dialog)
+        dialog.setStandardButtons(dialog.StandardButton.Yes)
         dialog.setDefaultButton(dialog.StandardButton.Yes)
+        self.add_skip_button(dialog)
+        text = translate(
+            'UploaderTabsAll', 'File "{file_name}" is of type "{file_type}",'
+            ' which {service} may not handle correctly.'
+            ).format(file_name=os.path.basename(image.path),
+                     file_type=mime_type,
+                     service=self.user_widget.service_name())
+        if convertible:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to convert it to JPEG?')
+            dialog.addButton(dialog.StandardButton.No)
+        else:
+            text += ' ' + translate(
+                'UploaderTabsAll', 'Would you like to upload it anyway?')
+        dialog.setInformativeText(text)
+        dialog.setIcon(dialog.Icon.Warning)
         result = execute(dialog)
         if result == dialog.StandardButton.Yes:
-            return self.convert_to_jpeg
+            return ({}, {'convert': True})[convertible]
         if result == dialog.StandardButton.No:
-            return None
-        return 'omit'
+            return {}
+        return {'omit': True}
 
     def get_conversion_function(self, image, params):
-        if image.file_type.startswith('video'):
-            # videos in most formats are accepted, as long as not too large
-            return self.ask_resize_image(image)
-        convert = None
-        if not self.accepted_image_type(image.file_type):
-            convert = self.ask_convert_image(image)
-        if not convert:
-            convert = self.ask_resize_image(image, resizable=True)
-        if (not convert) and image.metadata.find_sidecar():
+        convert = {
+            'omit': False,
+            'resize': False,
+            'convert': False,
+            }
+        mime_type = image.file_type
+        if mime_type.startswith('video'):
+            dims = image.metadata.dimensions
+            if dims['width'] and dims['height']:
+                convert.update(self.ask_resize_image(
+                    image, pixels=dims['width'] * dims['height']))
+            if not any(convert.values()):
+                convert.update(self.ask_resize_image(image))
+            if not (any(convert.values()) or self.accepted_image_type(mime_type)):
+                convert.update(self.ask_convert_image(
+                    image, mime_type=mime_type, convertible=False))
+            if any(convert.values()):
+                return 'omit'
+            return None
+
+        readable = True
+        try:
+            tmp = self.data_to_image(self.read_image(image))
+        except Exception as ex:
+            logger.error(str(ex))
+            readable = False
+        if readable:
+            convert.update(self.ask_resize_image(
+                image, resizable=True, pixels=tmp['width'] * tmp['height']))
+            mime_type = tmp['mime_type']
+        if not (any(convert.values()) or self.accepted_image_type(mime_type)):
+            convert.update(self.ask_convert_image(
+                image, mime_type=mime_type, convertible=readable))
+        if not any(convert.values()):
+            convert.update(self.ask_resize_image(image, resizable=readable))
+        if convert['omit']:
+            return 'omit'
+        if convert['resize'] or convert['convert']:
+            return self.process_image
+        if image.metadata.find_sidecar():
             # need to create file without sidecar
-            convert = self.copy_file_and_metadata
-        return convert
+            return self.copy_file_and_metadata
+        return None
 
     @QtSlot()
     @catch_all
     def stop_upload(self):
         self.abort_upload.emit(False)
+
+    def get_selected_images(self):
+        return self.app.image_list.get_selected_images()
 
     @QtSlot()
     @catch_all
@@ -595,7 +844,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         # make list of items to upload
         upload_list = []
-        for image in self.app.image_list.get_selected_images():
+        for image in self.get_selected_images():
             params = self.get_upload_params(image)
             if not params:
                 continue
@@ -608,10 +857,10 @@ class PhotiniUploader(QtWidgets.QWidget):
             return
         self.buttons['upload'].set_checked(True)
         self.enable_config(False)
-        self.buttons['connect'].setEnabled(False)
+        self.user_widget.connect_button.setEnabled(False)
         self.upload_progress({'busy': True})
         # do uploading in separate thread, so GUI can continue
-        self.upload_worker = UploadWorker(self.session_factory, upload_list)
+        self.upload_worker = UploadWorker(self.user_widget.session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
         self.upload_worker.upload_error.connect(
@@ -672,76 +921,9 @@ class PhotiniUploader(QtWidgets.QWidget):
     def uploader_finished(self):
         self.buttons['upload'].set_checked(False)
         self.enable_config(True)
-        self.buttons['connect'].setEnabled(True)
+        self.user_widget.connect_button.setEnabled(True)
         self.upload_worker = None
         self.enable_upload_button()
-
-    @QtSlot()
-    @catch_all
-    def log_in(self, do_auth=True):
-        with DisableWidget(self.buttons['connect']):
-            with Busy():
-                connect = self.session.open_connection()
-            if connect is None:
-                # can't reach server
-                return
-            if do_auth and not connect:
-                self.authorise()
-
-    def authorise(self):
-        with Busy():
-            # do full authentication procedure
-            frob = self.session.get_frob()
-            if frob is not None:
-                auth_url = self.session.get_auth_url(frob)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
-                    return
-            else:
-                # create temporary local web server
-                http_server = HTTPServer(('127.0.0.1', 0), AuthRequestHandler)
-                redirect_uri = 'http://127.0.0.1:' + str(http_server.server_port)
-                auth_url = self.session.get_auth_url(redirect_uri)
-                if not auth_url:
-                    self.logger.error('Failed to get auth URL')
-                    http_server.server_close()
-                    return
-                server = AuthServer()
-                thread = QtCore.QThread(self)
-                server.moveToThread(thread)
-                server.server = http_server
-                server.response.connect(self.auth_response)
-                thread.started.connect(server.handle_requests)
-                server.finished.connect(thread.quit)
-                server.finished.connect(server.deleteLater)
-                thread.finished.connect(thread.deleteLater)
-                thread.start()
-            if not QtGui.QDesktopServices.openUrl(QtCore.QUrl(auth_url)):
-                self.logger.error('Failed to open web browser')
-                return
-        if not frob:
-            # server will call auth_response with a token
-            return
-        # wait for user to authorise in web browser
-        dialog = QtWidgets.QMessageBox(self)
-        dialog.setWindowTitle(
-            translate('UploaderTabsAll', 'Photini: authorise'))
-        dialog.setText('<h3>{}</h3>'.format(translate(
-            'UploaderTabsAll', 'Authorisation required')))
-        dialog.setInformativeText(translate(
-            'UploaderTabsAll', 'Please use your web browser to authorise'
-            ' Photini, and then close this dialog.'))
-        dialog.setIcon(dialog.Icon.Warning)
-        dialog.setStandardButtons(dialog.StandardButton.Ok)
-        execute(dialog)
-        with Busy():
-            self.session.get_access_token(frob)
-
-    @QtSlot(dict)
-    @catch_all
-    def auth_response(self, result):
-        with Busy():
-            self.session.get_access_token(result)
 
     def new_selection(self, selection):
         self.enable_upload_button(selection=selection)
@@ -751,7 +933,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             # can always cancel upload in progress
             self.buttons['upload'].setEnabled(True)
             return
-        if not self.buttons['connect'].is_checked():
+        if not self.user_widget.connect_button.is_checked():
             # can't upload if not logged in
             self.buttons['upload'].setEnabled(False)
             return
@@ -760,7 +942,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.buttons['upload'].setEnabled(len(selection) > 0)
         if 'sync' in self.buttons:
             self.buttons['sync'].setEnabled(
-                len(selection) > 0 and self.buttons['connect'].is_checked())
+                len(selection) > 0 and self.user_widget.connect_button.is_checked())
 
     def get_upload_params(self, image):
         # get user preferences for this upload
@@ -828,7 +1010,7 @@ class PhotiniUploader(QtWidgets.QWidget):
             'UploaderTabsAll', 'File {file_name} has already been uploaded to'
             ' {service}. How would you like to update it?').format(
                 file_name=os.path.basename(image.path),
-                service=self.service_name))
+                service=self.user_widget.service_name()))
         message.setWordWrap(True)
         dialog.layout().addWidget(message)
         replace_options = {}
@@ -928,7 +1110,7 @@ class PhotiniUploader(QtWidgets.QWidget):
         dialog.layout().addRow(label, Label(translate(
             'UploaderTabsAll',
             'Which image file matches this picture on {service}?').format(
-                service=self.service_name), lines=2))
+                service=self.user_widget.service_name()), lines=2))
         buttons = {}
         frame = QtWidgets.QFrame()
         frame.setLayout(FormLayout())
@@ -971,7 +1153,7 @@ class PhotiniUploader(QtWidgets.QWidget):
 
     def uploaded_id(self, keyword):
         ns, predicate, value = self.machine_tag(keyword)
-        if ns == self.session.name and predicate in (
+        if ns == self.user_widget.name and predicate in (
                 'photo_id', 'doc_id', 'id'):
             return value
         return None
@@ -991,31 +1173,33 @@ class PhotiniUploader(QtWidgets.QWidget):
                         break
                 else:
                     unknowns.append(image)
-            if unknowns:
-                # get date range of photos without an id
-                search_min, search_max = datetime.max, datetime.min
-                for image in unknowns:
-                    if not image.metadata.date_taken:
-                        continue
-                    min_taken_date, max_taken_date = self.date_range(image)
-                    search_min = min(search_min, min_taken_date)
-                    search_max = max(search_max, max_taken_date)
-                # search remote service
-                for photo_id, date_taken, icon_url in self.session.find_photos(
-                        search_min, search_max):
-                    if photo_id in photo_ids:
-                        continue
-                    # find local image that matches remote date & icon
-                    match = self.find_local(unknowns, date_taken, icon_url)
-                    if match:
-                        match.metadata.keywords = list(
-                            match.metadata.keywords or []) + [
-                                '{}:id={}'.format(self.session.name, photo_id)]
-                        photo_ids[photo_id] = match
-                        unknowns.remove(match)
-            # merge remote metadata into file
-            for photo_id, image in photo_ids.items():
-                self.merge_metadata(photo_id, image)
+            with self.user_widget.session(parent=self) as session:
+                if unknowns:
+                    # get date range of photos without an id
+                    search_min, search_max = datetime.max, datetime.min
+                    for image in unknowns:
+                        if not image.metadata.date_taken:
+                            continue
+                        min_taken_date, max_taken_date = self.date_range(image)
+                        search_min = min(search_min, min_taken_date)
+                        search_max = max(search_max, max_taken_date)
+                    # search remote service
+                    for photo_id, date_taken, icon_url in session.find_photos(
+                            search_min, search_max):
+                        if photo_id in photo_ids:
+                            continue
+                        # find local image that matches remote date & icon
+                        match = self.find_local(unknowns, date_taken, icon_url)
+                        if match:
+                            match.metadata.keywords = list(
+                                match.metadata.keywords or []) + [
+                                    '{}:id={}'.format(self.user_widget.name,
+                                                      photo_id)]
+                            photo_ids[photo_id] = match
+                            unknowns.remove(match)
+                # merge remote metadata into file
+                for photo_id, image in photo_ids.items():
+                    self.merge_metadata(session, photo_id, image)
 
     def merge_metadata_items(self, image, data):
         md = image.metadata
@@ -1026,6 +1210,22 @@ class PhotiniUploader(QtWidgets.QWidget):
             if value:
                 old_value = getattr(md, key)
                 if old_value:
-                    value = old_value.merge('{}({})'.format(image.name, key),
-                                            self.service_name, value)
+                    value = old_value.merge(
+                        '{}({})'.format(image.name, key),
+                        self.user_widget.service_name(), value)
                 setattr(md, key, value)
+
+    def new_album_dialog(self):
+        dialog = QtWidgets.QDialog(parent=self)
+        dialog.setWindowTitle(translate('UploaderTabsAll', 'Create new album'))
+        dialog.setLayout(FormLayout())
+        return dialog
+
+    def exec_album_dialog(self, dialog):
+        button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok |
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addRow(button_box)
+        return execute(dialog) == QtWidgets.QDialog.DialogCode.Accepted

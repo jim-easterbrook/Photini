@@ -296,7 +296,8 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
+        if event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
 
     def show_status(self, changed):
         status = ''
@@ -327,17 +328,18 @@ class Image(QtWidgets.QFrame):
         self._set_thumb_size(thumb_size)
         self.load_thumbnail()
 
-    def load_thumbnail(self):
+    def load_thumbnail(self, label=None):
+        label = label or self.image
         image = self.metadata.thumbnail and self.metadata.thumbnail['image']
         if not image:
-            self.image.setText(wrap_text(
-                self.image, translate('ImageList', 'No thumbnail in file'),
-                lines=4))
+            label.setText(wrap_text(
+                label, translate('ImageList', 'No thumbnail in file'), lines=4))
             return
         pixmap = QtGui.QPixmap.fromImage(image)
         pixmap = self.transform(pixmap, self.metadata.orientation)
-        self.image.setPixmap(
-            pixmap.scaled(self.image.width(), self.image.height(),
+        rect = label.contentsRect()
+        label.setPixmap(
+            pixmap.scaled(rect.width(), rect.height(),
                           Qt.AspectRatioMode.KeepAspectRatio,
                           Qt.TransformationMode.SmoothTransformation))
 

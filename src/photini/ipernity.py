@@ -28,7 +28,7 @@ import requests
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.pyqt import *
-from photini.uploader import PhotiniUploader, UploaderSession
+from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -40,129 +40,47 @@ translate = QtCore.QCoreApplication.translate
 
 class IpernitySession(UploaderSession):
     name = 'ipernity'
+    api_url = 'http://api.ipernity.com/api/'
+    auth_url = 'http://www.ipernity.com/apps/authorize'
 
-    def open_connection(self):
-        self.cached_data = {}
-        self.auth_token = self.get_password()
-        if not self.auth_token:
-            return False
-        rsp = self.api_call('auth.checkToken')
-        authorised = rsp and rsp['auth']['permissions']['doc'] == 'write'
-        if authorised:
-            self.cached_data['user_id'] = rsp['auth']['user']['user_id']
-        self.connection_changed.emit(authorised)
-        return authorised
-
-    def get_frob(self):
-        rsp = self.api_call('auth.getFrob', auth=False)
-        if not rsp:
-            return ''
-        return rsp['auth']['frob']
-
-    def get_auth_url(self, frob):
-        params = {'frob': frob, 'perm_doc': 'write'}
-        params = self.sign_request('', False, params)
-        request = requests.Request(
-            'GET', 'http://www.ipernity.com/apps/authorize', params=params)
-        return request.prepare().url
-
-    def get_access_token(self, frob):
-        if not frob:
-            return
-        rsp = self.api_call('auth.getToken', auth=False, frob=frob)
-        if not rsp:
-            return
-        self.set_password(rsp['auth']['token'])
-        self.open_connection()
-
-    def sign_request(self, method, auth, params):
+    def sign_request(self, method, params):
         params = dict(params)
-        params['api_key'] = self.api_key
-        if auth:
-            params['auth_token'] = self.auth_token
+        params['api_key'] = self.client_data['api_key']
+        if 'auth_token' in self.user_data:
+            params['auth_token'] = self.user_data['auth_token']
         string = ''
         for key in sorted(params):
             string += key + params[key]
-        string += method + self.api_secret
+        string += method + self.client_data['api_secret']
         params['api_sig'] = hashlib.md5(string.encode('utf-8')).hexdigest()
         return params
 
-    def api_call(self, method, post=False, auth=True, **params):
-        if not self.api:
-            self.api = requests.session()
-        url = 'http://api.ipernity.com/api/' + method
-        params = self.sign_request(method, auth, params)
-        try:
-            if post:
-                rsp = self.api.post(url, timeout=20, data=params)
-            else:
-                rsp = self.api.get(url, timeout=20, params=params)
-        except Exception as ex:
-            logger.error(str(ex))
+    def api_call(self, method, post=False, **params):
+        self.open_connection()
+        url = self.api_url + method
+        params = self.sign_request(method, params)
+        if post:
+            rsp = self.api.post(url, timeout=20, data=params)
+        else:
+            rsp = self.api.get(url, timeout=20, params=params)
+        rsp = self.check_response(rsp)
+        if not rsp:
+            print('close_connection', method)
             self.close_connection()
-            return {}
-        if rsp.status_code != 200:
-            logger.error('HTTP error %s: %d', method, rsp.status_code)
-            return {}
-        rsp = rsp.json()
-        if rsp['api']['status'] != 'ok':
+        elif rsp['api']['status'] != 'ok':
             logger.error('API error %s: %s', method, str(rsp['api']))
             return {}
         return rsp
 
-    def get_user(self):
-        if 'user' in self.cached_data:
-            return self.cached_data['user']
-        name, picture = None, None
-        # get user info
-        rsp = self.api_call(
-            'user.get', auth=False, user_id=self.cached_data['user_id'])
-        if not rsp:
-            return name, picture
-        self.cached_data['is_pro'] = rsp['user']['is_pro']
-        name = rsp['user']['username']
-        icon_url = rsp['user']['icon']
-        # get icon
-        rsp = self.api.get(icon_url)
-        if rsp.status_code == 200:
-            picture = rsp.content
-        else:
-            logger.error('HTTP error %d (%s)', rsp.status_code, icon_url)
-        self.cached_data['user'] = name, picture
-        return self.cached_data['user']
-
-    def get_albums(self):
-        if 'albums' in self.cached_data:
-            return self.cached_data['albums']
-        self.cached_data['albums'] = []
-        page = 1
-        while True:
-            # get list of album ids
-            rsp = self.api_call(
-                'album.getList', empty='1', page=str(page), per_page='10')
-            if not rsp:
-                break
-            albums = rsp['albums']
-            # get details of each album
-            for album in albums['album']:
-                rsp = self.api_call('album.get', album_id=album['album_id'])
-                if not rsp:
-                    continue
-                details = {
-                    'title': rsp['album']['title'],
-                    'description': rsp['album']['description'],
-                    'album_id': rsp['album']['album_id'],
-                    }
-                self.cached_data['albums'].append(details)
-                yield details
-            if int(albums['page']) >= int(albums['pages']):
-                break
-            page += 1
+    def get_auth_url(self, frob):
+        params = self.sign_request('', {'frob': frob, 'perm_doc': 'write'})
+        request = requests.Request('GET', self.auth_url, params=params)
+        return request.prepare().url
 
     def find_photos(self, min_taken_date, max_taken_date):
         # search Ipernity
         params = {
-            'user_id': self.cached_data['user_id'],
+            'user_id': self.user_data['user_id'],
             'media': 'photo,video',
             'created_min': min_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
             'created_max': max_taken_date.strftime('%Y-%m-%d %H:%M:%S'),
@@ -182,81 +100,59 @@ class IpernitySession(UploaderSession):
                 return
             params['page'] = str(page + 1)
 
-    def progress(self, monitor):
-        self.upload_progress.emit(
-            {'value': monitor.bytes_read * 100 // monitor.len})
+    def upload_image(self, params, data, fileobj, image_type):
+        data = dict(data)
+        # sign the request before including the file to upload
+        data = self.sign_request(params['function'], data)
+        # create multi-part data encoder
+        data['file'] = 'dummy_name', fileobj, image_type
+        data = MultipartEncoderMonitor(
+            MultipartEncoder(fields=data), self.progress)
+        headers = {'Content-Type': data.content_type}
+        # post data
+        url = self.api_url + params['function']
+        self.upload_progress.emit({'busy': False})
+        rsp = self.check_response(
+            self.api.post(url, data=data, headers=headers, timeout=20))
+        self.upload_progress.emit({'busy': True})
+        if not rsp:
+            return 'Ipernity upload failed', None
+        # parse response
+        if rsp['api']['status'] != 'ok':
+            return params['function'] + ' ' + str(rsp['api']), None
+        ticket = rsp['ticket']
+        # wait for processing to finish
+        # upload.checkTickets returns an eta but it's very
+        # unreliable (e.g. saying 360 seconds for something that
+        # then takes 15). Easier to poll every two seconds.
+        while True:
+            time.sleep(2)
+            rsp = self.api_call('upload.checkTickets', tickets=ticket)
+            if not rsp:
+                return 'Wait for processing failed', None
+            if rsp['tickets']['done'] != '0':
+                return '', rsp['tickets']['ticket'][0]['doc_id']
 
-    def do_upload(self, fileobj, image_type, image, params):
-        doc_id = params['doc_id']
-        if params['function']:
-            # upload or replace photo
-            self.upload_progress.emit({'busy': False})
-            url = 'http://api.ipernity.com/api/' + params['function']
-            if params['function'] == 'upload.file':
-                data = {}
-                # set some metadata with upload function
-                for key in ('visibility', 'permissions', 'licence', 'meta',
-                            'dates', 'location'):
-                    if key in params and params[key]:
-                        data.update(params[key])
-                        del(params[key])
-            else:
-                data = {'doc_id': doc_id}
-            data['async'] = '1'
-            # sign the request before including the file to upload
-            data = self.sign_request(params['function'], True, data)
-            # create multi-part data encoder
-            data = list(data.items()) + [('file', ('dummy_name', fileobj))]
-            data = MultipartEncoderMonitor(
-                MultipartEncoder(fields=data), self.progress)
-            headers = {'Content-Type': data.content_type}
-            # post data
-            rsp = self.api.post(url, data=data, headers=headers, timeout=20)
-            if rsp.status_code != 200:
-                logger.error('HTTP error %d', rsp.status_code)
-                return 'HTTP error {}'.format(rsp.status_code)
-            # parse response
-            rsp = rsp.json()
-            if rsp['api']['status'] != 'ok':
-                return params['function'] + ' ' + str(rsp['api'])
-            ticket = rsp['ticket']
-            # wait for processing to finish
-            self.upload_progress.emit({'busy': True})
-            # upload.checkTickets returns an eta but it's very
-            # unreliable (e.g. saying 360 seconds for something that
-            # then takes 15). Easier to poll every two seconds.
-            while True:
-                time.sleep(2)
-                rsp = self.api_call('upload.checkTickets', tickets=ticket)
-                if not rsp:
-                    return 'Wait for processing failed'
-                if rsp['tickets']['done'] != '0':
-                    break
-            doc_id = rsp['tickets']['ticket'][0]['doc_id']
-        # store photo id in image keywords, in main thread
-        self.upload_progress.emit({
-            'busy': True, 'keyword': (image, 'ipernity:id=' + doc_id)})
-        # set remaining metadata after uploading image
-        if 'visibility' in params and 'permissions' in params:
-            params['permissions'].update(params['visibility'])
-            del params['visibility']
-        metadata_set_func = {
-            'visibility' : 'doc.setPerms',
-            'permissions': 'doc.setPerms',
-            'licence'    : 'doc.setLicense',
-            'meta'       : 'doc.set',
-            'keywords'   : 'doc.tags.edit',
-            'location'   : 'doc.setGeo',
-            }
-        for key in params:
-            if params[key] and key in metadata_set_func:
-                rsp = self.api_call(metadata_set_func[key], post=True,
+    metadata_set_func = {
+        'visibility' : 'doc.setPerms',
+        'permissions': 'doc.setPerms',
+        'licence'    : 'doc.setLicense',
+        'meta'       : 'doc.set',
+        'keywords'   : 'doc.tags.edit',
+        'location'   : 'doc.setGeo',
+        }
+
+    def set_metadata(self, params, doc_id):
+        for key in list(params):
+            if params[key] and key in self.metadata_set_func:
+                rsp = self.api_call(self.metadata_set_func[key], post=True,
                                     doc_id=doc_id, **params[key])
                 if not rsp:
                     return 'Failed to set ' + key
-        # add to or remove from albums
-        if 'albums' not in params:
-            return ''
+                del params[key]
+        return ''
+
+    def set_albums(self, params, doc_id):
         current_albums = []
         if params['function'] != 'upload.file':
             # get albums existing photo is in
@@ -274,12 +170,59 @@ class IpernitySession(UploaderSession):
                 rsp = self.api_call('album.docs.add', post=True,
                                     album_id=album_id, doc_id=doc_id)
                 if not rsp:
-                    return 'Failed to set album'
+                    return 'Failed to add to album'
         # remove from any other albums
         for album_id in current_albums:
-            self.api_call('album.docs.remove', post=True,
-                          album_id=album_id, doc_id=doc_id)
+            rsp = self.api_call('album.docs.remove', post=True,
+                                album_id=album_id, doc_id=doc_id)
+            if not rsp:
+                return 'Failed to remove from album'
         return ''
+
+    def upload_files(self, upload_list):
+        for image, convert, params in upload_list:
+            doc_id = params['doc_id']
+            upload_data = {}
+            if params['function']:
+                # upload or replace photo
+                if params['function'] == 'upload.file':
+                    # set some metadata with upload function
+                    for key in ('visibility', 'permissions', 'licence', 'meta',
+                                'dates', 'location'):
+                        if key in params and params[key]:
+                            upload_data.update(params[key])
+                            del(params[key])
+                else:
+                    upload_data['doc_id'] = doc_id
+                upload_data['async'] = '1'
+            if 'visibility' in params and 'permissions' in params:
+                params['permissions'].update(params['visibility'])
+                del params['visibility']
+            retry = True
+            while retry:
+                error = ''
+                if not upload_data:
+                    # no image conversion required
+                    convert = None
+                # UploadWorker converts image to fileobj
+                fileobj, image_type = yield image, convert
+                if upload_data:
+                    # upload or replace photo
+                    error, doc_id = self.upload_image(
+                        params, upload_data, fileobj, image_type)
+                    if not error:
+                        # don't retry
+                        upload_data = {}
+                        # store photo id in image keywords, in main thread
+                        self.upload_progress.emit({
+                            'keyword': (image, 'ipernity:id=' + doc_id)})
+                # set remaining metadata after uploading image
+                if not error:
+                    error = self.set_metadata(params, doc_id)
+                # add to or remove from albums
+                if 'albums' in params and not error:
+                    error = self.set_albums(params, doc_id)
+                retry = yield error
 
 
 class PermissionWidget(DropDownSelector):
@@ -313,18 +256,106 @@ class LicenceWidget(DropDownSelector):
             default=default, with_multiple=False)
 
 
+class IpernityUser(UploaderUser):
+    logger = logger
+    name = 'ipernity'
+    max_size = {'image': {'bytes': 2 ** 30},
+                'video': {'bytes': 2 ** 30}}
+
+    def on_connect(self, widgets):
+        with self.session(parent=self) as session:
+            # check auth
+            rsp = session.api_call('auth.checkToken')
+            if rsp:
+                self.user_data['user_id'] = rsp['auth']['user']['user_id']
+                self.user_data['realname'] = rsp['auth']['user']['realname']
+                if rsp['auth']['user']['is_pro'] == '0':
+                    # guest user can upload 2.5 MB photos and no videos
+                    self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
+                                     'video': {'bytes': 0}}
+                connected = rsp['auth']['permissions']['doc'] == 'write'
+            yield 'connected', connected
+            # get user icon
+            rsp = session.api_call(
+                'user.get', user_id=self.user_data['user_id'])
+            picture = None
+            if rsp:
+                rsp = IpernitySession.check_response(
+                    session.api.get(rsp['user']['icon']),
+                    decode=False)
+            picture = rsp and rsp.content
+            yield 'user', (self.user_data['realname'], picture)
+            # get albums
+            params = {'empty': '1', 'per_page': '10'}
+            page = 1
+            while True:
+                params['page'] = str(page)
+                # get list of album ids
+                rsp = session.api_call('album.getList', **params)
+                if not rsp:
+                    break
+                albums = rsp['albums']
+                # get details of each album
+                for album in albums['album']:
+                    rsp = session.api_call(
+                        'album.get', album_id=album['album_id'])
+                    if not rsp:
+                        continue
+                    yield 'album', {
+                        'title': rsp['album']['title'],
+                        'description': rsp['album']['description'],
+                        'id': rsp['album']['album_id'],
+                        'writeable': True,
+                        }
+                if int(albums['page']) >= int(albums['pages']):
+                    break
+                page += 1
+
+    def load_user_data(self):
+        stored_token = self.get_password()
+        if not stored_token:
+            return False
+        self.user_data['auth_token'] = stored_token
+        return True
+
+    @staticmethod
+    def service_name():
+        return translate('IpernityTab', 'Ipernity')
+
+    def new_session(self, **kw):
+        return IpernitySession(
+            user_data=self.user_data, client_data=self.client_data, **kw)
+
+    def get_frob(self):
+        with self.session(parent=self) as session:
+            rsp = session.api_call('auth.getFrob')
+        if not rsp:
+            return ''
+        return rsp['auth']['frob']
+
+    def auth_exchange(self, frob):
+        with self.session(parent=self) as session:
+            response = yield session.get_auth_url(frob)
+            rsp = session.api_call('auth.getToken', frob=frob)
+        if not rsp:
+            return
+        self.user_data['auth_token'] = rsp['auth']['token']
+        self.set_password(self.user_data['auth_token'])
+        self.connection_changed.emit(True)
+
+
 class TabWidget(PhotiniUploader):
     logger = logger
-    session_factory = IpernitySession
-    max_size = {'image': 2 ** 30,
-                'video': 2 ** 30}
+
+    def __init__(self, *arg, **kw):
+        self.user_widget = IpernityUser()
+        super(TabWidget, self).__init__(*arg, **kw)
 
     @staticmethod
     def tab_name():
         return translate('IpernityTab', '&Ipernity upload')
 
     def config_columns(self):
-        self.service_name = translate('IpernityTab', 'Ipernity')
         self.replace_prefs = {'metadata': True}
         self.upload_prefs = {}
         ## first column
@@ -390,30 +421,23 @@ class TabWidget(PhotiniUploader):
         new_album_button.clicked.connect(self.new_album)
         column.addWidget(new_album_button, 2, 1)
         column.setRowStretch(0, 1)
-        yield column
-
-    @QtSlot(str, object)
-    @catch_all
-    def new_value(self, key, value):
-        self.app.config_store.set('ipernity', key, value)
-
-    def finalise_config(self):
+        yield column, 0
+        ## last column is list of albums
+        yield self.album_list(), 1
+        # load user's preferences
         if not self.app.config_store.has_section('ipernity'):
             return
         for key in self.app.config_store.config.options('ipernity'):
             if key in self.widget:
                 self.widget[key].set_value(
                     self.app.config_store.get('ipernity', key))
-        if self.session.cached_data['is_pro'] == '0':
-            # guest user can upload 2.5 MB photos and no videos
-            self.max_size = {'image': (2 ** 20) * 5 // 2,
-                             'video': 0}
+
+    @QtSlot(str, object)
+    @catch_all
+    def new_value(self, key, value):
+        self.app.config_store.set('ipernity', key, value)
 
     def get_fixed_params(self):
-        albums = []
-        for child in self.widget['albums'].children():
-            if child.isWidgetType() and child.isChecked():
-                albums.append(child.property('album_id'))
         visibility = {
             '0': {'is_friend': '0', 'is_family': '0', 'is_public': '0'},
             '1': {'is_friend': '0', 'is_family': '1', 'is_public': '0'},
@@ -431,25 +455,8 @@ class TabWidget(PhotiniUploader):
             'licence': {
                 'license': self.widget['license'].get_value(),
                 },
-            'albums': albums,
+            'albums': self.widget['albums'].get_checked_ids(),
             }
-
-    def clear_albums(self):
-        for child in self.widget['albums'].children():
-            if child.isWidgetType():
-                self.widget['albums'].layout().removeWidget(child)
-                child.setParent(None)
-
-    def add_album(self, album, index=-1):
-        widget = QtWidgets.QCheckBox(album['title'].replace('&', '&&'))
-        if album['description']:
-            widget.setToolTip('<p>' + album['description'] + '</p>')
-        widget.setProperty('album_id', album['album_id'])
-        if index >= 0:
-            self.widget['albums'].layout().insertWidget(index, widget)
-        else:
-            self.widget['albums'].layout().addWidget(widget)
-        return widget
 
     def accepted_image_type(self, file_type):
         # ipernity accepts most RAW formats!
@@ -495,8 +502,8 @@ class TabWidget(PhotiniUploader):
             ('albums', translate('IpernityTab', 'Change album membership'))
             ), replace=False)
 
-    def merge_metadata(self, doc_id, image):
-        rsp = self.session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
+    def merge_metadata(self, session, doc_id, image):
+        rsp = session.api_call('doc.get', doc_id=doc_id, extra='tags,geo')
         if not rsp:
             return
         photo = rsp['doc']
@@ -519,39 +526,30 @@ class TabWidget(PhotiniUploader):
     @QtSlot()
     @catch_all
     def new_album(self):
-        dialog = QtWidgets.QDialog(parent=self)
-        dialog.setWindowTitle(translate(
-            'IpernityTab', 'Create new Ipernity album'))
-        dialog.setLayout(FormLayout())
+        dialog = self.new_album_dialog()
         title = SingleLineEdit('title', spell_check=True)
         dialog.layout().addRow(translate('IpernityTab', 'Title'), title)
         description = MultiLineEdit('description', spell_check=True)
-        dialog.layout().addRow(translate(
-            'IpernityTab', 'Description'), description)
+        dialog.layout().addRow(
+            translate('IpernityTab', 'Description'), description)
         perm_comment = PermissionWidget('comment')
         dialog.layout().addRow(Label(
             translate('IpernityTab', 'Who can comment on album'),
             lines=2, layout=dialog.layout()), perm_comment)
-        button_box = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Ok |
-            QtWidgets.QDialogButtonBox.StandardButton.Cancel)
-        button_box.accepted.connect(dialog.accept)
-        button_box.rejected.connect(dialog.reject)
-        dialog.layout().addRow(button_box)
-        if execute(dialog) != QtWidgets.QDialog.DialogCode.Accepted:
+        if not self.exec_album_dialog(dialog):
             return
-        params = {
+        album = {
             'title': title.toPlainText(),
             'description': description.toPlainText(),
             'perm_comment': perm_comment.get_value(),
             }
-        if not params['title']:
+        if not album['title']:
             return
-        rsp = self.session.api_call('album.create', post=True, **params)
+        with self.user_widget.session(parent=self) as session:
+            rsp = session.api_call('album.create', post=True, **album)
         if not rsp:
             return
-        widget = self.add_album(
-            {'title': params['title'],
-             'description': params['description'],
-             'album_id': rsp['album']['album_id']}, index=0)
+        album['id'] = rsp['album']['album_id']
+        album['writeable'] = True
+        widget = self.widget['albums'].add_album(album, index=0)
         widget.setChecked(True)
