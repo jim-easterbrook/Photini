@@ -41,13 +41,14 @@ class GooglePhotosSession(UploaderSession):
         if self.api:
             return
         self.api = OAuth2Session(
-            client_id=self.client_data['client_id'], token=self.user_data,
+            client_id=self.client_data['client_id'],
+            token=self.user_data['token'],
             auto_refresh_url=self.oauth_url + 'v4/token',
             auto_refresh_kwargs=self.client_data, token_updater=self.save_token)
         self.api.headers.update(self.headers)
 
     def save_token(self, token):
-        self.user_data = token
+        self.user_data['token'] = token
         self.new_token.emit(token)
 
     def api_call(self, url, post=False, **params):
@@ -137,14 +138,14 @@ class GooglePhotosUser(UploaderUser):
             # check auth
             yield 'connected', session.api.authorized
             # get user details
-            name, picture = None, None
             rsp = session.api_call(session.oauth_url + 'v2/userinfo')
-            if 'name' in rsp:
-                name = rsp['name']
-            if 'picture' in rsp:
-                rsp = session.check_response(
-                    session.api.get(rsp['picture']), decode=False)
-                picture = rsp and rsp.content
+            if not rsp:
+                yield 'connected', False
+            self.user_data['lang'] = rsp['locale']
+            name = rsp['name']
+            rsp = session.check_response(
+                session.api.get(rsp['picture']), decode=False)
+            picture = rsp and rsp.content
             yield 'user', (name, picture)
             # get albums
             params = {}
@@ -167,7 +168,7 @@ class GooglePhotosUser(UploaderUser):
         if not refresh_token:
             return False
         # create an expired token
-        self.user_data = {
+        self.user_data['token'] = {
             'access_token' : 'xxx',
             'refresh_token': refresh_token,
             'expires_in'   : -30,
@@ -225,8 +226,8 @@ class GooglePhotosUser(UploaderUser):
     @QtSlot(dict)
     @catch_all
     def new_token(self, token):
-        self.user_data = token
-        self.set_password(self.user_data['refresh_token'])
+        self.user_data['token'] = token
+        self.set_password(self.user_data['token']['refresh_token'])
 
     @staticmethod
     def normalise_album(album):
@@ -299,13 +300,14 @@ class TabWidget(PhotiniUploader):
         return 'omit'
 
     def get_upload_params(self, image):
+        lang = self.user_widget.user_data['lang']
         description = []
         if image.metadata.title:
-            description.append(image.metadata.title.default_text())
+            description.append(image.metadata.title.best_match(lang))
         if image.metadata.headline:
             description.append(image.metadata.headline)
         if image.metadata.description:
-            description.append(image.metadata.description.default_text())
+            description.append(image.metadata.description.best_match(lang))
         if description:
             description = '\n\n'.join(description)
         else:

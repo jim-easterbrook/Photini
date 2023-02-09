@@ -858,13 +858,17 @@ class LangAltDict(dict):
     def best_match(self, lang):
         if not lang:
             return self.default_text()
-        k = self.find_key(lang)
-        if k:
-            return self[k]
-        lang = lang.lower()
-        for k in self:
-            if k.lower().startswith(lang):
+        langs = [lang]
+        if '-' in lang:
+            langs.append(lang.split('-')[0])
+        for lang in langs:
+            k = self.find_key(lang)
+            if k:
                 return self[k]
+            lang = lang.lower()
+            for k in self:
+                if k.lower().startswith(lang):
+                    return self[k]
         return self.default_text()
 
     def default_text(self):

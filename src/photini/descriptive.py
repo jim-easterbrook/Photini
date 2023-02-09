@@ -227,7 +227,8 @@ class TabWidget(QtWidgets.QScrollArea):
                       self.widgets['description'])
         # alt text
         self.widgets['alt_text'] = LangAltWidget(
-            'alt_text', spell_check=True, length_check=250)
+            'alt_text', spell_check=True, length_check=250, length_always=True)
+        self.widgets['alt_text'].set_height(3)
         self.widgets['alt_text'].setToolTip('<p>{}</p>'.format(translate(
             'DescriptiveTab', 'Enter text describing the appearance of the'
             ' image from a visual perspective, focusing on details that are'

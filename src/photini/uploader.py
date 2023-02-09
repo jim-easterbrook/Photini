@@ -846,6 +846,9 @@ class PhotiniUploader(QtWidgets.QWidget):
         upload_list = []
         for image in self.get_selected_images():
             params = self.get_upload_params(image)
+            if params == 'abort':
+                upload_list = []
+                break
             if not params:
                 continue
             convert = self.get_conversion_function(image, params)
@@ -964,18 +967,19 @@ class PhotiniUploader(QtWidgets.QWidget):
                 if replace_prefs[key]:
                     params[key] = fixed_params[key]
         # add metadata
+        lang = self.user_widget.user_data['lang']
         if upload_prefs['new_photo'] or replace_prefs['metadata']:
             # title & description
             params['meta'] = {}
             if image.metadata.title:
-                params['meta']['title'] = image.metadata.title.default_text()
+                params['meta']['title'] = image.metadata.title.best_match(lang)
             else:
                 params['meta']['title'] = image.name
             description = []
             if image.metadata.headline:
                 description.append(image.metadata.headline)
             if image.metadata.description:
-                description.append(image.metadata.description.default_text())
+                description.append(image.metadata.description.best_match(lang))
             if description:
                 params['meta']['description'] = '\n\n'.join(description)
             # keywords

@@ -556,6 +556,7 @@ class LangAltWidget(QtWidgets.QWidget):
         layout.setAlignment(self.lang, Qt.AlignmentFlag.AlignTop)
         # adopt some child methods ...
         self.is_multiple = self.edit.is_multiple
+        self.set_height = self.edit.set_height
         # ... and vice versa
         self.lang.define_new_value = self._define_new_lang
 

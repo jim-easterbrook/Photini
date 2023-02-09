@@ -211,21 +211,17 @@ class PixelfedUser(UploaderUser):
         with self.session(parent=self) as session:
             yield 'connected', session.api.authorized
             # get user info
-            name, picture = None, None
             account = session.api_call('/api/v1/accounts/verify_credentials')
             if not account:
                 self.log_out()
                 yield 'connected', False
             self.user_data['id'] = account['id']
             self.user_data['lang'] = account['source']['language']
-            name = account['display_name']
             # get icon
             icon_url = account['avatar_static']
-            rsp = PixelfedSession.check_response(
-                requests.get(icon_url), decode=False)
-            if rsp:
-                picture = rsp.content
-            yield 'user', (name, picture)
+            rsp = session.check_response(
+                session.api.get(icon_url), decode=False)
+            yield 'user', (account['display_name'], rsp and rsp.content)
             # get instance info
             self.version = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
@@ -281,6 +277,7 @@ class PixelfedUser(UploaderUser):
                 self.compose_settings = {
                     'max_altext_length': 5000,
                     'default_license': widgets['license'].get_value(),
+                    'media_descriptions': True,
                     }
             yield None, None
             # get collections
@@ -640,6 +637,16 @@ class TabWidget(PhotiniUploader):
                 description.append(text)
         if description:
             params['media']['description'] = '\n\n'.join(description)
+        elif self.user_widget.compose_settings['media_descriptions']:
+            if QtWidgets.QMessageBox.warning(
+                    self,
+                    translate('PixelfedTab', 'Photini: no alt text'),
+                    translate('PixelfedTab', 'File {file_name} does not have'
+                              ' accessibility alt text.').format(**params),
+                    QtWidgets.QMessageBox.StandardButton.Ignore |
+                    QtWidgets.QMessageBox.StandardButton.Abort
+                    ) != QtWidgets.QMessageBox.StandardButton.Ignore:
+                return 'abort'
         params['license'] = self.widget['license'].get_value()
         params['default_license'] = int(
             self.user_widget.compose_settings['default_license'])
