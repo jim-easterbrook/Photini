@@ -281,6 +281,7 @@ class FlickrUser(UploaderUser):
                 self.user_data['user_nsid'] = rsp['oauth']['user']['nsid']
                 self.user_data['fullname'] = rsp['oauth']['user']['fullname']
                 self.user_data['username'] = rsp['oauth']['user']['username']
+                self.user_data['lang'] = None
                 connected = rsp['oauth']['perms']['_content'] == 'write'
             yield 'connected', connected
             # get user icon

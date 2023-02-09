@@ -269,6 +269,7 @@ class IpernityUser(UploaderUser):
             if rsp:
                 self.user_data['user_id'] = rsp['auth']['user']['user_id']
                 self.user_data['realname'] = rsp['auth']['user']['realname']
+                self.user_data['lang'] = rsp['auth']['user']['lg']
                 if rsp['auth']['user']['is_pro'] == '0':
                     # guest user can upload 2.5 MB photos and no videos
                     self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
