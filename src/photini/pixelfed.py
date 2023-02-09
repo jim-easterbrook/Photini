@@ -258,6 +258,7 @@ class PixelfedUser(UploaderUser):
                 'video': {'bytes': media['video_size_limit'],
                           'pixels': media['video_matrix_limit']},
                 }
+            yield None, None
             # get user preferences
             prefs = session.api_call('/api/v1/preferences')
             if prefs:
@@ -281,6 +282,7 @@ class PixelfedUser(UploaderUser):
                     'max_altext_length': 5000,
                     'default_license': widgets['license'].get_value(),
                     }
+            yield None, None
             # get collections
             if self.unavailable['albums']:
                 return
@@ -430,8 +432,8 @@ class ThumbList(QtWidgets.QWidget):
     def __init__(self, *arg, **kw):
         super(ThumbList, self).__init__(*arg, **kw)
         self.app = QtWidgets.QApplication.instance()
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setSpacing(0)
+        self.setLayout(QtWidgets.QFormLayout())
+        self.layout().setSpacing(self.layout().verticalSpacing() // 2)
         self.thumb_widgets = []
         self.image_selection = []
         self.max_media_attachments = 4
@@ -460,12 +462,13 @@ class ThumbList(QtWidgets.QWidget):
                 widget = QtWidgets.QLabel()
                 widget.setWordWrap(True)
                 widget.setFrameStyle(widget.Shape.Box)
+                widget.setStyleSheet('QLabel {background-color: black;}')
                 widget.setToolTip(image.name)
                 widget.setAlignment(Qt.AlignmentFlag.AlignHCenter |
                                     Qt.AlignmentFlag.AlignVCenter)
                 widget.setFixedSize(width, width)
                 image.load_thumbnail(label=widget)
-                self.layout().addWidget(widget)
+                self.layout().addRow(widget)
                 self.thumb_widgets.append(widget)
 
 
