@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS language="en" sourcelanguage="en_GB" version="2.1">
+<TS version="2.1" language="en" sourcelanguage="en_GB">
 <context>
     <name>AddressTab</name>
     <message>
@@ -1304,6 +1304,14 @@
     </message>
     <message>
         <source>Collection visibility</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Photini: no alt text</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File {file_name} does not have accessibility alt text.</source>
         <translation></translation>
     </message>
 </context>

@@ -1374,6 +1374,14 @@
         <source>Collection visibility</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Photini: no alt text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File {file_name} does not have accessibility alt text.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TechnicalTab</name>
