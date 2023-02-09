@@ -27,7 +27,6 @@ import requests
 from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini import __version__
 from photini.configstore import BaseConfigStore, key_store
 from photini.pyqt import (
     catch_all, execute, FormLayout, Qt, QtCore, QtSignal, QtSlot, QtWidgets,
@@ -59,7 +58,7 @@ class PixelfedSession(UploaderSession):
             auto_refresh_url=self.client_data['api_base_url'] + '/oauth/token',
             auto_refresh_kwargs=auto_refresh_kwargs,
             token_updater=self.save_token)
-        self.api.headers.update({'User-Agent': 'Photini/' + __version__})
+        self.api.headers.update(self.headers)
 
     def save_token(self, token):
         print('save_token')

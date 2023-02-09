@@ -27,7 +27,6 @@ import requests
 import requests_oauthlib
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
-from photini import __version__
 from photini.pyqt import (
     catch_all, execute, FormLayout, QtCore, QtSlot, QtWidgets, width_for_text)
 from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
@@ -51,8 +50,7 @@ class FlickrSession(UploaderSession):
                 resource_owner_key=self.user_data['oauth_token'],
                 resource_owner_secret=self.user_data['oauth_token_secret'],
                 **self.client_data)
-            self.api = requests.Session()
-            self.api.headers.update({'User-Agent': 'Photini/' + __version__})
+            super(FlickrSession, self).open_connection()
 
     def api_call(self, method, post=False, **params):
         self.open_connection()

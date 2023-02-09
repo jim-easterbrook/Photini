@@ -35,6 +35,7 @@ except ImportError:
     PIL = None
 import requests
 
+from photini import __version__
 from photini.configstore import key_store
 from photini.metadata import Metadata
 from photini.pyqt import *
@@ -51,6 +52,7 @@ class UploadAborted(Exception):
 class UploaderSession(QtCore.QObject):
     upload_progress = QtSignal(dict)
     new_token = QtSignal(dict)
+    headers = {'User-Agent': 'Photini/' + __version__}
 
     def __init__(self, user_data={}, client_data={}, parent=None):
         super(UploaderSession, self).__init__(parent=parent)
@@ -58,6 +60,11 @@ class UploaderSession(QtCore.QObject):
         self.client_data = client_data
         self.api = None
         self.open_connection()
+
+    def open_connection(self):
+        if not self.api:
+            self.api = requests.Session()
+            self.api.headers.update(self.headers)
 
     def close_connection(self):
         if self.api:
