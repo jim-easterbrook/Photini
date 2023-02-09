@@ -113,7 +113,7 @@ class GooglePhotosSession(UploaderSession):
             return 'failed to create media item'
         rsp = rsp['newMediaItemResults'][0]
         if 'status' in rsp:
-            if rsp['status']['message'] != 'Success':
+            if rsp['status']['message'] not in ('Success', 'OK'):
                 return str(rsp['status'])
         media_id = rsp['mediaItem']['id']
         # 4/ add media item to more albums

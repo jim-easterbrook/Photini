@@ -250,6 +250,13 @@ class FlickrSession(UploaderSession):
                             'keyword': (image, 'flickr:id=' + photo_id)})
                 # set metadata after uploading image
                 if not error:
+                    if image_type.startswith('video'):
+                        # can't set permissions or privacy while video
+                        # is being processed
+                        if 'privacy' in params:
+                            del params['privacy']
+                        if 'permissions' in params:
+                            del params['permissions']
                     error = self.set_metadata(params, photo_id)
                 # add to or remove from albums
                 if 'albums' in params and not error:

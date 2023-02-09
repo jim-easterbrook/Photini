@@ -204,7 +204,7 @@ class UploadWorker(QtCore.QObject):
                         break
                 else:
                     upload_count += 1
-            self.retry = False
+                self.retry = False
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
         self.finished.emit()
 
