@@ -296,7 +296,8 @@ class Image(QtWidgets.QFrame):
 
     @catch_all
     def mouseDoubleClickEvent(self, event):
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
+        if event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(self.path))
 
     def show_status(self, changed):
         status = ''
