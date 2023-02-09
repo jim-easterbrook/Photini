@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.7.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 12:47+0000\n"
+"POT-Creation-Date: 2023-02-09 09:55+0000\n"
 "PO-Revision-Date: 2022-07-02 10:41+0000\n"
 "Last-Translator: fri, 2022\n"
 "Language: cs\n"
@@ -38,7 +38,8 @@ msgstr ""
 "přečíst si :doc:`úvod <other/introduction>`. Podrobnější informace o jeho "
 "možnostech naleznete v :doc:`uživatelská příručka <manual/index>`."
 
-msgid "Copyright (C)  2012-21  Jim Easterbrook."
+#, fuzzy
+msgid "Copyright (C)  2012-23  Jim Easterbrook."
 msgstr "Kopírovací právo (C)  2012-2021  Jim Easterbrook."
 
 msgid ""

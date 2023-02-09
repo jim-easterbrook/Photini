@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2012-22, Jim Easterbrook
+# Copyright (C) 2012-23, Jim Easterbrook
 # This file is distributed under the same license as the Photini package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Photini 2023.1.0\n"
+"Project-Id-Version: Photini 2023.2.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-24 08:25+0000\n"
+"POT-Creation-Date: 2023-02-09 09:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,7 +244,7 @@ msgstr ""
 msgid "`python-exiv2`_"
 msgstr ""
 
-msgid "0.13.1"
+msgid "0.13.2"
 msgstr ""
 
 msgid "exiv2"
@@ -302,6 +302,9 @@ msgid "Ipernity upload"
 msgstr ""
 
 msgid "`requests-toolbelt`_ 0.9+, keyring_ 7.0+"
+msgstr ""
+
+msgid "Pixelfed upload"
 msgstr ""
 
 msgid "Google Photos upload"

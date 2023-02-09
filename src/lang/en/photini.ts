@@ -292,10 +292,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Create new Flickr album</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Title</source>
         <translation></translation>
     </message>
@@ -743,10 +739,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>Create new Ipernity album</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Title</source>
         <translation></translation>
     </message>
@@ -1185,6 +1177,137 @@
     </message>
 </context>
 <context>
+    <name>PixelfedTab</name>
+    <message>
+        <source>Photini: choose instance</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Choose an instance</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Which Pixelfed instance hosts your account?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Pixelfed</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>&amp;Pixelfed upload</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Generate</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Spoiler</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Public</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Unlisted</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Followers only</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Post visibility</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Sensitive post</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Disable comments</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>All Rights Reserved</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Public Domain Work</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Public Domain Dedication (CC0)</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivs</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivs</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Licence</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>New collection</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add to collections</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Create new collection</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Draft</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Collection visibility</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
     <name>TechnicalTab</name>
     <message>
         <source>min</source>
@@ -1454,10 +1577,6 @@
         <translation></translation>
     </message>
     <message>
-        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Progress</source>
         <translation></translation>
     </message>
@@ -1475,6 +1594,22 @@
     </message>
     <message>
         <source>Please use your web browser to authorise Photini, and then close this dialog.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Would you like to convert it to JPEG?</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Would you like to upload it anyway?</source>
         <translation></translation>
     </message>
     <message>
@@ -1499,6 +1634,10 @@
     </message>
     <message>
         <source>No match</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Create new album</source>
         <translation></translation>
     </message>
 </context>

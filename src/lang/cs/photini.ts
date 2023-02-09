@@ -305,7 +305,7 @@
     </message>
     <message>
         <source>Create new Flickr album</source>
-        <translation>Vytvořit nové album na Flickr</translation>
+        <translation type="vanished">Vytvořit nové album na Flickr</translation>
     </message>
     <message>
         <source>Title</source>
@@ -788,7 +788,7 @@
     </message>
     <message>
         <source>Create new Ipernity album</source>
-        <translation>Vytvořit nové album na Ipernity</translation>
+        <translation type="vanished">Vytvořit nové album na Ipernity</translation>
     </message>
     <message>
         <source>Title</source>
@@ -1245,6 +1245,137 @@
     </message>
 </context>
 <context>
+    <name>PixelfedTab</name>
+    <message>
+        <source>Photini: choose instance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose an instance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Which Pixelfed instance hosts your account?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Other</source>
+        <translation>Jiné</translation>
+    </message>
+    <message>
+        <source>Pixelfed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Pixelfed upload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Generate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spoiler</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Public</source>
+        <translation>Veřejné</translation>
+    </message>
+    <message>
+        <source>Unlisted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Followers only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Post visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sensitive post</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Rights Reserved</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Public Domain Work</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Public Domain Dedication (CC0)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution</source>
+        <translation>Přiznávání autorství</translation>
+    </message>
+    <message>
+        <source>Attribution-ShareAlike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-ShareAlike</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NoDerivs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribution-NonCommercial-NoDerivs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Licence</source>
+        <translation>Licence</translation>
+    </message>
+    <message>
+        <source>New collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add to collections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create new collection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Název</translation>
+    </message>
+    <message>
+        <source>Description</source>
+        <translation>Popis</translation>
+    </message>
+    <message>
+        <source>Draft</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collection visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TechnicalTab</name>
     <message>
         <source>min</source>
@@ -1467,7 +1598,7 @@
     </message>
     <message>
         <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly. Would you like to convert it to JPEG?</source>
-        <translation type="unfinished">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
+        <translation type="obsolete">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně. Chcete jej převést na JPEG?</translation>
     </message>
     <message>
         <source>Progress</source>
@@ -1558,6 +1689,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>File &quot;{file_name}&quot; has {size} pixels and exceeds {service}&apos;s limit of {max_size} pixels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File &quot;{file_name}&quot; is of type &quot;{file_type}&quot;, which {service} may not handle correctly.</source>
+        <translation type="unfinished">Soubor &quot;{file_name}&quot; je typu &quot;{file_type}&quot;, se kterým {service} nezachází správně.</translation>
+    </message>
+    <message>
+        <source>Would you like to convert it to JPEG?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Would you like to upload it anyway?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Replace photo</source>
         <translation>Nahradit fotografii</translation>
     </message>
@@ -1580,6 +1727,10 @@
     <message>
         <source>No match</source>
         <translation>Žádná shoda</translation>
+    </message>
+    <message>
+        <source>Create new album</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

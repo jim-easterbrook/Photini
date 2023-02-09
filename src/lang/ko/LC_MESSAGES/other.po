@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Photini 2022.6.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-24 08:25+0000\n"
+"POT-Creation-Date: 2023-02-09 09:55+0000\n"
 "PO-Revision-Date: 2022-06-28 09:10+0000\n"
 "Last-Translator: Jim Easterbrook <jim@jim-easterbrook.me.uk>, 2022\n"
 "Language: ko\n"
@@ -408,7 +408,7 @@ msgid "`python-exiv2`_"
 msgstr "`python-exiv2`_ [3]"
 
 #, fuzzy
-msgid "0.13.1"
+msgid "0.13.2"
 msgstr "0.11.0"
 
 msgid "exiv2"
@@ -490,6 +490,10 @@ msgstr "Ipernity upload"
 
 msgid "`requests-toolbelt`_ 0.9+, keyring_ 7.0+"
 msgstr "`requests-toolbelt`_ 0.9+, keyring_ 7.0+"
+
+#, fuzzy
+msgid "Pixelfed upload"
+msgstr "Ipernity upload"
 
 msgid "Google Photos upload"
 msgstr "Google Photos upload"
