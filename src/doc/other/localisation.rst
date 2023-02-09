@@ -1,5 +1,5 @@
 .. This is part of the Photini documentation.
-   Copyright (C)  2015-22  Jim Easterbrook.
+   Copyright (C)  2015-23  Jim Easterbrook.
    See the file DOC_LICENSE.txt for copying conditions.
 
 "Localisation"
@@ -114,7 +114,7 @@ Words with special meanings
 
 Formatting strings
    In Python curly braces are used to include other data in a string.
-   For example, ``File "{0}" has {1} bytes and exceeds Flickr's limit of {2} bytes.`` includes the file name and size and Flickr's size limit.
+   For example, ``File "{file_name}" has {size} bytes and exceeds {service}'s limit of {max_size} bytes.`` includes the file name & size and a size limit set by a service such as Flickr.
    You should take care not to change what's inside the braces, but you can reorder them if it's appropriate for your language.
 
 Carriage returns
