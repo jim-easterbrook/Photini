@@ -49,7 +49,7 @@ class FFmpeg(object):
             return {}
         cmd = ['ffprobe', '-hide_banner', '-loglevel', 'warning']
         cmd += options
-        cmd += ['-print_format', 'json', path]
+        cmd += ['-select_streams', 'v', '-print_format', 'json', path]
         p = subprocess.Popen(
             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             startupinfo=startupinfo())

@@ -1395,6 +1395,6 @@ class MD_Aperture(MD_Rational):
 
 
 class MD_Dimensions(MD_Collection):
-    _keys = ('width', 'height', 'frame_rate')
+    _keys = ('width', 'height', 'frames', 'frame_rate')
     _default_type = MD_Int
-    _type = {'frame_rate': MD_Float}
+    _type = {'frame_rate': MD_Rational}
