@@ -804,7 +804,6 @@ class PhotiniUploader(QtWidgets.QWidget):
             if any(convert.values()):
                 return 'omit'
             return None
-
         readable = True
         try:
             tmp = self.data_to_image(self.read_image(image))

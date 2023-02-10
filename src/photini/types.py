@@ -1394,7 +1394,13 @@ class MD_Aperture(MD_Rational):
         return float(min(other, this)) > (float(max(other, this)) * 0.95)
 
 
+class MD_FrameRate(MD_Rational):
+    def contains(self, this, other):
+        # exiv2 rounds 30000/1001 to 29.97
+        return float(min(other, this)) > (float(max(other, this)) * 0.9999)
+
+
 class MD_Dimensions(MD_Collection):
     _keys = ('width', 'height', 'frames', 'frame_rate')
     _default_type = MD_Int
-    _type = {'frame_rate': MD_Rational}
+    _type = {'frame_rate': MD_FrameRate}
