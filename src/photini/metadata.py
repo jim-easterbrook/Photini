@@ -37,6 +37,8 @@ class FFMPEGMetadata(object):
     # some tags are always read in groups, but are represented by a
     # single name
     _multi_tags = {
+        'ffmpeg/streams[0]/tags/model': (
+            'ffmpeg/streams[0]/tags/make', 'ffmpeg/streams[0]/tags/model'),
         'ffmpeg/format/tags/com.apple.quicktime.model': (
             'ffmpeg/format/tags/com.apple.quicktime.make',
             'ffmpeg/format/tags/com.apple.quicktime.model'),
@@ -48,18 +50,24 @@ class FFMPEGMetadata(object):
         }
 
     _tag_list = {
-        'camera_model':   ('ffmpeg/format/tags/com.apple.quicktime.model',),
+        'camera_model':   ('ffmpeg/streams[0]/tags/model',
+                           'ffmpeg/format/tags/com.apple.quicktime.model'),
         'copyright':      ('ffmpeg/format/tags/com.apple.quicktime.copyright',
                            'ffmpeg/format/tags/copyright'),
         'creator':        ('ffmpeg/format/tags/com.apple.quicktime.author',
                            'ffmpeg/format/tags/artist'),
-        'date_taken':     ('ffmpeg/streams[0]/tags/creation_time',
+        'date_modified':  ('ffmpeg/streams[0]/tags/datetime',),
+        'date_digitised': ('ffmpeg/streams[0]/tags/datetimedigitized',),
+        'date_taken':     ('ffmpeg/streams[0]/tags/datetimeoriginal',
+                           'ffmpeg/streams[0]/tags/creation_time',
                            'ffmpeg/format/tags/creation_time'),
+        'description':    ('ffmpeg/format/tags/comment',),
         'dimensions':     ('ffmpeg/streams[0]/dims',
                            'ffmpeg/streams[0]/coded_dims'),
         'gps_info':       ('ffmpeg/format/tags/location',),
         'orientation':    ('ffmpeg/streams[0]/tags/rotate',),
         'rating':         ('ffmpeg/format/tags/com.apple.quicktime.rating.user',),
+        'title':          ('ffmpeg/streams[0]/tags/title',),
         }
 
     def __init__(self, path):
@@ -128,10 +136,8 @@ class FFMPEGMetadata(object):
         return result
 
     def get_value(self, tag):
-        if tag:
-            tag = tag.lower()
-            if tag in self.md:
-                return self.md[tag]
+        if tag and tag in self.md:
+            return self.md[tag]
         return None
 
 
@@ -669,11 +675,11 @@ class Metadata(object):
         for name in ['timezone'] + list(self._data_type):
             # read data values from first file that has any
             values = []
-            for handler in self._sc, self._if, video_md:
+            for handler in self._sc, video_md, self._if:
                 if not handler:
                     continue
-                values = handler.read(name, self._data_type[name])
-                if values:
+                values += handler.read(name, self._data_type[name])
+                if values and handler == self._sc:
                     break
             # merge in camera timezone
             if (name in ('date_digitised', 'date_modified', 'date_taken')
