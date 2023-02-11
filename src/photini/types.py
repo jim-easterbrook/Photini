@@ -1404,3 +1404,8 @@ class MD_Dimensions(MD_Collection):
     _keys = ('width', 'height', 'frames', 'frame_rate')
     _default_type = MD_Int
     _type = {'frame_rate': MD_FrameRate}
+
+    def duration(self):
+        if self['frames'] and self['frame_rate']:
+            return float(self['frames'] / self['frame_rate'])
+        return 0.0

@@ -132,10 +132,7 @@ class Image(QtWidgets.QFrame):
             return None
         width = dims['width']
         height = dims['height']
-        if dims['frames']:
-            duration = float(dims['frames'])
-        else:
-            duration = 0.0
+        duration = dims.duration()
         skip = int(min(duration / 2, 10.0))
         # target dimensions
         w, h = 160, 120
