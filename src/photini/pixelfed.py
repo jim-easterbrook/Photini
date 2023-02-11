@@ -426,11 +426,12 @@ class PixelfedUser(UploaderUser):
 
 
 class ThumbList(QtWidgets.QWidget):
-    def __init__(self, *arg, **kw):
+    def __init__(self, *arg, scroll_area=None, **kw):
         super(ThumbList, self).__init__(*arg, **kw)
+        self.scroll_area = scroll_area
         self.app = QtWidgets.QApplication.instance()
-        self.setLayout(QtWidgets.QFormLayout())
-        self.layout().setSpacing(self.layout().verticalSpacing() // 2)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().addStretch(1)
         self.thumb_widgets = []
         self.image_selection = []
         self.max_media_attachments = 4
@@ -453,6 +454,7 @@ class ThumbList(QtWidgets.QWidget):
                 widget = self.thumb_widgets.pop(n)
                 self.layout().removeWidget(widget)
                 widget.setParent(None)
+        added = False
         for image in selection:
             if image not in self.image_selection:
                 self.image_selection.append(image)
@@ -465,8 +467,17 @@ class ThumbList(QtWidgets.QWidget):
                                     Qt.AlignmentFlag.AlignVCenter)
                 widget.setFixedSize(width, width)
                 image.load_thumbnail(label=widget)
-                self.layout().addRow(widget)
+                self.layout().insertWidget(self.layout().count() - 1, widget)
                 self.thumb_widgets.append(widget)
+                added = True
+        if added and self.scroll_area:
+            QtCore.QTimer.singleShot(1, self.scroll_to_last_widget)
+
+    @QtSlot()
+    @catch_all
+    def scroll_to_last_widget(self):
+        scroll_bar = self.scroll_area.verticalScrollBar()
+        scroll_bar.setValue(scroll_bar.maximum())
 
 
 class ScrollArea(QtWidgets.QScrollArea):
@@ -493,7 +504,7 @@ class TabWidget(PhotiniUploader):
         column.setContentsMargins(0, 0, 0, 0)
         scroll_area = ScrollArea()
         scroll_area.setMinimumWidth(width_for_text(scroll_area, 'x' * 14))
-        self.widget['thumb_list'] = ThumbList()
+        self.widget['thumb_list'] = ThumbList(scroll_area=scroll_area)
         self.user_widget.new_instance_config.connect(
             self.widget['thumb_list'].new_instance_config)
         scroll_area.setWidget(self.widget['thumb_list'])
