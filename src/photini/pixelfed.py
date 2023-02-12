@@ -73,6 +73,9 @@ class PixelfedSession(UploaderSession):
         if not rsp:
             print('close_connection', endpoint)
             self.close_connection()
+        elif 'error' in rsp:
+            logger.error('%s: %s', endpoint, rsp['error'])
+            return {}
         return rsp
 
     def upload_files(self, upload_list):
@@ -110,6 +113,11 @@ class PixelfedSession(UploaderSession):
                     if rsp:
                         media_ids.append(rsp['id'])
                         do_media = False
+                        convert = None
+                        # store photo id in image keywords, in main thread
+                        self.upload_progress.emit({
+                            'keyword': (image, '{}:id={}'.format(
+                                self.client_data['name'], rsp['id']))})
                     else:
                         error = 'Image upload failed'
                 if do_status and not error:
@@ -304,7 +312,8 @@ class PixelfedUser(UploaderUser):
             name, sep, instance = section.partition(' ')
             if name != 'pixelfed':
                 continue
-            instance_data = {'api_base_url': 'https://' + instance}
+            instance_data = {'name': instance,
+                             'api_base_url': 'https://' + instance}
             for option in key_store.config.options(section):
                 instance_data[option] = key_store.get(section, option)
             self.instances.append(instance)
@@ -314,7 +323,8 @@ class PixelfedUser(UploaderUser):
         for instance in self.local_config.config.sections():
             if instance in self.instances:
                 continue
-            instance_data = {'api_base_url': 'https://' + instance}
+            instance_data = {'name': instance,
+                             'api_base_url': 'https://' + instance}
             for option in self.local_config.config.options(instance):
                 instance_data[option] = self.local_config.get(instance, option)
             self.instances.append(instance)
@@ -379,6 +389,7 @@ class PixelfedUser(UploaderUser):
         self.local_config.set(instance, 'client_secret', client_secret)
         self.local_config.save()
         self.client_data = {
+            'name': instance,
             'api_base_url': api_base_url,
             'client_id': client_id,
             'client_secret': client_secret,
