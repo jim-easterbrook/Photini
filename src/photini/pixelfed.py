@@ -87,13 +87,23 @@ class PixelfedSession(UploaderSession):
             licence = licence or default_licence
             remaining -= 1
             do_media = True
-            do_status = remaining == 0
+            do_status = bool(media_ids) and remaining == 0
+            if 'media_id' in params:
+                # no upload, just replace description
+                do_media = False
+                convert = None
             retry = True
             while retry:
                 error = ''
                 # UploadWorker converts image to fileobj
                 fileobj, image_type = yield image, convert
-                if do_media:
+                if 'media_id' in params:
+                    rsp = self.api_call(
+                        '/api/v1/media/{media_id}'.format(**params),
+                        'PUT', data=params['media'])
+                    if not rsp:
+                        error = 'Replace alt text failed'
+                elif do_media:
                     # set licence
                     if params['license'] != licence:
                         licence = params['license']
@@ -239,6 +249,7 @@ class PixelfedUser(UploaderUser):
             widgets['status'].highlighter.length_check = self.instance_config[
                 'configuration']['statuses']['max_characters']
             version = self.instance_config['version']
+            logger.info('server version "%s"', version)
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
                 self.version['mastodon'] = tuple(int(x) for x in match.groups())
@@ -334,6 +345,7 @@ class PixelfedUser(UploaderUser):
         if not self.instance:
             return False
         self.client_data = self.instance_data[self.instance]
+        self.name = self.instance
         # get user access token
         token = self.get_password()
         if not token:
@@ -363,6 +375,7 @@ class PixelfedUser(UploaderUser):
         if not self.register_app(instance):
             return
         self.instance = instance
+        self.name = instance
         self.config_store.set('pixelfed', 'instance', instance)
         super(PixelfedUser, self).authorise()
 
@@ -510,6 +523,8 @@ class TabWidget(PhotiniUploader):
         return translate('PixelfedTab', '&Pixelfed upload')
 
     def config_columns(self):
+        self.replace_prefs = {'description': True}
+        self.upload_prefs = {}
         ## first column
         column = QtWidgets.QGridLayout()
         column.setContentsMargins(0, 0, 0, 0)
@@ -687,7 +702,21 @@ class TabWidget(PhotiniUploader):
             album_ids = self.widget['albums'].get_checked_ids()
             if album_ids:
                 params['status']['collection_ids[]'] = album_ids
+        # check for already uploaded image
+        upload_prefs, replace_prefs, media_id = self.replace_dialog(image)
+        if not upload_prefs:
+            # user cancelled dialog or chose to do nothing
+            return None
+        if 'no_upload' in upload_prefs:
+            if replace_prefs['description']:
+                params['media_id'] = media_id
         return params
+
+    def replace_dialog(self, image):
+        return super(TabWidget, self).replace_dialog(image, (
+            ('description',
+             translate('PixelfedTab', 'Replace accessibility alt text')),
+            ), replace=False)
 
     def enable_upload_button(self, selection=None):
         selection = selection or self.app.image_list.get_selected_images()
