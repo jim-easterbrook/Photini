@@ -1069,6 +1069,13 @@ class MD_Keywords(MD_MultiString):
     def human_tags(self):
         return [x for x in self if not self._machine_tag.match(x)]
 
+    def machine_tags(self):
+        # yield keyword, (ns, predicate, value) for each machine tag
+        for keyword in self:
+            match = self._machine_tag.match(keyword)
+            if match:
+                yield keyword, match.groups()
+
 
 class MD_Int(MD_Value, int):
     def to_exif(self):

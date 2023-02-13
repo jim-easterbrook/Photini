@@ -982,27 +982,26 @@ class PhotiniUploader(QtWidgets.QWidget):
             if description:
                 params['meta']['description'] = '\n\n'.join(description)
             # keywords
-            keywords = ['uploaded:by=photini']
-            for keyword in image.metadata.keywords or []:
-                ns, predicate, value = self.machine_tag(keyword)
-                if (ns in ('flickr', 'ipernity')
-                        and predicate in ('photo_id', 'doc_id', 'id')):
-                    # Photini "internal" tag
-                    continue
-                keyword = keyword.replace('"', "'")
-                if ',' in keyword:
-                    keyword = '"' + keyword + '"'
-                keywords.append(keyword)
+            keywords = []
+            if image.metadata.keywords:
+                keywords = image.metadata.keywords.human_tags()
+                for keyword, (ns, predicate,
+                              value) in image.metadata.keywords.machine_tags():
+                    if (ns != self.user_widget.name or
+                            predicate not in ('photo_id', 'doc_id', 'id')):
+                        keywords.append(keyword)
+                keywords = [x.replace('"', "'") for x in keywords]
+                for n, keyword in enumerate(keywords):
+                    if ',' in keyword:
+                        keywords[n] = '"' + keyword + '"'
+            keywords.append('uploaded:by=photini')
             params['keywords'] = {'keywords': ','.join(keywords)}
         return params
 
     def replace_dialog(self, image, options, replace=True):
         # has image already been uploaded?
-        for keyword in image.metadata.keywords or []:
-            photo_id = self.uploaded_id(keyword)
-            if photo_id:
-                break
-        else:
+        photo_id = self.uploaded_id(image)
+        if not photo_id:
             # new upload
             return {'new_photo': True}, {}, None
         # get user preferences
@@ -1145,20 +1144,14 @@ class PhotiniUploader(QtWidgets.QWidget):
                         return candidate
         return None
 
-    _machine_tag = re.compile('^(.+):(.+)=(.+)$')
-
-    @classmethod
-    def machine_tag(cls, keyword):
-        match = cls._machine_tag.match(keyword)
-        if not match:
-            return None, None, None
-        return match.groups()
-
-    def uploaded_id(self, keyword):
-        ns, predicate, value = self.machine_tag(keyword)
-        if ns == self.user_widget.name and predicate in (
-                'photo_id', 'doc_id', 'id'):
-            return value
+    def uploaded_id(self, image):
+        if not image.metadata.keywords:
+            return None
+        for keyword, (ns, predicate,
+                      value) in image.metadata.keywords.machine_tags():
+            if ns == self.user_widget.name and predicate in (
+                    'photo_id', 'doc_id', 'id'):
+                return value
         return None
 
     @QtSlot()
@@ -1169,11 +1162,9 @@ class PhotiniUploader(QtWidgets.QWidget):
             photo_ids = {}
             unknowns = []
             for image in self.app.image_list.get_selected_images():
-                for keyword in image.metadata.keywords or []:
-                    photo_id = self.uploaded_id(keyword)
-                    if photo_id:
-                        photo_ids[photo_id] = image
-                        break
+                photo_id = self.uploaded_id(image)
+                if photo_id:
+                    photo_ids[photo_id] = image
                 else:
                     unknowns.append(image)
             with self.user_widget.session(parent=self) as session:
