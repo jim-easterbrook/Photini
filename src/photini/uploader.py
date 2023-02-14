@@ -85,7 +85,7 @@ class UploaderSession(QtCore.QObject):
             try:
                 return rsp.json()
             except Exception as ex:
-                logger.error(type(ex), str(ex))
+                print(type(ex), str(ex))
             logger.error('Response is not JSON')
             return {}
         return rsp

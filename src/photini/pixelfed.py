@@ -119,8 +119,13 @@ class PixelfedSession(UploaderSession):
                 data = MultipartEncoderMonitor(
                     MultipartEncoder(fields=fields), self.progress)
                 self.upload_progress.emit({'busy': False})
+                endpoint = '/api/v1/media'
+                if (self.client_data['version']['mastodon'] >= (3, 1, 3) or
+                    (self.client_data['version']['pixelfed'] and
+                     self.client_data['version']['pixelfed'] >= (0, 11, 3))):
+                    endpoint = '/api/v2/media'
                 rsp = self.api_call(
-                    '/api/v1/media', method='POST', data=data,
+                    endpoint, method='POST', data=data,
                     headers={'Content-Type': data.content_type})
             self.upload_progress.emit({'busy': True})
             if not rsp:
@@ -241,7 +246,7 @@ class PixelfedUser(UploaderUser):
                 session.api.get(icon_url), decode=False)
             yield 'user', (account['display_name'], rsp and rsp.content)
             # get instance info
-            self.version = {'mastodon': None, 'pixelfed': None}
+            self.client_data['version'] = {'mastodon': None, 'pixelfed': None}
             self.instance_config = session.api_call('/api/v1/instance')
             if not self.instance_config:
                 yield 'connected', False
@@ -252,20 +257,22 @@ class PixelfedUser(UploaderUser):
             logger.info('server version "%s"', version)
             match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['mastodon'] = tuple(int(x) for x in match.groups())
+                self.client_data['version']['mastodon'] = tuple(
+                    int(x) for x in match.groups())
             match = re.search(r'Pixelfed\s+(\d+)\.(\d+)\.(\d+)', version)
             if match:
-                self.version['pixelfed'] = tuple(int(x) for x in match.groups())
+                self.client_data['version']['pixelfed'] = tuple(
+                    int(x) for x in match.groups())
             self.unavailable['albums'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (0, 11, 4))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 11, 4))
             self.unavailable['comments_disabled'] = self.unavailable['albums']
             self.unavailable['license'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (0, 11, 1))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 11, 1))
             self.unavailable['new_album'] = not (
-                self.version['pixelfed']
-                and self.version['pixelfed'] >= (99, 0, 0))
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (99, 0, 0))
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
                 'image': {'bytes': media['image_size_limit'],
@@ -283,7 +290,7 @@ class PixelfedUser(UploaderUser):
                     prefs['posting:default:sensitive'])
                 widgets['visibility'].set_value(
                     prefs['posting:default:visibility'])
-            if self.version['pixelfed']:
+            if self.client_data['version']['pixelfed']:
                 self.compose_settings = session.api_call(
                     '/api/v1.1/compose/settings')
                 if 'default_license' in self.compose_settings:
@@ -432,7 +439,8 @@ class PixelfedUser(UploaderUser):
         self.connection_changed.emit(True)
 
     def unauthorise(self):
-        if self.version['pixelfed'] and self.version['pixelfed'] < (0, 12):
+        if (self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] < (0, 12)):
             return
         data = {
             'client_id': self.client_data['client_id'],
