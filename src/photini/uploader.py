@@ -75,14 +75,17 @@ class UploaderSession(QtCore.QObject):
     def check_response(rsp, decode=True):
         try:
             rsp.raise_for_status()
-            if decode:
-                return rsp.json()
-            return rsp
         except UploadAborted:
             raise
         except Exception as ex:
             logger.error(str(ex))
             return {}
+        if decode:
+            if rsp.headers['Content-Type'] == 'application/json':
+                return rsp.json()
+            logger.error('Response is not JSON')
+            return {}
+        return rsp
 
     def progress(self, monitor):
         self.upload_progress.emit(
