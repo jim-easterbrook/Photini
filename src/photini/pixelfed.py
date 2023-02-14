@@ -66,6 +66,23 @@ class PixelfedSession(UploaderSession):
         self.user_data['token'] = token
         self.new_token.emit(token)
 
+    @staticmethod
+    def check_response(rsp, decode=True):
+        try:
+            rsp.raise_for_status()
+            # some wrong api calls return the instance home page
+            if rsp.headers['Content-Type'].startswith('text/html'):
+                logger.error('Response is HTML')
+                return {}
+            if decode:
+                rsp = rsp.json()
+        except UploadAborted:
+            raise
+        except Exception as ex:
+            logger.error(str(ex))
+            return {}
+        return rsp
+
     def api_call(self, endpoint, method='GET', **params):
         self.open_connection()
         url = self.client_data['api_base_url'] + endpoint
