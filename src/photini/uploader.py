@@ -50,6 +50,7 @@ class UploadAborted(Exception):
 
 
 class UploaderSession(QtCore.QObject):
+    abort_upload = QtSignal()
     upload_progress = QtSignal(dict)
     new_token = QtSignal(dict)
     headers = {'User-Agent': 'Photini/' + __version__}
@@ -81,8 +82,10 @@ class UploaderSession(QtCore.QObject):
             logger.error(str(ex))
             return {}
         if decode:
-            if rsp.headers['Content-Type'] == 'application/json':
+            try:
                 return rsp.json()
+            except Exception as ex:
+                logger.error(type(ex), str(ex))
             logger.error('Response is not JSON')
             return {}
         return rsp
@@ -92,11 +95,44 @@ class UploaderSession(QtCore.QObject):
             {'value': monitor.bytes_read * 100 // monitor.len})
 
     def upload_files(self, upload_list):
+        upload_count = 0
         for image, convert, params in upload_list:
-            # UploadWorker converts image to fileobj
-            fileobj, image_type = yield image, convert
-            # UploadWorker forwards errors to user
-            yield self.do_upload(fileobj, image_type, image, params)
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
+            with self.open_file(image, convert) as (image_type, fileobj):
+                error = self.do_upload(fileobj, image_type, image, params)
+            if error:
+                self.upload_progress.emit({'error': (image, error)})
+
+    @contextmanager
+    def open_file(self, image, convert):
+        if convert:
+            exiv_image, image_type = convert(image)
+            exiv_io = exiv_image.io()
+            exiv_io.open()
+            fileobj = AbortableFileReader(
+                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
+            self.abort_upload.connect(
+                fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+            try:
+                yield image_type, fileobj
+            finally:
+                fileobj.close()
+                exiv_io.munmap()
+                exiv_io.close()
+        else:
+            fileobj = AbortableFileReader(
+                open(image.path, 'rb'), os.stat(image.path).st_size,
+                parent=self)
+            self.abort_upload.connect(
+                fileobj.abort_upload, Qt.ConnectionType.DirectConnection)
+            try:
+                yield image.file_type, fileobj
+            finally:
+                fileobj.close()
 
 
 class AbortableFileReader(QtCore.QObject):
@@ -130,80 +166,29 @@ class AbortableFileReader(QtCore.QObject):
 
 class UploadWorker(QtCore.QObject):
     finished = QtSignal()
-    upload_error = QtSignal(str, str)
     upload_progress = QtSignal(dict)
-    _abort_upload = QtSignal()
+    abort_upload = QtSignal()
 
     def __init__(self, session, upload_list, *args, **kwds):
         super(UploadWorker, self).__init__(*args, **kwds)
         self.session = session
         self.upload_list = upload_list
 
-    @contextmanager
-    def open_file(self, image, convert):
-        if convert:
-            exiv_image, image_type = convert(image)
-            exiv_io = exiv_image.io()
-            exiv_io.open()
-            fileobj = AbortableFileReader(
-                io.BytesIO(exiv_io.mmap()), exiv_io.size(), parent=self)
-            try:
-                yield image_type, fileobj
-            finally:
-                fileobj.close()
-                exiv_io.munmap()
-                exiv_io.close()
-        else:
-            fileobj = AbortableFileReader(
-                open(image.path, 'rb'), os.stat(image.path).st_size,
-                parent=self)
-            try:
-                yield image.file_type, fileobj
-            finally:
-                fileobj.close()
-
     @QtSlot()
     @catch_all
     def start(self):
         with self.session(parent=self) as session:
             session.upload_progress.connect(self.upload_progress)
-            uploader = session.upload_files(self.upload_list)
-            upload_count = 1
-            while True:
-                try:
-                    image, convert = uploader.send(None)
-                except StopIteration:
-                    break
-                name = os.path.basename(image.path)
-                self.upload_progress.emit({
-                    'label': '{} ({}/{})'.format(
-                        name, upload_count, len(self.upload_list)),
-                    'busy': True})
-                try:
-                    with self.open_file(
-                            image, convert) as (image_type, fileobj):
-                        self._abort_upload.connect(
-                            fileobj.abort_upload,
-                            Qt.ConnectionType.DirectConnection)
-                        error = uploader.send((fileobj, image_type))
-                except UploadAborted:
-                    break
-                except RuntimeError as ex:
-                    error = str(ex)
-                except Exception as ex:
-                    logger.exception(ex)
-                    error = '{}: {}'.format(type(ex), str(ex))
-                self.upload_progress.emit({'busy': False})
-                if error:
-                    self.upload_error.emit(name, error)
-                upload_count += 1
+            self.abort_upload.connect(
+                session.abort_upload, Qt.ConnectionType.DirectConnection)
+            try:
+                session.upload_files(self.upload_list)
+            except UploadAborted:
+                pass
+            except Exception as ex:
+                logger.exception(ex)
         self.upload_progress.emit({'value': 0, 'label': None, 'busy': False})
         self.finished.emit()
-
-    @QtSlot()
-    @catch_all
-    def abort_upload(self):
-        self._abort_upload.emit()
 
 
 class AuthRequestHandler(BaseHTTPRequestHandler):
@@ -851,8 +836,6 @@ class PhotiniUploader(QtWidgets.QWidget):
         self.upload_worker = UploadWorker(self.user_widget.session, upload_list)
         thread = QtCore.QThread(self)
         self.upload_worker.moveToThread(thread)
-        self.upload_worker.upload_error.connect(
-            self.upload_error, Qt.ConnectionType.BlockingQueuedConnection)
         self.abort_upload.connect(
             self.upload_worker.abort_upload, Qt.ConnectionType.DirectConnection)
         self.upload_worker.upload_progress.connect(self.upload_progress)
@@ -887,9 +870,10 @@ class PhotiniUploader(QtWidgets.QWidget):
             else:
                 self.progress_label.setText(
                     translate('UploaderTabsAll', 'Progress'))
+        if 'error' in update:
+            image, error = update['error']
+            self.upload_error(os.path.basename(image.path), error)
 
-    @QtSlot(str, str)
-    @catch_all
     def upload_error(self, name, error):
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle(

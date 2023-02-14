@@ -201,21 +201,45 @@ class FlickrSession(UploaderSession):
         return ''
 
     def upload_files(self, upload_list):
+        upload_count = 0
         for image, convert, params in upload_list:
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
             photo_id = params['photo_id']
-            upload_data = {}
             if params['function']:
                 # upload or replace photo
+                data = {'async': '1'}
                 if params['function'] == 'upload':
                     # set some metadata with upload function
                     for key in ('privacy', 'content_type', 'hidden',
                                 'safety_level', 'meta'):
-                        upload_data.update(params[key])
+                        data.update(params[key])
                         del params[key]
                 else:
                     # replace existing photo
-                    upload_data['photo_id'] = photo_id
-                upload_data['async'] = '1'
+                    data['photo_id'] = photo_id
+                url = 'https://up.flickr.com/services/{}/'.format(
+                    params['function'])
+                with self.open_file(image, convert) as (image_type, fileobj):
+                    error, photo_id = self.upload_image(
+                        url, data, fileobj, image_type)
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
+                    continue
+                # store photo id in image keywords, in main thread
+                self.upload_progress.emit({
+                    'keyword': (image, 'flickr:id=' + photo_id)})
+                if image_type.startswith('video'):
+                    # can't set permissions or privacy while video is
+                    # being processed
+                    if 'privacy' in params:
+                        del params['privacy']
+                    if 'permissions' in params:
+                        del params['permissions']
+            # set metadata after uploading image
             if 'hidden' in params:
                 # flickr.photos.setSafetyLevel has different 'hidden' values
                 # than upload function
@@ -228,36 +252,15 @@ class FlickrSession(UploaderSession):
                 del params['privacy']
             if 'keywords' in params:
                 params['keywords'] = {'tags': params['keywords']['keywords']}
-            error = ''
-            if not upload_data:
-                # no image conversion required
-                convert = None
-            # UploadWorker converts image to fileobj
-            fileobj, image_type = yield image, convert
-            if upload_data:
-                # upload or replace photo
-                url = 'https://up.flickr.com/services/{}/'.format(
-                    params['function'])
-                error, photo_id = self.upload_image(
-                    url, upload_data, fileobj, image_type)
-                if not error:
-                    # store photo id in image keywords, in main thread
-                    self.upload_progress.emit({
-                        'keyword': (image, 'flickr:id=' + photo_id)})
-            # set metadata after uploading image
-            if not error:
-                if image_type.startswith('video'):
-                    # can't set permissions or privacy while video
-                    # is being processed
-                    if 'privacy' in params:
-                        del params['privacy']
-                    if 'permissions' in params:
-                        del params['permissions']
-                error = self.set_metadata(params, photo_id)
+            error = self.set_metadata(params, photo_id)
+            if error:
+                self.upload_progress.emit({'error': (image, error)})
+                continue
             # add to or remove from albums
-            if 'albums' in params and not error:
+            if 'albums' in params:
                 error = self.set_albums(params, photo_id)
-            yield error
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
 
 
 class HiddenWidget(QtWidgets.QCheckBox):

@@ -180,45 +180,48 @@ class IpernitySession(UploaderSession):
         return ''
 
     def upload_files(self, upload_list):
+        upload_count = 0
         for image, convert, params in upload_list:
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
             doc_id = params['doc_id']
-            upload_data = {}
             if params['function']:
                 # upload or replace photo
+                data = {'async': '1'}
                 if params['function'] == 'upload.file':
                     # set some metadata with upload function
                     for key in ('visibility', 'permissions', 'licence', 'meta',
                                 'dates', 'location'):
                         if key in params and params[key]:
-                            upload_data.update(params[key])
-                            del(params[key])
+                            data.update(params[key])
+                            del params[key]
                 else:
-                    upload_data['doc_id'] = doc_id
-                upload_data['async'] = '1'
+                    data['doc_id'] = doc_id
+                with self.open_file(image, convert) as (image_type, fileobj):
+                    error, doc_id = self.upload_image(
+                        params, data, fileobj, image_type)
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
+                    continue
+                # store photo id in image keywords, in main thread
+                self.upload_progress.emit({
+                    'keyword': (image, 'ipernity:id=' + doc_id)})
+            # set remaining metadata after uploading image
             if 'visibility' in params and 'permissions' in params:
                 params['permissions'].update(params['visibility'])
                 del params['visibility']
-            error = ''
-            if not upload_data:
-                # no image conversion required
-                convert = None
-            # UploadWorker converts image to fileobj
-            fileobj, image_type = yield image, convert
-            if upload_data:
-                # upload or replace photo
-                error, doc_id = self.upload_image(
-                    params, upload_data, fileobj, image_type)
-                if not error:
-                    # store photo id in image keywords, in main thread
-                    self.upload_progress.emit({
-                        'keyword': (image, 'ipernity:id=' + doc_id)})
-            # set remaining metadata after uploading image
-            if not error:
-                error = self.set_metadata(params, doc_id)
+            error = self.set_metadata(params, doc_id)
+            if error:
+                self.upload_progress.emit({'error': (image, error)})
+                continue
             # add to or remove from albums
-            if 'albums' in params and not error:
+            if 'albums' in params:
                 error = self.set_albums(params, doc_id)
-            yield error
+                if error:
+                    self.upload_progress.emit({'error': (image, error)})
 
 
 class PermissionWidget(DropDownSelector):
@@ -271,6 +274,8 @@ class IpernityUser(UploaderUser):
                     self.max_size = {'image': {'bytes': (2 ** 20) * 5 // 2},
                                      'video': {'bytes': 0}}
                 connected = rsp['auth']['permissions']['doc'] == 'write'
+            else:
+                connected = False
             yield 'connected', connected
             # get user icon
             rsp = session.api_call(

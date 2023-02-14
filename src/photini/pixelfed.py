@@ -79,37 +79,42 @@ class PixelfedSession(UploaderSession):
         return rsp
 
     def upload_files(self, upload_list):
+        # update previous upload(s)
         media_ids = []
-        remaining = len(upload_list)
-        licence = None
         for image, convert, params in upload_list:
-            default_licence = params['default_license']
-            licence = licence or default_licence
-            remaining -= 1
-            do_media = True
-            do_status = bool(media_ids) and remaining == 0
-            if 'media_id' in params:
-                # no upload, just replace description
-                do_media = False
-                convert = None
-            error = ''
-            # UploadWorker converts image to fileobj
-            fileobj, image_type = yield image, convert
             if 'media_id' in params:
                 rsp = self.api_call(
                     '/api/v1/media/{media_id}'.format(**params),
                     'PUT', data=params['media'])
                 if not rsp:
-                    error = 'Replace alt text failed'
-            elif do_media:
-                # set licence
-                if params['license'] != licence:
+                    self.upload_progress.emit({
+                        'error': (image, 'Replace alt text failed')})
+                media_ids.append(params['media_id'])
+        if media_ids:
+            # don't mix updates and new uploads
+            return
+        # do actual upload
+        media_ids = []
+        licence = None
+        upload_count = 0
+        for image, convert, params in upload_list:
+            upload_count += 1
+            self.upload_progress.emit({
+                'label': '{} ({}/{})'.format(os.path.basename(image.path),
+                                             upload_count, len(upload_list)),
+                'busy': True})
+            default_licence = params['default_license']
+            licence = licence or default_licence
+            # set licence
+            if params['license'] != licence:
+                data = {'license': params['license']}
+                rsp = self.api_call(
+                    '/api/v1/accounts/update_credentials', 'PATCH', data=data)
+                if rsp:
                     licence = params['license']
-                    data = {'license': licence}
-                    self.api_call('/api/v1/accounts/update_credentials',
-                                  'PATCH', data=data)
-                # upload fileobj
-                fields = dict(params['media'])
+            # upload media
+            fields = dict(params['media'])
+            with self.open_file(image, convert) as (image_type, fileobj):
                 fields['file'] = (params['file_name'], fileobj, image_type)
                 data = MultipartEncoderMonitor(
                     MultipartEncoder(fields=fields), self.progress)
@@ -117,30 +122,27 @@ class PixelfedSession(UploaderSession):
                 rsp = self.api_call(
                     '/api/v1/media', method='POST', data=data,
                     headers={'Content-Type': data.content_type})
-                self.upload_progress.emit({'busy': True})
-                if rsp:
-                    media_ids.append(rsp['id'])
-                    do_media = False
-                    convert = None
-                    # store photo id in image keywords, in main thread
-                    self.upload_progress.emit({
-                        'keyword': (image, '{}:id={}'.format(
-                            self.client_data['name'], rsp['id']))})
-                else:
-                    error = 'Image upload failed'
-            if do_status and not error:
-                data = dict(params['status'])
-                data['media_ids[]'] = media_ids
-                rsp = self.api_call(
-                    '/api/v1/statuses', method='POST', data=data)
-                if not rsp:
-                    error = 'Post status failed'
-            yield error
+            self.upload_progress.emit({'busy': True})
+            if not rsp:
+                self.upload_progress.emit({
+                    'error': (image, 'Image upload failed')})
+                return
+            media_ids.append(rsp['id'])
+            # store photo id in image keywords, in main thread
+            self.upload_progress.emit({
+                'keyword': (image, '{}:id={}'.format(
+                    self.client_data['name'], rsp['id']))})
         # reset licence
         if licence != default_licence:
             data = {'license': default_licence}
-            self.api_call('/api/v1/accounts/update_credentials',
-                          'PATCH', data=data)
+            rsp = self.api_call(
+                '/api/v1/accounts/update_credentials', 'PATCH', data=data)
+        # upload status
+        data = dict(params['status'])
+        data['media_ids[]'] = media_ids
+        rsp = self.api_call('/api/v1/statuses', method='POST', data=data)
+        if not rsp:
+            self.upload_progress.emit({'error': (image, 'Post status failed')})
 
 
 class ChooseInstance(QtWidgets.QDialog):
