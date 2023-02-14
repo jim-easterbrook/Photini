@@ -751,6 +751,8 @@ class TabWidget(PhotiniUploader):
                     'thumb_list'].max_media_attachments
                 and not self.buttons['upload'].is_checked()):
             self.buttons['upload'].setEnabled(False)
+        self.widget['auto_status'].setEnabled(
+            self.buttons['upload'].isEnabled())
         self.widget['thumb_list'].new_selection(selection)
 
     @QtSlot()
