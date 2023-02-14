@@ -120,18 +120,7 @@ class IpernitySession(UploaderSession):
         # parse response
         if rsp['api']['status'] != 'ok':
             return params['function'] + ' ' + str(rsp['api']), None
-        ticket = rsp['ticket']
-        # wait for processing to finish
-        # upload.checkTickets returns an eta but it's very
-        # unreliable (e.g. saying 360 seconds for something that
-        # then takes 15). Easier to poll every two seconds.
-        while True:
-            time.sleep(2)
-            rsp = self.api_call('upload.checkTickets', tickets=ticket)
-            if not rsp:
-                return 'Wait for processing failed', None
-            if rsp['tickets']['done'] != '0':
-                return '', rsp['tickets']['ticket'][0]['doc_id']
+        return '', rsp['ticket']
 
     metadata_set_func = {
         'visibility' : 'doc.setPerms',
@@ -143,6 +132,9 @@ class IpernitySession(UploaderSession):
         }
 
     def set_metadata(self, params, doc_id):
+        if 'visibility' in params and 'permissions' in params:
+            params['permissions'].update(params['visibility'])
+            del params['visibility']
         for key in list(params):
             if params[key] and key in self.metadata_set_func:
                 rsp = self.api_call(self.metadata_set_func[key], post=True,
@@ -181,47 +173,78 @@ class IpernitySession(UploaderSession):
 
     def upload_files(self, upload_list):
         upload_count = 0
-        for image, convert, params in upload_list:
-            upload_count += 1
-            self.upload_progress.emit({
-                'label': '{} ({}/{})'.format(os.path.basename(image.path),
-                                             upload_count, len(upload_list)),
-                'busy': True})
-            doc_id = params['doc_id']
-            if params['function']:
-                # upload or replace photo
-                data = {'async': '1'}
-                if params['function'] == 'upload.file':
-                    # set some metadata with upload function
-                    for key in ('visibility', 'permissions', 'licence', 'meta',
-                                'dates', 'location'):
-                        if key in params and params[key]:
-                            data.update(params[key])
-                            del params[key]
+        uploads = list(upload_list)
+        tickets = {}
+        metadata = []
+        ticket_poll = 0.0
+        while uploads or tickets or metadata:
+            if uploads:
+                # upload an image
+                image, convert, params = uploads.pop(0)
+                upload_count += 1
+                self.upload_progress.emit({
+                    'label': '{} ({}/{})'.format(
+                        os.path.basename(image.path),
+                        upload_count, len(upload_list)),
+                    'busy': True})
+                if params['function']:
+                    # upload or replace photo
+                    data = {'async': '1'}
+                    if params['function'] == 'upload.file':
+                        # set some metadata with upload function
+                        for key in ('visibility', 'permissions', 'licence',
+                                    'meta', 'dates', 'location'):
+                            if key in params and params[key]:
+                                data.update(params[key])
+                                del params[key]
+                    else:
+                        data['doc_id'] = params['doc_id']
+                    with self.open_file(
+                            image, convert) as (image_type, fileobj):
+                        error, ticket = self.upload_image(
+                            params, data, fileobj, image_type)
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
+                        continue
+                    # add ticket and details to ticket queue
+                    tickets[ticket] = image, params
                 else:
-                    data['doc_id'] = doc_id
-                with self.open_file(image, convert) as (image_type, fileobj):
-                    error, doc_id = self.upload_image(
-                        params, data, fileobj, image_type)
+                    # add details to metadata queue
+                    metadata.append((image, params))
+            if tickets:
+                # check images currently being processed
+                pause = ticket_poll - time.time()
+                if pause > 0:
+                    time.sleep(pause)
+                ticket_poll = time.time() + 2.0
+                rsp = self.api_call('upload.checkTickets',
+                                    tickets=','.join(tickets.keys()))
+                if not rsp:
+                    self.upload_progress.emit({
+                        'error': (image, 'Wait for processing failed')})
+                for ticket in rsp['tickets']['ticket']:
+                    if not ('done' in ticket and ticket['done'] == '1'):
+                        continue
+                    image, params = tickets[ticket['id']]
+                    params['doc_id'] = ticket['doc_id']
+                    del tickets[ticket['id']]
+                    # add details to metadata queue
+                    metadata.append((image, params))
+                    # store photo id in image keywords, in main thread
+                    self.upload_progress.emit({
+                        'keyword': (image, 'ipernity:id=' + params['doc_id'])})
+            while metadata:
+                # set remaining metadata after uploading images
+                image, params = metadata.pop(0)
+                error = self.set_metadata(params, params['doc_id'])
                 if error:
                     self.upload_progress.emit({'error': (image, error)})
                     continue
-                # store photo id in image keywords, in main thread
-                self.upload_progress.emit({
-                    'keyword': (image, 'ipernity:id=' + doc_id)})
-            # set remaining metadata after uploading image
-            if 'visibility' in params and 'permissions' in params:
-                params['permissions'].update(params['visibility'])
-                del params['visibility']
-            error = self.set_metadata(params, doc_id)
-            if error:
-                self.upload_progress.emit({'error': (image, error)})
-                continue
-            # add to or remove from albums
-            if 'albums' in params:
-                error = self.set_albums(params, doc_id)
-                if error:
-                    self.upload_progress.emit({'error': (image, error)})
+                # add to or remove from albums
+                if 'albums' in params:
+                    error = self.set_albums(params, params['doc_id'])
+                    if error:
+                        self.upload_progress.emit({'error': (image, error)})
 
 
 class PermissionWidget(DropDownSelector):
