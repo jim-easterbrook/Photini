@@ -28,10 +28,9 @@ from requests_oauthlib import OAuth2Session
 from requests_toolbelt import MultipartEncoder, MultipartEncoderMonitor
 
 from photini.configstore import BaseConfigStore, key_store
-from photini.pyqt import (
-    catch_all, execute, FormLayout, Qt, QtCore, QtSignal, QtSlot, QtWidgets,
-    width_for_text)
-from photini.uploader import PhotiniUploader, UploaderSession, UploaderUser
+from photini.pyqt import *
+from photini.uploader import (
+    PhotiniUploader, UploadAborted, UploaderSession, UploaderUser)
 from photini.widgets import (
     DropDownSelector, Label, MultiLineEdit, SingleLineEdit)
 
@@ -96,21 +95,6 @@ class PixelfedSession(UploaderSession):
         return rsp
 
     def upload_files(self, upload_list):
-        # update previous upload(s)
-        media_ids = []
-        for image, convert, params in upload_list:
-            if 'media_id' in params:
-                rsp = self.api_call(
-                    '/api/v1/media/{media_id}'.format(**params),
-                    'PUT', data=params['media'])
-                if not rsp:
-                    self.upload_progress.emit({
-                        'error': (image, 'Replace alt text failed')})
-                media_ids.append(params['media_id'])
-        if media_ids:
-            # don't mix updates and new uploads
-            return
-        # do actual upload
         media_ids = []
         licence = None
         upload_count = 0
@@ -290,6 +274,9 @@ class PixelfedUser(UploaderUser):
             self.unavailable['new_album'] = not (
                 self.client_data['version']['pixelfed']
                 and self.client_data['version']['pixelfed'] >= (99, 0, 0))
+            self.unavailable['sync_remote'] = not (
+                self.client_data['version']['pixelfed']
+                and self.client_data['version']['pixelfed'] >= (0, 10, 6))
             media = self.instance_config['configuration']['media_attachments']
             self.max_size = {
                 'image': {'bytes': media['image_size_limit'],
@@ -642,6 +629,11 @@ class TabWidget(PhotiniUploader):
             translate('PixelfedTab', 'New collection'))
         self.widget['new_album'].clicked.connect(self.new_album)
         column.addWidget(self.widget['new_album'], 1, 0)
+        # update alt text
+        self.widget['sync_remote'] = QtWidgets.QPushButton(
+            translate('PixelfedTab', 'Update remote'))
+        self.widget['sync_remote'].clicked.connect(self.sync_remote)
+        column.addWidget(self.widget['sync_remote'], 2, 0)
         yield column, 0
         ## last column is list of albums
         yield self.album_list(
@@ -682,10 +674,28 @@ class TabWidget(PhotiniUploader):
     def get_selected_images(self):
         return self.widget['thumb_list'].image_selection
 
-    def get_upload_params(self, image):
-        params = {'media': {}, 'status': {}}
-        params['file_name'] = os.path.basename(image.path)
-        # 'description' is the ALT text for an image
+    @QtSlot()
+    @catch_all
+    def sync_remote(self):
+        image_list = {}
+        for image in self.app.image_list.get_selected_images():
+            if not image.metadata.keywords:
+                continue
+            for keyword, (ns, predicate,
+                          value) in image.metadata.keywords.machine_tags():
+                if ns != self.user_widget.name or predicate != 'id':
+                    continue
+                image_list[value] = image
+        if not image_list:
+            return
+        with Busy():
+            with self.user_widget.session(parent=self) as session:
+                for media_id, image in image_list.items():
+                    data = {'description': self.alt_text(image)}
+                    session.api_call(
+                        '/api/v1/media/{}'.format(media_id), 'PUT', data=data)
+
+    def alt_text(self, image):
         description = []
         lang = self.user_widget.user_data['lang']
         max_len = int(self.user_widget.compose_settings['max_altext_length'])
@@ -698,8 +708,16 @@ class TabWidget(PhotiniUploader):
             if len(text) <= max_len:
                 description.append(text)
         if description:
-            params['media']['description'] = '\n\n'.join(description)
-        elif self.user_widget.compose_settings['media_descriptions']:
+            return '\n\n'.join(description)
+        return ''
+
+    def get_upload_params(self, image):
+        params = {'media': {}, 'status': {}}
+        params['file_name'] = os.path.basename(image.path)
+        # 'description' is the ALT text for an image
+        params['media']['description'] = self.alt_text(image)
+        if (self.user_widget.compose_settings['media_descriptions']
+                and not params['media']['description']):
             if QtWidgets.QMessageBox.warning(
                     self,
                     translate('PixelfedTab', 'Photini: no alt text'),
@@ -727,25 +745,12 @@ class TabWidget(PhotiniUploader):
             album_ids = self.widget['albums'].get_checked_ids()
             if album_ids:
                 params['status']['collection_ids[]'] = album_ids
-        # check for already uploaded image
-        upload_prefs, replace_prefs, media_id = self.replace_dialog(image)
-        if not upload_prefs:
-            # user cancelled dialog or chose to do nothing
-            return None
-        if 'no_upload' in upload_prefs:
-            if replace_prefs['description']:
-                params['media_id'] = media_id
         return params
-
-    def replace_dialog(self, image):
-        return super(TabWidget, self).replace_dialog(image, (
-            ('description',
-             translate('PixelfedTab', 'Replace accessibility alt text')),
-            ), replace=False)
 
     def enable_upload_button(self, selection=None):
         selection = selection or self.app.image_list.get_selected_images()
         super(TabWidget, self).enable_upload_button(selection=selection)
+        self.widget['sync_remote'].setEnabled(bool(selection))
         if (self.buttons['upload'].isEnabled()
                 and len(selection) > self.widget[
                     'thumb_list'].max_media_attachments
